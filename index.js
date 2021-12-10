@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 
-var whitelist = ['http://localhost:3000', 'https://sws-pocket.web.app', 'https://sws-pocket.firebaseapp.com']
+var whitelist = ['https://sws-pocket.web.app', 'https://sws-pocket.firebaseapp.com', 'https://sws-pocket--staging-33ohkz1c.web.app']
 var corsOptionsDelegate = function (req, callback) {
   var corsOptions;
   if (whitelist.indexOf(req.header('Origin')) !== -1) {
@@ -14,12 +14,14 @@ var corsOptionsDelegate = function (req, callback) {
 
 // Route import
 var swsPocketRoute = require('./sws-pocket/sws-pocket');
+var lmmoaRoute = require('./lmm-oa/lmm-oa');
 
 const app = express();
 
 app.disable('x-powered-by');
 app.use(cors(corsOptionsDelegate));
 app.use('/api/sws-pocket', swsPocketRoute)
+app.use('/api/lmm-oa', lmmoaRoute)
 
 const port = process.env.PORT || 8000;
 
