@@ -1,13 +1,23 @@
 const express = require('express');
 const cors = require('cors');
 
-var whitelist = ['https://sws-pocket.web.app', 'https://sws-pocket.firebaseapp.com', /https://sws-pocket--staging-.+.web.app/i]
+var whitelist = ['https://sws-pocket.web.app', 'https://sws-pocket.firebaseapp.com']
 var corsOptionsDelegate = function (req, callback) {
   var corsOptions;
-  if (whitelist.indexOf(req.header('Origin')) !== -1) {
+  const reqHeaderOrigin = req.header('Origin');
+  if (whitelist.indexOf(reqHeaderOrigin) !== -1) {
     corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
   } else {
-    corsOptions = { origin: false } // disable CORS for this request
+    const prefixStagingSWS = "https://sws-pocket--staging-";
+    const suffixStagingSWS = ".web.app";
+    
+    reqHeaderOrigin = reqHeaderOrigin.toLowerCase(); // if case is not important
+
+    if (reqHeaderOrigin.indexOf(prefixStagingSWS)===0 && reqHeaderOrigin.endsWith(suffixStagingSWS)){
+      corsOptions = { origin: true }
+    } else {
+      corsOptions = { origin: false } // disable CORS for this request
+    }
   }
   callback(null, corsOptions) // callback expects two parameters: error and options
 }
