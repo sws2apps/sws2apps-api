@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 
-var whitelist = ['https://sws-pocket.web.app', 'https://sws-pocket.firebaseapp.com', 'https://sws-pocket--staging-33ohkz1c.web.app']
+var whitelist = ['https://sws-pocket.web.app', 'https://sws-pocket.firebaseapp.com', /https://sws-pocket--staging-.+.web.app/i]
 var corsOptionsDelegate = function (req, callback) {
   var corsOptions;
   if (whitelist.indexOf(req.header('Origin')) !== -1) {
