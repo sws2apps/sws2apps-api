@@ -10,8 +10,6 @@ var corsOptionsDelegate = function (req, callback) {
   } else {
     const prefixStagingSWS = "https://sws-pocket--staging-";
     const suffixStagingSWS = ".web.app";
-    
-    reqHeaderOrigin = reqHeaderOrigin.toLowerCase(); // if case is not important
 
     if (reqHeaderOrigin.indexOf(prefixStagingSWS)===0 && reqHeaderOrigin.endsWith(suffixStagingSWS)){
       corsOptions = { origin: true }
