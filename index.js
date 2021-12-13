@@ -5,6 +5,7 @@ var whitelist = ['https://sws-pocket.web.app', 'https://sws-pocket.firebaseapp.c
 var corsOptionsDelegate = function (req, callback) {
   var corsOptions;
   const reqHeaderOrigin = req.header('Origin');
+  console.log(reqHeaderOrigin);
   if (whitelist.indexOf(reqHeaderOrigin) !== -1) {
     corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
   } else {
