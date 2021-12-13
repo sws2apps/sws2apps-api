@@ -4,14 +4,15 @@ const cors = require('cors');
 var whitelist = ['https://sws-pocket.web.app', 'https://sws-pocket.firebaseapp.com']
 var corsOptionsDelegate = function (req, callback) {
   var corsOptions;
-  const reqHeaderOrigin = req.header('Origin');
-  console.log(req);
-  if (whitelist.indexOf(reqHeaderOrigin) !== -1) {
+  if (whitelist.indexOf(req.header('Origin')) !== -1) {
     corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
   } else {
     const prefixStagingSWS = "https://sws-pocket--staging-";
     const suffixStagingSWS = ".web.app";
-
+    
+    const reqHeaderOrigin = req.headers.origin;
+    console.log(reqHeaderOrigin);
+    
     if (reqHeaderOrigin.indexOf(prefixStagingSWS)===0 && reqHeaderOrigin.endsWith(suffixStagingSWS)){
       corsOptions = { origin: true }
     } else {
