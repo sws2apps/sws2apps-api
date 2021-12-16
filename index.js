@@ -2,25 +2,29 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser')
 
-var whitelist = ['https://sws-pocket.web.app', 'https://sws-pocket.firebaseapp.com', 'https://lmm-oa-sws.web.app', 'https://lmm-oa-sws.firebaseapp.com', 'https://staging-sws2apps.herokuapp.com']
+var whitelist = ['https://sws-pocket.web.app', 'https://sws-pocket.firebaseapp.com', 'https://lmm-oa-sws.web.app', 'https://lmm-oa-sws.firebaseapp.com']
 var corsOptionsDelegate = function (req, callback) {
   var corsOptions;
   const reqOrigin = req.header('Origin');
-  if (whitelist.indexOf(reqOrigin) !== -1) {
-    corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
-  } else {
-    // allow alpha & beta release
-    if (reqOrigin.startsWith("https://lmm-oa-sws--alpha") && reqOrigin.endsWith(".web.app")) {
-      corsOptions = { origin: true }
-    } else if (reqOrigin.startsWith("https://lmm-oa-sws--beta") && reqOrigin.endsWith(".web.app")) {
-      corsOptions = { origin: true }
-    } else if (reqOrigin.startsWith("https://sws-pocket--alpha") && reqOrigin.endsWith(".web.app")) {
-      corsOptions = { origin: true }
-    } else if (reqOrigin.startsWith("https://sws-pocket--beta") && reqOrigin.endsWith(".web.app")) {
-      corsOptions = { origin: true }
+  if (reqOrigin) {
+    if (whitelist.indexOf(reqOrigin) !== -1) {
+      corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
     } else {
-      corsOptions = { origin: false } // disable CORS for this request
+      // allow alpha & beta release
+      if (reqOrigin.startsWith("https://lmm-oa-sws--alpha") && reqOrigin.endsWith(".web.app")) {
+        corsOptions = { origin: true }
+      } else if (reqOrigin.startsWith("https://lmm-oa-sws--beta") && reqOrigin.endsWith(".web.app")) {
+        corsOptions = { origin: true }
+      } else if (reqOrigin.startsWith("https://sws-pocket--alpha") && reqOrigin.endsWith(".web.app")) {
+        corsOptions = { origin: true }
+      } else if (reqOrigin.startsWith("https://sws-pocket--beta") && reqOrigin.endsWith(".web.app")) {
+        corsOptions = { origin: true }
+      } else {
+        corsOptions = { origin: false } // disable CORS for this request
+      }
     }
+  } else {
+    corsOptions = { origin: false }
   }
   callback(null, corsOptions) // callback expects two parameters: error and options
 }
