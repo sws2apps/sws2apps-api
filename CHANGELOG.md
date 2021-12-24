@@ -1,3 +1,10 @@
+# 1.0.0 (2021-12-24)
+
+
+### Features
+
+* initiall release ([49876e6](https://github.com/sws2apps/sws2apps-api/commit/49876e6105dd362a6c143a1e875feda53fbe8382))
+
 # [1.0.0-beta.3](https://github.com/sws2apps/sws2apps-api/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2021-12-24)
 
 
