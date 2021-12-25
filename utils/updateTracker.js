@@ -2,6 +2,7 @@ require('../firebase-config'); //load firebase admin SDK
 const { getFirestore } = require('firebase-admin/firestore'); //load firestore SDK
 const db = getFirestore(); //get default database
 
+// only run this function if in production
 module.exports = async (clientIp, data) => {
     if (process.env.NODE_ENV === 'production') {
         const reqTrackRef = db.collection('request_tracker').doc(clientIp);
