@@ -4,7 +4,7 @@ const db = getFirestore(); //get default database
 
 // only run this function if in productionks
 module.exports = async (clientIp, data) => {
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'production') {
         const reqTrackRef = db.collection('request_tracker').doc(clientIp);
         const docSnap = await reqTrackRef.get();
         

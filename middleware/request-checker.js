@@ -6,7 +6,7 @@ const updateTracker = require('../utils/updateTracker');
 
 module.exports = () => {
     return async (req, res, next) => {
-        if (process.env.NODE_ENV !== 'production') {
+        if (process.env.NODE_ENV === 'production') {
             const clientIp = requestIp.getClientIp(req);
             const reqTrackRef = db.collection('request_tracker').doc(clientIp);
             const docSnap = await reqTrackRef.get();
