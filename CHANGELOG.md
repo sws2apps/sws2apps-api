@@ -1,3 +1,11 @@
+# [1.3.0-beta.5](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0-beta.4...v1.3.0-beta.5) (2021-12-25)
+
+
+### Bug Fixes
+
+* **app:** enable middleware in production ([ed0e6b6](https://github.com/sws2apps/sws2apps-api/commit/ed0e6b68d82a6779f14beee7f1dc3a2fab8920a2))
+* **app:** enable middleware request check in production ([6f5aadc](https://github.com/sws2apps/sws2apps-api/commit/6f5aadc8adf473d0482d7d933bb67fb8f3c2dd46))
+
 # [1.3.0-beta.4](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0-beta.3...v1.3.0-beta.4) (2021-12-25)
 
 
