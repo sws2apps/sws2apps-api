@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const limiter = require('express-rate-limit');
+var favicon = require('serve-favicon');
+var path = require('path');
 
 var whitelist = ['https://sws-pocket.web.app', 'https://sws-pocket.firebaseapp.com', 'https://lmm-oa-sws.web.app', 'https://lmm-oa-sws.firebaseapp.com']
 var corsOptionsDelegate = function (req, callback) {
@@ -41,6 +43,9 @@ var swsPocketRoute = require('./routes/sws-pocket');
 const app = express();
 
 app.disable('x-powered-by');
+
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')))
+
 app.use(cors(corsOptionsDelegate));
 
 app.use(express.json());
