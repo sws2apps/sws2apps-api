@@ -1,38 +1,10 @@
-name: API Code Analysis & Deploy
+name: API Deploy
 
 on:
   push:
     branches: [ main, beta ]
-  pull_request:
-    branches: [ main, beta ]
     
 jobs:
-  analyze:
-    name: Code QL
-    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.event_name == 'pull_request' }}
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'javascript' ]
-
-    steps:
-    - name: Checkout repository for code analysis
-      uses: actions/checkout@v2
-
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
-      with:
-        languages: ${{ matrix.language }}
-
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v1
-      
   deploy_staging:
     name: Deploy API to Staging
     if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/beta' }}

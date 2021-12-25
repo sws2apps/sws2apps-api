@@ -30,7 +30,7 @@ module.exports = () => {
                         );
                         next();
                     }
-                }else if (failedLoginAttempt === 3) {
+                } else if (failedLoginAttempt === 3) {
                     res.status(403).send(JSON.stringify({message: 'BLOCKED_TEMPORARILY'}));
                     res.on('finish', async () => {
                         const currentD = new Date();

@@ -1,9 +1,32 @@
-## [1.2.2](https://github.com/sws2apps/sws2apps-api/compare/v1.2.1...v1.2.2) (2021-12-25)
+# [1.3.0-beta.4](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0-beta.3...v1.3.0-beta.4) (2021-12-25)
 
 
 ### Bug Fixes
 
-* **login:** lockout request on forbidden request ([04ed18f](https://github.com/sws2apps/sws2apps-api/commit/04ed18fa99020174c45801529b2f07fac529c073))
+* **sws-pocket:** request lockout on login ([5503ad1](https://github.com/sws2apps/sws2apps-api/commit/5503ad151268f669220f41782ea78f962db2c5ae))
+* **sws-pocket:** request lockout on multiple login attempt ([a2e6fb4](https://github.com/sws2apps/sws2apps-api/commit/a2e6fb419649093e9400183d8ffad0f27993aa3a))
+
+# [1.3.0-beta.3](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0-beta.2...v1.3.0-beta.3) (2021-12-25)
+
+
+### Bug Fixes
+
+* **sws-pocket:** update login middleware ([5a6ddec](https://github.com/sws2apps/sws2apps-api/commit/5a6ddec3f866527456dd3a884fc819b73762f17d))
+* **sws-pocket:** update sws-pocket login middleware ([7c1c419](https://github.com/sws2apps/sws2apps-api/commit/7c1c419966c5409afa89bdde91813d7da422b82f))
+
+
+### Features
+
+* **app:** sync change with heroku ([7a0e4f5](https://github.com/sws2apps/sws2apps-api/commit/7a0e4f5b3a53aa59418d2f545fa64abfa155cfbe))
+* **app:** user request management added ([83314b4](https://github.com/sws2apps/sws2apps-api/commit/83314b42ea51a26eb8b04d977146dc1a72d22887))
+* **login:** reset login lockout after success ([9264cbc](https://github.com/sws2apps/sws2apps-api/commit/9264cbc151946f701e538ceb5120559e0168ee2f))
+
+# [1.3.0-beta.2](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0-beta.1...v1.3.0-beta.2) (2021-12-25)
+
+
+### Bug Fixes
+
+* **login:** lockout request on forbidden request ([b510152](https://github.com/sws2apps/sws2apps-api/commit/b510152fd1e9f7621fda32e0238a93fe0f2f6157))
 
 ## [1.2.1](https://github.com/sws2apps/sws2apps-api/compare/v1.2.0...v1.2.1) (2021-12-25)
 
