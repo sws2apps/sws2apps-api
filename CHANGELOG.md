@@ -1,3 +1,15 @@
+# [1.1.0-beta.2](https://github.com/sws2apps/sws2apps-api/compare/v1.1.0-beta.1...v1.1.0-beta.2) (2021-12-25)
+
+
+### Bug Fixes
+
+* **worflow:** fix workflow ([1e2db58](https://github.com/sws2apps/sws2apps-api/commit/1e2db58e25454db3f38b24f64b27d2052bb4dd70))
+
+
+### Features
+
+* **app:** user request management added ([9f43a73](https://github.com/sws2apps/sws2apps-api/commit/9f43a73171eaa1ddf39e661bc77431c868d52dcc))
+
 # [1.2.0](https://github.com/sws2apps/sws2apps-api/compare/v1.1.0...v1.2.0) (2021-12-25)
 
 
