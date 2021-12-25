@@ -9,6 +9,7 @@ on:
 jobs:
   analyze:
     name: Code QL
+    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -39,7 +40,6 @@ jobs:
       name: Staging
       url: https://staging-sws2apps.herokuapp.com
     runs-on: ubuntu-latest
-    needs: [analyze]
 
     strategy:
       matrix:
@@ -80,7 +80,6 @@ jobs:
       name: Production
       url: https://sws2apps.herokuapp.com
     runs-on: ubuntu-latest
-    needs: [analyze]
 
     strategy:
       matrix:
