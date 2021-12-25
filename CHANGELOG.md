@@ -1,3 +1,10 @@
+# [1.3.0-beta.2](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0-beta.1...v1.3.0-beta.2) (2021-12-25)
+
+
+### Bug Fixes
+
+* **login:** lockout request on forbidden request ([b510152](https://github.com/sws2apps/sws2apps-api/commit/b510152fd1e9f7621fda32e0238a93fe0f2f6157))
+
 ## [1.2.1](https://github.com/sws2apps/sws2apps-api/compare/v1.2.0...v1.2.1) (2021-12-25)
 
 
