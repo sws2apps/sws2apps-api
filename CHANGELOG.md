@@ -1,3 +1,11 @@
+# [1.3.0-beta.4](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0-beta.3...v1.3.0-beta.4) (2021-12-25)
+
+
+### Bug Fixes
+
+* **sws-pocket:** request lockout on login ([5503ad1](https://github.com/sws2apps/sws2apps-api/commit/5503ad151268f669220f41782ea78f962db2c5ae))
+* **sws-pocket:** request lockout on multiple login attempt ([a2e6fb4](https://github.com/sws2apps/sws2apps-api/commit/a2e6fb419649093e9400183d8ffad0f27993aa3a))
+
 # [1.3.0-beta.3](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0-beta.2...v1.3.0-beta.3) (2021-12-25)
 
 
