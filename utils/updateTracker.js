@@ -12,6 +12,8 @@ module.exports = async (clientIp, data) => {
 
         if (data.failedLoginAttempt) {
             data = {...data, failedLoginAttempt: failedLoginAttempt}
+        } else {
+            data = {...data, failedLoginAttempt: 0};
         }
 
         await db.collection('request_tracker').doc(clientIp).set(
