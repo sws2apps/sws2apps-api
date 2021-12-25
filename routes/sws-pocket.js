@@ -52,24 +52,31 @@ const oAuth = async (req, res, next) => {
         statusMsg = "MISSING_INFO";
     }
 
+    const clientIp = requestIp.getClientIp(req);
+
     if (statusCode === 200) {
+        await updateTracker(
+            clientIp,
+            {
+                failedLoginAttempt: 0,
+                retryOn: '',
+            }
+        );
         next();
     } else if (statusCode === 403) {
         res.status(statusCode).send(JSON.stringify({message: statusMsg}));
         res.on('finish', async () => {
-            const clientIp = requestIp.getClientIp(req);
             await updateTracker(
                 clientIp,
                 { 
-                    reqInProgress: false,
-                    failedLoginAttempt: true,
+                    retryOn: '',
+                    failedLoginAttempt: false,
                 }
             );
         })
     } else {
         res.status(statusCode).send(JSON.stringify({message: statusMsg}));
         res.on('finish', async () => {
-            const clientIp = requestIp.getClientIp(req);
             await updateTracker(clientIp, { reqInProgress: false });
         })
     }
