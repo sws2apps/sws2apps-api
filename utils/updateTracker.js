@@ -2,9 +2,9 @@ require('../firebase-config'); //load firebase admin SDK
 const { getFirestore } = require('firebase-admin/firestore'); //load firestore SDK
 const db = getFirestore(); //get default database
 
-// only run this function if in production
+// only run this function if in productionks
 module.exports = async (clientIp, data) => {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV !== 'production') {
         const reqTrackRef = db.collection('request_tracker').doc(clientIp);
         const docSnap = await reqTrackRef.get();
         
@@ -13,8 +13,6 @@ module.exports = async (clientIp, data) => {
 
         if (data.failedLoginAttempt) {
             data = {...data, failedLoginAttempt: failedLoginAttempt}
-        } else {
-            data = {...data, failedLoginAttempt: 0};
         }
 
         await db.collection('request_tracker').doc(clientIp).set(

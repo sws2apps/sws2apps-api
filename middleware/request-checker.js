@@ -6,7 +6,7 @@ const updateTracker = require('../utils/updateTracker');
 
 module.exports = () => {
     return async (req, res, next) => {
-        if (process.env.NODE_ENV === 'production') {
+        if (process.env.NODE_ENV !== 'production') {
             const clientIp = requestIp.getClientIp(req);
             const reqTrackRef = db.collection('request_tracker').doc(clientIp);
             const docSnap = await reqTrackRef.get();
@@ -30,7 +30,7 @@ module.exports = () => {
                         );
                         next();
                     }
-                }else if (failedLoginAttempt === 3) {
+                } else if (failedLoginAttempt === 3) {
                     res.status(403).send(JSON.stringify({message: 'BLOCKED_TEMPORARILY'}));
                     res.on('finish', async () => {
                         const currentD = new Date();
