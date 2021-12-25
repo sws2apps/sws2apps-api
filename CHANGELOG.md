@@ -1,3 +1,10 @@
+# [1.1.0-beta.1](https://github.com/sws2apps/sws2apps-api/compare/v1.0.0...v1.1.0-beta.1) (2021-12-25)
+
+
+### Features
+
+* **app:** add favicon rendering ([0498e24](https://github.com/sws2apps/sws2apps-api/commit/0498e245069341e8ddd2e6aca127074e5618ddd9))
+
 # 1.0.0 (2021-12-24)
 
 
