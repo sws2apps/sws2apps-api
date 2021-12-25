@@ -44,8 +44,8 @@ router.get('/login', async (req, res)  => {
                             obj.classCount = docSnap.data().classCount || 1;
                             statusMsg = obj;
                         } else {
-                            statusCode = 401;
-                            statusMsg = "Misy diso ny fanazavana nampidirinao";
+                            statusCode = 403;
+                            statusMsg = "FORBIDDEN";
                         }                  
                     } else {
                         statusCode = 401;
