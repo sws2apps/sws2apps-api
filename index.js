@@ -84,7 +84,7 @@ app.get('/', async (req, res) => {
 // Handling invalid routes
 app.get('*', (req, res) => {
   res.set('Content-Type', 'text/plain');
-  res.status(404).send(JSON.stringify({message: 'You are trying to access an invalid endpoint.'}));
+  res.status(404).send(JSON.stringify({message: 'INVALID_ENDPOINT'}));
   res.on('finish', async () => {
     const clientIp = requestIp.getClientIp(req);
     await updateTracker(clientIp, { reqInProgress: false });
@@ -93,7 +93,7 @@ app.get('*', (req, res) => {
 
 app.post('*', (req, res) => {
   res.set('Content-Type', 'text/plain');
-  res.status(404).send(JSON.stringify({message: 'You are trying to access an invalid endpoint.'}));
+  res.status(404).send(JSON.stringify({message: 'INVALID_ENDPOINT'}));
   res.on('finish', async () => {
     const clientIp = requestIp.getClientIp(req);
     await updateTracker(clientIp, { reqInProgress: false });
