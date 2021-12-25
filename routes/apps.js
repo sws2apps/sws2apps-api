@@ -153,7 +153,7 @@ router.post(
             const errors = validationResult(req);
         
             if (!errors.isEmpty()) {
-                res.status(400).send(JSON.stringify({message: 'Bad request: provided inputs are invalid.'}))
+                res.status(400).send(JSON.stringify({message: 'INPUT_INVALID'}))
             }
 
             const uid = req.headers.uid;
@@ -187,7 +187,7 @@ router.post(
                 });
             })
             .catch(() => {
-                res.status(500).send(JSON.stringify({message: 'An internal server error occured. Try again later.'}))
+                res.status(500).send(JSON.stringify({message: 'INTERNAL_ERROR'}))
             })
         } else {
             res.status(403).send(JSON.stringify({message: 'FORBIDDEN'}))
