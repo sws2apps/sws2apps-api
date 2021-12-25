@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/sws2apps/sws2apps-api/compare/v1.0.0...v1.1.0) (2021-12-25)
+
+
+### Bug Fixes
+
+* **worflow:** fix workflow ([35c7299](https://github.com/sws2apps/sws2apps-api/commit/35c729951c17667ec2c8a0f9b53ed308f219fa94))
+
+
+### Features
+
+* **app:** add favicon rendering ([1172e33](https://github.com/sws2apps/sws2apps-api/commit/1172e33670254ccb3f4be3f7bf43f32756870fc6))
+
 # [1.1.0-beta.1](https://github.com/sws2apps/sws2apps-api/compare/v1.0.0...v1.1.0-beta.1) (2021-12-25)
 
 
