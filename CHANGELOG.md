@@ -1,3 +1,10 @@
+# [1.1.0-beta.3](https://github.com/sws2apps/sws2apps-api/compare/v1.1.0-beta.2...v1.1.0-beta.3) (2021-12-25)
+
+
+### Features
+
+* **app:** sync change with heroku ([6e6a52c](https://github.com/sws2apps/sws2apps-api/commit/6e6a52c6a16b6974d29a21bc58ead3afce7dc0c2))
+
 # [1.1.0-beta.2](https://github.com/sws2apps/sws2apps-api/compare/v1.1.0-beta.1...v1.1.0-beta.2) (2021-12-25)
 
 
