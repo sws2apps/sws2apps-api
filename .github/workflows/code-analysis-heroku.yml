@@ -9,6 +9,7 @@ on:
 jobs:
   analyze:
     name: Code QL
+    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.event == 'pull_request' }}
     runs-on: ubuntu-latest
     permissions:
       actions: read
