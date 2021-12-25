@@ -1,3 +1,17 @@
+# [1.3.0-beta.1](https://github.com/sws2apps/sws2apps-api/compare/v1.2.0...v1.3.0-beta.1) (2021-12-25)
+
+
+### Bug Fixes
+
+* **worflow:** fix workflow ([1e2db58](https://github.com/sws2apps/sws2apps-api/commit/1e2db58e25454db3f38b24f64b27d2052bb4dd70))
+
+
+### Features
+
+* **app:** sync change with heroku ([6e6a52c](https://github.com/sws2apps/sws2apps-api/commit/6e6a52c6a16b6974d29a21bc58ead3afce7dc0c2))
+* **app:** user request management added ([9f43a73](https://github.com/sws2apps/sws2apps-api/commit/9f43a73171eaa1ddf39e661bc77431c868d52dcc))
+* **login:** reset login lockout after success ([484b2ea](https://github.com/sws2apps/sws2apps-api/commit/484b2ea58a6bffbb7fdef97cb1a96ebb1bd65bb4))
+
 # [1.1.0-beta.4](https://github.com/sws2apps/sws2apps-api/compare/v1.1.0-beta.3...v1.1.0-beta.4) (2021-12-25)
 
 
