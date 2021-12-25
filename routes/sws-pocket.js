@@ -69,8 +69,8 @@ const oAuth = async (req, res, next) => {
             await updateTracker(
                 clientIp,
                 { 
-                    retryOn: '',
-                    failedLoginAttempt: false,
+                    reqInProgress: false,
+                    failedLoginAttempt: true,
                 }
             );
         })
