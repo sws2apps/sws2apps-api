@@ -1,3 +1,10 @@
+# [1.1.0-beta.4](https://github.com/sws2apps/sws2apps-api/compare/v1.1.0-beta.3...v1.1.0-beta.4) (2021-12-25)
+
+
+### Features
+
+* **login:** reset login lockout after success ([484b2ea](https://github.com/sws2apps/sws2apps-api/commit/484b2ea58a6bffbb7fdef97cb1a96ebb1bd65bb4))
+
 # [1.1.0-beta.3](https://github.com/sws2apps/sws2apps-api/compare/v1.1.0-beta.2...v1.1.0-beta.3) (2021-12-25)
 
 
