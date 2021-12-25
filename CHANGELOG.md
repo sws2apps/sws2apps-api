@@ -1,3 +1,18 @@
+# [1.3.0-beta.3](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0-beta.2...v1.3.0-beta.3) (2021-12-25)
+
+
+### Bug Fixes
+
+* **sws-pocket:** update login middleware ([5a6ddec](https://github.com/sws2apps/sws2apps-api/commit/5a6ddec3f866527456dd3a884fc819b73762f17d))
+* **sws-pocket:** update sws-pocket login middleware ([7c1c419](https://github.com/sws2apps/sws2apps-api/commit/7c1c419966c5409afa89bdde91813d7da422b82f))
+
+
+### Features
+
+* **app:** sync change with heroku ([7a0e4f5](https://github.com/sws2apps/sws2apps-api/commit/7a0e4f5b3a53aa59418d2f545fa64abfa155cfbe))
+* **app:** user request management added ([83314b4](https://github.com/sws2apps/sws2apps-api/commit/83314b42ea51a26eb8b04d977146dc1a72d22887))
+* **login:** reset login lockout after success ([9264cbc](https://github.com/sws2apps/sws2apps-api/commit/9264cbc151946f701e538ceb5120559e0168ee2f))
+
 # [1.3.0-beta.2](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0-beta.1...v1.3.0-beta.2) (2021-12-25)
 
 
