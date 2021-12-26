@@ -35,7 +35,7 @@ jobs:
         with:
           semantic_version: 18.0.1
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       
       - name: Deploy API to Heroku
         if: ${{ steps.semantic.outputs.new_release_published == 'true' && github.ref == 'refs/heads/beta' }}
@@ -75,7 +75,7 @@ jobs:
         with:
           semantic_version: 18.0.1
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       
       - name: Deploy API to Heroku
         if: ${{ steps.semantic.outputs.new_release_published == 'true' && github.ref == 'refs/heads/main' }}
