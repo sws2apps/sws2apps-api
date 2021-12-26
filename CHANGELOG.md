@@ -1,3 +1,12 @@
+# [1.3.0-beta.7](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0-beta.6...v1.3.0-beta.7) (2021-12-26)
+
+
+### Bug Fixes
+
+* **app:** enable middleware request check in production ([dc67164](https://github.com/sws2apps/sws2apps-api/commit/dc6716462df9402ba2dad2fe6b5b0c030c5a139c))
+* **login:** lockout request on forbidden request ([04ed18f](https://github.com/sws2apps/sws2apps-api/commit/04ed18fa99020174c45801529b2f07fac529c073))
+* **login:** reset login lockout when success ([8958584](https://github.com/sws2apps/sws2apps-api/commit/8958584325a9ac9f26bfe41e20fbc24951409e36))
+
 # [1.3.0-beta.6](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0-beta.5...v1.3.0-beta.6) (2021-12-26)
 
 
