@@ -1,3 +1,10 @@
+# [1.3.0-beta.6](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0-beta.5...v1.3.0-beta.6) (2021-12-26)
+
+
+### Bug Fixes
+
+* **app:** login lockout bug ([96d2a4a](https://github.com/sws2apps/sws2apps-api/commit/96d2a4a57f3cf8f4178557c18555c908b0a391ff))
+
 # [1.3.0-beta.5](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0-beta.4...v1.3.0-beta.5) (2021-12-25)
 
 
