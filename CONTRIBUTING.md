@@ -12,7 +12,7 @@ We used three different branches to make production, beta and alpha releases of 
 | branch | whats for |
 | :----- | :-------- |
 | main   | making production release of SWS API: bug fix for the current version will be queued in this branch |
-| beta   | making beta release of SWS API: new feature will be queued in this branch |
+| beta   | making beta release of SWS API: new feature and breaking change will be queued in this branch |
 
 ## Bugs
 
@@ -34,24 +34,27 @@ If you’re only fixing a bug, it’s fine to submit a pull request right away b
 We are monitoring for pull requests. We will review your pull request and either merge it, request changes to it, or close it with an explanation. We’ll do our best to provide updates and feedback throughout the process.
 
 **Before submitting a PR**, please make sure the following is done:
-1. Fork the repository
-2. Enable Actions for the forked repository. This will allow your code changes to be analyzed only, without publishing it. 😄
-3. Depending on what you are suggesting, clone or create a new branch from the appropriate branch in the forked repository:
+1. Fork the repository and clone it locally.
+2. Start working in the appropriate branch, depending on what you are suggesting:
    - `main`, if you want to suggest a bug fix for the current version released in production.
-   - `beta`, if you want to suggest a new feature.
-4. If you have forked repository, fetch and pull changes first.
+   - `beta`, if you want to suggest a new feature or breaking change.
+3. If you have clonned the forked repository, fetch and merge first from upstream to origin, and from origin to your local repository. Make sure to resolve any conflicts before starting your work.
+4. Setup the environment variable .env. To get the right values, contact one of the developers contributing to this project. If you want, you can create your own values as well while you are working.
+   ```bash
+   GOOGLE_CONFIG_BASE64=firebase-admin-key
+   FIREBASE_API_KEY=firebase-api-key
+   SALT_ROUNDS=encryption-salt
+   ```
 5. Run `npm i` in your local branch.
-6. Run `npm start` to make sure that the code is compiled successfully.
+6. Run `npm run dev` to make sure that the code is compiled successfully.
 7. Test your changes to make sure that they are working as intended.
 
 **When commiting your changes**, we recommend the following commands to be run:
 1. Run `git add .`
-2. Run `npm run commit` to start the [commitizen cli](https://github.com/commitizen/cz-cli#using-the-command-line-tool). Make sure that you’ve set your changes accordingly. Failure to set this accordingly will cause your pull request on the release branch to be discarded.
-3. Run `git push`
-4. Fetch and pull the approriate branch in the forked repository. This will make sure that you will receive the latest remote code changes before merging your local changes.
-5. Compare your local branch and the branch in the forked repository, and create a PR.
-6. Rebase and Merge to bring your code to the forked repository branch. Make sure to resolve any conflicts.
+2. Run `npm run ghcommit` to start the [commitizen cli](https://github.com/commitizen/cz-cli#using-the-command-line-tool). Make sure that you’ve set your changes accordingly. Failure to set this accordingly will cause your pull request on the release branch to be discarded.
+3. Fetch and merge from upstream to origin, and from origin to your local repository. Make sure to resolve any conflicts.
+4. Run `git push`
 
-**When your proposed changes are in the forked repository on GitHub**, create your final PR.
+**When your proposed changes are in the forked repository on GitHub**, create your PR.
 
-You will receive a notification and be informed when your PR is published on beta, or alpha, or in production.
+You will receive a notification and be informed when your PR is published on beta, or in production.
