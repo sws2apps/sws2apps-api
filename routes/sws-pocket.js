@@ -8,7 +8,7 @@ const requestIp = require('request-ip');
 
 
 require('../firebase-config'); //load firebase admin
-const updateTracker = require('../utils/updateTracker');
+const updateTracker = require('../utils/updateTracker'); //load utils
 const db = getFirestore();
 
 const router = express.Router();
