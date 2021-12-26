@@ -55,6 +55,8 @@ We are monitoring for pull requests. We will review your pull request and either
 3. Fetch and merge from upstream to origin, and from origin to your local repository. Make sure to resolve any conflicts.
 4. Run `git push`
 
-**When your proposed changes are in the forked repository on GitHub**, create your PR.
+**When your proposed changes are in the forked repository on GitHub**:
+1. Create your PR.
+2. Make sure the title follows the [conventional-changelog](https://github.com/semantic-release/semantic-release#commit-message-format) format.
 
 You will receive a notification and be informed when your PR is published on beta, or in production.
