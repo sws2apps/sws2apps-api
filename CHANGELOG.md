@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/sws2apps/sws2apps-api/compare/v1.0.1...v1.0.2) (2022-01-26)
+
+
+### Bug Fixes
+
+* **node-fetch:** bump version to 2.6.7 ([7d499e0](https://github.com/sws2apps/sws2apps-api/commit/7d499e075b4688d7ff496c083bd92eba96297d63))
+
 ## [1.0.1](https://github.com/sws2apps/sws2apps-api/compare/v1.0.0...v1.0.1) (2021-12-26)
 
 
