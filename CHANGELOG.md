@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/sws2apps/sws2apps-api/compare/v1.0.2...v1.0.3) (2022-01-26)
+
+
+### Bug Fixes
+
+* **semantic-release:** bump version to 19.0.2 ([f1663dd](https://github.com/sws2apps/sws2apps-api/commit/f1663ddaf535a485f38bd90507007d59ac20b82a))
+
 ## [1.0.2](https://github.com/sws2apps/sws2apps-api/compare/v1.0.1...v1.0.2) (2022-01-26)
 
 
