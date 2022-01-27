@@ -7,9 +7,13 @@ const { body, validationResult } = require('express-validator');
 const { getFirestore } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
 const requestIp = require('request-ip');
-const updateTracker = require('../utils/updateTracker');
 
-require('../firebase-config'); //load firebase admin
+// load local utils
+const updateTracker = require('../utils/updateTracker');
+const { sendVerificationEmail } = require('../utils/sendEmail');
+
+// firebase db
+require('../config/firebase-config');
 const db = getFirestore();
 
 const router = express.Router();
@@ -69,18 +73,7 @@ router.post('/login', async (req, res) => {
 								.status(200)
 								.send(JSON.stringify({ message: uid, verified: true }));
 						} else {
-							const userEmail = userRecord.email;
-
-							getAuth()
-								.generateEmailVerificationLink(userEmail)
-								.then((link) => {
-									res.status(200).send(JSON.stringify({ message: link }));
-								})
-								.catch(() => {
-									res
-										.status(200)
-										.send(JSON.stringify({ message: 'VERIFY_FAILED' }));
-								});
+							res.status(200).send(JSON.stringify({ message: 'NOT_VERIFIED' }));
 						}
 					})
 					.catch(() => {
@@ -129,7 +122,8 @@ router.post(
 				getAuth()
 					.generateEmailVerificationLink(userEmail)
 					.then((link) => {
-						res.status(200).send(JSON.stringify({ message: link }));
+						sendVerificationEmail(userEmail, link);
+						res.status(200).send(JSON.stringify({ message: 'CHECK_EMAIL' }));
 					})
 					.catch(() => {
 						res.status(200).send(JSON.stringify({ message: 'VERIFY_FAILED' }));
@@ -159,6 +153,79 @@ router.post(
 						message: 'An internal server error occured. Try again later.',
 					})
 				);
+			});
+	}
+);
+
+router.post(
+	'/resend-verification',
+	body('email').isEmail(),
+	body('password').isLength({ min: 6 }),
+	async (req, res) => {
+		res.on('finish', async () => {
+			const clientIp = requestIp.getClientIp(req);
+			await updateTracker(clientIp, { reqInProgress: false });
+		});
+
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			res.status(400).send(
+				JSON.stringify({
+					message: 'Bad request: provided inputs are invalid.',
+				})
+			);
+		}
+
+		const googleKit = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`;
+
+		fetch(googleKit, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				...req.body,
+			}),
+		})
+			.then(async (response) => {
+				const data = await response.json();
+				if (data.error) {
+					res
+						.status(data.error.code)
+						.send(JSON.stringify({ message: data.error.message }));
+				} else {
+					const uid = data.localId;
+
+					getAuth()
+						.getUser(uid)
+						.then((userRecord) => {
+							const userEmail = userRecord.email;
+							getAuth()
+								.generateEmailVerificationLink(userEmail)
+								.then((link) => {
+									sendVerificationEmail(userEmail, link);
+									res
+										.status(200)
+										.send(JSON.stringify({ message: 'CHECK_EMAIL' }));
+								})
+								.catch(() => {
+									res
+										.status(200)
+										.send(JSON.stringify({ message: 'VERIFY_FAILED' }));
+								});
+						})
+						.catch(() => {
+							res
+								.status(500)
+								.send(JSON.stringify({ message: 'Internal server error' }));
+						});
+				}
+			})
+			.catch(() => {
+				res
+					.status(500)
+					.send(JSON.stringify({ message: 'Internal server error' }));
 			});
 	}
 );
@@ -276,6 +343,38 @@ router.get('/user/get-backup', oAuth, async (req, res) => {
 		.catch(() => {
 			res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
 		});
+});
+
+router.post('/user/send-backup', oAuth, async (req, res) => {
+	res.on('finish', async () => {
+		const clientIp = requestIp.getClientIp(req);
+		await updateTracker(clientIp, { reqInProgress: false });
+	});
+
+	const uid = req.headers.uid;
+	const backupType = req.body.backup_type;
+
+	if (backupType && (backupType === 'lmmoa' || backupType === 'msc')) {
+		getAuth()
+			.getUser(uid)
+			.then(async () => {
+				const data = {
+					[backupType]: {
+						backup_data: req.body.backup_data,
+						backup_date: req.body.backup_date,
+						backup_device: req.body.backup_device,
+					},
+				};
+
+				await db.collection('user_backup').doc(uid).set(data, { merge: true });
+				res.status(200).send(JSON.stringify({ message: 'OK' }));
+			})
+			.catch(() => {
+				res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
+			});
+	} else {
+		res.status(400).send(JSON.stringify({ message: 'BAD_REQUEST' }));
+	}
 });
 
 module.exports = router;
