@@ -24,7 +24,6 @@
     "express-rate-limit": "^5.5.1",
     "express-validator": "^6.14.0",
     "firebase-admin": "^10.0.0",
-    "juice": "^8.0.0",
     "node-fetch": "^2.6.7",
     "nodemailer": "^6.7.2",
     "nodemailer-express-handlebars": "^4.0.0",
