@@ -9,18 +9,12 @@ const requestIp = require('request-ip');
 const authChecker = require('../middleware/auth-checker');
 
 // load local utils
-const updateTracker = require('../utils/updateTracker');
 const { sendVerificationEmail } = require('../utils/sendEmail');
 
 const router = express.Router();
 
-// without middleware
+// without auth middleware
 router.post('/login', async (req, res) => {
-	res.on('finish', async () => {
-		const clientIp = requestIp.getClientIp(req);
-		await updateTracker(clientIp, { reqInProgress: false });
-	});
-
 	const googleKit = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`;
 
 	fetch(googleKit, {
@@ -35,6 +29,9 @@ router.post('/login', async (req, res) => {
 		.then(async (response) => {
 			const data = await response.json();
 			if (data.error) {
+				res.locals.failedLoginAttempt = true;
+				res.locals.type = 'warn';
+				res.locals.message = `user failed to login: ${data.error.message}`;
 				res
 					.status(data.error.code)
 					.send(JSON.stringify({ message: data.error.message }));
@@ -45,21 +42,29 @@ router.post('/login', async (req, res) => {
 					.getUser(uid)
 					.then((userRecord) => {
 						if (userRecord.emailVerified) {
+							res.locals.type = 'info';
+							res.locals.message = 'user success login';
 							res
 								.status(200)
 								.send(JSON.stringify({ message: uid, verified: true }));
 						} else {
+							res.locals.type = 'warn';
+							res.locals.message = 'user account not verified';
 							res.status(200).send(JSON.stringify({ message: 'NOT_VERIFIED' }));
 						}
 					})
-					.catch(() => {
+					.catch((err) => {
+						res.locals.type = 'warn';
+						res.locals.message = `user failed to login: ${err.message}`;
 						res
 							.status(500)
 							.send(JSON.stringify({ message: 'Internal server error' }));
 					});
 			}
 		})
-		.catch(() => {
+		.catch((err) => {
+			res.locals.type = 'warn';
+			res.locals.message = err.message;
 			res
 				.status(500)
 				.send(JSON.stringify({ message: 'Internal server error' }));
@@ -71,11 +76,6 @@ router.post(
 	body('email').isEmail(),
 	body('password').isLength({ min: 6 }),
 	async (req, res) => {
-		res.on('finish', async () => {
-			const clientIp = requestIp.getClientIp(req);
-			await updateTracker(clientIp, { reqInProgress: false });
-		});
-
 		const errors = validationResult(req);
 
 		if (!errors.isEmpty()) {
@@ -138,11 +138,6 @@ router.post(
 	body('email').isEmail(),
 	body('password').isLength({ min: 6 }),
 	async (req, res) => {
-		res.on('finish', async () => {
-			const clientIp = requestIp.getClientIp(req);
-			await updateTracker(clientIp, { reqInProgress: false });
-		});
-
 		const errors = validationResult(req);
 
 		if (!errors.isEmpty()) {
@@ -210,11 +205,6 @@ router.post(
 router.use(authChecker());
 
 router.get('/get-backup', async (req, res) => {
-	res.on('finish', async () => {
-		const clientIp = requestIp.getClientIp(req);
-		await updateTracker(clientIp, { reqInProgress: false });
-	});
-
 	const uid = req.headers.uid;
 	getAuth()
 		.getUser(uid)
@@ -240,11 +230,6 @@ router.get('/get-backup', async (req, res) => {
 });
 
 router.post('/send-backup', async (req, res) => {
-	res.on('finish', async () => {
-		const clientIp = requestIp.getClientIp(req);
-		await updateTracker(clientIp, { reqInProgress: false });
-	});
-
 	const uid = req.headers.uid;
 	const backupType = req.body.backup_type;
 

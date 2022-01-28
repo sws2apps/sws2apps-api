@@ -10,9 +10,11 @@ module.exports = () => {
 					next();
 				})
 				.catch(() => {
+					res.locals.failedLoginAttempt = true;
 					res.status(403).send(JSON.stringify({ message: 'FORBIDDEN' }));
 				});
 		} else {
+			res.locals.failedLoginAttempt = true;
 			res.status(403).send(JSON.stringify({ message: 'FORBIDDEN' }));
 		}
 	};

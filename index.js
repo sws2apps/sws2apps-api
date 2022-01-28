@@ -6,9 +6,11 @@ const limiter = require('express-rate-limit');
 const favicon = require('serve-favicon');
 const path = require('path');
 const requestIp = require('request-ip');
+const dateformat = require('dateformat');
 
+// load utils
 const { getServerVersion } = require('./utils/server');
-const updateTracker = require('./utils/updateTracker');
+const logger = require('./utils/logger');
 
 const appVersion = getServerVersion();
 
@@ -63,6 +65,7 @@ var corsOptionsDelegate = function (req, callback) {
 
 // Middleware import
 const requestChecker = require('./middleware/request-checker');
+const updateTracker = require('./middleware/update-tracker');
 
 // Route import
 const congregationRoute = require('./routes/congregation');
@@ -80,6 +83,7 @@ app.use(cors(corsOptionsDelegate));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use(updateTracker());
 app.use(requestChecker());
 
 app.use(
@@ -99,33 +103,31 @@ app.use('/api/user', userRoute);
 const port = process.env.PORT || 8000;
 
 app.get('/', async (req, res) => {
+	res.locals.type = 'info';
+	res.locals.message = 'success opening main route';
 	res.send(`SWS Apps API services v${appVersion}`);
-	res.on('finish', async () => {
-		const clientIp = requestIp.getClientIp(req);
-		await updateTracker(clientIp, { reqInProgress: false });
-	});
 });
 
 // Handling invalid routes
 app.use((req, res) => {
 	res.set('Content-Type', 'text/plain');
 	res.status(404).send(JSON.stringify({ message: 'INVALID_ENDPOINT' }));
-	res.on('finish', async () => {
-		const clientIp = requestIp.getClientIp(req);
-		await updateTracker(clientIp, { reqInProgress: false });
+
+	res.on('finish', () => {
+		logger(req, 'warn', 'invalid endpoint');
 	});
 });
 
 // Handling any other errors
 app.use((error, req, res) => {
 	res.status(error.status || 500);
-	res.send(JSON.stringify({ message: error.message }));
-	res.on('finish', async () => {
-		const clientIp = requestIp.getClientIp(req);
-		await updateTracker(clientIp, { reqInProgress: false });
+	res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
+
+	res.on('finish', () => {
+		logger(req, 'error', `An error occured: ${error.message}`);
 	});
 });
 
 app.listen(port, () => {
-	console.log(`server up and running`);
+	logger(undefined, 'info', `server up and running`);
 });

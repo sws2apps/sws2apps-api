@@ -1,10 +1,10 @@
+require('dotenv').config();
 require('../config/firebase-config'); //load firebase admin SDK
 const { getFirestore } = require('firebase-admin/firestore'); //load firestore SDK
 const db = getFirestore(); //get default database
 
 module.exports = async (clientIp, data) => {
-	// only run this function if in productionks
-	if (process.env.NODE_ENV === 'production') {
+	if (Boolean(process.env.NODE_LOGGER)) {
 		const reqTrackRef = db.collection('request_tracker').doc(clientIp);
 		const docSnap = await reqTrackRef.get();
 
