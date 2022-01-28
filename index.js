@@ -107,16 +107,7 @@ app.get('/', async (req, res) => {
 });
 
 // Handling invalid routes
-app.get('*', (req, res) => {
-	res.set('Content-Type', 'text/plain');
-	res.status(404).send(JSON.stringify({ message: 'INVALID_ENDPOINT' }));
-	res.on('finish', async () => {
-		const clientIp = requestIp.getClientIp(req);
-		await updateTracker(clientIp, { reqInProgress: false });
-	});
-});
-
-app.post('*', (req, res) => {
+app.use((req, res) => {
 	res.set('Content-Type', 'text/plain');
 	res.status(404).send(JSON.stringify({ message: 'INVALID_ENDPOINT' }));
 	res.on('finish', async () => {
@@ -126,7 +117,7 @@ app.post('*', (req, res) => {
 });
 
 // Handling any other errors
-app.use((error, req, res, next) => {
+app.use((error, req, res) => {
 	res.status(error.status || 500);
 	res.send(JSON.stringify({ message: error.message }));
 	res.on('finish', async () => {
