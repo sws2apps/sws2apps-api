@@ -15,7 +15,6 @@ const { sendVerificationEmail } = require('../utils/sendEmail');
 const router = express.Router();
 
 // without middleware
-
 router.post('/login', async (req, res) => {
 	res.on('finish', async () => {
 		const clientIp = requestIp.getClientIp(req);
