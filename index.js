@@ -65,8 +65,9 @@ var corsOptionsDelegate = function (req, callback) {
 const requestChecker = require('./middleware/request-checker');
 
 // Route import
-const appsRoute = require('./routes/apps');
+const congregationRoute = require('./routes/congregation');
 const swsPocketRoute = require('./routes/sws-pocket');
+const userRoute = require('./routes/user');
 
 const app = express();
 
@@ -91,8 +92,9 @@ app.use(
 	})
 );
 
-app.use('/api', appsRoute);
+app.use('/api/congregation', congregationRoute);
 app.use('/api/sws-pocket', swsPocketRoute);
+app.use('/api/user', userRoute);
 
 const port = process.env.PORT || 8000;
 

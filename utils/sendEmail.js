@@ -33,7 +33,7 @@ const sendVerificationEmail = async (recipient, activation) => {
 
 	do {
 		const send = async () => {
-			return new Promise((resolve, reject) => {
+			return new Promise((resolve) => {
 				return transporter.sendMail(options, (error, info) => {
 					if (error) {
 						console.log('failed to send message: ', error.message);
