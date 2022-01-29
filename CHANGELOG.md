@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/sws2apps/sws2apps-api/compare/v2.1.1...v2.1.2) (2022-01-29)
+
+
+### Bug Fixes
+
+* **middleware:** remove unused import in sws-pocket-auth-checker middleware ([3e48e19](https://github.com/sws2apps/sws2apps-api/commit/3e48e19a6610d80694c11520870a18b68e5cd880))
+
 ## [2.1.1](https://github.com/sws2apps/sws2apps-api/compare/v2.1.0...v2.1.1) (2022-01-29)
 
 
