@@ -1,5 +1,4 @@
 // app dependencies
-import dns from 'dns/promises';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // import utils
