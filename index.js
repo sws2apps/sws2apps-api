@@ -7,6 +7,7 @@ const favicon = require('serve-favicon');
 const path = require('path');
 
 // load utils
+require('./config/firebase-config'); //load firebase admin
 const { getServerVersion } = require('./utils/server');
 const logger = require('./utils/logger');
 

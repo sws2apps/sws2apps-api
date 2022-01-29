@@ -33,7 +33,7 @@ module.exports = () => {
 
 			let log = `[${dateformat(Date.now(), 'yyyy-mm-dd HH:MM:ss')}] - `;
 			log += `${res.locals.type} - `;
-			log += `from ${req.origin || req.hostname}(${clientIp}) - `;
+			log += `from ${req.headers.origin || req.hostname}(${clientIp}) - `;
 			log += `to ${req.originalUrl} - `;
 			log += `using ${req.method} - `;
 			log += `${res.locals.message}`;

@@ -5,16 +5,18 @@ const { body, validationResult } = require('express-validator');
 const { getAuth } = require('firebase-admin/auth');
 const { getFirestore } = require('firebase-admin/firestore'); //load firestore SDK
 
-require('../config/firebase-config'); //load firebase admin SDK
+// get firestore
 const db = getFirestore(); //get default database
 
 // load middleware
+const internetChecker = require('../middleware/internet-checker');
 const authChecker = require('../middleware/auth-checker');
 
 // load local utils
 const { sendVerificationEmail } = require('../utils/sendEmail');
 
 const router = express.Router();
+router.use(internetChecker());
 
 // without auth middleware
 router.post('/login', async (req, res) => {

@@ -8,17 +8,17 @@ const { getAuth } = require('firebase-admin/auth');
 const requestIp = require('request-ip');
 
 // load middleware
+const internetChecker = require('../middleware/internet-checker');
 const authChecker = require('../middleware/auth-checker');
 
 // load local utils
 const updateTracker = require('../utils/updateTracker');
 
-// firebase db
-require('../config/firebase-config');
+// get firestore
 const db = getFirestore();
 
 const router = express.Router();
-
+router.use(internetChecker());
 router.use(authChecker());
 
 router.get('/generate-id', async (req, res) => {
