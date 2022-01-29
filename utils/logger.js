@@ -9,6 +9,7 @@ module.exports = (req, type, message) => {
 	if (process.env.NODE_ENV !== 'production') {
 		log += `[${dateformat(Date.now(), 'yyyy-mm-dd HH:MM:ss')}] - `;
 	}
+
 	log += `${type} - `;
 	if (req) {
 		const clientIp = requestIp.getClientIp(req);
