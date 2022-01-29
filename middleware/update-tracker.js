@@ -11,27 +11,28 @@ module.exports = () => {
 		const clientIp = requestIp.getClientIp(req);
 
 		res.on('finish', async () => {
-			if (process.env.NODE_LOGGER === 'true') {
-				let data = {};
-				data.reqInProgress = false;
+			let data = {};
+			data.reqInProgress = false;
 
-				if (res.locals.failedLoginAttempt) {
-					const reqTrackRef = db.collection('request_tracker').doc(clientIp);
-					const docSnap = await reqTrackRef.get();
+			if (res.locals.failedLoginAttempt) {
+				const reqTrackRef = db.collection('request_tracker').doc(clientIp);
+				const docSnap = await reqTrackRef.get();
 
-					let failedLoginAttempt = docSnap.data().failedLoginAttempt;
-					failedLoginAttempt = failedLoginAttempt + 1;
+				let failedLoginAttempt = docSnap.data().failedLoginAttempt;
+				failedLoginAttempt = failedLoginAttempt + 1;
 
-					data.failedLoginAttempt = failedLoginAttempt;
-				}
-
-				await db
-					.collection('request_tracker')
-					.doc(clientIp)
-					.set(data, { merge: true });
+				data.failedLoginAttempt = failedLoginAttempt;
 			}
 
-			let log = `[${dateformat(Date.now(), 'yyyy-mm-dd HH:MM:ss')}] - `;
+			await db
+				.collection('request_tracker')
+				.doc(clientIp)
+				.set(data, { merge: true });
+
+			let log = '';
+			if (process.env.NODE_ENV !== 'production') {
+				log += `[${dateformat(Date.now(), 'yyyy-mm-dd HH:MM:ss')}] - `;
+			}
 			log += `${res.locals.type} - `;
 			log += `from ${req.headers.origin || req.hostname}(${clientIp}) - `;
 			log += `to ${req.originalUrl} - `;

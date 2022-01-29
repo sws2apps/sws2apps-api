@@ -5,7 +5,10 @@ const dateformat = require('dateformat');
 const requestIp = require('request-ip');
 
 module.exports = (req, type, message) => {
-	let log = `[${dateformat(Date.now(), 'yyyy-mm-dd HH:MM:ss')}] - `;
+	let log = '';
+	if (process.env.NODE_ENV !== 'production') {
+		log += `[${dateformat(Date.now(), 'yyyy-mm-dd HH:MM:ss')}] - `;
+	}
 	log += `${type} - `;
 	if (req) {
 		const clientIp = requestIp.getClientIp(req);

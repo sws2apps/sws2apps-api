@@ -81,6 +81,9 @@ router.post(
 	body('email').isEmail(),
 	body('password').isLength({ min: 6 }),
 	async (req, res) => {
+		res.on('error', () => {
+			console.log('error');
+		});
 		const errors = validationResult(req);
 
 		if (!errors.isEmpty()) {
@@ -97,6 +100,8 @@ router.post(
 					message: 'Bad request: provided inputs are invalid.',
 				})
 			);
+
+			return;
 		}
 
 		getAuth()
@@ -182,6 +187,8 @@ router.post(
 					message: 'Bad request: provided inputs are invalid.',
 				})
 			);
+
+			return;
 		}
 
 		const googleKit = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`;
@@ -253,10 +260,8 @@ router.post(
 	}
 );
 
-// with middleware
-router.use(authChecker());
-
-router.get('/get-backup', async (req, res) => {
+// with inline middleware
+router.get('/get-backup', authChecker, async (req, res) => {
 	const uid = req.headers.uid;
 	getAuth()
 		.getUser(uid)
@@ -290,7 +295,7 @@ router.get('/get-backup', async (req, res) => {
 		});
 });
 
-router.post('/send-backup', async (req, res) => {
+router.post('/send-backup', authChecker, async (req, res) => {
 	const uid = req.headers.uid;
 	const backupType = req.body.backup_type;
 

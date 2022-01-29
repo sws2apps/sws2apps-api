@@ -55,6 +55,8 @@ router.post(
 
 			if (!errors.isEmpty()) {
 				res.status(400).send(JSON.stringify({ message: 'INPUT_INVALID' }));
+
+				return;
 			}
 
 			const uid = req.headers.uid;
@@ -104,16 +106,13 @@ router.post(
 	body('cong_name').notEmpty(),
 	body('cong_number').isInt(),
 	async (req, res) => {
-		res.on('finish', async () => {
-			const clientIp = requestIp.getClientIp(req);
-			await updateTracker(clientIp, { reqInProgress: false });
-		});
-
 		if (req.headers.uid) {
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
 				res.status(400).send(JSON.stringify({ message: 'INPUT_INVALID' }));
+
+				return;
 			}
 
 			const uid = req.headers.uid;
@@ -200,16 +199,13 @@ router.post(
 	body('cong_name').notEmpty(),
 	body('cong_number').isInt(),
 	async (req, res) => {
-		res.on('finish', async () => {
-			const clientIp = requestIp.getClientIp(req);
-			await updateTracker(clientIp, { reqInProgress: false });
-		});
-
 		if (req.headers.uid) {
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
 				res.status(400).send(JSON.stringify({ message: 'INPUT_INVALID' }));
+
+				return;
 			}
 
 			const uid = req.headers.uid;

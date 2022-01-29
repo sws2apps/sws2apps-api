@@ -115,14 +115,6 @@ app.use((req, res) => {
 	res.status(404).send(JSON.stringify({ message: 'INVALID_ENDPOINT' }));
 });
 
-// Handling any other errors
-app.use((error, req, res) => {
-	res.locals.type = 'error';
-	res.locals.message = `An error occured: ${error.message}`;
-
-	res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
-});
-
 app.listen(port, () => {
 	logger(undefined, 'info', `server up and running (v${appVersion})`);
 });
