@@ -1,3 +1,76 @@
+# [2.0.0-beta.1](https://github.com/sws2apps/sws2apps-api/compare/v1.0.2-beta.1...v2.0.0-beta.1) (2022-01-29)
+
+
+### Bug Fixes
+
+* **app:** fix exception on startup ([#30](https://github.com/sws2apps/sws2apps-api/issues/30)) ([17d5b4e](https://github.com/sws2apps/sws2apps-api/commit/17d5b4ea17ac7261fdbcf9d98654bc7473e24d44)), closes [#28](https://github.com/sws2apps/sws2apps-api/issues/28)
+* **semantic-release:** bump version 19.0.2 ([1626bbd](https://github.com/sws2apps/sws2apps-api/commit/1626bbd428c0ea5ab2ed9209a2a69582492e5f13))
+
+
+### chore
+
+* **app:** add several improvements to the core functionality ([#29](https://github.com/sws2apps/sws2apps-api/issues/29)) ([eb5a9ba](https://github.com/sws2apps/sws2apps-api/commit/eb5a9ba2c5e7280857aed92ee5165f2ac3414434)), closes [#28](https://github.com/sws2apps/sws2apps-api/issues/28)
+
+
+### Continuous Integration
+
+* **main:** combine workflow into one CI & CD file ([#31](https://github.com/sws2apps/sws2apps-api/issues/31)) ([67b751b](https://github.com/sws2apps/sws2apps-api/commit/67b751b962f4f13e643f10f92d1700e91bb1ad62)), closes [#28](https://github.com/sws2apps/sws2apps-api/issues/28)
+
+
+### BREAKING CHANGES
+
+* **main:** This change introduces a new way of scoping routes.
+
+* feat(congregation): update congregation name and number on sign in and account update
+
+* fix(app): update middleware for handling invalid endpoint
+
+* feat(app): add simple logger, new value in env to toggle request tracker
+
+* fix(middleware): stop request checker if node_logger is set to false
+
+* feat(middleware): add internet online check before accessing Google Services
+
+* fix(env): remove node logger from variable
+
+* fix(app): fix exception on startup
+
+* ci(main): combine workflow into one CI & CD file
+
+Co-authored-by: semantic-release-bot <semantic-release-bot@martynus.net>
+* **app:** This change introduces a new way of scoping routes.
+
+* feat(congregation): update congregation name and number on sign in and account update
+
+* fix(app): update middleware for handling invalid endpoint
+
+* feat(app): add simple logger, new value in env to toggle request tracker
+
+* fix(middleware): stop request checker if node_logger is set to false
+
+* feat(middleware): add internet online check before accessing Google Services
+
+* fix(env): remove node logger from variable
+
+* fix(app): fix exception on startup
+
+Co-authored-by: semantic-release-bot <semantic-release-bot@martynus.net>
+* **app:** This change introduces a new way of scoping routes.
+
+* feat(congregation): update congregation name and number on sign in and account update
+
+* fix(app): update middleware for handling invalid endpoint
+
+* feat(app): add simple logger, new value in env to toggle request tracker
+
+* fix(middleware): stop request checker if node_logger is set to false
+
+* feat(middleware): add internet online check before accessing Google Services
+
+* fix(env): remove node logger from variable
+
+Co-authored-by: semantic-release-bot <semantic-release-bot@martynus.net>
+
 ## [1.0.3](https://github.com/sws2apps/sws2apps-api/compare/v1.0.2...v1.0.3) (2022-01-26)
 
 
