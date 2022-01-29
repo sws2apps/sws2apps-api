@@ -1,24 +1,35 @@
 // dependency import
+import express from 'express';
+import cors from 'cors';
+import rateLimit from 'express-rate-limit';
+import favicon from 'serve-favicon';
+import path from 'node:path';
+import requestIp from 'request-ip';
 
-const express = require('express');
-const cors = require('cors');
-const limiter = require('express-rate-limit');
-const favicon = require('serve-favicon');
-const path = require('path');
+// firebase admin import
+import './config/firebase-config.mjs';
+
+// route import
+import congregationRoute from './routes/congregation.mjs';
+import swsPocketRoute from './routes/sws-pocket.mjs';
+import userRoute from './routes/user.mjs';
+
+// middleware import
+import { requestChecker } from './middleware/request-checker.mjs';
+import { updateTracker } from './middleware/update-tracker.mjs';
 
 // load utils
-require('./config/firebase-config'); //load firebase admin
-const { getServerVersion } = require('./utils/server');
-const logger = require('./utils/logger');
+import { appVersion } from './utils/server.mjs';
+import { logger } from './utils/logger.mjs';
 
-const appVersion = getServerVersion();
-
+// allowed apps url
 var whitelist = [
 	'https://sws-pocket.web.app',
 	'https://sws-pocket.firebaseapp.com',
 	'https://lmm-oa-sws.web.app',
 	'https://lmm-oa-sws.firebaseapp.com',
 ];
+
 var corsOptionsDelegate = function (req, callback) {
 	var corsOptions;
 	if (process.env.NODE_ENV === 'production') {
@@ -62,19 +73,11 @@ var corsOptionsDelegate = function (req, callback) {
 	callback(null, corsOptions); // callback expects two parameters: error and options
 };
 
-// Middleware import
-const requestChecker = require('./middleware/request-checker');
-const updateTracker = require('./middleware/update-tracker');
-
-// Route import
-const congregationRoute = require('./routes/congregation');
-const swsPocketRoute = require('./routes/sws-pocket');
-const userRoute = require('./routes/user');
-
 const app = express();
 
 app.disable('x-powered-by');
 
+const __dirname = path.resolve();
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 app.use(cors(corsOptionsDelegate));
@@ -82,11 +85,12 @@ app.use(cors(corsOptionsDelegate));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use(requestIp.mw()); // get IP address middleware
 app.use(updateTracker());
 app.use(requestChecker());
 
 app.use(
-	limiter({
+	rateLimit({
 		windowMs: 1000,
 		max: 1,
 		message: JSON.stringify({
@@ -113,6 +117,14 @@ app.use((req, res) => {
 	res.locals.message = 'invalid endpoint';
 	res.set('Content-Type', 'text/plain');
 	res.status(404).send(JSON.stringify({ message: 'INVALID_ENDPOINT' }));
+});
+
+// Handling error
+app.use((error, req, res) => {
+	res.locals.type = 'warn';
+	res.locals.message = `an error occured: ${error.stack}`;
+	res.set('Content-Type', 'text/plain');
+	res.status(404).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
 });
 
 app.listen(port, () => {

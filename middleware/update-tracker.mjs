@@ -1,14 +1,14 @@
-require('dotenv').config();
-const dateformat = require('dateformat');
-const requestIp = require('request-ip');
-const { getFirestore } = require('firebase-admin/firestore'); //load firestore SDK
+// dependencies
+import 'dotenv/config';
+import moment from 'moment';
+import { getFirestore } from 'firebase-admin/firestore';
 
-require('../config/firebase-config'); //load firebase admin SDK
-const db = getFirestore(); //get default database
+// get firestore
+const db = getFirestore();
 
-module.exports = () => {
+export const updateTracker = () => {
 	return async (req, res, next) => {
-		const clientIp = requestIp.getClientIp(req);
+		const clientIp = req.clientIp;
 
 		res.on('finish', async () => {
 			let data = {};
@@ -31,7 +31,7 @@ module.exports = () => {
 
 			let log = '';
 			if (process.env.NODE_ENV !== 'production') {
-				log += `[${dateformat(Date.now(), 'yyyy-mm-dd HH:MM:ss')}] - `;
+				log += `[${moment().format('YYYY-MM-DD HH:mm:ss')}] - `;
 			}
 			log += `${res.locals.type} - `;
 			log += `from ${req.headers.origin || req.hostname}(${clientIp}) - `;

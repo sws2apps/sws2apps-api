@@ -1,14 +1,17 @@
-require('dotenv').config();
-const { getFirestore } = require('firebase-admin/firestore'); //load firestore SDK
-const requestIp = require('request-ip');
-const updateTracker = require('../utils/updateTracker');
+// dependencies
+import 'dotenv/config';
+import { getFirestore } from 'firebase-admin/firestore';
 
-require('../config/firebase-config'); //load firebase admin SDK
+// get logger
+import { tracker } from '../utils/tracker.mjs';
+
+// get firestore
 const db = getFirestore(); //get default database
 
-module.exports = () => {
+export const requestChecker = () => {
 	return async (req, res, next) => {
-		const clientIp = requestIp.getClientIp(req);
+		const clientIp = req.clientIp;
+
 		const reqTrackRef = db.collection('request_tracker').doc(clientIp);
 		const docSnap = await reqTrackRef.get();
 
@@ -29,7 +32,7 @@ module.exports = () => {
 						.status(403)
 						.send(JSON.stringify({ message: 'BLOCKED_TEMPORARILY_TRY_AGAIN' }));
 				} else {
-					await updateTracker(clientIp, {
+					await tracker(clientIp, {
 						reqInProgress: true,
 						failedLoginAttempt: 0,
 						retryOn: '',
@@ -46,13 +49,13 @@ module.exports = () => {
 				res.on('finish', async () => {
 					const currentD = new Date();
 					const retryDate = currentD.getTime() + 15 * 60000;
-					await updateTracker(clientIp, {
+					await tracker(clientIp, {
 						reqInProgress: false,
 						retryOn: retryDate,
 					});
 				});
 			} else {
-				await updateTracker(clientIp, { reqInProgress: true });
+				await tracker(clientIp, { reqInProgress: true });
 				next();
 			}
 		} else {

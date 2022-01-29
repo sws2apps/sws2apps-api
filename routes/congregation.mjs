@@ -1,19 +1,15 @@
-// app dependencies
-const express = require('express');
-const crypto = require('crypto');
-const bcrypt = require('bcrypt');
-const Cryptr = require('cryptr');
-const { body, validationResult } = require('express-validator');
-const { getFirestore } = require('firebase-admin/firestore');
-const { getAuth } = require('firebase-admin/auth');
-const requestIp = require('request-ip');
+// dependencies
+import express from 'express';
+import bcrypt from 'bcrypt';
+import Cryptr from 'cryptr';
+import crypto from 'crypto';
+import { body, validationResult } from 'express-validator';
+import { getFirestore } from 'firebase-admin/firestore';
+import { getAuth } from 'firebase-admin/auth';
 
-// load middleware
-const internetChecker = require('../middleware/internet-checker');
-const authChecker = require('../middleware/auth-checker');
-
-// load local utils
-const updateTracker = require('../utils/updateTracker');
+// middleware import
+import { internetChecker } from '../middleware/internet-checker.mjs';
+import { authChecker } from '../middleware/auth-checker.mjs';
 
 // get firestore
 const db = getFirestore();
@@ -294,4 +290,4 @@ router.post(
 	}
 );
 
-module.exports = router;
+export default router;

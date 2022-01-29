@@ -1,14 +1,14 @@
-//app dependencies
-const express = require('express');
+// dependencies
+import express from 'express';
 
-// load middleware
-const internetChecker = require('../middleware/internet-checker');
-const oauthChecker = require('../middleware/sws-pocket-auth-checker');
+// middleware import
+import { internetChecker } from '../middleware/internet-checker.mjs';
+import { pocketAuthChecker } from '../middleware/sws-pocket-auth-checker.mjs';
 
 // init express router
 const router = express.Router();
 router.use(internetChecker());
-router.use(oauthChecker());
+router.use(pocketAuthChecker());
 
 // Login route
 router.get('/login', async (req, res) => {
@@ -20,4 +20,4 @@ router.get('/schedules', async (req, res) => {
 	res.status(200).send(JSON.stringify({ message: 'OK' }));
 });
 
-module.exports = router;
+export default router;

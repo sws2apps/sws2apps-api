@@ -1,13 +1,13 @@
 // this module is to log outside of res.on('finish')
 
 // dependency
-const dateformat = require('dateformat');
-const requestIp = require('request-ip');
+import moment from 'moment';
+import requestIp from 'request-ip';
 
-module.exports = (req, type, message) => {
+export const logger = (req, type, message) => {
 	let log = '';
 	if (process.env.NODE_ENV !== 'production') {
-		log += `[${dateformat(Date.now(), 'yyyy-mm-dd HH:MM:ss')}] - `;
+		log += `[${moment().format('YYYY-MM-DD HH:mm:ss')}] - `;
 	}
 
 	log += `${type} - `;

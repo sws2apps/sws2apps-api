@@ -1,9 +1,11 @@
-require('dotenv').config();
-require('../config/firebase-config'); //load firebase admin SDK
-const { getFirestore } = require('firebase-admin/firestore'); //load firestore SDK
+// dependencies
+import 'dotenv/config';
+import { getFirestore } from 'firebase-admin/firestore';
+
+// get firestore
 const db = getFirestore(); //get default database
 
-module.exports = async (clientIp, data) => {
+export const tracker = async (clientIp, data) => {
 	const reqTrackRef = db.collection('request_tracker').doc(clientIp);
 	const docSnap = await reqTrackRef.get();
 

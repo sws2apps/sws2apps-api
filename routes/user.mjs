@@ -1,19 +1,20 @@
-// app dependencies
-const express = require('express');
-const fetch = require('node-fetch');
-const { body, validationResult } = require('express-validator');
-const { getAuth } = require('firebase-admin/auth');
-const { getFirestore } = require('firebase-admin/firestore'); //load firestore SDK
+// dependencies
+import express from 'express';
+import fetch from 'node-fetch';
+import { body, validationResult } from 'express-validator';
+import { getFirestore } from 'firebase-admin/firestore';
+import { getAuth } from 'firebase-admin/auth';
+
+// middleware import
+import { internetChecker } from '../middleware/internet-checker.mjs';
+import { authChecker } from '../middleware/auth-checker.mjs';
+
+// utils import
+import { sendVerificationEmail } from '../utils/sendEmail.mjs';
+import { tracker } from '../utils/tracker.mjs';
 
 // get firestore
 const db = getFirestore(); //get default database
-
-// load middleware
-const internetChecker = require('../middleware/internet-checker');
-const authChecker = require('../middleware/auth-checker');
-
-// load local utils
-const { sendVerificationEmail } = require('../utils/sendEmail');
 
 const router = express.Router();
 router.use(internetChecker());
@@ -45,7 +46,7 @@ router.post('/login', async (req, res) => {
 
 				getAuth()
 					.getUser(uid)
-					.then((userRecord) => {
+					.then(async (userRecord) => {
 						if (userRecord.emailVerified) {
 							res.locals.type = 'info';
 							res.locals.message = 'user success login';
@@ -57,6 +58,11 @@ router.post('/login', async (req, res) => {
 							res.locals.message = 'user account not verified';
 							res.status(200).send(JSON.stringify({ message: 'NOT_VERIFIED' }));
 						}
+
+						await tracker(clientIp, {
+							failedLoginAttempt: 0,
+							retryOn: '',
+						});
 					})
 					.catch((err) => {
 						res.locals.type = 'warn';
@@ -331,4 +337,4 @@ router.post('/send-backup', authChecker, async (req, res) => {
 	}
 });
 
-module.exports = router;
+export default router;

@@ -1,8 +1,10 @@
-const nodemailer = require('nodemailer');
-const hbs = require('nodemailer-express-handlebars');
-const path = require('path');
+// dependencies
+import nodemailer from 'nodemailer';
+import hbs from 'nodemailer-express-handlebars';
+import path from 'path';
 
-const gmailConfig = require('../config/gmail-config');
+// gmail config import
+import { gmailConfig } from '../config/gmail-config.mjs';
 
 const handlebarsOptions = {
 	viewEngine: {
@@ -15,7 +17,7 @@ const handlebarsOptions = {
 const transporter = nodemailer.createTransport(gmailConfig.transport);
 transporter.use('compile', hbs(handlebarsOptions));
 
-const sendVerificationEmail = async (recipient, activation) => {
+export const sendVerificationEmail = async (recipient, activation) => {
 	const options = {
 		from: gmailConfig.sender,
 		to: recipient,
@@ -50,8 +52,4 @@ const sendVerificationEmail = async (recipient, activation) => {
 		retry = !runSend;
 		i++;
 	} while (i < intTry && retry);
-};
-
-module.exports = {
-	sendVerificationEmail,
 };

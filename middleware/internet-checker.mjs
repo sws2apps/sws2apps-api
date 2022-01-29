@@ -1,9 +1,9 @@
 // this middleware serve as a bridge to make sure that we can connect to Google Services before we use them
 
 //app dependencies
-const dns = require('dns').promises;
+import dns from 'dns/promises';
 
-module.exports = () => {
+export const internetChecker = () => {
 	return async (req, res, next) => {
 		dns
 			.lookup('google.com')

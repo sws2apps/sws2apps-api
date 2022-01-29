@@ -1,15 +1,14 @@
-//app dependencies
-const dns = require('dns').promises;
-const { getFirestore } = require('firebase-admin/firestore');
+// app dependencies
+import dns from 'dns/promises';
+import { getFirestore } from 'firebase-admin/firestore';
+
+// import utils
+import { tracker } from '../utils/tracker.mjs';
 
 // get firestore
-require('../config/firebase-config'); //load firebase admin
 const db = getFirestore();
 
-// load utils
-const updateTracker = require('../utils/updateTracker');
-
-module.exports = () => {
+export const pocketAuthChecker = () => {
 	return async (req, res, next) => {
 		const congID = req.headers.cong_id;
 		const congNum = req.headers.cong_num;
@@ -60,7 +59,7 @@ module.exports = () => {
 		}
 
 		if (statusCode === 200) {
-			await updateTracker(clientIp, {
+			await tracker(clientIp, {
 				failedLoginAttempt: 0,
 				retryOn: '',
 			});

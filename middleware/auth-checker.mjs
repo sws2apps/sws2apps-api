@@ -1,6 +1,6 @@
-const { getAuth } = require('firebase-admin/auth');
+import { getAuth } from 'firebase-admin/auth';
 
-module.exports = () => {
+export const authChecker = () => {
 	return async (req, res, next) => {
 		const uid = req.headers.uid;
 		if (uid) {
