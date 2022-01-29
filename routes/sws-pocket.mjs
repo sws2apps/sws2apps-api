@@ -2,12 +2,10 @@
 import express from 'express';
 
 // middleware import
-import { internetChecker } from '../middleware/internet-checker.mjs';
 import { pocketAuthChecker } from '../middleware/sws-pocket-auth-checker.mjs';
 
 // init express router
 const router = express.Router();
-router.use(internetChecker());
 router.use(pocketAuthChecker());
 
 // Login route

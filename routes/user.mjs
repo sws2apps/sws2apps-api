@@ -6,7 +6,6 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
 // middleware import
-import { internetChecker } from '../middleware/internet-checker.mjs';
 import { authChecker } from '../middleware/auth-checker.mjs';
 
 // utils import
@@ -17,7 +16,6 @@ import { tracker } from '../utils/tracker.mjs';
 const db = getFirestore(); //get default database
 
 const router = express.Router();
-router.use(internetChecker());
 
 // without auth middleware
 router.post('/login', async (req, res) => {

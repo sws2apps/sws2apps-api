@@ -15,6 +15,7 @@ import swsPocketRoute from './routes/sws-pocket.mjs';
 import userRoute from './routes/user.mjs';
 
 // middleware import
+import { internetChecker } from './middleware/internet-checker.mjs';
 import { requestChecker } from './middleware/request-checker.mjs';
 import { updateTracker } from './middleware/update-tracker.mjs';
 
@@ -86,6 +87,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(requestIp.mw()); // get IP address middleware
+app.use(internetChecker());
 app.use(updateTracker());
 app.use(requestChecker());
 
@@ -120,7 +122,7 @@ app.use((req, res) => {
 });
 
 // Handling error
-app.use((error, req, res) => {
+app.use((error, req, res, next) => {
 	res.locals.type = 'warn';
 	res.locals.message = `an error occured: ${error.stack}`;
 	res.set('Content-Type', 'text/plain');

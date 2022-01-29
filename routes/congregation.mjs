@@ -8,14 +8,12 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
 // middleware import
-import { internetChecker } from '../middleware/internet-checker.mjs';
 import { authChecker } from '../middleware/auth-checker.mjs';
 
 // get firestore
 const db = getFirestore();
 
 const router = express.Router();
-router.use(internetChecker());
 router.use(authChecker());
 
 router.get('/generate-id', async (req, res) => {
