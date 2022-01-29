@@ -1,5 +1,6 @@
 // app dependencies
 const express = require('express');
+const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const Cryptr = require('cryptr');
 const { body, validationResult } = require('express-validator');
@@ -27,8 +28,9 @@ router.get('/generate-id', async (req, res) => {
 
 	do {
 		const min = 1000000000;
-		const max = 9999999999;
-		num = Math.floor(Math.random() * (max - min + 1)) + min;
+		const max = 10000000000;
+
+		num = crypto.randomInt(min, max);
 
 		const congRef = db.collection('congregation_data').doc(num.toString());
 		const docSnap = await congRef.get();
