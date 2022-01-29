@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/sws2apps/sws2apps-api/compare/v2.0.0...v2.0.1) (2022-01-29)
+
+
+### Bug Fixes
+
+* **congregation:** enhance congregation id generator ([b3d8336](https://github.com/sws2apps/sws2apps-api/commit/b3d83360696af9681bad17691854f672c539a3a2)), closes [#33](https://github.com/sws2apps/sws2apps-api/issues/33)
+
 # [2.0.0](https://github.com/sws2apps/sws2apps-api/compare/v1.0.3...v2.0.0) (2022-01-29)
 
 
