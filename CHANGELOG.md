@@ -1,3 +1,16 @@
+# [2.1.0](https://github.com/sws2apps/sws2apps-api/compare/v2.0.1...v2.1.0) (2022-01-29)
+
+
+### Bug Fixes
+
+* **congregation:** enhance congregation id generator ([a27c185](https://github.com/sws2apps/sws2apps-api/commit/a27c185f0e8621fd726f656f90170d8f48cb551d)), closes [#33](https://github.com/sws2apps/sws2apps-api/issues/33)
+
+
+### Features
+
+* **app:** change app from CommonJS to ES module ([b5c8527](https://github.com/sws2apps/sws2apps-api/commit/b5c85278ae42a8b46383cef71998a2f2728908e2))
+* **dependency:** update some dependencies to their latest version ([2f3b323](https://github.com/sws2apps/sws2apps-api/commit/2f3b323cc6c5531ff3fad4e88489b3e3a1922a54))
+
 ## [2.0.1](https://github.com/sws2apps/sws2apps-api/compare/v2.0.0...v2.0.1) (2022-01-29)
 
 
