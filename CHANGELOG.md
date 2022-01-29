@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/sws2apps/sws2apps-api/compare/v2.1.0...v2.1.1) (2022-01-29)
+
+
+### Bug Fixes
+
+* **app:** fix error on server startup ([0d13edf](https://github.com/sws2apps/sws2apps-api/commit/0d13edf3c3e6736865570832f8f202efd4b8d9ad))
+
 # [2.1.0](https://github.com/sws2apps/sws2apps-api/compare/v2.0.1...v2.1.0) (2022-01-29)
 
 
