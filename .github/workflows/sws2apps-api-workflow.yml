@@ -1,12 +1,60 @@
-name: API Deploy
+name: sws2apps CI & CD
 
 on:
   push:
-    branches: [ main, beta ]
-    
+    branches: [main, beta]
+  pull_request:
+    branches: [main, beta]
+  schedule:
+    - cron: '22 4 * * 6'
+
 jobs:
+  analyze:
+    name: Code QL
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript']
+
+    steps:
+      - name: Checkout repository for code analysis
+        uses: actions/checkout@v2
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
+
+  nodejs_scan:
+    name: NodeJS Scan
+    needs: [analyze]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+      - name: nodejsscan scan
+        id: njsscan
+        uses: ajinabraham/njsscan-action@7237412fdd36af517e2745077cedbf9d6900d711
+        with:
+          args: '. --sarif --output results.sarif || true'
+      - name: Upload njsscan report
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: results.sarif
+
   deploy_staging:
     name: Deploy API to Staging
+    needs: [nodejs_scan]
     if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/beta' }}
     environment:
       name: Staging
@@ -16,47 +64,7 @@ jobs:
     strategy:
       matrix:
         node-version: [16.x]
-    
-    steps:
-      - name: Checkout for release preparation
-        uses: actions/checkout@v2
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install package dependencies
-        run: npm ci
-
-      - name: Semantic Release
-        id: semantic
-        uses: cycjimmy/semantic-release-action@v2
-        with:
-          semantic_version: 18.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      
-      - name: Deploy API to Heroku
-        if: ${{ steps.semantic.outputs.new_release_published == 'true' && github.ref == 'refs/heads/beta' }}
-        uses: akhileshns/heroku-deploy@v3.12.12
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: staging-sws2apps
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
-
-  deploy_prod:
-    name: Deploy API to Production
-    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
-    environment:
-      name: Production
-      url: https://sws2apps.herokuapp.com
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [16.x]
-    
     steps:
       - name: Checkout for release preparation
         uses: actions/checkout@v2
@@ -78,7 +86,50 @@ jobs:
           semantic_version: 18.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      
+
+      - name: Deploy API to Heroku
+        if: ${{ steps.semantic.outputs.new_release_published == 'true' && github.ref == 'refs/heads/beta' }}
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: staging-sws2apps
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
+
+  deploy_prod:
+    name: Deploy API to Production
+    needs: [nodejs_scan]
+    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
+    environment:
+      name: Production
+      url: https://sws2apps.herokuapp.com
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - name: Checkout for release preparation
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install package dependencies
+        run: npm ci
+
+      - name: Semantic Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v2
+        with:
+          semantic_version: 18.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
       - name: Deploy API to Heroku
         if: ${{ steps.semantic.outputs.new_release_published == 'true' && github.ref == 'refs/heads/main' }}
         uses: akhileshns/heroku-deploy@v3.12.12
