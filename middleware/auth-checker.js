@@ -9,11 +9,15 @@ module.exports = () => {
 				.then(() => {
 					next();
 				})
-				.catch(() => {
+				.catch((err) => {
+					res.locals.type = 'warn';
+					res.locals.message = `an error occured: ${err.message}`;
 					res.locals.failedLoginAttempt = true;
 					res.status(403).send(JSON.stringify({ message: 'FORBIDDEN' }));
 				});
 		} else {
+			res.locals.type = 'warn';
+			res.locals.message = 'access denied: missing uid in request headers';
 			res.locals.failedLoginAttempt = true;
 			res.status(403).send(JSON.stringify({ message: 'FORBIDDEN' }));
 		}

@@ -5,8 +5,6 @@ const cors = require('cors');
 const limiter = require('express-rate-limit');
 const favicon = require('serve-favicon');
 const path = require('path');
-const requestIp = require('request-ip');
-const dateformat = require('dateformat');
 
 // load utils
 const { getServerVersion } = require('./utils/server');
@@ -110,24 +108,20 @@ app.get('/', async (req, res) => {
 
 // Handling invalid routes
 app.use((req, res) => {
+	res.locals.type = 'warn';
+	res.locals.message = 'invalid endpoint';
 	res.set('Content-Type', 'text/plain');
 	res.status(404).send(JSON.stringify({ message: 'INVALID_ENDPOINT' }));
-
-	res.on('finish', () => {
-		logger(req, 'warn', 'invalid endpoint');
-	});
 });
 
 // Handling any other errors
 app.use((error, req, res) => {
-	res.status(error.status || 500);
-	res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
+	res.locals.type = 'error';
+	res.locals.message = `An error occured: ${error.message}`;
 
-	res.on('finish', () => {
-		logger(req, 'error', `An error occured: ${error.message}`);
-	});
+	res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
 });
 
 app.listen(port, () => {
-	logger(undefined, 'info', `server up and running`);
+	logger(undefined, 'info', `server up and running (v${appVersion})`);
 });

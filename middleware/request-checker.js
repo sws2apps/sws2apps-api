@@ -8,7 +8,7 @@ const db = getFirestore(); //get default database
 
 module.exports = () => {
 	return async (req, res, next) => {
-		if (Boolean(process.env.NODE_LOGGER)) {
+		if (process.env.NODE_LOGGER === 'true') {
 			const clientIp = requestIp.getClientIp(req);
 			const reqTrackRef = db.collection('request_tracker').doc(clientIp);
 			const docSnap = await reqTrackRef.get();
@@ -68,7 +68,7 @@ module.exports = () => {
 				next();
 			}
 		} else {
-			next(); // skip request checker middleware during development
+			next();
 		}
 	};
 };

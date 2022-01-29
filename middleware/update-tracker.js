@@ -11,7 +11,7 @@ module.exports = () => {
 		const clientIp = requestIp.getClientIp(req);
 
 		res.on('finish', async () => {
-			if (Boolean(process.env.NODE_LOGGER)) {
+			if (process.env.NODE_LOGGER === 'true') {
 				let data = {};
 				data.reqInProgress = false;
 

@@ -22,11 +22,6 @@ const router = express.Router();
 router.use(authChecker());
 
 router.get('/generate-id', async (req, res) => {
-	res.on('finish', async () => {
-		const clientIp = requestIp.getClientIp(req);
-		await updateTracker(clientIp, { reqInProgress: false });
-	});
-
 	let setID = false;
 	let num;
 
@@ -43,6 +38,8 @@ router.get('/generate-id', async (req, res) => {
 		}
 	} while (setID === false);
 
+	res.locals.type = 'info';
+	res.locals.message = `congregation ID generated successfully`;
 	res.status(200).send(JSON.stringify({ message: num }));
 });
 
@@ -53,11 +50,6 @@ router.post(
 	body('cong_name').notEmpty(),
 	body('cong_number').isInt(),
 	async (req, res) => {
-		res.on('finish', async () => {
-			const clientIp = requestIp.getClientIp(req);
-			await updateTracker(clientIp, { reqInProgress: false });
-		});
-
 		if (req.headers.uid) {
 			const errors = validationResult(req);
 

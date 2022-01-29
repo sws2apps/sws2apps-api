@@ -1,3 +1,6 @@
+// this module is to log outside of res.on('finish')
+
+// dependency
 const dateformat = require('dateformat');
 const requestIp = require('request-ip');
 

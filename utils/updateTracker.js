@@ -4,7 +4,7 @@ const { getFirestore } = require('firebase-admin/firestore'); //load firestore S
 const db = getFirestore(); //get default database
 
 module.exports = async (clientIp, data) => {
-	if (Boolean(process.env.NODE_LOGGER)) {
+	if (process.env.NODE_LOGGER === 'true') {
 		const reqTrackRef = db.collection('request_tracker').doc(clientIp);
 		const docSnap = await reqTrackRef.get();
 
