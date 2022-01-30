@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/sws2apps/sws2apps-api/compare/v2.3.0...v2.4.0) (2022-01-30)
+
+
+### Features
+
+* **heroku-logger:** change winston from heroku-logger ([c854ce1](https://github.com/sws2apps/sws2apps-api/commit/c854ce10ce43ba40d5a3b794e389ae62dfb420af))
+
 # [2.3.0](https://github.com/sws2apps/sws2apps-api/compare/v2.2.2...v2.3.0) (2022-01-30)
 
 
