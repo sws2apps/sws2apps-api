@@ -1,3 +1,10 @@
+## [2.2.2](https://github.com/sws2apps/sws2apps-api/compare/v2.2.1...v2.2.2) (2022-01-30)
+
+
+### Bug Fixes
+
+* **logger:** change severity warn to warning ([95dec1b](https://github.com/sws2apps/sws2apps-api/commit/95dec1bcd758b8ac2ddc5ba282708e352543793a))
+
 ## [2.2.1](https://github.com/sws2apps/sws2apps-api/compare/v2.2.0...v2.2.1) (2022-01-30)
 
 
