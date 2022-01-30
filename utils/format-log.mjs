@@ -10,10 +10,10 @@ export const formatLog = (message, req, res) => {
 		const clientIp = requestIp.getClientIp(req);
 		log += `method=${req.method} `;
 		log += `status=${res.statusCode} `;
-		log += `path="${req.originalUrl}" `;
-		log += `origin="${req.headers.origin || req.hostname}(${clientIp})" `;
+		log += `path=${req.originalUrl} `;
+		log += `origin=${req.headers.origin || req.hostname}(${clientIp}) `;
 	}
-	log += `msg="${message}"`;
+	log += `details=${message}`;
 
 	return log;
 };

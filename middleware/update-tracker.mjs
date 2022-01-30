@@ -34,9 +34,9 @@ export const updateTracker = () => {
 			let log = '';
 			log += `method=${req.method} `;
 			log += `status=${res.statusCode} `;
-			log += `path="${req.originalUrl}" `;
-			log += `origin="${req.headers.origin || req.hostname}(${clientIp})" `;
-			log += `msg="${res.locals.message}"`;
+			log += `path=${req.originalUrl} `;
+			log += `origin=${req.headers.origin || req.hostname}(${clientIp}) `;
+			log += `details=${res.locals.message}`;
 
 			logger.log(res.locals.type, log);
 		});
