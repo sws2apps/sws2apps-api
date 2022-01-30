@@ -21,12 +21,12 @@ jobs:
 
     steps:
       - name: Checkout for release preparation
-        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2.4.0
+        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
         with:
           persist-credentials: false
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@1f8c6b94b26d0feae1e387ca63ccbdc44d27b561
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -35,7 +35,7 @@ jobs:
 
       - name: Semantic Release
         id: semantic
-        uses: cycjimmy/semantic-release-action@v2
+        uses: cycjimmy/semantic-release-action@5982a02995853159735cb838992248c4f0f16166
         with:
           semantic_version: 19.0.2
         env:
@@ -43,7 +43,7 @@ jobs:
 
       - name: Deploy API to Heroku
         if: ${{ steps.semantic.outputs.new_release_published == 'true' && github.ref == 'refs/heads/beta' }}
-        uses: akhileshns/heroku-deploy@v3.12.12
+        uses: akhileshns/heroku-deploy@79ef2ae4ff9b897010907016b268fd0f88561820
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: dev-sws2apps
