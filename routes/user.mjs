@@ -36,9 +36,7 @@ router.post('/login', async (req, res) => {
 				res.locals.failedLoginAttempt = true;
 				res.locals.type = 'warn';
 				res.locals.message = `user failed to login: ${data.error.message}`;
-				res
-					.status(data.error.code)
-					.send(JSON.stringify({ message: data.error.message }));
+				res.status(data.error.code).json({ message: data.error.message });
 			} else {
 				const uid = data.localId;
 
@@ -48,13 +46,11 @@ router.post('/login', async (req, res) => {
 						if (userRecord.emailVerified) {
 							res.locals.type = 'info';
 							res.locals.message = 'user success login';
-							res
-								.status(200)
-								.send(JSON.stringify({ message: uid, verified: true }));
+							res.status(200).json({ message: uid, verified: true });
 						} else {
 							res.locals.type = 'warn';
 							res.locals.message = 'user account not verified';
-							res.status(200).send(JSON.stringify({ message: 'NOT_VERIFIED' }));
+							res.status(200).json({ message: 'NOT_VERIFIED' });
 						}
 
 						await tracker(clientIp, {
@@ -65,18 +61,14 @@ router.post('/login', async (req, res) => {
 					.catch((err) => {
 						res.locals.type = 'warn';
 						res.locals.message = `user failed to login: ${err.message}`;
-						res
-							.status(500)
-							.send(JSON.stringify({ message: 'Internal server error' }));
+						res.status(500).json({ message: 'Internal server error' });
 					});
 			}
 		})
 		.catch((err) => {
 			res.locals.type = 'warn';
 			res.locals.message = err.message;
-			res
-				.status(500)
-				.send(JSON.stringify({ message: 'Internal server error' }));
+			res.status(500).json({ message: 'Internal server error' });
 		});
 });
 
@@ -85,9 +77,6 @@ router.post(
 	body('email').isEmail(),
 	body('password').isLength({ min: 6 }),
 	async (req, res) => {
-		res.on('error', () => {
-			console.log('error');
-		});
 		const errors = validationResult(req);
 
 		if (!errors.isEmpty()) {
@@ -99,11 +88,9 @@ router.post(
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: ${msg}`;
 
-			res.status(400).send(
-				JSON.stringify({
-					message: 'Bad request: provided inputs are invalid.',
-				})
-			);
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
 
 			return;
 		}
@@ -116,21 +103,32 @@ router.post(
 				disabled: false,
 			})
 			.then((userRecord) => {
-				const userEmail = userRecord.email;
-				getAuth()
-					.generateEmailVerificationLink(userEmail)
-					.then((link) => {
-						sendVerificationEmail(userEmail, link);
+				if (process.env.NODE_ENV === 'testing') {
+					const uid = userRecord.uid;
+					getAuth()
+						.deleteUser(uid)
+						.then(() => {
+							res.status(200).json({ message: 'ACCOUNT_CREATED' });
+						});
+				} else {
+					const userEmail = userRecord.email;
+					getAuth()
+						.generateEmailVerificationLink(userEmail)
+						.then((link) => {
+							if (process.env.NODE_ENV !== 'testing') {
+								sendVerificationEmail(userEmail, link);
+							}
 
-						res.locals.type = 'info';
-						res.locals.message = `user account created and the verification email queued for sending`;
-						res.status(200).send(JSON.stringify({ message: 'CHECK_EMAIL' }));
-					})
-					.catch(() => {
-						res.locals.type = 'warn';
-						res.locals.message = `user account created, but the verification email could not be sent`;
-						res.status(200).send(JSON.stringify({ message: 'VERIFY_FAILED' }));
-					});
+							res.locals.type = 'info';
+							res.locals.message = `user account created and the verification email queued for sending`;
+							res.status(200).json({ message: 'CHECK_EMAIL' });
+						})
+						.catch(() => {
+							res.locals.type = 'warn';
+							res.locals.message = `user account created, but the verification email could not be sent`;
+							res.status(200).json({ message: 'VERIFY_FAILED' });
+						});
+				}
 			})
 			.catch((error) => {
 				if (error.errorInfo) {
@@ -138,21 +136,17 @@ router.post(
 						res.locals.type = 'warn';
 						res.locals.message = `request timed out due to network issue`;
 
-						res.status(504).send(
-							JSON.stringify({
-								message: 'Your request has timed out due to network issue.',
-							})
-						);
+						res.status(504).json({
+							message: 'Your request has timed out due to network issue.',
+						});
 					} else if (error.errorInfo.code === 'auth/email-already-exists') {
 						res.locals.type = 'warn';
 						res.locals.message = `the email address is already in use`;
 
-						res.status(403).send(
-							JSON.stringify({
-								message:
-									'The email address is already in use by another account.',
-							})
-						);
+						res.status(403).json({
+							message:
+								'The email address is already in use by another account.',
+						});
 					}
 
 					return;
@@ -161,11 +155,9 @@ router.post(
 				res.locals.type = 'warn';
 				res.locals.message = `an error occured: ${error}`;
 
-				res.status(500).send(
-					JSON.stringify({
-						message: 'An internal server error occured. Try again later.',
-					})
-				);
+				res.status(500).json({
+					message: 'An internal server error occured. Try again later.',
+				});
 			});
 	}
 );
@@ -186,11 +178,9 @@ router.post(
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: ${msg}`;
 
-			res.status(400).send(
-				JSON.stringify({
-					message: 'Bad request: provided inputs are invalid.',
-				})
-			);
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
 
 			return;
 		}
@@ -212,9 +202,7 @@ router.post(
 					res.locals.type = 'warn';
 					res.locals.message = `failed to resend verification message: ${data.error.message}`;
 
-					res
-						.status(data.error.code)
-						.send(JSON.stringify({ message: data.error.message }));
+					res.status(data.error.code).json({ message: data.error.message });
 				} else {
 					const uid = data.localId;
 
@@ -225,31 +213,27 @@ router.post(
 							getAuth()
 								.generateEmailVerificationLink(userEmail)
 								.then((link) => {
-									sendVerificationEmail(userEmail, link);
+									if (process.env.NODE_ENV !== 'testing') {
+										sendVerificationEmail(userEmail, link);
+									}
 
 									res.locals.type = 'info';
 									res.locals.message = `new verification email queued for sending`;
 
-									res
-										.status(200)
-										.send(JSON.stringify({ message: 'CHECK_EMAIL' }));
+									res.status(200).json({ message: 'CHECK_EMAIL' });
 								})
 								.catch(() => {
 									res.locals.type = 'warn';
 									res.locals.message = `new verification email could not be sent`;
 
-									res
-										.status(200)
-										.send(JSON.stringify({ message: 'VERIFY_FAILED' }));
+									res.status(200).json({ message: 'VERIFY_FAILED' });
 								});
 						})
 						.catch((err) => {
 							res.locals.type = 'warn';
 							res.locals.message = `failed to send new verification email: ${err.message}`;
 
-							res
-								.status(500)
-								.send(JSON.stringify({ message: 'Internal server error' }));
+							res.status(500).json({ message: 'Internal server error' });
 						});
 				}
 			})
@@ -257,15 +241,13 @@ router.post(
 				res.locals.type = 'warn';
 				res.locals.message = `failed to send new verification email: ${err.message}`;
 
-				res
-					.status(500)
-					.send(JSON.stringify({ message: 'Internal server error' }));
+				res.status(500).json({ message: 'Internal server error' });
 			});
 	}
 );
 
 // with inline middleware
-router.get('/get-backup', authChecker, async (req, res) => {
+router.get('/get-backup', async (req, res) => {
 	const uid = req.headers.uid;
 	getAuth()
 		.getUser(uid)
@@ -277,25 +259,23 @@ router.get('/get-backup', authChecker, async (req, res) => {
 				if (docSnap.data().lmmoa) {
 					res.locals.type = 'info';
 					res.locals.message = `get user backup success`;
-					res
-						.status(200)
-						.send(JSON.stringify({ message: docSnap.data().lmmoa }));
+					res.status(200).json({ message: docSnap.data().lmmoa });
 				} else {
 					res.locals.type = 'info';
 					res.locals.message = `the user has no backup`;
-					res.status(404).send(JSON.stringify({ message: 'NOT_FOUND' }));
+					res.status(404).json({ message: 'NOT_FOUND' });
 				}
 			} else {
 				res.locals.type = 'info';
 				res.locals.message = `the user has no backup`;
-				res.status(404).send(JSON.stringify({ message: 'NOT_FOUND' }));
+				res.status(404).json({ message: 'NOT_FOUND' });
 			}
 		})
 		.catch((err) => {
 			res.locals.type = 'warn';
 			res.locals.message = `an error occured while retrieving backup: ${err.message}`;
 
-			res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
+			res.status(500).json({ message: 'INTERNAL_ERROR' });
 		});
 });
 

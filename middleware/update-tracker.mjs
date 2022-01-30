@@ -10,9 +10,8 @@ const db = getFirestore();
 
 export const updateTracker = () => {
 	return async (req, res, next) => {
-		const clientIp = req.clientIp;
-
 		res.on('finish', async () => {
+			const clientIp = req.clientIp;
 			let data = {};
 			data.reqInProgress = false;
 
@@ -26,19 +25,25 @@ export const updateTracker = () => {
 				data.failedLoginAttempt = failedLoginAttempt;
 			}
 
+			if (process.env.NODE_ENV === 'testing') {
+				data.failedLoginAttempt = 0;
+			}
+
 			await db
 				.collection('request_tracker')
 				.doc(clientIp)
 				.set(data, { merge: true });
 
-			let log = '';
-			log += `method=${req.method} `;
-			log += `status=${res.statusCode} `;
-			log += `path=${req.originalUrl} `;
-			log += `origin=${req.headers.origin || req.hostname}(${clientIp}) `;
-			log += `details=${res.locals.message}`;
+			if (process.env.NODE_ENV !== 'testing') {
+				let log = '';
+				log += `method=${req.method} `;
+				log += `status=${res.statusCode} `;
+				log += `path=${req.originalUrl} `;
+				log += `origin=${req.headers.origin || req.hostname}(${clientIp}) `;
+				log += `details=${res.locals.message}`;
 
-			logger.log(res.locals.type, log);
+				logger(res.locals.type, log);
+			}
 		});
 
 		next();

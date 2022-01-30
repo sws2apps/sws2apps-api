@@ -46,6 +46,7 @@ export const requestChecker = () => {
 				res
 					.status(403)
 					.send(JSON.stringify({ message: 'BLOCKED_TEMPORARILY' }));
+
 				res.on('finish', async () => {
 					const currentD = new Date();
 					const retryDate = currentD.getTime() + 15 * 60000;

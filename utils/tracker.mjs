@@ -6,18 +6,20 @@ import { getFirestore } from 'firebase-admin/firestore';
 const db = getFirestore(); //get default database
 
 export const tracker = async (clientIp, data) => {
-	const reqTrackRef = db.collection('request_tracker').doc(clientIp);
-	const docSnap = await reqTrackRef.get();
+	if (process.env.NODE_ENV !== 'testing') {
+		const reqTrackRef = db.collection('request_tracker').doc(clientIp);
+		const docSnap = await reqTrackRef.get();
 
-	let failedLoginAttempt = docSnap.data().failedLoginAttempt;
-	failedLoginAttempt = failedLoginAttempt + 1;
+		let failedLoginAttempt = docSnap.data().failedLoginAttempt;
+		failedLoginAttempt = failedLoginAttempt + 1;
 
-	if (data.failedLoginAttempt) {
-		data = { ...data, failedLoginAttempt: failedLoginAttempt };
+		if (data.failedLoginAttempt) {
+			data = { ...data, failedLoginAttempt: failedLoginAttempt };
+		}
+
+		await db
+			.collection('request_tracker')
+			.doc(clientIp)
+			.set(data, { merge: true });
 	}
-
-	await db
-		.collection('request_tracker')
-		.doc(clientIp)
-		.set(data, { merge: true });
 };

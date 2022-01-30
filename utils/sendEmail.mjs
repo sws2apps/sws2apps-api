@@ -5,6 +5,7 @@ import path from 'path';
 
 // gmail config import
 import { gmailConfig } from '../config/gmail-config.mjs';
+import { logger } from './logger.mjs';
 
 const handlebarsOptions = {
 	viewEngine: {
@@ -38,11 +39,13 @@ export const sendVerificationEmail = async (recipient, activation) => {
 			return new Promise((resolve) => {
 				return transporter.sendMail(options, (error, info) => {
 					if (error) {
-						console.log('failed to send message: ', error.message);
-						console.log('Trying again ...');
+						logger(
+							'warn',
+							`failed to send message: ${error.message}. trying again ...`
+						);
 						return resolve(false);
 					}
-					console.log('message sent to ', options.to, info);
+					logger('info', `verification message sent to ${options.to}`);
 					return resolve(true);
 				});
 			});
@@ -52,4 +55,6 @@ export const sendVerificationEmail = async (recipient, activation) => {
 		retry = !runSend;
 		i++;
 	} while (i < intTry && retry);
+
+	return !retry;
 };
