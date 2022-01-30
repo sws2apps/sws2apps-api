@@ -8,7 +8,6 @@ permissions: read-all
 jobs:
   deploy_dev:
     name: Deploy API to Development
-    needs: [nodejsscan]
     if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/alpha' }}
     environment:
       name: Staging
