@@ -1,7 +1,9 @@
 // dependencies
 import 'dotenv/config';
-import moment from 'moment';
 import { getFirestore } from 'firebase-admin/firestore';
+
+// utils import
+import { logger } from '../utils/logger.mjs';
 
 // get firestore
 const db = getFirestore();
@@ -30,17 +32,16 @@ export const updateTracker = () => {
 				.set(data, { merge: true });
 
 			let log = '';
-			if (process.env.NODE_ENV !== 'production') {
-				log += `[${moment().format('YYYY-MM-DD HH:mm:ss')}] - `;
-			}
-			log += `at=${res.locals.type} `;
 			log += `method=${req.method} `;
 			log += `status=${res.statusCode} `;
 			log += `path="${req.originalUrl}" `;
-			log += `fwd="${req.headers.origin || req.hostname}(${clientIp})" `;
+			log += `origin="${req.headers.origin || req.hostname}(${clientIp})" `;
 			log += `msg="${res.locals.message}"`;
 
-			console.log(log);
+			logger.log({
+				level: res.locals.type,
+				message: log,
+			});
 		});
 
 		next();

@@ -1,24 +1,26 @@
-// this module is to log outside of res.on('finish')
+// dependency import
+import 'dotenv/config';
+import { createLogger, format, transports } from 'winston';
+const { combine, timestamp, printf } = format;
 
-// dependency
-import moment from 'moment';
-import requestIp from 'request-ip';
-
-export const logger = (type, message, req, res) => {
+const myFormat = printf(({ level, message, timestamp }) => {
 	let log = '';
 	if (process.env.NODE_ENV !== 'production') {
-		log += `[${moment().format('YYYY-MM-DD HH:mm:ss')}] - `;
+		log += `${timestamp} `;
 	}
+	log += `at=${level} `;
+	log += `${message}`;
 
-	log += `at=${type} `;
-	if (req && res) {
-		const clientIp = requestIp.getClientIp(req);
-		log += `method=${req.method} `;
-		log += `status=${res.statusCode} `;
-		log += `path="${req.originalUrl}" `;
-		log += `fwd="${req.headers.origin || req.hostname}(${clientIp})" `;
-	}
-	log += `msg="${message}"`;
+	return log;
+});
 
-	console.log(log);
-};
+export const logger = createLogger({
+	level: 'info',
+	format: format.json(),
+	transports: [
+		new transports.Console({
+			level: 'info',
+			format: combine(format.colorize(), timestamp(), myFormat),
+		}),
+	],
+});

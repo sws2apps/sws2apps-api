@@ -4,6 +4,7 @@
 import isOnline from 'is-online';
 
 // local utils
+import { formatLog } from '../utils/format-log.mjs';
 import { logger } from '../utils/logger.mjs';
 
 export const internetChecker = () => {
@@ -13,17 +14,22 @@ export const internetChecker = () => {
 				if (result) {
 					next();
 				} else {
-					logger(
-						'warning',
-						'the server could not make request to the internet',
-						req,
-						res
-					);
+					logger({
+						level: 'warn',
+						message: formatLog(
+							'the server could not make request to the internet',
+							req,
+							res
+						),
+					});
 					res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
 				}
 			})
 			.catch((err) => {
-				logger('warning', `an error occured: ${err.message}`, req, res);
+				logger({
+					level: 'warn',
+					message: formatLog(`an error occured: ${err.message}`, req, res),
+				});
 				res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
 			});
 	};
