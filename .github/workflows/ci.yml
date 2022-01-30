@@ -109,4 +109,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install package dependencies
-        run: npm ci && npm test
+        run: npm ci
+
+      - name: Run Unit Testing
+        run: npm test
