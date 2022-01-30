@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [main, beta, alpha]
+  pull_request:
+    branches: [main, beta, alpha]
+  schedule:
+    - cron: '22 4 * * 6'
+
+permissions: read-all
+
+jobs:
+  codeql:
+    name: Code QL
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript']
+
+    steps:
+      - name: Checkout repository for code analysis
+        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2.4.0
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
+
+  scorecards:
+    name: Scorecards Analysis
+    needs: [codeql]
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2.4.0
+        with:
+          persist-credentials: false
+
+      - name: 'Run analysis'
+        uses: ossf/scorecard-action@c8416b0b2bf627c349ca92fc8e3de51a64b005cf # v1.0.2
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          repo_token: ${{ secrets.SCORECARD_READ_TOKEN }}
+          publish_results: true
+
+      - name: 'Upload to code-scanning'
+        uses: github/codeql-action/upload-sarif@5f532563584d71fdef14ee64d17bafb34f751ce5 # v1.0.26
+        with:
+          sarif_file: results.sarif
+
+  nodejsscan:
+    name: NodeJS Scan
+    needs: [scorecards]
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2.4.0
+
+      - name: nodejsscan scan
+        id: njsscan
+        uses: ajinabraham/njsscan-action@7237412fdd36af517e2745077cedbf9d6900d711
+        with:
+          args: '. --sarif --output results.sarif || true'
+
+      - name: Upload njsscan report
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: results.sarif
