@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/sws2apps/sws2apps-api/compare/v2.2.0...v2.2.1) (2022-01-30)
+
+
+### Bug Fixes
+
+* **logger:** fix log formatting to follow heroku pattern ([c533509](https://github.com/sws2apps/sws2apps-api/commit/c533509865a566f02f36912d97083366ffaf15a8))
+
 # [2.2.0](https://github.com/sws2apps/sws2apps-api/compare/v2.1.2...v2.2.0) (2022-01-30)
 
 
