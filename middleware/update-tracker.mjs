@@ -38,10 +38,7 @@ export const updateTracker = () => {
 			log += `origin="${req.headers.origin || req.hostname}(${clientIp})" `;
 			log += `msg="${res.locals.message}"`;
 
-			logger.log({
-				level: res.locals.type,
-				message: log,
-			});
+			logger.log(res.locals.type, log);
 		});
 
 		next();

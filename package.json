@@ -25,6 +25,7 @@
     "express-rate-limit": "^6.2.0",
     "express-validator": "^6.14.0",
     "firebase-admin": "^10.0.0",
+    "heroku-logger": "^0.3.3",
     "is-online": "^9.0.1",
     "node-fetch": "^3.2.0",
     "nodemailer": "^6.7.2",
