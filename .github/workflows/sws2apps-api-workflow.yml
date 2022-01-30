@@ -2,9 +2,9 @@ name: sws2apps CI & CD
 
 on:
   push:
-    branches: [main, beta]
+    branches: [main, beta, alpha]
   pull_request:
-    branches: [main, beta]
+    branches: [main, beta, alpha]
   schedule:
     - cron: '22 4 * * 6'
 
@@ -87,6 +87,49 @@ jobs:
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: results.sarif
+
+  deploy_dev:
+    name: Deploy API to Development
+    needs: [nodejsscan]
+    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/alpha' }}
+    environment:
+      name: Staging
+      url: https://dev-sws2apps.herokuapp.com
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - name: Checkout for release preparation
+        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2.4.0
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install package dependencies
+        run: npm ci
+
+      - name: Semantic Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v2
+        with:
+          semantic_version: 18.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Deploy API to Heroku
+        if: ${{ steps.semantic.outputs.new_release_published == 'true' && github.ref == 'refs/heads/beta' }}
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: dev-sws2apps
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
 
   deploy_staging:
     name: Deploy API to Staging
