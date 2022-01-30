@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/sws2apps/sws2apps-api/compare/v2.1.2...v2.2.0) (2022-01-30)
+
+
+### Features
+
+* **middleware, utils:** update logger formatting output ([be66502](https://github.com/sws2apps/sws2apps-api/commit/be665024379b860b9c3ebd0e9a5c87d71e1a3411))
+
 ## [2.1.2](https://github.com/sws2apps/sws2apps-api/compare/v2.1.1...v2.1.2) (2022-01-29)
 
 
