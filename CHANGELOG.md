@@ -1,3 +1,15 @@
+# [2.3.0](https://github.com/sws2apps/sws2apps-api/compare/v2.2.2...v2.3.0) (2022-01-30)
+
+
+### Bug Fixes
+
+* **logger:** change all instances of logger to use winston library ([f447ee7](https://github.com/sws2apps/sws2apps-api/commit/f447ee72d1b14382448eedb2d1339b462083019b))
+
+
+### Features
+
+* **winston:** add winston as logger dependency ([514848f](https://github.com/sws2apps/sws2apps-api/commit/514848fad82d1e6cb4ece75da6bcdc2e4c5b11de))
+
 ## [2.2.2](https://github.com/sws2apps/sws2apps-api/compare/v2.2.1...v2.2.2) (2022-01-30)
 
 ### Bug Fixes
