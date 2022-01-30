@@ -1,3 +1,10 @@
+## [2.4.2](https://github.com/sws2apps/sws2apps-api/compare/v2.4.1...v2.4.2) (2022-01-30)
+
+
+### Bug Fixes
+
+* **app:** increase maximum number for rate limiter ([39245ba](https://github.com/sws2apps/sws2apps-api/commit/39245bac47cdbb40b619aae9eb0764fa2c3fe065))
+
 ## [2.4.1](https://github.com/sws2apps/sws2apps-api/compare/v2.4.0...v2.4.1) (2022-01-30)
 
 
