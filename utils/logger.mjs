@@ -10,15 +10,15 @@ export const logger = (type, message, req, res) => {
 		log += `[${moment().format('YYYY-MM-DD HH:mm:ss')}] - `;
 	}
 
-	log += `level=${type} `;
+	log += `at=${type} `;
 	if (req && res) {
 		const clientIp = requestIp.getClientIp(req);
 		log += `method=${req.method} `;
 		log += `status=${res.statusCode} `;
-		log += `path=${req.originalUrl} `;
-		log += `fwd=${req.headers.origin || req.hostname}(${clientIp}) `;
+		log += `path="${req.originalUrl}" `;
+		log += `fwd="${req.headers.origin || req.hostname}(${clientIp})" `;
 	}
-	log += `msg=${message}`;
+	log += `msg="${message}"`;
 
 	console.log(log);
 };
