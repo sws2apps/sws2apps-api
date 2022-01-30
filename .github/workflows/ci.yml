@@ -111,5 +111,12 @@ jobs:
       - name: Install package dependencies
         run: npm ci
 
-      - name: Run Unit Testing
+      - name: Run Test Unit
         run: npm test
+        env:
+          GOOGLE_CONFIG_BASE64: ${{ secrets.GOOGLE_CONFIG_BASE64 }}
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          SALT_ROUNDS: ${{ secrets.SALT_ROUNDS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_SENDER_NAME: ${{ secrets.GMAIL_SENDER_NAME }}
