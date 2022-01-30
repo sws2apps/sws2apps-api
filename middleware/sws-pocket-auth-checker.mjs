@@ -31,7 +31,7 @@ export const pocketAuthChecker = () => {
 					if (findIndex === -1) {
 						statusCode = 403;
 						statusMsg = 'FORBIDDEN';
-						res.locals.type = 'warn';
+						res.locals.type = 'warning';
 						res.locals.message = 'access denied: not a congregation user';
 					} else {
 						statusCode = 200;
@@ -41,19 +41,19 @@ export const pocketAuthChecker = () => {
 				} else {
 					statusCode = 403;
 					statusMsg = 'FORBIDDEN';
-					res.locals.type = 'warn';
+					res.locals.type = 'warning';
 					res.locals.message = 'access denied: incorrect congregation number';
 				}
 			} else {
 				statusCode = 403;
 				statusMsg = 'FORBIDDEN';
-				res.locals.type = 'warn';
+				res.locals.type = 'warning';
 				res.locals.message = 'access denied: incorrect congregation ID';
 			}
 		} else {
 			statusCode = 400;
 			statusMsg = 'MISSING_INFO';
-			res.locals.type = 'warn';
+			res.locals.type = 'warning';
 			res.locals.message = 'access denied: credentials missing';
 		}
 

@@ -18,14 +18,14 @@ export const requestChecker = () => {
 		if (docSnap.exists) {
 			const { reqInProgress, retryOn, failedLoginAttempt } = docSnap.data();
 			if (reqInProgress) {
-				res.locals.type = 'warn';
+				res.locals.type = 'warning';
 				res.locals.message =
 					'concurrent request from the same IP address blocked';
 				res.status(403).send(JSON.stringify({ message: 'WAIT_FOR_REQUEST' }));
 			} else if (retryOn !== '') {
 				const currentDate = new Date().getTime();
 				if (currentDate < retryOn) {
-					res.locals.type = 'warn';
+					res.locals.type = 'warning';
 					res.locals.message =
 						'login from this IP address has been blocked temporarily due to many failed attempts';
 					res
@@ -40,7 +40,7 @@ export const requestChecker = () => {
 					next();
 				}
 			} else if (failedLoginAttempt === 3) {
-				res.locals.type = 'warn';
+				res.locals.type = 'warning';
 				res.locals.message =
 					'login from this IP address has been blocked temporarily due to many failed attempts';
 				res

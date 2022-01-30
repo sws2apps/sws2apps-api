@@ -115,7 +115,7 @@ app.get('/', async (req, res) => {
 
 // Handling invalid routes
 app.use((req, res) => {
-	res.locals.type = 'warn';
+	res.locals.type = 'warning';
 	res.locals.message = 'invalid endpoint';
 	res.set('Content-Type', 'text/plain');
 	res.status(404).send(JSON.stringify({ message: 'INVALID_ENDPOINT' }));
@@ -123,7 +123,7 @@ app.use((req, res) => {
 
 // Handling error
 app.use((error, req, res, next) => {
-	res.locals.type = 'warn';
+	res.locals.type = 'warning';
 	res.locals.message = `an error occured: ${error.stack}`;
 	res.set('Content-Type', 'text/plain');
 	res.status(404).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
