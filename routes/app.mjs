@@ -93,7 +93,7 @@ app.use(requestChecker());
 app.use(
 	rateLimit({
 		windowMs: 1000,
-		max: 1,
+		max: 20,
 		message: JSON.stringify({
 			message: 'TOO_MANY_REQUESTS',
 		}),
