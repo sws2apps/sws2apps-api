@@ -130,5 +130,5 @@ app.use((error, req, res, next) => {
 });
 
 app.listen(port, () => {
-	logger(undefined, 'info', `server up and running (v${appVersion})`);
+	logger('info', `server up and running (v${appVersion})`);
 });

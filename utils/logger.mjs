@@ -4,20 +4,21 @@
 import moment from 'moment';
 import requestIp from 'request-ip';
 
-export const logger = (req, type, message) => {
+export const logger = (type, message, req, res) => {
 	let log = '';
 	if (process.env.NODE_ENV !== 'production') {
 		log += `[${moment().format('YYYY-MM-DD HH:mm:ss')}] - `;
 	}
 
-	log += `${type} - `;
-	if (req) {
+	log += `level=${type} `;
+	if (req && res) {
 		const clientIp = requestIp.getClientIp(req);
-		log += `from ${req.origin || req.hostname}(${clientIp}) - `;
-		log += `to ${req.path} - `;
-		log += `using ${req.method} - `;
+		log += `method=${req.method} `;
+		log += `status=${res.statusCode} `;
+		log += `path=${req.originalUrl} `;
+		log += `fwd=${req.headers.origin || req.hostname}(${clientIp}) `;
 	}
-	log += `${message}`;
+	log += `msg=${message}`;
 
 	console.log(log);
 };

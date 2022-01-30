@@ -14,15 +14,16 @@ export const internetChecker = () => {
 					next();
 				} else {
 					logger(
-						req,
 						'warn',
-						'the server could not make request to the internet'
+						'the server could not make request to the internet',
+						req,
+						res
 					);
 					res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
 				}
 			})
 			.catch((err) => {
-				logger(req, 'warn', `an error occured: ${err.message}`);
+				logger('warn', `an error occured: ${err.message}`, req, res);
 				res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
 			});
 	};

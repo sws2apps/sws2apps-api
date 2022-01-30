@@ -33,11 +33,12 @@ export const updateTracker = () => {
 			if (process.env.NODE_ENV !== 'production') {
 				log += `[${moment().format('YYYY-MM-DD HH:mm:ss')}] - `;
 			}
-			log += `${res.locals.type} - `;
-			log += `from ${req.headers.origin || req.hostname}(${clientIp}) - `;
-			log += `to ${req.originalUrl} - `;
-			log += `using ${req.method} - `;
-			log += `${res.locals.message}`;
+			log += `level=${res.locals.type} `;
+			log += `method=${req.method} `;
+			log += `status=${res.statusCode} `;
+			log += `path=${req.originalUrl} `;
+			log += `fwd=${req.headers.origin || req.hostname}(${clientIp}) `;
+			log += `msg=${res.locals.message}`;
 
 			console.log(log);
 		});
