@@ -1,3 +1,10 @@
+## [2.4.3](https://github.com/sws2apps/sws2apps-api/compare/v2.4.2...v2.4.3) (2022-02-01)
+
+
+### Bug Fixes
+
+* **deps:** remove winston from dependency ([7942cae](https://github.com/sws2apps/sws2apps-api/commit/7942caeeb74560f030c9814000f891ea291c1c5a))
+
 ## [2.4.2](https://github.com/sws2apps/sws2apps-api/compare/v2.4.1...v2.4.2) (2022-01-30)
 
 
