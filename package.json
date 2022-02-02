@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon index.mjs",
     "start": "cross-env NODE_ENV=production node index.mjs",
-    "test": "c8 mocha",
-    "coverage": "c8 --check-coverage mocha",
+    "test": "c8 --reporter=lcov --reporter=text mocha",
     "preghcommit": "git add .",
     "ghcommit": "git-cz",
     "semantic-release": "semantic-release"
