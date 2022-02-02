@@ -9,9 +9,19 @@ import { logger } from '../utils/logger.mjs';
 
 export const internetChecker = () => {
 	return async (req, res, next) => {
-		isOnline()
-			.then((result) => {
-				if (result) {
+		try {
+			if (process.env.TEST_SERVER_STATUS === 'error') {
+				throw new Error('this is a test error message');
+			}
+
+			isOnline().then((result) => {
+				let online = result;
+
+				if (process.env.TEST_SERVER_STATUS === 'offline') {
+					online = false;
+				}
+
+				if (online) {
 					next();
 				} else {
 					logger(
@@ -22,12 +32,11 @@ export const internetChecker = () => {
 							res
 						)
 					);
-					res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
+					res.status(500).json({ message: 'INTERNAL_ERROR' });
 				}
-			})
-			.catch((err) => {
-				logger('warn', formatLog(`an error occured: ${err.message}`, req, res));
-				res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
 			});
+		} catch (err) {
+			next(err);
+		}
 	};
 };

@@ -1,5 +1,4 @@
 // dependencies
-import 'dotenv/config';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // utils import
@@ -10,42 +9,50 @@ const db = getFirestore();
 
 export const updateTracker = () => {
 	return async (req, res, next) => {
-		res.on('finish', async () => {
-			const clientIp = req.clientIp;
-			let data = {};
-			data.reqInProgress = false;
-
-			if (res.locals.failedLoginAttempt) {
-				const reqTrackRef = db.collection('request_tracker').doc(clientIp);
-				const docSnap = await reqTrackRef.get();
-
-				let failedLoginAttempt = docSnap.data().failedLoginAttempt;
-				failedLoginAttempt = failedLoginAttempt + 1;
-
-				data.failedLoginAttempt = failedLoginAttempt;
+		try {
+			if (process.env.TEST_SERVER_STATUS === 'error') {
+				throw new Error('this is a test error message');
 			}
 
-			if (process.env.NODE_ENV === 'testing') {
-				data.failedLoginAttempt = 0;
-			}
+			res.on('finish', async () => {
+				const clientIp = req.clientIp;
+				let data = {};
+				data.reqInProgress = false;
 
-			await db
-				.collection('request_tracker')
-				.doc(clientIp)
-				.set(data, { merge: true });
+				if (res.locals.failedLoginAttempt) {
+					const reqTrackRef = db.collection('request_tracker').doc(clientIp);
+					const docSnap = await reqTrackRef.get();
 
-			if (process.env.NODE_ENV !== 'testing') {
-				let log = '';
-				log += `method=${req.method} `;
-				log += `status=${res.statusCode} `;
-				log += `path=${req.originalUrl} `;
-				log += `origin=${req.headers.origin || req.hostname}(${clientIp}) `;
-				log += `details=${res.locals.message}`;
+					let failedLoginAttempt = docSnap.data().failedLoginAttempt;
+					failedLoginAttempt = failedLoginAttempt + 1;
 
-				logger(res.locals.type, log);
-			}
-		});
+					data.failedLoginAttempt = failedLoginAttempt;
+				}
 
-		next();
+				if (process.env.NODE_ENV === 'testing') {
+					data.failedLoginAttempt = 0;
+				}
+
+				await db
+					.collection('request_tracker')
+					.doc(clientIp)
+					.set(data, { merge: true });
+
+				if (process.env.NODE_ENV !== 'testing') {
+					let log = '';
+					log += `method=${req.method} `;
+					log += `status=${res.statusCode} `;
+					log += `path=${req.originalUrl} `;
+					log += `origin=${req.headers.origin || req.hostname}(${clientIp}) `;
+					log += `details=${res.locals.message}`;
+
+					logger(res.locals.type, log);
+				}
+			});
+
+			next();
+		} catch (err) {
+			next(err);
+		}
 	};
 };

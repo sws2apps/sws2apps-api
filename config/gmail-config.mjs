@@ -1,5 +1,3 @@
-import 'dotenv/config';
-
 const GMAIL_ADDRESS = process.env.GMAIL_ADDRESS;
 const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
 const GMAIL_SENDER_NAME = process.env.GMAIL_SENDER_NAME;

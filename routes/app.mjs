@@ -104,10 +104,18 @@ app.use('/api/congregation', congregationRoute);
 app.use('/api/sws-pocket', swsPocketRoute);
 app.use('/api/user', userRoute);
 
-app.get('/', async (req, res) => {
-	res.locals.type = 'info';
-	res.locals.message = 'success opening main route';
-	res.send(`SWS Apps API services v${appVersion}`);
+app.get('/', async (req, res, next) => {
+	try {
+		if (process.env.TEST_SERVER_STATUS === 'error') {
+			throw new Error('error emulator');
+		} else {
+			res.locals.type = 'info';
+			res.locals.message = 'success opening main route';
+			res.send(`SWS Apps API services v${appVersion}`);
+		}
+	} catch (err) {
+		next(err);
+	}
 });
 
 // Handling invalid routes
@@ -120,8 +128,14 @@ app.use((req, res) => {
 // Handling error
 app.use((error, req, res, next) => {
 	res.locals.type = 'warn';
-	res.locals.message = `an error occured: ${error.stack}`;
-	res.status(404).json({ message: 'INTERNAL_ERROR' });
+	res.locals.message = `an error occured: ${error.stack || error}`;
+	if (error.errorInfo?.code === 'auth/email-already-exists') {
+		res.status(403).json({
+			message: 'The email address is already in use by another account.',
+		});
+	} else {
+		res.status(500).json({ message: 'INTERNAL_ERROR' });
+	}
 });
 
 export default app;

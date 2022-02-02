@@ -112,7 +112,7 @@ jobs:
         run: npm ci
 
       - name: Run Test Unit
-        run: npm test
+        run: npm run coverage
         env:
           GOOGLE_CONFIG_BASE64: ${{ secrets.GOOGLE_CONFIG_BASE64 }}
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
@@ -120,3 +120,8 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_SENDER_NAME: ${{ secrets.GMAIL_SENDER_NAME }}
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@9ba913c152ae4be1327bfb9085dc806cedb44057
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

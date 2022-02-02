@@ -9,65 +9,74 @@ const db = getFirestore();
 
 export const pocketAuthChecker = () => {
 	return async (req, res, next) => {
-		const congID = req.headers.cong_id;
-		const congNum = req.headers.cong_num;
-		const userPIN = req.headers.user_pin;
+		try {
+			if (process.env.TEST_POCKET_MIDDLEWARE_STATUS === 'error') {
+				throw new Error('this is a test error message');
+			}
 
-		let statusCode;
-		let statusMsg;
+			const congID = req.headers.cong_id;
+			const congNum = req.headers.cong_num;
+			const userPIN = req.headers.user_pin;
 
-		if (congID && congNum & userPIN) {
-			const congRef = db.collection('congregation_data').doc(congID);
-			const docSnap = await congRef.get();
+			let statusCode;
+			let statusMsg;
 
-			if (docSnap.exists) {
-				const isValidNum = docSnap.data().congNumber === congNum;
-				if (isValidNum) {
-					const pocketUsers = docSnap.data().pocketUsers || [];
-					const findIndex = pocketUsers.findIndex(
-						(user) => user.PIN === +userPIN
-					);
+			if (congID && congNum && userPIN) {
+				const congRef = db.collection('congregation_data').doc(congID);
+				const docSnap = await congRef.get();
 
-					if (findIndex === -1) {
+				if (docSnap.exists) {
+					const isValidNum = docSnap.data().congNumber === congNum;
+					if (isValidNum) {
+						const pocketUsers = docSnap.data().pocketUsers;
+						const findIndex = pocketUsers.findIndex(
+							(user) => user.PIN === +userPIN
+						);
+
+						if (findIndex === -1) {
+							statusCode = 403;
+							statusMsg = 'FORBIDDEN';
+							res.locals.type = 'warn';
+							res.locals.message = 'access denied: not a congregation user';
+						} else {
+							statusCode = 200;
+							res.locals.type = 'info';
+							res.locals.message = 'connected successfully to a congregation';
+						}
+					} else {
 						statusCode = 403;
 						statusMsg = 'FORBIDDEN';
 						res.locals.type = 'warn';
-						res.locals.message = 'access denied: not a congregation user';
-					} else {
-						statusCode = 200;
-						res.locals.type = 'info';
-						res.locals.message = 'connected successfully to a congregation';
+						res.locals.message = 'access denied: incorrect congregation number';
 					}
 				} else {
 					statusCode = 403;
 					statusMsg = 'FORBIDDEN';
 					res.locals.type = 'warn';
-					res.locals.message = 'access denied: incorrect congregation number';
+					res.locals.message = 'access denied: incorrect congregation ID';
 				}
 			} else {
-				statusCode = 403;
-				statusMsg = 'FORBIDDEN';
+				statusCode = 400;
+				statusMsg = 'MISSING_INFO';
 				res.locals.type = 'warn';
-				res.locals.message = 'access denied: incorrect congregation ID';
+				res.locals.message = 'access denied: credentials missing';
 			}
-		} else {
-			statusCode = 400;
-			statusMsg = 'MISSING_INFO';
-			res.locals.type = 'warn';
-			res.locals.message = 'access denied: credentials missing';
-		}
 
-		if (statusCode === 200) {
-			await tracker(clientIp, {
-				failedLoginAttempt: 0,
-				retryOn: '',
-			});
-			next();
-		} else if (statusCode === 403) {
-			res.locals.failedLoginAttempt = true;
-			res.status(statusCode).send(JSON.stringify({ message: statusMsg }));
-		} else {
-			res.status(statusCode).send(JSON.stringify({ message: statusMsg }));
+			if (statusCode === 200) {
+				const clientIp = req.clientIp;
+				await tracker(clientIp, {
+					failedLoginAttempt: 0,
+					retryOn: '',
+				});
+				next();
+			} else if (statusCode === 403) {
+				res.locals.failedLoginAttempt = true;
+				res.status(statusCode).json({ message: statusMsg });
+			} else {
+				res.status(statusCode).json({ message: statusMsg });
+			}
+		} catch (err) {
+			next(err);
 		}
 	};
 };

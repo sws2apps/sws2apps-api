@@ -76,6 +76,7 @@ router.post(
 								congName: congName,
 								congNumber: congNumber,
 								congPassword: hash,
+								pocketUsers: [],
 								vipUsers: [encryptedData],
 							};
 							await db

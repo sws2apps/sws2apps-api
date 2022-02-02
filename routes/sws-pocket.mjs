@@ -10,12 +10,7 @@ router.use(pocketAuthChecker());
 
 // Login route
 router.get('/login', async (req, res) => {
-	res.status(200).send(JSON.stringify({ message: 'OK' }));
-});
-
-// Get schedules
-router.get('/schedules', async (req, res) => {
-	res.status(200).send(JSON.stringify({ message: 'OK' }));
+	res.status(200).json({ message: 'USER_LOGGED' });
 });
 
 export default router;

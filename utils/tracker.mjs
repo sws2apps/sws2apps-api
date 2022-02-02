@@ -1,5 +1,4 @@
 // dependencies
-import 'dotenv/config';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // get firestore

@@ -1,5 +1,4 @@
 // dependency import
-import 'dotenv/config';
 import { Logger } from 'heroku-logger';
 
 export const logger = (level, message) => {
