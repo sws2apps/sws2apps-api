@@ -112,7 +112,7 @@ jobs:
         run: npm ci
 
       - name: Run Test Unit
-        run: npm run coverage
+        run: npm test
         env:
           GOOGLE_CONFIG_BASE64: ${{ secrets.GOOGLE_CONFIG_BASE64 }}
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
