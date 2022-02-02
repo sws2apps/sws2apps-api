@@ -1,6 +1,6 @@
  {
     "reporter": [
-      "html",
+      "lcov",
       "text"
     ],
   }
