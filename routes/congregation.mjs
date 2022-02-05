@@ -9,6 +9,7 @@ import { getAuth } from 'firebase-admin/auth';
 
 // middleware import
 import { authChecker } from '../middleware/auth-checker.mjs';
+import { logger } from '../utils/logger.mjs';
 
 // get firestore
 const db = getFirestore();
@@ -119,12 +120,16 @@ router.post(
 	body('cong_password').isLength({ min: 8 }),
 	body('cong_name').notEmpty(),
 	body('cong_number').isInt(),
-	async (req, res) => {
-		if (req.headers.uid) {
+	async (req, res, next) => {
+		try {
+			if (process.env.TEST_CONGREGATION_STATUS === 'error') {
+				throw new Error('this is a test error message');
+			}
+
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
-				res.status(400).send(JSON.stringify({ message: 'INPUT_INVALID' }));
+				res.status(400).json({ message: 'INPUT_INVALID' });
 
 				return;
 			}
@@ -149,12 +154,6 @@ router.post(
 						// check password
 						const hashedPwd = docSnap.data().congPassword;
 						bcrypt.compare(congPassword, hashedPwd, async (err, result) => {
-							if (err) {
-								// error while comparing hash
-								res
-									.status(500)
-									.send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
-							}
 							if (result) {
 								// check if email can access congregation data
 								const vipUsersEncrypted = docSnap.data().vipUsers;
@@ -179,28 +178,23 @@ router.post(
 										.collection('congregation_data')
 										.doc(congID.toString())
 										.set(data, { merge: true });
-									res.status(200).send(JSON.stringify({ message: 'OK' }));
+									res.status(200).json({ message: 'OK' });
 								} else {
 									// forbbiden
-									res
-										.status(403)
-										.send(JSON.stringify({ message: 'FORBIDDEN' }));
+									res.status(403).json({ message: 'FORBIDDEN' });
 								}
 							} else {
 								// wrong password
-								res.status(403).send(JSON.stringify({ message: 'FORBIDDEN' }));
+								res.status(403).json({ message: 'FORBIDDEN' });
 							}
 						});
 					} else {
 						// congregation id not found
-						res.status(404).send(JSON.stringify({ message: 'NOT_FOUND' }));
+						res.status(404).json({ message: 'NOT_FOUND' });
 					}
-				})
-				.catch(() => {
-					res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
 				});
-		} else {
-			res.status(403).send(JSON.stringify({ message: 'FORBIDDEN' }));
+		} catch (err) {
+			next(err);
 		}
 	}
 );
@@ -212,12 +206,16 @@ router.post(
 	body('cong_password_new').isLength({ min: 8 }),
 	body('cong_name').notEmpty(),
 	body('cong_number').isInt(),
-	async (req, res) => {
-		if (req.headers.uid) {
+	async (req, res, next) => {
+		try {
+			if (process.env.TEST_CONGREGATION_STATUS === 'error') {
+				throw new Error('this is a test error message');
+			}
+
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
-				res.status(400).send(JSON.stringify({ message: 'INPUT_INVALID' }));
+				res.status(400).json({ message: 'INPUT_INVALID' });
 
 				return;
 			}
@@ -243,12 +241,6 @@ router.post(
 						// check password
 						const hashedPwd = docSnap.data().congPassword;
 						bcrypt.compare(congPasswordOld, hashedPwd, async (err, result) => {
-							if (err) {
-								// error while comparing hash
-								res
-									.status(500)
-									.send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
-							}
 							if (result) {
 								// check if email can access congregation data
 								const vipUsersEncrypted = docSnap.data().vipUsers;
@@ -278,30 +270,25 @@ router.post(
 												.collection('congregation_data')
 												.doc(congID.toString())
 												.set(data, { merge: true });
-											res.status(200).send(JSON.stringify({ message: 'OK' }));
+											res.status(200).json({ message: 'OK' });
 										});
 									});
 								} else {
 									// forbbiden
-									res
-										.status(403)
-										.send(JSON.stringify({ message: 'FORBIDDEN' }));
+									res.status(403).json({ message: 'FORBIDDEN' });
 								}
 							} else {
 								// wrong password
-								res.status(403).send(JSON.stringify({ message: 'FORBIDDEN' }));
+								res.status(403).json({ message: 'FORBIDDEN' });
 							}
 						});
 					} else {
 						// congregation id not found
-						res.status(404).send(JSON.stringify({ message: 'NOT_FOUND' }));
+						res.status(404).json({ message: 'NOT_FOUND' });
 					}
-				})
-				.catch(() => {
-					res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
 				});
-		} else {
-			res.status(403).send(JSON.stringify({ message: 'FORBIDDEN' }));
+		} catch (err) {
+			next(err);
 		}
 	}
 );

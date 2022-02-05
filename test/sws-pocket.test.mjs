@@ -15,7 +15,7 @@ describe('SWS Pocket Route APIs', () => {
 			chai
 				.request(app)
 				.get('/api/sws-pocket/login')
-				.set('cong_id', '6838038446')
+				.set('cong_id', '6220233869')
 				.set('cong_num', '1234')
 				.set('user_pin', '123456')
 				.end((err, res) => {

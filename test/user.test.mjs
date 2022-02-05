@@ -13,7 +13,7 @@ chai.use(chaiHttp);
 describe('User Route APIs', () => {
 	describe('POST /api/user/login (error catch)', () => {
 		before(() => {
-			process.env.TEST_SERVER_STATUS = 'error';
+			process.env.TEST_USER_STATUS = 'error';
 		});
 
 		it('It should return an error', (done) => {
@@ -35,8 +35,48 @@ describe('User Route APIs', () => {
 		}).timeout(0);
 
 		after(() => {
-			process.env.TEST_SERVER_STATUS = 'online';
+			process.env.TEST_USER_STATUS = 'online';
 		});
+	});
+
+	describe('POST /api/user/login (invalid info)', () => {
+		it('It should return EMAIL_NOT_FOUND', (done) => {
+			chai
+				.request(app)
+				.post('/api/user/login')
+				.send({
+					email: 'sws2apps@gmail7.com',
+					password: 'sws2apps@gmail7.com',
+				})
+				.end((err, res) => {
+					if (err) done(err);
+					expect(res).to.have.status(400);
+					expect(res).to.have.property('body');
+					expect(res.body).to.have.property('message');
+					expect(res.body.message).to.equal('EMAIL_NOT_FOUND');
+					done();
+				});
+		}).timeout(0);
+	});
+
+	describe('POST /api/user/login (not verified)', () => {
+		it('It should return NOT_VERIFIED', (done) => {
+			chai
+				.request(app)
+				.post('/api/user/login')
+				.send({
+					email: 'nocheck@sws2apps.com',
+					password: '1234567890',
+				})
+				.end((err, res) => {
+					if (err) done(err);
+					expect(res).to.have.status(200);
+					expect(res).to.have.property('body');
+					expect(res.body).to.have.property('message');
+					expect(res.body.message).to.equal('NOT_VERIFIED');
+					done();
+				});
+		}).timeout(0);
 	});
 
 	describe('POST /api/user/login', () => {
@@ -60,7 +100,7 @@ describe('User Route APIs', () => {
 
 	describe('POST /api/user/create-account (error catch)', () => {
 		before(() => {
-			process.env.TEST_SERVER_STATUS = 'error';
+			process.env.TEST_USER_STATUS = 'error';
 		});
 
 		it('It should return an error', (done) => {
@@ -86,7 +126,7 @@ describe('User Route APIs', () => {
 		}).timeout(0);
 
 		after(() => {
-			process.env.TEST_SERVER_STATUS = 'online';
+			process.env.TEST_USER_STATUS = undefined;
 		});
 	});
 
@@ -116,7 +156,7 @@ describe('User Route APIs', () => {
 
 	describe('POST /api/user/resend-verification (error catch)', () => {
 		before(() => {
-			process.env.TEST_SERVER_STATUS = 'error';
+			process.env.TEST_USER_STATUS = 'error';
 		});
 
 		it('It should return an error', (done) => {
@@ -138,7 +178,7 @@ describe('User Route APIs', () => {
 		}).timeout(0);
 
 		after(() => {
-			process.env.TEST_SERVER_STATUS = 'online';
+			process.env.TEST_USER_STATUS = undefined;
 		});
 	});
 
@@ -164,7 +204,7 @@ describe('User Route APIs', () => {
 
 	describe('GET /api/user/get-backup (error catch)', () => {
 		before(() => {
-			process.env.TEST_SERVER_STATUS = 'error';
+			process.env.TEST_USER_STATUS = 'error';
 		});
 
 		it('It should return an error', (done) => {
@@ -182,7 +222,7 @@ describe('User Route APIs', () => {
 		}).timeout(0);
 
 		after(() => {
-			process.env.TEST_SERVER_STATUS = 'online';
+			process.env.TEST_USER_STATUS = undefined;
 		});
 	});
 

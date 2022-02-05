@@ -20,7 +20,7 @@ const router = express.Router();
 // without auth middleware
 router.post('/login', async (req, res, next) => {
 	try {
-		if (process.env.TEST_SERVER_STATUS === 'error') {
+		if (process.env.TEST_USER_STATUS === 'error') {
 			throw new Error('this is a test error message');
 		}
 
@@ -61,11 +61,6 @@ router.post('/login', async (req, res, next) => {
 							failedLoginAttempt: 0,
 							retryOn: '',
 						});
-					})
-					.catch((err) => {
-						res.locals.type = 'warn';
-						res.locals.message = `user failed to login: ${err.message}`;
-						res.status(500).json({ message: 'Internal server error' });
 					});
 			}
 		});
@@ -80,7 +75,7 @@ router.post(
 	body('password').isLength({ min: 6 }),
 	async (req, res, next) => {
 		try {
-			if (process.env.TEST_SERVER_STATUS === 'error') {
+			if (process.env.TEST_USER_STATUS === 'error') {
 				throw new Error('this is a test error message');
 			}
 
@@ -149,7 +144,7 @@ router.post(
 	body('password').isLength({ min: 6 }),
 	async (req, res, next) => {
 		try {
-			if (process.env.TEST_SERVER_STATUS === 'error') {
+			if (process.env.TEST_USER_STATUS === 'error') {
 				throw new Error('this is a test error message');
 			}
 
@@ -233,7 +228,7 @@ router.use(authChecker());
 // with inline middleware
 router.get('/get-backup', async (req, res, next) => {
 	try {
-		if (process.env.TEST_SERVER_STATUS === 'error') {
+		if (process.env.TEST_USER_STATUS === 'error') {
 			throw new Error('this is a test error message');
 		}
 
@@ -267,7 +262,7 @@ router.get('/get-backup', async (req, res, next) => {
 
 router.post('/send-backup', async (req, res, next) => {
 	try {
-		if (process.env.TEST_SERVER_STATUS === 'error') {
+		if (process.env.TEST_USER_STATUS === 'error') {
 			throw new Error('this is a test error message');
 		}
 
