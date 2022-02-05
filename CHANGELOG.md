@@ -1,3 +1,10 @@
+## [2.4.5](https://github.com/sws2apps/sws2apps-api/compare/v2.4.4...v2.4.5) (2022-02-05)
+
+
+### Bug Fixes
+
+* **deps:** remove unused dependencies ([dcffd5e](https://github.com/sws2apps/sws2apps-api/commit/dcffd5e8fa038c66454f9b26d6117d707690e1c7))
+
 ## [2.4.4](https://github.com/sws2apps/sws2apps-api/compare/v2.4.3...v2.4.4) (2022-02-03)
 
 
