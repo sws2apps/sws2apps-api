@@ -1,3 +1,10 @@
+## [2.4.4](https://github.com/sws2apps/sws2apps-api/compare/v2.4.3...v2.4.4) (2022-02-03)
+
+
+### Bug Fixes
+
+* **deps:** bump dotenv from 15.0.0 to 16.0.0 ([ccae4c6](https://github.com/sws2apps/sws2apps-api/commit/ccae4c618ebecf906bcc48c508c5f78720b63feb))
+
 ## [2.4.3](https://github.com/sws2apps/sws2apps-api/compare/v2.4.2...v2.4.3) (2022-02-01)
 
 
