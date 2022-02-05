@@ -10,10 +10,6 @@ const db = getFirestore();
 export const pocketAuthChecker = () => {
 	return async (req, res, next) => {
 		try {
-			if (process.env.TEST_POCKET_MIDDLEWARE_STATUS === 'error') {
-				throw new Error('this is a test error message');
-			}
-
 			const congID = req.headers.cong_id;
 			const congNum = req.headers.cong_num;
 			const userPIN = req.headers.user_pin;

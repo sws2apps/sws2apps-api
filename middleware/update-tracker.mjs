@@ -10,10 +10,6 @@ const db = getFirestore();
 export const updateTracker = () => {
 	return async (req, res, next) => {
 		try {
-			if (process.env.TEST_UPDATE_TRACKER_STATUS === 'error') {
-				throw new Error('this is a test error message');
-			}
-
 			res.on('finish', async () => {
 				const clientIp = req.clientIp;
 				let data = {};

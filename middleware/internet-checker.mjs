@@ -10,18 +10,8 @@ import { logger } from '../utils/logger.mjs';
 export const internetChecker = () => {
 	return async (req, res, next) => {
 		try {
-			if (process.env.TEST_SERVER_STATUS === 'error') {
-				throw new Error('this is a test error message');
-			}
-
 			isOnline().then((result) => {
-				let online = result;
-
-				if (process.env.TEST_SERVER_STATUS === 'offline') {
-					online = false;
-				}
-
-				if (online) {
+				if (result) {
 					next();
 				} else {
 					logger(

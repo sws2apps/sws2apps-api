@@ -10,39 +10,13 @@ const db = getFirestore(); //get default database
 export const requestChecker = () => {
 	return async (req, res, next) => {
 		try {
-			if (process.env.TEST_MIDDLEWARE_STATUS === 'error') {
-				throw new Error('this is a test error message');
-			}
-
 			const clientIp = req.clientIp;
 
 			const reqTrackRef = db.collection('request_tracker').doc(clientIp);
 			const docSnap = await reqTrackRef.get();
 
-			const isExist =
-				process.env.TEST_REQUEST_CHECKER_SNAP_EXIST === 'false'
-					? false
-					: docSnap.exists;
-
-			if (isExist) {
-				let { reqInProgress, retryOn, failedLoginAttempt } = docSnap.data();
-
-				reqInProgress =
-					process.env.TEST_REQUEST_CHECKER_REQ_INPROGRESS === 'true'
-						? process.env.TEST_REQUEST_CHECKER_REQ_INPROGRESS
-						: reqInProgress;
-
-				retryOn =
-					process.env.TEST_REQUEST_CHECKER_IP_BLOCKED === 'true'
-						? `${new Date().getTime() + 60000}`
-						: process.env.TEST_REQUEST_CHECKER_IP_BLOCKED === 'false'
-						? `${new Date().getTime() - 60000}`
-						: retryOn;
-
-				failedLoginAttempt =
-					process.env.TES_REQUEST_CHECKER_FAILED_LOGIN === '3'
-						? +process.env.TES_REQUEST_CHECKER_FAILED_LOGIN
-						: failedLoginAttempt;
+			if (docSnap.exists) {
+				const { reqInProgress, retryOn, failedLoginAttempt } = docSnap.data();
 
 				if (reqInProgress) {
 					res.locals.type = 'warn';

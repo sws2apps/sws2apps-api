@@ -20,10 +20,6 @@ const router = express.Router();
 // without auth middleware
 router.post('/login', async (req, res, next) => {
 	try {
-		if (process.env.TEST_USER_STATUS === 'error') {
-			throw new Error('this is a test error message');
-		}
-
 		const googleKit = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`;
 
 		fetch(googleKit, {
@@ -75,10 +71,6 @@ router.post(
 	body('password').isLength({ min: 6 }),
 	async (req, res, next) => {
 		try {
-			if (process.env.TEST_USER_STATUS === 'error') {
-				throw new Error('this is a test error message');
-			}
-
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
@@ -144,10 +136,6 @@ router.post(
 	body('password').isLength({ min: 6 }),
 	async (req, res, next) => {
 		try {
-			if (process.env.TEST_USER_STATUS === 'error') {
-				throw new Error('this is a test error message');
-			}
-
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
@@ -228,10 +216,6 @@ router.use(authChecker());
 // with inline middleware
 router.get('/get-backup', async (req, res, next) => {
 	try {
-		if (process.env.TEST_USER_STATUS === 'error') {
-			throw new Error('this is a test error message');
-		}
-
 		const uid = req.headers.uid;
 		getAuth()
 			.getUser(uid)
@@ -262,10 +246,6 @@ router.get('/get-backup', async (req, res, next) => {
 
 router.post('/send-backup', async (req, res, next) => {
 	try {
-		if (process.env.TEST_USER_STATUS === 'error') {
-			throw new Error('this is a test error message');
-		}
-
 		const uid = req.headers.uid;
 		const backupType = req.body.backup_type;
 

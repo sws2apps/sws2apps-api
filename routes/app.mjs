@@ -106,13 +106,9 @@ app.use('/api/user', userRoute);
 
 app.get('/', async (req, res, next) => {
 	try {
-		if (process.env.TEST_SERVER_STATUS === 'error') {
-			throw new Error('error emulator');
-		} else {
-			res.locals.type = 'info';
-			res.locals.message = 'success opening main route';
-			res.send(`SWS Apps API services v${appVersion}`);
-		}
+		res.locals.type = 'info';
+		res.locals.message = 'success opening main route';
+		res.send(`SWS Apps API services v${appVersion}`);
 	} catch (err) {
 		next(err);
 	}

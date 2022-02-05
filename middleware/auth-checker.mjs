@@ -3,10 +3,6 @@ import { getAuth } from 'firebase-admin/auth';
 export const authChecker = () => {
 	return async (req, res, next) => {
 		try {
-			if (process.env.TEST_AUTH_MIDDLEWARE_STATUS === 'error') {
-				throw new Error('this is a test error message');
-			}
-
 			const validPaths = [
 				'/get-backup',
 				'/send-backup',

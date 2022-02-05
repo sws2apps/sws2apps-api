@@ -19,10 +19,6 @@ router.use(authChecker());
 
 router.get('/generate-id', async (req, res, next) => {
 	try {
-		if (process.env.TEST_CONGREGATION_STATUS === 'error') {
-			throw new Error('this is a test error message');
-		}
-
 		let setID = false;
 		let num;
 
@@ -56,10 +52,6 @@ router.post(
 	body('cong_number').isNumeric(),
 	async (req, res, next) => {
 		try {
-			if (process.env.TEST_CONGREGATION_STATUS === 'error') {
-				throw new Error('this is a test error message');
-			}
-
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
@@ -122,10 +114,6 @@ router.post(
 	body('cong_number').isInt(),
 	async (req, res, next) => {
 		try {
-			if (process.env.TEST_CONGREGATION_STATUS === 'error') {
-				throw new Error('this is a test error message');
-			}
-
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
@@ -208,10 +196,6 @@ router.post(
 	body('cong_number').isInt(),
 	async (req, res, next) => {
 		try {
-			if (process.env.TEST_CONGREGATION_STATUS === 'error') {
-				throw new Error('this is a test error message');
-			}
-
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
