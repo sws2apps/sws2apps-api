@@ -28,6 +28,10 @@ var whitelist = [
 	'https://sws-pocket.firebaseapp.com',
 	'https://lmm-oa-sws.web.app',
 	'https://lmm-oa-sws.firebaseapp.com',
+	'https://dev-lmm-oa-sws.web.app',
+	'https://dev-lmm-oa-sws.firebaseapp.com',
+	'https://staging-lmm-oa-sws.web.app',
+	'https://staging-lmm-oa-sws.firebaseapp.com',
 ];
 
 var corsOptionsDelegate = function (req, callback) {
@@ -38,30 +42,7 @@ var corsOptionsDelegate = function (req, callback) {
 			if (whitelist.indexOf(reqOrigin) !== -1) {
 				corsOptions = { origin: true }; // reflect (enable) the requested origin in the CORS response
 			} else {
-				// allow alpha & beta release
-				if (
-					reqOrigin.startsWith('https://lmm-oa-sws--alpha') &&
-					reqOrigin.endsWith('.web.app')
-				) {
-					corsOptions = { origin: true };
-				} else if (
-					reqOrigin.startsWith('https://lmm-oa-sws--beta') &&
-					reqOrigin.endsWith('.web.app')
-				) {
-					corsOptions = { origin: true };
-				} else if (
-					reqOrigin.startsWith('https://sws-pocket--alpha') &&
-					reqOrigin.endsWith('.web.app')
-				) {
-					corsOptions = { origin: true };
-				} else if (
-					reqOrigin.startsWith('https://sws-pocket--beta') &&
-					reqOrigin.endsWith('.web.app')
-				) {
-					corsOptions = { origin: true };
-				} else {
-					corsOptions = { origin: false }; // disable CORS for this request
-				}
+				corsOptions = { origin: false }; // disable CORS for this request
 			}
 		} else {
 			corsOptions = { origin: false };
