@@ -7,6 +7,7 @@
     "dev": "cross-env NODE_ENV=development nodemon index.mjs",
     "start": "cross-env NODE_ENV=production node index.mjs",
     "test": "c8 --reporter=lcov --reporter=text mocha",
+    "test-without-report": "mocha",
     "preghcommit": "git add .",
     "ghcommit": "git-cz",
     "semantic-release": "semantic-release"

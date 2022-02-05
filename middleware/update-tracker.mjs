@@ -10,7 +10,7 @@ const db = getFirestore();
 export const updateTracker = () => {
 	return async (req, res, next) => {
 		try {
-			if (process.env.TEST_SERVER_STATUS === 'error') {
+			if (process.env.TEST_UPDATE_TRACKER_STATUS === 'error') {
 				throw new Error('this is a test error message');
 			}
 
@@ -38,16 +38,24 @@ export const updateTracker = () => {
 					.doc(clientIp)
 					.set(data, { merge: true });
 
-				if (process.env.NODE_ENV !== 'testing') {
-					let log = '';
-					log += `method=${req.method} `;
-					log += `status=${res.statusCode} `;
-					log += `path=${req.originalUrl} `;
-					log += `origin=${req.headers.origin || req.hostname}(${clientIp}) `;
-					log += `details=${res.locals.message}`;
+				// if (process.env.NODE_ENV !== 'testing') {
+				// 	let log = '';
+				// 	log += `method=${req.method} `;
+				// 	log += `status=${res.statusCode} `;
+				// 	log += `path=${req.originalUrl} `;
+				// 	log += `origin=${req.headers.origin || req.hostname}(${clientIp}) `;
+				// 	log += `details=${res.locals.message}`;
 
-					logger(res.locals.type, log);
-				}
+				// 	logger(res.locals.type, log);
+				// }
+				let log = '';
+				log += `method=${req.method} `;
+				log += `status=${res.statusCode} `;
+				log += `path=${req.originalUrl} `;
+				log += `origin=${req.headers.origin || req.hostname}(${clientIp}) `;
+				log += `details=${res.locals.message}`;
+
+				logger(res.locals.type, log);
 			});
 
 			next();

@@ -16,27 +16,35 @@ const db = getFirestore();
 const router = express.Router();
 router.use(authChecker());
 
-router.get('/generate-id', async (req, res) => {
-	let setID = false;
-	let num;
-
-	do {
-		const min = 1000000000;
-		const max = 10000000000;
-
-		num = crypto.randomInt(min, max);
-
-		const congRef = db.collection('congregation_data').doc(num.toString());
-		const docSnap = await congRef.get();
-
-		if (!docSnap.exists) {
-			setID = true;
+router.get('/generate-id', async (req, res, next) => {
+	try {
+		if (process.env.TEST_CONGREGATION_STATUS === 'error') {
+			throw new Error('this is a test error message');
 		}
-	} while (setID === false);
 
-	res.locals.type = 'info';
-	res.locals.message = `congregation ID generated successfully`;
-	res.status(200).send(JSON.stringify({ message: num }));
+		let setID = false;
+		let num;
+
+		do {
+			const min = 1000000000;
+			const max = 10000000000;
+
+			num = crypto.randomInt(min, max);
+
+			const congRef = db.collection('congregation_data').doc(num.toString());
+			const docSnap = await congRef.get();
+
+			if (!docSnap.exists) {
+				setID = true;
+			}
+		} while (setID === false);
+
+		res.locals.type = 'info';
+		res.locals.message = `congregation ID generated successfully`;
+		res.status(200).json({ message: num });
+	} catch (err) {
+		next(err);
+	}
 });
 
 router.post(
@@ -44,13 +52,17 @@ router.post(
 	body('cong_id').isNumeric().isLength({ min: 10 }),
 	body('cong_password').isLength({ min: 8 }),
 	body('cong_name').notEmpty(),
-	body('cong_number').isInt(),
-	async (req, res) => {
-		if (req.headers.uid) {
+	body('cong_number').isNumeric(),
+	async (req, res, next) => {
+		try {
+			if (process.env.TEST_CONGREGATION_STATUS === 'error') {
+				throw new Error('this is a test error message');
+			}
+
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
-				res.status(400).send(JSON.stringify({ message: 'INPUT_INVALID' }));
+				res.status(400).json({ message: 'INPUT_INVALID' });
 
 				return;
 			}
@@ -83,15 +95,20 @@ router.post(
 								.collection('congregation_data')
 								.doc(congID.toString())
 								.set(data);
-							res.status(200).send(JSON.stringify({ message: 'OK' }));
+
+							if (process.env.NODE_ENV === 'testing') {
+								await db
+									.collection('congregation_data')
+									.doc(congID.toString())
+									.delete();
+							}
+
+							res.status(200).json({ message: 'OK' });
 						});
 					});
-				})
-				.catch(() => {
-					res.status(500).send(JSON.stringify({ message: 'INTERNAL_ERROR' }));
 				});
-		} else {
-			res.status(403).send(JSON.stringify({ message: 'FORBIDDEN' }));
+		} catch (err) {
+			next(err);
 		}
 	}
 );

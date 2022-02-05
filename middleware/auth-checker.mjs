@@ -7,7 +7,12 @@ export const authChecker = () => {
 				throw new Error('this is a test error message');
 			}
 
-			const validPaths = ['/get-backup', '/send-backup'];
+			const validPaths = [
+				'/get-backup',
+				'/send-backup',
+				'/generate-id',
+				'/create-account',
+			];
 
 			if (validPaths.findIndex((path) => path === req.path) >= 0) {
 				const uid = req.headers.uid;
