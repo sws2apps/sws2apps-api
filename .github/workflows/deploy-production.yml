@@ -21,8 +21,8 @@ jobs:
     steps:
       - name: Checkout for release preparation
         uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
-
         with:
+          ref: main
           persist-credentials: false
 
       - name: Use Node.js ${{ matrix.node-version }}

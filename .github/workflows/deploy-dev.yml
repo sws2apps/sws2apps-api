@@ -22,6 +22,7 @@ jobs:
       - name: Checkout for release preparation
         uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
         with:
+          ref: alpha
           persist-credentials: false
 
       - name: Use Node.js ${{ matrix.node-version }}

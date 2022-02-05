@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, beta, alpha]
+    branches: [main]
   pull_request:
-    branches: [main, beta, alpha]
+    branches: [main]
   schedule:
     - cron: '22 4 * * 6'
 
@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout repository for code analysis
         uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
+        with:
+          ref: main
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@1a927e9307bc11970b2c679922ebc4d03a5bd980
@@ -49,6 +51,7 @@ jobs:
       - name: 'Checkout code'
         uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
         with:
+          ref: main
           persist-credentials: false
 
       - name: 'Run analysis'
@@ -76,6 +79,8 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
+        with:
+          ref: main
 
       - name: nodejsscan scan
         id: njsscan
@@ -101,6 +106,7 @@ jobs:
       - name: Checkout for testing preparation
         uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
         with:
+          ref: main
           persist-credentials: false
 
       - name: Use Node.js ${{ matrix.node-version }}
