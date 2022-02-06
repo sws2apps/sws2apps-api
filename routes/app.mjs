@@ -102,7 +102,7 @@ app.use((req, res) => {
 	res.status(404).json({ message: 'INVALID_ENDPOINT' });
 });
 
-// Handling error
+// Handling error for all requests
 app.use((error, req, res, next) => {
 	res.locals.type = 'warn';
 	res.locals.message = `an error occured: ${error.stack || error}`;
