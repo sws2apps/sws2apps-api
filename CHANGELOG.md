@@ -1,3 +1,11 @@
+## [2.5.1](https://github.com/sws2apps/sws2apps-api/compare/v2.5.0...v2.5.1) (2022-02-06)
+
+
+### Bug Fixes
+
+* **app:** fix branch name error on development build ([169d457](https://github.com/sws2apps/sws2apps-api/commit/169d457af4b5fe67c8560a610bc6445f1ca3a2c3))
+* **semantic-release:** update release config to allow alpha release ([b204af3](https://github.com/sws2apps/sws2apps-api/commit/b204af3127c448e08ce51be26fe980f43d25c536))
+
 ## [2.5.1-alpha.3](https://github.com/sws2apps/sws2apps-api/compare/v2.5.1-alpha.2...v2.5.1-alpha.3) (2022-02-06)
 
 
