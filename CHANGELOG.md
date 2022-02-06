@@ -1,3 +1,10 @@
+# [2.5.0](https://github.com/sws2apps/sws2apps-api/compare/v2.4.5...v2.5.0) (2022-02-06)
+
+
+### Features
+
+* **app:** change whitelist for cors ([e0fe3a9](https://github.com/sws2apps/sws2apps-api/commit/e0fe3a9a5c3e6b6fe5bba7ed27c5d45db824ec93))
+
 ## [2.4.5](https://github.com/sws2apps/sws2apps-api/compare/v2.4.4...v2.4.5) (2022-02-05)
 
 
