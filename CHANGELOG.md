@@ -1,3 +1,10 @@
+## [2.5.2-alpha.1](https://github.com/sws2apps/sws2apps-api/compare/v2.5.1...v2.5.2-alpha.1) (2022-02-06)
+
+
+### Bug Fixes
+
+* **congregation:** add missing logger for some routes ([9b08a6b](https://github.com/sws2apps/sws2apps-api/commit/9b08a6bb305b1c93254aebda68391c0d6a34eb7c))
+
 ## [2.5.1](https://github.com/sws2apps/sws2apps-api/compare/v2.5.0...v2.5.1) (2022-02-06)
 
 
