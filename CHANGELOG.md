@@ -1,3 +1,10 @@
+## [2.5.1-alpha.3](https://github.com/sws2apps/sws2apps-api/compare/v2.5.1-alpha.2...v2.5.1-alpha.3) (2022-02-06)
+
+
+### Bug Fixes
+
+* **user.mjs:** fix undefined client ip variable ([0968531](https://github.com/sws2apps/sws2apps-api/commit/09685318d1fc771d8972a7c68934c277455a895d))
+
 ## [2.5.1-alpha.2](https://github.com/sws2apps/sws2apps-api/compare/v2.5.1-alpha.1...v2.5.1-alpha.2) (2022-02-06)
 
 
