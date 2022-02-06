@@ -117,6 +117,14 @@ router.post(
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
 				res.status(400).json({ message: 'INPUT_INVALID' });
 
 				return;
@@ -166,18 +174,30 @@ router.post(
 										.collection('congregation_data')
 										.doc(congID.toString())
 										.set(data, { merge: true });
+
+									res.locals.type = 'info';
+									res.locals.message =
+										'user successfully logged into congregation';
 									res.status(200).json({ message: 'OK' });
 								} else {
 									// forbbiden
+									res.locals.type = 'warn';
+									res.locals.message =
+										'user do not have access to access that congregation';
 									res.status(403).json({ message: 'FORBIDDEN' });
 								}
 							} else {
 								// wrong password
+								res.locals.type = 'warn';
+								res.locals.message =
+									'access denied because congregation password is incorrect.';
 								res.status(403).json({ message: 'FORBIDDEN' });
 							}
 						});
 					} else {
 						// congregation id not found
+						res.locals.type = 'warn';
+						res.locals.message = 'congregation id could not be found.';
 						res.status(404).json({ message: 'NOT_FOUND' });
 					}
 				});
@@ -199,6 +219,14 @@ router.post(
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
 				res.status(400).json({ message: 'INPUT_INVALID' });
 
 				return;
@@ -254,20 +282,31 @@ router.post(
 												.collection('congregation_data')
 												.doc(congID.toString())
 												.set(data, { merge: true });
+											res.locals.type = 'info';
+											res.locals.message =
+												'congregation password has been changed successfully';
 											res.status(200).json({ message: 'OK' });
 										});
 									});
 								} else {
 									// forbbiden
+									res.locals.type = 'warn';
+									res.locals.message =
+										'user do not have access to access that congregation';
 									res.status(403).json({ message: 'FORBIDDEN' });
 								}
 							} else {
 								// wrong password
+								res.locals.type = 'warn';
+								res.locals.message =
+									'access denied because congregation password is incorrect.';
 								res.status(403).json({ message: 'FORBIDDEN' });
 							}
 						});
 					} else {
 						// congregation id not found
+						res.locals.type = 'warn';
+						res.locals.message = 'congregation id could not be found.';
 						res.status(404).json({ message: 'NOT_FOUND' });
 					}
 				});

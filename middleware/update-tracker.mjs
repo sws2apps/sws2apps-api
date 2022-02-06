@@ -25,25 +25,11 @@ export const updateTracker = () => {
 					data.failedLoginAttempt = failedLoginAttempt;
 				}
 
-				if (process.env.NODE_ENV === 'testing') {
-					data.failedLoginAttempt = 0;
-				}
-
 				await db
 					.collection('request_tracker')
 					.doc(clientIp)
 					.set(data, { merge: true });
 
-				// if (process.env.NODE_ENV !== 'testing') {
-				// 	let log = '';
-				// 	log += `method=${req.method} `;
-				// 	log += `status=${res.statusCode} `;
-				// 	log += `path=${req.originalUrl} `;
-				// 	log += `origin=${req.headers.origin || req.hostname}(${clientIp}) `;
-				// 	log += `details=${res.locals.message}`;
-
-				// 	logger(res.locals.type, log);
-				// }
 				let log = '';
 				log += `method=${req.method} `;
 				log += `status=${res.statusCode} `;
