@@ -1,3 +1,10 @@
+## [2.5.1-alpha.1](https://github.com/sws2apps/sws2apps-api/compare/v2.5.0...v2.5.1-alpha.1) (2022-02-06)
+
+
+### Bug Fixes
+
+* **semantic-release:** update release config to allow alpha release ([b204af3](https://github.com/sws2apps/sws2apps-api/commit/b204af3127c448e08ce51be26fe980f43d25c536))
+
 # [2.5.0](https://github.com/sws2apps/sws2apps-api/compare/v2.4.5...v2.5.0) (2022-02-06)
 
 
