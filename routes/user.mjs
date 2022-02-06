@@ -53,7 +53,7 @@ router.post('/login', async (req, res, next) => {
 							res.status(200).json({ message: 'NOT_VERIFIED' });
 						}
 
-						await tracker(clientIp, {
+						await tracker(req.clientIp, {
 							failedLoginAttempt: 0,
 							retryOn: '',
 						});
