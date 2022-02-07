@@ -6,11 +6,11 @@ Please make sure that you have read the [code of conduct](https://github.com/sws
 
 ## Semantic Versioning
 
-SWS Pocket follows semantic versioning. We release patch versions for bugfixes, minor versions for new features or non-essential changes, and major versions for any breaking changes. Every significant change is documented in the [changelog](https://github.com/sws2apps/sws2apps-api/blob/main/CHANGELOG.md) file.
+SWS API follows semantic versioning. We release patch versions for bugfixes, minor versions for new features or non-essential changes, and major versions for any breaking changes. Every significant change is documented in the [changelog](https://github.com/sws2apps/sws2apps-api/blob/main/CHANGELOG.md) file.
 
 ## Branch Organization
 
-We used three different branches to make production, beta and alpha releases of SWS Pocket:
+We used three different branches to make production, beta and alpha releases of SWS API:
 
 | branch | whats for                                                                         |
 | :----- | :-------------------------------------------------------------------------------- |
@@ -30,7 +30,7 @@ Please do not report security bugs in the public issues; go through the process 
 
 ## Proposing a Change
 
-If you intend to add new features or suggest major changes to SWS Pocket, we recommend creating a [new discussion first](https://github.com/sws2apps/sws2apps-api/discussions/categories/ideas). This lets us reach an agreement on your proposal before you put significant effort into it. Make sure that the change you want to propose is not duplicate.
+If you intend to add new features or suggest major changes to SWS API, we recommend creating a [new discussion first](https://github.com/sws2apps/sws2apps-api/discussions/categories/ideas). This lets us reach an agreement on your proposal before you put significant effort into it. Make sure that the change you want to propose is not duplicate.
 
 If you’re only fixing a bug, it’s fine to submit a pull request right away but we still recommend to file an issue detailing what you’re fixing. This is helpful in case we don’t accept that specific fix but want to keep track of the issue.
 
