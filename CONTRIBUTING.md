@@ -12,10 +12,11 @@ SWS Pocket follows semantic versioning. We release patch versions for bugfixes, 
 
 We used three different branches to make production, beta and alpha releases of SWS Pocket:
 
-| branch | whats for                                                                                           |
-| :----- | :-------------------------------------------------------------------------------------------------- |
-| main   | making production release of SWS API: bug fix for the current version will be queued in this branch |
-| beta   | making beta release of SWS API: new feature and breaking change will be queued in this branch       |
+| branch | whats for                                                                         |
+| :----- | :-------------------------------------------------------------------------------- |
+| main   | production release: bug fix for the current version will be queued in this branch |
+| beta   | beta release: new features will be queued in this branch                          |
+| alpha  | alpha release: breaking changes will be queued in this branch                     |
 
 ## Bugs
 
@@ -36,6 +37,22 @@ If you’re only fixing a bug, it’s fine to submit a pull request right away b
 ## Contribution Prerequisites
 
 - You have the latest version of [Node](https://nodejs.org) and [Git](https://git-scm.com) installed
+- Fork the repository (and clone it if you will work in your local environment).
+- If you already have clonned the forked repository, make sure that your branch repository is [up to date](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork) with upstream.
+- Start working in the appropriate branch, depending on what you are suggesting:
+  - `main`, if you want to suggest a bug fix for the current version released in production.
+  - `beta`, if you want to suggest a new feature.
+  - `alpha`, if you want to suggest a breaking change.
+- Setup the environment variable .env. To get the right values, contact one of the developers contributing to this project. Alternatively, you can create your own values while you are working.
+  ```bash
+  GOOGLE_CONFIG_BASE64=firebase-admin-key-encoded-base64-string
+  FIREBASE_API_KEY=firebase-api-key
+  SALT_ROUNDS=encryption-salt
+  GMAIL_APP_PASSWORD=gmail-app-password
+  GMAIL_ADDRESS=gmail-address
+  GMAIL_SENDER_NAME=gmail-sender-name
+  ```
+- Run `npm i` in your local branch.
 
 ## Sending a Pull Request (PR)
 
@@ -43,31 +60,17 @@ We are monitoring for pull requests. We will review your pull request and either
 
 **Before submitting a PR**, please make sure the following is done:
 
-1. Fork the repository and clone it locally.
-2. Start working in the appropriate branch, depending on what you are suggesting:
-   - `main`, if you want to suggest a bug fix for the current version released in production.
-   - `beta`, if you want to suggest a new feature or breaking change.
-3. If you have clonned the forked repository, fetch and merge first from upstream to origin, and from origin to your local repository. Make sure to resolve any conflicts before starting your work.
-4. Setup the environment variable .env. To get the right values, contact one of the developers contributing to this project. If you want, you can create your own values as well while you are working.
-   ```bash
-   GOOGLE_CONFIG_BASE64=firebase-admin-key
-   FIREBASE_API_KEY=firebase-api-key
-   SALT_ROUNDS=encryption-salt
-   ```
-5. Run `npm i` in your local branch.
-6. Run `npm run dev` to make sure that the code is compiled successfully.
-7. Test your changes to make sure that they are working as intended.
+1. Run `npm run dev` to make sure that the local development server is running correctly.
+2. Test your changes to make sure that they are working as intended.
 
-**When commiting your changes**, we recommend the following commands to be run:
+**When you are ready to commit your changes**, we recommend the following commands to be run:
 
-1. Run `git add .`
-2. Run `npm run ghcommit` to start the [commitizen cli](https://github.com/commitizen/cz-cli#using-the-command-line-tool). Make sure that you’ve set your changes accordingly. Failure to set this accordingly will cause your pull request on the release branch to be discarded.
-3. Fetch and merge from upstream to origin, and from origin to your local repository. Make sure to resolve any conflicts.
-4. Run `git push`
+1. Run `npm run ghcommit` to start the [commitizen cli](https://github.com/commitizen/cz-cli#using-the-command-line-tool). Make sure that you’ve set your changes accordingly. Failure to set this accordingly will cause your pull request on the release branch to be discarded.
+2. Run `git push`
 
 **When your proposed changes are in the forked repository on GitHub**:
 
 1. Create your PR.
 2. Make sure the title follows the [conventional-changelog](https://github.com/semantic-release/semantic-release#commit-message-format) format.
 
-You will receive a notification and be informed when your PR is published on beta, or in production.
+You will receive a notification when your PR is published on alpha, or beta, or in production.
