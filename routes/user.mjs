@@ -10,7 +10,6 @@ import { authChecker } from '../middleware/auth-checker.mjs';
 
 // utils import
 import { sendVerificationEmail } from '../utils/sendEmail.mjs';
-import { tracker } from '../utils/tracker.mjs';
 
 // get firestore
 const db = getFirestore(); //get default database
@@ -30,36 +29,35 @@ router.post('/login', async (req, res, next) => {
 			body: JSON.stringify({
 				...req.body,
 			}),
-		}).then(async (response) => {
-			const data = await response.json();
-			if (data.error) {
-				res.locals.failedLoginAttempt = true;
-				res.locals.type = 'warn';
-				res.locals.message = `user failed to login: ${data.error.message}`;
-				res.status(data.error.code).json({ message: data.error.message });
-			} else {
-				const uid = data.localId;
+		})
+			.then(async (response) => {
+				const data = await response.json();
+				if (data.error) {
+					res.locals.failedLoginAttempt = true;
+					res.locals.type = 'warn';
+					res.locals.message = `user failed to login: ${data.error.message}`;
+					res.status(data.error.code).json({ message: data.error.message });
+				} else {
+					const uid = data.localId;
 
-				getAuth()
-					.getUser(uid)
-					.then(async (userRecord) => {
-						if (userRecord.emailVerified) {
-							res.locals.type = 'info';
-							res.locals.message = 'user success login';
-							res.status(200).json({ message: uid, verified: true });
-						} else {
-							res.locals.type = 'warn';
-							res.locals.message = 'user account not verified';
-							res.status(200).json({ message: 'NOT_VERIFIED' });
-						}
-
-						await tracker(req.clientIp, {
-							failedLoginAttempt: 0,
-							retryOn: '',
+					getAuth()
+						.getUser(uid)
+						.then(async (userRecord) => {
+							if (userRecord.emailVerified) {
+								res.locals.type = 'info';
+								res.locals.message = 'user success login';
+								res.status(200).json({ message: uid, verified: true });
+							} else {
+								res.locals.type = 'warn';
+								res.locals.message = 'user account not verified';
+								res.status(200).json({ message: 'NOT_VERIFIED' });
+							}
 						});
-					});
-			}
-		});
+				}
+			})
+			.catch((err) => {
+				next(err);
+			});
 	} catch (err) {
 		next(err);
 	}
@@ -123,6 +121,9 @@ router.post(
 								res.status(200).json({ message: 'VERIFY_FAILED' });
 							});
 					}
+				})
+				.catch((err) => {
+					next(err);
 				});
 		} catch (err) {
 			next(err);
@@ -164,47 +165,51 @@ router.post(
 				body: JSON.stringify({
 					...req.body,
 				}),
-			}).then(async (response) => {
-				const data = await response.json();
-				if (data.error) {
-					res.locals.type = 'warn';
-					res.locals.message = `failed to resend verification message: ${data.error.message}`;
+			})
+				.then(async (response) => {
+					const data = await response.json();
+					if (data.error) {
+						res.locals.type = 'warn';
+						res.locals.message = `failed to resend verification message: ${data.error.message}`;
 
-					res.status(data.error.code).json({ message: data.error.message });
-				} else {
-					const uid = data.localId;
+						res.status(data.error.code).json({ message: data.error.message });
+					} else {
+						const uid = data.localId;
 
-					getAuth()
-						.getUser(uid)
-						.then((userRecord) => {
-							const userEmail = userRecord.email;
-							getAuth()
-								.generateEmailVerificationLink(userEmail)
-								.then((link) => {
-									if (process.env.NODE_ENV !== 'testing') {
-										sendVerificationEmail(userEmail, link);
-									}
+						getAuth()
+							.getUser(uid)
+							.then((userRecord) => {
+								const userEmail = userRecord.email;
+								getAuth()
+									.generateEmailVerificationLink(userEmail)
+									.then((link) => {
+										if (process.env.NODE_ENV !== 'testing') {
+											sendVerificationEmail(userEmail, link);
+										}
 
-									res.locals.type = 'info';
-									res.locals.message = `new verification email queued for sending`;
+										res.locals.type = 'info';
+										res.locals.message = `new verification email queued for sending`;
 
-									res.status(200).json({ message: 'CHECK_EMAIL' });
-								})
-								.catch(() => {
-									res.locals.type = 'warn';
-									res.locals.message = `new verification email could not be sent`;
+										res.status(200).json({ message: 'CHECK_EMAIL' });
+									})
+									.catch(() => {
+										res.locals.type = 'warn';
+										res.locals.message = `new verification email could not be sent`;
 
-									res.status(200).json({ message: 'VERIFY_FAILED' });
-								});
-						})
-						.catch((err) => {
-							res.locals.type = 'warn';
-							res.locals.message = `failed to send new verification email: ${err.message}`;
+										res.status(200).json({ message: 'VERIFY_FAILED' });
+									});
+							})
+							.catch((err) => {
+								res.locals.type = 'warn';
+								res.locals.message = `failed to send new verification email: ${err.message}`;
 
-							res.status(500).json({ message: 'Internal server error' });
-						});
-				}
-			});
+								res.status(500).json({ message: 'Internal server error' });
+							});
+					}
+				})
+				.catch((err) => {
+					next(err);
+				});
 		} catch (err) {
 			next(err);
 		}
@@ -238,6 +243,9 @@ router.get('/get-backup', async (req, res, next) => {
 					res.locals.message = `the user has no backup`;
 					res.status(404).json({ message: 'NOT_FOUND' });
 				}
+			})
+			.catch((err) => {
+				next(err);
 			});
 	} catch (err) {
 		next(err);
@@ -269,7 +277,10 @@ router.post('/send-backup', async (req, res, next) => {
 					res.locals.type = 'info';
 					res.locals.message = `backup sent successfully`;
 
-					res.status(200).send(JSON.stringify({ message: 'OK' }));
+					res.status(200).json({ message: 'OK' });
+				})
+				.catch((err) => {
+					next(err);
 				});
 		} else {
 			res.locals.type = 'warn';

@@ -66,10 +66,12 @@ app.use(cors(corsOptionsDelegate));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+global.requestTracker = [];
+
 app.use(requestIp.mw()); // get IP address middleware
 app.use(internetChecker());
-app.use(updateTracker());
 app.use(requestChecker());
+app.use(updateTracker());
 
 app.use(
 	rateLimit({

@@ -14,6 +14,7 @@ export const internetChecker = () => {
 				if (result) {
 					next();
 				} else {
+					res.status(500).json({ message: 'INTERNAL_ERROR' });
 					logger(
 						'warn',
 						formatLog(
@@ -22,10 +23,10 @@ export const internetChecker = () => {
 							res
 						)
 					);
-					res.status(500).json({ message: 'INTERNAL_ERROR' });
 				}
 			});
 		} catch (err) {
+			console.log('inerr');
 			next(err);
 		}
 	};

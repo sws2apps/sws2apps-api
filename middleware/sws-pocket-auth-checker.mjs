@@ -1,9 +1,6 @@
 // app dependencies
 import { getFirestore } from 'firebase-admin/firestore';
 
-// import utils
-import { tracker } from '../utils/tracker.mjs';
-
 // get firestore
 const db = getFirestore();
 
@@ -59,16 +56,9 @@ export const pocketAuthChecker = () => {
 			}
 
 			if (statusCode === 200) {
-				const clientIp = req.clientIp;
-				await tracker(clientIp, {
-					failedLoginAttempt: 0,
-					retryOn: '',
-				});
 				next();
-			} else if (statusCode === 403) {
-				res.locals.failedLoginAttempt = true;
-				res.status(statusCode).json({ message: statusMsg });
 			} else {
+				res.locals.failedLoginAttempt = true;
 				res.status(statusCode).json({ message: statusMsg });
 			}
 		} catch (err) {

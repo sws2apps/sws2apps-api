@@ -99,6 +99,9 @@ router.post(
 							res.status(200).json({ message: 'OK' });
 						});
 					});
+				})
+				.catch((err) => {
+					next(err);
 				});
 		} catch (err) {
 			next(err);
@@ -200,6 +203,9 @@ router.post(
 						res.locals.message = 'congregation id could not be found.';
 						res.status(404).json({ message: 'NOT_FOUND' });
 					}
+				})
+				.catch((err) => {
+					next(err);
 				});
 		} catch (err) {
 			next(err);
@@ -309,6 +315,9 @@ router.post(
 						res.locals.message = 'congregation id could not be found.';
 						res.status(404).json({ message: 'NOT_FOUND' });
 					}
+				})
+				.catch((err) => {
+					next(err);
 				});
 		} catch (err) {
 			next(err);

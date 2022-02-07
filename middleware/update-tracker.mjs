@@ -12,23 +12,32 @@ export const updateTracker = () => {
 		try {
 			res.on('finish', async () => {
 				const clientIp = req.clientIp;
-				let data = {};
-				data.reqInProgress = false;
+				let failedLoginAttempt = 0;
+
+				const ipIndex = requestTracker.findIndex(
+					(client) => client.ip === clientIp
+				);
 
 				if (res.locals.failedLoginAttempt) {
-					const reqTrackRef = db.collection('request_tracker').doc(clientIp);
-					const docSnap = await reqTrackRef.get();
+					const reqTrackRef = requestTracker.find(
+						(client) => client.ip === clientIp
+					);
 
-					let failedLoginAttempt = docSnap.data().failedLoginAttempt;
+					failedLoginAttempt = reqTrackRef?.failedLoginAttempt || 0;
 					failedLoginAttempt = failedLoginAttempt + 1;
 
-					data.failedLoginAttempt = failedLoginAttempt;
-				}
+					requestTracker.splice(ipIndex, 1);
 
-				await db
-					.collection('request_tracker')
-					.doc(clientIp)
-					.set(data, { merge: true });
+					let obj = {};
+					obj.ip = clientIp;
+					obj.reqInProgress = false;
+					obj.failedLoginAttempt = failedLoginAttempt;
+					obj.retryOn = '';
+
+					requestTracker.push(obj);
+				} else {
+					requestTracker.splice(ipIndex, 1);
+				}
 
 				let log = '';
 				log += `method=${req.method} `;
