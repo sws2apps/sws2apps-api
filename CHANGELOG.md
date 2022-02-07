@@ -1,3 +1,10 @@
+# [2.6.0-alpha.1](https://github.com/sws2apps/sws2apps-api/compare/v2.5.2-alpha.1...v2.6.0-alpha.1) (2022-02-07)
+
+
+### Features
+
+* **app:** use short-lived variable to track client request ([ebfb649](https://github.com/sws2apps/sws2apps-api/commit/ebfb64955ef326b4d56d0986c55be56e4c9b0522))
+
 ## [2.5.2-alpha.1](https://github.com/sws2apps/sws2apps-api/compare/v2.5.1...v2.5.2-alpha.1) (2022-02-06)
 
 
