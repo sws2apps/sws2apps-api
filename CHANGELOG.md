@@ -1,3 +1,15 @@
+# [2.6.0](https://github.com/sws2apps/sws2apps-api/compare/v2.5.1...v2.6.0) (2022-02-07)
+
+
+### Bug Fixes
+
+* **congregation:** add missing logger for some routes ([9b08a6b](https://github.com/sws2apps/sws2apps-api/commit/9b08a6bb305b1c93254aebda68391c0d6a34eb7c))
+
+
+### Features
+
+* **app:** use short-lived variable to track client request ([ebfb649](https://github.com/sws2apps/sws2apps-api/commit/ebfb64955ef326b4d56d0986c55be56e4c9b0522))
+
 # [2.6.0-beta.1](https://github.com/sws2apps/sws2apps-api/compare/v2.5.1...v2.6.0-beta.1) (2022-02-07)
 
 
