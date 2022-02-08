@@ -60,7 +60,6 @@ jobs:
 
   scorecards:
     name: Scorecards Analysis
-    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     permissions:
       security-events: write
