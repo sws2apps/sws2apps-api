@@ -1,3 +1,10 @@
+# [2.7.0](https://github.com/sws2apps/sws2apps-api/compare/v2.6.0...v2.7.0) (2022-02-09)
+
+
+### Features
+
+* **app:** new url for shields.io endpoint ([9c5cacb](https://github.com/sws2apps/sws2apps-api/commit/9c5cacbf2bf60ec5024f00680a5ff9aece56b242))
+
 # [2.7.0-beta.1](https://github.com/sws2apps/sws2apps-api/compare/v2.6.0...v2.7.0-beta.1) (2022-02-09)
 
 
