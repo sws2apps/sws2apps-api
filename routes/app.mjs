@@ -97,6 +97,21 @@ app.get('/', async (req, res, next) => {
 	}
 });
 
+app.get('/app-version', async (req, res, next) => {
+	try {
+		res.locals.type = 'info';
+		res.locals.message = 'json output for shields.io generated';
+		res.status(200).json({
+			schemaVersion: 1,
+			label: 'version',
+			message: appVersion,
+			color: 'blue',
+		});
+	} catch (err) {
+		next(err);
+	}
+});
+
 // Handling invalid routes
 app.use((req, res) => {
 	res.locals.type = 'warn';
