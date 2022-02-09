@@ -1,11 +1,11 @@
-name: CI
+name: code-quality
 
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [beta, alpha]
   pull_request:
-    branches: [main]
+    branches: [beta, alpha]
 
 permissions: read-all
 
@@ -54,33 +54,6 @@ jobs:
           args: '. --sarif --output results.sarif || true'
 
       - name: Upload njsscan report
-        uses: github/codeql-action/upload-sarif@2b46439dd5477d8a1659811cdc500d35e601a1cb
-        with:
-          sarif_file: results.sarif
-
-  scorecards:
-    name: Scorecards Analysis
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
-
-    steps:
-      - name: 'Checkout code'
-        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
-        with:
-          persist-credentials: false
-
-      - name: 'Run analysis'
-        uses: ossf/scorecard-action@b614d455ee90608b5e36e3299cd50d457eb37d5f
-        with:
-          results_file: results.sarif
-          results_format: sarif
-          repo_token: ${{ secrets.SCORECARD_READ_TOKEN }}
-          publish_results: true
-
-      - name: 'Upload to code-scanning'
         uses: github/codeql-action/upload-sarif@2b46439dd5477d8a1659811cdc500d35e601a1cb
         with:
           sarif_file: results.sarif
