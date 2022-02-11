@@ -1,3 +1,10 @@
+## [2.8.1](https://github.com/sws2apps/sws2apps-api/compare/v2.8.0...v2.8.1) (2022-02-11)
+
+
+### Bug Fixes
+
+* **congregation:** fix bug where vip users are not accessible after password change ([52a3dde](https://github.com/sws2apps/sws2apps-api/commit/52a3dde94ecaef8dd1c5996c622bdf29d46bdc43))
+
 # [2.8.0](https://github.com/sws2apps/sws2apps-api/compare/v2.7.0...v2.8.0) (2022-02-11)
 
 
