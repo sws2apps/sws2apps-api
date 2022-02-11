@@ -9,7 +9,6 @@ import { getAuth } from 'firebase-admin/auth';
 
 // middleware import
 import { authChecker } from '../middleware/auth-checker.mjs';
-import { logger } from '../utils/logger.mjs';
 
 // get firestore
 const db = getFirestore();
@@ -168,7 +167,8 @@ router.post(
 
 								const userIndex = vipUsers.findIndex((user) => user === email);
 								if (userIndex >= 0) {
-									// valid and update congregation name and number
+									// valid and update congregation name, number
+
 									const data = {
 										congName: congName,
 										congNumber: congNumber,
@@ -274,15 +274,26 @@ router.post(
 
 								const userIndex = vipUsers.findIndex((user) => user === email);
 								if (userIndex >= 0) {
-									// valid
-
 									const saltRounds = +process.env.SALT_ROUNDS;
 									bcrypt.genSalt(saltRounds, (err, salt) => {
 										bcrypt.hash(congPasswordNew, salt, async (err, hash) => {
+											// valid and update VIP and pocket users
+
+											let vipNewUsers = [];
+											const myKey = congID + '&sws2apps_' + congPasswordNew;
+											const cryptr = new Cryptr(myKey);
+
+											for (let i = 0; i < vipUsers.length; i++) {
+												const encryptedData = cryptr.encrypt(vipUsers[i]);
+												vipNewUsers.push(encryptedData);
+											}
+
 											const data = {
 												congName: congName,
 												congNumber: congNumber,
 												congPassword: hash,
+												pocketUsers: [],
+												vipUsers: vipNewUsers,
 											};
 											await db
 												.collection('congregation_data')
