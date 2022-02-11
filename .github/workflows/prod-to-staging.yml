@@ -27,4 +27,4 @@ jobs:
 
           git rebase origin/main
 
-          git push --f origin beta
+          git push -f origin beta
