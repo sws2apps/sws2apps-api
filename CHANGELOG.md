@@ -1,3 +1,10 @@
+# [2.8.0](https://github.com/sws2apps/sws2apps-api/compare/v2.7.0...v2.8.0) (2022-02-11)
+
+
+### Features
+
+* **deps:** bump express-rate-limit from 6.2.0 to 6.2.1 ([b5afa03](https://github.com/sws2apps/sws2apps-api/commit/b5afa0341b3a3fc6bc82b9b0a6ef322fc462ab45))
+
 # [2.7.0](https://github.com/sws2apps/sws2apps-api/compare/v2.6.0...v2.7.0) (2022-02-09)
 
 
