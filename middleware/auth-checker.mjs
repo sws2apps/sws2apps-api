@@ -8,6 +8,8 @@ export const authChecker = () => {
 				'/send-backup',
 				'/generate-id',
 				'/create-account',
+				'/signin',
+				'/change-password',
 			];
 
 			if (validPaths.findIndex((path) => path === req.path) >= 0) {
@@ -19,10 +21,7 @@ export const authChecker = () => {
 							next();
 						})
 						.catch((err) => {
-							res.locals.type = 'warn';
-							res.locals.message = `an error occured: ${err.message}`;
-							res.locals.failedLoginAttempt = true;
-							res.status(403).json({ message: 'FORBIDDEN' });
+							next(err);
 						});
 				} else {
 					res.locals.type = 'warn';
