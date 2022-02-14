@@ -1,3 +1,10 @@
+# [2.9.0-beta.2](https://github.com/sws2apps/sws2apps-api/compare/v2.9.0-beta.1...v2.9.0-beta.2) (2022-02-14)
+
+
+### Features
+
+* **auth-checker:** improve response when user is not found in the database ([05d13f2](https://github.com/sws2apps/sws2apps-api/commit/05d13f2a7bb9bf9432ea31acba0765be610cfd95))
+
 # [2.9.0-beta.1](https://github.com/sws2apps/sws2apps-api/compare/v2.8.1...v2.9.0-beta.1) (2022-02-14)
 
 
