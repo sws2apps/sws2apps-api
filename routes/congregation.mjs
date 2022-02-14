@@ -9,6 +9,7 @@ import { getAuth } from 'firebase-admin/auth';
 
 // middleware import
 import { authChecker } from '../middleware/auth-checker.mjs';
+import { congregationAuthChecker } from '../middleware/congregation-auth-checker.js';
 
 // get firestore
 const db = getFirestore();
@@ -108,6 +109,8 @@ router.post(
 	}
 );
 
+router.use(congregationAuthChecker());
+
 router.post(
 	'/signin',
 	body('cong_id').isNumeric().isLength({ min: 10 }),
@@ -132,81 +135,10 @@ router.post(
 				return;
 			}
 
-			const uid = req.headers.uid;
-
-			getAuth()
-				.getUser(uid)
-				.then(async (userRecord) => {
-					const email = userRecord.email;
-					const congID = req.body.cong_id;
-					const congPassword = req.body.cong_password;
-					const congName = req.body.cong_name;
-					const congNumber = req.body.cong_number;
-
-					const congRef = db
-						.collection('congregation_data')
-						.doc(congID.toString());
-					const docSnap = await congRef.get();
-
-					if (docSnap.exists) {
-						// check password
-						const hashedPwd = docSnap.data().congPassword;
-						bcrypt.compare(congPassword, hashedPwd, async (err, result) => {
-							if (result) {
-								// check if email can access congregation data
-								const vipUsersEncrypted = docSnap.data().vipUsers;
-								let vipUsers = [];
-
-								const myKey = congID + '&sws2apps_' + congPassword;
-								const cryptr = new Cryptr(myKey);
-
-								for (let i = 0; i < vipUsersEncrypted.length; i++) {
-									const decryptedData = cryptr.decrypt(vipUsersEncrypted[i]);
-									vipUsers.push(decryptedData);
-								}
-
-								const userIndex = vipUsers.findIndex((user) => user === email);
-								if (userIndex >= 0) {
-									// valid and update congregation name, number
-
-									const data = {
-										congName: congName,
-										congNumber: congNumber,
-									};
-									await db
-										.collection('congregation_data')
-										.doc(congID.toString())
-										.set(data, { merge: true });
-
-									res.locals.type = 'info';
-									res.locals.message =
-										'user successfully logged into congregation';
-									res.status(200).json({ message: 'OK' });
-								} else {
-									// forbbiden
-									res.locals.type = 'warn';
-									res.locals.message =
-										'user do not have access to access that congregation';
-									res.status(403).json({ message: 'FORBIDDEN' });
-								}
-							} else {
-								// wrong password
-								res.locals.type = 'warn';
-								res.locals.message =
-									'access denied because congregation password is incorrect.';
-								res.status(403).json({ message: 'FORBIDDEN' });
-							}
-						});
-					} else {
-						// congregation id not found
-						res.locals.type = 'warn';
-						res.locals.message = 'congregation id could not be found.';
-						res.status(404).json({ message: 'NOT_FOUND' });
-					}
-				})
-				.catch((err) => {
-					next(err);
-				});
+			// should be valid after middleware
+			res.locals.type = 'info';
+			res.locals.message = 'user successfully logged into congregation';
+			res.status(200).json({ message: 'OK' });
 		} catch (err) {
 			next(err);
 		}
@@ -216,7 +148,7 @@ router.post(
 router.post(
 	'/change-password',
 	body('cong_id').isNumeric().isLength({ min: 10 }),
-	body('cong_password_old').isLength({ min: 8 }),
+	body('cong_password').isLength({ min: 8 }),
 	body('cong_password_new').isLength({ min: 8 }),
 	body('cong_name').notEmpty(),
 	body('cong_number').isInt(),
@@ -238,98 +170,44 @@ router.post(
 				return;
 			}
 
-			const uid = req.headers.uid;
+			// should be valid after middleware check
+			const congID = req.body.cong_id;
+			const congPasswordNew = req.body.cong_password_new;
+			const congName = req.body.cong_name;
+			const congNumber = req.body.cong_number;
 
-			getAuth()
-				.getUser(uid)
-				.then(async (userRecord) => {
-					const email = userRecord.email;
-					const congID = req.body.cong_id;
-					const congPasswordOld = req.body.cong_password_old;
-					const congPasswordNew = req.body.cong_password_new;
-					const congName = req.body.cong_name;
-					const congNumber = req.body.cong_number;
+			const saltRounds = +process.env.SALT_ROUNDS;
+			bcrypt.genSalt(saltRounds, (err, salt) => {
+				bcrypt.hash(congPasswordNew, salt, async (err, hash) => {
+					// valid and update VIP and pocket users
 
-					const congRef = db
-						.collection('congregation_data')
-						.doc(congID.toString());
-					const docSnap = await congRef.get();
+					let vipNewUsers = [];
+					let vipUsers = res.locals.vipUsers;
+					const myKey = congID + '&sws2apps_' + congPasswordNew;
+					const cryptr = new Cryptr(myKey);
 
-					if (docSnap.exists) {
-						// check password
-						const hashedPwd = docSnap.data().congPassword;
-						bcrypt.compare(congPasswordOld, hashedPwd, async (err, result) => {
-							if (result) {
-								// check if email can access congregation data
-								const vipUsersEncrypted = docSnap.data().vipUsers;
-								let vipUsers = [];
-
-								const myKey = congID + '&sws2apps_' + congPasswordOld;
-								const cryptr = new Cryptr(myKey);
-
-								for (let i = 0; i < vipUsersEncrypted.length; i++) {
-									const decryptedData = cryptr.decrypt(vipUsersEncrypted[i]);
-									vipUsers.push(decryptedData);
-								}
-
-								const userIndex = vipUsers.findIndex((user) => user === email);
-								if (userIndex >= 0) {
-									const saltRounds = +process.env.SALT_ROUNDS;
-									bcrypt.genSalt(saltRounds, (err, salt) => {
-										bcrypt.hash(congPasswordNew, salt, async (err, hash) => {
-											// valid and update VIP and pocket users
-
-											let vipNewUsers = [];
-											const myKey = congID + '&sws2apps_' + congPasswordNew;
-											const cryptr = new Cryptr(myKey);
-
-											for (let i = 0; i < vipUsers.length; i++) {
-												const encryptedData = cryptr.encrypt(vipUsers[i]);
-												vipNewUsers.push(encryptedData);
-											}
-
-											const data = {
-												congName: congName,
-												congNumber: congNumber,
-												congPassword: hash,
-												pocketUsers: [],
-												vipUsers: vipNewUsers,
-											};
-											await db
-												.collection('congregation_data')
-												.doc(congID.toString())
-												.set(data, { merge: true });
-											res.locals.type = 'info';
-											res.locals.message =
-												'congregation password has been changed successfully';
-											res.status(200).json({ message: 'OK' });
-										});
-									});
-								} else {
-									// forbbiden
-									res.locals.type = 'warn';
-									res.locals.message =
-										'user do not have access to access that congregation';
-									res.status(403).json({ message: 'FORBIDDEN' });
-								}
-							} else {
-								// wrong password
-								res.locals.type = 'warn';
-								res.locals.message =
-									'access denied because congregation password is incorrect.';
-								res.status(403).json({ message: 'FORBIDDEN' });
-							}
-						});
-					} else {
-						// congregation id not found
-						res.locals.type = 'warn';
-						res.locals.message = 'congregation id could not be found.';
-						res.status(404).json({ message: 'NOT_FOUND' });
+					for (let i = 0; i < vipUsers.length; i++) {
+						const encryptedData = cryptr.encrypt(vipUsers[i]);
+						vipNewUsers.push(encryptedData);
 					}
-				})
-				.catch((err) => {
-					next(err);
+
+					const data = {
+						congName: congName,
+						congNumber: congNumber,
+						congPassword: hash,
+						pocketUsers: [],
+						vipUsers: vipNewUsers,
+					};
+					await db
+						.collection('congregation_data')
+						.doc(congID.toString())
+						.set(data, { merge: true });
+					res.locals.type = 'info';
+					res.locals.message =
+						'congregation password has been changed successfully';
+					res.status(200).json({ message: 'OK' });
 				});
+			});
 		} catch (err) {
 			next(err);
 		}
