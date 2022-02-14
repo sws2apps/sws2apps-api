@@ -1,3 +1,10 @@
+# [2.9.0-beta.1](https://github.com/sws2apps/sws2apps-api/compare/v2.8.1...v2.9.0-beta.1) (2022-02-14)
+
+
+### Features
+
+* **middleware:** add new congregation auth check middleware ([dab2d44](https://github.com/sws2apps/sws2apps-api/commit/dab2d44506032b05e3ac1562f66feac88adf2b41))
+
 ## [2.8.1](https://github.com/sws2apps/sws2apps-api/compare/v2.8.0...v2.8.1) (2022-02-11)
 
 
