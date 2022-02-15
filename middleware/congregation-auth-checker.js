@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import Cryptr from 'cryptr';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
-import { body, check, validationResult } from 'express-validator';
+import { check, validationResult } from 'express-validator';
 
 // get firestore
 const db = getFirestore();
