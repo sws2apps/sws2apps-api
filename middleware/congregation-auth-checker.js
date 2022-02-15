@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import Cryptr from 'cryptr';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
+import { body, check, validationResult } from 'express-validator';
 
 // get firestore
 const db = getFirestore();
@@ -9,7 +10,32 @@ const db = getFirestore();
 export const congregationAuthChecker = () => {
 	return async (req, res, next) => {
 		try {
-			const validPaths = ['/signin', '/change-password'];
+			await check('cong_id').isNumeric().isLength({ min: 10 }).run(req);
+			await check('cong_password').isLength({ min: 8 }).run(req);
+			await check('cong_name').notEmpty().run(req);
+			await check('cong_number').isInt().run(req);
+
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({ message: 'INPUT_INVALID' });
+
+				return;
+			}
+
+			const validPaths = [
+				'/signin',
+				'/change-password',
+				'/pocket-generate-pin',
+			];
 
 			if (validPaths.findIndex((path) => path === req.path) >= 0) {
 				const uid = req.headers.uid;
