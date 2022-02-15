@@ -1,3 +1,15 @@
+# [2.10.0](https://github.com/sws2apps/sws2apps-api/compare/v2.9.0...v2.10.0) (2022-02-15)
+
+
+### Bug Fixes
+
+* **congregation-auth-checker:** remove unnecessary body import from express-validator ([abf2f2b](https://github.com/sws2apps/sws2apps-api/commit/abf2f2b285afac00b54aceaf29fcef187b53f53c))
+
+
+### Features
+
+* **congregation:** add new route for generating sws pocket user pin ([206790a](https://github.com/sws2apps/sws2apps-api/commit/206790acce987982422f2c0e1070c00e9535969b))
+
 # [2.10.0-beta.1](https://github.com/sws2apps/sws2apps-api/compare/v2.9.0...v2.10.0-beta.1) (2022-02-15)
 
 
