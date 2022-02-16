@@ -1,3 +1,10 @@
+# [2.11.0](https://github.com/sws2apps/sws2apps-api/compare/v2.10.0...v2.11.0) (2022-02-16)
+
+
+### Features
+
+* **app:** add request abort handler ([412a643](https://github.com/sws2apps/sws2apps-api/commit/412a6433cb16b2bfddbeb439033eaf5a469ae40f))
+
 # [2.10.0](https://github.com/sws2apps/sws2apps-api/compare/v2.9.0...v2.10.0) (2022-02-15)
 
 
