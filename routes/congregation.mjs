@@ -218,4 +218,45 @@ router.post('/pocket-generate-pin', async (req, res, next) => {
 	}
 });
 
+router.post('/pocket-add-user', async (req, res, next) => {
+	try {
+		// check needed content outside middleware
+		const { cong_id, user_pin, user_members } = req.body;
+		const userPIN = +user_pin;
+		const userMembers = JSON.parse(user_members);
+
+		if (userPIN > 0 && userMembers.length > 0) {
+			const congID = cong_id;
+			const congRef = db.collection('congregation_data').doc(congID.toString());
+			const docSnap = await congRef.get();
+			let pocketUsers = docSnap.data().pocketUsers || [];
+
+			let obj = {};
+			obj.PIN = userPIN;
+			obj.members = userMembers;
+			pocketUsers.push(obj);
+
+			const data = {
+				pocketUsers: pocketUsers,
+			};
+
+			await db
+				.collection('congregation_data')
+				.doc(congID.toString())
+				.set(data, { merge: true });
+
+			res.locals.type = 'info';
+			res.locals.message = `sws pocket user added successfully to congregation`;
+			res.status(200).json({ message: 'OK' });
+		} else {
+			res.locals.type = 'warn';
+			res.locals.message = `input invalid that prevents adding sws pocket user`;
+
+			res.status(400).json({ message: 'INPUT_INVALID' });
+		}
+	} catch (err) {
+		next(err);
+	}
+});
+
 export default router;
