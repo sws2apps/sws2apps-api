@@ -48,27 +48,3 @@ jobs:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: sws2apps
           heroku_email: ${{secrets.HEROKU_EMAIL}}
-
-      - name: Checkout code to merge to Staging
-        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
-        with:
-          ref: beta
-          token: ${{ secrets.GH_TOKEN }}
-
-      - name: Rebase changes from main to beta
-        run: |
-          git rebase origin/main
-
-          git push -f origin beta
-
-      - name: Checkout code to merge to Development
-        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
-        with:
-          ref: alpha
-          token: ${{ secrets.GH_TOKEN }}
-
-      - name: Rebase changes from main to alpha
-        run: |
-          git rebase origin/main
-
-          git push -f origin alpha
