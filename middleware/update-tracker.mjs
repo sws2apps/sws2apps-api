@@ -52,6 +52,14 @@ export const updateTracker = () => {
 					if (ipIndex >= 0) {
 						requestTracker.splice(ipIndex, 1);
 					}
+					res.status(400);
+					let log = '';
+					log += `method=${req.method} `;
+					log += `status=${res.statusCode} `;
+					log += `path=${req.originalUrl} `;
+					log += `origin=${req.headers.origin || req.hostname}(${clientIp}) `;
+					log += `details=this request was aborted`;
+					logger('warn', log);
 				}
 			});
 
