@@ -5,6 +5,13 @@
 
 * **congregation:** add new endpoint to create sws pocket user ([ba15987](https://github.com/sws2apps/sws2apps-api/commit/ba15987b4bc69df4082f48d4782bb238d4a302b4))
 
+# [2.13.0](https://github.com/sws2apps/sws2apps-api/compare/v2.12.0...v2.13.0) (2022-02-17)
+
+
+### Features
+
+* **congregation:** add new endpoint to create sws pocket user ([ba15987](https://github.com/sws2apps/sws2apps-api/commit/ba15987b4bc69df4082f48d4782bb238d4a302b4))
+
 # [2.12.0](https://github.com/sws2apps/sws2apps-api/compare/v2.11.0...v2.12.0) (2022-02-17)
 
 
