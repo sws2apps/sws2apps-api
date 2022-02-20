@@ -1,3 +1,11 @@
+# [2.14.0](https://github.com/sws2apps/sws2apps-api/compare/v2.13.0...v2.14.0) (2022-02-20)
+
+
+### Features
+
+* **app:** add request aborted to the console ([4f30904](https://github.com/sws2apps/sws2apps-api/commit/4f30904c8a4b2c3069062883ab77fffa018552ee))
+* **congregation:** handle adding existing pocket user, and scope permission by app ([d5c2de2](https://github.com/sws2apps/sws2apps-api/commit/d5c2de2886fa20aad8906562a52d49dd68c08e13))
+
 # [2.13.0](https://github.com/sws2apps/sws2apps-api/compare/v2.12.0...v2.13.0) (2022-02-17)
 
 
