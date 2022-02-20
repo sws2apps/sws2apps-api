@@ -1,4 +1,4 @@
-name: development-redeploy
+name: CD-DEV-Re
 
 on:
   workflow_dispatch:
