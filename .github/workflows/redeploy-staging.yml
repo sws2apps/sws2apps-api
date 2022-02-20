@@ -1,4 +1,4 @@
-name: staging-redeploy
+name: CD-STG-Re
 
 on:
   workflow_dispatch:
