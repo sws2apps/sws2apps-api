@@ -223,9 +223,14 @@ router.post('/pocket-add-user', async (req, res, next) => {
 		// check needed content outside middleware
 		const { cong_id, user_pin, user_members, app_client } = req.body;
 		const userPIN = +user_pin;
-		const userMembers = JSON.parse(user_members);
 
-		if (userPIN > 0 && userMembers.length > 0 && app_client === 'lmmoa') {
+		if (
+			userPIN > 0 &&
+			user_members &&
+			user_members.length > 0 &&
+			app_client === 'lmmoa'
+		) {
+			const userMembers = user_members;
 			const congID = cong_id;
 			const congRef = db.collection('congregation_data').doc(congID.toString());
 			const docSnap = await congRef.get();
