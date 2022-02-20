@@ -1,3 +1,10 @@
+## [2.14.1](https://github.com/sws2apps/sws2apps-api/compare/v2.14.0...v2.14.1) (2022-02-20)
+
+
+### Bug Fixes
+
+* **congregation:** fix array check in /pocket-add-user route ([24befd6](https://github.com/sws2apps/sws2apps-api/commit/24befd6b2f8d419759beabab501b1209e9b5c77a))
+
 # [2.14.0](https://github.com/sws2apps/sws2apps-api/compare/v2.13.0...v2.14.0) (2022-02-20)
 
 
