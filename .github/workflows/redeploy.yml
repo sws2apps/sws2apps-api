@@ -22,7 +22,6 @@ jobs:
           persist-credentials: false
 
       - name: Deploy API to Heroku
-        if: ${{ steps.semantic.outputs.new_release_published == 'true' }}
         uses: akhileshns/heroku-deploy@79ef2ae4ff9b897010907016b268fd0f88561820
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
@@ -45,7 +44,6 @@ jobs:
           persist-credentials: false
 
       - name: Deploy API to Heroku
-        if: ${{ steps.semantic.outputs.new_release_published == 'true' }}
         uses: akhileshns/heroku-deploy@79ef2ae4ff9b897010907016b268fd0f88561820
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
@@ -68,7 +66,6 @@ jobs:
           persist-credentials: false
 
       - name: Deploy API to Heroku
-        if: ${{ steps.semantic.outputs.new_release_published == 'true' }}
         uses: akhileshns/heroku-deploy@79ef2ae4ff9b897010907016b268fd0f88561820
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
