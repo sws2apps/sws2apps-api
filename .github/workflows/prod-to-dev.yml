@@ -10,6 +10,7 @@ jobs:
     name: Rebase from production to development
     environment:
       name: Development
+      url: https://dev-sws2apps.herokuapp.com
     runs-on: ubuntu-latest
 
     steps:
