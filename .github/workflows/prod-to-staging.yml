@@ -6,9 +6,8 @@ on:
 permissions: read-all
 
 jobs:
-  prod_to_dev:
+  prod_to_stg:
     name: Rebase from production to staging
-    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/beta' }}
     environment:
       name: Staging
       url: https://staging-sws2apps.herokuapp.com

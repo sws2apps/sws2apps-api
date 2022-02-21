@@ -6,10 +6,11 @@ on:
 permissions: read-all
 
 jobs:
-  dev_to_prod:
+  dev_to_stg:
     name: Rebase from development to staging
     environment:
       name: Staging
+      url: https://staging-sws2apps.herokuapp.com
     runs-on: ubuntu-latest
 
     steps:
