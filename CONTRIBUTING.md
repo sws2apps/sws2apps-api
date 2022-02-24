@@ -12,10 +12,10 @@ SWS API follows semantic versioning. We release patch versions for bugfixes, min
 
 We used three different branches to make production, beta and alpha releases of SWS API:
 
-| branch | whats for |
-| :----- | :-------- |
-| main   | production release: bug fix for the current version will be queued in this branch |
-| beta   | beta release, available on staging environment: new features will be queued in this branch |
+| branch | whats for                                                                                           |
+| :----- | :-------------------------------------------------------------------------------------------------- |
+| main   | production release: bug fix for the current version will be queued in this branch                   |
+| beta   | beta release, available on staging environment: new features will be queued in this branch          |
 | alpha  | alpha release, available on development environment: breaking changes will be queued in this branch |
 
 ## Bugs
@@ -37,10 +37,9 @@ If you’re only fixing a bug, it’s fine to submit a pull request right away b
 ## Contribution Prerequisites
 
 - You have the latest version of [Node](https://nodejs.org) and [Git](https://git-scm.com) installed
-- You are only working on one item at a time.
-- If you do not have it yet, fork the repository and clone it locally.
-- If you already have the repository locally, run `git fetch --all`.
-- Make sure that you are on the correct branch depending on what you are suggesting. Then do a git rebase to get latest changes from upstream, example `git rebase upstream/main`.
+- You will be working on one item at a time.
+- If you do not have it yet, fork the repository. Clone it if you will work locally.
+- If you have already forked and clone the repository, make sure that it is in sync with the upstream repository ([Syncing a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork)).
 - Setup the environment variable .env. To get the right values, contact one of the developers contributing to this project. Alternatively, you can create your own values while you are working.
   ```bash
   GOOGLE_CONFIG_BASE64=firebase-admin-key-encoded-base64-string
@@ -50,8 +49,7 @@ If you’re only fixing a bug, it’s fine to submit a pull request right away b
   GMAIL_ADDRESS=gmail-address
   GMAIL_SENDER_NAME=gmail-sender-name
   ```
-- Run `npm i` in your local branch.
-- Then work. 😆
+- Run `npm i` to install the needed dependencies
 
 ## Sending a Pull Request (PR)
 
@@ -62,18 +60,15 @@ We are monitoring for pull requests. We will review your pull request and either
 1. Run `npm run dev` to make sure that the local development server is running correctly.
 2. Test your changes to make sure that they are working as intended.
 
-**When you are ready to commit your changes**, we recommend the following commands to be run:
+**When commiting your changes**, we recommend the following command to be run:
 
-1. Run `npm run ghcommit` to start the [commitizen cli](https://github.com/commitizen/cz-cli#using-the-command-line-tool). Make sure that you’ve set your changes accordingly. Failure to comply with this will cause your pull request to be discarded.
-
-**When you are ready to push your changes**, we recommend the following commands to be run:
-
-1. Do the rebase process again as described above. This will make sure that you get the latest changes made on upstream before you will create your PR.
-2. Run `git push -f`.
+- Check again if your forked repository or your local copy is up to date with upstream. ([Syncing a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork)).
+- Resolve conflicts if any.
+- Commit and push your changes to your forked repository.
 
 **When your proposed changes are in the forked repository on GitHub**:
 
-1. Create your PR.
-2. Make sure the title follows the [conventional-changelog](https://github.com/semantic-release/semantic-release#commit-message-format) format. Failure to set this accordingly will cause your pull request to be discarded.
+- Create your PR.
+- Make sure the title follows the [conventional-changelog](https://github.com/semantic-release/semantic-release#commit-message-format) format, depending on what item or issue you have been working on. Failure to set this accordingly will cause your pull request to be discarded.
 
-You will receive a notification when your PR is published on development, staging, or in production.
+You will receive a notification and be informed when your PR is published on development, staging, or in production.
