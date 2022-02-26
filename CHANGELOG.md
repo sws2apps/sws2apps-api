@@ -1,3 +1,10 @@
+# [2.16.0-alpha.1](https://github.com/sws2apps/sws2apps-api/compare/v2.15.0...v2.16.0-alpha.1) (2022-02-26)
+
+
+### Features
+
+* **congregation:** add pocket-remove-user route ([1d3ecc8](https://github.com/sws2apps/sws2apps-api/commit/1d3ecc8121b67fc6c5ffa81e512853fde935a8ee))
+
 # [2.15.0](https://github.com/sws2apps/sws2apps-api/compare/v2.14.1...v2.15.0) (2022-02-21)
 
 
