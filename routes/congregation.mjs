@@ -218,19 +218,124 @@ router.post('/pocket-generate-pin', async (req, res, next) => {
 	}
 });
 
-router.post('/pocket-add-user', async (req, res, next) => {
+router.post('/pocket-edit-user', async (req, res, next) => {
 	try {
 		// check needed content outside middleware
-		const { cong_id, user_pin, user_members, app_client } = req.body;
+		const {
+			cong_id,
+			user_pin,
+			user_pinPrev,
+			user_members,
+			pocket_type,
+			app_client,
+		} = req.body;
 		const userPIN = +user_pin;
 
 		if (
 			userPIN > 0 &&
-			user_members &&
-			user_members.length > 0 &&
-			app_client === 'lmmoa'
+			app_client === 'lmmoa' &&
+			(pocket_type === 'new' ||
+				pocket_type === 'update' ||
+				pocket_type === 'update-pin' ||
+				pocket_type === 'link')
 		) {
-			const userMembers = user_members;
+			const userMembers = Array(user_members) ? user_members : [];
+			const congID = cong_id;
+			const congRef = db.collection('congregation_data').doc(congID.toString());
+			const docSnap = await congRef.get();
+			let pocketUsers = docSnap.data().pocketUsers || [];
+
+			// finding PIN index
+			let pocketIndex = pocketUsers.findIndex(
+				(pocket) => pocket.PIN === userPIN
+			);
+
+			if (pocket_type === 'new') {
+				if (pocketIndex === -1) {
+					let obj = {};
+					obj.PIN = userPIN;
+					obj[app_client] = userMembers;
+					pocketUsers.push(obj);
+
+					const data = {
+						pocketUsers: pocketUsers,
+					};
+
+					await db
+						.collection('congregation_data')
+						.doc(congID.toString())
+						.set(data, { merge: true });
+
+					res.locals.type = 'info';
+					res.locals.message = `sws pocket user added successfully to congregation`;
+					res.status(200).json({ message: 'OK' });
+				} else {
+					res.locals.type = 'warn';
+					res.locals.message = `pin already used by another member`;
+					res.status(403).json({ message: 'PIN_IN_USE' });
+				}
+			} else {
+				if (pocketIndex === -1 && pocket_type !== 'update-pin') {
+					res.locals.type = 'warn';
+					res.locals.message = `pin could not be found`;
+					res.status(403).json({ message: 'NOT_FOUND' });
+				} else {
+					// removing old PIN
+					let prevIndex = -1;
+					if (user_pinPrev) {
+						const previousPIN = +user_pinPrev;
+						prevIndex = pocketUsers.findIndex(
+							(pocket) => pocket.PIN === previousPIN
+						);
+
+						if (prevIndex > -1) {
+							pocketUsers.splice(prevIndex, 1);
+						}
+					}
+
+					let obj = {};
+					obj.PIN = userPIN;
+					obj[app_client] = userMembers;
+					pocketUsers.push(obj);
+
+					const data = {
+						pocketUsers: pocketUsers,
+					};
+
+					await db
+						.collection('congregation_data')
+						.doc(congID.toString())
+						.set(data, { merge: true });
+
+					if (pocket_type === 'update' || pocket_type === 'update-pin') {
+						res.locals.type = 'info';
+						res.locals.message = `sws pocket user successfully updated`;
+						res.status(200).json({ message: 'OK' });
+					} else if (pocket_type === 'link') {
+						res.locals.type = 'info';
+						res.locals.message = `sws pocket user successfully updated and linked to an existing pin`;
+						res.status(200).json({ message: 'OK' });
+					}
+				}
+			}
+		} else {
+			res.locals.type = 'warn';
+			res.locals.message = `input invalid that prevents adding sws pocket user`;
+
+			res.status(400).json({ message: 'INPUT_INVALID' });
+		}
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.post('/pocket-remove-user', async (req, res, next) => {
+	try {
+		// check needed content outside middleware
+		const { cong_id, user_pin, app_client } = req.body;
+		const userPIN = +user_pin;
+
+		if (userPIN > 0 && app_client === 'lmmoa') {
 			const congID = cong_id;
 			const congRef = db.collection('congregation_data').doc(congID.toString());
 			const docSnap = await congRef.get();
@@ -240,31 +345,12 @@ router.post('/pocket-add-user', async (req, res, next) => {
 				(pocket) => pocket.PIN === userPIN
 			);
 
-			if (pocketIndex > -1) {
-				const pocket = pocketUsers.find((pocket) => pocket.PIN === userPIN);
-				pocketUsers.splice(pocketIndex, 1);
-
-				pocket[app_client] = userMembers;
-				pocketUsers.push(pocket);
-
-				const data = {
-					pocketUsers: pocketUsers,
-				};
-
-				await db
-					.collection('congregation_data')
-					.doc(congID.toString())
-					.set(data, { merge: true });
-
-				res.locals.type = 'info';
-				res.locals.message = `sws pocket user permission has been adjusted`;
+			if (pocketIndex === -1) {
+				res.locals.type = 'warn';
+				res.locals.message = `user pin could not be found`;
 				res.status(200).json({ message: 'OK' });
 			} else {
-				let obj = {};
-				obj.PIN = userPIN;
-				obj[app_client] = userMembers;
-				pocketUsers.push(obj);
-
+				pocketUsers.splice(pocketIndex, 1);
 				const data = {
 					pocketUsers: pocketUsers,
 				};
@@ -275,12 +361,12 @@ router.post('/pocket-add-user', async (req, res, next) => {
 					.set(data, { merge: true });
 
 				res.locals.type = 'info';
-				res.locals.message = `sws pocket user added successfully to congregation`;
+				res.locals.message = `user removed from sws pocket`;
 				res.status(200).json({ message: 'OK' });
 			}
 		} else {
 			res.locals.type = 'warn';
-			res.locals.message = `input invalid that prevents adding sws pocket user`;
+			res.locals.message = `input invalid that prevents removing sws pocket user`;
 
 			res.status(400).json({ message: 'INPUT_INVALID' });
 		}
