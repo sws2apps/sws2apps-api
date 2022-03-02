@@ -22,12 +22,9 @@ jobs:
 
       - name: Do git rebase
         run: |
-          git fetch origin
-
+          git fetch --all
           git checkout alpha
-
-          git rebase origin/main
-
+          git rebase --onto origin/main alpha
           git push -f origin alpha
 
       - name: Deploy API to Heroku
