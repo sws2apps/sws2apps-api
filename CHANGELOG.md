@@ -1,3 +1,10 @@
+## [2.16.1-alpha.1](https://github.com/sws2apps/sws2apps-api/compare/v2.16.0...v2.16.1-alpha.1) (2022-03-05)
+
+
+### Bug Fixes
+
+* **congregation:** minor update in route ([88ece8b](https://github.com/sws2apps/sws2apps-api/commit/88ece8b1a44938314830bb50243effc3542848af))
+
 # [2.16.0](https://github.com/sws2apps/sws2apps-api/compare/v2.15.0...v2.16.0) (2022-03-02)
 
 
