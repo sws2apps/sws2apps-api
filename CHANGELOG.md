@@ -1,3 +1,11 @@
+# [2.16.0](https://github.com/sws2apps/sws2apps-api/compare/v2.15.0...v2.16.0) (2022-03-02)
+
+
+### Features
+
+* **deps:** bump node-fetch from 3.2.0 to 3.2.1 ([cd1c431](https://github.com/sws2apps/sws2apps-api/commit/cd1c431f9d1a9939df294b2ebd50e445da3d91d6))
+* **deps:** bump nodemailer-express-handlebars from 4.0.0 to 5.0.0 ([3c8f340](https://github.com/sws2apps/sws2apps-api/commit/3c8f340966e90d79882171b5d3635127e62c5204))
+
 # [2.15.0](https://github.com/sws2apps/sws2apps-api/compare/v2.14.1...v2.15.0) (2022-02-21)
 
 
