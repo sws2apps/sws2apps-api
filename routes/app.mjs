@@ -63,8 +63,8 @@ app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 app.use(cors(corsOptionsDelegate));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ limit: '1mb', extended: true }));
 
 global.requestTracker = [];
 
@@ -132,6 +132,7 @@ app.use((error, req, res, next) => {
 			message: 'USER_NOT_FOUND',
 		});
 	} else {
+		console.log(error);
 		res.status(500).json({ message: 'INTERNAL_ERROR' });
 	}
 });
