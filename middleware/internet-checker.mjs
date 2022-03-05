@@ -26,7 +26,6 @@ export const internetChecker = () => {
 				}
 			});
 		} catch (err) {
-			console.log('inerr');
 			next(err);
 		}
 	};
