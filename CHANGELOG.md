@@ -1,3 +1,10 @@
+## [2.16.1-alpha.2](https://github.com/sws2apps/sws2apps-api/compare/v2.16.1-alpha.1...v2.16.1-alpha.2) (2022-03-05)
+
+
+### Bug Fixes
+
+* **app:** set express request size limit ([9a29f96](https://github.com/sws2apps/sws2apps-api/commit/9a29f961ef6745f4d7b4ded64dc3c1f9ad986a16))
+
 ## [2.16.1-alpha.1](https://github.com/sws2apps/sws2apps-api/compare/v2.16.0...v2.16.1-alpha.1) (2022-03-05)
 
 
