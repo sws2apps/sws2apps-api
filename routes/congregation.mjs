@@ -281,16 +281,13 @@ router.post('/pocket-edit-user', async (req, res, next) => {
 					res.status(403).json({ message: 'NOT_FOUND' });
 				} else {
 					// removing old PIN
-					let prevIndex = -1;
-					if (user_pinPrev) {
-						const previousPIN = +user_pinPrev;
-						prevIndex = pocketUsers.findIndex(
-							(pocket) => pocket.PIN === previousPIN
-						);
+					const previousPIN = +user_pinPrev || userPIN;
+					const prevIndex = pocketUsers.findIndex(
+						(pocket) => pocket.PIN === previousPIN
+					);
 
-						if (prevIndex > -1) {
-							pocketUsers.splice(prevIndex, 1);
-						}
+					if (prevIndex > -1) {
+						pocketUsers.splice(prevIndex, 1);
 					}
 
 					let obj = {};
