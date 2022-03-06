@@ -1,6 +1,6 @@
 {
   "name": "sws2apps-api",
-  "version": "2.16.1-alpha.2",
+  "version": "2.16.1-alpha.3",
   "description": "",
   "main": "index.js",
   "scripts": {

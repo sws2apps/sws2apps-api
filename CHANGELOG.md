@@ -1,3 +1,10 @@
+## [2.16.1-alpha.3](https://github.com/sws2apps/sws2apps-api/compare/v2.16.1-alpha.2...v2.16.1-alpha.3) (2022-03-06)
+
+
+### Bug Fixes
+
+* **congregation:** update pocket-edit-user route to remove older pin ([659afa5](https://github.com/sws2apps/sws2apps-api/commit/659afa5ee7ab8355e053c3064bd1a3624c9369b1))
+
 ## [2.16.1-alpha.2](https://github.com/sws2apps/sws2apps-api/compare/v2.16.1-alpha.1...v2.16.1-alpha.2) (2022-03-05)
 
 
