@@ -372,4 +372,58 @@ router.post('/pocket-remove-user', async (req, res, next) => {
 	}
 });
 
+router.post('/pocket-send-schedule', async (req, res, next) => {
+	try {
+		// check needed content outside middleware
+		const { cong_id, cong_password, pocket_data, pocket_schedule } = req.body;
+
+		if (pocket_data && pocket_schedule) {
+			const congID = cong_id;
+			const congPassword = cong_password;
+
+			const myKey = congID + '&sws2apps';
+			const cryptr = new Cryptr(myKey);
+			const encryptedData = cryptr.encrypt(pocket_data);
+
+			const congRef = db.collection('congregation_data').doc(congID.toString());
+			const docSnap = await congRef.get();
+			let lmmoaPocket = docSnap.data().lmmoaPocket || [];
+
+			const prevIndex = lmmoaPocket.findIndex(
+				(lmmoa) => lmmoa.schedule === pocket_schedule
+			);
+
+			if (prevIndex > -1) {
+				lmmoaPocket.splice(prevIndex, 1);
+			}
+
+			const obj = {};
+			obj.schedule = pocket_schedule;
+			obj.data = encryptedData;
+
+			lmmoaPocket.push(obj);
+
+			const data = {
+				lmmoaPocket: lmmoaPocket,
+			};
+
+			await db
+				.collection('congregation_data')
+				.doc(congID.toString())
+				.set(data, { merge: true });
+
+			res.locals.type = 'info';
+			res.locals.message = `schedule published successfully to sws pocket`;
+			res.status(200).json({ message: 'OK' });
+		} else {
+			res.locals.type = 'warn';
+			res.locals.message = `input invalid that prevents publishing the schedule`;
+
+			res.status(400).json({ message: 'INPUT_INVALID' });
+		}
+	} catch (err) {
+		next(err);
+	}
+});
+
 export default router;
