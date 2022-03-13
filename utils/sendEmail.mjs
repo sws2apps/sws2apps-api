@@ -58,3 +58,99 @@ export const sendVerificationEmail = async (recipient, activation) => {
 
 	return !retry;
 };
+
+export const sendCongregationAccountCreated = async (
+	recipient,
+	fullname,
+	congregation_name,
+	congregation_number
+) => {
+	const options = {
+		from: gmailConfig.sender,
+		to: recipient,
+		subject: 'Congregation Account created successfully (sws2apps)',
+		template: 'congregationAccountCreated',
+		context: {
+			name: fullname,
+			congregation_name: congregation_name,
+			congregation_number: congregation_number,
+		},
+	};
+
+	const intTry = 10;
+	let i = 0;
+	let retry = false;
+
+	do {
+		const send = async () => {
+			return new Promise((resolve) => {
+				return transporter.sendMail(options, (error, info) => {
+					if (error) {
+						logger(
+							'warn',
+							`failed to send message: ${error.message}. trying again ...`
+						);
+						return resolve(false);
+					}
+					logger('info', `confirmation message sent to ${options.to}`);
+					return resolve(true);
+				});
+			});
+		};
+
+		const runSend = await send();
+		retry = !runSend;
+		i++;
+	} while (i < intTry && retry);
+
+	return !retry;
+};
+
+export const sendCongregationAccountDisapproved = async (
+	recipient,
+	fullname,
+	congregation_name,
+	congregation_number,
+	disapproval_reason
+) => {
+	const options = {
+		from: gmailConfig.sender,
+		to: recipient,
+		subject: 'Congregation Account Request Disapproved (sws2apps)',
+		template: 'congregationAccountDisapproved',
+		context: {
+			name: fullname,
+			congregation_name: congregation_name,
+			congregation_number: congregation_number,
+			disapproval_reason: disapproval_reason,
+		},
+	};
+
+	const intTry = 10;
+	let i = 0;
+	let retry = false;
+
+	do {
+		const send = async () => {
+			return new Promise((resolve) => {
+				return transporter.sendMail(options, (error, info) => {
+					if (error) {
+						logger(
+							'warn',
+							`failed to send message: ${error.message}. trying again ...`
+						);
+						return resolve(false);
+					}
+					logger('info', `confirmation message sent to ${options.to}`);
+					return resolve(true);
+				});
+			});
+		};
+
+		const runSend = await send();
+		retry = !runSend;
+		i++;
+	} while (i < intTry && retry);
+
+	return !retry;
+};
