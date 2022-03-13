@@ -1,3 +1,10 @@
+# [2.17.0-alpha.1](https://github.com/sws2apps/sws2apps-api/compare/v2.16.1-alpha.3...v2.17.0-alpha.1) (2022-03-13)
+
+
+### Features
+
+* **routes:** add admin to manage administration tasks ([8954206](https://github.com/sws2apps/sws2apps-api/commit/8954206e5d29a2b88bd544b867699360f9cace30))
+
 ## [2.16.1-alpha.3](https://github.com/sws2apps/sws2apps-api/compare/v2.16.1-alpha.2...v2.16.1-alpha.3) (2022-03-06)
 
 
