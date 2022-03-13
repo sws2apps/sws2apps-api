@@ -9,7 +9,7 @@ import { getAuth } from 'firebase-admin/auth';
 
 // middleware import
 import { authChecker } from '../middleware/auth-checker.mjs';
-import { congregationAuthChecker } from '../middleware/congregation-auth-checker.js';
+import { congregationAuthChecker } from '../middleware/congregation-auth-checker.mjs';
 
 // get firestore
 const db = getFirestore();
@@ -103,6 +103,77 @@ router.post(
 				.catch((err) => {
 					next(err);
 				});
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
+router.post(
+	'/request-account',
+	body('email').isEmail(),
+	body('cong_name').notEmpty(),
+	body('cong_number').isNumeric(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				res.status(400).json({ message: 'INPUT_INVALID' });
+
+				return;
+			}
+
+			let requests = [];
+
+			const congRef = db.collection('congregation_request');
+			const snapshot = await congRef.get();
+
+			snapshot.forEach((doc) => {
+				let obj = {};
+				obj.id = doc.id;
+				obj.data = doc.data();
+				requests.push(obj);
+			});
+
+			requests.sort((a, b) => {
+				return a.id > b.id ? 1 : -1;
+			});
+
+			const findIndex = requests.findIndex(
+				(request) => request.data.email === req.body.email
+			);
+
+			if (findIndex > -1) {
+				res.locals.type = 'warn';
+				res.locals.message = 'user already has a pending request';
+				res.status(403).json({ message: 'REQUEST_EXIST' });
+			} else {
+				const lastReq = requests[0];
+				let newReq = '';
+
+				if (lastReq) {
+					let lastId = lastReq.id.split('-')[1];
+					newReq = `RQ-${+lastId + 1}`;
+				} else {
+					newReq = 'RQ-100000';
+				}
+
+				const data = {
+					email: req.body.email,
+					cong_name: req.body.cong_name,
+					cong_number: +req.body.cong_number,
+				};
+
+				await db
+					.collection('congregation_request')
+					.doc(newReq.toString())
+					.set(data);
+
+				res.locals.type = 'info';
+				res.locals.message = 'congregation request sent for approval';
+				res.status(200).json({ message: 'OK' });
+			}
 		} catch (err) {
 			next(err);
 		}
@@ -364,6 +435,60 @@ router.post('/pocket-remove-user', async (req, res, next) => {
 		} else {
 			res.locals.type = 'warn';
 			res.locals.message = `input invalid that prevents removing sws pocket user`;
+
+			res.status(400).json({ message: 'INPUT_INVALID' });
+		}
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.post('/pocket-send-schedule', async (req, res, next) => {
+	try {
+		// check needed content outside middleware
+		const { cong_id, cong_password, pocket_data, pocket_schedule } = req.body;
+
+		if (pocket_data && pocket_schedule) {
+			const congID = cong_id;
+			const congPassword = cong_password;
+
+			const myKey = congID + '&sws2apps';
+			const cryptr = new Cryptr(myKey);
+			const encryptedData = cryptr.encrypt(pocket_data);
+
+			const congRef = db.collection('congregation_data').doc(congID.toString());
+			const docSnap = await congRef.get();
+			let lmmoaPocket = docSnap.data().lmmoaPocket || [];
+
+			const prevIndex = lmmoaPocket.findIndex(
+				(lmmoa) => lmmoa.schedule === pocket_schedule
+			);
+
+			if (prevIndex > -1) {
+				lmmoaPocket.splice(prevIndex, 1);
+			}
+
+			const obj = {};
+			obj.schedule = pocket_schedule;
+			obj.data = encryptedData;
+
+			lmmoaPocket.push(obj);
+
+			const data = {
+				lmmoaPocket: lmmoaPocket,
+			};
+
+			await db
+				.collection('congregation_data')
+				.doc(congID.toString())
+				.set(data, { merge: true });
+
+			res.locals.type = 'info';
+			res.locals.message = `schedule published successfully to sws pocket`;
+			res.status(200).json({ message: 'OK' });
+		} else {
+			res.locals.type = 'warn';
+			res.locals.message = `input invalid that prevents publishing the schedule`;
 
 			res.status(400).json({ message: 'INPUT_INVALID' });
 		}

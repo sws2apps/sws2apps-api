@@ -44,9 +44,14 @@ router.post('/login', async (req, res, next) => {
 						.getUser(uid)
 						.then(async (userRecord) => {
 							if (userRecord.emailVerified) {
+								const userRef = db.collection('users').doc(userRecord.email);
+								const userSnap = await userRef.get();
+
+								const me = userSnap.data();
+
 								res.locals.type = 'info';
 								res.locals.message = 'user success login';
-								res.status(200).json({ message: uid, verified: true });
+								res.status(200).json({ message: uid, verified: true, ...me });
 							} else {
 								res.locals.type = 'warn';
 								res.locals.message = 'user account not verified';
@@ -65,6 +70,7 @@ router.post('/login', async (req, res, next) => {
 
 router.post(
 	'/create-account',
+	body('fullname').isLength({ min: 3 }),
 	body('email').isEmail(),
 	body('password').isLength({ min: 6 }),
 	async (req, res, next) => {
@@ -95,32 +101,30 @@ router.post(
 					disabled: false,
 				})
 				.then((userRecord) => {
-					if (process.env.NODE_ENV === 'testing') {
-						const uid = userRecord.uid;
-						getAuth()
-							.deleteUser(uid)
-							.then(() => {
-								res.status(200).json({ message: 'ACCOUNT_CREATED' });
-							});
-					} else {
-						const userEmail = userRecord.email;
-						getAuth()
-							.generateEmailVerificationLink(userEmail)
-							.then((link) => {
-								if (process.env.NODE_ENV !== 'testing') {
-									sendVerificationEmail(userEmail, link);
-								}
+					const userEmail = userRecord.email;
+					getAuth()
+						.generateEmailVerificationLink(userEmail)
+						.then(async (link) => {
+							sendVerificationEmail(userEmail, link);
 
-								res.locals.type = 'info';
-								res.locals.message = `user account created and the verification email queued for sending`;
-								res.status(200).json({ message: 'CHECK_EMAIL' });
-							})
-							.catch(() => {
-								res.locals.type = 'warn';
-								res.locals.message = `user account created, but the verification email could not be sent`;
-								res.status(200).json({ message: 'VERIFY_FAILED' });
-							});
-					}
+							const data = {
+								about: {
+									name: req.body.fullname,
+									role: 'vip',
+								},
+							};
+
+							await db.collection('users').doc(userEmail).set(data);
+
+							res.locals.type = 'info';
+							res.locals.message = `user account created and the verification email queued for sending`;
+							res.status(200).json({ message: 'CHECK_EMAIL' });
+						})
+						.catch(() => {
+							res.locals.type = 'warn';
+							res.locals.message = `user account created, but the verification email could not be sent`;
+							res.status(200).json({ message: 'VERIFY_FAILED' });
+						});
 				})
 				.catch((err) => {
 					next(err);
