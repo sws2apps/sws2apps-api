@@ -141,7 +141,10 @@ router.post(
 			});
 
 			const findIndex = requests.findIndex(
-				(request) => request.data.email === req.body.email
+				(request) =>
+					request.data.email === req.body.email &&
+					(request.data.approval === undefined ||
+						request.data.approval === 'approved')
 			);
 
 			if (findIndex > -1) {

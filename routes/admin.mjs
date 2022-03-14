@@ -10,6 +10,7 @@ import { adminAuthChecker } from '../middleware/admin-auth-checker.mjs';
 import {
 	sendCongregationAccountCreated,
 	sendCongregationAccountDisapproved,
+	sendUserResetPassword,
 } from '../utils/sendEmail.mjs';
 
 // get firestore
@@ -248,8 +249,6 @@ router.post('/get-users', async (req, res, next) => {
 		let finalResult = [];
 		for (let i = 0; i < tmpUsers.length; i++) {
 			const userRecord = await getAuth().getUserByEmail(tmpUsers[i].email);
-			const uid = userRecord.uid;
-			const emailVerified = userRecord.emailVerified;
 
 			let obj = {};
 			obj.cong_name = '';
@@ -267,9 +266,10 @@ router.post('/get-users', async (req, res, next) => {
 				obj.cong_number = cong_number;
 			}
 
-			obj.uid = uid;
+			obj.uid = userRecord.uid;
 			obj.email = tmpUsers[i].email;
-			obj.emailVerified = emailVerified;
+			obj.emailVerified = userRecord.emailVerified;
+			obj.disabled = userRecord.disabled;
 			obj.username = tmpUsers[i].username;
 			obj.global_role = tmpUsers[i].global_role;
 			obj.cong_role = tmpUsers[i].cong_role;
@@ -284,5 +284,184 @@ router.post('/get-users', async (req, res, next) => {
 		next(err);
 	}
 });
+
+router.post(
+	'/delete-user',
+	body('user_email').isEmail(),
+	body('user_uid').notEmpty(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
+			getAuth()
+				.deleteUser(req.body.user_uid)
+				.then(async () => {
+					await db.collection('users').doc(req.body.user_email).delete();
+
+					res.locals.type = 'info';
+					res.locals.message = 'sucessfully deleted user';
+					res.status(200).json({ message: 'OK' });
+				})
+				.catch((error) => {
+					res.locals.type = 'warn';
+					res.locals.message = `error deleting user: ${error}`;
+					res.status(400).json({ message: error });
+				});
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
+router.post(
+	'/enable-user',
+	body('user_uid').notEmpty(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
+			getAuth()
+				.updateUser(req.body.user_uid, {
+					disabled: false,
+				})
+				.then(() => {
+					res.locals.type = 'info';
+					res.locals.message = 'user enabled successfully';
+					res.status(200).json({ message: 'OK' });
+				})
+				.catch((error) => {
+					res.locals.type = 'warn';
+					res.locals.message = `error updating user: ${error}`;
+					res.status(400).json({ message: error });
+				});
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
+router.post(
+	'/disable-user',
+	body('user_uid').notEmpty(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
+			getAuth()
+				.updateUser(req.body.user_uid, {
+					disabled: true,
+				})
+				.then(() => {
+					res.locals.type = 'info';
+					res.locals.message = 'user disabled successfully';
+					res.status(200).json({ message: 'OK' });
+				})
+				.catch((error) => {
+					res.locals.type = 'warn';
+					res.locals.message = `error updating user: ${error}`;
+					res.status(400).json({ message: error });
+				});
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
+router.post(
+	'/user-reset-password',
+	body('user_username').notEmpty(),
+	body('user_email').isEmail(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
+			getAuth()
+				.generatePasswordResetLink(req.body.user_email)
+				.then((resetLink) => {
+					// send email to user
+					sendUserResetPassword(
+						req.body.user_email,
+						req.body.user_username,
+						resetLink
+					);
+
+					res.locals.type = 'info';
+					res.locals.message = 'user password reset email queued for sending';
+					res.status(200).json({ message: 'OK' });
+				})
+				.catch((error) => {
+					res.locals.type = 'warn';
+					res.locals.message = `error generating link: ${error}`;
+					res.status(400).json({ message: error });
+				});
+		} catch (err) {
+			next(err);
+		}
+	}
+);
 
 export default router;
