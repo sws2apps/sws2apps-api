@@ -1,3 +1,10 @@
+# [2.17.0-alpha.3](https://github.com/sws2apps/sws2apps-api/compare/v2.17.0-alpha.2...v2.17.0-alpha.3) (2022-03-14)
+
+
+### Features
+
+* **deps:** bump node-fetch from 3.2.2 to 3.2.3 ([181798f](https://github.com/sws2apps/sws2apps-api/commit/181798f329f2f094d464025cc740e677e9e93de3))
+
 # [2.17.0-alpha.2](https://github.com/sws2apps/sws2apps-api/compare/v2.17.0-alpha.1...v2.17.0-alpha.2) (2022-03-13)
 
 
