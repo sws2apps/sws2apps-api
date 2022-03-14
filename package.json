@@ -28,7 +28,7 @@
     "firebase-admin": "^10.0.0",
     "heroku-logger": "^0.3.3",
     "is-online": "^9.0.1",
-    "node-fetch": "^3.2.2",
+    "node-fetch": "^3.2.3",
     "nodemailer": "^6.7.2",
     "nodemailer-express-handlebars": "^5.0.0",
     "nodemon": "^2.0.15",
