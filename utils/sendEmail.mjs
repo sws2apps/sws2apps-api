@@ -154,3 +154,48 @@ export const sendCongregationAccountDisapproved = async (
 
 	return !retry;
 };
+
+export const sendUserResetPassword = async (
+	recipient,
+	fullname,
+	resetPasswordLink
+) => {
+	const options = {
+		from: gmailConfig.sender,
+		to: recipient,
+		subject: 'Reset Your Password (sws2apps)',
+		template: 'userResetPassword',
+		context: {
+			name: fullname,
+			reset_password_link: resetPasswordLink,
+		},
+	};
+
+	const intTry = 10;
+	let i = 0;
+	let retry = false;
+
+	do {
+		const send = async () => {
+			return new Promise((resolve) => {
+				return transporter.sendMail(options, (error, info) => {
+					if (error) {
+						logger(
+							'warn',
+							`failed to send message: ${error.message}. trying again ...`
+						);
+						return resolve(false);
+					}
+					logger('info', `reset password link message sent to ${options.to}`);
+					return resolve(true);
+				});
+			});
+		};
+
+		const runSend = await send();
+		retry = !runSend;
+		i++;
+	} while (i < intTry && retry);
+
+	return !retry;
+};
