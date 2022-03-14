@@ -1,3 +1,10 @@
+# [2.17.0-alpha.2](https://github.com/sws2apps/sws2apps-api/compare/v2.17.0-alpha.1...v2.17.0-alpha.2) (2022-03-13)
+
+
+### Bug Fixes
+
+* **app:** update cors to include the main website ([9c5059c](https://github.com/sws2apps/sws2apps-api/commit/9c5059cb7a206ffa0dd00a4e83c233daf35f6345))
+
 # [2.17.0-alpha.1](https://github.com/sws2apps/sws2apps-api/compare/v2.16.1-alpha.3...v2.17.0-alpha.1) (2022-03-13)
 
 
