@@ -1,3 +1,10 @@
+# [2.17.0-alpha.4](https://github.com/sws2apps/sws2apps-api/compare/v2.17.0-alpha.3...v2.17.0-alpha.4) (2022-03-14)
+
+
+### Features
+
+* **admin:** add more routes for user management ([86509fe](https://github.com/sws2apps/sws2apps-api/commit/86509fe996850ca423a59e7c8c2cb7992bf88839))
+
 # [2.17.0-alpha.3](https://github.com/sws2apps/sws2apps-api/compare/v2.17.0-alpha.2...v2.17.0-alpha.3) (2022-03-14)
 
 
