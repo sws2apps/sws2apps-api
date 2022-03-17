@@ -464,4 +464,77 @@ router.post(
 	}
 );
 
+router.post('/get-congregations', async (req, res, next) => {
+	try {
+		const congRef = db.collection('congregation_data');
+		let snapshot = await congRef.get();
+
+		let tmpCongs = [];
+
+		snapshot.forEach((doc) => {
+			let obj = {};
+			obj.cong_id = +doc.id;
+			obj.cong_name = doc.data().cong_name;
+			obj.cong_number = doc.data().cong_number;
+			tmpCongs.push(obj);
+		});
+
+		tmpCongs.sort((a, b) => {
+			return a.cong_name > b.cong_name ? 1 : -1;
+		});
+
+		const userRef = db.collection('users');
+		snapshot = await userRef.get();
+
+		let tmpUsers = [];
+
+		snapshot.forEach((doc) => {
+			let obj = {};
+			obj.email = doc.id;
+			obj.username = doc.data().about.name;
+			obj.global_role = doc.data().about.role;
+			obj.cong_id = doc.data().congregation?.id || '';
+			obj.cong_role = doc.data().congregation?.role || '';
+			tmpUsers.push(obj);
+		});
+
+		let finalResult = [];
+		for (let i = 0; i < tmpCongs.length; i++) {
+			let obj = {};
+			obj.admin = [];
+			obj.vip = [];
+			obj.pocket = [];
+
+			for (let a = 0; a < tmpUsers.length; a++) {
+				if (tmpCongs[i].cong_id === tmpUsers[a].cong_id) {
+					if (tmpUsers[a].cong_role === 'admin') {
+						obj.admin.push({
+							email: tmpUsers[a].email,
+							name: tmpUsers[a].username,
+						});
+					} else if (tmpUsers[a].cong_role === 'vip') {
+						obj.vip.push({
+							email: tmpUsers[a].email,
+							name: tmpUsers[a].username,
+						});
+					} else if (tmpUsers[a].cong_role === 'pocket') {
+						obj.pocket.push({
+							email: tmpUsers[a].email,
+							name: tmpUsers[a].username,
+						});
+					}
+				}
+			}
+
+			finalResult.push({ ...tmpCongs[i], ...obj });
+
+			res.locals.type = 'info';
+			res.locals.message = 'admin fetched all congregation';
+			res.status(200).json(finalResult);
+		}
+	} catch (err) {
+		next(err);
+	}
+});
+
 export default router;
