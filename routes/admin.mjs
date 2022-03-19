@@ -537,4 +537,88 @@ router.post('/get-congregations', async (req, res, next) => {
 	}
 });
 
+router.post(
+	'/congregation-add-admin',
+	body('cong_id').isNumeric(),
+	body('user_email').isEmail(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
+			const data = {
+				congregation: {
+					id: +req.body.cong_id,
+					role: 'admin',
+				},
+			};
+			await db
+				.collection('users')
+				.doc(req.body.user_email)
+				.set(data, { merge: true });
+
+			res.locals.type = 'info';
+			res.locals.message = 'admin added to congregation';
+			res.status(200).json({ message: 'OK' });
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
+router.post(
+	'/congregation-remove-user',
+	body('user_email').isEmail(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
+			const userRef = db.collection('users').doc(req.body.user_email);
+			const userSnap = await userRef.get();
+
+			const data = {
+				about: userSnap.data().about,
+			};
+			await db.collection('users').doc(req.body.user_email).set(data);
+
+			res.locals.type = 'info';
+			res.locals.message = 'admin/vip user removed to congregation';
+			res.status(200).json({ message: 'OK' });
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
 export default router;
