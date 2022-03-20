@@ -1,12 +1,17 @@
 // dependencies
 import express from 'express';
 import crypto from 'crypto';
+import Cryptr from 'cryptr';
+import twofactor from 'node-2fa';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { body, validationResult } from 'express-validator';
 
 // middlewares
 import { adminAuthChecker } from '../middleware/admin-auth-checker.mjs';
+import { sessionChecker } from '../middleware/session-checker.mjs';
+
+// utils
 import {
 	sendCongregationAccountCreated,
 	sendCongregationAccountDisapproved,
@@ -19,12 +24,58 @@ const db = getFirestore();
 const router = express.Router();
 
 router.use(adminAuthChecker());
+router.use(sessionChecker());
 
 router.post('/login', async (req, res, next) => {
 	try {
 		res.locals.type = 'info';
 		res.locals.message = 'administrator successfully logged in';
-		res.status(200).json({ message: 'ADMIN_LOGGED' });
+
+		// create identifier
+		const cn_uid = crypto.randomUUID();
+
+		// save new session
+		let sessions = res.locals.userAbout.sessions || [];
+		const now = new Date();
+		const expiryDate = now.getTime() + 24 * 60 * 60000; // expired after 1 day
+		sessions.push({
+			cn_uid: cn_uid,
+			expires: expiryDate,
+			mfaVerified: false,
+		});
+
+		const data = {
+			about: { ...res.locals.userAbout, sessions: sessions },
+		};
+
+		const { email } = req.body;
+		await db.collection('users').doc(email).set(data, { merge: true });
+
+		res.status(200).json({ message: cn_uid });
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.post('/logout', async (req, res, next) => {
+	try {
+		// create identifier
+		const cn_uid = crypto.randomUUID();
+
+		// save new session
+		let sessions = res.locals.userAbout.sessions || [];
+		sessions.length = 0;
+
+		const data = {
+			about: { ...res.locals.userAbout, sessions: sessions },
+		};
+
+		const { email } = req.body;
+		await db.collection('users').doc(email).set(data, { merge: true });
+
+		res.locals.type = 'info';
+		res.locals.message = 'administrator successfully logged out';
+		res.status(200).json({ message: cn_uid });
 	} catch (err) {
 		next(err);
 	}
@@ -237,6 +288,7 @@ router.post('/get-users', async (req, res, next) => {
 			obj.email = doc.id;
 			obj.username = doc.data().about.name;
 			obj.global_role = doc.data().about.role;
+			obj.mfaEnabled = doc.data().about.mfaEnabled;
 			obj.cong_id = doc.data().congregation?.id || '';
 			obj.cong_role = doc.data().congregation?.role || '';
 			tmpUsers.push(obj);
@@ -269,6 +321,7 @@ router.post('/get-users', async (req, res, next) => {
 			obj.uid = userRecord.uid;
 			obj.email = tmpUsers[i].email;
 			obj.emailVerified = userRecord.emailVerified;
+			obj.mfaEnabled = tmpUsers[i].mfaEnabled;
 			obj.disabled = userRecord.disabled;
 			obj.username = tmpUsers[i].username;
 			obj.global_role = tmpUsers[i].global_role;
@@ -458,6 +511,278 @@ router.post(
 					res.locals.message = `error generating link: ${error}`;
 					res.status(400).json({ message: error });
 				});
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
+router.post('/get-congregations', async (req, res, next) => {
+	try {
+		const congRef = db.collection('congregation_data');
+		let snapshot = await congRef.get();
+
+		let tmpCongs = [];
+
+		snapshot.forEach((doc) => {
+			let obj = {};
+			obj.cong_id = +doc.id;
+			obj.cong_name = doc.data().cong_name;
+			obj.cong_number = doc.data().cong_number;
+			tmpCongs.push(obj);
+		});
+
+		tmpCongs.sort((a, b) => {
+			return a.cong_name > b.cong_name ? 1 : -1;
+		});
+
+		const userRef = db.collection('users');
+		snapshot = await userRef.get();
+
+		let tmpUsers = [];
+
+		snapshot.forEach((doc) => {
+			let obj = {};
+			obj.email = doc.id;
+			obj.username = doc.data().about.name;
+			obj.global_role = doc.data().about.role;
+			obj.cong_id = doc.data().congregation?.id || '';
+			obj.cong_role = doc.data().congregation?.role || '';
+			tmpUsers.push(obj);
+		});
+
+		let finalResult = [];
+		for (let i = 0; i < tmpCongs.length; i++) {
+			let obj = {};
+			obj.admin = [];
+			obj.vip = [];
+			obj.pocket = [];
+
+			for (let a = 0; a < tmpUsers.length; a++) {
+				if (tmpCongs[i].cong_id === tmpUsers[a].cong_id) {
+					if (tmpUsers[a].cong_role === 'admin') {
+						obj.admin.push({
+							email: tmpUsers[a].email,
+							name: tmpUsers[a].username,
+						});
+					} else if (tmpUsers[a].cong_role === 'vip') {
+						obj.vip.push({
+							email: tmpUsers[a].email,
+							name: tmpUsers[a].username,
+						});
+					} else if (tmpUsers[a].cong_role === 'pocket') {
+						obj.pocket.push({
+							email: tmpUsers[a].email,
+							name: tmpUsers[a].username,
+						});
+					}
+				}
+			}
+
+			finalResult.push({ ...tmpCongs[i], ...obj });
+
+			res.locals.type = 'info';
+			res.locals.message = 'admin fetched all congregation';
+			res.status(200).json(finalResult);
+		}
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.post(
+	'/congregation-add-admin',
+	body('cong_id').isNumeric(),
+	body('user_email').isEmail(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
+			const data = {
+				congregation: {
+					id: +req.body.cong_id,
+					role: 'admin',
+				},
+			};
+			await db
+				.collection('users')
+				.doc(req.body.user_email)
+				.set(data, { merge: true });
+
+			res.locals.type = 'info';
+			res.locals.message = 'admin added to congregation';
+			res.status(200).json({ message: 'OK' });
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
+router.post(
+	'/congregation-remove-user',
+	body('user_email').isEmail(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
+			const userRef = db.collection('users').doc(req.body.user_email);
+			const userSnap = await userRef.get();
+
+			const data = {
+				about: userSnap.data().about,
+			};
+			await db.collection('users').doc(req.body.user_email).set(data);
+
+			res.locals.type = 'info';
+			res.locals.message = 'admin/vip user removed to congregation';
+			res.status(200).json({ message: 'OK' });
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
+router.post(
+	'/view-user-token',
+	body('user_email').isEmail(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
+			// Retrieve user from database
+			const email = req.body.user_email;
+			const userRef = db.collection('users').doc(email);
+			const userSnap = await userRef.get();
+
+			// get encrypted token
+			const encryptedData = userSnap.data().about.secret;
+
+			if (encryptedData) {
+				// decrypt token
+				const myKey = '&sws2apps_' + process.env.SEC_ENCRYPT_KEY;
+				const cryptr = new Cryptr(myKey);
+				const decryptedData = cryptr.decrypt(encryptedData);
+
+				// get base32 prop as secret
+				const { base32: secret } = JSON.parse(decryptedData);
+
+				res.locals.type = 'info';
+				res.locals.message = 'admin fetch the user token';
+				res.status(200).json({ message: secret });
+			} else {
+				res.locals.type = 'warn';
+				res.locals.message = 'the user has no mfa token yet';
+				res.status(400).json({ message: 'NO_MFA_TOKEN' });
+			}
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
+router.post(
+	'/revoke-user-token',
+	body('user_email').isEmail(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
+			// get email
+			const email = req.body.user_email;
+
+			// generate new secret and encrypt
+			const secret = twofactor.generateSecret({
+				name: 'sws2apps',
+				account: email,
+			});
+
+			const myKey = '&sws2apps_' + process.env.SEC_ENCRYPT_KEY;
+			const cryptr = new Cryptr(myKey);
+			const encryptedData = cryptr.encrypt(JSON.stringify(secret));
+
+			// Retrieve user from database
+
+			const userRef = db.collection('users').doc(email);
+			const userSnap = await userRef.get();
+
+			// remove all sessions and save new secret
+			const data = {
+				about: {
+					...userSnap.data().about,
+					mfaEnabled: false,
+					secret: encryptedData,
+					sessions: [],
+				},
+			};
+			await db.collection('users').doc(email).set(data, { merge: true });
+
+			res.locals.type = 'info';
+			res.locals.message = 'admin revoked user token access';
+			res.status(200).json({ message: 'OK' });
 		} catch (err) {
 			next(err);
 		}
