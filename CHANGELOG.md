@@ -1,3 +1,10 @@
+# [2.17.0-alpha.5](https://github.com/sws2apps/sws2apps-api/compare/v2.17.0-alpha.4...v2.17.0-alpha.5) (2022-03-20)
+
+
+### Features
+
+* **administration:** redesign the panel for admin ([7072172](https://github.com/sws2apps/sws2apps-api/commit/7072172a24486bba93d7d2a3554e9866a15f17c0))
+
 # [2.17.0-alpha.4](https://github.com/sws2apps/sws2apps-api/compare/v2.17.0-alpha.3...v2.17.0-alpha.4) (2022-03-14)
 
 
