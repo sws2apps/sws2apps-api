@@ -1,9 +1,3 @@
-// dependencies
-import { getFirestore } from 'firebase-admin/firestore';
-
-// get firestore
-const db = getFirestore(); //get default database
-
 export const requestChecker = () => {
 	return async (req, res, next) => {
 		try {

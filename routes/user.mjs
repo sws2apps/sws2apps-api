@@ -51,6 +51,7 @@ router.post('/login', async (req, res, next) => {
 
 								res.locals.type = 'info';
 								res.locals.message = 'user success login';
+
 								res.status(200).json({ message: uid, verified: true, ...me });
 							} else {
 								res.locals.type = 'warn';
@@ -221,7 +222,6 @@ router.post(
 );
 
 router.use(authChecker());
-
 // with inline middleware
 router.get('/get-backup', async (req, res, next) => {
 	try {

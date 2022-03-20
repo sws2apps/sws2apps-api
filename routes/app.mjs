@@ -14,6 +14,7 @@ import congregationRoute from './congregation.mjs';
 import swsPocketRoute from './sws-pocket.mjs';
 import userRoute from './user.mjs';
 import adminRoute from './admin.mjs';
+import mfaRoute from './mfa.mjs';
 
 // middleware import
 import { internetChecker } from '../middleware/internet-checker.mjs';
@@ -88,6 +89,7 @@ app.use(
 
 app.use('/api/congregation', congregationRoute);
 app.use('/api/sws-pocket', swsPocketRoute);
+app.use('/api/mfa', mfaRoute);
 app.use('/api/user', userRoute);
 app.use('/api/admin', adminRoute);
 
