@@ -1,3 +1,10 @@
+# [3.0.0-alpha.2](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.1...v3.0.0-alpha.2) (2022-03-22)
+
+
+### Bug Fixes
+
+* **auth:** fix bug when setting up mfa for the first time ([bca47cd](https://github.com/sws2apps/sws2apps-api/commit/bca47cd859c4799128aca1b46a4e3cb4871cf1b5))
+
 # [3.0.0-alpha.1](https://github.com/sws2apps/sws2apps-api/compare/v2.17.0-alpha.5...v3.0.0-alpha.1) (2022-03-22)
 
 
