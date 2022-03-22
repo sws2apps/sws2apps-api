@@ -10,6 +10,7 @@ export const gmailConfig = {
 			user: GMAIL_ADDRESS,
 			pass: GMAIL_APP_PASSWORD,
 		},
+		secure: true,
 		tls: {
 			rejectUnauthorized: false,
 		},
