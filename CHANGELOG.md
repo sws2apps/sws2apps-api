@@ -1,3 +1,10 @@
+# [3.0.0-alpha.3](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.2...v3.0.0-alpha.3) (2022-03-22)
+
+
+### Bug Fixes
+
+* **auth:** fix qr code response ([f895705](https://github.com/sws2apps/sws2apps-api/commit/f895705ee4df427de2d50882194c774e17cbebca))
+
 # [3.0.0-alpha.2](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.1...v3.0.0-alpha.2) (2022-03-22)
 
 
