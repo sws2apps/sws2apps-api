@@ -128,7 +128,7 @@ router.post(
 							'user authentication rejected because account mfa is not yet setup';
 						res.status(403).json({
 							secret: secret.secret,
-							qrCode: secret.qr,
+							qrCode: secret.uri,
 							session_id: session_id,
 						});
 					}
