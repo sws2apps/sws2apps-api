@@ -25,6 +25,7 @@ const router = express.Router();
 
 router.use(sessionChecker());
 router.use(adminAuthChecker());
+router.use(sessionChecker());
 
 router.get('/', async (req, res, next) => {
 	try {
