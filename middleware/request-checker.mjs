@@ -1,6 +1,12 @@
+import geoip from 'geoip-lite';
+
 export const requestChecker = () => {
 	return async (req, res, next) => {
 		try {
+			const geo = geoip.lookup(req.clientIp);
+
+			const reqCity = geo === null ? 'Unknown' : `${geo.city} (${geo.country})`;
+
 			const clientIp = req.clientIp;
 			const reqTrackRef = requestTracker.find(
 				(client) => client.ip === clientIp
@@ -51,6 +57,7 @@ export const requestChecker = () => {
 
 								let obj = {};
 								obj.ip = clientIp;
+								obj.city = reqCity;
 								obj.reqInProgress = false;
 								obj.failedLoginAttempt = 3;
 								obj.retryOn = retryDate;
@@ -62,6 +69,7 @@ export const requestChecker = () => {
 
 							let obj = {};
 							obj.ip = clientIp;
+							obj.city = reqCity;
 							obj.reqInProgress = true;
 							obj.failedLoginAttempt = failedLoginAttempt;
 							obj.retryOn = '';
@@ -74,6 +82,7 @@ export const requestChecker = () => {
 			} else {
 				let obj = {};
 				obj.ip = clientIp;
+				obj.city = reqCity;
 				obj.reqInProgress = true;
 				obj.failedLoginAttempt = 0;
 				obj.retryOn = '';

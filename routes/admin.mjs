@@ -23,65 +23,39 @@ const db = getFirestore();
 
 const router = express.Router();
 
-router.use(adminAuthChecker());
 router.use(sessionChecker());
+router.use(adminAuthChecker());
 
-router.post('/login', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
 	try {
 		res.locals.type = 'info';
 		res.locals.message = 'administrator successfully logged in';
 
-		// create identifier
-		const cn_uid = crypto.randomUUID();
-
-		// save new session
-		let sessions = res.locals.userAbout.sessions || [];
-		const now = new Date();
-		const expiryDate = now.getTime() + 24 * 60 * 60000; // expired after 1 day
-		sessions.push({
-			cn_uid: cn_uid,
-			expires: expiryDate,
-			mfaVerified: false,
-		});
-
-		const data = {
-			about: { ...res.locals.userAbout, sessions: sessions },
-		};
-
-		const { email } = req.body;
-		await db.collection('users').doc(email).set(data, { merge: true });
-
-		res.status(200).json({ message: cn_uid });
+		res.status(200).json({ message: 'OK' });
 	} catch (err) {
 		next(err);
 	}
 });
 
-router.post('/logout', async (req, res, next) => {
+router.get('/logout', async (req, res, next) => {
 	try {
-		// create identifier
-		const cn_uid = crypto.randomUUID();
-
-		// save new session
-		let sessions = res.locals.userAbout.sessions || [];
-		sessions.length = 0;
-
+		// remove all sessions
 		const data = {
-			about: { ...res.locals.userAbout, sessions: sessions },
+			about: { ...res.locals.userAbout, sessions: [] },
 		};
 
-		const { email } = req.body;
+		const email = res.locals.currentUser.email;
 		await db.collection('users').doc(email).set(data, { merge: true });
 
 		res.locals.type = 'info';
 		res.locals.message = 'administrator successfully logged out';
-		res.status(200).json({ message: cn_uid });
+		res.status(200).json({ message: 'LOGGED_OUT' });
 	} catch (err) {
 		next(err);
 	}
 });
 
-router.post('/pending-requests', async (req, res, next) => {
+router.get('/pending-requests', async (req, res, next) => {
 	try {
 		const congRef = db.collection('congregation_request');
 		const snapshot = await congRef.get();
@@ -276,7 +250,7 @@ router.post(
 	}
 );
 
-router.post('/get-users', async (req, res, next) => {
+router.get('/users', async (req, res, next) => {
 	try {
 		const userRef = db.collection('users');
 		const snapshot = await userRef.get();
@@ -300,9 +274,19 @@ router.post('/get-users', async (req, res, next) => {
 
 		let finalResult = [];
 		for (let i = 0; i < tmpUsers.length; i++) {
-			const userRecord = await getAuth().getUserByEmail(tmpUsers[i].email);
-
 			let obj = {};
+
+			if (tmpUsers[i].global_role === 'pocket') {
+				obj.uid = tmpUsers[i].email;
+				obj.disabled = tmpUsers[i].pocket_disabled;
+			} else {
+				const userRecord = await getAuth().getUserByEmail(tmpUsers[i].email);
+				obj.uid = userRecord.uid;
+				obj.email = tmpUsers[i].email;
+				obj.emailVerified = userRecord.emailVerified;
+				obj.disabled = userRecord.disabled;
+			}
+
 			obj.cong_name = '';
 			obj.cong_number = '';
 
@@ -318,11 +302,7 @@ router.post('/get-users', async (req, res, next) => {
 				obj.cong_number = cong_number;
 			}
 
-			obj.uid = userRecord.uid;
-			obj.email = tmpUsers[i].email;
-			obj.emailVerified = userRecord.emailVerified;
 			obj.mfaEnabled = tmpUsers[i].mfaEnabled;
-			obj.disabled = userRecord.disabled;
 			obj.username = tmpUsers[i].username;
 			obj.global_role = tmpUsers[i].global_role;
 			obj.cong_role = tmpUsers[i].cong_role;
@@ -340,8 +320,8 @@ router.post('/get-users', async (req, res, next) => {
 
 router.post(
 	'/delete-user',
-	body('user_email').isEmail(),
 	body('user_uid').notEmpty(),
+	body('user_type').notEmpty(),
 	async (req, res, next) => {
 		try {
 			const errors = validationResult(req);
@@ -362,20 +342,39 @@ router.post(
 				return;
 			}
 
-			getAuth()
-				.deleteUser(req.body.user_uid)
-				.then(async () => {
-					await db.collection('users').doc(req.body.user_email).delete();
+			if (req.body.user_type !== 'pocket' && req.body.user_type !== 'vip') {
+				res.locals.type = 'warn';
+				res.locals.message = 'invalid user type';
 
-					res.locals.type = 'info';
-					res.locals.message = 'sucessfully deleted user';
-					res.status(200).json({ message: 'OK' });
-				})
-				.catch((error) => {
-					res.locals.type = 'warn';
-					res.locals.message = `error deleting user: ${error}`;
-					res.status(400).json({ message: error });
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
 				});
+
+				return;
+			}
+
+			if (req.body.user_type === 'pocket') {
+				await db.collection('users').doc(req.body.user_uid).delete();
+
+				res.locals.type = 'info';
+				res.locals.message = 'sucessfully deleted user';
+				res.status(200).json({ message: 'OK' });
+			} else {
+				getAuth()
+					.deleteUser(req.body.user_uid)
+					.then(async () => {
+						await db.collection('users').doc(req.body.user_uid).delete();
+
+						res.locals.type = 'info';
+						res.locals.message = 'sucessfully deleted user';
+						res.status(200).json({ message: 'OK' });
+					})
+					.catch((error) => {
+						res.locals.type = 'warn';
+						res.locals.message = `error deleting user: ${error}`;
+						res.status(400).json({ message: error });
+					});
+			}
 		} catch (err) {
 			next(err);
 		}
@@ -385,6 +384,7 @@ router.post(
 router.post(
 	'/enable-user',
 	body('user_uid').notEmpty(),
+	body('user_type').notEmpty(),
 	async (req, res, next) => {
 		try {
 			const errors = validationResult(req);
@@ -405,20 +405,49 @@ router.post(
 				return;
 			}
 
-			getAuth()
-				.updateUser(req.body.user_uid, {
-					disabled: false,
-				})
-				.then(() => {
-					res.locals.type = 'info';
-					res.locals.message = 'user enabled successfully';
-					res.status(200).json({ message: 'OK' });
-				})
-				.catch((error) => {
-					res.locals.type = 'warn';
-					res.locals.message = `error updating user: ${error}`;
-					res.status(400).json({ message: error });
+			if (req.body.user_type !== 'pocket' && req.body.user_type !== 'vip') {
+				res.locals.type = 'warn';
+				res.locals.message = 'invalid user type';
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
 				});
+
+				return;
+			}
+
+			if (req.body.user_type === 'pocket') {
+				const userRef = db.collection('users').doc(req.body.user_uid);
+				const userSnap = await userRef.get();
+
+				const data = {
+					about: { ...userSnap.data().about, pocket_disabled: false },
+				};
+
+				await db
+					.collection('users')
+					.doc(req.body.user_uid)
+					.set(data, { merge: true });
+
+				res.locals.type = 'info';
+				res.locals.message = 'user enabled successfully';
+				res.status(200).json({ message: 'OK' });
+			} else {
+				getAuth()
+					.updateUser(req.body.user_uid, {
+						disabled: false,
+					})
+					.then(() => {
+						res.locals.type = 'info';
+						res.locals.message = 'user enabled successfully';
+						res.status(200).json({ message: 'OK' });
+					})
+					.catch((error) => {
+						res.locals.type = 'warn';
+						res.locals.message = `error updating user: ${error}`;
+						res.status(400).json({ message: error });
+					});
+			}
 		} catch (err) {
 			next(err);
 		}
@@ -428,6 +457,7 @@ router.post(
 router.post(
 	'/disable-user',
 	body('user_uid').notEmpty(),
+	body('user_type').notEmpty(),
 	async (req, res, next) => {
 		try {
 			const errors = validationResult(req);
@@ -448,20 +478,49 @@ router.post(
 				return;
 			}
 
-			getAuth()
-				.updateUser(req.body.user_uid, {
-					disabled: true,
-				})
-				.then(() => {
-					res.locals.type = 'info';
-					res.locals.message = 'user disabled successfully';
-					res.status(200).json({ message: 'OK' });
-				})
-				.catch((error) => {
-					res.locals.type = 'warn';
-					res.locals.message = `error updating user: ${error}`;
-					res.status(400).json({ message: error });
+			if (req.body.user_type !== 'pocket' && req.body.user_type !== 'vip') {
+				res.locals.type = 'warn';
+				res.locals.message = 'invalid user type';
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
 				});
+
+				return;
+			}
+
+			if (req.body.user_type === 'pocket') {
+				const userRef = db.collection('users').doc(req.body.user_uid);
+				const userSnap = await userRef.get();
+
+				const data = {
+					about: { ...userSnap.data().about, pocket_disabled: true },
+				};
+
+				await db
+					.collection('users')
+					.doc(req.body.user_uid)
+					.set(data, { merge: true });
+
+				res.locals.type = 'info';
+				res.locals.message = 'user disabled successfully';
+				res.status(200).json({ message: 'OK' });
+			} else {
+				getAuth()
+					.updateUser(req.body.user_uid, {
+						disabled: true,
+					})
+					.then(() => {
+						res.locals.type = 'info';
+						res.locals.message = 'user disabled successfully';
+						res.status(200).json({ message: 'OK' });
+					})
+					.catch((error) => {
+						res.locals.type = 'warn';
+						res.locals.message = `error updating user: ${error}`;
+						res.status(400).json({ message: error });
+					});
+			}
 		} catch (err) {
 			next(err);
 		}
@@ -517,7 +576,7 @@ router.post(
 	}
 );
 
-router.post('/get-congregations', async (req, res, next) => {
+router.get('/congregations', async (req, res, next) => {
 	try {
 		const congRef = db.collection('congregation_data');
 		let snapshot = await congRef.get();
@@ -572,7 +631,7 @@ router.post('/get-congregations', async (req, res, next) => {
 						});
 					} else if (tmpUsers[a].cong_role === 'pocket') {
 						obj.pocket.push({
-							email: tmpUsers[a].email,
+							pocket_uid: tmpUsers[a].email,
 							name: tmpUsers[a].username,
 						});
 					}
@@ -593,7 +652,7 @@ router.post('/get-congregations', async (req, res, next) => {
 router.post(
 	'/congregation-add-admin',
 	body('cong_id').isNumeric(),
-	body('user_email').isEmail(),
+	body('user_uid').isEmail(),
 	async (req, res, next) => {
 		try {
 			const errors = validationResult(req);
@@ -622,7 +681,7 @@ router.post(
 			};
 			await db
 				.collection('users')
-				.doc(req.body.user_email)
+				.doc(req.body.user_uid)
 				.set(data, { merge: true });
 
 			res.locals.type = 'info';
@@ -636,7 +695,7 @@ router.post(
 
 router.post(
 	'/congregation-remove-user',
-	body('user_email').isEmail(),
+	body('user_uid').notEmpty(),
 	async (req, res, next) => {
 		try {
 			const errors = validationResult(req);
@@ -657,13 +716,13 @@ router.post(
 				return;
 			}
 
-			const userRef = db.collection('users').doc(req.body.user_email);
+			const userRef = db.collection('users').doc(req.body.user_uid);
 			const userSnap = await userRef.get();
 
 			const data = {
 				about: userSnap.data().about,
 			};
-			await db.collection('users').doc(req.body.user_email).set(data);
+			await db.collection('users').doc(req.body.user_uid).set(data);
 
 			res.locals.type = 'info';
 			res.locals.message = 'admin/vip user removed to congregation';
@@ -676,7 +735,7 @@ router.post(
 
 router.post(
 	'/view-user-token',
-	body('user_email').isEmail(),
+	body('user_uid').notEmpty(),
 	async (req, res, next) => {
 		try {
 			const errors = validationResult(req);
@@ -698,8 +757,8 @@ router.post(
 			}
 
 			// Retrieve user from database
-			const email = req.body.user_email;
-			const userRef = db.collection('users').doc(email);
+			const user_uid = req.body.user_uid;
+			const userRef = db.collection('users').doc(user_uid);
 			const userSnap = await userRef.get();
 
 			// get encrypted token
@@ -712,7 +771,7 @@ router.post(
 				const decryptedData = cryptr.decrypt(encryptedData);
 
 				// get base32 prop as secret
-				const { base32: secret } = JSON.parse(decryptedData);
+				const { secret } = JSON.parse(decryptedData);
 
 				res.locals.type = 'info';
 				res.locals.message = 'admin fetch the user token';
@@ -730,7 +789,7 @@ router.post(
 
 router.post(
 	'/revoke-user-token',
-	body('user_email').isEmail(),
+	body('user_uid').notEmpty(),
 	async (req, res, next) => {
 		try {
 			const errors = validationResult(req);
@@ -751,13 +810,13 @@ router.post(
 				return;
 			}
 
-			// get email
-			const email = req.body.user_email;
+			// get user identifier
+			const user_uid = req.body.user_uid;
 
 			// generate new secret and encrypt
 			const secret = twofactor.generateSecret({
 				name: 'sws2apps',
-				account: email,
+				account: user_uid,
 			});
 
 			const myKey = '&sws2apps_' + process.env.SEC_ENCRYPT_KEY;
@@ -766,7 +825,7 @@ router.post(
 
 			// Retrieve user from database
 
-			const userRef = db.collection('users').doc(email);
+			const userRef = db.collection('users').doc(user_uid);
 			const userSnap = await userRef.get();
 
 			// remove all sessions and save new secret
@@ -778,11 +837,57 @@ router.post(
 					sessions: [],
 				},
 			};
-			await db.collection('users').doc(email).set(data, { merge: true });
+			await db.collection('users').doc(user_uid).set(data, { merge: true });
 
 			res.locals.type = 'info';
 			res.locals.message = 'admin revoked user token access';
 			res.status(200).json({ message: 'OK' });
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
+router.get('/blocked-requests', async (req, res, next) => {
+	try {
+		let reqs = [];
+		for (let i = 0; i < requestTracker.length; i++) {
+			const retryOn = requestTracker[i].retryOn || 0;
+			if (retryOn > 0) {
+				const currentDate = new Date().getTime();
+				if (currentDate < retryOn) {
+					reqs.push(requestTracker[i]);
+				}
+			}
+		}
+
+		res.locals.type = 'info';
+		res.locals.message = 'admin fetched blocked requests';
+		res.status(200).json({ message: reqs });
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.post(
+	'/unblock-request',
+	body('request_ip').notEmpty(),
+	async (req, res, next) => {
+		try {
+			const ipIndex = requestTracker.findIndex(
+				(client) => client.ip === req.body.request_ip
+			);
+
+			if (ipIndex === -1) {
+				res.locals.type = 'warn';
+				res.locals.message = 'failed to unblock request since ip is not valid';
+				res.status(400).json({ message: 'UNBLOCK_FAILED' });
+			} else {
+				requestTracker.splice(ipIndex, 1);
+				res.locals.type = 'info';
+				res.locals.message = 'request unblocked successfully';
+				res.status(200).json({ message: requestTracker });
+			}
 		} catch (err) {
 			next(err);
 		}

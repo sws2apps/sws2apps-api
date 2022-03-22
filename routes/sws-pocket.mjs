@@ -1,6 +1,8 @@
 // dependencies
 import express from 'express';
+import Cryptr from 'cryptr';
 import randomstring from 'randomstring';
+import twofactor from 'node-2fa';
 import { getFirestore } from 'firebase-admin/firestore';
 import { body, validationResult } from 'express-validator';
 
@@ -56,16 +58,25 @@ router.post(
 				}
 			} while (setUID === false);
 
-			// generate verification key
-			const verifyKey = randomstring.generate(10);
+			// generate new secret and encrypt
+			const secret = twofactor.generateSecret({
+				name: 'sws2apps',
+				account: `Pocket-${uid}`,
+			});
+
+			const myKey = '&sws2apps_' + process.env.SEC_ENCRYPT_KEY;
+			const cryptr = new Cryptr(myKey);
+			const encryptedData = cryptr.encrypt(JSON.stringify(secret));
 
 			// create pocket user
 			const data = {
 				about: {
 					name: req.body.user_fullname,
 					role: 'pocket',
-					pocket_verified: false,
-					verification_key: verifyKey,
+					mfaEnabled: false,
+					secret: encryptedData,
+					sessions: [],
+					pocket_disabled: false,
 				},
 			};
 
