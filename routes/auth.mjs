@@ -1,7 +1,9 @@
 // import dependencies
 import crypto from 'crypto';
+import Cryptr from 'cryptr';
 import express from 'express';
 import fetch from 'node-fetch';
+import twofactor from 'node-2fa';
 import { body, validationResult } from 'express-validator';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
@@ -69,20 +71,20 @@ router.post(
 
 					const aboutUser = userSnap.data().about;
 
+					// create and save session
+					const session_id = crypto.randomUUID();
+
+					let sessions = [];
+					const now = new Date();
+					const expiryDate = now.getTime() + 24 * 60 * 60000; // expired after 1 day
+					sessions.push({
+						id: session_id,
+						expires: expiryDate,
+						mfaVerified: false,
+						ip: req.clientIp,
+					});
+
 					if (aboutUser.mfaEnabled) {
-						// create and save session
-						const session_id = crypto.randomUUID();
-
-						let sessions = [];
-						const now = new Date();
-						const expiryDate = now.getTime() + 24 * 60 * 60000; // expired after 1 day
-						sessions.push({
-							id: session_id,
-							expires: expiryDate,
-							mfaVerified: false,
-							ip: req.clientIp,
-						});
-
 						const data = {
 							about: { ...aboutUser, sessions: sessions },
 						};
@@ -97,10 +99,38 @@ router.post(
 
 						res.status(200).json({ session_id: session_id });
 					} else {
+						// generate new secret and encrypt
+						const secret = twofactor.generateSecret({
+							name: 'sws2apps',
+							account: userRecord.email,
+						});
+
+						const myKey = '&sws2apps_' + process.env.SEC_ENCRYPT_KEY;
+						const cryptr = new Cryptr(myKey);
+						const encryptedData = cryptr.encrypt(JSON.stringify(secret));
+
+						// save secret
+						const data = {
+							about: {
+								...aboutUser,
+								sessions: sessions,
+								secret: encryptedData,
+							},
+						};
+
+						await db
+							.collection('users')
+							.doc(userRecord.email)
+							.set(data, { merge: true });
+
 						res.locals.type = 'warn';
 						res.locals.message =
 							'user authentication rejected because account mfa is not yet setup';
-						res.status(403).json({ message: 'MFA_REQUIRED' });
+						res.status(403).json({
+							secret: secret.secret,
+							qrCode: secret.qr,
+							session_id: session_id,
+						});
 					}
 				} else {
 					res.locals.type = 'warn';
