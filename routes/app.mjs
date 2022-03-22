@@ -10,6 +10,7 @@ import requestIp from 'request-ip';
 import '../config/firebase-config.mjs';
 
 // route import
+import authRoute from './auth.mjs';
 import congregationRoute from './congregation.mjs';
 import swsPocketRoute from './sws-pocket.mjs';
 import userRoute from './user.mjs';
@@ -60,8 +61,6 @@ var corsOptionsDelegate = function (req, callback) {
 
 const app = express();
 
-app.disable('x-powered-by');
-
 const __dirname = path.resolve();
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
@@ -87,6 +86,7 @@ app.use(
 	})
 );
 
+app.use('/', authRoute);
 app.use('/api/congregation', congregationRoute);
 app.use('/api/sws-pocket', swsPocketRoute);
 app.use('/api/mfa', mfaRoute);
@@ -97,7 +97,7 @@ app.get('/', async (req, res, next) => {
 	try {
 		res.locals.type = 'info';
 		res.locals.message = 'success opening main route';
-		res.send(`SWS Apps API services v${appVersion}`);
+		res.status(200).json({ message: `SWS Apps API services v${appVersion}` });
 	} catch (err) {
 		next(err);
 	}
@@ -138,7 +138,6 @@ app.use((error, req, res, next) => {
 			message: 'USER_NOT_FOUND',
 		});
 	} else {
-		console.log(error);
 		res.status(500).json({ message: 'INTERNAL_ERROR' });
 	}
 });

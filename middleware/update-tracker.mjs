@@ -1,4 +1,5 @@
 // dependencies
+import geoip from 'geoip-lite';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // utils import
@@ -10,6 +11,10 @@ const db = getFirestore();
 export const updateTracker = () => {
 	return async (req, res, next) => {
 		try {
+			const geo = geoip.lookup(req.clientIp);
+
+			const reqCity = geo === null ? 'Unknown' : `${geo.city} (${geo.country})`;
+
 			const clientIp = req.clientIp;
 			const ipIndex = requestTracker.findIndex(
 				(client) => client.ip === clientIp
@@ -31,6 +36,7 @@ export const updateTracker = () => {
 
 						let obj = {};
 						obj.ip = clientIp;
+						obj.city = reqCity;
 						obj.reqInProgress = false;
 						obj.failedLoginAttempt = failedLoginAttempt;
 						obj.retryOn = '';

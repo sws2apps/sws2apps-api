@@ -66,7 +66,8 @@ router.post(
 			return;
 		}
 
-		const { email, token } = req.body;
+		const { token } = req.body;
+		const { email } = res.locals.currentUser;
 
 		try {
 			// Retrieve user from database
@@ -89,30 +90,28 @@ router.post(
 
 			if (verified?.delta === 0) {
 				// update mfa enabled && verified
-				const { cn_uid } = req.headers;
+				const { session_id } = req.headers;
 
-				let sessions = res.locals.userAbout.sessions || [];
-				let itemCn = sessions.find((session) => session.cn_uid === cn_uid);
+				let sessions = userSnap.data().about.sessions || [];
+				let itemCn = sessions.find((session) => session.id === session_id);
 				itemCn.mfaVerified = true;
 
 				let newSessions = sessions.filter(
-					(session) => session.cn_uid !== cn_uid
+					(session) => session.id !== session_id
 				);
 				newSessions.push(itemCn);
-
-				const mfaEnabled = userSnap.data().about.mfaEnabled ? true : true;
 
 				const data = {
 					about: {
 						...userSnap.data().about,
-						mfaEnabled: mfaEnabled,
+						mfaEnabled: true,
 						sessions: newSessions,
 					},
 				};
 				await db.collection('users').doc(email).set(data, { merge: true });
 
 				res.locals.type = 'info';
-				res.locals.message = `OTP token verification success`;
+				res.locals.message = 'OTP token verification success';
 
 				res.status(200).json({ message: 'TOKEN_VALID' });
 			} else {
