@@ -1,3 +1,15 @@
+# [3.0.0-alpha.1](https://github.com/sws2apps/sws2apps-api/compare/v2.17.0-alpha.5...v3.0.0-alpha.1) (2022-03-22)
+
+
+### Features
+
+* **api:** new authentication flow ([8e311e7](https://github.com/sws2apps/sws2apps-api/commit/8e311e70a6c08e51b07df062fad3a765a7398165))
+
+
+### BREAKING CHANGES
+
+* **api:** A new authentication flow has been introduced with this release
+
 # [2.17.0-alpha.5](https://github.com/sws2apps/sws2apps-api/compare/v2.17.0-alpha.4...v2.17.0-alpha.5) (2022-03-20)
 
 
