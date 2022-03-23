@@ -74,7 +74,7 @@ router.post(
 					// create and save session
 					const session_id = crypto.randomUUID();
 
-					let sessions = [];
+					let sessions = aboutUser.sessions || [];
 					const now = new Date();
 					const expiryDate = now.getTime() + 24 * 60 * 60000; // expired after 1 day
 					sessions.push({
