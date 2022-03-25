@@ -7,10 +7,6 @@
     "dev": "cross-env NODE_ENV=development nodemon index.mjs",
     "start": "cross-env NODE_ENV=production node index.mjs",
     "test": "c8 --reporter=lcov --reporter=text mocha",
-    "test-without-report": "mocha",
-    "preghcommit": "git add .",
-    "ghcommit": "git-cz",
-    "semantic-release": "semantic-release"
   },
   "keywords": [],
   "author": "",
@@ -47,10 +43,5 @@
     "@semantic-release/git": "^10.0.1",
     "cz-conventional-changelog": "^3.3.0",
     "semantic-release": "^19.0.2"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
   }
 }
