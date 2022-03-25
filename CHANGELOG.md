@@ -1,3 +1,10 @@
+# [3.0.0-alpha.4](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.3...v3.0.0-alpha.4) (2022-03-23)
+
+
+### Features
+
+* **auth:** enable user multisession ([3a15cc5](https://github.com/sws2apps/sws2apps-api/commit/3a15cc5ae024ef0da136d8f458b0799cef4d4b27))
+
 # [3.0.0-alpha.3](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.2...v3.0.0-alpha.3) (2022-03-22)
 
 
