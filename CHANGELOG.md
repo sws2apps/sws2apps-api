@@ -1,3 +1,15 @@
+# [3.0.0-alpha.5](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.4...v3.0.0-alpha.5) (2022-03-25)
+
+
+### Bug Fixes
+
+* **package.json:** fix format error ([77bd618](https://github.com/sws2apps/sws2apps-api/commit/77bd61874d18d143b1fe57b3d1a153261af3adb0))
+
+
+### Features
+
+* **deps:** bump node-forge from 1.2.1 to 1.3.0 ([e3a9d57](https://github.com/sws2apps/sws2apps-api/commit/e3a9d57f3d00096036eb701b93f2c3f33b6e05d0))
+
 # [3.0.0-alpha.4](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.3...v3.0.0-alpha.4) (2022-03-23)
 
 
