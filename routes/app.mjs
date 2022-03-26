@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import favicon from 'serve-favicon';
+import helmet from 'helmet';
 import path from 'node:path';
 import requestIp from 'request-ip';
 
@@ -60,6 +61,8 @@ var corsOptionsDelegate = function (req, callback) {
 };
 
 const app = express();
+
+app.use(helmet());
 
 const __dirname = path.resolve();
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
