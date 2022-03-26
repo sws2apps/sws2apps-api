@@ -100,6 +100,7 @@ router.post(
 						const findSession = sessions.find(
 							(session) => session.visitor_id === req.body.visitor_id
 						);
+
 						if (!findSession) {
 							const now = new Date();
 							const expiryDate = now.getTime() + 24 * 60 * 60000; // expired after 1 day
