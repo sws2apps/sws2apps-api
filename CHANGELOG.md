@@ -1,3 +1,10 @@
+# [3.0.0-alpha.6](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.5...v3.0.0-alpha.6) (2022-03-26)
+
+
+### Features
+
+* **deps:** add fingerprintjs ([dc39bb7](https://github.com/sws2apps/sws2apps-api/commit/dc39bb74db6d74349fe020ccfa08c19fe0b6fbe2))
+
 # [3.0.0-alpha.5](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.4...v3.0.0-alpha.5) (2022-03-25)
 
 
