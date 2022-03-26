@@ -4,15 +4,15 @@ import { getFirestore } from 'firebase-admin/firestore';
 // get firestore
 const db = getFirestore();
 
-export const sessionChecker = () => {
+export const visitorChecker = () => {
 	return async (req, res, next) => {
 		try {
-			const session_id = req.headers.session_id;
+			const visitor_id = req.headers.visitor_id;
 
-			if (!session_id || session_id.length === 0) {
+			if (!visitor_id || visitor_id.length === 0) {
 				res.locals.type = 'warn';
 				res.locals.message =
-					'the session id is missing from the request headers';
+					'the visitor id is missing from the request headers';
 
 				res.status(403).json({ message: 'LOGIN_FIRST' });
 
@@ -37,9 +37,9 @@ export const sessionChecker = () => {
 				}
 			});
 
-			// find session id
+			// find visitor id
 			const findSession = allSessions.find(
-				(session) => session.id === session_id
+				(session) => session.visitor_id === visitor_id
 			);
 
 			// check if session is valid
@@ -68,36 +68,24 @@ export const sessionChecker = () => {
 				};
 				res.locals.currentUser = currentUser;
 
-				// check if session is valid
-				const findCn = validSessions.find(
-					(session) => session.id === session_id && session.ip === req.clientIp
-				);
-
-				if (!findCn) {
-					res.locals.type = 'warn';
-					res.locals.message =
-						'the session id is invalid, or the user is not allowed to use this session id';
-
-					res.status(403).json({ message: 'LOGIN_FIRST' });
+				const { mfaVerified } = findSession;
+				if (mfaVerified) {
+					next();
 				} else {
-					const { mfaVerified } = findCn;
-					if (mfaVerified) {
+					// allow verify token to pass this middleware
+					if (req.path === '/verify-token') {
 						next();
 					} else {
-						// allow verify token to pass this middleware
-						if (req.path === '/verify-token') {
-							next();
-						} else {
-							res.locals.type = 'warn';
-							res.locals.message = 'two factor authentication required';
+						res.locals.type = 'warn';
+						res.locals.message = 'two factor authentication required';
 
-							res.status(403).json({ message: 'LOGIN_FIRST' });
-						}
+						res.status(403).json({ message: 'LOGIN_FIRST' });
 					}
 				}
 			} else {
 				res.locals.type = 'warn';
-				res.locals.message = 'the session id is invalid';
+				res.locals.message =
+					'the visitor id is invalid or does not have an active session';
 
 				res.status(403).json({ message: 'LOGIN_FIRST' });
 			}

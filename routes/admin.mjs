@@ -8,8 +8,8 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { body, validationResult } from 'express-validator';
 
 // middlewares
+import { visitorChecker } from '../middleware/visitor-checker.mjs';
 import { adminAuthChecker } from '../middleware/admin-auth-checker.mjs';
-import { sessionChecker } from '../middleware/session-checker.mjs';
 
 // utils
 import {
@@ -23,7 +23,7 @@ const db = getFirestore();
 
 const router = express.Router();
 
-router.use(sessionChecker());
+router.use(visitorChecker());
 router.use(adminAuthChecker());
 
 router.get('/', async (req, res, next) => {
