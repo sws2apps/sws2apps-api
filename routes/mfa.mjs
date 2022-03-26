@@ -90,14 +90,16 @@ router.post(
 
 			if (verified?.delta === 0) {
 				// update mfa enabled && verified
-				const { session_id } = req.headers;
+				const { visitor_id } = req.headers;
 
 				let sessions = userSnap.data().about.sessions || [];
-				let itemCn = sessions.find((session) => session.id === session_id);
+				let itemCn = sessions.find(
+					(session) => session.visitor_id === visitor_id
+				);
 				itemCn.mfaVerified = true;
 
 				let newSessions = sessions.filter(
-					(session) => session.id !== session_id
+					(session) => session.visitor_id !== visitor_id
 				);
 				newSessions.push(itemCn);
 
