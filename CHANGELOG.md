@@ -1,3 +1,10 @@
+# [3.0.0-alpha.8](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.7...v3.0.0-alpha.8) (2022-03-26)
+
+
+### Features
+
+* **deps:** add helmet ([f759924](https://github.com/sws2apps/sws2apps-api/commit/f759924dd6de351d7e18f1f53466d2e3486b93e6))
+
 # [3.0.0-alpha.7](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.6...v3.0.0-alpha.7) (2022-03-26)
 
 
