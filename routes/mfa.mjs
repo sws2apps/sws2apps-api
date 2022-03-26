@@ -6,14 +6,14 @@ import { body, validationResult } from 'express-validator';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // middleware import
-import { sessionChecker } from '../middleware/session-checker.mjs';
+import { visitorChecker } from '../middleware/visitor-checker.mjs';
 
 // get firestore
 const db = getFirestore(); //get default database
 
 const router = express.Router();
 
-router.use(sessionChecker());
+router.use(visitorChecker());
 
 // 2fa setup
 router.post('/enable-two-factor-auth', async (req, res, next) => {
