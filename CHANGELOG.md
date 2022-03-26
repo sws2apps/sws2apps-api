@@ -1,3 +1,10 @@
+# [3.0.0-alpha.7](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.6...v3.0.0-alpha.7) (2022-03-26)
+
+
+### Bug Fixes
+
+* **auth:** fix issue with multi-session handlers ([ec633cd](https://github.com/sws2apps/sws2apps-api/commit/ec633cdae9223c88c44ed5f795390b1b6e3ba83f))
+
 # [3.0.0-alpha.6](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.5...v3.0.0-alpha.6) (2022-03-26)
 
 
