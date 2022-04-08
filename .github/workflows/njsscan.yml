@@ -1,0 +1,35 @@
+name: NodeJSScan
+
+on:
+  push:
+    branches: [main, beta, alpha]
+  pull_request:
+    branches: [main, beta, alpha]
+  schedule:
+    - cron: '0 12 * * 4'
+
+permissions: read-all
+
+jobs:
+  nodejsscan:
+    name: NodeJS Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846
+
+      - name: nodejsscan scan
+        id: njsscan
+        uses: ajinabraham/njsscan-action@7237412fdd36af517e2745077cedbf9d6900d711
+        with:
+          args: '. --sarif --output results.sarif || true'
+
+      - name: Upload njsscan report
+        uses: github/codeql-action/upload-sarif@883476649888a9e8e219d5b2e6b789dc024f690c
+        with:
+          sarif_file: results.sarif
