@@ -1,14 +1,17 @@
 // dependency import
-import express from 'express';
 import cors from 'cors';
-import rateLimit from 'express-rate-limit';
+import express from 'express';
 import favicon from 'serve-favicon';
 import helmet from 'helmet';
 import path from 'node:path';
+import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
 
 // firebase admin import
 import '../config/firebase-config.mjs';
+
+// import crons
+import '../crons/crons.mjs';
 
 // route import
 import authRoute from './auth.mjs';
