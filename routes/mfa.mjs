@@ -8,40 +8,15 @@ import { getFirestore } from 'firebase-admin/firestore';
 // middleware import
 import { visitorChecker } from '../middleware/visitor-checker.mjs';
 
+// utils import
+import { getUserInfo } from '../utils/user-utils.mjs';
+
 // get firestore
 const db = getFirestore(); //get default database
 
 const router = express.Router();
 
 router.use(visitorChecker());
-
-// 2fa setup
-router.post('/enable-two-factor-auth', async (req, res, next) => {
-	try {
-		const { email } = req.body;
-
-		const userRef = db.collection('users').doc(email);
-		const userSnap = await userRef.get();
-
-		const secret = speakeasy.generateSecret();
-
-		const myKey = '&sws2apps_' + process.env.SEC_ENCRYPT_KEY;
-		const cryptr = new Cryptr(myKey);
-		const encryptedData = cryptr.encrypt(JSON.stringify(secret));
-
-		const data = {
-			about: { ...userSnap.data().about, secret: encryptedData },
-		};
-
-		await db.collection('users').doc(email).set(data);
-
-		res.locals.type = 'info';
-		res.locals.message = '2fa enabled for the user';
-		res.status(200).json({ message: secret.base32 });
-	} catch (err) {
-		next(err);
-	}
-});
 
 // 2fa check
 router.post(
@@ -67,7 +42,7 @@ router.post(
 		}
 
 		const { token } = req.body;
-		const { email } = res.locals.currentUser;
+		const { email } = req.headers;
 
 		try {
 			// Retrieve user from database
@@ -112,10 +87,25 @@ router.post(
 				};
 				await db.collection('users').doc(email).set(data, { merge: true });
 
+				// init response object
+				let obj = {};
+				obj.message = 'TOKEN_VALID';
+
+				// get congregation if assigned
+				const userInfo = await getUserInfo(email);
+
+				if (userInfo) {
+					obj.congregation = {
+						cong_name: userInfo.cong_name,
+						cong_number: userInfo.cong_number,
+						cong_role: userInfo.cong_role,
+					};
+				}
+
 				res.locals.type = 'info';
 				res.locals.message = 'OTP token verification success';
 
-				res.status(200).json({ message: 'TOKEN_VALID' });
+				res.status(200).json(obj);
 			} else {
 				res.locals.type = 'warn';
 				res.locals.message = `OTP token invalid`;

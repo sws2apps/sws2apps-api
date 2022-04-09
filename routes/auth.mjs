@@ -96,36 +96,35 @@ router.post(
 
 						let sessions = aboutUser.sessions || [];
 
-						// create session if it does not exist yet
-						const findSession = sessions.find(
-							(session) => session.visitor_id === req.body.visitor_id
+						// revoke matched session
+						let newSessions = sessions.filter(
+							(session) => session.visitor_id !== req.body.visitor_id
 						);
 
-						if (!findSession) {
-							const now = new Date();
-							const expiryDate = now.getTime() + 24 * 60 * 60000; // expired after 1 day
-							sessions.push({
-								visitor_id: req.body.visitor_id,
-								visitor_details: { ...visitorHistory.visits[0] },
-								expires: expiryDate,
-								mfaVerified: false,
-							});
-						}
+						const now = new Date();
+						const expiryDate = now.getTime() + 24 * 60 * 60000; // expired after 1 day
+
+						newSessions.push({
+							visitor_id: req.body.visitor_id,
+							visitor_details: { ...visitorHistory.visits[0] },
+							expires: expiryDate,
+							mfaVerified: false,
+						});
+
+						const data = {
+							about: { ...aboutUser, sessions: newSessions },
+						};
+
+						await db
+							.collection('users')
+							.doc(userRecord.email)
+							.set(data, { merge: true });
 
 						if (aboutUser.mfaEnabled) {
-							const data = {
-								about: { ...aboutUser, sessions: sessions },
-							};
-
-							await db
-								.collection('users')
-								.doc(userRecord.email)
-								.set(data, { merge: true });
-
 							res.locals.type = 'info';
 							res.locals.message = 'user required to verify mfa';
 
-							res.status(200).json({ message: 'MFA_VERIFIY' });
+							res.status(200).json({ message: 'MFA_VERIFY' });
 						} else {
 							// generate new secret and encrypt
 							const secret = twofactor.generateSecret({
@@ -141,7 +140,6 @@ router.post(
 							const data = {
 								about: {
 									...aboutUser,
-									sessions: sessions,
 									secret: encryptedData,
 								},
 							};

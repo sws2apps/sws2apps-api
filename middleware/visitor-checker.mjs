@@ -1,4 +1,5 @@
 // dependencies
+import { check, validationResult } from 'express-validator';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // get firestore
@@ -7,63 +8,50 @@ const db = getFirestore();
 export const visitorChecker = () => {
 	return async (req, res, next) => {
 		try {
-			const visitor_id = req.headers.visitor_id;
+			await check('visitor_id').notEmpty().run(req);
+			await check('email').isEmail().run(req);
 
-			if (!visitor_id || visitor_id.length === 0) {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
 				res.locals.type = 'warn';
-				res.locals.message =
-					'the visitor id is missing from the request headers';
+				res.locals.message = `invalid input: ${msg}`;
 
-				res.status(403).json({ message: 'LOGIN_FIRST' });
+				res.status(400).json({ message: 'INPUT_INVALID' });
 
 				return;
 			}
 
-			// get all active sessions
-			const userRef = db.collection('users');
-			const snapshot = await userRef.get();
+			const { email, visitor_id } = req.headers;
 
-			let allSessions = [];
+			// get all users active sessions
+			const userDoc = db.collection('users').doc(email);
+			const userSnap = await userDoc.get();
 
-			snapshot.forEach((doc) => {
-				const userSessions = doc.data().about.sessions || [];
-				for (let i = 0; i < userSessions.length; i++) {
-					let obj = {
-						email: doc.id,
-						role: doc.data().about.role,
-						...userSessions[i],
-					};
-					allSessions.push(obj);
-				}
-			});
+			// remove expired sessions
+			let sessions = userSnap.data().about.sessions || [];
+			const currentDate = new Date().getTime();
+			let validSessions = sessions.filter(
+				(session) => session.expires > currentDate
+			);
+			const data = {
+				about: { ...userSnap.data().about, sessions: validSessions },
+			};
+			await db.collection('users').doc(email).set(data, { merge: true });
 
-			// find visitor id
-			const findSession = allSessions.find(
+			// find if visitor id has valid session
+			const findSession = validSessions.find(
 				(session) => session.visitor_id === visitor_id
 			);
 
-			// check if session is valid
 			if (findSession) {
-				// get user session
-				const { email } = findSession;
-				const userDoc = db.collection('users').doc(email);
-				const userSnap = await userDoc.get();
-
-				// remove expired sessions
-				let sessions = userSnap.data().about.sessions || [];
-				const currentDate = new Date().getTime();
-				let validSessions = sessions.filter(
-					(session) => session.expires > currentDate
-				);
-
-				const data = {
-					about: { ...userSnap.data().about, sessions: validSessions },
-				};
-				await db.collection('users').doc(email).set(data, { merge: true });
-
 				// assign local vars for current user in next route
 				const currentUser = {
-					email: email,
 					...userSnap.data(),
 				};
 				res.locals.currentUser = currentUser;
