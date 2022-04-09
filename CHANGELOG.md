@@ -1,3 +1,10 @@
+# [3.0.0-alpha.9](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.8...v3.0.0-alpha.9) (2022-04-09)
+
+
+### Features
+
+* **api:** new login feature for apps ([473817c](https://github.com/sws2apps/sws2apps-api/commit/473817cc3551abec436b8ec2ef39aaa6fc8627e4))
+
 # [3.0.0-alpha.8](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.7...v3.0.0-alpha.8) (2022-03-26)
 
 
