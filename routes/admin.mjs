@@ -945,9 +945,10 @@ router.post(
 			if (congData) {
 				// remove congregation from members
 				const users = await getUsers();
+				const filteredUsers = users.filter((user) => user.cong_id === cong_id);
 
-				for (let i = 0; i < users.length; i++) {
-					const docID = users[i].user_uid;
+				for (let i = 0; i < filteredUsers.length; i++) {
+					const docID = filteredUsers[i].user_uid;
 
 					const userRef = db.collection('users').doc(docID);
 					await userRef.update({ congregation: FieldValue.delete() });
