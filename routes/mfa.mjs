@@ -9,7 +9,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { visitorChecker } from '../middleware/visitor-checker.mjs';
 
 // utils import
-import { getUserCongregationInfo } from '../utils/user-utils.mjs';
+import { getUserInfo } from '../utils/user-utils.mjs';
 
 // get firestore
 const db = getFirestore(); //get default database
@@ -92,12 +92,14 @@ router.post(
 				obj.message = 'TOKEN_VALID';
 
 				// get congregation if assigned
-				const congInfo = await getUserCongregationInfo(email);
+				const userInfo = await getUserInfo(email);
 
-				console.log(email, congInfo);
-				if (congInfo) {
-					obj.congregation = {};
-					obj.congregation = { ...congInfo };
+				if (userInfo) {
+					obj.congregation = {
+						cong_name: userInfo.cong_name,
+						cong_number: userInfo.cong_number,
+						cong_role: userInfo.cong_role,
+					};
 				}
 
 				res.locals.type = 'info';

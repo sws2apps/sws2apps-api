@@ -1,4 +1,5 @@
 // dependency
+import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // get firestore
@@ -12,11 +13,12 @@ export const getUsers = async () => {
 
 	snapshot.forEach((doc) => {
 		let obj = {};
-		obj.userID = doc.id;
+		obj.user_uid = doc.id;
 		obj.username = doc.data().about.name;
 		obj.global_role = doc.data().about.role;
+		obj.mfaEnabled = doc.data().about.mfaEnabled;
 		obj.cong_id = doc.data().congregation?.id || '';
-		obj.cong_role = doc.data().congregation?.role || [];
+		obj.cong_role = doc.data().congregation?.role || '';
 		tmpUsers.push(obj);
 	});
 
@@ -24,37 +26,53 @@ export const getUsers = async () => {
 		return a.username > b.username ? 1 : -1;
 	});
 
-	return tmpUsers;
-};
-
-export const getUserCongregationInfo = async (userID) => {
-	const { congregation } = await getUserInfo(userID);
-	const congID = congregation?.id;
-
-	if (congID) {
-		const congRef = db.collection('congregation_data').doc(congID.toString());
-		const congSnap = await congRef.get();
-
-		const congName = congSnap.data().cong_name;
-		const congNumber = congSnap.data().cong_number;
-
+	let finalResult = [];
+	for (let i = 0; i < tmpUsers.length; i++) {
 		let obj = {};
-		obj.cong_name = congName;
-		obj.cong_number = congNumber;
-		obj.cong_role = congregation.role;
+		obj.user_uid = tmpUsers[i].user_uid;
 
-		return obj;
-	} else {
-		return undefined;
+		if (tmpUsers[i].global_role === 'pocket') {
+			obj.disabled = tmpUsers[i].pocket_disabled;
+		} else {
+			const userRecord = await getAuth().getUserByEmail(tmpUsers[i].user_uid);
+			obj.emailVerified = userRecord.emailVerified;
+			obj.disabled = userRecord.disabled;
+		}
+
+		obj.cong_id = tmpUsers[i].cong_id;
+		obj.cong_name = '';
+		obj.cong_number = '';
+
+		if (tmpUsers[i].cong_id.toString().length > 0) {
+			const congRef = db
+				.collection('congregation_data')
+				.doc(tmpUsers[i].cong_id.toString());
+			const docSnap = await congRef.get();
+			const cong_name = docSnap.data().cong_name || '';
+			const cong_number = docSnap.data().cong_number || '';
+
+			obj.cong_name = cong_name;
+			obj.cong_number = cong_number;
+		}
+
+		obj.mfaEnabled = tmpUsers[i].mfaEnabled;
+		obj.username = tmpUsers[i].username;
+		obj.global_role = tmpUsers[i].global_role;
+		obj.cong_role = tmpUsers[i].cong_role;
+
+		finalResult.push(obj);
 	}
+
+	return finalResult;
 };
 
 export const getUserInfo = async (userID) => {
-	const userRef = db.collection('users').doc(userID);
-	const userSnap = await userRef.get();
+	const users = await getUsers();
 
-	if (userSnap.exists) {
-		return { ...userSnap.data() };
+	const findUser = users.find((user) => user.user_uid === userID);
+
+	if (findUser) {
+		return findUser;
 	} else {
 		return undefined;
 	}

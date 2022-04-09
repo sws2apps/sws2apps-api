@@ -36,7 +36,7 @@ export const getCongregations = async () => {
 		for (let a = 0; a < usersList.length; a++) {
 			if (congsList[i].cong_id === usersList[a].cong_id) {
 				obj.cong_members.push({
-					userID: usersList[a].userID,
+					user_uid: usersList[a].user_uid,
 					name: usersList[a].username,
 					role: usersList[a].cong_role,
 					global_role: usersList[a].global_role,
@@ -48,6 +48,18 @@ export const getCongregations = async () => {
 	}
 
 	return finalResult;
+};
+
+export const getCongregationInfo = async (congID) => {
+	const congs = await getCongregations();
+
+	const findCongregation = congs.find((cong) => cong.cong_id === congID);
+
+	if (findCongregation) {
+		return findCongregation;
+	} else {
+		return undefined;
+	}
 };
 
 export const getCongregationRequestInfo = async (request_id) => {

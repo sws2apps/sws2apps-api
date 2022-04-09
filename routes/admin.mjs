@@ -3,7 +3,7 @@ import express from 'express';
 import Cryptr from 'cryptr';
 import twofactor from 'node-2fa';
 import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
+import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { body, validationResult } from 'express-validator';
 
 // middlewares
@@ -15,6 +15,7 @@ import {
 	getCongregationRequestInfo,
 	generateCongregationID,
 	getCongregations,
+	getCongregationInfo,
 } from '../utils/congregation-utils.mjs';
 import {
 	sendCongregationAccountCreated,
@@ -282,67 +283,11 @@ router.post(
 
 router.get('/users', async (req, res, next) => {
 	try {
-		const userRef = db.collection('users');
-		const snapshot = await userRef.get();
-
-		let tmpUsers = [];
-
-		snapshot.forEach((doc) => {
-			let obj = {};
-			obj.email = doc.id;
-			obj.username = doc.data().about.name;
-			obj.global_role = doc.data().about.role;
-			obj.mfaEnabled = doc.data().about.mfaEnabled;
-			obj.cong_id = doc.data().congregation?.id || '';
-			obj.cong_role = doc.data().congregation?.role || '';
-			tmpUsers.push(obj);
-		});
-
-		tmpUsers.sort((a, b) => {
-			return a.username > b.username ? 1 : -1;
-		});
-
-		let finalResult = [];
-		for (let i = 0; i < tmpUsers.length; i++) {
-			let obj = {};
-
-			if (tmpUsers[i].global_role === 'pocket') {
-				obj.uid = tmpUsers[i].email;
-				obj.disabled = tmpUsers[i].pocket_disabled;
-			} else {
-				const userRecord = await getAuth().getUserByEmail(tmpUsers[i].email);
-				obj.uid = userRecord.uid;
-				obj.email = tmpUsers[i].email;
-				obj.emailVerified = userRecord.emailVerified;
-				obj.disabled = userRecord.disabled;
-			}
-
-			obj.cong_name = '';
-			obj.cong_number = '';
-
-			if (tmpUsers[i].cong_id.toString().length > 0) {
-				const congRef = db
-					.collection('congregation_data')
-					.doc(tmpUsers[i].cong_id.toString());
-				const docSnap = await congRef.get();
-				const cong_name = docSnap.data().cong_name || '';
-				const cong_number = docSnap.data().cong_number || '';
-
-				obj.cong_name = cong_name;
-				obj.cong_number = cong_number;
-			}
-
-			obj.mfaEnabled = tmpUsers[i].mfaEnabled;
-			obj.username = tmpUsers[i].username;
-			obj.global_role = tmpUsers[i].global_role;
-			obj.cong_role = tmpUsers[i].cong_role;
-
-			finalResult.push(obj);
-		}
+		const users = await getUsers();
 
 		res.locals.type = 'info';
 		res.locals.message = 'admin fetched all users';
-		res.status(200).json(finalResult);
+		res.status(200).json(users);
 	} catch (err) {
 		next(err);
 	}
@@ -620,9 +565,9 @@ router.get('/congregations', async (req, res, next) => {
 });
 
 router.post(
-	'/congregation-add-admin',
+	'/congregation-add-user',
 	body('cong_id').isNumeric(),
-	body('user_uid').isEmail(),
+	body('user_uid').notEmpty(),
 	async (req, res, next) => {
 		try {
 			const errors = validationResult(req);
@@ -643,20 +588,29 @@ router.post(
 				return;
 			}
 
-			const data = {
-				congregation: {
-					id: +req.body.cong_id,
-					role: 'admin',
-				},
-			};
-			await db
-				.collection('users')
-				.doc(req.body.user_uid)
-				.set(data, { merge: true });
+			const { cong_id, user_uid } = req.body;
+			const findUser = await getUserInfo(user_uid);
 
-			res.locals.type = 'info';
-			res.locals.message = 'admin added to congregation';
-			res.status(200).json({ message: 'OK' });
+			if (findUser) {
+				const data = {
+					congregation: {
+						id: +cong_id,
+						role: [],
+					},
+				};
+
+				await db.collection('users').doc(user_uid).set(data, { merge: true });
+
+				const congsList = await getCongregations();
+
+				res.locals.type = 'info';
+				res.locals.message = 'member added to congregation';
+				res.status(200).json(congsList);
+			} else {
+				res.locals.type = 'warn';
+				res.locals.message = 'user could not be found';
+				res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+			}
 		} catch (err) {
 			next(err);
 		}
@@ -686,70 +640,27 @@ router.post(
 				return;
 			}
 
-			const userRef = db.collection('users').doc(req.body.user_uid);
-			const userSnap = await userRef.get();
+			// get user ref
+			const { user_uid } = req.body;
+			const userInfo = await getUserInfo(user_uid);
+			if (userInfo) {
+				const userRef = db.collection('users').doc(req.body.user_uid);
+				const userSnap = await userRef.get();
 
-			const data = {
-				about: userSnap.data().about,
-			};
-			await db.collection('users').doc(req.body.user_uid).set(data);
+				const data = {
+					about: userSnap.data().about,
+				};
+				await db.collection('users').doc(req.body.user_uid).set(data);
 
-			res.locals.type = 'info';
-			res.locals.message = 'admin/vip user removed to congregation';
-			res.status(200).json({ message: 'OK' });
-		} catch (err) {
-			next(err);
-		}
-	}
-);
-
-router.post(
-	'/view-user-token',
-	body('user_uid').notEmpty(),
-	async (req, res, next) => {
-		try {
-			const errors = validationResult(req);
-
-			if (!errors.isEmpty()) {
-				let msg = '';
-				errors.array().forEach((error) => {
-					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-				});
-
-				res.locals.type = 'warn';
-				res.locals.message = `invalid input: ${msg}`;
-
-				res.status(400).json({
-					message: 'Bad request: provided inputs are invalid.',
-				});
-
-				return;
-			}
-
-			// Retrieve user from database
-			const user_uid = req.body.user_uid;
-			const userRef = db.collection('users').doc(user_uid);
-			const userSnap = await userRef.get();
-
-			// get encrypted token
-			const encryptedData = userSnap.data().about.secret;
-
-			if (encryptedData) {
-				// decrypt token
-				const myKey = '&sws2apps_' + process.env.SEC_ENCRYPT_KEY;
-				const cryptr = new Cryptr(myKey);
-				const decryptedData = cryptr.decrypt(encryptedData);
-
-				// get base32 prop as secret
-				const { secret } = JSON.parse(decryptedData);
+				const congsList = await getCongregations();
 
 				res.locals.type = 'info';
-				res.locals.message = 'admin fetch the user token';
-				res.status(200).json({ message: secret });
+				res.locals.message = 'member removed to congregation';
+				res.status(200).json(congsList);
 			} else {
 				res.locals.type = 'warn';
-				res.locals.message = 'the user has no mfa token yet';
-				res.status(400).json({ message: 'NO_MFA_TOKEN' });
+				res.locals.message = 'user could not be found';
+				res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
 			}
 		} catch (err) {
 			next(err);
@@ -844,6 +755,24 @@ router.post(
 	body('request_ip').notEmpty(),
 	async (req, res, next) => {
 		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
 			const ipIndex = requestTracker.findIndex(
 				(client) => client.ip === req.body.request_ip
 			);
@@ -938,6 +867,111 @@ router.post(
 				res.locals.message = `user could not be found`;
 
 				res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+			}
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
+router.post(
+	'/find-user',
+	body('user_uid').notEmpty(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
+			const { user_uid } = req.body;
+
+			const userData = await getUserInfo(user_uid);
+
+			if (userData) {
+				res.locals.type = 'info';
+				res.locals.message = 'user details fetched successfully';
+				res.status(200).json(userData);
+			} else {
+				res.locals.type = 'warn';
+				res.locals.message = 'user could not be found';
+				res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+			}
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
+router.post(
+	'/congregation-delete',
+	body('cong_id').notEmpty(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
+			const { cong_id } = req.body;
+			const congData = await getCongregationInfo(cong_id);
+
+			if (congData) {
+				// remove congregation from members
+				const users = await getUsers();
+
+				for (let i = 0; i < users.length; i++) {
+					const docID = users[i].user_uid;
+
+					const userRef = db.collection('users').doc(docID);
+					await userRef.update({ congregation: FieldValue.delete() });
+				}
+
+				// delete cong record
+				await db
+					.collection('congregation_data')
+					.doc(cong_id.toString())
+					.set({});
+				await db
+					.collection('congregation_data')
+					.doc(cong_id.toString())
+					.delete();
+
+				const congs = await getCongregations();
+
+				res.locals.type = 'info';
+				res.locals.message = 'congregation deleted successfully';
+				res.status(200).json(congs);
+			} else {
+				res.locals.type = 'warn';
+				res.locals.message = 'congregation could not be found';
+				res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
 			}
 		} catch (err) {
 			next(err);
