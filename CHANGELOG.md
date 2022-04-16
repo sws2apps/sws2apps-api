@@ -1,3 +1,10 @@
+# [3.0.0-alpha.10](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.9...v3.0.0-alpha.10) (2022-04-16)
+
+
+### Features
+
+* **deps:** remove node-scheduler dependency ([6f3a7f2](https://github.com/sws2apps/sws2apps-api/commit/6f3a7f2cbce33022a5adc67039d97e4a3156d727))
+
 # [3.0.0-alpha.9](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.8...v3.0.0-alpha.9) (2022-04-09)
 
 
