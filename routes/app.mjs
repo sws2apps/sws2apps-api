@@ -10,9 +10,6 @@ import requestIp from 'request-ip';
 // firebase admin import
 import '../config/firebase-config.mjs';
 
-// import crons
-import '../crons/crons.mjs';
-
 // route import
 import authRoute from './auth.mjs';
 import congregationRoute from './congregation.mjs';
