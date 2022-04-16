@@ -10,6 +10,7 @@ import {
 	FingerprintJsServerApiClient,
 	Region,
 } from '@fingerprintjs/fingerprintjs-pro-server-api';
+import { cleanExpiredSession } from '../utils/user-utils.mjs';
 
 // get firestore
 const db = getFirestore(); //get default database
@@ -86,6 +87,9 @@ router.post(
 					// get user info from firebase auth
 					const uid = data.localId;
 					const userRecord = await getAuth().getUser(uid);
+
+					// clean expired session
+					await cleanExpiredSession(userRecord.email);
 
 					if (userRecord.emailVerified) {
 						// get user info from firestore

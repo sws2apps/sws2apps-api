@@ -77,3 +77,19 @@ export const getUserInfo = async (userID) => {
 		return undefined;
 	}
 };
+
+export const cleanExpiredSession = async (userID) => {
+	const userDoc = db.collection('users').doc(userID);
+	const userSnap = await userDoc.get();
+
+	// remove expired sessions
+	let sessions = userSnap.data().about.sessions || [];
+	const currentDate = new Date().getTime();
+	let validSessions = sessions.filter(
+		(session) => session.expires > currentDate
+	);
+	const data = {
+		about: { ...userSnap.data().about, sessions: validSessions },
+	};
+	await db.collection('users').doc(userID).set(data, { merge: true });
+};
