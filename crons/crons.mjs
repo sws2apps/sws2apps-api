@@ -16,9 +16,9 @@ schedule.scheduleJob('0 0 * * *', async () => {
 		const users = await getUsers();
 
 		for (let i = 0; i < users.length; i++) {
-			const email = users[i].userID;
+			const user_uid = users[i].user_uid;
 			// get all users active sessions
-			const userDoc = db.collection('users').doc(email);
+			const userDoc = db.collection('users').doc(user_uid);
 			const userSnap = await userDoc.get();
 
 			// remove expired sessions
