@@ -1,3 +1,10 @@
+# [3.0.0-alpha.11](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.10...v3.0.0-alpha.11) (2022-04-20)
+
+
+### Features
+
+* **deps:** bump cryptr from 6.0.2 to 6.0.3 ([8913322](https://github.com/sws2apps/sws2apps-api/commit/8913322b8d9d46fa4a35076f971728442d4e51cf))
+
 # [3.0.0-alpha.10](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.9...v3.0.0-alpha.10) (2022-04-16)
 
 
