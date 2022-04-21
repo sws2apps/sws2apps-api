@@ -1,6 +1,6 @@
 {
   "name": "sws2apps-api",
-  "version": "3.0.0-alpha.9",
+  "version": "3.0.0-alpha.11",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -13,11 +13,11 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@fingerprintjs/fingerprintjs-pro-server-api": "^0.2.1",
+    "@fingerprintjs/fingerprintjs-pro-server-api": "^1.0.4",
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
-    "cryptr": "^6.0.2",
+    "cryptr": "^6.0.3",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "express-rate-limit": "^6.3.0",
