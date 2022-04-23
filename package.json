@@ -1,7 +1,7 @@
 {
   "name": "sws2apps-api",
   "version": "3.0.0-alpha.12",
-  "description": "",
+  "description": "Node apps to handle backend operations for all sws2apps services",
   "main": "index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon index.mjs",

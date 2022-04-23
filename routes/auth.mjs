@@ -45,7 +45,7 @@ router.post(
 			// validate visitor id
 			const client = new FingerprintJsServerApiClient({
 				region: Region.Global,
-				apiToken: process.env.FINGERPRINT_API_SERVER_KEY,
+				apiKey: process.env.FINGERPRINT_API_SERVER_KEY,
 			});
 
 			const visitorHistory = await client.getVisitorHistory(
