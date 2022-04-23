@@ -1,3 +1,10 @@
+# [3.0.0-alpha.13](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.12...v3.0.0-alpha.13) (2022-04-23)
+
+
+### Bug Fixes
+
+* **fingerprintjs:** change apiToken to apiKey ([801af50](https://github.com/sws2apps/sws2apps-api/commit/801af5045b3d9eeba603abf2eb2458bf50354d0c))
+
 # [3.0.0-alpha.12](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.11...v3.0.0-alpha.12) (2022-04-22)
 
 
