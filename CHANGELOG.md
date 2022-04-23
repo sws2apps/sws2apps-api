@@ -1,3 +1,11 @@
+# [3.0.0-alpha.12](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.11...v3.0.0-alpha.12) (2022-04-22)
+
+
+### Features
+
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([26d41e3](https://github.com/sws2apps/sws2apps-api/commit/26d41e31328e86d4d3bed771bef6e8b5e61b7aa7))
+* **deps:** bump firebase-admin from 10.0.2 to 10.1.0 ([6277ae4](https://github.com/sws2apps/sws2apps-api/commit/6277ae4ef14b44a453abb4e1fa32a6d26328ff50))
+
 # [3.0.0-alpha.11](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.10...v3.0.0-alpha.11) (2022-04-20)
 
 
