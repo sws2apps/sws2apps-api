@@ -1,3 +1,10 @@
+# [3.0.0-alpha.14](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.13...v3.0.0-alpha.14) (2022-04-24)
+
+
+### Bug Fixes
+
+* **admin:** fix undefined variable in congregation-request-disapprove route ([a026157](https://github.com/sws2apps/sws2apps-api/commit/a0261570789c37e18ed3e1e77e5634ee1ccb511e))
+
 # [3.0.0-alpha.13](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.12...v3.0.0-alpha.13) (2022-04-23)
 
 
