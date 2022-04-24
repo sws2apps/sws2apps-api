@@ -234,14 +234,13 @@ router.post(
 			// get congregation request
 			const requestInfo = await getCongregationRequestInfo(req.body.request_id);
 			if (requestInfo) {
-				const { cong_requestor_email, cong_name, cong_number, cong_role } =
-					requestInfo;
+				const { cong_requestor_email, cong_name, cong_number } = requestInfo;
 
 				// get requestor fullname
 				const userInfo = await getUserInfo(cong_requestor_email);
 
 				if (userInfo) {
-					const cong_requestor_name = userInfo.about.name;
+					const cong_requestor_name = userInfo.username;
 
 					// set congregation request as disapproved
 					const requestData = {
