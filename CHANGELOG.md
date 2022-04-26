@@ -1,3 +1,12 @@
+# [3.0.0-alpha.15](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.14...v3.0.0-alpha.15) (2022-04-26)
+
+
+### Features
+
+* **deps:** bump express from 4.17.3 to 4.18.0 ([66ae880](https://github.com/sws2apps/sws2apps-api/commit/66ae88048958c55d2b9b2f8e01163f5d78be21ee))
+* **deps:** bump express-rate-limit from 6.3.0 to 6.4.0 ([7ba51a3](https://github.com/sws2apps/sws2apps-api/commit/7ba51a3b3650477ded903ac0a113ac6989eefc3a))
+* **deps:** bump geoip-lite from 1.4.4 to 1.4.5 ([10a349b](https://github.com/sws2apps/sws2apps-api/commit/10a349bb06220a45a33fab2b9d8b8c087d96a39a))
+
 # [3.0.0-alpha.14](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.13...v3.0.0-alpha.14) (2022-04-24)
 
 
