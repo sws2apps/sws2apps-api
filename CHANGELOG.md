@@ -1,3 +1,11 @@
+# [3.0.0-alpha.16](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.15...v3.0.0-alpha.16) (2022-04-29)
+
+
+### Features
+
+* **deps:** bump node-fetch from 3.2.3 to 3.2.4 ([bb0e21a](https://github.com/sws2apps/sws2apps-api/commit/bb0e21a04bce386dd91252730fa5dd7098ccf9f7))
+* **deps:** bump nodemailer from 6.7.3 to 6.7.4 ([0bb933a](https://github.com/sws2apps/sws2apps-api/commit/0bb933a738d12faa28d03e39d77fc6378caab651))
+
 # [3.0.0-alpha.15](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.14...v3.0.0-alpha.15) (2022-04-26)
 
 
