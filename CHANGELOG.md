@@ -1,3 +1,27 @@
+# [3.0.0-alpha.16](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.15...v3.0.0-alpha.16) (2022-04-29)
+
+
+### Features
+
+* **deps:** bump node-fetch from 3.2.3 to 3.2.4 ([bb0e21a](https://github.com/sws2apps/sws2apps-api/commit/bb0e21a04bce386dd91252730fa5dd7098ccf9f7))
+* **deps:** bump nodemailer from 6.7.3 to 6.7.4 ([0bb933a](https://github.com/sws2apps/sws2apps-api/commit/0bb933a738d12faa28d03e39d77fc6378caab651))
+
+# [3.0.0-alpha.15](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.14...v3.0.0-alpha.15) (2022-04-26)
+
+
+### Features
+
+* **deps:** bump express from 4.17.3 to 4.18.0 ([66ae880](https://github.com/sws2apps/sws2apps-api/commit/66ae88048958c55d2b9b2f8e01163f5d78be21ee))
+* **deps:** bump express-rate-limit from 6.3.0 to 6.4.0 ([7ba51a3](https://github.com/sws2apps/sws2apps-api/commit/7ba51a3b3650477ded903ac0a113ac6989eefc3a))
+* **deps:** bump geoip-lite from 1.4.4 to 1.4.5 ([10a349b](https://github.com/sws2apps/sws2apps-api/commit/10a349bb06220a45a33fab2b9d8b8c087d96a39a))
+
+# [3.0.0-alpha.14](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.13...v3.0.0-alpha.14) (2022-04-24)
+
+
+### Bug Fixes
+
+* **admin:** fix undefined variable in congregation-request-disapprove route ([a026157](https://github.com/sws2apps/sws2apps-api/commit/a0261570789c37e18ed3e1e77e5634ee1ccb511e))
+
 # [3.0.0-alpha.13](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.12...v3.0.0-alpha.13) (2022-04-23)
 
 
