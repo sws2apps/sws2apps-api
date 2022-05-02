@@ -1,3 +1,11 @@
+# [3.0.0-alpha.17](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.16...v3.0.0-alpha.17) (2022-05-02)
+
+
+### Features
+
+* **deps:** bump express from 4.18.0 to 4.18.1 ([a10e1c6](https://github.com/sws2apps/sws2apps-api/commit/a10e1c6fc6c4bfbfdd31e1b157aa7f1237b60c53))
+* **deps:** bump nodemon from 2.0.15 to 2.0.16 ([9f816ac](https://github.com/sws2apps/sws2apps-api/commit/9f816ac99a6d1f9595a94fd7779fa95a6ea0ed99))
+
 # [3.0.0-alpha.16](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.15...v3.0.0-alpha.16) (2022-04-29)
 
 
