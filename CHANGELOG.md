@@ -1,3 +1,15 @@
+# [3.0.0-alpha.18](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.17...v3.0.0-alpha.18) (2022-05-03)
+
+
+### Bug Fixes
+
+* **semantic-release:** revert config ext to cjs ([58a702f](https://github.com/sws2apps/sws2apps-api/commit/58a702fe551e945697d0f561594318892ee26df7))
+
+
+### Features
+
+* **api:** code cleanup and nodemon location update ([18ce68f](https://github.com/sws2apps/sws2apps-api/commit/18ce68f8e7f38fb961469e10f78e5dd179070dc6))
+
 # [3.0.0-alpha.17](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.16...v3.0.0-alpha.17) (2022-05-02)
 
 
