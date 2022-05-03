@@ -7,8 +7,8 @@ import { body, validationResult } from 'express-validator';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // middleware import
-import { authChecker } from '../middleware/auth-checker.mjs';
-import { congregationAuthChecker } from '../middleware/congregation-auth-checker.mjs';
+import { authChecker } from '../middleware/auth-checker.js';
+import { congregationAuthChecker } from '../middleware/congregation-auth-checker.js';
 
 // get firestore
 const db = getFirestore();

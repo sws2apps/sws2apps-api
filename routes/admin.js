@@ -7,8 +7,8 @@ import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { body, validationResult } from 'express-validator';
 
 // middlewares
-import { visitorChecker } from '../middleware/visitor-checker.mjs';
-import { adminAuthChecker } from '../middleware/admin-auth-checker.mjs';
+import { visitorChecker } from '../middleware/visitor-checker.js';
+import { adminAuthChecker } from '../middleware/admin-auth-checker.js';
 
 // utils
 import {
@@ -16,13 +16,13 @@ import {
 	generateCongregationID,
 	getCongregations,
 	getCongregationInfo,
-} from '../utils/congregation-utils.mjs';
+} from '../utils/congregation-utils.js';
 import {
 	sendCongregationAccountCreated,
 	sendCongregationAccountDisapproved,
 	sendUserResetPassword,
-} from '../utils/sendEmail.mjs';
-import { getUserInfo, getUsers } from '../utils/user-utils.mjs';
+} from '../utils/sendEmail.js';
+import { getUserInfo, getUsers } from '../utils/user-utils.js';
 
 // get firestore
 const db = getFirestore();

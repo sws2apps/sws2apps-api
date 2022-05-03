@@ -6,11 +6,11 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
 // middlewares
-import { authChecker } from '../middleware/auth-checker.mjs';
-import { visitorChecker } from '../middleware/visitor-checker.mjs';
+import { authChecker } from '../middleware/auth-checker.js';
+import { visitorChecker } from '../middleware/visitor-checker.js';
 
 // utils import
-import { sendVerificationEmail } from '../utils/sendEmail.mjs';
+import { sendVerificationEmail } from '../utils/sendEmail.js';
 
 // get firestore
 const db = getFirestore(); //get default database

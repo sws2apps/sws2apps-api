@@ -4,8 +4,8 @@
 import isOnline from 'is-online';
 
 // local utils
-import { formatLog } from '../utils/format-log.mjs';
-import { logger } from '../utils/logger.mjs';
+import { formatLog } from '../utils/format-log.js';
+import { logger } from '../utils/logger.js';
 
 export const internetChecker = () => {
 	return async (req, res, next) => {
