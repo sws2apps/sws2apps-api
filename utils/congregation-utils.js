@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // utils
-import { getUsers } from './user-utils.mjs';
+import { getUsers } from './user-utils.js';
 
 // get firestore
 const db = getFirestore(); //get default database

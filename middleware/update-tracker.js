@@ -3,7 +3,7 @@ import geoip from 'geoip-lite';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // utils import
-import { logger } from '../utils/logger.mjs';
+import { logger } from '../utils/logger.js';
 
 // get firestore
 const db = getFirestore();

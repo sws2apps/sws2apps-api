@@ -10,7 +10,7 @@ import {
 	FingerprintJsServerApiClient,
 	Region,
 } from '@fingerprintjs/fingerprintjs-pro-server-api';
-import { cleanExpiredSession } from '../utils/user-utils.mjs';
+import { cleanExpiredSession } from '../utils/user-utils.js';
 
 // get firestore
 const db = getFirestore(); //get default database

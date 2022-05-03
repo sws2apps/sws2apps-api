@@ -4,8 +4,8 @@ import hbs from 'nodemailer-express-handlebars';
 import path from 'path';
 
 // gmail config import
-import { gmailConfig } from '../config/gmail-config.mjs';
-import { logger } from './logger.mjs';
+import { gmailConfig } from '../config/gmail-config.js';
+import { logger } from './logger.js';
 
 const handlebarsOptions = {
 	viewEngine: {

@@ -6,10 +6,10 @@ import { body, validationResult } from 'express-validator';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // middleware import
-import { visitorChecker } from '../middleware/visitor-checker.mjs';
+import { visitorChecker } from '../middleware/visitor-checker.js';
 
 // utils import
-import { getUserInfo } from '../utils/user-utils.mjs';
+import { getUserInfo } from '../utils/user-utils.js';
 
 // get firestore
 const db = getFirestore(); //get default database

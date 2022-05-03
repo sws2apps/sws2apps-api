@@ -8,23 +8,23 @@ import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
 
 // firebase admin import
-import '../config/firebase-config.mjs';
+import '../config/firebase-config.js';
 
 // route import
-import authRoute from './auth.mjs';
-import congregationRoute from './congregation.mjs';
-import swsPocketRoute from './sws-pocket.mjs';
-import userRoute from './user.mjs';
-import adminRoute from './admin.mjs';
-import mfaRoute from './mfa.mjs';
+import authRoute from './auth.js';
+import congregationRoute from './congregation.js';
+import swsPocketRoute from './sws-pocket.js';
+import userRoute from './user.js';
+import adminRoute from './admin.js';
+import mfaRoute from './mfa.js';
 
 // middleware import
-import { internetChecker } from '../middleware/internet-checker.mjs';
-import { requestChecker } from '../middleware/request-checker.mjs';
-import { updateTracker } from '../middleware/update-tracker.mjs';
+import { internetChecker } from '../middleware/internet-checker.js';
+import { requestChecker } from '../middleware/request-checker.js';
+import { updateTracker } from '../middleware/update-tracker.js';
 
 // load utils
-import { appVersion } from '../utils/server.mjs';
+import { appVersion } from '../utils/server.js';
 
 // allowed apps url
 var whitelist = [

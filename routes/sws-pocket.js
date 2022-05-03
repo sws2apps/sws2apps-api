@@ -7,7 +7,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { body, validationResult } from 'express-validator';
 
 // middleware import
-import { pocketAuthChecker } from '../middleware/sws-pocket-auth-checker.mjs';
+import { pocketAuthChecker } from '../middleware/sws-pocket-auth-checker.js';
 
 // get firestore
 const db = getFirestore();
