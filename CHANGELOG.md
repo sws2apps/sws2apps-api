@@ -1,3 +1,10 @@
+# [3.0.0-alpha.20](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.19...v3.0.0-alpha.20) (2022-05-12)
+
+
+### Bug Fixes
+
+* **auth:** first visitor session not saved ([e9ecae6](https://github.com/sws2apps/sws2apps-api/commit/e9ecae6a91443538245b9bcdf2b904350dc63324))
+
 # [3.0.0-alpha.19](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.18...v3.0.0-alpha.19) (2022-05-06)
 
 
