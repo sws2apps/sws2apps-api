@@ -141,9 +141,9 @@ router.post(
 							const encryptedData = cryptr.encrypt(JSON.stringify(secret));
 
 							// save secret
-							const data = {
+							const firstData = {
 								about: {
-									...aboutUser,
+									...data.about,
 									secret: encryptedData,
 								},
 							};
@@ -151,7 +151,7 @@ router.post(
 							await db
 								.collection('users')
 								.doc(userRecord.email)
-								.set(data, { merge: true });
+								.set(firstData, { merge: true });
 
 							res.locals.type = 'warn';
 							res.locals.message =
