@@ -1,3 +1,10 @@
+# [3.0.0-alpha.21](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.20...v3.0.0-alpha.21) (2022-05-13)
+
+
+### Features
+
+* **deps:** bump dotenv from 16.0.0 to 16.0.1 ([6785bfd](https://github.com/sws2apps/sws2apps-api/commit/6785bfd7531d125e66a5ccd321a94ae63c5764d0))
+
 # [3.0.0-alpha.20](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.19...v3.0.0-alpha.20) (2022-05-12)
 
 
