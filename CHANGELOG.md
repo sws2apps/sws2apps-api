@@ -1,3 +1,11 @@
+# [3.0.0-alpha.22](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.21...v3.0.0-alpha.22) (2022-05-19)
+
+
+### Features
+
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([4c5b42d](https://github.com/sws2apps/sws2apps-api/commit/4c5b42db666d846cd1dd2fc1b64c2b0fdbc619ab))
+* **deps:** bump helmet from 5.0.2 to 5.1.0 ([fd3e47b](https://github.com/sws2apps/sws2apps-api/commit/fd3e47bf77e32a54f0f27f667e2b5fc936e93706))
+
 # [3.0.0-alpha.21](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.20...v3.0.0-alpha.21) (2022-05-13)
 
 
