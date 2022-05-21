@@ -1,3 +1,10 @@
+# [3.0.0-alpha.23](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.22...v3.0.0-alpha.23) (2022-05-21)
+
+
+### Features
+
+* **mfa:** include username in response object ([2ab1cef](https://github.com/sws2apps/sws2apps-api/commit/2ab1cef72cbd730bdbcf93ae6e65646004cfb899))
+
 # [3.0.0-alpha.22](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.21...v3.0.0-alpha.22) (2022-05-19)
 
 
