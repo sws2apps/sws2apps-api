@@ -95,6 +95,7 @@ router.post(
 				const userInfo = await getUserInfo(email);
 
 				if (userInfo) {
+					obj.username = userInfo.username;
 					obj.congregation = {
 						cong_name: userInfo.cong_name,
 						cong_number: userInfo.cong_number,
