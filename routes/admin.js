@@ -47,10 +47,10 @@ router.get('/logout', async (req, res, next) => {
 	try {
 		// remove all sessions
 		const data = {
-			about: { ...res.locals.userAbout, sessions: [] },
+			about: { ...res.locals.currentUser.about, sessions: [] },
 		};
 
-		const email = res.locals.currentUser.email;
+		const email = req.headers.email;
 		await db.collection('users').doc(email).set(data, { merge: true });
 
 		res.locals.type = 'info';
