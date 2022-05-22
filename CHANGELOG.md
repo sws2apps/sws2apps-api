@@ -1,3 +1,10 @@
+# [3.0.0-alpha.24](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.23...v3.0.0-alpha.24) (2022-05-22)
+
+
+### Bug Fixes
+
+* **admin:** set undefined vars in logout route ([78b6c0b](https://github.com/sws2apps/sws2apps-api/commit/78b6c0b1ebc5e91c89873ea05740059e628c3b27))
+
 # [3.0.0-alpha.23](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.22...v3.0.0-alpha.23) (2022-05-21)
 
 
