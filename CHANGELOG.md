@@ -1,3 +1,10 @@
+# [3.0.0-alpha.25](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.24...v3.0.0-alpha.25) (2022-05-23)
+
+
+### Features
+
+* **deps:** bump express-validator from 6.14.0 to 6.14.1 ([3a305fd](https://github.com/sws2apps/sws2apps-api/commit/3a305fd23ed61588dc4f5bf897fec62ea72e3419))
+
 # [3.0.0-alpha.24](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.23...v3.0.0-alpha.24) (2022-05-22)
 
 
