@@ -4,13 +4,20 @@ import Cryptr from 'cryptr';
 import twofactor from 'node-2fa';
 import { getAuth } from 'firebase-admin/auth';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
-import { body, validationResult } from 'express-validator';
+import { body, check, validationResult } from 'express-validator';
 
 // middlewares
 import { visitorChecker } from '../middleware/visitor-checker.js';
 import { adminAuthChecker } from '../middleware/admin-auth-checker.js';
 
 // utils
+import {
+	deleteAnnouncement,
+	getAnnouncement,
+	getAnnouncements,
+	publishAnnouncement,
+	saveDraftAnnouncement,
+} from '../utils/announcement-utils.js';
 import {
 	getCongregationRequestInfo,
 	generateCongregationID,
@@ -973,6 +980,156 @@ router.post(
 				res.locals.message = 'congregation could not be found';
 				res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
 			}
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
+router.get('/announcements', async (req, res, next) => {
+	try {
+		const announcements = await getAnnouncements();
+
+		res.locals.type = 'info';
+		res.locals.message = 'announcements fetched successfully';
+		res.status(200).json(announcements);
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.post(
+	'/announcement-save-draft',
+	body('announcement').isObject(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
+			const { announcement } = req.body;
+			const announcements = await saveDraftAnnouncement(announcement);
+
+			res.locals.type = 'info';
+			res.locals.message = 'draft announcement saved successfully';
+			res.status(200).json(announcements);
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
+router.get('/announcement', async (req, res, next) => {
+	try {
+		await check('announcement_id').notEmpty().run(req);
+
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({ message: 'INPUT_INVALID' });
+
+			return;
+		}
+
+		const { announcement_id } = req.headers;
+		const announcement = await getAnnouncement(announcement_id);
+
+		if (announcement) {
+			res.locals.type = 'info';
+			res.locals.message = 'announcement fetched successfully';
+			res.status(200).json(announcement);
+		} else {
+			res.locals.type = 'warn';
+			res.locals.message = 'announcement could not be found';
+			res.status(404).json({ message: 'NOT_FOUND' });
+		}
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.delete('/announcement', async (req, res, next) => {
+	try {
+		await check('announcement_id').notEmpty().run(req);
+
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({ message: 'INPUT_INVALID' });
+
+			return;
+		}
+
+		const { announcement_id } = req.headers;
+		const announcements = await deleteAnnouncement(announcement_id);
+
+		res.locals.type = 'info';
+		res.locals.message = 'announcement deleted successfully';
+		res.status(200).json(announcements);
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.post(
+	'/announcement-publish',
+	body('announcement').isObject(),
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
+
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
+
+				res.locals.type = 'warn';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
+			const { announcement } = req.body;
+			const announcements = await publishAnnouncement(announcement);
+
+			res.locals.type = 'info';
+			res.locals.message = 'announcement published successfully';
+			res.status(200).json(announcements);
 		} catch (err) {
 			next(err);
 		}
