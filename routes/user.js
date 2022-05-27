@@ -11,6 +11,7 @@ import { visitorChecker } from '../middleware/visitor-checker.js';
 
 // utils import
 import { sendVerificationEmail } from '../utils/sendEmail.js';
+import { getAnnouncementsClient } from '../utils/announcement-utils.js';
 
 // get firestore
 const db = getFirestore(); //get default database
@@ -85,6 +86,20 @@ router.post(
 	}
 );
 
+// get announcements
+router.get('/announcement', async (req, res, next) => {
+	try {
+		const announcements = await getAnnouncementsClient();
+
+		res.locals.type = 'info';
+		res.locals.message = `client fetched announcements`;
+
+		res.status(200).json(announcements);
+	} catch (err) {
+		next(err);
+	}
+});
+
 router.use(visitorChecker());
 
 router.get('/validate-me', async (req, res, next) => {
@@ -137,6 +152,7 @@ router.get('/resend-verification', async (req, res, next) => {
 });
 
 router.use(authChecker());
+
 // with inline middleware
 router.get('/get-backup', async (req, res, next) => {
 	try {
