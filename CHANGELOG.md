@@ -1,3 +1,10 @@
+# [3.0.0-alpha.26](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.25...v3.0.0-alpha.26) (2022-05-27)
+
+
+### Features
+
+* **api:** add new routes for announcements handler ([787c4e6](https://github.com/sws2apps/sws2apps-api/commit/787c4e668550b8e9a26ea21b0ee1f56919f419b1))
+
 # [3.0.0-alpha.25](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.24...v3.0.0-alpha.25) (2022-05-23)
 
 
