@@ -71,7 +71,11 @@ export const deleteAnnouncement = async (id) => {
 export const publishAnnouncement = async (announcement) => {
 	const { id } = announcement;
 
-	await db.collection('announcements').doc(id).set(announcement);
+	if (id) {
+		await db.collection('announcements').doc(id).set(announcement);
+	} else {
+		await db.collection('announcements').add(announcement);
+	}
 
 	const announcements = await getAnnouncements();
 	return announcements;
@@ -100,7 +104,7 @@ export const getAnnouncementsClient = async () => {
 	});
 
 	announcementList.sort((a, b) => {
-		return a.expiredDate < b.expiredDate ? 1 : -1;
+		return a.publishedDate < b.publishedDate ? 1 : -1;
 	});
 
 	return announcementList;
