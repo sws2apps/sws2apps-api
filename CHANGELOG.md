@@ -1,3 +1,10 @@
+# [3.0.0-alpha.27](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.26...v3.0.0-alpha.27) (2022-05-28)
+
+
+### Bug Fixes
+
+* **admin:** undefined date when publishing announcement ([32339be](https://github.com/sws2apps/sws2apps-api/commit/32339be9127c7286199538e01f139dbc1561aa78))
+
 # [3.0.0-alpha.26](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.25...v3.0.0-alpha.26) (2022-05-27)
 
 
