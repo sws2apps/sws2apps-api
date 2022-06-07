@@ -1,3 +1,18 @@
+# [3.0.0-alpha.29](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.28...v3.0.0-alpha.29) (2022-06-07)
+
+
+### Features
+
+* **deps:** bump is-online from 9.0.1 to 10.0.0 ([b2c640a](https://github.com/sws2apps/sws2apps-api/commit/b2c640aee8ee40e293707bdc9d9b6c9a1cbb667d))
+
+# [3.0.0-alpha.28](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.27...v3.0.0-alpha.28) (2022-06-02)
+
+
+### Features
+
+* **deps:** bump node-fetch from 3.2.4 to 3.2.5 ([1db904e](https://github.com/sws2apps/sws2apps-api/commit/1db904e3dbae91c5b1d80c8b1d5c9f4c4488d5d5))
+* **deps:** bump request-ip from 2.1.3 to 2.2.0 ([218dc63](https://github.com/sws2apps/sws2apps-api/commit/218dc639b2d8e0d059923807dc869893c7287c90))
+
 # [3.0.0-alpha.27](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.26...v3.0.0-alpha.27) (2022-05-28)
 
 
