@@ -1,3 +1,10 @@
+# [3.0.0-alpha.30](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.29...v3.0.0-alpha.30) (2022-06-09)
+
+
+### Features
+
+* **api:** new routes pattern - wip ([b5e5e5c](https://github.com/sws2apps/sws2apps-api/commit/b5e5e5cb5b6370736ff5fa50affd6b826504390d))
+
 # [3.0.0-alpha.29](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.28...v3.0.0-alpha.29) (2022-06-07)
 
 
