@@ -7,7 +7,8 @@ export const adminAuthChecker = () => {
 	return async (req, res, next) => {
 		try {
 			// check if session is authenticated for an administrator
-			if (res.locals.currentUser.about.role === 'admin') {
+			const { global_role } = res.locals.currentUser;
+			if (global_role === 'admin') {
 				next();
 			} else {
 				res.locals.type = 'warn';

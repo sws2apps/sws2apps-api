@@ -13,12 +13,15 @@ export const getUsers = async () => {
 
 	snapshot.forEach((doc) => {
 		let obj = {};
-		obj.user_uid = doc.id;
+		obj.id = doc.id;
 		obj.username = doc.data().about.name;
+		obj.user_uid = doc.data().about.user_uid;
+		obj.sessions = doc.data().about.sessions || [];
 		obj.global_role = doc.data().about.role;
 		obj.mfaEnabled = doc.data().about.mfaEnabled;
 		obj.cong_id = doc.data().congregation?.id || '';
 		obj.cong_role = doc.data().congregation?.role || '';
+		obj.pocket_disabled = doc.data().pocket_disabled || false;
 		tmpUsers.push(obj);
 	});
 
@@ -27,26 +30,30 @@ export const getUsers = async () => {
 	});
 
 	let finalResult = [];
-	for (let i = 0; i < tmpUsers.length; i++) {
-		let obj = {};
-		obj.user_uid = tmpUsers[i].user_uid;
 
-		if (tmpUsers[i].global_role === 'pocket') {
-			obj.disabled = tmpUsers[i].pocket_disabled;
+	for (let i = 0; i < tmpUsers.length; i++) {
+		const user = tmpUsers[i];
+
+		let obj = {};
+		obj.id = user.id;
+		obj.user_uid = user.user_uid.toLowerCase();
+
+		if (user.global_role === 'pocket') {
+			obj.disabled = user.pocket_disabled;
 		} else {
-			const userRecord = await getAuth().getUserByEmail(tmpUsers[i].user_uid);
+			const userRecord = await getAuth().getUserByEmail(user.user_uid);
 			obj.emailVerified = userRecord.emailVerified;
 			obj.disabled = userRecord.disabled;
 		}
 
-		obj.cong_id = tmpUsers[i].cong_id;
+		obj.cong_id = user.cong_id;
 		obj.cong_name = '';
 		obj.cong_number = '';
 
-		if (tmpUsers[i].cong_id.toString().length > 0) {
+		if (user.cong_id.toString().length > 0) {
 			const congRef = db
 				.collection('congregation_data')
-				.doc(tmpUsers[i].cong_id.toString());
+				.doc(user.cong_id.toString());
 			const docSnap = await congRef.get();
 			const cong_name = docSnap.data().cong_name || '';
 			const cong_number = docSnap.data().cong_number || '';
@@ -55,10 +62,11 @@ export const getUsers = async () => {
 			obj.cong_number = cong_number;
 		}
 
-		obj.mfaEnabled = tmpUsers[i].mfaEnabled;
-		obj.username = tmpUsers[i].username;
-		obj.global_role = tmpUsers[i].global_role;
-		obj.cong_role = tmpUsers[i].cong_role;
+		obj.mfaEnabled = user.mfaEnabled;
+		obj.username = user.username;
+		obj.global_role = user.global_role;
+		obj.cong_role = user.cong_role;
+		obj.sessions = user.sessions;
 
 		finalResult.push(obj);
 	}
@@ -69,7 +77,7 @@ export const getUsers = async () => {
 export const getUserInfo = async (userID) => {
 	const users = await getUsers();
 
-	const findUser = users.find((user) => user.user_uid === userID);
+	const findUser = users.find((user) => user.user_uid === userID.toLowerCase());
 
 	if (findUser) {
 		return findUser;
@@ -81,15 +89,17 @@ export const getUserInfo = async (userID) => {
 export const cleanExpiredSession = async (userID) => {
 	const userDoc = db.collection('users').doc(userID);
 	const userSnap = await userDoc.get();
-
 	// remove expired sessions
-	let sessions = userSnap.data().about.sessions || [];
-	const currentDate = new Date().getTime();
-	let validSessions = sessions.filter(
-		(session) => session.expires > currentDate
-	);
-	const data = {
-		about: { ...userSnap.data().about, sessions: validSessions },
-	};
-	await db.collection('users').doc(userID).set(data, { merge: true });
+
+	if (userSnap.exists) {
+		let sessions = userSnap.data().about.sessions || [];
+		const currentDate = new Date().getTime();
+		let validSessions = sessions.filter(
+			(session) => session.expires > currentDate
+		);
+		const data = {
+			about: { ...userSnap.data().about, sessions: validSessions },
+		};
+		await db.collection('users').doc(userID).set(data, { merge: true });
+	}
 };

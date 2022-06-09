@@ -2,6 +2,8 @@
 import { check, validationResult } from 'express-validator';
 import { getFirestore } from 'firebase-admin/firestore';
 
+import { cleanExpiredSession, getUserInfo } from '../utils/user-utils.js';
+
 // get firestore
 const db = getFirestore();
 
@@ -28,54 +30,62 @@ export const visitorChecker = () => {
 			}
 
 			const { email, visitor_id } = req.headers;
+			const user = await getUserInfo(email);
 
-			// get all users active sessions
-			const userDoc = db.collection('users').doc(email);
-			const userSnap = await userDoc.get();
+			if (user) {
+				const { id, disabled } = user;
 
-			// remove expired sessions
-			let sessions = userSnap.data().about.sessions || [];
-			const currentDate = new Date().getTime();
-			let validSessions = sessions.filter(
-				(session) => session.expires > currentDate
-			);
-			const data = {
-				about: { ...userSnap.data().about, sessions: validSessions },
-			};
-			await db.collection('users').doc(email).set(data, { merge: true });
+				// remove expired sessions
+				await cleanExpiredSession(id);
 
-			// find if visitor id has valid session
-			const findSession = validSessions.find(
-				(session) => session.visitor_id === visitor_id
-			);
+				if (disabled) {
+					res.locals.type = 'warn';
+					res.locals.message = 'this user account is currently disabled';
 
-			if (findSession) {
-				// assign local vars for current user in next route
-				const currentUser = {
-					...userSnap.data(),
-				};
-				res.locals.currentUser = currentUser;
-
-				const { mfaVerified } = findSession;
-				if (mfaVerified) {
-					next();
+					res.status(403).json({ message: 'ACCOUNT_DISABLED' });
 				} else {
-					// allow verify token to pass this middleware
-					if (req.path === '/verify-token') {
-						next();
+					// get user session
+					const userDoc = db.collection('users').doc(id);
+					const userSnap = await userDoc.get();
+
+					let sessions = userSnap.data().about.sessions || [];
+
+					// find if visitor id has valid session
+					const findSession = sessions.find(
+						(session) => session.visitor_id === visitor_id
+					);
+
+					if (findSession) {
+						// assign local vars for current user in next route
+						res.locals.currentUser = user;
+
+						const { mfaVerified } = findSession;
+						if (mfaVerified) {
+							next();
+						} else {
+							// allow verify token to pass this middleware
+							if (req.path === '/verify-token') {
+								next();
+							} else {
+								res.locals.type = 'warn';
+								res.locals.message = 'two factor authentication required';
+
+								res.status(403).json({ message: 'LOGIN_FIRST' });
+							}
+						}
 					} else {
 						res.locals.type = 'warn';
-						res.locals.message = 'two factor authentication required';
+						res.locals.message =
+							'the visitor id is invalid or does not have an active session';
 
 						res.status(403).json({ message: 'LOGIN_FIRST' });
 					}
 				}
 			} else {
 				res.locals.type = 'warn';
-				res.locals.message =
-					'the visitor id is invalid or does not have an active session';
+				res.locals.message = 'this user account no longer exists';
 
-				res.status(403).json({ message: 'LOGIN_FIRST' });
+				res.status(403).json({ message: 'ACCOUNT_NOT_FOUND' });
 			}
 		} catch (err) {
 			next(err);
