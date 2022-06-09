@@ -10,7 +10,7 @@ import {
 	FingerprintJsServerApiClient,
 	Region,
 } from '@fingerprintjs/fingerprintjs-pro-server-api';
-import { cleanExpiredSession } from '../utils/user-utils.js';
+import { cleanExpiredSession, getUserInfo } from '../utils/user-utils.js';
 
 // get firestore
 const db = getFirestore(); //get default database
@@ -42,16 +42,17 @@ router.post(
 				return;
 			}
 
+			const { email, password, visitor_id } = req.body;
+
 			// validate visitor id
 			const client = new FingerprintJsServerApiClient({
 				region: Region.Global,
 				apiKey: process.env.FINGERPRINT_API_SERVER_KEY,
 			});
 
-			const visitorHistory = await client.getVisitorHistory(
-				req.body.visitor_id,
-				{ limit: 1 }
-			);
+			const visitorHistory = await client.getVisitorHistory(visitor_id, {
+				limit: 1,
+			});
 
 			if (visitorHistory.visits.length === 0) {
 				res.locals.failedLoginAttempt = true;
@@ -69,8 +70,8 @@ router.post(
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify({
-						email: req.body.email,
-						password: req.body.password,
+						email: email,
+						password: password,
 					}),
 				});
 
@@ -84,16 +85,17 @@ router.post(
 					res.locals.message = `user failed to login: ${data.error.message}`;
 					res.status(data.error.code).json({ message: data.error.message });
 				} else {
+					// clean expired session
+					const { id } = await getUserInfo(email);
+					if (id) await cleanExpiredSession(id);
+
 					// get user info from firebase auth
 					const uid = data.localId;
 					const userRecord = await getAuth().getUser(uid);
 
-					// clean expired session
-					await cleanExpiredSession(userRecord.email);
-
 					if (userRecord.emailVerified) {
 						// get user info from firestore
-						const userRef = db.collection('users').doc(userRecord.email);
+						const userRef = db.collection('users').doc(id);
 						const userSnap = await userRef.get();
 
 						const aboutUser = userSnap.data().about;
@@ -102,14 +104,14 @@ router.post(
 
 						// revoke matched session
 						let newSessions = sessions.filter(
-							(session) => session.visitor_id !== req.body.visitor_id
+							(session) => session.visitor_id !== visitor_id
 						);
 
 						const now = new Date();
 						const expiryDate = now.getTime() + 24 * 60 * 60000; // expired after 1 day
 
 						newSessions.push({
-							visitor_id: req.body.visitor_id,
+							visitor_id: visitor_id,
 							visitor_details: { ...visitorHistory.visits[0] },
 							expires: expiryDate,
 							mfaVerified: false,
@@ -119,10 +121,7 @@ router.post(
 							about: { ...aboutUser, sessions: newSessions },
 						};
 
-						await db
-							.collection('users')
-							.doc(userRecord.email)
-							.set(data, { merge: true });
+						await db.collection('users').doc(id).set(data, { merge: true });
 
 						if (aboutUser.mfaEnabled) {
 							res.locals.type = 'info';
@@ -133,7 +132,7 @@ router.post(
 							// generate new secret and encrypt
 							const secret = twofactor.generateSecret({
 								name: 'sws2apps',
-								account: userRecord.email,
+								account: email,
 							});
 
 							const myKey = '&sws2apps_' + process.env.SEC_ENCRYPT_KEY;
@@ -150,7 +149,7 @@ router.post(
 
 							await db
 								.collection('users')
-								.doc(userRecord.email)
+								.doc(id)
 								.set(firstData, { merge: true });
 
 							res.locals.type = 'warn';

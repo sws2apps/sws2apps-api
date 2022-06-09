@@ -2,14 +2,11 @@
 import express from 'express';
 import Cryptr from 'cryptr';
 import twofactor from 'node-2fa';
-import { body, validationResult } from 'express-validator';
+import { check, validationResult } from 'express-validator';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // middleware import
 import { visitorChecker } from '../middleware/visitor-checker.js';
-
-// utils import
-import { getUserInfo } from '../utils/user-utils.js';
 
 // get firestore
 const db = getFirestore(); //get default database
@@ -21,7 +18,8 @@ router.use(visitorChecker());
 // 2fa check
 router.post(
 	'/verify-token',
-	body('token').isNumeric().isLength({ min: 6 }),
+	check('token').isNumeric().isLength({ min: 6 }),
+	check('email').isEmail(),
 	async (req, res, next) => {
 		const errors = validationResult(req);
 
@@ -42,11 +40,13 @@ router.post(
 		}
 
 		const { token } = req.body;
-		const { email } = req.headers;
+
+		const { id, sessions, username, cong_name, cong_number, cong_role } =
+			res.locals.currentUser;
 
 		try {
 			// Retrieve user from database
-			const userRef = db.collection('users').doc(email);
+			const userRef = db.collection('users').doc(id);
 			const userSnap = await userRef.get();
 
 			// get encrypted token
@@ -67,16 +67,13 @@ router.post(
 				// update mfa enabled && verified
 				const { visitor_id } = req.headers;
 
-				let sessions = userSnap.data().about.sessions || [];
-				let itemCn = sessions.find(
-					(session) => session.visitor_id === visitor_id
-				);
-				itemCn.mfaVerified = true;
-
-				let newSessions = sessions.filter(
-					(session) => session.visitor_id !== visitor_id
-				);
-				newSessions.push(itemCn);
+				let newSessions = sessions.map((session) => {
+					if (session.visitor_id === visitor_id) {
+						return { ...session, mfaVerified: true };
+					} else {
+						return session;
+					}
+				});
 
 				const data = {
 					about: {
@@ -85,23 +82,17 @@ router.post(
 						sessions: newSessions,
 					},
 				};
-				await db.collection('users').doc(email).set(data, { merge: true });
+				await db.collection('users').doc(id).set(data, { merge: true });
 
 				// init response object
 				let obj = {};
 				obj.message = 'TOKEN_VALID';
-
-				// get congregation if assigned
-				const userInfo = await getUserInfo(email);
-
-				if (userInfo) {
-					obj.username = userInfo.username;
-					obj.congregation = {
-						cong_name: userInfo.cong_name,
-						cong_number: userInfo.cong_number,
-						cong_role: userInfo.cong_role,
-					};
-				}
+				obj.username = username;
+				obj.congregation = {
+					cong_name: cong_name,
+					cong_number: cong_number,
+					cong_role: cong_role,
+				};
 
 				res.locals.type = 'info';
 				res.locals.message = 'OTP token verification success';
@@ -109,7 +100,7 @@ router.post(
 				res.status(200).json(obj);
 			} else {
 				res.locals.type = 'warn';
-				res.locals.message = `OTP token invalid`;
+				res.locals.message = 'OTP token invalid';
 
 				res.status(403).json({ message: 'TOKEN_INVALID' });
 			}

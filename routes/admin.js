@@ -6,6 +6,9 @@ import { getAuth } from 'firebase-admin/auth';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { body, check, validationResult } from 'express-validator';
 
+// sub-routes
+import usersRoute from './admin-users.js';
+
 // middlewares
 import { visitorChecker } from '../middleware/visitor-checker.js';
 import { adminAuthChecker } from '../middleware/admin-auth-checker.js';
@@ -39,6 +42,8 @@ const router = express.Router();
 router.use(visitorChecker());
 router.use(adminAuthChecker());
 
+router.use('/users', usersRoute);
+
 router.get('/', async (req, res, next) => {
 	try {
 		res.locals.type = 'info';
@@ -53,12 +58,18 @@ router.get('/', async (req, res, next) => {
 router.get('/logout', async (req, res, next) => {
 	try {
 		// remove all sessions
+		const { id } = res.locals.currentUser;
+
+		const userRef = db.collection('users').doc(id);
+		const userSnap = await userRef.get();
+
+		const aboutUser = userSnap.data().about;
+
 		const data = {
-			about: { ...res.locals.currentUser.about, sessions: [] },
+			about: { ...aboutUser, sessions: [] },
 		};
 
-		const email = req.headers.email;
-		await db.collection('users').doc(email).set(data, { merge: true });
+		await db.collection('users').doc(id).set(data, { merge: true });
 
 		res.locals.type = 'info';
 		res.locals.message = 'administrator successfully logged out';
@@ -287,81 +298,6 @@ router.post(
 	}
 );
 
-router.get('/users', async (req, res, next) => {
-	try {
-		const users = await getUsers();
-
-		res.locals.type = 'info';
-		res.locals.message = 'admin fetched all users';
-		res.status(200).json(users);
-	} catch (err) {
-		next(err);
-	}
-});
-
-router.post(
-	'/delete-user',
-	body('user_uid').notEmpty(),
-	body('user_type').notEmpty(),
-	async (req, res, next) => {
-		try {
-			const errors = validationResult(req);
-
-			if (!errors.isEmpty()) {
-				let msg = '';
-				errors.array().forEach((error) => {
-					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-				});
-
-				res.locals.type = 'warn';
-				res.locals.message = `invalid input: ${msg}`;
-
-				res.status(400).json({
-					message: 'Bad request: provided inputs are invalid.',
-				});
-
-				return;
-			}
-
-			if (req.body.user_type !== 'pocket' && req.body.user_type !== 'vip') {
-				res.locals.type = 'warn';
-				res.locals.message = 'invalid user type';
-
-				res.status(400).json({
-					message: 'Bad request: provided inputs are invalid.',
-				});
-
-				return;
-			}
-
-			if (req.body.user_type === 'pocket') {
-				await db.collection('users').doc(req.body.user_uid).delete();
-
-				res.locals.type = 'info';
-				res.locals.message = 'sucessfully deleted user';
-				res.status(200).json({ message: 'OK' });
-			} else {
-				getAuth()
-					.deleteUser(req.body.user_uid)
-					.then(async () => {
-						await db.collection('users').doc(req.body.user_uid).delete();
-
-						res.locals.type = 'info';
-						res.locals.message = 'sucessfully deleted user';
-						res.status(200).json({ message: 'OK' });
-					})
-					.catch((error) => {
-						res.locals.type = 'warn';
-						res.locals.message = `error deleting user: ${error}`;
-						res.status(400).json({ message: error });
-					});
-			}
-		} catch (err) {
-			next(err);
-		}
-	}
-);
-
 router.post(
 	'/enable-user',
 	body('user_uid').notEmpty(),
@@ -511,6 +447,7 @@ router.post(
 router.post(
 	'/user-reset-password',
 	body('user_email').isEmail(),
+	body('user_username').notEmpty(),
 	async (req, res, next) => {
 		try {
 			const errors = validationResult(req);
@@ -531,17 +468,13 @@ router.post(
 				return;
 			}
 
+			const { user_email, user_username } = req.body;
+
 			getAuth()
-				.generatePasswordResetLink(req.body.user_email)
+				.generatePasswordResetLink(user_email)
 				.then(async (resetLink) => {
 					// send email to user
-					const userInfo = await getUserInfo(req.body.user_email);
-
-					sendUserResetPassword(
-						req.body.user_email,
-						userInfo.about.name,
-						resetLink
-					);
+					sendUserResetPassword(user_email, user_username, resetLink);
 
 					res.locals.type = 'info';
 					res.locals.message = 'user password reset email queued for sending';
@@ -550,7 +483,7 @@ router.post(
 				.catch((error) => {
 					res.locals.type = 'warn';
 					res.locals.message = `error generating link: ${error}`;
-					res.status(400).json({ message: error });
+					res.status(400).json({ message: 'INTERNAL_ERROR' });
 				});
 		} catch (err) {
 			next(err);

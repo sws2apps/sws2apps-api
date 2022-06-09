@@ -1,17 +1,16 @@
 // dependencies
 import express from 'express';
-import fetch from 'node-fetch';
 import { body, validationResult } from 'express-validator';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
 // middlewares
-import { authChecker } from '../middleware/auth-checker.js';
 import { visitorChecker } from '../middleware/visitor-checker.js';
 
 // utils import
 import { sendVerificationEmail } from '../utils/sendEmail.js';
 import { getAnnouncementsClient } from '../utils/announcement-utils.js';
+import { getUserInfo } from '../utils/user-utils.js';
 
 // get firestore
 const db = getFirestore(); //get default database
@@ -105,11 +104,10 @@ router.use(visitorChecker());
 router.get('/validate-me', async (req, res, next) => {
 	try {
 		const { email } = req.headers;
-		const congInfo = await getCongregationInfo(email);
+		const { cong_name, cong_number, cong_role } = await getUserInfo(email);
 
-		if (congInfo) {
-			obj.congregation = {};
-			obj.congregation = { ...congInfo };
+		if (cong_name.length > 0) {
+			let obj = { cong_name, cong_number, cong_role };
 
 			res.locals.type = 'info';
 			res.locals.message = 'visitor id has been validated';
@@ -146,82 +144,6 @@ router.get('/resend-verification', async (req, res, next) => {
 
 				res.status(200).json({ message: 'VERIFY_FAILED' });
 			});
-	} catch (err) {
-		next(err);
-	}
-});
-
-router.use(authChecker());
-
-// with inline middleware
-router.get('/get-backup', async (req, res, next) => {
-	try {
-		const uid = req.headers.uid;
-		getAuth()
-			.getUser(uid)
-			.then(async () => {
-				const userRef = db.collection('user_backup').doc(uid);
-				const docSnap = await userRef.get();
-
-				if (docSnap.exists) {
-					if (docSnap.data().lmmoa) {
-						res.locals.type = 'info';
-						res.locals.message = `get user backup success`;
-						res.status(200).json({ message: docSnap.data().lmmoa });
-					} else {
-						res.locals.type = 'info';
-						res.locals.message = `the user has no backup`;
-						res.status(404).json({ message: 'NOT_FOUND' });
-					}
-				} else {
-					res.locals.type = 'info';
-					res.locals.message = `the user has no backup`;
-					res.status(404).json({ message: 'NOT_FOUND' });
-				}
-			})
-			.catch((err) => {
-				next(err);
-			});
-	} catch (err) {
-		next(err);
-	}
-});
-
-router.post('/send-backup', async (req, res, next) => {
-	try {
-		const uid = req.headers.uid;
-		const backupType = req.body.backup_type;
-
-		if (backupType && (backupType === 'lmmoa' || backupType === 'msc')) {
-			getAuth()
-				.getUser(uid)
-				.then(async () => {
-					const data = {
-						[backupType]: {
-							backup_data: req.body.backup_data,
-							backup_date: req.body.backup_date,
-							backup_device: req.body.backup_device,
-						},
-					};
-
-					await db
-						.collection('user_backup')
-						.doc(uid)
-						.set(data, { merge: true });
-
-					res.locals.type = 'info';
-					res.locals.message = `backup sent successfully`;
-
-					res.status(200).json({ message: 'OK' });
-				})
-				.catch((err) => {
-					next(err);
-				});
-		} else {
-			res.locals.type = 'warn';
-			res.locals.message = `some of the required information are missing to send the backup`;
-			res.status(400).send(JSON.stringify({ message: 'BAD_REQUEST' }));
-		}
 	} catch (err) {
 		next(err);
 	}
