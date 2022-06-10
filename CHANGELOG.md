@@ -1,3 +1,10 @@
+# [3.0.0-alpha.35](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.34...v3.0.0-alpha.35) (2022-06-10)
+
+
+### Features
+
+* **admin:** add make user as admin route ([deb21bc](https://github.com/sws2apps/sws2apps-api/commit/deb21bc681ad688c6efa37b87f7402f212e22ae9))
+
 # [3.0.0-alpha.34](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.33...v3.0.0-alpha.34) (2022-06-10)
 
 
