@@ -57,7 +57,7 @@ router.post(
 					getAuth()
 						.generateEmailVerificationLink(userEmail)
 						.then(async (link) => {
-							sendVerificationEmail(fullname, link);
+							sendVerificationEmail(userEmail, fullname, link);
 
 							const data = {
 								about: {
