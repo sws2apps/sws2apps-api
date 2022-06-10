@@ -240,4 +240,50 @@ router.patch('/:id/revoke-token', async (req, res, next) => {
 	}
 });
 
+router.patch('/:id/make-admin', async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const { isParamsValid, userFound, user } = await userAccountChecker(id);
+
+		if (isParamsValid) {
+			if (userFound) {
+				if (user.global_role === 'admin') {
+					res.locals.type = 'warn';
+					res.locals.message = 'the current is already an admin';
+					res.status(405).json({ message: 'ACTION_NOT_ALLOWED' });
+				} else if (user.global_role === 'pocket') {
+					res.locals.type = 'warn';
+					res.locals.message =
+						'setting a pocket user to be an admin is not allowed';
+					res.status(405).json({ message: 'ACTION_NOT_ALLOWED' });
+				} else {
+					const userRef = db.collection('users').doc(id);
+					const userSnap = await userRef.get();
+
+					const data = {
+						about: { ...userSnap.data().about, role: 'admin' },
+					};
+
+					await db.collection('users').doc(id).set(data, { merge: true });
+
+					res.locals.type = 'info';
+					res.locals.message = 'admin set an user to be an admin';
+					res.status(200).json({ message: 'OK' });
+				}
+			} else {
+				res.locals.type = 'warn';
+				res.locals.message =
+					'the user record could not be found in the database';
+				res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+			}
+		} else {
+			res.locals.type = 'warn';
+			res.locals.message = 'the user id params is not defined';
+			res.status(400).json({ message: 'USER_ID_INVALID' });
+		}
+	} catch (err) {
+		next(err);
+	}
+});
+
 export default router;
