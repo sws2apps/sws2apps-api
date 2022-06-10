@@ -18,14 +18,18 @@ const handlebarsOptions = {
 const transporter = nodemailer.createTransport(gmailConfig.transport);
 transporter.use('compile', hbs(handlebarsOptions));
 
-export const sendVerificationEmail = async (recipient, activation) => {
+export const sendVerificationEmail = async (
+	recipient,
+	fullname,
+	activation
+) => {
 	const options = {
 		from: gmailConfig.sender,
 		to: recipient,
 		subject: 'Please verify your account (sws2apps)',
 		template: 'verifyAccount',
 		context: {
-			name: recipient,
+			name: fullname,
 			activation: activation,
 		},
 	};
