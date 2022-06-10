@@ -1,3 +1,10 @@
+# [3.0.0-alpha.33](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.32...v3.0.0-alpha.33) (2022-06-10)
+
+
+### Bug Fixes
+
+* **email:** fix undefined recipient when sending account verification email ([3e38b36](https://github.com/sws2apps/sws2apps-api/commit/3e38b36723b8444b8c7229a3cdb234607cd6e434))
+
 # [3.0.0-alpha.32](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.31...v3.0.0-alpha.32) (2022-06-10)
 
 
