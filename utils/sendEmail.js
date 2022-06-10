@@ -199,3 +199,49 @@ export const sendUserResetPassword = async (
 
 	return !retry;
 };
+
+export const sendCongregationRequest = async (
+	congregation_name,
+	congregation_number,
+	requestor_name
+) => {
+	const options = {
+		from: gmailConfig.sender,
+		to: process.env.GMAIL_ADDRESS,
+		subject: 'Congregation Account Request (sws2apps)',
+		template: 'congregationAccountRequest',
+		context: {
+			congregation_name: congregation_name,
+			congregation_number: congregation_number,
+			requestor_name: requestor_name,
+		},
+	};
+
+	const intTry = 10;
+	let i = 0;
+	let retry = false;
+
+	do {
+		const send = async () => {
+			return new Promise((resolve) => {
+				return transporter.sendMail(options, (error, info) => {
+					if (error) {
+						logger(
+							'warn',
+							`failed to send message: ${error.message}. trying again ...`
+						);
+						return resolve(false);
+					}
+					logger('info', `admin echoed email for new congregation request`);
+					return resolve(true);
+				});
+			});
+		};
+
+		const runSend = await send();
+		retry = !runSend;
+		i++;
+	} while (i < intTry && retry);
+
+	return !retry;
+};

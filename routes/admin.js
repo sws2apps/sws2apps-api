@@ -1,13 +1,11 @@
 // dependencies
 import express from 'express';
-import Cryptr from 'cryptr';
-import twofactor from 'node-2fa';
-import { getAuth } from 'firebase-admin/auth';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { body, check, validationResult } from 'express-validator';
 
 // sub-routes
 import usersRoute from './admin-users.js';
+import congregationsRoute from './admin-congregation.js';
 
 // middlewares
 import { visitorChecker } from '../middleware/visitor-checker.js';
@@ -30,7 +28,6 @@ import {
 import {
 	sendCongregationAccountCreated,
 	sendCongregationAccountDisapproved,
-	sendUserResetPassword,
 } from '../utils/sendEmail.js';
 import { getUserInfo, getUsers } from '../utils/user-utils.js';
 
@@ -42,6 +39,7 @@ const router = express.Router();
 router.use(visitorChecker());
 router.use(adminAuthChecker());
 
+router.use('/congregations', congregationsRoute);
 router.use('/users', usersRoute);
 
 router.get('/', async (req, res, next) => {
@@ -74,53 +72,6 @@ router.get('/logout', async (req, res, next) => {
 		res.locals.type = 'info';
 		res.locals.message = 'administrator successfully logged out';
 		res.status(200).json({ message: 'LOGGED_OUT' });
-	} catch (err) {
-		next(err);
-	}
-});
-
-router.get('/pending-requests', async (req, res, next) => {
-	try {
-		const congRef = db.collection('congregation_request');
-		const snapshot = await congRef.get();
-
-		let requests = [];
-
-		snapshot.forEach((doc) => {
-			if (!doc.data().approval) {
-				let obj = {};
-				obj.id = doc.id;
-				obj.data = doc.data();
-				requests.push(obj);
-			}
-		});
-
-		requests.sort((a, b) => {
-			return a.id > b.id ? 1 : -1;
-		});
-
-		let finalResult = [];
-		for (let i = 0; i < requests.length; i++) {
-			const email = requests[i].data.email;
-			const userRef = db.collection('users').doc(email);
-			const userSnap = await userRef.get();
-
-			const username = userSnap.data().about.name;
-
-			let obj = {};
-			obj.id = requests[i].id;
-			obj.cong_name = requests[i].data.cong_name;
-			obj.cong_number = requests[i].data.cong_number;
-			obj.email = email;
-			obj.username = username;
-			obj.cong_role = ['admin', requests[i].data.cong_role];
-
-			finalResult.push(obj);
-		}
-
-		res.locals.type = 'info';
-		res.locals.message = 'admin fetched pending requests';
-		res.status(200).json(finalResult);
 	} catch (err) {
 		next(err);
 	}
@@ -299,211 +250,6 @@ router.post(
 );
 
 router.post(
-	'/enable-user',
-	body('user_uid').notEmpty(),
-	body('user_type').notEmpty(),
-	async (req, res, next) => {
-		try {
-			const errors = validationResult(req);
-
-			if (!errors.isEmpty()) {
-				let msg = '';
-				errors.array().forEach((error) => {
-					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-				});
-
-				res.locals.type = 'warn';
-				res.locals.message = `invalid input: ${msg}`;
-
-				res.status(400).json({
-					message: 'Bad request: provided inputs are invalid.',
-				});
-
-				return;
-			}
-
-			if (req.body.user_type !== 'pocket' && req.body.user_type !== 'vip') {
-				res.locals.type = 'warn';
-				res.locals.message = 'invalid user type';
-
-				res.status(400).json({
-					message: 'Bad request: provided inputs are invalid.',
-				});
-
-				return;
-			}
-
-			if (req.body.user_type === 'pocket') {
-				const userRef = db.collection('users').doc(req.body.user_uid);
-				const userSnap = await userRef.get();
-
-				const data = {
-					about: { ...userSnap.data().about, pocket_disabled: false },
-				};
-
-				await db
-					.collection('users')
-					.doc(req.body.user_uid)
-					.set(data, { merge: true });
-
-				res.locals.type = 'info';
-				res.locals.message = 'user enabled successfully';
-				res.status(200).json({ message: 'OK' });
-			} else {
-				getAuth()
-					.updateUser(req.body.user_uid, {
-						disabled: false,
-					})
-					.then(() => {
-						res.locals.type = 'info';
-						res.locals.message = 'user enabled successfully';
-						res.status(200).json({ message: 'OK' });
-					})
-					.catch((error) => {
-						res.locals.type = 'warn';
-						res.locals.message = `error updating user: ${error}`;
-						res.status(400).json({ message: error });
-					});
-			}
-		} catch (err) {
-			next(err);
-		}
-	}
-);
-
-router.post(
-	'/disable-user',
-	body('user_uid').notEmpty(),
-	body('user_type').notEmpty(),
-	async (req, res, next) => {
-		try {
-			const errors = validationResult(req);
-
-			if (!errors.isEmpty()) {
-				let msg = '';
-				errors.array().forEach((error) => {
-					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-				});
-
-				res.locals.type = 'warn';
-				res.locals.message = `invalid input: ${msg}`;
-
-				res.status(400).json({
-					message: 'Bad request: provided inputs are invalid.',
-				});
-
-				return;
-			}
-
-			if (req.body.user_type !== 'pocket' && req.body.user_type !== 'vip') {
-				res.locals.type = 'warn';
-				res.locals.message = 'invalid user type';
-
-				res.status(400).json({
-					message: 'Bad request: provided inputs are invalid.',
-				});
-
-				return;
-			}
-
-			if (req.body.user_type === 'pocket') {
-				const userRef = db.collection('users').doc(req.body.user_uid);
-				const userSnap = await userRef.get();
-
-				const data = {
-					about: { ...userSnap.data().about, pocket_disabled: true },
-				};
-
-				await db
-					.collection('users')
-					.doc(req.body.user_uid)
-					.set(data, { merge: true });
-
-				res.locals.type = 'info';
-				res.locals.message = 'user disabled successfully';
-				res.status(200).json({ message: 'OK' });
-			} else {
-				getAuth()
-					.updateUser(req.body.user_uid, {
-						disabled: true,
-					})
-					.then(() => {
-						res.locals.type = 'info';
-						res.locals.message = 'user disabled successfully';
-						res.status(200).json({ message: 'OK' });
-					})
-					.catch((error) => {
-						res.locals.type = 'warn';
-						res.locals.message = `error updating user: ${error}`;
-						res.status(400).json({ message: error });
-					});
-			}
-		} catch (err) {
-			next(err);
-		}
-	}
-);
-
-router.post(
-	'/user-reset-password',
-	body('user_email').isEmail(),
-	body('user_username').notEmpty(),
-	async (req, res, next) => {
-		try {
-			const errors = validationResult(req);
-
-			if (!errors.isEmpty()) {
-				let msg = '';
-				errors.array().forEach((error) => {
-					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-				});
-
-				res.locals.type = 'warn';
-				res.locals.message = `invalid input: ${msg}`;
-
-				res.status(400).json({
-					message: 'Bad request: provided inputs are invalid.',
-				});
-
-				return;
-			}
-
-			const { user_email, user_username } = req.body;
-
-			getAuth()
-				.generatePasswordResetLink(user_email)
-				.then(async (resetLink) => {
-					// send email to user
-					sendUserResetPassword(user_email, user_username, resetLink);
-
-					res.locals.type = 'info';
-					res.locals.message = 'user password reset email queued for sending';
-					res.status(200).json({ message: 'OK' });
-				})
-				.catch((error) => {
-					res.locals.type = 'warn';
-					res.locals.message = `error generating link: ${error}`;
-					res.status(400).json({ message: 'INTERNAL_ERROR' });
-				});
-		} catch (err) {
-			next(err);
-		}
-	}
-);
-
-router.get('/congregations', async (req, res, next) => {
-	try {
-		const congsList = await getCongregations();
-
-		res.locals.type = 'info';
-		res.locals.message = 'admin fetched all congregation';
-		res.status(200).json(congsList);
-	} catch (err) {
-		next(err);
-	}
-});
-
-router.post(
 	'/congregation-add-user',
 	body('cong_id').isNumeric(),
 	body('user_uid').notEmpty(),
@@ -601,67 +347,6 @@ router.post(
 				res.locals.message = 'user could not be found';
 				res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
 			}
-		} catch (err) {
-			next(err);
-		}
-	}
-);
-
-router.post(
-	'/revoke-user-token',
-	body('user_uid').notEmpty(),
-	async (req, res, next) => {
-		try {
-			const errors = validationResult(req);
-
-			if (!errors.isEmpty()) {
-				let msg = '';
-				errors.array().forEach((error) => {
-					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-				});
-
-				res.locals.type = 'warn';
-				res.locals.message = `invalid input: ${msg}`;
-
-				res.status(400).json({
-					message: 'Bad request: provided inputs are invalid.',
-				});
-
-				return;
-			}
-
-			// get user identifier
-			const user_uid = req.body.user_uid;
-
-			// generate new secret and encrypt
-			const secret = twofactor.generateSecret({
-				name: 'sws2apps',
-				account: user_uid,
-			});
-
-			const myKey = '&sws2apps_' + process.env.SEC_ENCRYPT_KEY;
-			const cryptr = new Cryptr(myKey);
-			const encryptedData = cryptr.encrypt(JSON.stringify(secret));
-
-			// Retrieve user from database
-
-			const userRef = db.collection('users').doc(user_uid);
-			const userSnap = await userRef.get();
-
-			// remove all sessions and save new secret
-			const data = {
-				about: {
-					...userSnap.data().about,
-					mfaEnabled: false,
-					secret: encryptedData,
-					sessions: [],
-				},
-			};
-			await db.collection('users').doc(user_uid).set(data, { merge: true });
-
-			res.locals.type = 'info';
-			res.locals.message = 'admin revoked user token access';
-			res.status(200).json({ message: 'OK' });
 		} catch (err) {
 			next(err);
 		}

@@ -90,10 +90,10 @@ app.use(
 );
 
 app.use('/', authRoute);
-app.use('/api/congregation', congregationRoute);
+app.use('/api/congregations', congregationRoute);
 app.use('/api/sws-pocket', swsPocketRoute);
 app.use('/api/mfa', mfaRoute);
-app.use('/api/user', userRoute);
+app.use('/api/users', userRoute);
 app.use('/api/admin', adminRoute);
 
 app.get('/', async (req, res, next) => {

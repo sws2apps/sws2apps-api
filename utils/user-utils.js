@@ -21,7 +21,7 @@ export const getUsers = async () => {
 		obj.mfaEnabled = doc.data().about.mfaEnabled;
 		obj.cong_id = doc.data().congregation?.id || '';
 		obj.cong_role = doc.data().congregation?.role || '';
-		obj.pocket_disabled = doc.data().pocket_disabled || false;
+		obj.pocket_disabled = doc.data().about.pocket_disabled || false;
 		tmpUsers.push(obj);
 	});
 
@@ -42,6 +42,7 @@ export const getUsers = async () => {
 			obj.disabled = user.pocket_disabled;
 		} else {
 			const userRecord = await getAuth().getUserByEmail(user.user_uid);
+			obj.auth_uid = userRecord.uid;
 			obj.emailVerified = userRecord.emailVerified;
 			obj.disabled = userRecord.disabled;
 		}
@@ -86,6 +87,18 @@ export const getUserInfo = async (userID) => {
 	}
 };
 
+export const findUserById = async (id) => {
+	const users = await getUsers();
+
+	const findUser = users.find((user) => user.id === id);
+
+	if (findUser) {
+		return findUser;
+	} else {
+		return undefined;
+	}
+};
+
 export const cleanExpiredSession = async (userID) => {
 	const userDoc = db.collection('users').doc(userID);
 	const userSnap = await userDoc.get();
@@ -101,5 +114,32 @@ export const cleanExpiredSession = async (userID) => {
 			about: { ...userSnap.data().about, sessions: validSessions },
 		};
 		await db.collection('users').doc(userID).set(data, { merge: true });
+	}
+};
+
+export const validateParamsId = (id) => {
+	return id !== undefined;
+};
+
+export const userAccountChecker = async (id) => {
+	try {
+		const isParamsValid = validateParamsId(id);
+
+		let obj = {};
+		obj.isParamsValid = isParamsValid;
+
+		if (isParamsValid) {
+			const user = await findUserById(id);
+			if (user) {
+				obj.userFound = true;
+				obj.user = user;
+			} else {
+				obj.userFound = false;
+			}
+		}
+
+		return obj;
+	} catch (err) {
+		return err;
 	}
 };
