@@ -1,3 +1,10 @@
+# [3.0.0-alpha.32](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.31...v3.0.0-alpha.32) (2022-06-10)
+
+
+### Features
+
+* **api:** api routes reorginazation (wip) ([3dab33b](https://github.com/sws2apps/sws2apps-api/commit/3dab33bb2c274ac44ca282fe7d6ea0e7f6ba712f))
+
 # [3.0.0-alpha.31](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.30...v3.0.0-alpha.31) (2022-06-10)
 
 
