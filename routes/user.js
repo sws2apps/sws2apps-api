@@ -43,11 +43,13 @@ router.post(
 				return;
 			}
 
+			const { fullname, email, password } = req.body;
+
 			getAuth()
 				.createUser({
-					email: req.body.email,
+					email: email,
 					emailVerified: false,
-					password: req.body.password,
+					password: password,
 					disabled: false,
 				})
 				.then((userRecord) => {
@@ -55,16 +57,17 @@ router.post(
 					getAuth()
 						.generateEmailVerificationLink(userEmail)
 						.then(async (link) => {
-							sendVerificationEmail(userEmail, link);
+							sendVerificationEmail(fullname, link);
 
 							const data = {
 								about: {
-									name: req.body.fullname,
+									name: fullname,
 									role: 'vip',
+									user_uid: userEmail,
 								},
 							};
 
-							await db.collection('users').doc(userEmail).set(data);
+							await db.collection('users').add(data);
 
 							res.locals.type = 'info';
 							res.locals.message = `user account created and the verification email queued for sending`;

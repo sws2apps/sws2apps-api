@@ -8,15 +8,23 @@ import { getFirestore } from 'firebase-admin/firestore';
 
 // middleware import
 import { authChecker } from '../middleware/auth-checker.js';
+import { visitorChecker } from '../middleware/visitor-checker.js';
 import { congregationAuthChecker } from '../middleware/congregation-auth-checker.js';
+
+// utils
+import { findCongregationRequestByEmail } from '../utils/congregation-utils.js';
+import { sendCongregationRequest } from '../utils/sendEmail.js';
+import { getUserInfo } from '../utils/user-utils.js';
 
 // get firestore
 const db = getFirestore();
 
 const router = express.Router();
 
-router.post(
-	'/request-account',
+router.use(visitorChecker());
+
+router.put(
+	'/request',
 	body('email').isEmail(),
 	body('cong_name').notEmpty(),
 	body('cong_number').isNumeric(),
@@ -41,9 +49,11 @@ router.post(
 				return;
 			}
 
-			if (req.body.app_requestor !== 'lmmo') {
+			const { email, cong_name, cong_number, app_requestor } = req.body;
+
+			if (app_requestor !== 'lmmo') {
 				res.locals.type = 'warn';
-				res.locals.message = `invalid input: ${req.body.app_requestor}`;
+				res.locals.message = `invalid input: ${app_requestor}`;
 
 				res.status(400).json({
 					message: 'Bad request: provided inputs are invalid.',
@@ -52,59 +62,34 @@ router.post(
 				return;
 			}
 
-			let requests = [];
+			const userRequest = await findCongregationRequestByEmail(email);
 
-			const congRef = db.collection('congregation_request');
-			const snapshot = await congRef.get();
-
-			snapshot.forEach((doc) => {
-				let obj = {};
-				obj.id = doc.id;
-				obj.data = doc.data();
-				requests.push(obj);
-			});
-
-			requests.sort((a, b) => {
-				return a.id < b.id ? 1 : -1;
-			});
-
-			const findIndex = requests.findIndex(
-				(request) =>
-					request.data.email === req.body.email &&
-					request.data.approval === undefined
-			);
-
-			if (findIndex > -1) {
+			if (userRequest) {
 				res.locals.type = 'warn';
-				res.locals.message = 'user already has a pending request';
-				res.status(403).json({ message: 'REQUEST_EXIST' });
-			} else {
-				const lastReq = requests[0];
-				let newReq = '';
+				res.locals.message = 'user can only make one request';
+				res.status(405).json({ message: 'REQUEST_EXIST' });
 
-				if (lastReq) {
-					let lastId = lastReq.id.split('-')[1];
-					newReq = `RQ-${+lastId + 1}`;
-				} else {
-					newReq = 'RQ-100000';
-				}
-
-				const data = {
-					email: req.body.email,
-					cong_name: req.body.cong_name,
-					cong_number: +req.body.cong_number,
-					cong_role: req.body.app_requestor,
-				};
-
-				await db
-					.collection('congregation_request')
-					.doc(newReq.toString())
-					.set(data);
-
-				res.locals.type = 'info';
-				res.locals.message = 'congregation request sent for approval';
-				res.status(200).json({ message: 'OK' });
+				return;
 			}
+
+			const data = {
+				email: email,
+				cong_name: cong_name,
+				cong_number: +cong_number,
+				cong_role: app_requestor,
+				request_date: new Date(),
+				approved: false,
+				request_open: true,
+			};
+
+			await db.collection('congregation_request').add(data);
+
+			const userInfo = await getUserInfo(email);
+			sendCongregationRequest(cong_name, cong_number, userInfo.username);
+
+			res.locals.type = 'info';
+			res.locals.message = 'congregation request sent for approval';
+			res.status(200).json({ message: 'OK' });
 		} catch (err) {
 			next(err);
 		}
