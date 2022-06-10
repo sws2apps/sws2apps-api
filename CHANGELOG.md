@@ -1,3 +1,10 @@
+# [3.0.0-alpha.34](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.33...v3.0.0-alpha.34) (2022-06-10)
+
+
+### Bug Fixes
+
+* **email:** write verification link directly in email ([74ba594](https://github.com/sws2apps/sws2apps-api/commit/74ba5942f1a0bef6c67ce00d61538a0099652d45))
+
 # [3.0.0-alpha.33](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.32...v3.0.0-alpha.33) (2022-06-10)
 
 
