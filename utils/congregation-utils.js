@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // utils
-import { getUsers } from './user-utils.js';
+import { getUserInfo, getUsers } from './user-utils.js';
 
 // get firestore
 const db = getFirestore(); //get default database
@@ -16,7 +16,7 @@ export const getCongregations = async () => {
 
 	snapshot.forEach((doc) => {
 		let obj = {};
-		obj.cong_id = +doc.id;
+		obj.cong_id = doc.id;
 		obj.cong_name = doc.data().cong_name;
 		obj.cong_number = doc.data().cong_number;
 		congsList.push(obj);
@@ -102,4 +102,57 @@ export const generateCongregationID = async () => {
 		}
 	} while (setID === false);
 	return num;
+};
+
+export const getCongregationsRequests = async () => {
+	const congRef = db.collection('congregation_request');
+	const snapshot = await congRef.get();
+
+	let requests = [];
+
+	snapshot.forEach((doc) => {
+		if (!doc.data().approval) {
+			let obj = { id: doc.id, ...doc.data() };
+			requests.push(obj);
+		}
+	});
+
+	requests.sort((a, b) => {
+		return a.request_date > b.request_date ? 1 : -1;
+	});
+
+	let finalResult = [];
+	for (let i = 0; i < requests.length; i++) {
+		const request = requests[i];
+		const user = await getUserInfo(request.email);
+
+		let obj = {};
+		obj.id = request.id;
+		obj.cong_name = request.cong_name;
+		obj.cong_number = request.cong_number;
+		obj.email = user.user_uid;
+		obj.username = user.username;
+		obj.user_id = user.id;
+		obj.cong_role = ['admin', request.cong_role];
+		obj.approved = request.approved;
+		obj.request_date = request.request_date;
+
+		finalResult.push(obj);
+	}
+
+	return finalResult;
+};
+
+export const findCongregationRequestByEmail = async (email) => {
+	const requests = await getCongregationsRequests();
+	const userRequest = requests.find((request) => request.email === email);
+
+	return userRequest;
+};
+
+export const findCongregationRequestById = async (id) => {
+	const requests = await getCongregationsRequests();
+	const congRequest = requests.find((request) => request.id === id);
+
+	return congRequest;
 };
