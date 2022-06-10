@@ -79,6 +79,7 @@ router.put(
 				cong_role: app_requestor,
 				request_date: new Date(),
 				approved: false,
+				request_open: true,
 			};
 
 			await db.collection('congregation_request').add(data);

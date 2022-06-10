@@ -1,5 +1,6 @@
 // dependencies
 import express from 'express';
+import { body, validationResult } from 'express-validator';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // utils
@@ -9,7 +10,10 @@ import {
 	getCongregations,
 	getCongregationsRequests,
 } from '../utils/congregation-utils.js';
-import { sendCongregationAccountCreated } from '../utils/sendEmail.js';
+import {
+	sendCongregationAccountCreated,
+	sendCongregationAccountDisapproved,
+} from '../utils/sendEmail.js';
 
 // get firestore
 const db = getFirestore();
@@ -71,6 +75,7 @@ router.put('/:id/approve', async (req, res, next) => {
 					// update request props
 					const requestData = {
 						approved: true,
+						request_open: false,
 					};
 					await db
 						.collection('congregation_request')
@@ -104,6 +109,81 @@ router.put('/:id/approve', async (req, res, next) => {
 		next(err);
 	}
 });
+
+router.put(
+	'/:id/disapprove',
+	body('reason').notEmpty(),
+	async (req, res, next) => {
+		try {
+			const { id } = req.params;
+
+			if (id) {
+				const errors = validationResult(req);
+
+				if (!errors.isEmpty()) {
+					let msg = '';
+					errors.array().forEach((error) => {
+						msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+					});
+
+					res.locals.type = 'warn';
+					res.locals.message = `invalid input: ${msg}`;
+
+					res.status(400).json({
+						message: 'Bad request: provided inputs are invalid.',
+					});
+
+					return;
+				}
+
+				const request = await findCongregationRequestById(id);
+				if (request) {
+					if (!request.approved && !request.request_open) {
+						res.locals.type = 'warn';
+						res.locals.message =
+							'this congregation request was already disapproved';
+						res.status(405).json({ message: 'REQUEST_DISAPPROVED' });
+					} else {
+						// update request props
+						const requestData = {
+							approved: false,
+							request_open: false,
+						};
+						await db
+							.collection('congregation_request')
+							.doc(id)
+							.set(requestData, { merge: true });
+
+						// send email to user
+						const { reason } = req.body;
+						sendCongregationAccountDisapproved(
+							request.email,
+							request.username,
+							request.cong_name,
+							request.cong_number,
+							reason
+						);
+
+						res.locals.type = 'info';
+						res.locals.message = 'congregation request disapproved';
+						res.status(200).json({ message: 'OK' });
+					}
+				} else {
+					res.locals.type = 'warn';
+					res.locals.message =
+						'no congregation request could not be found with the provided id';
+					res.status(404).json({ message: 'REQUEST_NOT_FOUND' });
+				}
+			} else {
+				res.locals.type = 'warn';
+				res.locals.message = 'the congregation request id params is undefined';
+				res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+			}
+		} catch (err) {
+			next(err);
+		}
+	}
+);
 
 router.delete('/:id', async (req, res, next) => {
 	try {

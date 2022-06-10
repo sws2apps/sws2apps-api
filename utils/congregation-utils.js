@@ -111,7 +111,7 @@ export const getCongregationsRequests = async () => {
 	let requests = [];
 
 	snapshot.forEach((doc) => {
-		if (!doc.data().approval) {
+		if (doc.data().request_open) {
 			let obj = { id: doc.id, ...doc.data() };
 			requests.push(obj);
 		}
@@ -136,6 +136,7 @@ export const getCongregationsRequests = async () => {
 		obj.cong_role = ['admin', request.cong_role];
 		obj.approved = request.approved;
 		obj.request_date = request.request_date;
+		obj.request_open = request.request_open;
 
 		finalResult.push(obj);
 	}
