@@ -7,7 +7,11 @@ import { getFirestore } from 'firebase-admin/firestore';
 
 // utils
 import { sendUserResetPassword } from '../utils/sendEmail.js';
-import { getUsers, userAccountChecker } from '../utils/user-utils.js';
+import {
+	getUserInfo,
+	getUsers,
+	userAccountChecker,
+} from '../utils/user-utils.js';
 
 // get firestore
 const db = getFirestore(); //get default database
@@ -280,6 +284,32 @@ router.patch('/:id/make-admin', async (req, res, next) => {
 			res.locals.type = 'warn';
 			res.locals.message = 'the user id params is not defined';
 			res.status(400).json({ message: 'USER_ID_INVALID' });
+		}
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.get('/find?:search', async (req, res, next) => {
+	try {
+		const search = req.query.search;
+
+		if (search && search.length > 0) {
+			const userData = await getUserInfo(search);
+
+			if (userData) {
+				res.locals.type = 'info';
+				res.locals.message = 'user details fetched successfully';
+				res.status(200).json(userData);
+			} else {
+				res.locals.type = 'warn';
+				res.locals.message = 'user could not be found';
+				res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+			}
+		} else {
+			res.locals.type = 'warn';
+			res.locals.message = 'the search parameter is not correct';
+			res.status(400).json({ message: 'SEARCH_INVALID' });
 		}
 	} catch (err) {
 		next(err);
