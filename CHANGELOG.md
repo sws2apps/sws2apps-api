@@ -1,3 +1,10 @@
+# [3.0.0-alpha.36](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.35...v3.0.0-alpha.36) (2022-06-11)
+
+
+### Features
+
+* **admin:** new routes for congregation management ([c7676cf](https://github.com/sws2apps/sws2apps-api/commit/c7676cf300a72ad5fed6b964fd77f62e6e266002))
+
 # [3.0.0-alpha.35](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.34...v3.0.0-alpha.35) (2022-06-10)
 
 
