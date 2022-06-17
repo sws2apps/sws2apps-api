@@ -1,3 +1,10 @@
+# [3.0.0-alpha.37](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.36...v3.0.0-alpha.37) (2022-06-17)
+
+
+### Features
+
+* **deps:** bump firebase-admin from 10.3.0 to 11.0.0 ([832883c](https://github.com/sws2apps/sws2apps-api/commit/832883cc8232d2bab746a46b0c08f2c018a50afd))
+
 # [3.0.0-alpha.36](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.35...v3.0.0-alpha.36) (2022-06-11)
 
 
