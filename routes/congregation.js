@@ -11,7 +11,7 @@ import {
 	findCongregationRequestByEmail,
 	getCongregationInfo,
 } from '../utils/congregation-utils.js';
-import { encryptData } from '../utils/encryption-utils.js';
+import { decryptData, encryptData } from '../utils/encryption-utils.js';
 import { sendCongregationRequest } from '../utils/sendEmail.js';
 import { getUserInfo } from '../utils/user-utils.js';
 
@@ -95,7 +95,7 @@ router.put(
 	}
 );
 
-router.get('/:id/last-backup', async (req, res, next) => {
+router.get('/:id/backup/last', async (req, res, next) => {
 	try {
 		const { id } = req.params;
 
@@ -131,8 +131,8 @@ router.get('/:id/last-backup', async (req, res, next) => {
 	}
 });
 
-router.patch(
-	'/:id/send-backup',
+router.post(
+	'/:id/backup',
 	body('cong_persons').isArray(),
 	body('cong_schedule').isArray(),
 	body('cong_sourceMaterial').isArray(),
@@ -203,5 +203,62 @@ router.patch(
 		}
 	}
 );
+
+router.get('/:id/backup', async (req, res, next) => {
+	try {
+		const { id } = req.params;
+
+		if (id) {
+			const cong = await getCongregationInfo(id);
+			if (cong) {
+				const errors = validationResult(req);
+
+				if (!errors.isEmpty()) {
+					let msg = '';
+					errors.array().forEach((error) => {
+						msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+					});
+
+					res.locals.type = 'warn';
+					res.locals.message = `invalid input: ${msg}`;
+
+					res.status(400).json({
+						message: 'Bad request: provided inputs are invalid.',
+					});
+
+					return;
+				}
+
+				const { cong_persons, cong_schedule_draft, cong_sourceMaterial_draft } =
+					cong;
+
+				// decrypt cong_persons data
+				const decryptedPersons = JSON.parse(decryptData(cong_persons));
+
+				const obj = {
+					cong_persons: decryptedPersons,
+					cong_schedule: cong_schedule_draft,
+					cong_sourceMaterial: cong_sourceMaterial_draft,
+				};
+
+				res.locals.type = 'info';
+				res.locals.message =
+					'user retrieve backup for congregation successfully';
+				res.status(200).json(obj);
+			} else {
+				res.locals.type = 'warn';
+				res.locals.message =
+					'no congregation could not be found with the provided id';
+				res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			}
+		} else {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation request id params is undefined';
+			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		}
+	} catch (err) {
+		next(err);
+	}
+});
 
 export default router;
