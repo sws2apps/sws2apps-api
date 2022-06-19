@@ -1,3 +1,15 @@
+# [3.0.0-alpha.38](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.37...v3.0.0-alpha.38) (2022-06-19)
+
+
+### Bug Fixes
+
+* **congregation:** add retrieve backup from lmm-oa app ([460a011](https://github.com/sws2apps/sws2apps-api/commit/460a0113837e55f581863384f32c384763cb728f))
+
+
+### Features
+
+* **congregation:** send and retrieve lmm-oa backup from app ([e84c148](https://github.com/sws2apps/sws2apps-api/commit/e84c1480ccedb381938b8082293d9591f9301c27))
+
 # [3.0.0-alpha.37](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.36...v3.0.0-alpha.37) (2022-06-17)
 
 
