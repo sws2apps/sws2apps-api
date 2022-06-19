@@ -51,10 +51,8 @@ export const getUsers = async () => {
 		obj.cong_name = '';
 		obj.cong_number = '';
 
-		if (user.cong_id.toString().length > 0) {
-			const congRef = db
-				.collection('congregations')
-				.doc(user.cong_id.toString());
+		if (user.cong_id.length > 0) {
+			const congRef = db.collection('congregations').doc(user.cong_id);
 			const docSnap = await congRef.get();
 			const cong_name = docSnap.data().cong_name || '';
 			const cong_number = docSnap.data().cong_number || '';
