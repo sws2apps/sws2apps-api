@@ -1,18 +1,17 @@
 // dependencies
 import express from 'express';
-import bcrypt from 'bcrypt';
-import Cryptr from 'cryptr';
-import crypto from 'crypto';
 import { body, validationResult } from 'express-validator';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // middleware import
-import { authChecker } from '../middleware/auth-checker.js';
 import { visitorChecker } from '../middleware/visitor-checker.js';
-import { congregationAuthChecker } from '../middleware/congregation-auth-checker.js';
 
 // utils
-import { findCongregationRequestByEmail } from '../utils/congregation-utils.js';
+import {
+	findCongregationRequestByEmail,
+	getCongregationInfo,
+} from '../utils/congregation-utils.js';
+import { encryptData } from '../utils/encryption-utils.js';
 import { sendCongregationRequest } from '../utils/sendEmail.js';
 import { getUserInfo } from '../utils/user-utils.js';
 
@@ -24,7 +23,7 @@ const router = express.Router();
 router.use(visitorChecker());
 
 router.put(
-	'/request',
+	'/',
 	body('email').isEmail(),
 	body('cong_name').notEmpty(),
 	body('cong_number').isNumeric(),
@@ -96,322 +95,113 @@ router.put(
 	}
 );
 
-router.use(authChecker());
-router.use(congregationAuthChecker());
-
-router.post('/signin', async (req, res, next) => {
+router.get('/:id/last-backup', async (req, res, next) => {
 	try {
-		// should be valid after middleware
-		res.locals.type = 'info';
-		res.locals.message = 'user successfully logged into congregation';
-		res.status(200).json({ message: 'OK' });
+		const { id } = req.params;
+
+		if (id) {
+			const cong = await getCongregationInfo(id);
+			if (cong) {
+				if (cong.last_backup) {
+					res.locals.type = 'info';
+					res.locals.message =
+						'user get the latest backup info for the congregation';
+					res.status(200).json(cong.last_backup);
+				} else {
+					res.locals.type = 'info';
+					res.locals.message =
+						'no backup has been made yet for the congregation';
+					res.status(200).json({ message: 'NO_BACKUP' });
+				}
+				return;
+			}
+
+			res.locals.type = 'warn';
+			res.locals.message =
+				'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation id params is undefined';
+		res.status(400).json({ message: 'CONG_ID_INVALID' });
 	} catch (err) {
 		next(err);
 	}
 });
 
-router.post(
-	'/change-password',
-	body('cong_password_new').isLength({ min: 8 }),
+router.patch(
+	'/:id/send-backup',
+	body('cong_persons').isArray(),
+	body('cong_schedule').isArray(),
+	body('cong_sourceMaterial').isArray(),
 	async (req, res, next) => {
 		try {
-			const errors = validationResult(req);
+			const { id } = req.params;
+			const { email } = req.headers;
 
-			if (!errors.isEmpty()) {
-				let msg = '';
-				errors.array().forEach((error) => {
-					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-				});
+			if (id) {
+				const cong = await getCongregationInfo(id);
+				if (cong) {
+					const errors = validationResult(req);
 
-				res.locals.type = 'warn';
-				res.locals.message = `invalid input: ${msg}`;
+					if (!errors.isEmpty()) {
+						let msg = '';
+						errors.array().forEach((error) => {
+							msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+						});
 
-				res.status(400).json({ message: 'INPUT_INVALID' });
+						res.locals.type = 'warn';
+						res.locals.message = `invalid input: ${msg}`;
 
-				return;
-			}
+						res.status(400).json({
+							message: 'Bad request: provided inputs are invalid.',
+						});
 
-			// should be valid after middleware check
-			const congID = req.body.cong_id;
-			const congPasswordNew = req.body.cong_password_new;
-			const congName = req.body.cong_name;
-			const congNumber = req.body.cong_number;
-
-			const saltRounds = +process.env.SALT_ROUNDS;
-			bcrypt.genSalt(saltRounds, (err, salt) => {
-				bcrypt.hash(congPasswordNew, salt, async (err, hash) => {
-					// valid and update VIP and pocket users
-
-					let vipNewUsers = [];
-					let vipUsers = res.locals.vipUsers;
-					const myKey = congID + '&sws2apps_' + congPasswordNew;
-					const cryptr = new Cryptr(myKey);
-
-					for (let i = 0; i < vipUsers.length; i++) {
-						const encryptedData = cryptr.encrypt(vipUsers[i]);
-						vipNewUsers.push(encryptedData);
+						return;
 					}
 
+					const { cong_persons, cong_schedule, cong_sourceMaterial } = req.body;
+
+					// encrypt cong_persons data
+					const encryptedPersons = encryptData(cong_persons);
+
+					const userInfo = await getUserInfo(email);
+
 					const data = {
-						congName: congName,
-						congNumber: congNumber,
-						congPassword: hash,
-						pocketUsers: [],
-						vipUsers: vipNewUsers,
+						cong_persons: encryptedPersons,
+						cong_schedule_draft: cong_schedule,
+						cong_sourceMaterial_draft: cong_sourceMaterial,
+						last_backup: {
+							by: userInfo.id,
+							date: new Date(),
+						},
 					};
+
 					await db
-						.collection('congregation_data')
-						.doc(congID.toString())
+						.collection('congregations')
+						.doc(id)
 						.set(data, { merge: true });
+
 					res.locals.type = 'info';
+					res.locals.message = 'user send backup for congregation successfully';
+					res.status(200).json({ message: 'BACKUP_SENT' });
+				} else {
+					res.locals.type = 'warn';
 					res.locals.message =
-						'congregation password has been changed successfully';
-					res.status(200).json({ message: 'OK' });
-				});
-			});
+						'no congregation could not be found with the provided id';
+					res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+				}
+			} else {
+				res.locals.type = 'warn';
+				res.locals.message = 'the congregation request id params is undefined';
+				res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+			}
 		} catch (err) {
 			next(err);
 		}
 	}
 );
-
-router.post('/pocket-generate-pin', async (req, res, next) => {
-	try {
-		// should be a valid request and generate user PIN
-		const congID = req.body.cong_id;
-		const congRef = db.collection('congregation_data').doc(congID.toString());
-		const docSnap = await congRef.get();
-		const pocketUsers = docSnap.data().pocketUsers || [];
-
-		let setPIN = false;
-		let num;
-
-		do {
-			const min = 100000;
-			const max = 1000000;
-
-			num = crypto.randomInt(min, max);
-
-			const pinIndex = pocketUsers.findIndex((pocket) => pocket.PIN === num);
-			if (pinIndex === -1) {
-				setPIN = true;
-			}
-		} while (setPIN === false);
-
-		res.locals.type = 'info';
-		res.locals.message = `user PIN generated successfully`;
-		res.status(200).json({ message: num });
-	} catch (err) {
-		next(err);
-	}
-});
-
-router.post('/pocket-edit-user', async (req, res, next) => {
-	try {
-		// check needed content outside middleware
-		const {
-			cong_id,
-			user_pin,
-			user_pinPrev,
-			user_members,
-			pocket_type,
-			app_client,
-		} = req.body;
-		const userPIN = +user_pin;
-
-		if (
-			userPIN > 0 &&
-			app_client === 'lmmoa' &&
-			(pocket_type === 'new' ||
-				pocket_type === 'update' ||
-				pocket_type === 'update-pin' ||
-				pocket_type === 'link')
-		) {
-			const userMembers = Array(user_members) ? user_members : [];
-			const congID = cong_id;
-			const congRef = db.collection('congregation_data').doc(congID.toString());
-			const docSnap = await congRef.get();
-			let pocketUsers = docSnap.data().pocketUsers || [];
-
-			// finding PIN index
-			let pocketIndex = pocketUsers.findIndex(
-				(pocket) => pocket.PIN === userPIN
-			);
-
-			if (pocket_type === 'new') {
-				if (pocketIndex === -1) {
-					let obj = {};
-					obj.PIN = userPIN;
-					obj[app_client] = userMembers;
-					pocketUsers.push(obj);
-
-					const data = {
-						pocketUsers: pocketUsers,
-					};
-
-					await db
-						.collection('congregation_data')
-						.doc(congID.toString())
-						.set(data, { merge: true });
-
-					res.locals.type = 'info';
-					res.locals.message = `sws pocket user added successfully to congregation`;
-					res.status(200).json({ message: 'OK' });
-				} else {
-					res.locals.type = 'warn';
-					res.locals.message = `pin already used by another member`;
-					res.status(403).json({ message: 'PIN_IN_USE' });
-				}
-			} else {
-				if (pocketIndex === -1 && pocket_type !== 'update-pin') {
-					res.locals.type = 'warn';
-					res.locals.message = `pin could not be found`;
-					res.status(403).json({ message: 'NOT_FOUND' });
-				} else {
-					// removing old PIN
-					const previousPIN = +user_pinPrev || userPIN;
-					const prevIndex = pocketUsers.findIndex(
-						(pocket) => pocket.PIN === previousPIN
-					);
-
-					if (prevIndex > -1) {
-						pocketUsers.splice(prevIndex, 1);
-					}
-
-					let obj = {};
-					obj.PIN = userPIN;
-					obj[app_client] = userMembers;
-					pocketUsers.push(obj);
-
-					const data = {
-						pocketUsers: pocketUsers,
-					};
-
-					await db
-						.collection('congregation_data')
-						.doc(congID.toString())
-						.set(data, { merge: true });
-
-					if (pocket_type === 'update' || pocket_type === 'update-pin') {
-						res.locals.type = 'info';
-						res.locals.message = `sws pocket user successfully updated`;
-						res.status(200).json({ message: 'OK' });
-					} else if (pocket_type === 'link') {
-						res.locals.type = 'info';
-						res.locals.message = `sws pocket user successfully updated and linked to an existing pin`;
-						res.status(200).json({ message: 'OK' });
-					}
-				}
-			}
-		} else {
-			res.locals.type = 'warn';
-			res.locals.message = `input invalid that prevents adding sws pocket user`;
-
-			res.status(400).json({ message: 'INPUT_INVALID' });
-		}
-	} catch (err) {
-		next(err);
-	}
-});
-
-router.post('/pocket-remove-user', async (req, res, next) => {
-	try {
-		// check needed content outside middleware
-		const { cong_id, user_pin, app_client } = req.body;
-		const userPIN = +user_pin;
-
-		if (userPIN > 0 && app_client === 'lmmoa') {
-			const congID = cong_id;
-			const congRef = db.collection('congregation_data').doc(congID.toString());
-			const docSnap = await congRef.get();
-			let pocketUsers = docSnap.data().pocketUsers || [];
-
-			const pocketIndex = pocketUsers.findIndex(
-				(pocket) => pocket.PIN === userPIN
-			);
-
-			if (pocketIndex === -1) {
-				res.locals.type = 'warn';
-				res.locals.message = `user pin could not be found`;
-				res.status(200).json({ message: 'OK' });
-			} else {
-				pocketUsers.splice(pocketIndex, 1);
-				const data = {
-					pocketUsers: pocketUsers,
-				};
-
-				await db
-					.collection('congregation_data')
-					.doc(congID.toString())
-					.set(data, { merge: true });
-
-				res.locals.type = 'info';
-				res.locals.message = `user removed from sws pocket`;
-				res.status(200).json({ message: 'OK' });
-			}
-		} else {
-			res.locals.type = 'warn';
-			res.locals.message = `input invalid that prevents removing sws pocket user`;
-
-			res.status(400).json({ message: 'INPUT_INVALID' });
-		}
-	} catch (err) {
-		next(err);
-	}
-});
-
-router.post('/pocket-send-schedule', async (req, res, next) => {
-	try {
-		// check needed content outside middleware
-		const { cong_id, cong_password, pocket_data, pocket_schedule } = req.body;
-
-		if (pocket_data && pocket_schedule) {
-			const congID = cong_id;
-			const congPassword = cong_password;
-
-			const myKey = congID + '&sws2apps';
-			const cryptr = new Cryptr(myKey);
-			const encryptedData = cryptr.encrypt(pocket_data);
-
-			const congRef = db.collection('congregation_data').doc(congID.toString());
-			const docSnap = await congRef.get();
-			let lmmoaPocket = docSnap.data().lmmoaPocket || [];
-
-			const prevIndex = lmmoaPocket.findIndex(
-				(lmmoa) => lmmoa.schedule === pocket_schedule
-			);
-
-			if (prevIndex > -1) {
-				lmmoaPocket.splice(prevIndex, 1);
-			}
-
-			const obj = {};
-			obj.schedule = pocket_schedule;
-			obj.data = encryptedData;
-
-			lmmoaPocket.push(obj);
-
-			const data = {
-				lmmoaPocket: lmmoaPocket,
-			};
-
-			await db
-				.collection('congregation_data')
-				.doc(congID.toString())
-				.set(data, { merge: true });
-
-			res.locals.type = 'info';
-			res.locals.message = `schedule published successfully to sws pocket`;
-			res.status(200).json({ message: 'OK' });
-		} else {
-			res.locals.type = 'warn';
-			res.locals.message = `input invalid that prevents publishing the schedule`;
-
-			res.status(400).json({ message: 'INPUT_INVALID' });
-		}
-	} catch (err) {
-		next(err);
-	}
-});
 
 export default router;

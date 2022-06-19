@@ -63,7 +63,7 @@ router.put('/:id/approve', async (req, res, next) => {
 						cong_name: request.cong_name,
 						cong_number: request.cong_number,
 					};
-					const cong = await db.collection('congregation_data').add(congData);
+					const cong = await db.collection('congregations').add(congData);
 
 					// update requestor info
 					const userData = {
@@ -201,7 +201,7 @@ router.delete('/:id', async (req, res, next) => {
 					res.status(405).json({ message: 'CONG_ACTIVE' });
 				} else {
 					// remove from firestore
-					await db.collection('congregation_data').doc(id).delete();
+					await db.collection('congregations').doc(id).delete();
 
 					res.locals.type = 'info';
 					res.locals.message = 'congregation deleted';
@@ -449,72 +449,6 @@ router.patch(
 						res.locals.message = 'user could not be found';
 						res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
 					}
-				} else {
-					res.locals.type = 'warn';
-					res.locals.message =
-						'no congregation could not be found with the provided id';
-					res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-				}
-			} else {
-				res.locals.type = 'warn';
-				res.locals.message = 'the congregation request id params is undefined';
-				res.status(400).json({ message: 'REQUEST_ID_INVALID' });
-			}
-		} catch (err) {
-			next(err);
-		}
-	}
-);
-
-router.patch(
-	'/:id/send-backup',
-	body('cong_persons').isArray(),
-	body('cong_schedule').isArray(),
-	body('cong_sourceMaterial').isArray(),
-	async (req, res, next) => {
-		try {
-			const { id } = req.params;
-
-			if (id) {
-				const cong = await getCongregationInfo(id);
-				if (cong) {
-					const errors = validationResult(req);
-
-					if (!errors.isEmpty()) {
-						let msg = '';
-						errors.array().forEach((error) => {
-							msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-						});
-
-						res.locals.type = 'warn';
-						res.locals.message = `invalid input: ${msg}`;
-
-						res.status(400).json({
-							message: 'Bad request: provided inputs are invalid.',
-						});
-
-						return;
-					}
-
-					const { cong_persons, cong_schedule, cong_sourceMaterial } = req.body;
-
-					// encrypt cong_persons data
-					const encryptedPersons = encryptData(cong_persons);
-
-					const data = {
-						cong_persons: encryptedPersons,
-						cong_schedule_draft: cong_schedule,
-						cong_sourceMaterial_draft: cong_sourceMaterial,
-					};
-
-					await db
-						.collection('congregations')
-						.doc(id)
-						.set(data, { merge: true });
-
-					res.locals.type = 'info';
-					res.locals.message = 'user send backup for congregation successfully';
-					res.status(200).json({ message: 'BACKUP_SENT' });
 				} else {
 					res.locals.type = 'warn';
 					res.locals.message =

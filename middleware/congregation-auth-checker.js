@@ -50,7 +50,7 @@ export const congregationAuthChecker = () => {
 						const congNumber = req.body.cong_number;
 
 						const congRef = db
-							.collection('congregation_data')
+							.collection('congregations')
 							.doc(congID.toString());
 						const docSnap = await congRef.get();
 
@@ -82,7 +82,7 @@ export const congregationAuthChecker = () => {
 											congNumber: congNumber,
 										};
 										await db
-											.collection('congregation_data')
+											.collection('congregations')
 											.doc(congID.toString())
 											.set(data, { merge: true });
 

@@ -41,8 +41,15 @@ router.post(
 
 		const { token } = req.body;
 
-		const { id, sessions, username, cong_name, cong_number, cong_role } =
-			res.locals.currentUser;
+		const {
+			id,
+			sessions,
+			username,
+			cong_name,
+			cong_number,
+			cong_role,
+			cong_id,
+		} = res.locals.currentUser;
 
 		try {
 			// Retrieve user from database
@@ -88,11 +95,10 @@ router.post(
 				let obj = {};
 				obj.message = 'TOKEN_VALID';
 				obj.username = username;
-				obj.congregation = {
-					cong_name: cong_name,
-					cong_number: cong_number,
-					cong_role: cong_role,
-				};
+				obj.cong_name = cong_name;
+				obj.cong_number = cong_number;
+				obj.cong_role = cong_role;
+				obj.cong_id = cong_id;
 
 				res.locals.type = 'info';
 				res.locals.message = 'OTP token verification success';

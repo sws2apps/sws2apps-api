@@ -20,7 +20,7 @@ export const getUsers = async () => {
 		obj.global_role = doc.data().about.role;
 		obj.mfaEnabled = doc.data().about.mfaEnabled;
 		obj.cong_id = doc.data().congregation?.id || '';
-		obj.cong_role = doc.data().congregation?.role || '';
+		obj.cong_role = doc.data().congregation?.role || [];
 		obj.pocket_disabled = doc.data().about.pocket_disabled || false;
 		tmpUsers.push(obj);
 	});
@@ -53,7 +53,7 @@ export const getUsers = async () => {
 
 		if (user.cong_id.toString().length > 0) {
 			const congRef = db
-				.collection('congregation_data')
+				.collection('congregations')
 				.doc(user.cong_id.toString());
 			const docSnap = await congRef.get();
 			const cong_name = docSnap.data().cong_name || '';

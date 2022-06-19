@@ -15,7 +15,7 @@ export const pocketAuthChecker = () => {
 			let statusMsg;
 
 			if (congID && congNum && userPIN) {
-				const congRef = db.collection('congregation_data').doc(congID);
+				const congRef = db.collection('congregations').doc(congID);
 				const docSnap = await congRef.get();
 
 				if (docSnap.exists) {

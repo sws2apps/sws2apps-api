@@ -107,10 +107,12 @@ router.use(visitorChecker());
 router.get('/validate-me', async (req, res, next) => {
 	try {
 		const { email } = req.headers;
-		const { cong_name, cong_number, cong_role } = await getUserInfo(email);
+		const { cong_id, cong_name, cong_number, cong_role } = await getUserInfo(
+			email
+		);
 
 		if (cong_name.length > 0) {
-			let obj = { cong_name, cong_number, cong_role };
+			let obj = { cong_id, cong_name, cong_number, cong_role };
 
 			res.locals.type = 'info';
 			res.locals.message = 'visitor id has been validated';
@@ -120,7 +122,7 @@ router.get('/validate-me', async (req, res, next) => {
 			res.locals.type = 'warn';
 			res.locals.message = 'email address not associated with a congregation';
 
-			res.status(403).json({ message: 'CONG_NOT_FOUND' });
+			res.status(404).json({ message: 'CONG_NOT_FOUND' });
 		}
 	} catch (err) {
 		next(err);
