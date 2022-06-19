@@ -10,6 +10,7 @@ import {
 	getCongregations,
 	getCongregationsRequests,
 } from '../utils/congregation-utils.js';
+import { encryptData } from '../utils/encryption-utils.js';
 import {
 	sendCongregationAccountCreated,
 	sendCongregationAccountDisapproved,
@@ -62,7 +63,7 @@ router.put('/:id/approve', async (req, res, next) => {
 						cong_name: request.cong_name,
 						cong_number: request.cong_number,
 					};
-					const cong = await db.collection('congregation_data').add(congData);
+					const cong = await db.collection('congregations').add(congData);
 
 					// update requestor info
 					const userData = {
@@ -200,7 +201,7 @@ router.delete('/:id', async (req, res, next) => {
 					res.status(405).json({ message: 'CONG_ACTIVE' });
 				} else {
 					// remove from firestore
-					await db.collection('congregation_data').doc(id).delete();
+					await db.collection('congregations').doc(id).delete();
 
 					res.locals.type = 'info';
 					res.locals.message = 'congregation deleted';

@@ -13,70 +13,61 @@ export const requestChecker = () => {
 			);
 
 			if (reqTrackRef) {
-				const { reqInProgress, retryOn, failedLoginAttempt } = reqTrackRef;
+				const { retryOn, failedLoginAttempt } = reqTrackRef;
 
 				const ipIndex = requestTracker.findIndex(
 					(client) => client.ip === clientIp
 				);
 
-				if (reqInProgress) {
-					res.locals.type = 'warn';
-					res.locals.message =
-						'concurrent request from the same IP address blocked';
-					res.status(403).json({ message: 'WAIT_FOR_REQUEST' });
-				} else {
-					if (retryOn !== '') {
-						const currentDate = new Date().getTime();
-						if (currentDate < retryOn) {
-							res.locals.type = 'warn';
-							res.locals.message =
-								'login from this IP address has been blocked temporarily due to many failed attempts';
-							res
-								.status(403)
-								.json({ message: 'BLOCKED_TEMPORARILY_TRY_AGAIN' });
-						} else {
-							requestTracker.splice(ipIndex, 1);
-							next();
-						}
+				if (retryOn !== '') {
+					const currentDate = new Date().getTime();
+					if (currentDate < retryOn) {
+						res.locals.type = 'warn';
+						res.locals.message =
+							'login from this IP address has been blocked temporarily due to many failed attempts';
+						res.status(403).json({ message: 'BLOCKED_TEMPORARILY_TRY_AGAIN' });
 					} else {
-						if (failedLoginAttempt === 3) {
-							res.locals.type = 'warn';
-							res.locals.message =
-								'login from this IP address has been blocked temporarily due to many failed attempts';
-							res.status(403).json({ message: 'BLOCKED_TEMPORARILY' });
+						requestTracker.splice(ipIndex, 1);
+						next();
+					}
+				} else {
+					if (failedLoginAttempt === 3) {
+						res.locals.type = 'warn';
+						res.locals.message =
+							'login from this IP address has been blocked temporarily due to many failed attempts';
+						res.status(403).json({ message: 'BLOCKED_TEMPORARILY' });
 
-							res.on('finish', async () => {
-								const currentD = new Date();
-								const retryDate = currentD.getTime() + 15 * 60000;
+						res.on('finish', async () => {
+							const currentD = new Date();
+							const retryDate = currentD.getTime() + 15 * 60000;
 
-								const ipIndex = requestTracker.findIndex(
-									(client) => client.ip === clientIp
-								);
+							const ipIndex = requestTracker.findIndex(
+								(client) => client.ip === clientIp
+							);
 
-								requestTracker.splice(ipIndex, 1);
-
-								let obj = {};
-								obj.ip = clientIp;
-								obj.city = reqCity;
-								obj.reqInProgress = false;
-								obj.failedLoginAttempt = 3;
-								obj.retryOn = retryDate;
-
-								requestTracker.push(obj);
-							});
-						} else {
 							requestTracker.splice(ipIndex, 1);
 
 							let obj = {};
 							obj.ip = clientIp;
 							obj.city = reqCity;
-							obj.reqInProgress = true;
-							obj.failedLoginAttempt = failedLoginAttempt;
-							obj.retryOn = '';
+							obj.reqInProgress = false;
+							obj.failedLoginAttempt = 3;
+							obj.retryOn = retryDate;
 
 							requestTracker.push(obj);
-							next();
-						}
+						});
+					} else {
+						requestTracker.splice(ipIndex, 1);
+
+						let obj = {};
+						obj.ip = clientIp;
+						obj.city = reqCity;
+						obj.reqInProgress = true;
+						obj.failedLoginAttempt = failedLoginAttempt;
+						obj.retryOn = '';
+
+						requestTracker.push(obj);
+						next();
 					}
 				}
 			} else {

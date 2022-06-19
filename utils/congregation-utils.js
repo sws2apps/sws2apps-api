@@ -3,13 +3,13 @@ import crypto from 'crypto';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // utils
-import { getUserInfo, getUsers } from './user-utils.js';
+import { findUserById, getUserInfo, getUsers } from './user-utils.js';
 
 // get firestore
 const db = getFirestore(); //get default database
 
 export const getCongregations = async () => {
-	const congRef = db.collection('congregation_data');
+	const congRef = db.collection('congregations');
 	let snapshot = await congRef.get();
 
 	let congsList = [];
@@ -19,6 +19,7 @@ export const getCongregations = async () => {
 		obj.cong_id = doc.id;
 		obj.cong_name = doc.data().cong_name;
 		obj.cong_number = doc.data().cong_number;
+		obj.last_backup = doc.data().last_backup;
 		congsList.push(obj);
 	});
 
@@ -42,6 +43,18 @@ export const getCongregations = async () => {
 					global_role: usersList[a].global_role,
 				});
 			}
+		}
+
+		if (congsList[i].last_backup) {
+			obj.last_backup = {};
+
+			const fDate = Date.parse(
+				congsList[i].last_backup.date.toDate().toString()
+			);
+			obj.last_backup.date = fDate;
+
+			const user = await findUserById(congsList[i].last_backup.by);
+			obj.last_backup.by = user.username;
 		}
 
 		finalResult.push({ ...congsList[i], ...obj });
@@ -94,7 +107,7 @@ export const generateCongregationID = async () => {
 
 		num = crypto.randomInt(min, max);
 
-		const congRef = db.collection('congregation_data').doc(num.toString());
+		const congRef = db.collection('congregations').doc(num.toString());
 		const docSnap = await congRef.get();
 
 		if (!docSnap.exists) {
