@@ -94,6 +94,7 @@ router.post(
 				// init response object
 				let obj = {};
 				obj.message = 'TOKEN_VALID';
+				obj.id = id;
 				obj.username = username;
 				obj.cong_name = cong_name;
 				obj.cong_number = cong_number;

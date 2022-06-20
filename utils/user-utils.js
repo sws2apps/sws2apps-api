@@ -141,3 +141,50 @@ export const userAccountChecker = async (id) => {
 		return err;
 	}
 };
+
+export const getUserActiveSessions = async (userID) => {
+	const userDoc = db.collection('users').doc(userID);
+	const userSnap = await userDoc.get();
+
+	// remove expired sessions
+	if (userSnap.exists) {
+		let sessions = userSnap.data().about.sessions || [];
+
+		const result = sessions.map((session) => {
+			let obj = {
+				visitor_id: session.visitor_id,
+				ip: session.visitor_details.ip,
+				country_name: session.visitor_details.ipLocation.country.name,
+				device: {
+					browserName: session.visitor_details.browserDetails.browserName,
+					os: session.visitor_details.browserDetails.os,
+					osVersion: session.visitor_details.browserDetails.osVersion,
+				},
+				last_seen: session.visitor_details.lastSeenAt.global,
+			};
+
+			return obj;
+		});
+
+		return result;
+	} else {
+		return [];
+	}
+};
+
+export const revokeSessions = async (userID, visitorID) => {
+	const userDoc = db.collection('users').doc(userID);
+	const userSnap = await userDoc.get();
+
+	if (userSnap.exists) {
+		const sessions = userSnap.data().about.sessions || [];
+		const newSessions = sessions.filter(
+			(session) => session.visitor_id !== visitorID
+		);
+
+		await db
+			.collection('users')
+			.doc(userID)
+			.update({ 'about.sessions': newSessions });
+	}
+};
