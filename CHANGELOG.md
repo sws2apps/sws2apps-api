@@ -1,3 +1,10 @@
+# [3.0.0-alpha.40](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.39...v3.0.0-alpha.40) (2022-06-20)
+
+
+### Features
+
+* **users:** add routes to manage user account profile from lmm-oa app ([83a55fd](https://github.com/sws2apps/sws2apps-api/commit/83a55fd17d0953ec52ff55bb3a7d65ab59275de8))
+
 # [3.0.0-alpha.39](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.38...v3.0.0-alpha.39) (2022-06-20)
 
 
