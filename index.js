@@ -5,11 +5,11 @@ import 'dotenv/config';
 import app from './routes/app.js';
 
 // load utils
-import { appVersion } from './utils/server.js';
 import { logger } from './utils/logger.js';
 
-const port = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8000;
+const APP_VERSION = process.env.npm_package_version;
 
-app.listen(port, () => {
-	logger('info', `server up and running (v${appVersion})`);
+app.listen(PORT, () => {
+	logger('info', `server up and running (v${APP_VERSION})`);
 });
