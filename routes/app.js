@@ -13,8 +13,7 @@ import '../config/firebase-config.js';
 // route import
 import authRoute from './auth.js';
 import congregationRoute from './congregation.js';
-import swsPocketRoute from './sws-pocket.js';
-import userRoute from './user.js';
+import userRoute from './users.js';
 import adminRoute from './admin.js';
 import mfaRoute from './mfa.js';
 
@@ -23,8 +22,13 @@ import { internetChecker } from '../middleware/internet-checker.js';
 import { requestChecker } from '../middleware/request-checker.js';
 import { updateTracker } from '../middleware/update-tracker.js';
 
-// load utils
-import { appVersion } from '../utils/server.js';
+// import controller
+import {
+	errorHandler,
+	getAppVersion,
+	getRoot,
+	invalidEndpointHandler,
+} from '../controllers/app-controller.js';
 
 // allowed apps url
 var whitelist = [
@@ -91,58 +95,19 @@ app.use(
 
 app.use('/', authRoute);
 app.use('/api/congregations', congregationRoute);
-app.use('/api/sws-pocket', swsPocketRoute);
 app.use('/api/mfa', mfaRoute);
 app.use('/api/users', userRoute);
 app.use('/api/admin', adminRoute);
 
-app.get('/', async (req, res, next) => {
-	try {
-		res.locals.type = 'info';
-		res.locals.message = 'success opening main route';
-		res.status(200).json({ message: `SWS Apps API services v${appVersion}` });
-	} catch (err) {
-		next(err);
-	}
-});
+app.get('/', getRoot);
 
-app.get('/app-version', async (req, res, next) => {
-	try {
-		res.locals.type = 'info';
-		res.locals.message = 'json output for shields.io generated';
-		res.status(200).json({
-			schemaVersion: 1,
-			label: 'version',
-			message: appVersion,
-			color: 'blue',
-		});
-	} catch (err) {
-		next(err);
-	}
-});
+// get app version for shields.io
+app.get('/app-version', getAppVersion);
 
 // Handling invalid routes
-app.use((req, res) => {
-	res.locals.type = 'warn';
-	res.locals.message = 'invalid endpoint';
-	res.status(404).json({ message: 'INVALID_ENDPOINT' });
-});
+app.use(invalidEndpointHandler);
 
 // Handling error for all requests
-app.use((error, req, res, next) => {
-	res.locals.type = 'warn';
-	res.locals.message = `an error occured: ${error.stack || error}`;
-	if (error.errorInfo?.code === 'auth/email-already-exists') {
-		res.status(403).json({
-			message: 'ACCOUNT_IN_USE',
-		});
-	} else if (error.errorInfo?.code === 'auth/user-not-found') {
-		res.status(403).json({
-			message: 'USER_NOT_FOUND',
-		});
-	} else {
-		res.status(500).json({ message: 'INTERNAL_ERROR' });
-	}
-});
+app.use(errorHandler);
 
 export default app;
