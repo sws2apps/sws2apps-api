@@ -148,37 +148,30 @@ export const updateUserFullname = async (req, res, next) => {
 		const { id } = req.params;
 
 		if (id) {
-			const user = await findUserById(id);
-			if (user) {
-				const errors = validationResult(req);
+			const errors = validationResult(req);
 
-				if (!errors.isEmpty()) {
-					let msg = '';
-					errors.array().forEach((error) => {
-						msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-					});
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
 
-					res.locals.type = 'warn';
-					res.locals.message = `invalid input: ${msg}`;
-
-					res.status(400).json({
-						message: 'Bad request: provided inputs are invalid.',
-					});
-
-					return;
-				}
-
-				const { fullname } = req.body;
-				await db.collection('users').doc(id).update({ 'about.name': fullname });
-
-				res.locals.type = 'info';
-				res.locals.message = `the user fullname has been updated successfully`;
-				res.status(200).json({ fullname });
-			} else {
 				res.locals.type = 'warn';
-				res.locals.message = `the user could not be found`;
-				res.status(404).json({ message: 'USER_NOT_FOUND' });
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
 			}
+
+			const { fullname } = req.body;
+			await db.collection('users').doc(id).update({ 'about.name': fullname });
+
+			res.locals.type = 'info';
+			res.locals.message = `the user fullname has been updated successfully`;
+			res.status(200).json({ fullname });
 		} else {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: user id is required`;
@@ -195,38 +188,33 @@ export const updateUserPassword = async (req, res, next) => {
 
 		if (id) {
 			const user = await findUserById(id);
-			if (user) {
-				const errors = validationResult(req);
 
-				if (!errors.isEmpty()) {
-					let msg = '';
-					errors.array().forEach((error) => {
-						msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-					});
+			const errors = validationResult(req);
 
-					res.locals.type = 'warn';
-					res.locals.message = `invalid input: ${msg}`;
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
 
-					res.status(400).json({
-						message: 'Bad request: provided inputs are invalid.',
-					});
-
-					return;
-				}
-
-				const { password } = req.body;
-				const { auth_uid } = user;
-
-				await getAuth().updateUser(auth_uid, { password: password });
-
-				res.locals.type = 'info';
-				res.locals.message = `the user password has been updated successfully`;
-				res.status(200).json({ message: 'OK' });
-			} else {
 				res.locals.type = 'warn';
-				res.locals.message = `the user could not be found`;
-				res.status(404).json({ message: 'USER_NOT_FOUND' });
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
 			}
+
+			const { password } = req.body;
+			const { auth_uid } = user;
+
+			await getAuth().updateUser(auth_uid, { password: password });
+
+			res.locals.type = 'info';
+			res.locals.message = `the user password has been updated successfully`;
+			res.status(200).json({ message: 'OK' });
 		} else {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: user id is required`;
@@ -242,32 +230,25 @@ export const getUserSecretToken = async (req, res, next) => {
 		const { id } = req.params;
 
 		if (id) {
-			const user = await findUserById(id);
-			if (user) {
-				// Retrieve user from database
-				const userRef = db.collection('users').doc(id);
-				const userSnap = await userRef.get();
+			// Retrieve user from database
+			const userRef = db.collection('users').doc(id);
+			const userSnap = await userRef.get();
 
-				// get encrypted token
-				const encryptedData = userSnap.data().about.secret;
+			// get encrypted token
+			const encryptedData = userSnap.data().about.secret;
 
-				// decrypt token
-				const decryptedData = decryptData(encryptedData);
+			// decrypt token
+			const decryptedData = decryptData(encryptedData);
 
-				// get uri and qr
-				const { secret, uri } = JSON.parse(decryptedData);
+			// get uri and qr
+			const { secret, uri } = JSON.parse(decryptedData);
 
-				res.locals.type = 'info';
-				res.locals.message = `the user has fetched 2fa successfully`;
-				res.status(200).json({
-					secret: secret,
-					qrCode: uri,
-				});
-			} else {
-				res.locals.type = 'warn';
-				res.locals.message = `the user could not be found`;
-				res.status(404).json({ message: 'USER_NOT_FOUND' });
-			}
+			res.locals.type = 'info';
+			res.locals.message = `the user has fetched 2fa successfully`;
+			res.status(200).json({
+				secret: secret,
+				qrCode: uri,
+			});
 		} else {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: user id is required`;
@@ -283,18 +264,11 @@ export const getUserSessions = async (req, res, next) => {
 		const { id } = req.params;
 
 		if (id) {
-			const user = await findUserById(id);
-			if (user) {
-				const sessions = await getUserActiveSessions(id);
+			const sessions = await getUserActiveSessions(id);
 
-				res.locals.type = 'info';
-				res.locals.message = `the user has fetched sessions successfully`;
-				res.status(200).json(sessions);
-			} else {
-				res.locals.type = 'warn';
-				res.locals.message = `the user could not be found`;
-				res.status(404).json({ message: 'USER_NOT_FOUND' });
-			}
+			res.locals.type = 'info';
+			res.locals.message = `the user has fetched sessions successfully`;
+			res.status(200).json(sessions);
 		} else {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: user id is required`;
@@ -310,45 +284,53 @@ export const deleteUserSession = async (req, res, next) => {
 		const { id } = req.params;
 
 		if (id) {
-			const user = await findUserById(id);
-			if (user) {
-				const errors = validationResult(req);
+			const errors = validationResult(req);
 
-				if (!errors.isEmpty()) {
-					let msg = '';
-					errors.array().forEach((error) => {
-						msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-					});
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
 
-					res.locals.type = 'warn';
-					res.locals.message = `invalid input: ${msg}`;
-
-					res.status(400).json({
-						message: 'Bad request: provided inputs are invalid.',
-					});
-
-					return;
-				}
-
-				const { session } = req.body;
-
-				await revokeSessions(id, session);
-
-				const sessions = await getUserActiveSessions(id);
-
-				res.locals.type = 'info';
-				res.locals.message = `the user has revoked session successfully`;
-				res.status(200).json(sessions);
-			} else {
 				res.locals.type = 'warn';
-				res.locals.message = `the user could not be found`;
-				res.status(404).json({ message: 'USER_NOT_FOUND' });
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
 			}
+
+			const { session } = req.body;
+
+			await revokeSessions(id, session);
+
+			const sessions = await getUserActiveSessions(id);
+
+			res.locals.type = 'info';
+			res.locals.message = `the user has revoked session successfully`;
+			res.status(200).json(sessions);
 		} else {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: user and session id are required`;
 			res.status(400).json({ message: 'USER_ID_INVALID' });
 		}
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const userLogout = async (req, res, next) => {
+	try {
+		const { email, visitor_id } = req.headers;
+		const user = await getUserInfo(email);
+
+		await revokeSessions(user.id, visitor_id);
+
+		res.locals.type = 'info';
+		res.locals.message = `the current user has logged out`;
+		res.status(200).json({ message: 'OK' });
 	} catch (err) {
 		next(err);
 	}
