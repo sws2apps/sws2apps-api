@@ -1,3 +1,10 @@
+# [3.0.0-alpha.42](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.41...v3.0.0-alpha.42) (2022-06-25)
+
+
+### Features
+
+* **users:** add logout route ([875a7fb](https://github.com/sws2apps/sws2apps-api/commit/875a7fb1a651aa1d53c1b828dd471a9fd24a6d25))
+
 # [3.0.0-alpha.41](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.40...v3.0.0-alpha.41) (2022-06-25)
 
 
