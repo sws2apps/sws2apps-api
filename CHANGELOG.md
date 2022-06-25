@@ -1,3 +1,10 @@
+# [3.0.0-alpha.41](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.40...v3.0.0-alpha.41) (2022-06-25)
+
+
+### Features
+
+* **api:** create controllers files ([7979655](https://github.com/sws2apps/sws2apps-api/commit/79796554e3c53acf8da6c5f03a4542be56c005de))
+
 # [3.0.0-alpha.40](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.39...v3.0.0-alpha.40) (2022-06-20)
 
 
