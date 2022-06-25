@@ -1,3 +1,10 @@
+# [3.0.0-alpha.43](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.42...v3.0.0-alpha.43) (2022-06-25)
+
+
+### Features
+
+* **users:** add new sws_last_seen field in user session ([1c1318e](https://github.com/sws2apps/sws2apps-api/commit/1c1318e37d9fb796d3ecd637657905ba30b01b85))
+
 # [3.0.0-alpha.42](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.41...v3.0.0-alpha.42) (2022-06-25)
 
 
