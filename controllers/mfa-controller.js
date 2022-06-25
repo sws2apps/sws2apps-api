@@ -56,7 +56,11 @@ export const verifyToken = async (req, res, next) => {
 
 			let newSessions = sessions.map((session) => {
 				if (session.visitor_id === visitor_id) {
-					return { ...session, mfaVerified: true };
+					return {
+						...session,
+						mfaVerified: true,
+						sws_last_seen: new Date().getTime(),
+					};
 				} else {
 					return session;
 				}

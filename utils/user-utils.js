@@ -160,7 +160,7 @@ export const getUserActiveSessions = async (userID) => {
 					os: session.visitor_details.browserDetails.os,
 					osVersion: session.visitor_details.browserDetails.osVersion,
 				},
-				last_seen: session.visitor_details.lastSeenAt.global,
+				last_seen: session.sws_last_seen,
 			};
 
 			return obj;
