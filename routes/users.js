@@ -15,6 +15,7 @@ import {
 	resendVerificationEmail,
 	updateUserFullname,
 	updateUserPassword,
+	userLogout,
 	validateUser,
 } from '../controllers/users-controller.js';
 
@@ -63,5 +64,8 @@ router.get('/:id/sessions', getUserSessions);
 
 // delete user session
 router.delete('/:id/sessions', body('session').notEmpty(), deleteUserSession);
+
+// logout current user session
+router.get('/logout', userLogout);
 
 export default router;
