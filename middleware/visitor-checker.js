@@ -61,6 +61,21 @@ export const visitorChecker = () => {
 
 						const { mfaVerified } = findSession;
 						if (mfaVerified) {
+							// update last seen
+
+							let newSessions = sessions.map((session) => {
+								if (session.visitor_id === visitor_id) {
+									return { ...session, sws_last_seen: new Date().getTime() };
+								} else {
+									return session;
+								}
+							});
+
+							await db
+								.collection('users')
+								.doc(id)
+								.update({ 'about.sessions': newSessions });
+
 							next();
 						} else {
 							// allow verify token to pass this middleware
