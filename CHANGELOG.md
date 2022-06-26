@@ -1,3 +1,10 @@
+# [3.0.0-alpha.45](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.44...v3.0.0-alpha.45) (2022-06-26)
+
+
+### Bug Fixes
+
+* **congregation:** change order of routes to find and get user ([a4acc5b](https://github.com/sws2apps/sws2apps-api/commit/a4acc5b28f602121a71233e2f5459799b8537c42))
+
 # [3.0.0-alpha.44](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.43...v3.0.0-alpha.44) (2022-06-26)
 
 
