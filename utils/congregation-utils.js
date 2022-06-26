@@ -40,10 +40,12 @@ export const getCongregations = async () => {
 		for (let a = 0; a < usersList.length; a++) {
 			if (congsList[i].cong_id === usersList[a].cong_id) {
 				obj.cong_members.push({
+					id: usersList[a].id,
 					user_uid: usersList[a].user_uid,
 					name: usersList[a].username,
 					role: usersList[a].cong_role,
 					global_role: usersList[a].global_role,
+					last_seen: usersList[a].last_seen,
 				});
 			}
 		}
@@ -172,4 +174,10 @@ export const findCongregationRequestById = async (id) => {
 	const congRequest = requests.find((request) => request.id === id);
 
 	return congRequest;
+};
+
+export const checkCongregationMember = async (user_email, cong_id) => {
+	const user = await getUserInfo(user_email);
+
+	return user.cong_id === cong_id;
 };

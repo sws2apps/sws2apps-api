@@ -61,11 +61,20 @@ export const getUsers = async () => {
 			obj.cong_number = cong_number;
 		}
 
+		let lastSeens = user.sessions.map((session) => {
+			return { last_seen: session.sws_last_seen };
+		});
+
+		lastSeens.sort((a, b) => {
+			return a.last_seen > b.last_seen ? -1 : 1;
+		});
+
 		obj.mfaEnabled = user.mfaEnabled;
 		obj.username = user.username;
 		obj.global_role = user.global_role;
 		obj.cong_role = user.cong_role;
 		obj.sessions = user.sessions;
+		obj.last_seen = lastSeens[0]?.last_seen || undefined;
 
 		finalResult.push(obj);
 	}
