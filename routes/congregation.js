@@ -59,14 +59,14 @@ router.use(congregationAdminChecker());
 // get congregation users with roles
 router.get('/:id/members', getCongregationMembers);
 
+// find user by email from congregation
+router.get('/:id/members/find?:search', findUserByCongregation);
+
 // get congregation user
 router.get('/:id/members/:user', getCongregationUser);
 
 // remove user from congregation
 router.delete('/:id/members/:user', removeCongregationUser);
-
-// find user by email from congregation
-router.get('/:id/members/find?:search', findUserByCongregation);
 
 // add user to congregation
 router.put(
