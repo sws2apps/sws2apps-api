@@ -1,3 +1,10 @@
+# [3.0.0-alpha.44](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.43...v3.0.0-alpha.44) (2022-06-26)
+
+
+### Features
+
+* **congregation:** add routes to allow administrators to edit members ([45a210b](https://github.com/sws2apps/sws2apps-api/commit/45a210bb281ae5881674aab6f509faa654951d45))
+
 # [3.0.0-alpha.43](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.42...v3.0.0-alpha.43) (2022-06-25)
 
 
