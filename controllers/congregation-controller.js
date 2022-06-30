@@ -1,6 +1,7 @@
 // dependencies
 import { validationResult } from 'express-validator';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
+import randomstring from 'randomstring';
 
 // utils
 import {
@@ -10,7 +11,11 @@ import {
 } from '../utils/congregation-utils.js';
 import { decryptData, encryptData } from '../utils/encryption-utils.js';
 import { sendCongregationRequest } from '../utils/sendEmail.js';
-import { findUserById, getUserInfo } from '../utils/user-utils.js';
+import {
+	findUserById,
+	getPocketUser,
+	getUserInfo,
+} from '../utils/user-utils.js';
 
 // get firestore
 const db = getFirestore();
@@ -639,6 +644,203 @@ export const getCongregationUser = async (req, res, next) => {
 					res.locals.type = 'warn';
 					res.locals.message = 'user could not be found';
 					res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+					return;
+				}
+
+				res.locals.type = 'warn';
+				res.locals.message =
+					'user not authorized to access the provided congregation';
+				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+				return;
+			}
+
+			res.locals.type = 'warn';
+			res.locals.message =
+				'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation and user ids params are undefined';
+		res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const getCongregationPockerUser = async (req, res, next) => {
+	try {
+		const { id, user } = req.params;
+		const { email } = req.headers;
+
+		if (id && user) {
+			const cong = await getCongregationInfo(id);
+			if (cong) {
+				const isValid = await checkCongregationMember(email, id);
+
+				if (isValid) {
+					const userData = await getPocketUser(user);
+
+					if (userData) {
+						const pocket_oCode = decryptData(userData.pocket_oCode);
+
+						res.locals.type = 'info';
+						res.locals.message = 'pocket user details fetched successfully';
+						res.status(200).json({ ...userData, pocket_oCode });
+						return;
+					}
+
+					res.locals.type = 'warn';
+					res.locals.message = 'pocket user could not be found';
+					res.status(404).json({ message: 'POCKET_NOT_FOUND' });
+					return;
+				}
+
+				res.locals.type = 'warn';
+				res.locals.message =
+					'user not authorized to access the provided congregation';
+				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+				return;
+			}
+
+			res.locals.type = 'warn';
+			res.locals.message =
+				'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation and user ids params are undefined';
+		res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const createNewPocketUser = async (req, res, next) => {
+	try {
+		const { id, user } = req.params;
+		const { email } = req.headers;
+
+		if (id && user) {
+			const cong = await getCongregationInfo(id);
+			if (cong) {
+				const isValid = await checkCongregationMember(email, id);
+
+				if (isValid) {
+					const errors = validationResult(req);
+
+					if (!errors.isEmpty()) {
+						let msg = '';
+						errors.array().forEach((error) => {
+							msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+						});
+
+						res.locals.type = 'warn';
+						res.locals.message = `invalid input: ${msg}`;
+
+						res.status(400).json({
+							message: 'Bad request: provided inputs are invalid.',
+						});
+
+						return;
+					}
+
+					const code = randomstring.generate(10).toUpperCase();
+					const secureCode = encryptData(code);
+
+					const { username } = req.body;
+
+					await db.collection('users').add({
+						about: {
+							name: username,
+							role: 'pocket',
+						},
+						congregation: {
+							id: id,
+							local_id: user,
+							devices: [],
+							oCode: secureCode,
+						},
+					});
+
+					res.locals.type = 'info';
+					res.locals.message = 'pocket user created successfully';
+					res.status(200).json({ username, code });
+					return;
+				}
+
+				res.locals.type = 'warn';
+				res.locals.message =
+					'user not authorized to access the provided congregation';
+				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+				return;
+			}
+
+			res.locals.type = 'warn';
+			res.locals.message =
+				'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation and user ids params are undefined';
+		res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const updatePocketUsername = async (req, res, next) => {
+	try {
+		const { id, user } = req.params;
+		const { email } = req.headers;
+
+		if (id && user) {
+			const cong = await getCongregationInfo(id);
+			if (cong) {
+				const isValid = await checkCongregationMember(email, id);
+
+				if (isValid) {
+					const userData = await getPocketUser(user);
+
+					if (userData) {
+						const errors = validationResult(req);
+
+						if (!errors.isEmpty()) {
+							let msg = '';
+							errors.array().forEach((error) => {
+								msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+							});
+
+							res.locals.type = 'warn';
+							res.locals.message = `invalid input: ${msg}`;
+
+							res.status(400).json({
+								message: 'Bad request: provided inputs are invalid.',
+							});
+
+							return;
+						}
+
+						const { username } = req.body;
+
+						await db.collection('users').doc(userData.id).update({
+							'about.name': username,
+						});
+
+						res.locals.type = 'info';
+						res.locals.message = 'pocket username updated';
+						res.status(200).json({ username });
+						return;
+					}
+
+					res.locals.type = 'warn';
+					res.locals.message = 'pocket user could not be found';
+					res.status(404).json({ message: 'POCKET_NOT_FOUND' });
 					return;
 				}
 
