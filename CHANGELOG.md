@@ -1,3 +1,10 @@
+# [3.0.0-alpha.46](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.45...v3.0.0-alpha.46) (2022-06-30)
+
+
+### Features
+
+* **api:** update routes to prepare for sws pocket app ([bdc791e](https://github.com/sws2apps/sws2apps-api/commit/bdc791e78edd8321cd357c5b7b5cb5e52aa9a4b6))
+
 # [3.0.0-alpha.45](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.44...v3.0.0-alpha.45) (2022-06-26)
 
 
