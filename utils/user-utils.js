@@ -15,13 +15,15 @@ export const getUsers = async () => {
 		let obj = {};
 		obj.id = doc.id;
 		obj.username = doc.data().about.name;
-		obj.user_uid = doc.data().about.user_uid;
-		obj.sessions = doc.data().about.sessions || [];
+		obj.user_uid = doc.data().about?.user_uid || '';
+		obj.sessions = doc.data().about?.sessions || [];
 		obj.global_role = doc.data().about.role;
-		obj.mfaEnabled = doc.data().about.mfaEnabled;
+		obj.mfaEnabled = doc.data().about?.mfaEnabled || false;
 		obj.cong_id = doc.data().congregation?.id || '';
 		obj.cong_role = doc.data().congregation?.role || [];
-		obj.pocket_disabled = doc.data().about.pocket_disabled || false;
+		obj.pocket_local_id = doc.data().congregation?.local_id || '';
+		obj.pocket_devices = doc.data().congregation?.devices || [];
+		obj.pocket_oCode = doc.data().congregation?.oCode || '';
 		tmpUsers.push(obj);
 	});
 
@@ -39,7 +41,9 @@ export const getUsers = async () => {
 		obj.user_uid = user.user_uid.toLowerCase();
 
 		if (user.global_role === 'pocket') {
-			obj.disabled = user.pocket_disabled;
+			obj.pocket_local_id = user.pocket_local_id;
+			obj.pocket_devices = user.pocket_devices;
+			obj.pocket_oCode = user.pocket_oCode;
 		} else {
 			const userRecord = await getAuth().getUserByEmail(user.user_uid);
 			obj.auth_uid = userRecord.uid;
@@ -195,5 +199,17 @@ export const revokeSessions = async (userID, visitorID) => {
 			.collection('users')
 			.doc(userID)
 			.update({ 'about.sessions': newSessions });
+	}
+};
+
+export const getPocketUser = async (id) => {
+	const users = await getUsers();
+
+	const findUser = users.find((user) => user.pocket_local_id === id);
+
+	if (findUser) {
+		return findUser;
+	} else {
+		return undefined;
 	}
 };

@@ -10,15 +10,18 @@ import { visitorChecker } from '../middleware/visitor-checker.js';
 // import controller
 import {
 	addCongregationUser,
+	createNewPocketUser,
 	findUserByCongregation,
 	getCongregationBackup,
 	getCongregationMembers,
+	getCongregationPockerUser,
 	getCongregationUser,
 	getLastCongregationBackup,
 	removeCongregationUser,
 	requestCongregation,
 	saveCongregationBackup,
 	updateCongregationRole,
+	updatePocketUsername,
 } from '../controllers/congregation-controller.js';
 
 const router = express.Router();
@@ -80,6 +83,23 @@ router.patch(
 	'/:id/members/:user/role',
 	body('user_role').isArray(),
 	updateCongregationRole
+);
+
+// get congregation pocket user
+router.get('/:id/pockets/:user', getCongregationPockerUser);
+
+// create new pocket user
+router.put(
+	'/:id/pockets/:user',
+	body('username').notEmpty(),
+	createNewPocketUser
+);
+
+// update pocket username
+router.patch(
+	'/:id/pockets/:user/username',
+	body('username').notEmpty(),
+	updatePocketUsername
 );
 
 export default router;

@@ -38,7 +38,10 @@ export const getCongregations = async () => {
 		obj.cong_members = [];
 
 		for (let a = 0; a < usersList.length; a++) {
-			if (congsList[i].cong_id === usersList[a].cong_id) {
+			if (
+				usersList[a].global_role === 'vip' &&
+				congsList[i].cong_id === usersList[a].cong_id
+			) {
 				obj.cong_members.push({
 					id: usersList[a].id,
 					user_uid: usersList[a].user_uid,
