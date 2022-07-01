@@ -32,7 +32,7 @@
     "nodemailer": "^6.7.6",
     "nodemailer-express-handlebars": "^5.0.0",
     "randomstring": "^1.2.2",
-    "request-ip": "^2.2.0",
+    "request-ip": "^3.0.2",
     "serve-favicon": "^2.5.0"
   },
   "repository": {
