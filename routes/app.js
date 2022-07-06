@@ -33,6 +33,8 @@ import {
 
 // allowed apps url
 var whitelist = [
+	'https://alpha-sws-pocket.web.app',
+	'https://alpha-sws-pocket.firebaseapp.com',
 	'https://sws-pocket.web.app',
 	'https://sws-pocket.firebaseapp.com',
 	'https://lmm-oa-sws.web.app',
