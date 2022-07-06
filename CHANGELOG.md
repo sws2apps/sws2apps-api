@@ -1,3 +1,12 @@
+# [3.0.0-alpha.47](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.46...v3.0.0-alpha.47) (2022-07-06)
+
+
+### Features
+
+* **cors:** allow alpha release of sws-pocket app to access api ([9d3fe3d](https://github.com/sws2apps/sws2apps-api/commit/9d3fe3d6a2ebc6b7949eb5cfc37e207491bc6a89))
+* **deps:** bump nodemailer from 6.7.5 to 6.7.6 ([5c93127](https://github.com/sws2apps/sws2apps-api/commit/5c931272fe2ba0d6e98c7f4d47e4bba3d59f4619))
+* **deps:** bump request-ip from 2.2.0 to 3.0.2 ([8fd2904](https://github.com/sws2apps/sws2apps-api/commit/8fd29040a377340537819a081ed19fa1a0fb3a46))
+
 # [3.0.0-alpha.46](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.45...v3.0.0-alpha.46) (2022-06-30)
 
 
