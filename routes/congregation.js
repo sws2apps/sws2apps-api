@@ -12,6 +12,7 @@ import {
 	addCongregationUser,
 	createNewPocketUser,
 	findUserByCongregation,
+	generatePocketOTPCode,
 	getCongregationBackup,
 	getCongregationMembers,
 	getCongregationPockerUser,
@@ -20,7 +21,9 @@ import {
 	removeCongregationUser,
 	requestCongregation,
 	saveCongregationBackup,
+	sendPocketSchedule,
 	updateCongregationRole,
+	updatePocketMembers,
 	updatePocketUsername,
 } from '../controllers/congregation-controller.js';
 
@@ -55,6 +58,14 @@ router.post(
 
 // get last backup data
 router.get('/:id/backup', getCongregationBackup);
+
+// post new sws pocket schedule
+router.post(
+	'/:id/schedule',
+	body('cong_schedule').isObject(),
+	body('cong_sourceMaterial').isObject(),
+	sendPocketSchedule
+);
 
 // activate congregation admin role checker
 router.use(congregationAdminChecker());
@@ -101,5 +112,15 @@ router.patch(
 	body('username').notEmpty(),
 	updatePocketUsername
 );
+
+// update pocket members
+router.patch(
+	'/:id/pockets/:user/members',
+	body('members').notEmpty(),
+	updatePocketMembers
+);
+
+// generate new pocket otp code
+router.get('/:id/pockets/:user/code', generatePocketOTPCode);
 
 export default router;

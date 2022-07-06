@@ -24,6 +24,8 @@ export const getUsers = async () => {
 		obj.pocket_local_id = doc.data().congregation?.local_id || '';
 		obj.pocket_devices = doc.data().congregation?.devices || [];
 		obj.pocket_oCode = doc.data().congregation?.oCode || '';
+		obj.pocket_role = doc.data().congregation?.pocket_role || [];
+		obj.pocket_members = doc.data().congregation?.pocket_members || [];
 		tmpUsers.push(obj);
 	});
 
@@ -44,6 +46,8 @@ export const getUsers = async () => {
 			obj.pocket_local_id = user.pocket_local_id;
 			obj.pocket_devices = user.pocket_devices;
 			obj.pocket_oCode = user.pocket_oCode;
+			obj.pocket_role = user.pocket_role;
+			obj.pocket_members = user.pocket_members;
 		} else {
 			const userRecord = await getAuth().getUserByEmail(user.user_uid);
 			obj.auth_uid = userRecord.uid;

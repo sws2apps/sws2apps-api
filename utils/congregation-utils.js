@@ -20,9 +20,11 @@ export const getCongregations = async () => {
 		obj.cong_name = doc.data().cong_name;
 		obj.cong_number = doc.data().cong_number;
 		obj.last_backup = doc.data().last_backup;
-		obj.cong_persons = doc.data().cong_persons;
-		obj.cong_sourceMaterial_draft = doc.data().cong_sourceMaterial_draft;
-		obj.cong_schedule_draft = doc.data().cong_schedule_draft;
+		obj.cong_persons = doc.data().cong_persons || '';
+		obj.cong_sourceMaterial = doc.data().cong_sourceMaterial_draft || [];
+		obj.cong_schedule = doc.data().cong_schedule_draft || [];
+		obj.cong_sourceMaterial_draft = doc.data().cong_sourceMaterial_draft || [];
+		obj.cong_schedule_draft = doc.data().cong_schedule_draft || [];
 		congsList.push(obj);
 	});
 

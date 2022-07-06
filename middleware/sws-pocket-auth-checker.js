@@ -1,5 +1,9 @@
-// app dependencies
+// dependencies
+import { check, validationResult } from 'express-validator';
 import { getFirestore } from 'firebase-admin/firestore';
+
+// utilities
+import { findPocketByVisitorID } from '../utils/sws-pocket-utils.js';
 
 // get firestore
 const db = getFirestore();
@@ -7,60 +11,41 @@ const db = getFirestore();
 export const pocketAuthChecker = () => {
 	return async (req, res, next) => {
 		try {
-			const congID = req.headers.cong_id;
-			const congNum = req.headers.cong_num;
-			const userPIN = req.headers.user_pin;
+			await check('visitor_id').notEmpty().run(req);
 
-			let statusCode;
-			let statusMsg;
+			const errors = validationResult(req);
 
-			if (congID && congNum && userPIN) {
-				const congRef = db.collection('congregations').doc(congID);
-				const docSnap = await congRef.get();
+			if (!errors.isEmpty()) {
+				let msg = '';
+				errors.array().forEach((error) => {
+					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				});
 
-				if (docSnap.exists) {
-					const isValidNum = docSnap.data().congNumber === congNum;
-					if (isValidNum) {
-						const pocketUsers = docSnap.data().pocketUsers;
-						const findIndex = pocketUsers.findIndex(
-							(user) => user.PIN === +userPIN
-						);
-
-						if (findIndex === -1) {
-							statusCode = 403;
-							statusMsg = 'FORBIDDEN';
-							res.locals.type = 'warn';
-							res.locals.message = 'access denied: not a congregation user';
-						} else {
-							statusCode = 200;
-							res.locals.type = 'info';
-							res.locals.message = 'connected successfully to a congregation';
-						}
-					} else {
-						statusCode = 403;
-						statusMsg = 'FORBIDDEN';
-						res.locals.type = 'warn';
-						res.locals.message = 'access denied: incorrect congregation number';
-					}
-				} else {
-					statusCode = 403;
-					statusMsg = 'FORBIDDEN';
-					res.locals.type = 'warn';
-					res.locals.message = 'access denied: incorrect congregation ID';
-				}
-			} else {
-				statusCode = 400;
-				statusMsg = 'MISSING_INFO';
 				res.locals.type = 'warn';
-				res.locals.message = 'access denied: credentials missing';
+				res.locals.message = `invalid input: ${msg}`;
+
+				res.status(400).json({ message: 'INPUT_INVALID' });
+
+				return;
 			}
 
-			if (statusCode === 200) {
+			const { visitor_id } = req.headers;
+
+			const user = await findPocketByVisitorID(visitor_id);
+
+			// found user or it is a sign up request
+			if (user || req.path === '/signup') {
+				res.locals.currentUser = user;
 				next();
-			} else {
-				res.locals.failedLoginAttempt = true;
-				res.status(statusCode).json({ message: statusMsg });
+
+				return;
 			}
+
+			res.locals.type = 'warn';
+			res.locals.message =
+				'the visitor id is not associated yet to any congregation';
+
+			res.status(403).json({ message: 'SETUP_FIRST' });
 		} catch (err) {
 			next(err);
 		}

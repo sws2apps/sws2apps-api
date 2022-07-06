@@ -16,6 +16,7 @@ import congregationRoute from './congregation.js';
 import userRoute from './users.js';
 import adminRoute from './admin.js';
 import mfaRoute from './mfa.js';
+import swsPocketRoute from './sws-pocket.js';
 
 // middleware import
 import { internetChecker } from '../middleware/internet-checker.js';
@@ -32,6 +33,8 @@ import {
 
 // allowed apps url
 var whitelist = [
+	'https://alpha-sws-pocket.web.app',
+	'https://alpha-sws-pocket.firebaseapp.com',
 	'https://sws-pocket.web.app',
 	'https://sws-pocket.firebaseapp.com',
 	'https://lmm-oa-sws.web.app',
@@ -98,6 +101,7 @@ app.use('/api/congregations', congregationRoute);
 app.use('/api/mfa', mfaRoute);
 app.use('/api/users', userRoute);
 app.use('/api/admin', adminRoute);
+app.use('/api/sws-pocket', swsPocketRoute);
 
 app.get('/', getRoot);
 
