@@ -1,3 +1,11 @@
+# [3.0.0-alpha.48](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.47...v3.0.0-alpha.48) (2022-07-07)
+
+
+### Features
+
+* **deps:** bump nodemailer from 6.7.6 to 6.7.7 ([804d87a](https://github.com/sws2apps/sws2apps-api/commit/804d87a922eb1c06a6cfb2119dfa67d70ca46b00))
+* **deps:** bump request-ip from 3.0.2 to 3.2.0 ([ac504ec](https://github.com/sws2apps/sws2apps-api/commit/ac504ec64b147619d118f4383c21b480e4e11794))
+
 # [3.0.0-alpha.47](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.46...v3.0.0-alpha.47) (2022-07-06)
 
 
