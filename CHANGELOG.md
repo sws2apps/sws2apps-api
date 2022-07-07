@@ -1,3 +1,10 @@
+# [3.0.0-alpha.49](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.48...v3.0.0-alpha.49) (2022-07-07)
+
+
+### Bug Fixes
+
+* **deps:** fix issue with request-ip dependency ([36a4082](https://github.com/sws2apps/sws2apps-api/commit/36a4082b0b12106b56664dc5b0af381b2e45b51d))
+
 # [3.0.0-alpha.48](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.47...v3.0.0-alpha.48) (2022-07-07)
 
 
