@@ -1,3 +1,11 @@
+# [3.0.0-alpha.50](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.49...v3.0.0-alpha.50) (2022-07-12)
+
+
+### Features
+
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([748f11d](https://github.com/sws2apps/sws2apps-api/commit/748f11d5d1118fb99cfd2bb0a173ff2a12a82962))
+* **deps:** bump node-fetch from 3.2.6 to 3.2.7 ([f849277](https://github.com/sws2apps/sws2apps-api/commit/f8492779db22152a8f29ea0a8b637818fcc879df))
+
 # [3.0.0-alpha.49](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.48...v3.0.0-alpha.49) (2022-07-07)
 
 
