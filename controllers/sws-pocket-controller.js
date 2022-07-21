@@ -18,12 +18,23 @@ const db = getFirestore();
 
 export const validatePocket = async (req, res, next) => {
 	try {
-		const { username, pocket_members, cong_name, cong_number } =
-			res.locals.currentUser;
+		const {
+			username,
+			pocket_local_id,
+			pocket_members,
+			cong_name,
+			cong_number,
+		} = res.locals.currentUser;
 
 		res.locals.type = 'info';
 		res.locals.message = 'visitor id has been validated';
-		res.status(200).json({ username, pocket_members, cong_name, cong_number });
+		res.status(200).json({
+			username,
+			pocket_local_id,
+			pocket_members,
+			cong_name,
+			cong_number,
+		});
 	} catch (err) {
 		next(err);
 	}
@@ -109,14 +120,23 @@ export const pocketSignUp = async (req, res, next) => {
 				'congregation.devices': devices,
 			});
 
-			const { username, pocket_members, cong_name, cong_number } =
-				await findPocketByVisitorID(visitor_id);
+			const {
+				username,
+				pocket_local_id,
+				pocket_members,
+				cong_name,
+				cong_number,
+			} = await findPocketByVisitorID(visitor_id);
 
 			res.locals.type = 'info';
 			res.locals.message = 'pocket device visitor id added successfully';
-			res
-				.status(200)
-				.json({ username, pocket_members, cong_name, cong_number });
+			res.status(200).json({
+				username,
+				pocket_local_id,
+				pocket_members,
+				cong_name,
+				cong_number,
+			});
 			return;
 		}
 
