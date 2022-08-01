@@ -1,3 +1,11 @@
+# [3.0.0-alpha.53](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.52...v3.0.0-alpha.53) (2022-08-01)
+
+
+### Features
+
+* **deps:** bump firebase-admin from 11.0.0 to 11.0.1 ([7c94762](https://github.com/sws2apps/sws2apps-api/commit/7c947625e4e8b861d750da6a8d7f9ddd065df5ae))
+* **deps:** bump node-fetch from 3.2.9 to 3.2.10 ([d995086](https://github.com/sws2apps/sws2apps-api/commit/d995086b120871c9d00a7a5f1ce9d63f48ddd843))
+
 # [3.0.0-alpha.52](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.51...v3.0.0-alpha.52) (2022-07-25)
 
 
