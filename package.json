@@ -23,7 +23,7 @@
     "express-rate-limit": "^6.5.1",
     "express-validator": "^6.14.2",
     "firebase-admin": "^11.0.1",
-    "geoip-lite": "^1.4.5",
+    "geoip-lite": "^1.4.6",
     "helmet": "^5.1.1",
     "heroku-logger": "^0.3.3",
     "is-online": "^10.0.0",
