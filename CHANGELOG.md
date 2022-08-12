@@ -1,3 +1,11 @@
+# [3.0.0-alpha.54](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.53...v3.0.0-alpha.54) (2022-08-12)
+
+
+### Features
+
+* **deps:** bump geoip-lite from 1.4.5 to 1.4.6 ([52f8991](https://github.com/sws2apps/sws2apps-api/commit/52f89914af6b0b9363d7cb0f1119e7fb371d9b92))
+* **deps:** bump nodemailer from 6.7.7 to 6.7.8 ([66271bd](https://github.com/sws2apps/sws2apps-api/commit/66271bd7830866d77a7bcb7a18b840c367435646))
+
 # [3.0.0-alpha.53](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.52...v3.0.0-alpha.53) (2022-08-01)
 
 
