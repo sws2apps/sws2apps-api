@@ -1,3 +1,29 @@
+# [3.0.0-alpha.54](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.53...v3.0.0-alpha.54) (2022-08-12)
+
+
+### Features
+
+* **deps:** bump geoip-lite from 1.4.5 to 1.4.6 ([52f8991](https://github.com/sws2apps/sws2apps-api/commit/52f89914af6b0b9363d7cb0f1119e7fb371d9b92))
+* **deps:** bump nodemailer from 6.7.7 to 6.7.8 ([66271bd](https://github.com/sws2apps/sws2apps-api/commit/66271bd7830866d77a7bcb7a18b840c367435646))
+
+# [3.0.0-alpha.53](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.52...v3.0.0-alpha.53) (2022-08-01)
+
+
+### Features
+
+* **deps:** bump firebase-admin from 11.0.0 to 11.0.1 ([7c94762](https://github.com/sws2apps/sws2apps-api/commit/7c947625e4e8b861d750da6a8d7f9ddd065df5ae))
+* **deps:** bump node-fetch from 3.2.9 to 3.2.10 ([d995086](https://github.com/sws2apps/sws2apps-api/commit/d995086b120871c9d00a7a5f1ce9d63f48ddd843))
+
+# [3.0.0-alpha.52](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.51...v3.0.0-alpha.52) (2022-07-25)
+
+
+### Features
+
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([af6868f](https://github.com/sws2apps/sws2apps-api/commit/af6868f608b073fc0511389ee77b2a43ad9a6e02))
+* **deps:** bump express-rate-limit from 6.4.0 to 6.5.1 ([ef29cf9](https://github.com/sws2apps/sws2apps-api/commit/ef29cf96afc81deb629edd14a2552e0ec0af7e9b))
+* **deps:** bump helmet from 5.1.0 to 5.1.1 ([a658772](https://github.com/sws2apps/sws2apps-api/commit/a658772e0b6ab403a86fa5fba7b1bb6abe45b955))
+* **deps:** bump node-fetch from 3.2.8 to 3.2.9 ([e8aa92f](https://github.com/sws2apps/sws2apps-api/commit/e8aa92f046d3d98d0aff1335474ddee95ad2f218))
+
 # [3.0.0-alpha.51](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.50...v3.0.0-alpha.51) (2022-07-14)
 
 
