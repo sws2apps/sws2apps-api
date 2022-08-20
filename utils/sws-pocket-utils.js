@@ -9,7 +9,7 @@ export const findPocketByVisitorID = async (visitor_id) => {
 
 	for (let i = 0; i < users.length; i++) {
 		const devices = users[i].pocket_devices || [];
-		const found = devices.find((device) => device === visitor_id);
+		const found = devices.find((device) => device.visitor_id === visitor_id);
 
 		if (found) {
 			user = users[i];

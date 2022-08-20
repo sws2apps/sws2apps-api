@@ -84,8 +84,10 @@ export const pocketSignUp = async (req, res, next) => {
 
 		// request does not meet requirements
 		const visit = visitorHistory.visits[0];
+
 		if (
-			visit.browserDetails.botProbability !== 0 ||
+			(visit.browserDetails.botProbability &&
+				visit.browserDetails.botProbability !== 0) ||
 			visit.confidence.score !== 1
 		) {
 			res.locals.failedLoginAttempt = true;
@@ -101,7 +103,15 @@ export const pocketSignUp = async (req, res, next) => {
 			// add visitor id and remove otp_code
 			let devices = user.pocket_devices || [];
 
-			const foundDevice = devices.find((device) => device === visitor_id);
+			const obj = {
+				visitor_id: visitor_id,
+				name: `${visit.browserDetails.os} ${visit.browserDetails.osVersion} (${visit.browserDetails.browserName} ${visit.browserDetails.browserFullVersion})`,
+				sws_last_seen: new Date().getTime(),
+			};
+
+			const foundDevice = devices.find(
+				(device) => device.visitor_id === visitor_id
+			);
 
 			// device already added
 			if (foundDevice) {
@@ -113,7 +123,7 @@ export const pocketSignUp = async (req, res, next) => {
 			}
 
 			// add new device
-			devices.push(visitor_id);
+			devices.push(obj);
 
 			await db.collection('users').doc(user.id).update({
 				'congregation.oCode': FieldValue.delete(),

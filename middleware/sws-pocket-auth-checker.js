@@ -36,6 +36,32 @@ export const pocketAuthChecker = () => {
 			// found user or it is a sign up request
 			if (user || req.path === '/signup') {
 				res.locals.currentUser = user;
+
+				// update last connection for found user
+				if (user) {
+					const { id, pocket_devices } = user;
+					const foundDevice = pocket_devices.find(
+						(device) => device.visitor_id === visitor_id
+					);
+					const filteredDevices = pocket_devices.filter(
+						(device) => device.visitor_id !== visitor_id
+					);
+
+					const updatedDevices = [
+						{
+							visitor_id,
+							name: foundDevice.name,
+							sws_last_seen: new Date().getTime(),
+						},
+						...filteredDevices,
+					];
+
+					await db
+						.collection('users')
+						.doc(id)
+						.update({ 'congregation.devices': updatedDevices });
+				}
+
 				next();
 
 				return;

@@ -1000,6 +1000,97 @@ export const generatePocketOTPCode = async (req, res, next) => {
 	}
 };
 
+export const deletePocketDevice = async (req, res, next) => {
+	try {
+		const { id, user } = req.params;
+		const { email } = req.headers;
+
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const { pocket_visitor_id } = req.body;
+
+		if (id && user) {
+			const cong = await getCongregationInfo(id);
+			if (cong) {
+				const isValid = await checkCongregationMember(email, id);
+
+				if (isValid) {
+					const userData = await getPocketUser(user);
+
+					if (userData) {
+						// remove device
+						let devices = userData.pocket_devices || [];
+						let newDevices = devices.filter(
+							(device) => device.visitor_id !== pocket_visitor_id
+						);
+
+						if (newDevices.length > 0) {
+							await db.collection('users').doc(userData.id).update({
+								'congregation.devices': newDevices,
+							});
+
+							res.locals.type = 'info';
+							res.locals.message = 'pocket device successfully removed';
+							res.status(200).json({ devices: newDevices });
+						}
+
+						// if no device, delete pocket user
+						if (newDevices.length === 0) {
+							await db.collection('users').doc(userData.id).delete();
+
+							res.locals.type = 'info';
+							res.locals.message =
+								'pocket device removed, and pocket user deleted';
+							res.status(200).json({ message: 'POCKET_USER_DELETED' });
+						}
+
+						return;
+					}
+
+					res.locals.type = 'warn';
+					res.locals.message = 'pocket user could not be found';
+					res.status(404).json({ message: 'POCKET_NOT_FOUND' });
+					return;
+				}
+
+				res.locals.type = 'warn';
+				res.locals.message =
+					'user not authorized to access the provided congregation';
+				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+				return;
+			}
+
+			res.locals.type = 'warn';
+			res.locals.message =
+				'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation and user ids params are undefined';
+		res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+	} catch (err) {
+		next(err);
+	}
+};
+
 export const sendPocketSchedule = async (req, res, next) => {
 	try {
 		const { id } = req.params;
