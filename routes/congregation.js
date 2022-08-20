@@ -11,6 +11,7 @@ import { visitorChecker } from '../middleware/visitor-checker.js';
 import {
 	addCongregationUser,
 	createNewPocketUser,
+	deletePocketDevice,
 	findUserByCongregation,
 	generatePocketOTPCode,
 	getCongregationBackup,
@@ -122,5 +123,12 @@ router.patch(
 
 // generate new pocket otp code
 router.get('/:id/pockets/:user/code', generatePocketOTPCode);
+
+// delete pocket device
+router.delete(
+	'/:id/pockets/:user',
+	body('pocket_visitor_id').notEmpty(),
+	deletePocketDevice
+);
 
 export default router;

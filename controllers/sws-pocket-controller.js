@@ -11,19 +11,30 @@ import {
 	findPocketByVisitorID,
 	findUserByOTPCode,
 } from '../utils/sws-pocket-utils.js';
+import { getCongregationInfo } from '../utils/congregation-utils.js';
 
 // get firestore
 const db = getFirestore();
 
 export const validatePocket = async (req, res, next) => {
 	try {
-		const user = res.locals.currentUser;
-
-		const { username, pocket_members, cong_name, cong_number } = user;
+		const {
+			username,
+			pocket_local_id,
+			pocket_members,
+			cong_name,
+			cong_number,
+		} = res.locals.currentUser;
 
 		res.locals.type = 'info';
 		res.locals.message = 'visitor id has been validated';
-		res.status(200).json({ username, pocket_members, cong_name, cong_number });
+		res.status(200).json({
+			username,
+			pocket_local_id,
+			pocket_members,
+			cong_name,
+			cong_number,
+		});
 	} catch (err) {
 		next(err);
 	}
@@ -73,8 +84,10 @@ export const pocketSignUp = async (req, res, next) => {
 
 		// request does not meet requirements
 		const visit = visitorHistory.visits[0];
+
 		if (
-			visit.browserDetails.botProbability !== 0 ||
+			(visit.browserDetails.botProbability &&
+				visit.browserDetails.botProbability !== 0) ||
 			visit.confidence.score !== 1
 		) {
 			res.locals.failedLoginAttempt = true;
@@ -90,7 +103,15 @@ export const pocketSignUp = async (req, res, next) => {
 			// add visitor id and remove otp_code
 			let devices = user.pocket_devices || [];
 
-			const foundDevice = devices.find((device) => device === visitor_id);
+			const obj = {
+				visitor_id: visitor_id,
+				name: `${visit.browserDetails.os} ${visit.browserDetails.osVersion} (${visit.browserDetails.browserName} ${visit.browserDetails.browserFullVersion})`,
+				sws_last_seen: new Date().getTime(),
+			};
+
+			const foundDevice = devices.find(
+				(device) => device.visitor_id === visitor_id
+			);
 
 			// device already added
 			if (foundDevice) {
@@ -102,27 +123,52 @@ export const pocketSignUp = async (req, res, next) => {
 			}
 
 			// add new device
-			devices.push(visitor_id);
+			devices.push(obj);
 
 			await db.collection('users').doc(user.id).update({
 				'congregation.oCode': FieldValue.delete(),
 				'congregation.devices': devices,
 			});
 
-			const { username, pocket_members, cong_name, cong_number } =
-				await findPocketByVisitorID(visitor_id);
+			const {
+				username,
+				pocket_local_id,
+				pocket_members,
+				cong_name,
+				cong_number,
+			} = await findPocketByVisitorID(visitor_id);
 
 			res.locals.type = 'info';
 			res.locals.message = 'pocket device visitor id added successfully';
-			res
-				.status(200)
-				.json({ username, pocket_members, cong_name, cong_number });
+			res.status(200).json({
+				username,
+				pocket_local_id,
+				pocket_members,
+				cong_name,
+				cong_number,
+			});
 			return;
 		}
 
 		res.locals.type = 'warn';
 		res.locals.message = 'pocket verification code is invalid';
 		res.status(404).json({ message: 'OTP_CODE_INVALID' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const getSchedule = async (req, res, next) => {
+	try {
+		const { cong_id } = res.locals.currentUser;
+
+		const { cong_sourceMaterial, cong_schedule } = await getCongregationInfo(
+			cong_id
+		);
+
+		res.locals.type = 'info';
+		res.locals.message = 'pocket user has fetched the schedule';
+		res.status(200).json({ cong_sourceMaterial, cong_schedule });
 	} catch (err) {
 		next(err);
 	}

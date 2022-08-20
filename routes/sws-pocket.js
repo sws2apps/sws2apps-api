@@ -4,6 +4,7 @@ import { body } from 'express-validator';
 
 // controllers
 import {
+	getSchedule,
 	pocketSignUp,
 	validatePocket,
 } from '../controllers/sws-pocket-controller.js';
@@ -24,5 +25,7 @@ router.post(
 router.use(pocketAuthChecker());
 
 router.get('/validate-me', validatePocket);
+
+router.get('/schedule', getSchedule);
 
 export default router;
