@@ -1,3 +1,11 @@
+# [3.0.0-alpha.55](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.54...v3.0.0-alpha.55) (2022-08-20)
+
+
+### Features
+
+* **api:** handle setting pocket permissions ([3946b5e](https://github.com/sws2apps/sws2apps-api/commit/3946b5e51763ba84b76e67cd15dd85062937093b))
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([05a50a5](https://github.com/sws2apps/sws2apps-api/commit/05a50a5814670daefc4d9ac14855fd2f35fcdc8f))
+
 # [3.0.0-alpha.54](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.53...v3.0.0-alpha.54) (2022-08-12)
 
 
