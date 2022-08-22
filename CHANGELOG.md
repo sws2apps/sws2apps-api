@@ -1,3 +1,10 @@
+# [3.0.0-alpha.56](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.55...v3.0.0-alpha.56) (2022-08-22)
+
+
+### Features
+
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([edf677a](https://github.com/sws2apps/sws2apps-api/commit/edf677a7c9bf30ac6ab10310fe12021dc989fb43))
+
 # [3.0.0-alpha.55](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.54...v3.0.0-alpha.55) (2022-08-20)
 
 
