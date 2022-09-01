@@ -1,3 +1,25 @@
+# [3.0.0-alpha.57](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.56...v3.0.0-alpha.57) (2022-08-25)
+
+
+### Features
+
+* **deps:** bump express-rate-limit from 6.5.1 to 6.5.2 ([5059f53](https://github.com/sws2apps/sws2apps-api/commit/5059f5398d6ba8a9e09e4dda4d93ca3cf0bc90ef))
+
+# [3.0.0-alpha.56](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.55...v3.0.0-alpha.56) (2022-08-22)
+
+
+### Features
+
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([edf677a](https://github.com/sws2apps/sws2apps-api/commit/edf677a7c9bf30ac6ab10310fe12021dc989fb43))
+
+# [3.0.0-alpha.55](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.54...v3.0.0-alpha.55) (2022-08-20)
+
+
+### Features
+
+* **api:** handle setting pocket permissions ([3946b5e](https://github.com/sws2apps/sws2apps-api/commit/3946b5e51763ba84b76e67cd15dd85062937093b))
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([05a50a5](https://github.com/sws2apps/sws2apps-api/commit/05a50a5814670daefc4d9ac14855fd2f35fcdc8f))
+
 # [3.0.0-alpha.54](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.53...v3.0.0-alpha.54) (2022-08-12)
 
 
