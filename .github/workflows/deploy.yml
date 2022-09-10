@@ -11,7 +11,7 @@ jobs:
     if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/alpha' }}
     environment:
       name: Alpha.env
-      url: https://dev-sws2apps-api.onrender.com
+      url: https://alpha-sws2apps-api.onrender.com
     runs-on: ubuntu-latest
 
     steps:
