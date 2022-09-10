@@ -7,11 +7,11 @@ permissions: read-all
 
 jobs:
   redeploy_dev:
-    name: Redeploy API to Development
+    name: Redeploy API to Alpha Stage
     if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/alpha' }}
     environment:
       name: Development
-      url: https://dev-sws2apps.herokuapp.com
+      url: https://dev-sws2apps-api.onrender.com
     runs-on: ubuntu-latest
 
     steps:
@@ -21,53 +21,8 @@ jobs:
           ref: alpha
           persist-credentials: false
 
-      - name: Deploy API to Heroku
-        uses: akhileshns/heroku-deploy@79ef2ae4ff9b897010907016b268fd0f88561820
+      - name: Deploy API to Render
+        uses: sws2apps/render-deployment@90a5d9c22cdc4c78be3c2dd926ca9b84e2d7d70c
         with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: dev-sws2apps
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
-
-  redeploy_staging:
-    name: Redeploy API to Staging
-    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/beta' }}
-    environment:
-      name: Staging
-      url: https://staging-sws2apps.herokuapp.com
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout for release preparation
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-        with:
-          ref: beta
-          persist-credentials: false
-
-      - name: Deploy API to Heroku
-        uses: akhileshns/heroku-deploy@79ef2ae4ff9b897010907016b268fd0f88561820
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: staging-sws2apps
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
-
-  redeploy_prod:
-    name: Redeploy API to Production
-    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
-    environment:
-      name: Production
-      url: https://sws2apps.herokuapp.com
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout for release preparation
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-        with:
-          ref: main
-          persist-credentials: false
-
-      - name: Deploy API to Heroku
-        uses: akhileshns/heroku-deploy@79ef2ae4ff9b897010907016b268fd0f88561820
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: sws2apps
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          serviceId: ${{ secrets.RENDER_SERVICE_ID }}
+          apiKey: ${{ secrets.RENDER_API_KEY }}
