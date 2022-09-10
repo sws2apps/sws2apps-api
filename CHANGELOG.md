@@ -1,3 +1,12 @@
+# [3.0.0-alpha.58](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.57...v3.0.0-alpha.58) (2022-09-10)
+
+
+### Features
+
+* **deps:** bump dotenv from 16.0.1 to 16.0.2 ([39cc297](https://github.com/sws2apps/sws2apps-api/commit/39cc2977ac43ae28fef7aa6d486934e732aef302))
+* **deps:** bump express-rate-limit from 6.5.2 to 6.6.0 ([8645254](https://github.com/sws2apps/sws2apps-api/commit/864525415811f3c7a11265262da7f0061a0c5957))
+* **deps:** bump helmet from 5.1.1 to 6.0.0 ([0b8c739](https://github.com/sws2apps/sws2apps-api/commit/0b8c73923789525a559ee2ec71bf3befc867b083))
+
 # [3.0.0-alpha.57](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.56...v3.0.0-alpha.57) (2022-08-25)
 
 
