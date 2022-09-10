@@ -8,20 +8,20 @@ import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
 
 // firebase admin import
-import '../config/firebase-config.js';
+import './config/firebase-config.js';
 
 // route import
-import authRoute from './auth.js';
-import congregationRoute from './congregation.js';
-import userRoute from './users.js';
-import adminRoute from './admin.js';
-import mfaRoute from './mfa.js';
-import swsPocketRoute from './sws-pocket.js';
+import authRoute from './routes/auth.js';
+import congregationRoute from './routes/congregation.js';
+import userRoute from './routes/users.js';
+import adminRoute from './routes/admin.js';
+import mfaRoute from './routes/mfa.js';
+import swsPocketRoute from './routes/sws-pocket.js';
 
 // middleware import
-import { internetChecker } from '../middleware/internet-checker.js';
-import { requestChecker } from '../middleware/request-checker.js';
-import { updateTracker } from '../middleware/update-tracker.js';
+import { internetChecker } from './middleware/internet-checker.js';
+import { requestChecker } from './middleware/request-checker.js';
+import { updateTracker } from './middleware/update-tracker.js';
 
 // import controller
 import {
@@ -29,7 +29,7 @@ import {
 	getAppVersion,
 	getRoot,
 	invalidEndpointHandler,
-} from '../controllers/app-controller.js';
+} from './controllers/app-controller.js';
 
 // allowed apps url
 var whitelist = [

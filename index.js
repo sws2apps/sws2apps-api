@@ -2,10 +2,10 @@
 import 'dotenv/config';
 
 // app import
-import app from './routes/app.js';
+import app from './src/app.js';
 
 // load utils
-import { logger } from './utils/logger.js';
+import { logger } from './src/utils/logger.js';
 
 const PORT = process.env.PORT || 8000;
 const APP_VERSION = process.env.npm_package_version;
