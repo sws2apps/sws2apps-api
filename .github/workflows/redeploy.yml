@@ -10,7 +10,11 @@ jobs:
     name: Redeploy API to Alpha Stage
     if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/alpha' }}
     environment:
+<<<<<<< HEAD
       name: Alpha.env
+=======
+      name: Development
+>>>>>>> 0d6f2f1caf5fbfc20606e9b6030c02b451a4379f
       url: https://alpha-sws2apps-api.onrender.com
     runs-on: ubuntu-latest
 
