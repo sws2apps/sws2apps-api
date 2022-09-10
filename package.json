@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon index.js",
-    "start": "cross-env NODE_ENV=production node index.js",
-    "test": "c8 --reporter=lcov --reporter=text mocha"
+    "start": "cross-env NODE_ENV=production node index.js"
   },
   "keywords": [],
   "author": "",
