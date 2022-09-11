@@ -9,10 +9,10 @@ import { logger } from './logger.js';
 
 const handlebarsOptions = {
 	viewEngine: {
-		partialsDir: path.resolve('./views/'),
+		partialsDir: path.resolve('./src/views/'),
 		defaultLayout: false,
 	},
-	viewPath: path.resolve('./views/'),
+	viewPath: path.resolve('./src/views/'),
 };
 
 const transporter = nodemailer.createTransport(gmailConfig.transport);
