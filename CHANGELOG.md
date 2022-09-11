@@ -1,3 +1,10 @@
+# [3.0.0-alpha.61](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.60...v3.0.0-alpha.61) (2022-09-11)
+
+
+### Features
+
+* **logger:** update framework from heroku-logger to winston ([f84e3dc](https://github.com/sws2apps/sws2apps-api/commit/f84e3dc02fef857211496eb46a94e07353bf38f3))
+
 # [3.0.0-alpha.60](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.59...v3.0.0-alpha.60) (2022-09-11)
 
 
