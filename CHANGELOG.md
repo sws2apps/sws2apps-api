@@ -1,3 +1,10 @@
+# [3.0.0-alpha.59](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.58...v3.0.0-alpha.59) (2022-09-11)
+
+
+### Bug Fixes
+
+* **views:** fix template path for email ([332eace](https://github.com/sws2apps/sws2apps-api/commit/332eace431d4d2f04c625e8bbb2b583410d16edb))
+
 # [3.0.0-alpha.58](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.57...v3.0.0-alpha.58) (2022-09-10)
 
 
