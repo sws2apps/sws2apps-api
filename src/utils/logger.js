@@ -1,14 +1,23 @@
 // dependency import
-import { Logger } from 'heroku-logger';
+import winston from 'winston';
 
 export const logger = (level, message) => {
-	const logger = new Logger();
+	const logger = winston.createLogger({
+		level: 'info',
+		format: winston.format.combine(
+			winston.format.timestamp(),
+			winston.format.json()
+		),
+		transports: [new winston.transports.Console()],
+	});
+
+	let msg = message.replace(/\n|\r/g, '');
 
 	if (level === 'info') {
-		logger.info(message);
+		logger.info(msg);
 	} else if (level === 'warn') {
-		logger.warn(message);
+		logger.warn(msg);
 	} else if (level === 'error') {
-		logger.error(message);
+		logger.error(msg);
 	}
 };
