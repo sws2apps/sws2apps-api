@@ -11,13 +11,13 @@ export const logger = (level, message) => {
 		transports: [new winston.transports.Console()],
 	});
 
-	let message = message.replace(/\n|\r/g, '');
+	let msg = message.replace(/\n|\r/g, '');
 
 	if (level === 'info') {
-		logger.info(message);
+		logger.info(msg);
 	} else if (level === 'warn') {
-		logger.warn(message);
+		logger.warn(msg);
 	} else if (level === 'error') {
-		logger.error(message);
+		logger.error(msg);
 	}
 };
