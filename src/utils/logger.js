@@ -1,5 +1,4 @@
 // dependency import
-import { Logger } from 'heroku-logger';
 import winston from 'winston';
 
 export const logger = (level, message) => {
@@ -11,6 +10,8 @@ export const logger = (level, message) => {
 		),
 		transports: [new winston.transports.Console()],
 	});
+
+	let message = message.replace(/\n|\r/g, '');
 
 	if (level === 'info') {
 		logger.info(message);
