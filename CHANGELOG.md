@@ -1,3 +1,10 @@
+# [3.0.0-alpha.60](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.59...v3.0.0-alpha.60) (2022-09-11)
+
+
+### Bug Fixes
+
+* **users:** move resend verification api outside of middleware ([b53b622](https://github.com/sws2apps/sws2apps-api/commit/b53b62236991a35f768072b4fc5c7c6e38b466ef))
+
 # [3.0.0-alpha.59](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.58...v3.0.0-alpha.59) (2022-09-11)
 
 
