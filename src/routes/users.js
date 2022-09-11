@@ -33,14 +33,14 @@ router.post(
 // get announcements
 router.get('/announcement', getAnnouncements);
 
+// resend verification email
+router.get('/resend-verification', resendVerificationEmail);
+
 // activate middleware at this point
 router.use(visitorChecker());
 
 // validate user for active session
 router.get('/validate-me', validateUser);
-
-// resend verification email
-router.get('/resend-verification', resendVerificationEmail);
 
 // update user fullname
 router.patch(
