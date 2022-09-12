@@ -1,3 +1,231 @@
+# [3.0.0-alpha.61](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.60...v3.0.0-alpha.61) (2022-09-11)
+
+
+### Features
+
+* **logger:** update framework from heroku-logger to winston ([f84e3dc](https://github.com/sws2apps/sws2apps-api/commit/f84e3dc02fef857211496eb46a94e07353bf38f3))
+
+# [3.0.0-alpha.60](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.59...v3.0.0-alpha.60) (2022-09-11)
+
+
+### Bug Fixes
+
+* **users:** move resend verification api outside of middleware ([b53b622](https://github.com/sws2apps/sws2apps-api/commit/b53b62236991a35f768072b4fc5c7c6e38b466ef))
+
+# [3.0.0-alpha.59](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.58...v3.0.0-alpha.59) (2022-09-11)
+
+
+### Bug Fixes
+
+* **views:** fix template path for email ([332eace](https://github.com/sws2apps/sws2apps-api/commit/332eace431d4d2f04c625e8bbb2b583410d16edb))
+
+# [3.0.0-alpha.58](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.57...v3.0.0-alpha.58) (2022-09-10)
+
+
+### Features
+
+* **deps:** bump dotenv from 16.0.1 to 16.0.2 ([39cc297](https://github.com/sws2apps/sws2apps-api/commit/39cc2977ac43ae28fef7aa6d486934e732aef302))
+* **deps:** bump express-rate-limit from 6.5.2 to 6.6.0 ([8645254](https://github.com/sws2apps/sws2apps-api/commit/864525415811f3c7a11265262da7f0061a0c5957))
+* **deps:** bump helmet from 5.1.1 to 6.0.0 ([0b8c739](https://github.com/sws2apps/sws2apps-api/commit/0b8c73923789525a559ee2ec71bf3befc867b083))
+
+# [3.0.0-alpha.57](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.56...v3.0.0-alpha.57) (2022-08-25)
+
+
+### Features
+
+* **deps:** bump express-rate-limit from 6.5.1 to 6.5.2 ([5059f53](https://github.com/sws2apps/sws2apps-api/commit/5059f5398d6ba8a9e09e4dda4d93ca3cf0bc90ef))
+
+# [3.0.0-alpha.56](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.55...v3.0.0-alpha.56) (2022-08-22)
+
+
+### Features
+
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([edf677a](https://github.com/sws2apps/sws2apps-api/commit/edf677a7c9bf30ac6ab10310fe12021dc989fb43))
+
+# [3.0.0-alpha.55](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.54...v3.0.0-alpha.55) (2022-08-20)
+
+
+### Features
+
+* **api:** handle setting pocket permissions ([3946b5e](https://github.com/sws2apps/sws2apps-api/commit/3946b5e51763ba84b76e67cd15dd85062937093b))
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([05a50a5](https://github.com/sws2apps/sws2apps-api/commit/05a50a5814670daefc4d9ac14855fd2f35fcdc8f))
+
+# [3.0.0-alpha.54](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.53...v3.0.0-alpha.54) (2022-08-12)
+
+
+### Features
+
+* **deps:** bump geoip-lite from 1.4.5 to 1.4.6 ([52f8991](https://github.com/sws2apps/sws2apps-api/commit/52f89914af6b0b9363d7cb0f1119e7fb371d9b92))
+* **deps:** bump nodemailer from 6.7.7 to 6.7.8 ([66271bd](https://github.com/sws2apps/sws2apps-api/commit/66271bd7830866d77a7bcb7a18b840c367435646))
+
+# [3.0.0-alpha.53](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.52...v3.0.0-alpha.53) (2022-08-01)
+
+
+### Features
+
+* **deps:** bump firebase-admin from 11.0.0 to 11.0.1 ([7c94762](https://github.com/sws2apps/sws2apps-api/commit/7c947625e4e8b861d750da6a8d7f9ddd065df5ae))
+* **deps:** bump node-fetch from 3.2.9 to 3.2.10 ([d995086](https://github.com/sws2apps/sws2apps-api/commit/d995086b120871c9d00a7a5f1ce9d63f48ddd843))
+
+# [3.0.0-alpha.52](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.51...v3.0.0-alpha.52) (2022-07-25)
+
+
+### Features
+
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([af6868f](https://github.com/sws2apps/sws2apps-api/commit/af6868f608b073fc0511389ee77b2a43ad9a6e02))
+* **deps:** bump express-rate-limit from 6.4.0 to 6.5.1 ([ef29cf9](https://github.com/sws2apps/sws2apps-api/commit/ef29cf96afc81deb629edd14a2552e0ec0af7e9b))
+* **deps:** bump helmet from 5.1.0 to 5.1.1 ([a658772](https://github.com/sws2apps/sws2apps-api/commit/a658772e0b6ab403a86fa5fba7b1bb6abe45b955))
+* **deps:** bump node-fetch from 3.2.8 to 3.2.9 ([e8aa92f](https://github.com/sws2apps/sws2apps-api/commit/e8aa92f046d3d98d0aff1335474ddee95ad2f218))
+
+# [3.0.0-alpha.51](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.50...v3.0.0-alpha.51) (2022-07-14)
+
+
+### Features
+
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([7f9ff38](https://github.com/sws2apps/sws2apps-api/commit/7f9ff386fc0c305fb0795af0091b7f823a144af4))
+* **deps:** bump node-fetch from 3.2.7 to 3.2.8 ([45002d2](https://github.com/sws2apps/sws2apps-api/commit/45002d2351e192626b4aaee7f852795b2f745d1e))
+
+# [3.0.0-alpha.50](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.49...v3.0.0-alpha.50) (2022-07-12)
+
+
+### Features
+
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([748f11d](https://github.com/sws2apps/sws2apps-api/commit/748f11d5d1118fb99cfd2bb0a173ff2a12a82962))
+* **deps:** bump node-fetch from 3.2.6 to 3.2.7 ([f849277](https://github.com/sws2apps/sws2apps-api/commit/f8492779db22152a8f29ea0a8b637818fcc879df))
+
+# [3.0.0-alpha.49](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.48...v3.0.0-alpha.49) (2022-07-07)
+
+
+### Bug Fixes
+
+* **deps:** fix issue with request-ip dependency ([36a4082](https://github.com/sws2apps/sws2apps-api/commit/36a4082b0b12106b56664dc5b0af381b2e45b51d))
+
+# [3.0.0-alpha.48](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.47...v3.0.0-alpha.48) (2022-07-07)
+
+
+### Features
+
+* **deps:** bump nodemailer from 6.7.6 to 6.7.7 ([804d87a](https://github.com/sws2apps/sws2apps-api/commit/804d87a922eb1c06a6cfb2119dfa67d70ca46b00))
+* **deps:** bump request-ip from 3.0.2 to 3.2.0 ([ac504ec](https://github.com/sws2apps/sws2apps-api/commit/ac504ec64b147619d118f4383c21b480e4e11794))
+
+# [3.0.0-alpha.47](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.46...v3.0.0-alpha.47) (2022-07-06)
+
+
+### Features
+
+* **cors:** allow alpha release of sws-pocket app to access api ([9d3fe3d](https://github.com/sws2apps/sws2apps-api/commit/9d3fe3d6a2ebc6b7949eb5cfc37e207491bc6a89))
+* **deps:** bump nodemailer from 6.7.5 to 6.7.6 ([5c93127](https://github.com/sws2apps/sws2apps-api/commit/5c931272fe2ba0d6e98c7f4d47e4bba3d59f4619))
+* **deps:** bump request-ip from 2.2.0 to 3.0.2 ([8fd2904](https://github.com/sws2apps/sws2apps-api/commit/8fd29040a377340537819a081ed19fa1a0fb3a46))
+
+# [3.0.0-alpha.46](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.45...v3.0.0-alpha.46) (2022-06-30)
+
+
+### Features
+
+* **api:** update routes to prepare for sws pocket app ([bdc791e](https://github.com/sws2apps/sws2apps-api/commit/bdc791e78edd8321cd357c5b7b5cb5e52aa9a4b6))
+
+# [3.0.0-alpha.45](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.44...v3.0.0-alpha.45) (2022-06-26)
+
+
+### Bug Fixes
+
+* **congregation:** change order of routes to find and get user ([a4acc5b](https://github.com/sws2apps/sws2apps-api/commit/a4acc5b28f602121a71233e2f5459799b8537c42))
+
+# [3.0.0-alpha.44](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.43...v3.0.0-alpha.44) (2022-06-26)
+
+
+### Features
+
+* **congregation:** add routes to allow administrators to edit members ([45a210b](https://github.com/sws2apps/sws2apps-api/commit/45a210bb281ae5881674aab6f509faa654951d45))
+
+# [3.0.0-alpha.43](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.42...v3.0.0-alpha.43) (2022-06-25)
+
+
+### Features
+
+* **users:** add new sws_last_seen field in user session ([1c1318e](https://github.com/sws2apps/sws2apps-api/commit/1c1318e37d9fb796d3ecd637657905ba30b01b85))
+
+# [3.0.0-alpha.42](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.41...v3.0.0-alpha.42) (2022-06-25)
+
+
+### Features
+
+* **users:** add logout route ([875a7fb](https://github.com/sws2apps/sws2apps-api/commit/875a7fb1a651aa1d53c1b828dd471a9fd24a6d25))
+
+# [3.0.0-alpha.41](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.40...v3.0.0-alpha.41) (2022-06-25)
+
+
+### Features
+
+* **api:** create controllers files ([7979655](https://github.com/sws2apps/sws2apps-api/commit/79796554e3c53acf8da6c5f03a4542be56c005de))
+
+# [3.0.0-alpha.40](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.39...v3.0.0-alpha.40) (2022-06-20)
+
+
+### Features
+
+* **users:** add routes to manage user account profile from lmm-oa app ([83a55fd](https://github.com/sws2apps/sws2apps-api/commit/83a55fd17d0953ec52ff55bb3a7d65ab59275de8))
+
+# [3.0.0-alpha.39](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.38...v3.0.0-alpha.39) (2022-06-20)
+
+
+### Features
+
+* **deps:** bump express-validator from 6.14.1 to 6.14.2 ([935fcfc](https://github.com/sws2apps/sws2apps-api/commit/935fcfca0b9fa43a4cb27b311f0bfddabcb26472))
+
+# [3.0.0-alpha.38](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.37...v3.0.0-alpha.38) (2022-06-19)
+
+
+### Bug Fixes
+
+* **congregation:** add retrieve backup from lmm-oa app ([460a011](https://github.com/sws2apps/sws2apps-api/commit/460a0113837e55f581863384f32c384763cb728f))
+
+
+### Features
+
+* **congregation:** send and retrieve lmm-oa backup from app ([e84c148](https://github.com/sws2apps/sws2apps-api/commit/e84c1480ccedb381938b8082293d9591f9301c27))
+
+# [3.0.0-alpha.37](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.36...v3.0.0-alpha.37) (2022-06-17)
+
+
+### Features
+
+* **deps:** bump firebase-admin from 10.3.0 to 11.0.0 ([832883c](https://github.com/sws2apps/sws2apps-api/commit/832883cc8232d2bab746a46b0c08f2c018a50afd))
+
+# [3.0.0-alpha.36](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.35...v3.0.0-alpha.36) (2022-06-11)
+
+
+### Features
+
+* **admin:** new routes for congregation management ([c7676cf](https://github.com/sws2apps/sws2apps-api/commit/c7676cf300a72ad5fed6b964fd77f62e6e266002))
+
+# [3.0.0-alpha.35](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.34...v3.0.0-alpha.35) (2022-06-10)
+
+
+### Features
+
+* **admin:** add make user as admin route ([deb21bc](https://github.com/sws2apps/sws2apps-api/commit/deb21bc681ad688c6efa37b87f7402f212e22ae9))
+
+# [3.0.0-alpha.34](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.33...v3.0.0-alpha.34) (2022-06-10)
+
+
+### Bug Fixes
+
+* **email:** write verification link directly in email ([74ba594](https://github.com/sws2apps/sws2apps-api/commit/74ba5942f1a0bef6c67ce00d61538a0099652d45))
+
+# [3.0.0-alpha.33](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.32...v3.0.0-alpha.33) (2022-06-10)
+
+
+### Bug Fixes
+
+* **email:** fix undefined recipient when sending account verification email ([3e38b36](https://github.com/sws2apps/sws2apps-api/commit/3e38b36723b8444b8c7229a3cdb234607cd6e434))
+
+# [3.0.0-alpha.32](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.31...v3.0.0-alpha.32) (2022-06-10)
+
+
+### Features
+
+* **api:** api routes reorginazation (wip) ([3dab33b](https://github.com/sws2apps/sws2apps-api/commit/3dab33bb2c274ac44ca282fe7d6ea0e7f6ba712f))
+
 # [3.0.0-alpha.31](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.30...v3.0.0-alpha.31) (2022-06-10)
 
 

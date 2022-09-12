@@ -7,11 +7,11 @@ permissions: read-all
 
 jobs:
   deploy_dev:
-    name: Deploy API to Development
+    name: Deploy API to Alpha Stage
     if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/alpha' }}
     environment:
-      name: Development
-      url: https://dev-sws2apps.herokuapp.com
+      name: Alpha.env
+      url: https://alpha-sws2apps-api.onrender.com
     runs-on: ubuntu-latest
 
     steps:
@@ -23,78 +23,15 @@ jobs:
 
       - name: Semantic Release
         id: semantic
-        uses: cycjimmy/semantic-release-action@3b88c82b34098e8b51e401c1082c9170b0a3ec3c
+        uses: cycjimmy/semantic-release-action@e1fe1fc00a3729593e87efb2f88475de76d64a24
         with:
           semantic_version: 19.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: Deploy API to Heroku
+      - name: Deploy API to Render
         if: ${{ steps.semantic.outputs.new_release_published == 'true' }}
-        uses: akhileshns/heroku-deploy@79ef2ae4ff9b897010907016b268fd0f88561820
+        uses: sws2apps/render-deployment@90a5d9c22cdc4c78be3c2dd926ca9b84e2d7d70c
         with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: dev-sws2apps
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
-
-  deploy_staging:
-    name: Deploy API to Staging
-    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/beta' }}
-    environment:
-      name: Staging
-      url: https://staging-sws2apps.herokuapp.com
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout for release preparation
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-        with:
-          ref: beta
-          persist-credentials: false
-
-      - name: Semantic Release
-        id: semantic
-        uses: cycjimmy/semantic-release-action@3b88c82b34098e8b51e401c1082c9170b0a3ec3c
-        with:
-          semantic_version: 19.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: Deploy API to Heroku
-        if: ${{ steps.semantic.outputs.new_release_published == 'true' }}
-        uses: akhileshns/heroku-deploy@79ef2ae4ff9b897010907016b268fd0f88561820
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: staging-sws2apps
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
-
-  deploy_prod:
-    name: Deploy API to Production
-    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
-    environment:
-      name: Production
-      url: https://sws2apps.herokuapp.com
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout for release preparation
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-        with:
-          ref: main
-          persist-credentials: false
-
-      - name: Semantic Release
-        id: semantic
-        uses: cycjimmy/semantic-release-action@3b88c82b34098e8b51e401c1082c9170b0a3ec3c
-        with:
-          semantic_version: 19.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: Deploy API to Heroku
-        if: ${{ steps.semantic.outputs.new_release_published == 'true' }}
-        uses: akhileshns/heroku-deploy@79ef2ae4ff9b897010907016b268fd0f88561820
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: sws2apps
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          serviceId: ${{ secrets.RENDER_SERVICE_ID }}
+          apiKey: ${{ secrets.RENDER_API_KEY }}

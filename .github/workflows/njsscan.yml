@@ -25,11 +25,11 @@ jobs:
 
       - name: nodejsscan scan
         id: njsscan
-        uses: ajinabraham/njsscan-action@7237412fdd36af517e2745077cedbf9d6900d711
+        uses: ajinabraham/njsscan-action@d58d8b2f26322cd35a9efb8003baac517f226d81
         with:
           args: '. --sarif --output results.sarif || true'
 
       - name: Upload njsscan report
-        uses: github/codeql-action/upload-sarif@27ea8f8fe5977c00f5b37e076ab846c5bd783b96
+        uses: github/codeql-action/upload-sarif@b398f525a5587552e573b247ac661067fafa920b
         with:
           sarif_file: results.sarif

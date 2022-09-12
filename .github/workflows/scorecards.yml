@@ -14,7 +14,10 @@ jobs:
     name: Scorecards Analysis
     runs-on: ubuntu-latest
     permissions:
+      # Needed to upload the results to code-scanning dashboard.
       security-events: write
+      # Used to receive a badge. (Upcoming feature)
+      id-token: write
       actions: read
       contents: read
 
@@ -25,7 +28,7 @@ jobs:
           persist-credentials: false
 
       - name: 'Run analysis'
-        uses: ossf/scorecard-action@3e15ea8318eee9b333819ec77a36aca8d39df13e
+        uses: ossf/scorecard-action@68bf5b3327e4fd443d2add8ab122280547b4a16d
         with:
           results_file: results.sarif
           results_format: sarif
@@ -33,6 +36,6 @@ jobs:
           publish_results: true
 
       - name: 'Upload to code-scanning'
-        uses: github/codeql-action/upload-sarif@27ea8f8fe5977c00f5b37e076ab846c5bd783b96
+        uses: github/codeql-action/upload-sarif@b398f525a5587552e573b247ac661067fafa920b
         with:
           sarif_file: results.sarif
