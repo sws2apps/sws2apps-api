@@ -1,3 +1,22 @@
+# [3.0.0-alpha.62](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.61...v3.0.0-alpha.62) (2022-09-12)
+
+
+### Bug Fixes
+
+* **users:** email template for resending verification link ([5946e6b](https://github.com/sws2apps/sws2apps-api/commit/5946e6b7e7097655d2012a0477f4892bac115469))
+
+
+### Features
+
+* **logger:** use @logtail/node for logtail logging ([0a27638](https://github.com/sws2apps/sws2apps-api/commit/0a2763877d1550c0b8146d9b26df21cc581d045a))
+
+# [3.0.0-alpha.61](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.60...v3.0.0-alpha.61) (2022-09-11)
+
+
+### Features
+
+* **logger:** update framework from heroku-logger to winston ([f84e3dc](https://github.com/sws2apps/sws2apps-api/commit/f84e3dc02fef857211496eb46a94e07353bf38f3))
+
 # [3.0.0-alpha.60](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.59...v3.0.0-alpha.60) (2022-09-11)
 
 

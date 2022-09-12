@@ -1,6 +1,6 @@
 {
   "name": "sws2apps-api",
-  "version": "3.0.0-alpha.60",
+  "version": "3.0.0-alpha.62",
   "description": "Node apps to handle backend operations for all sws2apps services",
   "main": "index.js",
   "scripts": {
@@ -13,6 +13,7 @@
   "type": "module",
   "dependencies": {
     "@fingerprintjs/fingerprintjs-pro-server-api": "^1.2.1",
+    "@logtail/node": "^0.1.12",
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
