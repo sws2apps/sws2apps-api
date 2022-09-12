@@ -1,23 +1,21 @@
 // dependency import
-import winston from 'winston';
+import { Logtail } from '@logtail/node';
 
 export const logger = (level, message) => {
-	const logger = winston.createLogger({
-		level: 'info',
-		format: winston.format.combine(
-			winston.format.timestamp(),
-			winston.format.json()
-		),
-		transports: [new winston.transports.Console()],
-	});
+	const isProd = process.env.NODE_ENV === 'production'
+
+	const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN);
 
 	let msg = message.replace(/\n|\r/g, '');
 
 	if (level === 'info') {
-		logger.info(msg);
+		console.log(msg);
+		if (isProd) logtail.info(msg)
 	} else if (level === 'warn') {
-		logger.warn(msg);
+		console.warn(msg);
+		if (isProd) logtail.warn(msg)
 	} else if (level === 'error') {
-		logger.error(msg);
+		console.error(msg);
+		if (isProd) logtail.error(msg)
 	}
 };
