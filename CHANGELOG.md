@@ -1,3 +1,10 @@
+# [3.0.0-alpha.63](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.62...v3.0.0-alpha.63) (2022-09-12)
+
+
+### Features
+
+* **logger:** improve log output for better parsing ([591d4bc](https://github.com/sws2apps/sws2apps-api/commit/591d4bcc5e0866e089f03e713972d7da110f6adf))
+
 # [3.0.0-alpha.62](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.61...v3.0.0-alpha.62) (2022-09-12)
 
 
