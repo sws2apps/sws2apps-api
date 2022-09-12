@@ -46,26 +46,30 @@ export const updateTracker = () => {
 						requestTracker.splice(ipIndex, 1);
 					}
 
-					let log = '';
-					log += `method=${req.method} `;
-					log += `status=${res.statusCode} `;
-					log += `path=${req.originalUrl} `;
-					log += `origin=${req.headers.origin || req.hostname}(${clientIp}) `;
-					log += `details=${res.locals.message}`;
+					let log = {};
 
-					logger(res.locals.type, log);
+					log.method = req.method;
+					log.status = res.statusCode;
+					log.path = res.originalUrl;
+					log.origin = req.headers.origin || `${req.hostname}(${clientIp}) `;
+					log.details = res.locals.message.replace(/\n|\r/g, '');
+
+					logger(res.locals.type, JSON.stringify(log));
 				} else {
 					if (ipIndex >= 0) {
 						requestTracker.splice(ipIndex, 1);
 					}
 					res.status(400);
-					let log = '';
-					log += `method=${req.method} `;
-					log += `status=${res.statusCode} `;
-					log += `path=${req.originalUrl} `;
-					log += `origin=${req.headers.origin || req.hostname}(${clientIp}) `;
-					log += `details=this request was aborted`;
-					logger('warn', log);
+
+					let log = {};
+
+					log.method = req.method;
+					log.status = res.statusCode;
+					log.path = res.originalUrl;
+					log.origin = req.headers.origin || `${req.hostname}(${clientIp}) `;
+					log.details = 'this request was aborted';
+
+					logger('warn', JSON.stringify(log));
 				}
 			});
 
