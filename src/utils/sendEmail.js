@@ -45,11 +45,18 @@ export const sendVerificationEmail = async (
 					if (error) {
 						logger(
 							'warn',
-							`failed to send message: ${error.message}. trying again ...`
+							JSON.stringify({
+								details: `failed to send message: ${error.message}. trying again ...`,
+							})
 						);
 						return resolve(false);
 					}
-					logger('info', `verification message sent to ${options.to}`);
+					logger(
+						'info',
+						JSON.stringify({
+							details: `verification message sent to ${options.to}`,
+						})
+					);
 					return resolve(true);
 				});
 			});
@@ -92,11 +99,18 @@ export const sendCongregationAccountCreated = async (
 					if (error) {
 						logger(
 							'warn',
-							`failed to send message: ${error.message}. trying again ...`
+							JSON.stringify({
+								details: `failed to send message: ${error.message}. trying again ...`,
+							})
 						);
 						return resolve(false);
 					}
-					logger('info', `confirmation message sent to ${options.to}`);
+					logger(
+						'info',
+						JSON.stringify({
+							details: `confirmation message sent to ${options.to}`,
+						})
+					);
 					return resolve(true);
 				});
 			});
@@ -141,11 +155,18 @@ export const sendCongregationAccountDisapproved = async (
 					if (error) {
 						logger(
 							'warn',
-							`failed to send message: ${error.message}. trying again ...`
+							JSON.stringify({
+								details: `failed to send message: ${error.message}. trying again ...`,
+							})
 						);
 						return resolve(false);
 					}
-					logger('info', `confirmation message sent to ${options.to}`);
+					logger(
+						'info',
+						JSON.stringify({
+							details: `confirmation message sent to ${options.to}`,
+						})
+					);
 					return resolve(true);
 				});
 			});
@@ -186,11 +207,18 @@ export const sendUserResetPassword = async (
 					if (error) {
 						logger(
 							'warn',
-							`failed to send message: ${error.message}. trying again ...`
+							JSON.stringify({
+								details: `failed to send message: ${error.message}. trying again ...`,
+							})
 						);
 						return resolve(false);
 					}
-					logger('info', `reset password link message sent to ${options.to}`);
+					logger(
+						'info',
+						JSON.stringify({
+							details: `reset password link message sent to ${options.to}`,
+						})
+					);
 					return resolve(true);
 				});
 			});
@@ -232,11 +260,18 @@ export const sendCongregationRequest = async (
 					if (error) {
 						logger(
 							'warn',
-							`failed to send message: ${error.message}. trying again ...`
+							JSON.stringify({
+								details: `failed to send message: ${error.message}. trying again ...`,
+							})
 						);
 						return resolve(false);
 					}
-					logger('info', `admin echoed email for new congregation request`);
+					logger(
+						'info',
+						JSON.stringify({
+							details: `admin echoed email for new congregation request`,
+						})
+					);
 					return resolve(true);
 				});
 			});
