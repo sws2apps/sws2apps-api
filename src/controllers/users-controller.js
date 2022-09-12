@@ -121,11 +121,12 @@ export const validateUser = async (req, res, next) => {
 export const resendVerificationEmail = async (req, res, next) => {
 	try {
 		const { email } = req.headers;
+		const { username } = await getUserInfo(email);
 
 		getAuth()
 			.generateEmailVerificationLink(email)
 			.then((link) => {
-				sendVerificationEmail(email, link);
+				sendVerificationEmail(email, username, link);
 
 				res.locals.type = 'info';
 				res.locals.message = `new verification email queued for sending`;
