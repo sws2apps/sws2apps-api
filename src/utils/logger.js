@@ -6,16 +6,14 @@ export const logger = (level, message) => {
 
 	const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN);
 
-	let msg = message.replace(/\n|\r/g, '');
-
 	if (level === 'info') {
-		console.log(msg);
-		if (isProd) logtail.info(msg);
+		console.log(message);
+		if (isProd) logtail.info(message);
 	} else if (level === 'warn') {
-		console.warn(msg);
-		if (isProd) logtail.warn(msg);
+		console.warn(message);
+		if (isProd) logtail.warn(message);
 	} else if (level === 'error') {
-		console.error(msg);
-		if (isProd) logtail.error(msg);
+		console.error(message);
+		if (isProd) logtail.error(message);
 	}
 };
