@@ -98,10 +98,6 @@ app.use(
 
 app.use('/', authRoute);
 app.use('/api/congregations', congregationRoute);
-<<<<<<< HEAD:routes/app.js
-app.use('/api/sws-pocket', swsPocketRoute);
-=======
->>>>>>> e18ab2fca1f67ebd954d159cbf370af4d8d153cd:src/app.js
 app.use('/api/mfa', mfaRoute);
 app.use('/api/users', userRoute);
 app.use('/api/admin', adminRoute);
