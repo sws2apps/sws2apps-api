@@ -1,3 +1,10 @@
+# [3.0.0-alpha.65](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.64...v3.0.0-alpha.65) (2022-09-13)
+
+
+### Bug Fixes
+
+* **congregation:** add sws pocket identifier to the backup ([bdee72b](https://github.com/sws2apps/sws2apps-api/commit/bdee72b4d6998e5398ca23a594acdec92d4b9991))
+
 # [3.0.0-alpha.64](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.63...v3.0.0-alpha.64) (2022-09-13)
 
 
