@@ -1,3 +1,10 @@
+# [3.0.0-alpha.64](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.63...v3.0.0-alpha.64) (2022-09-13)
+
+
+### Features
+
+* **logger:** separate ip address in different property ([83343aa](https://github.com/sws2apps/sws2apps-api/commit/83343aa15f286f812bf2af35369b134d6a039997))
+
 # [3.0.0-alpha.63](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.62...v3.0.0-alpha.63) (2022-09-12)
 
 
