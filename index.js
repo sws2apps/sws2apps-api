@@ -13,6 +13,6 @@ const APP_VERSION = process.env.npm_package_version;
 app.listen(PORT, () => {
 	logger(
 		'info',
-		JSON.stringify({ message: `server up and running (v${APP_VERSION})` })
+		JSON.stringify({ details: `server up and running (v${APP_VERSION})` })
 	);
 });

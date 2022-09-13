@@ -32,8 +32,7 @@
     "nodemailer-express-handlebars": "^5.0.0",
     "randomstring": "^1.2.2",
     "request-ip": "^3.3.0",
-    "serve-favicon": "^2.5.0",
-    "winston": "^3.8.2"
+    "serve-favicon": "^2.5.0"
   },
   "repository": {
     "type": "git",
