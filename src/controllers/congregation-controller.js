@@ -232,6 +232,7 @@ export const getCongregationBackup = async (req, res, next) => {
 						cong_persons,
 						cong_schedule_draft,
 						cong_sourceMaterial_draft,
+						cong_swsPocket,
 					} = cong;
 
 					// decrypt cong_persons data
@@ -241,6 +242,7 @@ export const getCongregationBackup = async (req, res, next) => {
 						cong_persons: decryptedPersons,
 						cong_schedule: cong_schedule_draft,
 						cong_sourceMaterial: cong_sourceMaterial_draft,
+						cong_swsPocket: cong_swsPocket,
 					};
 
 					res.locals.type = 'info';
