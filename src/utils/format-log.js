@@ -11,7 +11,8 @@ export const formatLog = (message, req, res) => {
 		log.method = req.method;
 		log.status = res.statusCode;
 		log.path = res.originalUrl;
-		log.origin = req.headers.origin || `${req.hostname}(${clientIp}) `;
+		log.origin = req.headers.origin || req.hostname;
+		if (clientIp) log.ip = clientIp;
 	}
 
 	log.details = message.replace(/\n|\r/g, '');
