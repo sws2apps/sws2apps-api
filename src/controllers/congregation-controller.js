@@ -162,7 +162,12 @@ export const saveCongregationBackup = async (req, res, next) => {
 				const isValid = await checkCongregationMember(email, id);
 
 				if (isValid) {
-					const { cong_persons, cong_schedule, cong_sourceMaterial } = req.body;
+					const {
+						cong_persons,
+						cong_schedule,
+						cong_sourceMaterial,
+						cong_swsPocket,
+					} = req.body;
 
 					// encrypt cong_persons data
 					const encryptedPersons = encryptData(cong_persons);
@@ -173,6 +178,7 @@ export const saveCongregationBackup = async (req, res, next) => {
 						cong_persons: encryptedPersons,
 						cong_schedule_draft: cong_schedule,
 						cong_sourceMaterial_draft: cong_sourceMaterial,
+						cong_swsPocket: cong_swsPocket,
 						last_backup: {
 							by: userInfo.id,
 							date: new Date(),
@@ -226,6 +232,7 @@ export const getCongregationBackup = async (req, res, next) => {
 						cong_persons,
 						cong_schedule_draft,
 						cong_sourceMaterial_draft,
+						cong_swsPocket,
 					} = cong;
 
 					// decrypt cong_persons data
@@ -235,6 +242,7 @@ export const getCongregationBackup = async (req, res, next) => {
 						cong_persons: decryptedPersons,
 						cong_schedule: cong_schedule_draft,
 						cong_sourceMaterial: cong_sourceMaterial_draft,
+						cong_swsPocket: cong_swsPocket,
 					};
 
 					res.locals.type = 'info';
@@ -1121,10 +1129,10 @@ export const sendPocketSchedule = async (req, res, next) => {
 					}
 
 					// update pocket schedule and source
-					const currentSchedule = cong.cong_schedule || [];
-					const studentsSchedule = currentSchedule.midweek?.students || [];
-					const currentSource = cong.cong_sourceMaterial || [];
-					const studentsSource = currentSource.midweek?.students || [];
+					const currentSchedule = cong.cong_schedule || {};
+					const studentsSchedule = currentSchedule.students || [];
+					const currentSource = cong.cong_sourceMaterial || {};
+					const studentsSource = currentSource.students || [];
 
 					// remove expired schedule and source (> 3 months)
 					const currentDate = new Date().getTime();
