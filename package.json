@@ -26,6 +26,7 @@
     "geoip-lite": "^1.4.6",
     "helmet": "^6.0.0",
     "is-online": "^10.0.0",
+    "jw-epub-parser": "^1.23.3",
     "node-2fa": "^2.0.3",
     "node-fetch": "^3.2.10",
     "nodemailer": "^6.7.8",
