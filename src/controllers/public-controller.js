@@ -54,6 +54,7 @@ export const getUpdatedSchedules = async (req, res, next) => {
                 const epubData = await loadEPUB({ url: epubUrl });
                 const obj = {
                     issueDate,
+                    modifiedDateTime: epubModifiedDate,
                     ...epubData,
                 };
 
