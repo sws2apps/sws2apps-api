@@ -1,16 +1,17 @@
 import fetch from 'node-fetch';
 import { loadEPUB } from 'jw-epub-parser/dist/node.es/node.js';
 
-export const getUpdatedSchedules = async (req, res, next) => {
+export const getSchedules = async (req, res, next) => {
 	try {
-		const { language, source_materials_details } = req.body;
+		let { language } = req.params;
+        language = language.toUpperCase()
 
         if (language !== 'E' && language !== 'MG') {
             res.locals.type = 'warn';
             res.locals.message = `invalid language for source material`;
 
             res.status(400).json({
-                message: 'Bad request: provided inputs are invalid.',
+                message: 'Sorry, the provided source language is not yet supported',
             });
 
             return;
