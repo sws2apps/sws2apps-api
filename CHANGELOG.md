@@ -1,3 +1,10 @@
+# [3.0.0-alpha.67](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.66...v3.0.0-alpha.67) (2022-09-17)
+
+
+### Bug Fixes
+
+* **public:** include epub modified date when getting source material from jw.org ([869e004](https://github.com/sws2apps/sws2apps-api/commit/869e004b2ac15712ca92de50a04202fb59e03e17))
+
 # [3.0.0-alpha.66](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.65...v3.0.0-alpha.66) (2022-09-17)
 
 
