@@ -1,3 +1,11 @@
+# [3.0.0-alpha.66](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.65...v3.0.0-alpha.66) (2022-09-17)
+
+
+### Features
+
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([cbd0ee4](https://github.com/sws2apps/sws2apps-api/commit/cbd0ee4ff772f727b2ff72053a2ef076b0b73a04))
+* **public:** add new endpoint to fetch schedules from jw.org ([6c1b10c](https://github.com/sws2apps/sws2apps-api/commit/6c1b10cc9ce9d3357134fd3952d45dbfb421e40a))
+
 # [3.0.0-alpha.65](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.64...v3.0.0-alpha.65) (2022-09-13)
 
 
