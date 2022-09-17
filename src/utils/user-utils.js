@@ -92,7 +92,6 @@ export const getUsers = async () => {
 
 export const getUserInfo = async (userID) => {
 	const users = await getUsers();
-
 	const findUser = users.find((user) => user.user_uid === userID.toLowerCase());
 
 	if (findUser) {
