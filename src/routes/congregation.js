@@ -19,6 +19,7 @@ import {
 	getCongregationPockerUser,
 	getCongregationUser,
 	getLastCongregationBackup,
+	getUpdatedSchedules,
 	removeCongregationUser,
 	requestCongregation,
 	saveCongregationBackup,
@@ -130,6 +131,13 @@ router.delete(
 	'/:id/pockets/:user',
 	body('pocket_visitor_id').notEmpty(),
 	deletePocketDevice
+);
+
+// get updated and latest schedules
+router.post(
+	'/:id/source-material',
+	body('language').notEmpty(),
+	getUpdatedSchedules
 );
 
 export default router;
