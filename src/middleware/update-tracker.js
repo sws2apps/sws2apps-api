@@ -48,7 +48,7 @@ export const updateTracker = () => {
 					log.status = res.statusCode;
 					log.path = res.originalUrl;
 					log.origin = req.headers.origin || req.hostname;
-					if (clientIp) log.ip = clientIp
+					if (clientIp) log.ip = clientIp;
 					log.details = res.locals.message.replace(/\n|\r/g, '');
 
 					logger(res.locals.type, JSON.stringify(log));
@@ -64,7 +64,7 @@ export const updateTracker = () => {
 					log.status = res.statusCode;
 					log.path = res.originalUrl;
 					log.origin = req.headers.origin || req.hostname;
-					if (clientIp) log.ip = clientIp
+					if (clientIp) log.ip = clientIp;
 					log.details = 'this request was aborted';
 
 					logger('warn', JSON.stringify(log));
