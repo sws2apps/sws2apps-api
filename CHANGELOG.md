@@ -1,3 +1,10 @@
+# [3.0.0-alpha.68](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.67...v3.0.0-alpha.68) (2022-09-17)
+
+
+### Features
+
+* **public:** move source material language from headers to params ([e4167c8](https://github.com/sws2apps/sws2apps-api/commit/e4167c8ab8c9e756f2ad8aa454bc597c24c3752a))
+
 # [3.0.0-alpha.67](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.66...v3.0.0-alpha.67) (2022-09-17)
 
 
