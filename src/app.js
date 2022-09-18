@@ -17,6 +17,7 @@ import userRoute from './routes/users.js';
 import adminRoute from './routes/admin.js';
 import mfaRoute from './routes/mfa.js';
 import swsPocketRoute from './routes/sws-pocket.js';
+import publicRoute from './routes/public.js';
 
 // middleware import
 import { internetChecker } from './middleware/internet-checker.js';
@@ -102,6 +103,7 @@ app.use('/api/mfa', mfaRoute);
 app.use('/api/users', userRoute);
 app.use('/api/admin', adminRoute);
 app.use('/api/sws-pocket', swsPocketRoute);
+app.use('/api/public', publicRoute);
 
 app.get('/', getRoot);
 
