@@ -1,3 +1,10 @@
+# 1.0.0 (2022-09-25)
+
+
+### Features
+
+* **api:** initial live commit ([7e8147a](https://github.com/sws2apps/sws2apps-api/commit/7e8147a60bf9abcdbe39c153360ba1a5112fc3ab))
+
 # [3.0.0-alpha.68](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0-alpha.67...v3.0.0-alpha.68) (2022-09-17)
 
 
