@@ -40,12 +40,10 @@ var whitelist = [
 	'https://sws-pocket.firebaseapp.com',
 	'https://lmm-oa-sws.web.app',
 	'https://lmm-oa-sws.firebaseapp.com',
-	'https://dev-lmm-oa-sws.web.app',
-	'https://dev-lmm-oa-sws.firebaseapp.com',
 	'https://sws-apps-dev.web.app',
 	'https://sws-apps-dev.firebaseapp.com',
-	'https://staging-lmm-oa-sws.web.app',
-	'https://staging-lmm-oa-sws.firebaseapp.com',
+	'https://sws2apps-tools.web.app',
+	'https://sws2apps-tools.firebaseapp.com',
 ];
 
 var corsOptionsDelegate = function (req, callback) {
