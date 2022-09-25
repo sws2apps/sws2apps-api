@@ -46,7 +46,7 @@ export const loginUser = async (req, res, next) => {
 			limit: 1,
 		});
 
-		if (visitorHistory.visits.length === 0) {
+		if (visitorHistory.visits?.length === 0) {
 			res.locals.failedLoginAttempt = true;
 			res.locals.type = 'warn';
 			res.locals.message = 'the authentication request seems to be fraudulent';
