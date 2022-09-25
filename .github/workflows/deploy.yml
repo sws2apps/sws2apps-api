@@ -1,0 +1,37 @@
+name: CD
+
+on:
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  deploy_dev:
+    name: Deploy API to Render
+    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
+    environment:
+      name: Prod.env
+      url: https://sws2apps-api.onrender.com
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout for release preparation
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Semantic Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@e1fe1fc00a3729593e87efb2f88475de76d64a24
+        with:
+          semantic_version: 19.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Render Deployment
+        if: ${{ steps.semantic.outputs.new_release_published == 'true' }}
+        uses: sws2apps/render-deployment@90a5d9c22cdc4c78be3c2dd926ca9b84e2d7d70c
+        with:
+          serviceId: ${{ secrets.RENDER_SERVICE_ID }}
+          apiKey: ${{ secrets.RENDER_API_KEY }}
