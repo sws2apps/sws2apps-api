@@ -46,12 +46,7 @@ export const loginUser = async (req, res, next) => {
 			limit: 1,
 		});
 
-		if (visitorHistory.visits?.length === 0) {
-			res.locals.failedLoginAttempt = true;
-			res.locals.type = 'warn';
-			res.locals.message = 'the authentication request seems to be fraudulent';
-			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-		} else {
+		if (visitorHistory.visits?.length > 0) {
 			// pass to google toolkit for authentication
 			const googleKit = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`;
 
@@ -158,6 +153,11 @@ export const loginUser = async (req, res, next) => {
 					res.status(403).json({ message: 'NOT_VERIFIED' });
 				}
 			}
+		} else {
+			res.locals.failedLoginAttempt = true;
+			res.locals.type = 'warn';
+			res.locals.message = 'the authentication request seems to be fraudulent';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
 		}
 	} catch (err) {
 		next(err);
