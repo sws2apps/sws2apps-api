@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/sws2apps/sws2apps-api/compare/v1.0.2...v1.0.3) (2022-09-25)
+
+
+### Bug Fixes
+
+* **auth:** change order of condition when checking visitors id ([4d40b87](https://github.com/sws2apps/sws2apps-api/commit/4d40b872555c5dbbeb44d099801fc2cc66c0dc1e))
+
 ## [1.0.2](https://github.com/sws2apps/sws2apps-api/compare/v1.0.1...v1.0.2) (2022-09-25)
 
 
