@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/sws2apps/sws2apps-api/compare/v1.0.1...v1.0.2) (2022-09-25)
+
+
+### Bug Fixes
+
+* **auth:** check visitorHistory.visits array from fingerprint if undefined ([9baddcf](https://github.com/sws2apps/sws2apps-api/commit/9baddcf26840e299578d057f2ef1e812dea98895))
+
 ## [1.0.1](https://github.com/sws2apps/sws2apps-api/compare/v1.0.0...v1.0.1) (2022-09-25)
 
 
