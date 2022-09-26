@@ -46,6 +46,8 @@ export const loginUser = async (req, res, next) => {
 			limit: 1,
 		});
 
+		console.log(visitorHistory)
+
 		if (visitorHistory.visits?.length > 0) {
 			// pass to google toolkit for authentication
 			const googleKit = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`;
