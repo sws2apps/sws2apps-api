@@ -61,7 +61,7 @@ export const pocketSignUp = async (req, res, next) => {
 		}
 
 		// get visitor ID and otp code
-		const { otp_code, visitor_id } = req.body;
+		const { otp_code, visitorid } = req.body;
 
 		// validate visitor id
 		const client = new FingerprintJsServerApiClient({
@@ -69,7 +69,7 @@ export const pocketSignUp = async (req, res, next) => {
 			apiKey: process.env.FINGERPRINT_API_SERVER_KEY,
 		});
 
-		const visitorHistory = await client.getVisitorHistory(visitor_id, {
+		const visitorHistory = await client.getVisitorHistory(visitorid, {
 			limit: 1,
 		});
 
@@ -104,13 +104,13 @@ export const pocketSignUp = async (req, res, next) => {
 			let devices = user.pocket_devices || [];
 
 			const obj = {
-				visitor_id: visitor_id,
+				visitorid: visitorid,
 				name: `${visit.browserDetails.os} ${visit.browserDetails.osVersion} (${visit.browserDetails.browserName} ${visit.browserDetails.browserFullVersion})`,
 				sws_last_seen: new Date().getTime(),
 			};
 
 			const foundDevice = devices.find(
-				(device) => device.visitor_id === visitor_id
+				(device) => device.visitorid === visitorid
 			);
 
 			// device already added
@@ -136,7 +136,7 @@ export const pocketSignUp = async (req, res, next) => {
 				pocket_members,
 				cong_name,
 				cong_number,
-			} = await findPocketByVisitorID(visitor_id);
+			} = await findPocketByVisitorID(visitorid);
 
 			res.locals.type = 'info';
 			res.locals.message = 'pocket device visitor id added successfully';

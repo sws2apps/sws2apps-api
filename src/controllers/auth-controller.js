@@ -34,7 +34,7 @@ export const loginUser = async (req, res, next) => {
 			return;
 		}
 
-		const { email, password, visitor_id } = req.body;
+		const { email, password, visitorid } = req.body;
 
 		// validate visitor id
 		const client = new FingerprintJsServerApiClient({
@@ -42,7 +42,7 @@ export const loginUser = async (req, res, next) => {
 			apiKey: process.env.FINGERPRINT_API_SERVER_KEY,
 		});
 
-		const visitorHistory = await client.getVisitorHistory(visitor_id, {
+		const visitorHistory = await client.getVisitorHistory(visitorid, {
 			limit: 1,
 		});
 
@@ -90,14 +90,14 @@ export const loginUser = async (req, res, next) => {
 
 					// revoke matched session
 					let newSessions = sessions.filter(
-						(session) => session.visitor_id !== visitor_id
+						(session) => session.visitorid !== visitorid
 					);
 
 					const now = new Date();
 					const expiryDate = now.getTime() + 24 * 60 * 60000; // expired after 1 day
 
 					newSessions.push({
-						visitor_id: visitor_id,
+						visitorid: visitorid,
 						visitor_details: { ...visitorHistory.visits[0] },
 						expires: expiryDate,
 						mfaVerified: false,

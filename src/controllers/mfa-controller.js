@@ -52,10 +52,10 @@ export const verifyToken = async (req, res, next) => {
 
 		if (verified?.delta === 0) {
 			// update mfa enabled && verified
-			const { visitor_id } = req.headers;
+			const { visitorid } = req.headers;
 
 			let newSessions = sessions.map((session) => {
-				if (session.visitor_id === visitor_id) {
+				if (session.visitorid === visitorid) {
 					return {
 						...session,
 						mfaVerified: true,
