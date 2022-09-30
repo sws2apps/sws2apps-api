@@ -11,7 +11,7 @@ router.post(
 	'/user-login',
 	body('email').isEmail(),
 	body('password').isLength({ min: 6 }),
-	body('visitor_id').notEmpty(),
+	body('visitorid').notEmpty(),
 	loginUser
 );
 

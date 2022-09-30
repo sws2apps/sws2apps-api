@@ -324,10 +324,10 @@ export const deleteUserSession = async (req, res, next) => {
 
 export const userLogout = async (req, res, next) => {
 	try {
-		const { email, visitor_id } = req.headers;
+		const { email, visitorid } = req.headers;
 		const user = await getUserInfo(email);
 
-		await revokeSessions(user.id, visitor_id);
+		await revokeSessions(user.id, visitorid);
 
 		res.locals.type = 'info';
 		res.locals.message = `the current user has logged out`;

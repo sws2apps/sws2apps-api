@@ -16,7 +16,7 @@ const router = express.Router();
 
 router.post(
 	'/signup',
-	body('visitor_id').notEmpty(),
+	body('visitorid').notEmpty(),
 	body('otp_code').isLength(10),
 	pocketSignUp
 );

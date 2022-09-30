@@ -10,7 +10,7 @@ const db = getFirestore();
 export const visitorChecker = () => {
 	return async (req, res, next) => {
 		try {
-			await check('visitor_id').notEmpty().run(req);
+			await check('visitorid').notEmpty().run(req);
 			await check('email').isEmail().run(req);
 
 			const errors = validationResult(req);
@@ -29,7 +29,7 @@ export const visitorChecker = () => {
 				return;
 			}
 
-			const { email, visitor_id } = req.headers;
+			const { email, visitorid } = req.headers;
 			const user = await getUserInfo(email);
 
 			if (user) {
@@ -52,7 +52,7 @@ export const visitorChecker = () => {
 
 					// find if visitor id has valid session
 					const findSession = sessions.find(
-						(session) => session.visitor_id === visitor_id
+						(session) => session.visitorid === visitorid
 					);
 
 					if (findSession) {
@@ -64,7 +64,7 @@ export const visitorChecker = () => {
 							// update last seen
 
 							let newSessions = sessions.map((session) => {
-								if (session.visitor_id === visitor_id) {
+								if (session.visitorid === visitorid) {
 									return { ...session, sws_last_seen: new Date().getTime() };
 								} else {
 									return session;

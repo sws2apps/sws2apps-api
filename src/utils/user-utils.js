@@ -168,7 +168,7 @@ export const getUserActiveSessions = async (userID) => {
 
 		const result = sessions.map((session) => {
 			let obj = {
-				visitor_id: session.visitor_id,
+				visitorid: session.visitorid,
 				ip: session.visitor_details.ip,
 				country_name: session.visitor_details.ipLocation.country.name,
 				device: {
@@ -195,7 +195,7 @@ export const revokeSessions = async (userID, visitorID) => {
 	if (userSnap.exists) {
 		const sessions = userSnap.data().about.sessions || [];
 		const newSessions = sessions.filter(
-			(session) => session.visitor_id !== visitorID
+			(session) => session.visitorid !== visitorID
 		);
 
 		await db
