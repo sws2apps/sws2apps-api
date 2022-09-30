@@ -11,7 +11,7 @@ const db = getFirestore();
 export const pocketAuthChecker = () => {
 	return async (req, res, next) => {
 		try {
-			await check('visitor_id').notEmpty().run(req);
+			await check('visitorid').notEmpty().run(req);
 
 			const errors = validationResult(req);
 
@@ -29,9 +29,9 @@ export const pocketAuthChecker = () => {
 				return;
 			}
 
-			const { visitor_id } = req.headers;
+			const { visitorid } = req.headers;
 
-			const user = await findPocketByVisitorID(visitor_id);
+			const user = await findPocketByVisitorID(visitorid);
 
 			// found user or it is a sign up request
 			if (user || req.path === '/signup') {
@@ -41,15 +41,15 @@ export const pocketAuthChecker = () => {
 				if (user) {
 					const { id, pocket_devices } = user;
 					const foundDevice = pocket_devices.find(
-						(device) => device.visitor_id === visitor_id
+						(device) => device.visitorid === visitorid
 					);
 					const filteredDevices = pocket_devices.filter(
-						(device) => device.visitor_id !== visitor_id
+						(device) => device.visitorid !== visitorid
 					);
 
 					const updatedDevices = [
 						{
-							visitor_id,
+							visitorid,
 							name: foundDevice.name,
 							sws_last_seen: new Date().getTime(),
 						},

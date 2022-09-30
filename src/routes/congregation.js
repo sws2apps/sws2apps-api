@@ -129,7 +129,7 @@ router.get('/:id/pockets/:user/code', generatePocketOTPCode);
 // delete pocket device
 router.delete(
 	'/:id/pockets/:user',
-	body('pocket_visitor_id').notEmpty(),
+	body('pocket_visitorid').notEmpty(),
 	deletePocketDevice
 );
 

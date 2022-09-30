@@ -2,14 +2,14 @@
 import { getUsers } from './user-utils.js';
 import { decryptData } from './encryption-utils.js';
 
-export const findPocketByVisitorID = async (visitor_id) => {
+export const findPocketByVisitorID = async (visitorid) => {
 	const users = await getUsers();
 
 	let user;
 
 	for (let i = 0; i < users.length; i++) {
 		const devices = users[i].pocket_devices || [];
-		const found = devices.find((device) => device.visitor_id === visitor_id);
+		const found = devices.find((device) => device.visitorid === visitorid);
 
 		if (found) {
 			user = users[i];

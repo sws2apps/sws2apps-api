@@ -1033,7 +1033,7 @@ export const deletePocketDevice = async (req, res, next) => {
 			return;
 		}
 
-		const { pocket_visitor_id } = req.body;
+		const { pocket_visitorid } = req.body;
 
 		if (id && user) {
 			const cong = await getCongregationInfo(id);
@@ -1047,7 +1047,7 @@ export const deletePocketDevice = async (req, res, next) => {
 						// remove device
 						let devices = userData.pocket_devices || [];
 						let newDevices = devices.filter(
-							(device) => device.visitor_id !== pocket_visitor_id
+							(device) => device.visitorid !== pocket_visitorid
 						);
 
 						if (newDevices.length > 0) {
