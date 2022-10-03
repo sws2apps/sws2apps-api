@@ -1,15 +1,12 @@
 // import dependencies
-import Cryptr from 'cryptr';
 import fetch from 'node-fetch';
-import twofactor from 'node-2fa';
 import { validationResult } from 'express-validator';
-import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import {
 	FingerprintJsServerApiClient,
 	Region,
 } from '@fingerprintjs/fingerprintjs-pro-server-api';
-import { cleanExpiredSession, getUserInfo } from '../utils/user-utils.js';
+import { Users } from '../classes/Users.js';
 
 // get firestore
 const db = getFirestore(); //get default database
@@ -72,29 +69,16 @@ export const loginUser = async (req, res, next) => {
 				res.status(data.error.code).json({ message: data.error.message });
 			} else {
 				// clean expired session
-				const { id } = await getUserInfo(email);
-				if (id) await cleanExpiredSession(id);
+				const user = Users.findUserByEmail(email);
+				if (user.id) await user.removeExpiredSession();
 
-				// get user info from firebase auth
-				const uid = data.localId;
-				const userRecord = await getAuth().getUser(uid);
-
-				if (userRecord.emailVerified) {
-					// get user info from firestore
-					const userRef = db.collection('users').doc(id);
-					const userSnap = await userRef.get();
-
-					const aboutUser = userSnap.data().about;
-
-					let sessions = aboutUser.sessions || [];
-
+				if (user.emailVerified) {
 					// revoke matched session
-					let newSessions = sessions.filter(
+					let newSessions = user.sessions.filter(
 						(session) => session.visitorid !== visitorid
 					);
 
-					const now = new Date();
-					const expiryDate = now.getTime() + 24 * 60 * 60000; // expired after 1 day
+					const expiryDate = new Date().getTime() + 24 * 60 * 60000; // expired after 1 day
 
 					newSessions.push({
 						visitorid: visitorid,
@@ -103,40 +87,15 @@ export const loginUser = async (req, res, next) => {
 						mfaVerified: false,
 					});
 
-					const data = {
-						about: { ...aboutUser, sessions: newSessions },
-					};
+					await user.updateSessions(newSessions);
 
-					await db.collection('users').doc(id).set(data, { merge: true });
-
-					if (aboutUser.mfaEnabled) {
+					if (user.mfaEnabled) {
 						res.locals.type = 'info';
 						res.locals.message = 'user required to verify mfa';
 
 						res.status(200).json({ message: 'MFA_VERIFY' });
 					} else {
-						// generate new secret and encrypt
-						const secret = twofactor.generateSecret({
-							name: 'sws2apps',
-							account: email,
-						});
-
-						const myKey = '&sws2apps_' + process.env.SEC_ENCRYPT_KEY;
-						const cryptr = new Cryptr(myKey);
-						const encryptedData = cryptr.encrypt(JSON.stringify(secret));
-
-						// save secret
-						const firstData = {
-							about: {
-								...data.about,
-								secret: encryptedData,
-							},
-						};
-
-						await db
-							.collection('users')
-							.doc(id)
-							.set(firstData, { merge: true });
+						const secret = await user.generateSecret(email);
 
 						res.locals.type = 'warn';
 						res.locals.message =

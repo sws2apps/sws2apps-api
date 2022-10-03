@@ -6,13 +6,9 @@ import { getAuth } from 'firebase-admin/auth';
 // utils import
 import { sendVerificationEmail } from '../utils/sendEmail.js';
 import { getAnnouncementsClient } from '../utils/announcement-utils.js';
-import {
-	findUserById,
-	getUserActiveSessions,
-	getUserInfo,
-	revokeSessions,
-} from '../utils/user-utils.js';
-import { decryptData } from '../utils/encryption-utils.js';
+
+// classes
+import { Users } from '../classes/Users.js';
 
 // get firestore
 const db = getFirestore(); //get default database
@@ -39,43 +35,23 @@ export const createAccount = async (req, res, next) => {
 
 		const { fullname, email, password } = req.body;
 
-		getAuth()
-			.createUser({
-				email: email,
-				emailVerified: false,
-				password: password,
-				disabled: false,
-			})
-			.then((userRecord) => {
-				const userEmail = userRecord.email;
-				getAuth()
-					.generateEmailVerificationLink(userEmail)
-					.then(async (link) => {
-						sendVerificationEmail(userEmail, fullname, link);
+		const userRecord = await getAuth().createUser({
+			email: email,
+			emailVerified: false,
+			password: password,
+			disabled: false,
+		});
 
-						const data = {
-							about: {
-								name: fullname,
-								role: 'vip',
-								user_uid: userEmail,
-							},
-						};
+		const userEmail = userRecord.email;
+		const link = await getAuth().generateEmailVerificationLink(userEmail);
 
-						await db.collection('users').add(data);
+		sendVerificationEmail(userEmail, fullname, link);
 
-						res.locals.type = 'info';
-						res.locals.message = `user account created and the verification email queued for sending`;
-						res.status(200).json({ message: 'CHECK_EMAIL' });
-					})
-					.catch(() => {
-						res.locals.type = 'warn';
-						res.locals.message = `user account created, but the verification email could not be sent`;
-						res.status(200).json({ message: 'VERIFY_FAILED' });
-					});
-			})
-			.catch((err) => {
-				next(err);
-			});
+		await Users.create(userEmail, fullname, 'vip');
+
+		res.locals.type = 'info';
+		res.locals.message = `user account created and the verification email queued for sending`;
+		res.status(200).json({ message: 'CHECK_EMAIL' });
 	} catch (err) {
 		next(err);
 	}
@@ -98,7 +74,7 @@ export const validateUser = async (req, res, next) => {
 	try {
 		const { email } = req.headers;
 		const { id, cong_id, cong_name, cong_number, cong_role } =
-			await getUserInfo(email);
+			await Users.findUserByEmail(email);
 
 		if (cong_name.length > 0) {
 			let obj = { id, cong_id, cong_name, cong_number, cong_role };
@@ -121,24 +97,16 @@ export const validateUser = async (req, res, next) => {
 export const resendVerificationEmail = async (req, res, next) => {
 	try {
 		const { email } = req.headers;
-		const { username } = await getUserInfo(email);
+		const { username } = await Users.findUserByEmail(email);
 
-		getAuth()
-			.generateEmailVerificationLink(email)
-			.then((link) => {
-				sendVerificationEmail(email, username, link);
+		const link = await getAuth().generateEmailVerificationLink(email);
 
-				res.locals.type = 'info';
-				res.locals.message = `new verification email queued for sending`;
+		sendVerificationEmail(email, username, link);
 
-				res.status(200).json({ message: 'CHECK_EMAIL' });
-			})
-			.catch(() => {
-				res.locals.type = 'warn';
-				res.locals.message = `new verification email could not be sent`;
+		res.locals.type = 'info';
+		res.locals.message = `new verification email queued for sending`;
 
-				res.status(200).json({ message: 'VERIFY_FAILED' });
-			});
+		res.status(200).json({ message: 'CHECK_EMAIL' });
 	} catch (err) {
 		next(err);
 	}
@@ -168,7 +136,9 @@ export const updateUserFullname = async (req, res, next) => {
 			}
 
 			const { fullname } = req.body;
-			await db.collection('users').doc(id).update({ 'about.name': fullname });
+
+			const user = Users.findUserById(id);
+			await user.updateFullname(fullname);
 
 			res.locals.type = 'info';
 			res.locals.message = `the user fullname has been updated successfully`;
@@ -188,8 +158,6 @@ export const updateUserPassword = async (req, res, next) => {
 		const { id } = req.params;
 
 		if (id) {
-			const user = await findUserById(id);
-
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
@@ -209,9 +177,9 @@ export const updateUserPassword = async (req, res, next) => {
 			}
 
 			const { password } = req.body;
-			const { auth_uid } = user;
 
-			await getAuth().updateUser(auth_uid, { password: password });
+			const user = Users.findUserById(id);
+			await user.updatePassword(password);
 
 			res.locals.type = 'info';
 			res.locals.message = `the user password has been updated successfully`;
@@ -231,18 +199,8 @@ export const getUserSecretToken = async (req, res, next) => {
 		const { id } = req.params;
 
 		if (id) {
-			// Retrieve user from database
-			const userRef = db.collection('users').doc(id);
-			const userSnap = await userRef.get();
-
-			// get encrypted token
-			const encryptedData = userSnap.data().about.secret;
-
-			// decrypt token
-			const decryptedData = decryptData(encryptedData);
-
-			// get uri and qr
-			const { secret, uri } = JSON.parse(decryptedData);
+			const user = Users.findUserById(id);
+			const { secret, uri } = user.decryptSecret();
 
 			res.locals.type = 'info';
 			res.locals.message = `the user has fetched 2fa successfully`;
@@ -265,7 +223,8 @@ export const getUserSessions = async (req, res, next) => {
 		const { id } = req.params;
 
 		if (id) {
-			const sessions = await getUserActiveSessions(id);
+			const user = Users.findUserById(id);
+			const sessions = user.getActiveSessions();
 
 			res.locals.type = 'info';
 			res.locals.message = `the user has fetched sessions successfully`;
@@ -305,9 +264,8 @@ export const deleteUserSession = async (req, res, next) => {
 
 			const { session } = req.body;
 
-			await revokeSessions(id, session);
-
-			const sessions = await getUserActiveSessions(id);
+			const user = Users.findUserById(id);
+			const sessions = user.revokeSession(session);
 
 			res.locals.type = 'info';
 			res.locals.message = `the user has revoked session successfully`;
@@ -325,9 +283,9 @@ export const deleteUserSession = async (req, res, next) => {
 export const userLogout = async (req, res, next) => {
 	try {
 		const { email, visitorid } = req.headers;
-		const user = await getUserInfo(email);
 
-		await revokeSessions(user.id, visitorid);
+		const user = Users.findUserByEmail(email);
+		await user.revokeSession(visitorid);
 
 		res.locals.type = 'info';
 		res.locals.message = `the current user has logged out`;

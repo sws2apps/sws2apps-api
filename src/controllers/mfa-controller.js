@@ -1,8 +1,8 @@
 // dependencies
-import Cryptr from 'cryptr';
 import twofactor from 'node-2fa';
 import { validationResult } from 'express-validator';
 import { getFirestore } from 'firebase-admin/firestore';
+import { Users } from '../classes/Users.js';
 
 // get firestore
 const db = getFirestore(); //get default database
@@ -32,20 +32,8 @@ export const verifyToken = async (req, res, next) => {
 		res.locals.currentUser;
 
 	try {
-		// Retrieve user from database
-		const userRef = db.collection('users').doc(id);
-		const userSnap = await userRef.get();
-
-		// get encrypted token
-		const encryptedData = userSnap.data().about.secret;
-
-		// decrypt token
-		const myKey = '&sws2apps_' + process.env.SEC_ENCRYPT_KEY;
-		const cryptr = new Cryptr(myKey);
-		const decryptedData = cryptr.decrypt(encryptedData);
-
-		// get secret
-		const { secret } = JSON.parse(decryptedData);
+		const user = Users.findUserById(id);
+		const { secret } = user.decryptSecret();
 
 		// 2fa verification
 		const verified = twofactor.verifyToken(secret, token);
@@ -66,17 +54,11 @@ export const verifyToken = async (req, res, next) => {
 				}
 			});
 
-			const data = {
-				about: {
-					...userSnap.data().about,
-					mfaEnabled: true,
-					sessions: newSessions,
-				},
-			};
-			await db.collection('users').doc(id).set(data, { merge: true });
+			await user.enableMFA();
+			await user.updateSessions(newSessions);
 
 			// init response object
-			let obj = {};
+			const obj = {};
 			obj.message = 'TOKEN_VALID';
 			obj.id = id;
 			obj.username = username;

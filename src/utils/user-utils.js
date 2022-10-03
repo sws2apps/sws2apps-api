@@ -2,6 +2,9 @@
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 
+// classes
+import { Users } from '../classes/Users.js';
+
 // get firestore
 const db = getFirestore(); //get default database
 
@@ -159,50 +162,37 @@ export const userAccountChecker = async (id) => {
 };
 
 export const getUserActiveSessions = async (userID) => {
-	const userDoc = db.collection('users').doc(userID);
-	const userSnap = await userDoc.get();
+	const user = Users.findUserById(userID);
 
-	// remove expired sessions
-	if (userSnap.exists) {
-		let sessions = userSnap.data().about.sessions || [];
+	const result = user.sessions.map((session) => {
+		let obj = {
+			visitorid: session.visitorid,
+			ip: session.visitor_details.ip,
+			country_name: session.visitor_details.ipLocation.country.name,
+			device: {
+				browserName: session.visitor_details.browserDetails.browserName,
+				os: session.visitor_details.browserDetails.os,
+				osVersion: session.visitor_details.browserDetails.osVersion,
+			},
+			last_seen: session.sws_last_seen,
+		};
 
-		const result = sessions.map((session) => {
-			let obj = {
-				visitorid: session.visitorid,
-				ip: session.visitor_details.ip,
-				country_name: session.visitor_details.ipLocation.country.name,
-				device: {
-					browserName: session.visitor_details.browserDetails.browserName,
-					os: session.visitor_details.browserDetails.os,
-					osVersion: session.visitor_details.browserDetails.osVersion,
-				},
-				last_seen: session.sws_last_seen,
-			};
+		return obj;
+	});
 
-			return obj;
-		});
-
-		return result;
-	} else {
-		return [];
-	}
+	return result;
 };
 
 export const revokeSessions = async (userID, visitorID) => {
-	const userDoc = db.collection('users').doc(userID);
-	const userSnap = await userDoc.get();
+	const user = Users.findUserById(userID);
+	const newSessions = user.sessions.filter(
+		(session) => session.visitorid !== visitorID
+	);
 
-	if (userSnap.exists) {
-		const sessions = userSnap.data().about.sessions || [];
-		const newSessions = sessions.filter(
-			(session) => session.visitorid !== visitorID
-		);
-
-		await db
-			.collection('users')
-			.doc(userID)
-			.update({ 'about.sessions': newSessions });
-	}
+	await db
+		.collection('users')
+		.doc(userID)
+		.update({ 'about.sessions': newSessions });
 };
 
 export const getPocketUser = async (id) => {

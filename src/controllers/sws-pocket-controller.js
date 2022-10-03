@@ -1,17 +1,14 @@
 // dependencies
 import { validationResult } from 'express-validator';
-import { FieldValue, getFirestore } from 'firebase-admin/firestore';
+import { getFirestore } from 'firebase-admin/firestore';
 import {
 	FingerprintJsServerApiClient,
 	Region,
 } from '@fingerprintjs/fingerprintjs-pro-server-api';
 
-// utilities
-import {
-	findPocketByVisitorID,
-	findUserByOTPCode,
-} from '../utils/sws-pocket-utils.js';
-import { getCongregationInfo } from '../utils/congregation-utils.js';
+// classes
+import { Users } from '../classes/Users.js';
+import { Congregations } from '../classes/Congregations.js';
 
 // get firestore
 const db = getFirestore();
@@ -97,11 +94,11 @@ export const pocketSignUp = async (req, res, next) => {
 			return;
 		}
 
-		const user = await findUserByOTPCode(otp_code);
+		const user = await Users.findUserByOTPCode(otp_code);
 
 		if (user) {
 			// add visitor id and remove otp_code
-			let devices = user.pocket_devices || [];
+			let devices = user.pocket_devices;
 
 			const obj = {
 				visitorid: visitorid,
@@ -125,18 +122,13 @@ export const pocketSignUp = async (req, res, next) => {
 			// add new device
 			devices.push(obj);
 
-			await db.collection('users').doc(user.id).update({
-				'congregation.oCode': FieldValue.delete(),
-				'congregation.devices': devices,
-			});
-
 			const {
 				username,
 				pocket_local_id,
 				pocket_members,
 				cong_name,
 				cong_number,
-			} = await findPocketByVisitorID(visitorid);
+			} = await user.updatePocketDevices(devices);
 
 			res.locals.type = 'info';
 			res.locals.message = 'pocket device visitor id added successfully';
@@ -162,9 +154,8 @@ export const getSchedule = async (req, res, next) => {
 	try {
 		const { cong_id } = res.locals.currentUser;
 
-		const { cong_sourceMaterial, cong_schedule } = await getCongregationInfo(
-			cong_id
-		);
+		const { cong_sourceMaterial, cong_schedule } =
+			Congregations.findCongregationById(cong_id);
 
 		res.locals.type = 'info';
 		res.locals.message = 'pocket user has fetched the schedule';

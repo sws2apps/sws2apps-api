@@ -8,7 +8,6 @@ import randomstring from 'randomstring';
 // utils
 import {
 	checkCongregationMember,
-	findCongregationRequestByEmail,
 	getCongregationInfo,
 } from '../utils/congregation-utils.js';
 import { decryptData, encryptData } from '../utils/encryption-utils.js';
@@ -18,6 +17,11 @@ import {
 	getPocketUser,
 	getUserInfo,
 } from '../utils/user-utils.js';
+
+// classes
+import { CongregationRequests } from '../classes/CongregationRequests.js';
+import { Users } from '../classes/Users.js';
+import { Congregations } from '../classes/Congregations.js';
 
 // get firestore
 const db = getFirestore();
@@ -55,7 +59,7 @@ export const requestCongregation = async (req, res, next) => {
 			return;
 		}
 
-		const userRequest = await findCongregationRequestByEmail(email);
+		const userRequest = CongregationRequests.findRequestByEmail(email);
 
 		if (userRequest) {
 			res.locals.type = 'warn';
@@ -75,9 +79,9 @@ export const requestCongregation = async (req, res, next) => {
 			request_open: true,
 		};
 
-		await db.collection('congregation_request').add(data);
+		await CongregationRequests.createAccount(data);
 
-		const userInfo = await getUserInfo(email);
+		const userInfo = Users.findUserByEmail(email);
 		sendCongregationRequest(cong_name, cong_number, userInfo.username);
 
 		res.locals.type = 'info';
@@ -94,9 +98,9 @@ export const getLastCongregationBackup = async (req, res, next) => {
 		const { email } = req.headers;
 
 		if (id) {
-			const cong = await getCongregationInfo(id);
+			const cong = Congregations.findCongregationById(id);
 			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+				const isValid = cong.isMember(email);
 
 				if (isValid) {
 					if (cong.last_backup) {
@@ -141,7 +145,7 @@ export const saveCongregationBackup = async (req, res, next) => {
 		const { email } = req.headers;
 
 		if (id) {
-			const cong = await getCongregationInfo(id);
+			const cong = Congregations.findCongregationById(id);
 			if (cong) {
 				const errors = validationResult(req);
 
@@ -161,7 +165,7 @@ export const saveCongregationBackup = async (req, res, next) => {
 					return;
 				}
 
-				const isValid = await checkCongregationMember(email, id);
+				const isValid = cong.isMember(email);
 
 				if (isValid) {
 					const {
@@ -171,26 +175,13 @@ export const saveCongregationBackup = async (req, res, next) => {
 						cong_swsPocket,
 					} = req.body;
 
-					// encrypt cong_persons data
-					const encryptedPersons = encryptData(cong_persons);
-
-					const userInfo = await getUserInfo(email);
-
-					const data = {
-						cong_persons: encryptedPersons,
-						cong_schedule_draft: cong_schedule,
-						cong_sourceMaterial_draft: cong_sourceMaterial,
-						cong_swsPocket: cong_swsPocket,
-						last_backup: {
-							by: userInfo.id,
-							date: new Date(),
-						},
-					};
-
-					await db
-						.collection('congregations')
-						.doc(id)
-						.set(data, { merge: true });
+					await cong.saveBackup(
+						cong_persons,
+						cong_schedule,
+						cong_sourceMaterial,
+						cong_swsPocket,
+						email
+					);
 
 					res.locals.type = 'info';
 					res.locals.message = 'user send backup for congregation successfully';
@@ -225,27 +216,12 @@ export const getCongregationBackup = async (req, res, next) => {
 		const { email } = req.headers;
 
 		if (id) {
-			const cong = await getCongregationInfo(id);
+			const cong = await Congregations.findCongregationById(id);
 			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+				const isValid = await cong.isMember(email);
 
 				if (isValid) {
-					const {
-						cong_persons,
-						cong_schedule_draft,
-						cong_sourceMaterial_draft,
-						cong_swsPocket,
-					} = cong;
-
-					// decrypt cong_persons data
-					const decryptedPersons = JSON.parse(decryptData(cong_persons));
-
-					const obj = {
-						cong_persons: decryptedPersons,
-						cong_schedule: cong_schedule_draft,
-						cong_sourceMaterial: cong_sourceMaterial_draft,
-						cong_swsPocket: cong_swsPocket,
-					};
+					const obj = cong.retrieveBackup();
 
 					res.locals.type = 'info';
 					res.locals.message =
@@ -280,9 +256,9 @@ export const getCongregationMembers = async (req, res, next) => {
 		const { email } = req.headers;
 
 		if (id) {
-			const cong = await getCongregationInfo(id);
+			const cong = Congregations.findCongregationById(id);
 			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+				const isValid = cong.isMember(email);
 
 				if (isValid) {
 					res.locals.type = 'info';
@@ -319,24 +295,20 @@ export const removeCongregationUser = async (req, res, next) => {
 		const { email } = req.headers;
 
 		if (id && user) {
-			const cong = await getCongregationInfo(id);
+			const cong = Congregations.findCongregationById(id);
 			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+				const isValid = cong.isMember(email);
 
 				if (isValid) {
-					const findUser = await findUserById(user);
+					const findUser = Users.findUserById(user);
 
 					if (findUser.cong_id === id) {
-						await db
-							.collection('users')
-							.doc(user)
-							.update({ congregation: FieldValue.delete() });
-
-						const cong = await getCongregationInfo(id);
+						await findUser.removeCongregation();
+						const members = cong.removeUser(id);
 
 						res.locals.type = 'info';
 						res.locals.message = 'member removed from the congregation';
-						res.status(200).json(cong.cong_members);
+						res.status(200).json(members);
 						return;
 					}
 
@@ -376,13 +348,13 @@ export const findUserByCongregation = async (req, res, next) => {
 		const search = req.query.search;
 
 		if (id) {
-			const cong = await getCongregationInfo(id);
+			const cong = await Congregations.findCongregationById(id);
 			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+				const isValid = await cong.isMember(email);
 
 				if (isValid) {
 					if (search && search.length > 0) {
-						const userData = await getUserInfo(search);
+						const userData = await Users.findUserByEmail(search);
 
 						if (userData && !userData.disabled && userData.mfaEnabled) {
 							if (userData.cong_id === id) {
