@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/sws2apps/sws2apps-api/compare/v1.1.0...v1.1.1) (2022-10-03)
+
+
+### Bug Fixes
+
+* **controller:** fix assignment to constant variable when assigning mwb month ([7cdfc23](https://github.com/sws2apps/sws2apps-api/commit/7cdfc23ebac82bba902505de69b17e85b7795537))
+
 # [1.1.0](https://github.com/sws2apps/sws2apps-api/compare/v1.0.3...v1.1.0) (2022-09-30)
 
 
