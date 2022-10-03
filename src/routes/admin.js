@@ -13,6 +13,7 @@ import { adminAuthChecker } from '../middleware/admin-auth-checker.js';
 // import controllers
 import {
 	deleteAnnouncementAdmin,
+	getAdminDashboard,
 	getAllAnnouncements,
 	getAnnouncementAdmin,
 	getBlockedRequests,
@@ -35,6 +36,9 @@ router.use('/users', usersRoute);
 
 // validate user admin => passed middleware
 router.get('/', validateAdmin);
+
+// publish announcement
+router.get('/dashboard', getAdminDashboard);
 
 // logout admin
 router.get('/logout', logoutAdmin);

@@ -11,9 +11,9 @@ import {
 } from '../utils/announcement-utils.js';
 import {
 	getCongregations,
-	getCongregationInfo,
+	getCongregationsRequests,
 } from '../utils/congregation-utils.js';
-import { getUserInfo, getUsers } from '../utils/user-utils.js';
+import { getUsers } from '../utils/user-utils.js';
 
 // get firestore
 const db = getFirestore();
@@ -250,6 +250,36 @@ export const publishAnnouncementAdmin = async (req, res, next) => {
 		res.locals.type = 'info';
 		res.locals.message = 'announcement published successfully';
 		res.status(200).json(announcements);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const getAdminDashboard = async (req, res, next) => {
+	try {
+		const finalResult = await getCongregationsRequests();
+		const congsList = await getCongregations();
+		const users = await getUsers();
+
+		const obj = {
+			users: {
+				total: users.length,
+				active: users.filter((user) => user.mfaEnabled === true).length,
+				mfaPending: users.filter(
+					(user) => user.emailVerified === true && user.mfaEnabled === false
+				).length,
+				unverified: users.filter((user) => user.emailVerified === false).length,
+				pockets: users.filter((user) => user.global_role === 'pocket').length,
+			},
+			congregations: {
+				requests: finalResult.length,
+				active: congsList.length,
+			},
+		};
+
+		res.locals.type = 'info';
+		res.locals.message = 'admin fetched dashboard';
+		res.status(200).json(obj);
 	} catch (err) {
 		next(err);
 	}
