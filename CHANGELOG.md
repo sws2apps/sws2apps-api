@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/sws2apps/sws2apps-api/compare/v1.2.0...v1.3.0) (2022-10-10)
+
+
+### Features
+
+* **deps:** bump express from 4.18.1 to 4.18.2 ([f24186b](https://github.com/sws2apps/sws2apps-api/commit/f24186b8e9b131a115f0de5e60776dcfd946d654))
+
 # [1.2.0](https://github.com/sws2apps/sws2apps-api/compare/v1.1.1...v1.2.0) (2022-10-07)
 
 
