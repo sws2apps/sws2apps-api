@@ -1,3 +1,26 @@
+# [1.3.0](https://github.com/sws2apps/sws2apps-api/compare/v1.2.0...v1.3.0) (2022-10-10)
+
+
+### Features
+
+* **deps:** bump express from 4.18.1 to 4.18.2 ([f24186b](https://github.com/sws2apps/sws2apps-api/commit/f24186b8e9b131a115f0de5e60776dcfd946d654))
+
+# [1.2.0](https://github.com/sws2apps/sws2apps-api/compare/v1.1.1...v1.2.0) (2022-10-07)
+
+
+### Features
+
+* **deps:** bump bcrypt from 5.0.1 to 5.1.0 ([29f6670](https://github.com/sws2apps/sws2apps-api/commit/29f66707ba1256c3b2a8365adf575773e2412843))
+* **deps:** bump firebase-admin from 11.0.1 to 11.1.0 ([c561bf7](https://github.com/sws2apps/sws2apps-api/commit/c561bf7ed853c93c7e3defe32c62c4b75ba6bddd))
+* **deps:** bump jw-epub-parser from 1.23.3 to 1.24.0 ([c9db73e](https://github.com/sws2apps/sws2apps-api/commit/c9db73e993ca9029383db1c56cb30a96cb83907d))
+
+## [1.1.1](https://github.com/sws2apps/sws2apps-api/compare/v1.1.0...v1.1.1) (2022-10-03)
+
+
+### Bug Fixes
+
+* **controller:** fix assignment to constant variable when assigning mwb month ([7cdfc23](https://github.com/sws2apps/sws2apps-api/commit/7cdfc23ebac82bba902505de69b17e85b7795537))
+
 # [1.1.0](https://github.com/sws2apps/sws2apps-api/compare/v1.0.3...v1.1.0) (2022-09-30)
 
 
