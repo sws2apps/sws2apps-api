@@ -73,86 +73,71 @@ export const pocketSignUp = async (req, res, next) => {
 			limit: 1,
 		});
 
-		// visitor id not found
-		if (visitorHistory.visits.length === 0) {
-			res.locals.failedLoginAttempt = true;
-			res.locals.type = 'warn';
-			res.locals.message = 'visitor id not found in fingerprint';
-			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			return;
-		}
+		if (visitorHistory.visits?.length > 0) {
+			const user = await findUserByOTPCode(otp_code);
 
-		// request does not meet requirements
-		const visit = visitorHistory.visits[0];
+			if (user) {
+				// add visitor id and remove otp_code
+				let devices = user.pocket_devices || [];
 
-		if (
-			(visit.browserDetails.botProbability &&
-				visit.browserDetails.botProbability !== 0) ||
-			visit.confidence.score !== 1
-		) {
-			res.locals.failedLoginAttempt = true;
-			res.locals.type = 'warn';
-			res.locals.message = 'bot probability or fraudulent request';
-			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			return;
-		}
+				const obj = {
+					visitorid: visitorid,
+					name: `${visit.browserDetails.os} ${visit.browserDetails.osVersion} (${visit.browserDetails.browserName} ${visit.browserDetails.browserFullVersion})`,
+					sws_last_seen: new Date().getTime(),
+				};
 
-		const user = await findUserByOTPCode(otp_code);
+				const foundDevice = devices.find(
+					(device) => device.visitorid === visitorid
+				);
 
-		if (user) {
-			// add visitor id and remove otp_code
-			let devices = user.pocket_devices || [];
+				// device already added
+				if (foundDevice) {
+					res.locals.type = 'warn';
+					res.locals.message = 'pocket visitor id already exists';
+					res.status(400).json({ message: 'DEVICE_EXISTS' });
 
-			const obj = {
-				visitorid: visitorid,
-				name: `${visit.browserDetails.os} ${visit.browserDetails.osVersion} (${visit.browserDetails.browserName} ${visit.browserDetails.browserFullVersion})`,
-				sws_last_seen: new Date().getTime(),
-			};
+					return;
+				}
 
-			const foundDevice = devices.find(
-				(device) => device.visitorid === visitorid
-			);
+				// add new device
+				devices.push(obj);
 
-			// device already added
-			if (foundDevice) {
-				res.locals.type = 'warn';
-				res.locals.message = 'pocket visitor id already exists';
-				res.status(400).json({ message: 'DEVICE_EXISTS' });
+				await db.collection('users').doc(user.id).update({
+					'congregation.oCode': FieldValue.delete(),
+					'congregation.devices': devices,
+				});
 
+				const {
+					username,
+					pocket_local_id,
+					pocket_members,
+					cong_name,
+					cong_number,
+				} = await findPocketByVisitorID(visitorid);
+
+				res.locals.type = 'info';
+				res.locals.message = 'pocket device visitor id added successfully';
+				res.status(200).json({
+					username,
+					pocket_local_id,
+					pocket_members,
+					cong_name,
+					cong_number,
+				});
 				return;
 			}
 
-			// add new device
-			devices.push(obj);
-
-			await db.collection('users').doc(user.id).update({
-				'congregation.oCode': FieldValue.delete(),
-				'congregation.devices': devices,
-			});
-
-			const {
-				username,
-				pocket_local_id,
-				pocket_members,
-				cong_name,
-				cong_number,
-			} = await findPocketByVisitorID(visitorid);
-
-			res.locals.type = 'info';
-			res.locals.message = 'pocket device visitor id added successfully';
-			res.status(200).json({
-				username,
-				pocket_local_id,
-				pocket_members,
-				cong_name,
-				cong_number,
-			});
+			res.locals.type = 'warn';
+			res.locals.message = 'pocket verification code is invalid';
+			res.status(404).json({ message: 'OTP_CODE_INVALID' });
 			return;
 		}
 
+		// visitor id not found
+		res.locals.failedLoginAttempt = true;
 		res.locals.type = 'warn';
-		res.locals.message = 'pocket verification code is invalid';
-		res.status(404).json({ message: 'OTP_CODE_INVALID' });
+		res.locals.message = 'the authentication request seems to be fraudulent';
+		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
 	} catch (err) {
 		next(err);
 	}
