@@ -1,3 +1,15 @@
+# [1.4.0](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0...v1.4.0) (2022-10-13)
+
+
+### Bug Fixes
+
+* **controllers:** fix bot probability check in sws-pocket signup route ([6824f76](https://github.com/sws2apps/sws2apps-api/commit/6824f76d7db0f670c72cb1f61463c54c6ca761fa))
+
+
+### Features
+
+* **deps:** bump jw-epub-parser from 1.24.0 to 1.25.0 ([f04f951](https://github.com/sws2apps/sws2apps-api/commit/f04f9519d736a96df10d0c04e91922f6651920e0))
+
 # [1.3.0](https://github.com/sws2apps/sws2apps-api/compare/v1.2.0...v1.3.0) (2022-10-10)
 
 
