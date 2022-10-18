@@ -1,3 +1,17 @@
+# [1.5.0](https://github.com/sws2apps/sws2apps-api/compare/v1.4.0...v1.5.0) (2022-10-18)
+
+
+### Bug Fixes
+
+* **controller:** update jw-epub-parser import ([fbdfa2a](https://github.com/sws2apps/sws2apps-api/commit/fbdfa2a7e27b1cee424046b70eed769ecc3a2026))
+* **controller:** update package path ([c36ec88](https://github.com/sws2apps/sws2apps-api/commit/c36ec8879ffc54bfafb045b338dc4c3182b7ba70))
+
+
+### Features
+
+* **deps:** bump firebase-admin from 11.1.0 to 11.2.0 ([846528b](https://github.com/sws2apps/sws2apps-api/commit/846528b39c208c2d7aa37f088e9477ca287d4129))
+* **deps:** bump jw-epub-parser from 1.25.0 to 1.26.0 ([2693d7d](https://github.com/sws2apps/sws2apps-api/commit/2693d7d4a61f540e4209fef6ee360bbdeb725008))
+
 # [1.4.0](https://github.com/sws2apps/sws2apps-api/compare/v1.3.0...v1.4.0) (2022-10-13)
 
 
