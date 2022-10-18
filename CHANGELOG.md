@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/sws2apps/sws2apps-api/compare/v1.5.0...v1.5.1) (2022-10-18)
+
+
+### Bug Fixes
+
+* **controller:** add missing visit in pocket ([cf7252e](https://github.com/sws2apps/sws2apps-api/commit/cf7252e3edfe2b94e2b423afa95e26c7a5e2dbd7))
+
 # [1.5.0](https://github.com/sws2apps/sws2apps-api/compare/v1.4.0...v1.5.0) (2022-10-18)
 
 
