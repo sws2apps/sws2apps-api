@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { loadEPUB } from 'jw-epub-parser/dist/node.es/node.js';
+import { loadEPUB } from 'jw-epub-parser/dist/node';
 
 export const getSchedules = async (req, res, next) => {
 	try {
