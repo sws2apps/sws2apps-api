@@ -79,7 +79,7 @@ export const pocketSignUp = async (req, res, next) => {
 			if (user) {
 				// add visitor id and remove otp_code
 				let devices = user.pocket_devices || [];
-
+const visit = visitorHistory.visits[0]
 				const obj = {
 					visitorid: visitorid,
 					name: `${visit.browserDetails.os} ${visit.browserDetails.osVersion} (${visit.browserDetails.browserName} ${visit.browserDetails.browserFullVersion})`,
