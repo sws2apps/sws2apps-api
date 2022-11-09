@@ -13,7 +13,7 @@
   "type": "module",
   "dependencies": {
     "@fingerprintjs/fingerprintjs-pro-server-api": "^1.4.0",
-    "@logtail/node": "^0.1.12",
+    "@logtail/node": "^0.1.14",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
