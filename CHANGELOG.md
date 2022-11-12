@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/sws2apps/sws2apps-api/compare/v1.6.0...v1.6.1) (2022-11-12)
+
+
+### Bug Fixes
+
+* **controller:** check if pocket user is undefined when fetching congregation person ([769234d](https://github.com/sws2apps/sws2apps-api/commit/769234d732af2833c7dbd492e09e90f0ec979fc3))
+
 # [1.6.0](https://github.com/sws2apps/sws2apps-api/compare/v1.5.1...v1.6.0) (2022-11-11)
 
 
