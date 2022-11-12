@@ -1,3 +1,15 @@
+# [1.6.0](https://github.com/sws2apps/sws2apps-api/compare/v1.5.1...v1.6.0) (2022-11-11)
+
+
+### Features
+
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([eae13f0](https://github.com/sws2apps/sws2apps-api/commit/eae13f061d15e68afcbe13ccd600d5a39d90f35f))
+* **deps:** bump @logtail/node from 0.1.12 to 0.1.14 ([bf1b27a](https://github.com/sws2apps/sws2apps-api/commit/bf1b27a30950a77dae496e049cc0f8d69da12175))
+* **deps:** bump firebase-admin from 11.2.0 to 11.2.1 ([434eaee](https://github.com/sws2apps/sws2apps-api/commit/434eaeebdadd0fffe827e4a6143a77dc3392110f))
+* **deps:** bump jw-epub-parser from 1.26.0 to 1.27.0 ([1c10c1c](https://github.com/sws2apps/sws2apps-api/commit/1c10c1c29f4c13cad2be673e5c3140d97afc5cd7))
+* **deps:** bump node-fetch from 3.2.10 to 3.3.0 ([df556b1](https://github.com/sws2apps/sws2apps-api/commit/df556b1ba0f9f0a42d83fa6885b4f3263d20cdab))
+* **deps:** bump randomstring from 1.2.2 to 1.2.3 ([b265dbe](https://github.com/sws2apps/sws2apps-api/commit/b265dbe6b4beaee055ca208041ef6c74dec9ac09))
+
 ## [1.5.1](https://github.com/sws2apps/sws2apps-api/compare/v1.5.0...v1.5.1) (2022-10-18)
 
 
