@@ -683,7 +683,7 @@ export const getCongregationPockerUser = async (req, res, next) => {
 		const { id, user } = req.params;
 		const { email } = req.headers;
 
-		if (id && user) {
+		if (id && user && user !== 'undefined') {
 			const cong = await getCongregationInfo(id);
 			if (cong) {
 				const isValid = await checkCongregationMember(email, id);
