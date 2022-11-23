@@ -1,3 +1,12 @@
+# [1.7.0](https://github.com/sws2apps/sws2apps-api/compare/v1.6.1...v1.7.0) (2022-11-23)
+
+
+### Features
+
+* **congregation:** accept settings to be saved when doing backup ([384afeb](https://github.com/sws2apps/sws2apps-api/commit/384afeb3ce3c455b0db92596c2ba8a06912daf95))
+* **deps:** bump express-rate-limit from 6.6.0 to 6.7.0 ([ba1e99a](https://github.com/sws2apps/sws2apps-api/commit/ba1e99a571bc8f832d19eced788a54e9e9a5e93e))
+* **deps:** bump firebase-admin from 11.2.1 to 11.3.0 ([5209622](https://github.com/sws2apps/sws2apps-api/commit/52096223a65ac3eec6cc8533b87b5be88880b95c))
+
 ## [1.6.1](https://github.com/sws2apps/sws2apps-api/compare/v1.6.0...v1.6.1) (2022-11-12)
 
 
