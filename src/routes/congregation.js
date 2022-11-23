@@ -55,6 +55,7 @@ router.post(
 	body('cong_schedule').isArray(),
 	body('cong_sourceMaterial').isArray(),
 	body('cong_swsPocket').isArray(),
+	body('cong_settings').isArray(),
 	saveCongregationBackup
 );
 

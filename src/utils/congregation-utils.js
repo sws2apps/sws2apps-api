@@ -26,6 +26,7 @@ export const getCongregations = async () => {
 		obj.cong_sourceMaterial_draft = doc.data().cong_sourceMaterial_draft || [];
 		obj.cong_schedule_draft = doc.data().cong_schedule_draft || [];
 		obj.cong_swsPocket = doc.data().cong_swsPocket || [];
+		obj.cong_settings = doc.data().cong_settings || [];
 		congsList.push(obj);
 	});
 
