@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { loadEPUB } from 'jw-epub-parser/dist/node.es/node.js';
+import { loadEPUB } from 'jw-epub-parser/dist/node/index.js';
 
 export const getSchedules = async (req, res, next) => {
 	try {
@@ -24,7 +24,7 @@ export const getSchedules = async (req, res, next) => {
         const weekDate = new Date(today.setDate(diff));
         const currentMonth = weekDate.getMonth() + 1;
         const monthOdd = currentMonth % 2 === 0 ? false : true;
-        let monthMwb = monthOdd ? currentMonth : currentMonth--;
+        let monthMwb = monthOdd ? currentMonth : currentMonth - 1;
         let currentYear = weekDate.getFullYear();
 
         let notFound = false;

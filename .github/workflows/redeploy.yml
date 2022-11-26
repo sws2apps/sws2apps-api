@@ -16,13 +16,14 @@ jobs:
 
     steps:
       - name: Checkout for release preparation
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
           ref: main
           persist-credentials: false
 
       - name: Render Deployment
-        uses: sws2apps/render-deployment@90a5d9c22cdc4c78be3c2dd926ca9b84e2d7d70c
+        uses: sws2apps/render-deployment@cb4cce83b99653bee952b81acbba65ddfc9226d8
         with:
           serviceId: ${{ secrets.RENDER_SERVICE_ID }}
           apiKey: ${{ secrets.RENDER_API_KEY }}
+          multiple: false

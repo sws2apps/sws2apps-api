@@ -17,7 +17,7 @@ export class Congregation {
 	cong_swsPocket = [];
 	last_backup = {};
 
-	constructor() {}
+	constructor() { }
 
 	loadDetails = async (id) => {
 		const congRef = db.collection('congregations').doc(id);
@@ -75,6 +75,7 @@ export class Congregation {
 		cong_schedule,
 		cong_sourceMaterial,
 		cong_swsPocket,
+		cong_settings,
 		email
 	) => {
 		try {
@@ -88,6 +89,7 @@ export class Congregation {
 				cong_schedule_draft: cong_schedule,
 				cong_sourceMaterial_draft: cong_sourceMaterial,
 				cong_swsPocket: cong_swsPocket,
+				cong_settings: cong_settings,
 				last_backup: {
 					by: userInfo.id,
 					date: new Date(),
@@ -100,6 +102,7 @@ export class Congregation {
 			this.cong_schedule_draft = cong_schedule;
 			this.cong_sourceMaterial_draft = cong_sourceMaterial;
 			this.cong_swsPocket = cong_swsPocket;
+			this.cong_settings = cong_settings;
 			this.last_backup = data.last_backup;
 		} catch (error) {
 			throw new Error(error.message);
@@ -116,6 +119,7 @@ export class Congregation {
 				cong_schedule: cong_schedule_draft,
 				cong_sourceMaterial: cong_sourceMaterial_draft,
 				cong_swsPocket: cong_swsPocket,
+				cong_settings: cong_settings,
 			};
 
 			return obj;

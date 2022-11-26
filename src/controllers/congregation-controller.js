@@ -1,22 +1,17 @@
 // dependencies
 import fetch from 'node-fetch';
-import { loadEPUB } from 'jw-epub-parser/dist/node.es/node.js';
 import { validationResult } from 'express-validator';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import randomstring from 'randomstring';
 
 // utils
 import {
-	checkCongregationMember,
-	getCongregationInfo,
+  checkCongregationMember,
+  getCongregationInfo,
 } from '../utils/congregation-utils.js';
 import { decryptData, encryptData } from '../utils/encryption-utils.js';
 import { sendCongregationRequest } from '../utils/sendEmail.js';
-import {
-	findUserById,
-	getPocketUser,
-	getUserInfo,
-} from '../utils/user-utils.js';
+import { findUserById, getPocketUser, getUserInfo } from '../utils/user-utils.js';
 
 // classes
 import { CongregationRequests } from '../classes/CongregationRequests.js';
@@ -27,1290 +22,1117 @@ import { Congregations } from '../classes/Congregations.js';
 const db = getFirestore();
 
 export const requestCongregation = async (req, res, next) => {
-	try {
-		const errors = validationResult(req);
+  try {
+    const errors = validationResult(req);
 
-		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-			});
+    if (!errors.isEmpty()) {
+      let msg = '';
+      errors.array().forEach((error) => {
+        msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+      });
 
-			res.locals.type = 'warn';
-			res.locals.message = `invalid input: ${msg}`;
+      res.locals.type = 'warn';
+      res.locals.message = `invalid input: ${msg}`;
 
-			res.status(400).json({
-				message: 'Bad request: provided inputs are invalid.',
-			});
+      res.status(400).json({
+        message: 'Bad request: provided inputs are invalid.',
+      });
 
-			return;
-		}
+      return;
+    }
 
-		const { email, cong_name, cong_number, app_requestor } = req.body;
+    const { email, cong_name, cong_number, app_requestor } = req.body;
 
-		if (app_requestor !== 'lmmo') {
-			res.locals.type = 'warn';
-			res.locals.message = `invalid input: ${app_requestor}`;
+    if (app_requestor !== 'lmmo') {
+      res.locals.type = 'warn';
+      res.locals.message = `invalid input: ${app_requestor}`;
 
-			res.status(400).json({
-				message: 'Bad request: provided inputs are invalid.',
-			});
+      res.status(400).json({
+        message: 'Bad request: provided inputs are invalid.',
+      });
 
-			return;
-		}
+      return;
+    }
 
-		const userRequest = CongregationRequests.findRequestByEmail(email);
+    const userRequest = CongregationRequests.findRequestByEmail(email);
 
-		if (userRequest) {
-			res.locals.type = 'warn';
-			res.locals.message = 'user can only make one request';
-			res.status(405).json({ message: 'REQUEST_EXIST' });
+    if (userRequest) {
+      res.locals.type = 'warn';
+      res.locals.message = 'user can only make one request';
+      res.status(405).json({ message: 'REQUEST_EXIST' });
 
-			return;
-		}
+      return;
+    }
 
-		const data = {
-			email: email,
-			cong_name: cong_name,
-			cong_number: +cong_number,
-			cong_role: app_requestor,
-			request_date: new Date(),
-			approved: false,
-			request_open: true,
-		};
+    const data = {
+      email: email,
+      cong_name: cong_name,
+      cong_number: +cong_number,
+      cong_role: app_requestor,
+      request_date: new Date(),
+      approved: false,
+      request_open: true,
+    };
 
-		await CongregationRequests.createAccount(data);
+    await CongregationRequests.createAccount(data);
 
-		const userInfo = Users.findUserByEmail(email);
-		sendCongregationRequest(cong_name, cong_number, userInfo.username);
+    const userInfo = Users.findUserByEmail(email);
+    sendCongregationRequest(cong_name, cong_number, userInfo.username);
 
-		res.locals.type = 'info';
-		res.locals.message = 'congregation request sent for approval';
-		res.status(200).json({ message: 'OK' });
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'info';
+    res.locals.message = 'congregation request sent for approval';
+    res.status(200).json({ message: 'OK' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const getLastCongregationBackup = async (req, res, next) => {
-	try {
-		const { id } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id } = req.params;
+    const { email } = req.headers;
 
-		if (id) {
-			const cong = Congregations.findCongregationById(id);
-			if (cong) {
-				const isValid = cong.isMember(email);
+    if (id) {
+      const cong = Congregations.findCongregationById(id);
+      if (cong) {
+        const isValid = cong.isMember(email);
 
-				if (isValid) {
-					if (cong.last_backup) {
-						res.locals.type = 'info';
-						res.locals.message =
-							'user get the latest backup info for the congregation';
-						res.status(200).json(cong.last_backup);
-					} else {
-						res.locals.type = 'info';
-						res.locals.message =
-							'no backup has been made yet for the congregation';
-						res.status(200).json({ message: 'NO_BACKUP' });
-					}
-					return;
-				}
+        if (isValid) {
+          if (cong.last_backup) {
+            res.locals.type = 'info';
+            res.locals.message = 'user get the latest backup info for the congregation';
+            res.status(200).json(cong.last_backup);
+          } else {
+            res.locals.type = 'info';
+            res.locals.message = 'no backup has been made yet for the congregation';
+            res.status(200).json({ message: 'NO_BACKUP' });
+          }
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+        return;
+      }
 
-			res.locals.type = 'warn';
-			res.locals.message =
-				'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
+      res.locals.type = 'warn';
+      res.locals.message = 'no congregation could not be found with the provided id';
+      res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      return;
+    }
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'warn';
+    res.locals.message = 'the congregation id params is undefined';
+    res.status(400).json({ message: 'CONG_ID_INVALID' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const saveCongregationBackup = async (req, res, next) => {
-	try {
-		const { id } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id } = req.params;
+    const { email } = req.headers;
 
-		if (id) {
-			const cong = Congregations.findCongregationById(id);
-			if (cong) {
-				const errors = validationResult(req);
+    if (id) {
+      const cong = Congregations.findCongregationById(id);
+      if (cong) {
+        const errors = validationResult(req);
 
-				if (!errors.isEmpty()) {
-					let msg = '';
-					errors.array().forEach((error) => {
-						msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-					});
+        if (!errors.isEmpty()) {
+          let msg = '';
+          errors.array().forEach((error) => {
+            msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+          });
 
-					res.locals.type = 'warn';
-					res.locals.message = `invalid input: ${msg}`;
+          res.locals.type = 'warn';
+          res.locals.message = `invalid input: ${msg}`;
 
-					res.status(400).json({
-						message: 'Bad request: provided inputs are invalid.',
-					});
+          res.status(400).json({
+            message: 'Bad request: provided inputs are invalid.',
+          });
 
-					return;
-				}
+          return;
+        }
 
-				const isValid = cong.isMember(email);
+        const isValid = cong.isMember(email);
 
-				if (isValid) {
-					const {
-						cong_persons,
-						cong_schedule,
-						cong_sourceMaterial,
-						cong_swsPocket,
-					} = req.body;
+        if (isValid) {
+          const { cong_persons, cong_schedule, cong_sourceMaterial, cong_swsPocket, cong_settings } = req.body;
 
-					await cong.saveBackup(
-						cong_persons,
-						cong_schedule,
-						cong_sourceMaterial,
-						cong_swsPocket,
-						email
-					);
+          await cong.saveBackup(
+            cong_persons,
+            cong_schedule,
+            cong_sourceMaterial,
+            cong_swsPocket,
+            cong_settings,
+            email
+          );
 
-					res.locals.type = 'info';
-					res.locals.message = 'user send backup for congregation successfully';
-					res.status(200).json({ message: 'BACKUP_SENT' });
+          res.locals.type = 'info';
+          res.locals.message = 'user send backup for congregation successfully';
+          res.status(200).json({ message: 'BACKUP_SENT' });
 
-					return;
-				}
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			} else {
-				res.locals.type = 'warn';
-				res.locals.message =
-					'no congregation could not be found with the provided id';
-				res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			}
-		} else {
-			res.locals.type = 'warn';
-			res.locals.message = 'the congregation request id params is undefined';
-			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
-		}
-	} catch (err) {
-		next(err);
-	}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+      } else {
+        res.locals.type = 'warn';
+        res.locals.message = 'no congregation could not be found with the provided id';
+        res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      }
+    } else {
+      res.locals.type = 'warn';
+      res.locals.message = 'the congregation request id params is undefined';
+      res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+    }
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const getCongregationBackup = async (req, res, next) => {
-	try {
-		const { id } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id } = req.params;
+    const { email } = req.headers;
 
-		if (id) {
-			const cong = await Congregations.findCongregationById(id);
-			if (cong) {
-				const isValid = await cong.isMember(email);
+    if (id) {
+      const cong = await Congregations.findCongregationById(id);
+      if (cong) {
+        const isValid = await cong.isMember(email);
 
-				if (isValid) {
-					const obj = cong.retrieveBackup();
+        if (isValid) {
+          const obj = cong.retrieveBackup();
 
-					res.locals.type = 'info';
-					res.locals.message =
-						'user retrieve backup for congregation successfully';
-					res.status(200).json(obj);
-					return;
-				}
+          res.locals.type = 'info';
+          res.locals.message = 'user retrieve backup for congregation successfully';
+          res.status(200).json(obj);
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			} else {
-				res.locals.type = 'warn';
-				res.locals.message =
-					'no congregation could not be found with the provided id';
-				res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			}
-		} else {
-			res.locals.type = 'warn';
-			res.locals.message = 'the congregation request id params is undefined';
-			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
-		}
-	} catch (err) {
-		next(err);
-	}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+      } else {
+        res.locals.type = 'warn';
+        res.locals.message = 'no congregation could not be found with the provided id';
+        res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      }
+    } else {
+      res.locals.type = 'warn';
+      res.locals.message = 'the congregation request id params is undefined';
+      res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+    }
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const getCongregationMembers = async (req, res, next) => {
-	try {
-		const { id } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id } = req.params;
+    const { email } = req.headers;
 
-		if (id) {
-			const cong = Congregations.findCongregationById(id);
-			if (cong) {
-				const isValid = cong.isMember(email);
+    if (id) {
+      const cong = Congregations.findCongregationById(id);
+      if (cong) {
+        const isValid = cong.isMember(email);
 
-				if (isValid) {
-					res.locals.type = 'info';
-					res.locals.message = 'user fetched congregation members';
-					res.status(200).json(cong.cong_members);
-					return;
-				}
+        if (isValid) {
+          res.locals.type = 'info';
+          res.locals.message = 'user fetched congregation members';
+          res.status(200).json(cong.cong_members);
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+        return;
+      }
 
-			res.locals.type = 'warn';
-			res.locals.message =
-				'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
+      res.locals.type = 'warn';
+      res.locals.message = 'no congregation could not be found with the provided id';
+      res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      return;
+    }
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'warn';
+    res.locals.message = 'the congregation id params is undefined';
+    res.status(400).json({ message: 'CONG_ID_INVALID' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const removeCongregationUser = async (req, res, next) => {
-	try {
-		const { id, user } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id, user } = req.params;
+    const { email } = req.headers;
 
-		if (id && user) {
-			const cong = Congregations.findCongregationById(id);
-			if (cong) {
-				const isValid = cong.isMember(email);
+    if (id && user) {
+      const cong = Congregations.findCongregationById(id);
+      if (cong) {
+        const isValid = cong.isMember(email);
 
-				if (isValid) {
-					const findUser = Users.findUserById(user);
+        if (isValid) {
+          const findUser = Users.findUserById(user);
 
-					if (findUser.cong_id === id) {
-						await findUser.removeCongregation();
-						const members = cong.removeUser(id);
+          if (findUser.cong_id === id) {
+            await findUser.removeCongregation();
+            const members = cong.removeUser(id);
 
-						res.locals.type = 'info';
-						res.locals.message = 'member removed from the congregation';
-						res.status(200).json(members);
-						return;
-					}
+            res.locals.type = 'info';
+            res.locals.message = 'member removed from the congregation';
+            res.status(200).json(members);
+            return;
+          }
 
-					res.locals.type = 'warn';
-					res.locals.message = 'member is no longer found in the congregation';
-					res.status(404).json({ message: 'MEMBER_NOT_FOUND' });
-					return;
-				}
+          res.locals.type = 'warn';
+          res.locals.message = 'member is no longer found in the congregation';
+          res.status(404).json({ message: 'MEMBER_NOT_FOUND' });
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+        return;
+      }
 
-			res.locals.type = 'warn';
-			res.locals.message =
-				'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
+      res.locals.type = 'warn';
+      res.locals.message = 'no congregation could not be found with the provided id';
+      res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      return;
+    }
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation and user ids params are undefined';
-		res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'warn';
+    res.locals.message = 'the congregation and user ids params are undefined';
+    res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const findUserByCongregation = async (req, res, next) => {
-	try {
-		const { id } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id } = req.params;
+    const { email } = req.headers;
 
-		const search = req.query.search;
+    const search = req.query.search;
 
-		if (id) {
-			const cong = await Congregations.findCongregationById(id);
-			if (cong) {
-				const isValid = await cong.isMember(email);
+    if (id) {
+      const cong = await Congregations.findCongregationById(id);
+      if (cong) {
+        const isValid = await cong.isMember(email);
 
-				if (isValid) {
-					if (search && search.length > 0) {
-						const userData = await Users.findUserByEmail(search);
+        if (isValid) {
+          if (search && search.length > 0) {
+            const userData = await Users.findUserByEmail(search);
 
-						if (userData && !userData.disabled && userData.mfaEnabled) {
-							if (userData.cong_id === id) {
-								res.locals.type = 'info';
-								res.locals.message =
-									'user is already member of the congregation';
-								res.status(200).json({ message: 'ALREADY_MEMBER' });
-								return;
-							}
+            if (userData && !userData.disabled && userData.mfaEnabled) {
+              if (userData.cong_id === id) {
+                res.locals.type = 'info';
+                res.locals.message = 'user is already member of the congregation';
+                res.status(200).json({ message: 'ALREADY_MEMBER' });
+                return;
+              }
 
-							res.locals.type = 'info';
-							res.locals.message = 'user details fetched successfully';
-							res.status(200).json(userData);
-							return;
-						}
+              res.locals.type = 'info';
+              res.locals.message = 'user details fetched successfully';
+              res.status(200).json(userData);
+              return;
+            }
 
-						res.locals.type = 'warn';
-						res.locals.message = 'user could not be found';
-						res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
-						return;
-					}
+            res.locals.type = 'warn';
+            res.locals.message = 'user could not be found';
+            res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+            return;
+          }
 
-					res.locals.type = 'warn';
-					res.locals.message = 'the search parameter is not correct';
-					res.status(400).json({ message: 'SEARCH_INVALID' });
-					return;
-				}
+          res.locals.type = 'warn';
+          res.locals.message = 'the search parameter is not correct';
+          res.status(400).json({ message: 'SEARCH_INVALID' });
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+        return;
+      }
 
-			res.locals.type = 'warn';
-			res.locals.message =
-				'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
+      res.locals.type = 'warn';
+      res.locals.message = 'no congregation could not be found with the provided id';
+      res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      return;
+    }
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'warn';
+    res.locals.message = 'the congregation id params is undefined';
+    res.status(400).json({ message: 'CONG_ID_INVALID' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const addCongregationUser = async (req, res, next) => {
-	try {
-		const { id, user } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id, user } = req.params;
+    const { email } = req.headers;
 
-		if (id && user) {
-			const cong = await getCongregationInfo(id);
-			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+    if (id && user) {
+      const cong = await getCongregationInfo(id);
+      if (cong) {
+        const isValid = await checkCongregationMember(email, id);
 
-				if (isValid) {
-					const findUser = await findUserById(user);
+        if (isValid) {
+          const findUser = await findUserById(user);
 
-					if (findUser.cong_id === '') {
-						const errors = validationResult(req);
+          if (findUser.cong_id === '') {
+            const errors = validationResult(req);
 
-						if (!errors.isEmpty()) {
-							let msg = '';
-							errors.array().forEach((error) => {
-								msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-							});
+            if (!errors.isEmpty()) {
+              let msg = '';
+              errors.array().forEach((error) => {
+                msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+              });
 
-							res.locals.type = 'warn';
-							res.locals.message = `invalid input: ${msg}`;
+              res.locals.type = 'warn';
+              res.locals.message = `invalid input: ${msg}`;
 
-							res.status(400).json({
-								message: 'Bad request: provided inputs are invalid.',
-							});
+              res.status(400).json({
+                message: 'Bad request: provided inputs are invalid.',
+              });
 
-							return;
-						}
+              return;
+            }
 
-						const { user_role } = req.body;
+            const { user_role } = req.body;
 
-						// validate provided role
-						let isRoleValid = true;
-						const allowedRoles = ['admin', 'lmmo', 'lmmo-backup'];
-						if (user_role > 0) {
-							for (let i = 0; i < user_role.length; i++) {
-								const role = user_role[i];
-								if (!allowedRoles.includes(role)) {
-									isRoleValid = false;
-									break;
-								}
-							}
-						}
+            // validate provided role
+            let isRoleValid = true;
+            const allowedRoles = ['admin', 'lmmo', 'lmmo-backup'];
+            if (user_role > 0) {
+              for (let i = 0; i < user_role.length; i++) {
+                const role = user_role[i];
+                if (!allowedRoles.includes(role)) {
+                  isRoleValid = false;
+                  break;
+                }
+              }
+            }
 
-						if (!isRoleValid) {
-							res.locals.type = 'warn';
-							res.locals.message = `invalid role provided`;
+            if (!isRoleValid) {
+              res.locals.type = 'warn';
+              res.locals.message = `invalid role provided`;
 
-							res.status(400).json({
-								message: 'Bad request: provided inputs are invalid.',
-							});
+              res.status(400).json({
+                message: 'Bad request: provided inputs are invalid.',
+              });
 
-							return;
-						}
+              return;
+            }
 
-						await db
-							.collection('users')
-							.doc(user)
-							.update({
-								congregation: {
-									id: id,
-									role: user_role,
-								},
-							});
+            await db
+              .collection('users')
+              .doc(user)
+              .update({
+                congregation: {
+                  id: id,
+                  role: user_role,
+                },
+              });
 
-						res.locals.type = 'info';
-						res.locals.message = 'member added to the congregation';
-						res.status(200).json({ message: 'MEMBER_ADDED' });
-						return;
-					}
+            res.locals.type = 'info';
+            res.locals.message = 'member added to the congregation';
+            res.status(200).json({ message: 'MEMBER_ADDED' });
+            return;
+          }
 
-					res.locals.type = 'warn';
-					res.locals.message = 'member already has a congregation';
-					res.status(400).json({ message: 'ALREADY_MEMBER' });
-					return;
-				}
+          res.locals.type = 'warn';
+          res.locals.message = 'member already has a congregation';
+          res.status(400).json({ message: 'ALREADY_MEMBER' });
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+        return;
+      }
 
-			res.locals.type = 'warn';
-			res.locals.message =
-				'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
+      res.locals.type = 'warn';
+      res.locals.message = 'no congregation could not be found with the provided id';
+      res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      return;
+    }
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation and user ids params are undefined';
-		res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'warn';
+    res.locals.message = 'the congregation and user ids params are undefined';
+    res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const updateCongregationRole = async (req, res, next) => {
-	try {
-		const { id, user } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id, user } = req.params;
+    const { email } = req.headers;
 
-		if (id && user) {
-			const cong = await getCongregationInfo(id);
-			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+    if (id && user) {
+      const cong = await getCongregationInfo(id);
+      if (cong) {
+        const isValid = await checkCongregationMember(email, id);
 
-				if (isValid) {
-					const findUser = await findUserById(user);
+        if (isValid) {
+          const findUser = await findUserById(user);
 
-					if (findUser.cong_id === id) {
-						const errors = validationResult(req);
+          if (findUser.cong_id === id) {
+            const errors = validationResult(req);
 
-						if (!errors.isEmpty()) {
-							let msg = '';
-							errors.array().forEach((error) => {
-								msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-							});
+            if (!errors.isEmpty()) {
+              let msg = '';
+              errors.array().forEach((error) => {
+                msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+              });
 
-							res.locals.type = 'warn';
-							res.locals.message = `invalid input: ${msg}`;
+              res.locals.type = 'warn';
+              res.locals.message = `invalid input: ${msg}`;
 
-							res.status(400).json({
-								message: 'Bad request: provided inputs are invalid.',
-							});
+              res.status(400).json({
+                message: 'Bad request: provided inputs are invalid.',
+              });
 
-							return;
-						}
+              return;
+            }
 
-						const { user_role } = req.body;
+            const { user_role } = req.body;
 
-						// validate provided role
-						let isRoleValid = true;
-						const allowedRoles = ['admin', 'lmmo', 'lmmo-backup'];
-						if (user_role > 0) {
-							for (let i = 0; i < user_role.length; i++) {
-								const role = user_role[i];
-								if (!allowedRoles.includes(role)) {
-									isRoleValid = false;
-									break;
-								}
-							}
-						}
+            // validate provided role
+            let isRoleValid = true;
+            const allowedRoles = ['admin', 'lmmo', 'lmmo-backup'];
+            if (user_role > 0) {
+              for (let i = 0; i < user_role.length; i++) {
+                const role = user_role[i];
+                if (!allowedRoles.includes(role)) {
+                  isRoleValid = false;
+                  break;
+                }
+              }
+            }
 
-						if (!isRoleValid) {
-							res.locals.type = 'warn';
-							res.locals.message = `invalid role provided`;
+            if (!isRoleValid) {
+              res.locals.type = 'warn';
+              res.locals.message = `invalid role provided`;
 
-							res.status(400).json({
-								message: 'Bad request: provided inputs are invalid.',
-							});
+              res.status(400).json({
+                message: 'Bad request: provided inputs are invalid.',
+              });
 
-							return;
-						}
+              return;
+            }
 
-						await db.collection('users').doc(user).update({
-							'congregation.role': user_role,
-						});
+            await db.collection('users').doc(user).update({
+              'congregation.role': user_role,
+            });
 
-						res.locals.type = 'info';
-						res.locals.message = 'member role in congregation updated';
-						res.status(200).json({ message: 'ROLE_UPDATED' });
-						return;
-					}
+            res.locals.type = 'info';
+            res.locals.message = 'member role in congregation updated';
+            res.status(200).json({ message: 'ROLE_UPDATED' });
+            return;
+          }
 
-					res.locals.type = 'warn';
-					res.locals.message = 'member is no longer found in the congregation';
-					res.status(404).json({ message: 'MEMBER_NOT_FOUND' });
-					return;
-				}
+          res.locals.type = 'warn';
+          res.locals.message = 'member is no longer found in the congregation';
+          res.status(404).json({ message: 'MEMBER_NOT_FOUND' });
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+        return;
+      }
 
-			res.locals.type = 'warn';
-			res.locals.message =
-				'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
+      res.locals.type = 'warn';
+      res.locals.message = 'no congregation could not be found with the provided id';
+      res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      return;
+    }
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation and user ids params are undefined';
-		res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'warn';
+    res.locals.message = 'the congregation and user ids params are undefined';
+    res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const getCongregationUser = async (req, res, next) => {
-	try {
-		const { id, user } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id, user } = req.params;
+    const { email } = req.headers;
 
-		if (id && user) {
-			const cong = await getCongregationInfo(id);
-			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+    if (id && user) {
+      const cong = await getCongregationInfo(id);
+      if (cong) {
+        const isValid = await checkCongregationMember(email, id);
 
-				if (isValid) {
-					const userData = await findUserById(user);
+        if (isValid) {
+          const userData = await findUserById(user);
 
-					if (userData) {
-						res.locals.type = 'info';
-						res.locals.message = 'user details fetched successfully';
-						res.status(200).json(userData);
-						return;
-					}
+          if (userData) {
+            res.locals.type = 'info';
+            res.locals.message = 'user details fetched successfully';
+            res.status(200).json(userData);
+            return;
+          }
 
-					res.locals.type = 'warn';
-					res.locals.message = 'user could not be found';
-					res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
-					return;
-				}
+          res.locals.type = 'warn';
+          res.locals.message = 'user could not be found';
+          res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+        return;
+      }
 
-			res.locals.type = 'warn';
-			res.locals.message =
-				'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
+      res.locals.type = 'warn';
+      res.locals.message = 'no congregation could not be found with the provided id';
+      res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      return;
+    }
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation and user ids params are undefined';
-		res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'warn';
+    res.locals.message = 'the congregation and user ids params are undefined';
+    res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const getCongregationPockerUser = async (req, res, next) => {
-	try {
-		const { id, user } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id, user } = req.params;
+    const { email } = req.headers;
 
-		if (id && user) {
-			const cong = await getCongregationInfo(id);
-			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+    if (id && user && user !== 'undefined') {
+      const cong = await getCongregationInfo(id);
+      if (cong) {
+        const isValid = await checkCongregationMember(email, id);
 
-				if (isValid) {
-					const userData = await getPocketUser(user);
+        if (isValid) {
+          const userData = await getPocketUser(user);
 
-					if (userData) {
-						const otpCode = userData.pocket_oCode;
-						let pocket_oCode = '';
+          if (userData) {
+            const otpCode = userData.pocket_oCode;
+            let pocket_oCode = '';
 
-						if (otpCode && otpCode !== '') {
-							pocket_oCode = decryptData(userData.pocket_oCode);
-						}
+            if (otpCode && otpCode !== '') {
+              pocket_oCode = decryptData(userData.pocket_oCode);
+            }
 
-						res.locals.type = 'info';
-						res.locals.message = 'pocket user details fetched successfully';
-						res.status(200).json({ ...userData, pocket_oCode });
-						return;
-					}
+            res.locals.type = 'info';
+            res.locals.message = 'pocket user details fetched successfully';
+            res.status(200).json({ ...userData, pocket_oCode });
+            return;
+          }
 
-					res.locals.type = 'warn';
-					res.locals.message = 'pocket user could not be found';
-					res.status(404).json({ message: 'POCKET_NOT_FOUND' });
-					return;
-				}
+          res.locals.type = 'warn';
+          res.locals.message = 'pocket user could not be found';
+          res.status(404).json({ message: 'POCKET_NOT_FOUND' });
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+        return;
+      }
 
-			res.locals.type = 'warn';
-			res.locals.message =
-				'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
+      res.locals.type = 'warn';
+      res.locals.message = 'no congregation could not be found with the provided id';
+      res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      return;
+    }
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation and user ids params are undefined';
-		res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'warn';
+    res.locals.message = 'the congregation and user ids params are undefined';
+    res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const createNewPocketUser = async (req, res, next) => {
-	try {
-		const { id, user } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id, user } = req.params;
+    const { email } = req.headers;
 
-		if (id && user) {
-			const cong = await getCongregationInfo(id);
-			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+    if (id && user) {
+      const cong = await getCongregationInfo(id);
+      if (cong) {
+        const isValid = await checkCongregationMember(email, id);
 
-				if (isValid) {
-					const errors = validationResult(req);
+        if (isValid) {
+          const errors = validationResult(req);
 
-					if (!errors.isEmpty()) {
-						let msg = '';
-						errors.array().forEach((error) => {
-							msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-						});
+          if (!errors.isEmpty()) {
+            let msg = '';
+            errors.array().forEach((error) => {
+              msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+            });
 
-						res.locals.type = 'warn';
-						res.locals.message = `invalid input: ${msg}`;
+            res.locals.type = 'warn';
+            res.locals.message = `invalid input: ${msg}`;
 
-						res.status(400).json({
-							message: 'Bad request: provided inputs are invalid.',
-						});
+            res.status(400).json({
+              message: 'Bad request: provided inputs are invalid.',
+            });
 
-						return;
-					}
+            return;
+          }
 
-					const code = randomstring.generate(10).toUpperCase();
-					const secureCode = encryptData(code);
+          const code = randomstring.generate(10).toUpperCase();
+          const secureCode = encryptData(code);
 
-					const { username } = req.body;
+          const { username } = req.body;
 
-					await db.collection('users').add({
-						about: {
-							name: username,
-							role: 'pocket',
-						},
-						congregation: {
-							id: id,
-							local_id: user,
-							devices: [],
-							oCode: secureCode,
-							pocket_role: ['view_meeting_schedule'],
-							pocket_members: [],
-						},
-					});
+          await db.collection('users').add({
+            about: {
+              name: username,
+              role: 'pocket',
+            },
+            congregation: {
+              id: id,
+              local_id: user,
+              devices: [],
+              oCode: secureCode,
+              pocket_role: ['view_meeting_schedule'],
+              pocket_members: [],
+            },
+          });
 
-					res.locals.type = 'info';
-					res.locals.message = 'pocket user created successfully';
-					res.status(200).json({ username, code });
-					return;
-				}
+          res.locals.type = 'info';
+          res.locals.message = 'pocket user created successfully';
+          res.status(200).json({ username, code });
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+        return;
+      }
 
-			res.locals.type = 'warn';
-			res.locals.message =
-				'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
+      res.locals.type = 'warn';
+      res.locals.message = 'no congregation could not be found with the provided id';
+      res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      return;
+    }
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation and user ids params are undefined';
-		res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'warn';
+    res.locals.message = 'the congregation and user ids params are undefined';
+    res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const updatePocketUsername = async (req, res, next) => {
-	try {
-		const { id, user } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id, user } = req.params;
+    const { email } = req.headers;
 
-		if (id && user) {
-			const cong = await getCongregationInfo(id);
-			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+    if (id && user) {
+      const cong = await getCongregationInfo(id);
+      if (cong) {
+        const isValid = await checkCongregationMember(email, id);
 
-				if (isValid) {
-					const userData = await getPocketUser(user);
+        if (isValid) {
+          const userData = await getPocketUser(user);
 
-					if (userData) {
-						const errors = validationResult(req);
+          if (userData) {
+            const errors = validationResult(req);
 
-						if (!errors.isEmpty()) {
-							let msg = '';
-							errors.array().forEach((error) => {
-								msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-							});
+            if (!errors.isEmpty()) {
+              let msg = '';
+              errors.array().forEach((error) => {
+                msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+              });
 
-							res.locals.type = 'warn';
-							res.locals.message = `invalid input: ${msg}`;
+              res.locals.type = 'warn';
+              res.locals.message = `invalid input: ${msg}`;
 
-							res.status(400).json({
-								message: 'Bad request: provided inputs are invalid.',
-							});
+              res.status(400).json({
+                message: 'Bad request: provided inputs are invalid.',
+              });
 
-							return;
-						}
+              return;
+            }
 
-						const { username } = req.body;
+            const { username } = req.body;
 
-						await db.collection('users').doc(userData.id).update({
-							'about.name': username,
-						});
+            await db.collection('users').doc(userData.id).update({
+              'about.name': username,
+            });
 
-						res.locals.type = 'info';
-						res.locals.message = 'pocket username updated';
-						res.status(200).json({ username });
-						return;
-					}
+            res.locals.type = 'info';
+            res.locals.message = 'pocket username updated';
+            res.status(200).json({ username });
+            return;
+          }
 
-					res.locals.type = 'warn';
-					res.locals.message = 'pocket user could not be found';
-					res.status(404).json({ message: 'POCKET_NOT_FOUND' });
-					return;
-				}
+          res.locals.type = 'warn';
+          res.locals.message = 'pocket user could not be found';
+          res.status(404).json({ message: 'POCKET_NOT_FOUND' });
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+        return;
+      }
 
-			res.locals.type = 'warn';
-			res.locals.message =
-				'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
+      res.locals.type = 'warn';
+      res.locals.message = 'no congregation could not be found with the provided id';
+      res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      return;
+    }
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation and user ids params are undefined';
-		res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'warn';
+    res.locals.message = 'the congregation and user ids params are undefined';
+    res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const updatePocketMembers = async (req, res, next) => {
-	try {
-		const { id, user } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id, user } = req.params;
+    const { email } = req.headers;
 
-		if (id && user) {
-			const cong = await getCongregationInfo(id);
-			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+    if (id && user) {
+      const cong = await getCongregationInfo(id);
+      if (cong) {
+        const isValid = await checkCongregationMember(email, id);
 
-				if (isValid) {
-					const userData = await getPocketUser(user);
+        if (isValid) {
+          const userData = await getPocketUser(user);
 
-					if (userData) {
-						const errors = validationResult(req);
+          if (userData) {
+            const errors = validationResult(req);
 
-						if (!errors.isEmpty()) {
-							let msg = '';
-							errors.array().forEach((error) => {
-								msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-							});
+            if (!errors.isEmpty()) {
+              let msg = '';
+              errors.array().forEach((error) => {
+                msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+              });
 
-							res.locals.type = 'warn';
-							res.locals.message = `invalid input: ${msg}`;
+              res.locals.type = 'warn';
+              res.locals.message = `invalid input: ${msg}`;
 
-							res.status(400).json({
-								message: 'Bad request: provided inputs are invalid.',
-							});
+              res.status(400).json({
+                message: 'Bad request: provided inputs are invalid.',
+              });
 
-							return;
-						}
+              return;
+            }
 
-						const { members } = req.body;
+            const { members } = req.body;
 
-						await db.collection('users').doc(userData.id).update({
-							'congregation.pocket_members': members,
-						});
+            await db.collection('users').doc(userData.id).update({
+              'congregation.pocket_members': members,
+            });
 
-						res.locals.type = 'info';
-						res.locals.message = 'pocket members updated';
-						res.status(200).json({ pocket_members: members });
-						return;
-					}
+            res.locals.type = 'info';
+            res.locals.message = 'pocket members updated';
+            res.status(200).json({ pocket_members: members });
+            return;
+          }
 
-					res.locals.type = 'warn';
-					res.locals.message = 'pocket user could not be found';
-					res.status(404).json({ message: 'POCKET_NOT_FOUND' });
-					return;
-				}
+          res.locals.type = 'warn';
+          res.locals.message = 'pocket user could not be found';
+          res.status(404).json({ message: 'POCKET_NOT_FOUND' });
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+        return;
+      }
 
-			res.locals.type = 'warn';
-			res.locals.message =
-				'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
+      res.locals.type = 'warn';
+      res.locals.message = 'no congregation could not be found with the provided id';
+      res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      return;
+    }
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation and user ids params are undefined';
-		res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'warn';
+    res.locals.message = 'the congregation and user ids params are undefined';
+    res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const generatePocketOTPCode = async (req, res, next) => {
-	try {
-		const { id, user } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id, user } = req.params;
+    const { email } = req.headers;
 
-		if (id && user) {
-			const cong = await getCongregationInfo(id);
-			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+    if (id && user) {
+      const cong = await getCongregationInfo(id);
+      if (cong) {
+        const isValid = await checkCongregationMember(email, id);
 
-				if (isValid) {
-					const userData = await getPocketUser(user);
+        if (isValid) {
+          const userData = await getPocketUser(user);
 
-					if (userData) {
-						const code = randomstring.generate(10).toUpperCase();
-						const secureCode = encryptData(code);
+          if (userData) {
+            const code = randomstring.generate(10).toUpperCase();
+            const secureCode = encryptData(code);
 
-						await db.collection('users').doc(userData.id).update({
-							'congregation.oCode': secureCode,
-						});
+            await db.collection('users').doc(userData.id).update({
+              'congregation.oCode': secureCode,
+            });
 
-						res.locals.type = 'info';
-						res.locals.message = 'pocket otp code generated';
-						res.status(200).json({ code });
-						return;
-					}
+            res.locals.type = 'info';
+            res.locals.message = 'pocket otp code generated';
+            res.status(200).json({ code });
+            return;
+          }
 
-					res.locals.type = 'warn';
-					res.locals.message = 'pocket user could not be found';
-					res.status(404).json({ message: 'POCKET_NOT_FOUND' });
-					return;
-				}
+          res.locals.type = 'warn';
+          res.locals.message = 'pocket user could not be found';
+          res.status(404).json({ message: 'POCKET_NOT_FOUND' });
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+        return;
+      }
 
-			res.locals.type = 'warn';
-			res.locals.message =
-				'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
+      res.locals.type = 'warn';
+      res.locals.message = 'no congregation could not be found with the provided id';
+      res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      return;
+    }
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation and user ids params are undefined';
-		res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'warn';
+    res.locals.message = 'the congregation and user ids params are undefined';
+    res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const deletePocketDevice = async (req, res, next) => {
-	try {
-		const { id, user } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id, user } = req.params;
+    const { email } = req.headers;
 
-		const errors = validationResult(req);
+    const errors = validationResult(req);
 
-		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-			});
+    if (!errors.isEmpty()) {
+      let msg = '';
+      errors.array().forEach((error) => {
+        msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+      });
 
-			res.locals.type = 'warn';
-			res.locals.message = `invalid input: ${msg}`;
+      res.locals.type = 'warn';
+      res.locals.message = `invalid input: ${msg}`;
 
-			res.status(400).json({
-				message: 'Bad request: provided inputs are invalid.',
-			});
+      res.status(400).json({
+        message: 'Bad request: provided inputs are invalid.',
+      });
 
-			return;
-		}
+      return;
+    }
 
-		const { pocket_visitorid } = req.body;
+    const { pocket_visitorid } = req.body;
 
-		if (id && user) {
-			const cong = await getCongregationInfo(id);
-			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+    if (id && user) {
+      const cong = await getCongregationInfo(id);
+      if (cong) {
+        const isValid = await checkCongregationMember(email, id);
 
-				if (isValid) {
-					const userData = await getPocketUser(user);
+        if (isValid) {
+          const userData = await getPocketUser(user);
 
-					if (userData) {
-						// remove device
-						let devices = userData.pocket_devices || [];
-						let newDevices = devices.filter(
-							(device) => device.visitorid !== pocket_visitorid
-						);
+          if (userData) {
+            // remove device
+            let devices = userData.pocket_devices || [];
+            let newDevices = devices.filter((device) => device.visitorid !== pocket_visitorid);
 
-						if (newDevices.length > 0) {
-							await db.collection('users').doc(userData.id).update({
-								'congregation.devices': newDevices,
-							});
+            if (newDevices.length > 0) {
+              await db.collection('users').doc(userData.id).update({
+                'congregation.devices': newDevices,
+              });
 
-							res.locals.type = 'info';
-							res.locals.message = 'pocket device successfully removed';
-							res.status(200).json({ devices: newDevices });
-						}
+              res.locals.type = 'info';
+              res.locals.message = 'pocket device successfully removed';
+              res.status(200).json({ devices: newDevices });
+            }
 
-						// if no device, delete pocket user
-						if (newDevices.length === 0) {
-							await db.collection('users').doc(userData.id).delete();
+            // if no device, delete pocket user
+            if (newDevices.length === 0) {
+              await db.collection('users').doc(userData.id).delete();
 
-							res.locals.type = 'info';
-							res.locals.message =
-								'pocket device removed, and pocket user deleted';
-							res.status(200).json({ message: 'POCKET_USER_DELETED' });
-						}
+              res.locals.type = 'info';
+              res.locals.message = 'pocket device removed, and pocket user deleted';
+              res.status(200).json({ message: 'POCKET_USER_DELETED' });
+            }
 
-						return;
-					}
+            return;
+          }
 
-					res.locals.type = 'warn';
-					res.locals.message = 'pocket user could not be found';
-					res.status(404).json({ message: 'POCKET_NOT_FOUND' });
-					return;
-				}
+          res.locals.type = 'warn';
+          res.locals.message = 'pocket user could not be found';
+          res.status(404).json({ message: 'POCKET_NOT_FOUND' });
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+        return;
+      }
 
-			res.locals.type = 'warn';
-			res.locals.message =
-				'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
+      res.locals.type = 'warn';
+      res.locals.message = 'no congregation could not be found with the provided id';
+      res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      return;
+    }
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation and user ids params are undefined';
-		res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'warn';
+    res.locals.message = 'the congregation and user ids params are undefined';
+    res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const sendPocketSchedule = async (req, res, next) => {
-	try {
-		const { id } = req.params;
-		const { email } = req.headers;
+  try {
+    const { id } = req.params;
+    const { email } = req.headers;
 
-		if (id) {
-			const cong = await getCongregationInfo(id);
-			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
+    if (id) {
+      const cong = await getCongregationInfo(id);
+      if (cong) {
+        const isValid = await checkCongregationMember(email, id);
 
-				if (isValid) {
-					const errors = validationResult(req);
+        if (isValid) {
+          const errors = validationResult(req);
 
-					if (!errors.isEmpty()) {
-						let msg = '';
-						errors.array().forEach((error) => {
-							msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-						});
+          if (!errors.isEmpty()) {
+            let msg = '';
+            errors.array().forEach((error) => {
+              msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+            });
 
-						res.locals.type = 'warn';
-						res.locals.message = `invalid input: ${msg}`;
+            res.locals.type = 'warn';
+            res.locals.message = `invalid input: ${msg}`;
 
-						res.status(400).json({
-							message: 'Bad request: provided inputs are invalid.',
-						});
+            res.status(400).json({
+              message: 'Bad request: provided inputs are invalid.',
+            });
 
-						return;
-					}
+            return;
+          }
 
-					// update pocket schedule and source
-					const currentSchedule = cong.cong_schedule || {};
-					const studentsSchedule = currentSchedule.students || [];
-					const currentSource = cong.cong_sourceMaterial || {};
-					const studentsSource = currentSource.students || [];
+          // update pocket schedule and source
+          const currentSchedule = cong.cong_schedule || {};
+          const studentsSchedule = currentSchedule.students || [];
+          const currentSource = cong.cong_sourceMaterial || {};
+          const studentsSource = currentSource.students || [];
 
-					// remove expired schedule and source (> 3 months)
-					const currentDate = new Date().getTime();
-					const validSchedule = studentsSchedule.filter(
-						(schedule) => schedule.expiredDate > currentDate
-					);
-					const validSource = studentsSource.filter(
-						(source) => source.expiredDate > currentDate
-					);
+          // remove expired schedule and source (> 3 months)
+          const currentDate = new Date().getTime();
+          const validSchedule = studentsSchedule.filter((schedule) => schedule.expiredDate > currentDate);
+          const validSource = studentsSource.filter((source) => source.expiredDate > currentDate);
 
-					// assign expiration date
-					const { cong_sourceMaterial, cong_schedule } = req.body;
-					const { month, year } = cong_schedule;
+          // assign expiration date
+          const { cong_sourceMaterial, cong_schedule } = req.body;
+          const { month, year } = cong_schedule;
 
-					if (isNaN(month) || isNaN(year)) {
-						res.locals.type = 'warn';
-						res.locals.message =
-							'schedule month and year were invalid: not a number';
-						res.status(400).json({ message: 'BAD_REQUEST' });
-						return;
-					}
+          if (isNaN(month) || isNaN(year)) {
+            res.locals.type = 'warn';
+            res.locals.message = 'schedule month and year were invalid: not a number';
+            res.status(400).json({ message: 'BAD_REQUEST' });
+            return;
+          }
 
-					const lastDate = new Date(year, month + 1, 0);
-					let expiredDate = new Date();
-					expiredDate.setDate(lastDate.getDate() + 90);
-					const expiredTime = expiredDate.getTime();
+          const lastDate = new Date(year, month + 1, 0);
+          let expiredDate = new Date();
+          expiredDate.setDate(lastDate.getDate() + 90);
+          const expiredTime = expiredDate.getTime();
 
-					const objSchedule = {
-						...cong_schedule,
-						expiredDate: expiredTime,
-						modifiedDate: new Date().getTime(),
-					};
-					const objSource = {
-						...cong_sourceMaterial,
-						expiredDate: expiredTime,
-						modifiedDate: new Date().getTime(),
-					};
+          const objSchedule = {
+            ...cong_schedule,
+            expiredDate: expiredTime,
+            modifiedDate: new Date().getTime(),
+          };
+          const objSource = {
+            ...cong_sourceMaterial,
+            expiredDate: expiredTime,
+            modifiedDate: new Date().getTime(),
+          };
 
-					let newStudentsSchedule = validSchedule.filter(
-						(schedule) => schedule.id !== objSchedule.id
-					);
-					newStudentsSchedule.push(objSchedule);
+          let newStudentsSchedule = validSchedule.filter((schedule) => schedule.id !== objSchedule.id);
+          newStudentsSchedule.push(objSchedule);
 
-					let newStudentsSource = validSource.filter(
-						(source) => source.id !== objSource.id
-					);
-					newStudentsSource.push(objSource);
+          let newStudentsSource = validSource.filter((source) => source.id !== objSource.id);
+          newStudentsSource.push(objSource);
 
-					const newSchedule = {
-						...currentSchedule,
-						students: newStudentsSchedule,
-					};
-					const newSource = { ...currentSource, students: newStudentsSource };
+          const newSchedule = {
+            ...currentSchedule,
+            students: newStudentsSchedule,
+          };
+          const newSource = { ...currentSource, students: newStudentsSource };
 
-					await db.collection('congregations').doc(id).update({
-						cong_schedule: newSchedule,
-						cong_sourceMaterial: newSource,
-					});
+          await db.collection('congregations').doc(id).update({
+            cong_schedule: newSchedule,
+            cong_sourceMaterial: newSource,
+          });
 
-					res.locals.type = 'info';
-					res.locals.message = 'schedule save for sws pocket application';
-					res.status(200).json({ message: 'SCHEDULE_SENT' });
-					return;
-				}
+          res.locals.type = 'info';
+          res.locals.message = 'schedule save for sws pocket application';
+          res.status(200).json({ message: 'SCHEDULE_SENT' });
+          return;
+        }
 
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
+        res.locals.type = 'warn';
+        res.locals.message = 'user not authorized to access the provided congregation';
+        res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+        return;
+      }
 
-			res.locals.type = 'warn';
-			res.locals.message =
-				'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
+      res.locals.type = 'warn';
+      res.locals.message = 'no congregation could not be found with the provided id';
+      res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+      return;
+    }
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const getUpdatedSchedules = async (req, res, next) => {
-	try {
-		const { id } = req.params;
-		const { email } = req.headers;
-
-		if (id) {
-			const cong = await getCongregationInfo(id);
-			if (cong) {
-				const isValid = await checkCongregationMember(email, id);
-
-				if (isValid) {
-					const errors = validationResult(req);
-
-					if (!errors.isEmpty()) {
-						let msg = '';
-						errors.array().forEach((error) => {
-							msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-						});
-
-						res.locals.type = 'warn';
-						res.locals.message = `invalid input: ${msg}`;
-
-						res.status(400).json({
-							message: 'Bad request: provided inputs are invalid.',
-						});
-
-						return;
-					}
-
-					const { language, source_materials_details } = req.body;
-
-					if (language !== 'E' && language !== 'MG') {
-						res.locals.type = 'warn';
-						res.locals.message = `invalid language for source material`;
-
-						res.status(400).json({
-							message: 'Bad request: provided inputs are invalid.',
-						});
-
-						return;
-					}
-
-					// get current issue
-					const today = new Date();
-					const day = today.getDay();
-					const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-					const weekDate = new Date(today.setDate(diff));
-					const currentMonth = weekDate.getMonth() + 1;
-					const monthOdd = currentMonth % 2 === 0 ? false : true;
-					let monthMwb = monthOdd ? currentMonth : currentMonth--;
-					let currentYear = weekDate.getFullYear();
-
-					let notFound = false;
-					const mergedSources = [];
-
-					do {
-						const issueDate = currentYear + String(monthMwb).padStart(2, '0');
-						const url =
-							process.env.JW_CDN +
-							new URLSearchParams({
-								langwritten: 'MG',
-								pub: 'mwb',
-								fileformat: 'epub',
-								output: 'json',
-								issue: issueDate,
-							});
-
-						const res = await fetch(url);
-
-						if (res.status === 404) {
-							notFound = true;
-							return;
-						}
-
-						const data = await res.json();
-						const epubUrl = data.files['MG'].EPUB[0].file.url;
-						const epubModifiedDate =
-							data.files['MG'].EPUB[0].file.modifiedDatetime;
-
-						const epubData = await loadEPUB({ url: epubUrl });
-						const obj = {
-							issueDate,
-							...epubData,
-						};
-
-						mergedSources.push(obj);
-
-						// assigning next issue
-						monthMwb = monthMwb + 2;
-						if (monthMwb === 13) {
-							monthMwb = 1;
-							currentYear++;
-						}
-					} while (notFound === false);
-
-					res.locals.type = 'info';
-					res.locals.message = 'updated schedules fetched from jw.org';
-					res.status(200).json(mergedSources);
-					return;
-				}
-
-				res.locals.type = 'warn';
-				res.locals.message =
-					'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			} else {
-				res.locals.type = 'warn';
-				res.locals.message =
-					'no congregation could not be found with the provided id';
-				res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			}
-		} else {
-			res.locals.type = 'warn';
-			res.locals.message = 'the congregation request id params is undefined';
-			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
-		}
-	} catch (err) {
-		next(err);
-	}
+    res.locals.type = 'warn';
+    res.locals.message = 'the congregation id params is undefined';
+    res.status(400).json({ message: 'CONG_ID_INVALID' });
+  } catch (err) {
+    next(err);
+  }
 };

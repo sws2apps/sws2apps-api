@@ -19,7 +19,6 @@ import {
 	getCongregationPockerUser,
 	getCongregationUser,
 	getLastCongregationBackup,
-	getUpdatedSchedules,
 	removeCongregationUser,
 	requestCongregation,
 	saveCongregationBackup,
@@ -56,6 +55,7 @@ router.post(
 	body('cong_schedule').isArray(),
 	body('cong_sourceMaterial').isArray(),
 	body('cong_swsPocket').isArray(),
+	body('cong_settings').isArray(),
 	saveCongregationBackup
 );
 
@@ -131,13 +131,6 @@ router.delete(
 	'/:id/pockets/:user',
 	body('pocket_visitorid').notEmpty(),
 	deletePocketDevice
-);
-
-// get updated and latest schedules
-router.post(
-	'/:id/source-material',
-	body('language').notEmpty(),
-	getUpdatedSchedules
 );
 
 export default router;

@@ -70,97 +70,107 @@ export const pocketSignUp = async (req, res, next) => {
 			limit: 1,
 		});
 
-		// visitor id not found
-		if (visitorHistory.visits.length === 0) {
-			res.locals.failedLoginAttempt = true;
-			res.locals.type = 'warn';
-			res.locals.message = 'visitor id not found in fingerprint';
-			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			return;
-		}
+		if (visitorHistory.visits?.length > 0) {
+			const user = await findUserByOTPCode(otp_code);
 
-		// request does not meet requirements
-		const visit = visitorHistory.visits[0];
+			if (user) {
+				// add visitor id and remove otp_code
+				let devices = user.pocket_devices || [];
+				const visit = visitorHistory.visits[0]
+				const obj = {
+					visitorid: visitorid,
+					name: `${visit.browserDetails.os} ${visit.browserDetails.osVersion} (${visit.browserDetails.browserName} ${visit.browserDetails.browserFullVersion})`,
+					sws_last_seen: new Date().getTime(),
+				};
 
-		if (
-			(visit.browserDetails.botProbability &&
-				visit.browserDetails.botProbability !== 0) ||
-			visit.confidence.score !== 1
-		) {
-			res.locals.failedLoginAttempt = true;
-			res.locals.type = 'warn';
-			res.locals.message = 'bot probability or fraudulent request';
-			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			return;
-		}
+				const foundDevice = devices.find(
+					(device) => device.visitorid === visitorid
+				);
 
-		const user = await Users.findUserByOTPCode(otp_code);
+				const user = await Users.findUserByOTPCode(otp_code);
 
-		if (user) {
-			// add visitor id and remove otp_code
-			let devices = user.pocket_devices;
+				if (user) {
+					// add visitor id and remove otp_code
+					let devices = user.pocket_devices;
 
-			const obj = {
-				visitorid: visitorid,
-				name: `${visit.browserDetails.os} ${visit.browserDetails.osVersion} (${visit.browserDetails.browserName} ${visit.browserDetails.browserFullVersion})`,
-				sws_last_seen: new Date().getTime(),
-			};
+					// add new device
+					devices.push(obj);
 
-			const foundDevice = devices.find(
-				(device) => device.visitorid === visitorid
-			);
+					await db.collection('users').doc(user.id).update({
+						'congregation.oCode': FieldValue.delete(),
+						'congregation.devices': devices,
+					});
 
-			// device already added
-			if (foundDevice) {
-				res.locals.type = 'warn';
-				res.locals.message = 'pocket visitor id already exists';
-				res.status(400).json({ message: 'DEVICE_EXISTS' });
+					const {
+						username,
+						pocket_local_id,
+						pocket_members,
+						cong_name,
+						cong_number,
+					} = await findPocketByVisitorID(visitorid);
 
+					res.locals.type = 'info';
+					res.locals.message = 'pocket device visitor id added successfully';
+					res.status(200).json({
+						username,
+						pocket_local_id,
+						pocket_members,
+						cong_name,
+						cong_number,
+					});
+					return;
+				}
+
+				// add new device
+				devices.push(obj);
+
+				const {
+					username,
+					pocket_local_id,
+					pocket_members,
+					cong_name,
+					cong_number,
+				} = await user.updatePocketDevices(devices);
+
+				res.locals.type = 'info';
+				res.locals.message = 'pocket device visitor id added successfully';
+				res.status(200).json({
+					username,
+					pocket_local_id,
+					pocket_members,
+					cong_name,
+					cong_number,
+				});
 				return;
 			}
 
-			// add new device
-			devices.push(obj);
+			// pocket code not found
+			res.locals.failedLoginAttempt = true;
+			res.locals.type = 'warn';
+			res.locals.message = 'the pocket could not be found';
+			res.status(403).json({ message: 'POCKET_NOT_FOUND' });
+		} else {
+			// visitor id not found
+			res.locals.failedLoginAttempt = true;
+			res.locals.type = 'warn';
+			res.locals.message = 'the authentication request seems to be fraudulent';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		}
+	} catch (err) {
+		next(err);
+	};
 
-			const {
-				username,
-				pocket_local_id,
-				pocket_members,
-				cong_name,
-				cong_number,
-			} = await user.updatePocketDevices(devices);
+	export const getSchedule = async (req, res, next) => {
+		try {
+			const { cong_id } = res.locals.currentUser;
+
+			const { cong_sourceMaterial, cong_schedule } =
+				Congregations.findCongregationById(cong_id);
 
 			res.locals.type = 'info';
-			res.locals.message = 'pocket device visitor id added successfully';
-			res.status(200).json({
-				username,
-				pocket_local_id,
-				pocket_members,
-				cong_name,
-				cong_number,
-			});
-			return;
+			res.locals.message = 'pocket user has fetched the schedule';
+			res.status(200).json({ cong_sourceMaterial, cong_schedule });
+		} catch (err) {
+			next(err);
 		}
-
-		res.locals.type = 'warn';
-		res.locals.message = 'pocket verification code is invalid';
-		res.status(404).json({ message: 'OTP_CODE_INVALID' });
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const getSchedule = async (req, res, next) => {
-	try {
-		const { cong_id } = res.locals.currentUser;
-
-		const { cong_sourceMaterial, cong_schedule } =
-			Congregations.findCongregationById(cong_id);
-
-		res.locals.type = 'info';
-		res.locals.message = 'pocket user has fetched the schedule';
-		res.status(200).json({ cong_sourceMaterial, cong_schedule });
-	} catch (err) {
-		next(err);
-	}
-};
+	};
