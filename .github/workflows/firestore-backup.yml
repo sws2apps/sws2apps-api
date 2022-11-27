@@ -1,0 +1,20 @@
+name: Firestore Copy
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions: read-all
+
+jobs:
+  codeql:
+    name: Copy Firestore Data
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Copy Firestore
+        uses: sws2apps/firestore-copy@b87da8c8b48678520b11c5d0a55746b2a140e837
+        env:
+          GOOGLE_CONFIG_BASE64_SOURCE: ${{ secrets.GOOGLE_CONFIG_BASE64_SOURCE }}
+          GOOGLE_CONFIG_BASE64_TARGET: ${{ secrets.GOOGLE_CONFIG_BASE64_TARGET }}
