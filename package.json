@@ -41,7 +41,7 @@
     "url": "https://github.com/sws2apps/sws2apps-api.git"
   },
   "devDependencies": {
-    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/changelog": "^6.0.2",
     "@semantic-release/git": "^10.0.1",
     "nodemon": "^2.0.20"
   }
