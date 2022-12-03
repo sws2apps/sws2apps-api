@@ -1,3 +1,10 @@
+## [2.0.4](https://github.com/sws2apps/sws2apps-api/compare/v2.0.3...v2.0.4) (2022-12-03)
+
+
+### Bug Fixes
+
+* **classes:** fix fetching user response ([002ba70](https://github.com/sws2apps/sws2apps-api/commit/002ba7032fa4d48dcfe8d944394a0aa65392b666))
+
 ## [2.0.3](https://github.com/sws2apps/sws2apps-api/compare/v2.0.2...v2.0.3) (2022-12-03)
 
 
