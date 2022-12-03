@@ -1,3 +1,10 @@
+## [2.0.3](https://github.com/sws2apps/sws2apps-api/compare/v2.0.2...v2.0.3) (2022-12-03)
+
+
+### Bug Fixes
+
+* **announcements:** change header name ([c1b276d](https://github.com/sws2apps/sws2apps-api/commit/c1b276de2c9fd8f04f2c467e704788ed039631f4))
+
 ## [2.0.2](https://github.com/sws2apps/sws2apps-api/compare/v2.0.1...v2.0.2) (2022-12-03)
 
 
