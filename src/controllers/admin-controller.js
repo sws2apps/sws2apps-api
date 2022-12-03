@@ -134,7 +134,7 @@ export const saveAnnouncementDraft = async (req, res, next) => {
 
 export const getAnnouncementAdmin = async (req, res, next) => {
   try {
-    await check("announcement_id").notEmpty().run(req);
+    await check("announcementid").notEmpty().run(req);
 
     const errors = validationResult(req);
 
@@ -152,8 +152,8 @@ export const getAnnouncementAdmin = async (req, res, next) => {
       return;
     }
 
-    const { announcement_id } = req.headers;
-    const announcement = Announcements.findById(announcement_id);
+    const { announcementid } = req.headers;
+    const announcement = Announcements.findById(announcementid);
 
     if (announcement) {
       res.locals.type = "info";
