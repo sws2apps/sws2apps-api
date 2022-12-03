@@ -344,6 +344,8 @@ export class User {
     await db.collection("users").doc(this.id).update({ "congregation.devices": updatedDevices });
 
     await this.loadDetails();
+
+    await Congregations.loadAll();
   };
 
   updateSessionsInfo = async (visitorId) => {
@@ -358,5 +360,7 @@ export class User {
     await db.collection("users").doc(this.id).update({ "about.sessions": newSessions });
 
     this.sessions = newSessions;
+
+    await Congregations.loadAll();
   };
 }
