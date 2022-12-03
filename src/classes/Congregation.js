@@ -16,6 +16,7 @@ export class Congregation {
   cong_sourceMaterial_draft = [];
   cong_schedule_draft = [];
   cong_swsPocket = [];
+  cong_settings;
   last_backup = {};
 
   constructor() {}
@@ -36,6 +37,7 @@ export class Congregation {
     cong.cong_sourceMaterial_draft = congSnap.data().cong_sourceMaterial_draft || [];
     cong.cong_schedule_draft = congSnap.data().cong_schedule_draft || [];
     cong.cong_swsPocket = congSnap.data().cong_swsPocket || [];
+    cong.cong_settings = congSnap.data().cong_settings || [];
     cong.members = [];
 
     const usersList = Users.list;
@@ -107,10 +109,10 @@ export class Congregation {
 
       const obj = {
         cong_persons: decryptedPersons,
-        cong_schedule: cong_schedule_draft,
-        cong_sourceMaterial: cong_sourceMaterial_draft,
-        cong_swsPocket: cong_swsPocket,
-        cong_settings: cong_settings,
+        cong_schedule: this.cong_schedule_draft,
+        cong_sourceMaterial: this.cong_sourceMaterial_draft,
+        cong_swsPocket: this.cong_swsPocket,
+        cong_settings: this.cong_settings,
       };
 
       return obj;
