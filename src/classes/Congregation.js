@@ -87,7 +87,7 @@ export class Congregation {
         },
       };
 
-      await db.collection("congregations").doc(id).set(data, { merge: true });
+      await db.collection("congregations").doc(this.id).set(data, { merge: true });
 
       this.cong_persons = encryptedPersons;
       this.cong_schedule_draft = cong_schedule;
