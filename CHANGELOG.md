@@ -1,3 +1,16 @@
+# [2.0.0](https://github.com/sws2apps/sws2apps-api/compare/v1.8.0...v2.0.0) (2022-12-03)
+
+
+### Features
+
+* **api:** improve code performance when connecting to firestore service ([96e4743](https://github.com/sws2apps/sws2apps-api/commit/96e47430ffa047fec01628f99eef8bf14fed3f01))
+* **deps:** bump helmet from 6.0.0 to 6.0.1 ([0bf37db](https://github.com/sws2apps/sws2apps-api/commit/0bf37db9a8429d48e9abdaac8633385d119adaad))
+
+
+### BREAKING CHANGES
+
+* **api:** The way how this API connects to Firestore has been changed
+
 # [1.8.0](https://github.com/sws2apps/sws2apps-api/compare/v1.7.0...v1.8.0) (2022-11-29)
 
 
