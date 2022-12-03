@@ -1,3 +1,10 @@
+## [2.0.6](https://github.com/sws2apps/sws2apps-api/compare/v2.0.5...v2.0.6) (2022-12-03)
+
+
+### Bug Fixes
+
+* **api:** update cors settings for public route ([c496b11](https://github.com/sws2apps/sws2apps-api/commit/c496b1148d0895afeb06441c7f9ab79cc4a6fa64))
+
 ## [2.0.5](https://github.com/sws2apps/sws2apps-api/compare/v2.0.4...v2.0.5) (2022-12-03)
 
 
