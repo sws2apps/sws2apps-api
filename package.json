@@ -1,6 +1,6 @@
 {
   "name": "sws2apps-api",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Node apps to handle backend operations for all sws2apps services",
   "main": "index.js",
   "scripts": {
@@ -24,9 +24,9 @@
     "express-validator": "^6.14.2",
     "firebase-admin": "^11.3.0",
     "geoip-lite": "^1.4.6",
-    "helmet": "^6.0.0",
+    "helmet": "^6.0.1",
     "is-online": "^10.0.0",
-    "jw-epub-parser": "^1.27.0",
+    "jw-epub-parser": "^1.28.0",
     "node-2fa": "^2.0.3",
     "node-fetch": "^3.3.0",
     "nodemailer": "^6.8.0",
@@ -41,7 +41,7 @@
     "url": "https://github.com/sws2apps/sws2apps-api.git"
   },
   "devDependencies": {
-    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/changelog": "^6.0.2",
     "@semantic-release/git": "^10.0.1",
     "find-unused-exports": "^5.0.0",
     "nodemon": "^2.0.20"
