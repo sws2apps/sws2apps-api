@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/sws2apps/sws2apps-api/compare/v2.0.1...v2.0.2) (2022-12-03)
+
+
+### Bug Fixes
+
+* **classes:** fix undefined id in congregation when saving backup ([7992c5b](https://github.com/sws2apps/sws2apps-api/commit/7992c5b367b24fdb0306402594a5a5ab9d914198))
+
 ## [2.0.1](https://github.com/sws2apps/sws2apps-api/compare/v2.0.0...v2.0.1) (2022-12-03)
 
 
