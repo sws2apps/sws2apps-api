@@ -1,4 +1,3 @@
-// dependency import
 import { Logtail } from "@logtail/node";
 
 export const logger = (level, message) => {

@@ -1,27 +1,12 @@
 // dependencies
 import { validationResult } from "express-validator";
-import { getFirestore } from "firebase-admin/firestore";
-import {
-  FingerprintJsServerApiClient,
-  Region,
-} from "@fingerprintjs/fingerprintjs-pro-server-api";
-
-// classes
+import { FingerprintJsServerApiClient, Region } from "@fingerprintjs/fingerprintjs-pro-server-api";
 import { Users } from "../classes/Users.js";
 import { Congregations } from "../classes/Congregations.js";
 
-// get firestore
-const db = getFirestore();
-
 export const validatePocket = async (req, res, next) => {
   try {
-    const {
-      username,
-      pocket_local_id,
-      pocket_members,
-      cong_name,
-      cong_number,
-    } = res.locals.currentUser;
+    const { username, pocket_local_id, pocket_members, cong_name, cong_number } = res.locals.currentUser;
 
     res.locals.type = "info";
     res.locals.message = "visitor id has been validated";
@@ -71,7 +56,7 @@ export const pocketSignUp = async (req, res, next) => {
     });
 
     if (visitorHistory.visits?.length > 0) {
-      const user = await findUserByOTPCode(otp_code);
+      const user = await Users.findUserByOTPCode(otp_code);
 
       if (user) {
         // add visitor id and remove otp_code
@@ -83,54 +68,10 @@ export const pocketSignUp = async (req, res, next) => {
           sws_last_seen: new Date().getTime(),
         };
 
-        const foundDevice = devices.find(
-          (device) => device.visitorid === visitorid
-        );
-
-        const user = await Users.findUserByOTPCode(otp_code);
-
-        if (user) {
-          // add visitor id and remove otp_code
-          let devices = user.pocket_devices;
-
-          // add new device
-          devices.push(obj);
-
-          await db.collection("users").doc(user.id).update({
-            "congregation.oCode": FieldValue.delete(),
-            "congregation.devices": devices,
-          });
-
-          const {
-            username,
-            pocket_local_id,
-            pocket_members,
-            cong_name,
-            cong_number,
-          } = await findPocketByVisitorID(visitorid);
-
-          res.locals.type = "info";
-          res.locals.message = "pocket device visitor id added successfully";
-          res.status(200).json({
-            username,
-            pocket_local_id,
-            pocket_members,
-            cong_name,
-            cong_number,
-          });
-          return;
-        }
-
         // add new device
         devices.push(obj);
 
-        const {
-          username,
-          pocket_local_id,
-          pocket_members,
-          cong_name,
-          cong_number,
-        } = await user.updatePocketDevices(devices);
+        const { username, pocket_local_id, pocket_members, cong_name, cong_number } = await user.updatePocketDevices(devices);
 
         res.locals.type = "info";
         res.locals.message = "pocket device visitor id added successfully";
@@ -165,8 +106,7 @@ export const getSchedule = async (req, res, next) => {
   try {
     const { cong_id } = res.locals.currentUser;
 
-    const { cong_sourceMaterial, cong_schedule } =
-      Congregations.findCongregationById(cong_id);
+    const { cong_sourceMaterial, cong_schedule } = Congregations.findCongregationById(cong_id);
 
     res.locals.type = "info";
     res.locals.message = "pocket user has fetched the schedule";

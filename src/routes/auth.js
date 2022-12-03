@@ -1,18 +1,9 @@
-// import dependencies
-import express from 'express';
-import { body } from 'express-validator';
-
-// import controller
-import { loginUser } from '../controllers/auth-controller.js';
+import express from "express";
+import { body } from "express-validator";
+import { loginUser } from "../controllers/auth-controller.js";
 
 const router = express.Router();
 
-router.post(
-	'/user-login',
-	body('email').isEmail(),
-	body('password').isLength({ min: 6 }),
-	body('visitorid').notEmpty(),
-	loginUser
-);
+router.post("/user-login", body("email").isEmail(), body("password").isLength({ min: 6 }), body("visitorid").notEmpty(), loginUser);
 
 export default router;
