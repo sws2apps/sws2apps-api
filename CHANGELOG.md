@@ -1,3 +1,10 @@
+## [2.0.5](https://github.com/sws2apps/sws2apps-api/compare/v2.0.4...v2.0.5) (2022-12-03)
+
+
+### Bug Fixes
+
+* **classes:** fix congregation not being able to publish schedule ([2c083fa](https://github.com/sws2apps/sws2apps-api/commit/2c083faa101e0c080f6241edc57bb9775128f829))
+
 ## [2.0.4](https://github.com/sws2apps/sws2apps-api/compare/v2.0.3...v2.0.4) (2022-12-03)
 
 
