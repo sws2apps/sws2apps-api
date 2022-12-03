@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/sws2apps/sws2apps-api/compare/v2.0.0...v2.0.1) (2022-12-03)
+
+
+### Bug Fixes
+
+* **classes:** update announcement details ([ec7ebf6](https://github.com/sws2apps/sws2apps-api/commit/ec7ebf61cbe51dfe5c2c8e519fd589d6d351e231))
+
 # [2.0.0](https://github.com/sws2apps/sws2apps-api/compare/v1.8.0...v2.0.0) (2022-12-03)
 
 
