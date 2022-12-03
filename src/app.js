@@ -73,6 +73,8 @@ app.use(helmet());
 const __dirname = path.resolve();
 app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
 
+app.use(cors(corsOptionsDelegate));
+
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ limit: "1mb", extended: true }));
 
@@ -93,10 +95,6 @@ app.use(
   })
 );
 
-app.use(cors(corsOptionsDelegate));
-
-app.get("/", getRoot);
-app.get("/app-version", getAppVersion);
 app.use("/", authRoute);
 app.use("/api/congregations", congregationRoute);
 app.use("/api/mfa", mfaRoute);
@@ -104,6 +102,10 @@ app.use("/api/users", userRoute);
 app.use("/api/admin", adminRoute);
 app.use("/api/sws-pocket", swsPocketRoute);
 app.use("/api/public", publicRoute);
+
+app.get("/app-version", getAppVersion);
+
+app.get("/", getRoot);
 
 // Handling invalid routes
 app.use(invalidEndpointHandler);
