@@ -23,7 +23,7 @@ import { updateTracker } from "./middleware/update-tracker.js";
 import { errorHandler, getAppVersion, getRoot, invalidEndpointHandler } from "./controllers/app-controller.js";
 
 // allowed apps url
-var whitelist = [
+const whitelist = [
   "https://alpha-sws-pocket.web.app",
   "https://alpha-sws-pocket.firebaseapp.com",
   "https://sws-pocket.web.app",
@@ -36,15 +36,25 @@ var whitelist = [
   "https://sws2apps-tools.firebaseapp.com",
 ];
 
-var corsOptionsDelegate = function (req, callback) {
+const allowedUri = ["/app-version", "/api/public/source-material"];
+
+const corsOptionsDelegate = function (req, callback) {
   var corsOptions;
+
   if (process.env.NODE_ENV === "production") {
     const reqOrigin = req.header("Origin");
     if (reqOrigin) {
       if (whitelist.indexOf(reqOrigin) !== -1) {
         corsOptions = { origin: true }; // reflect (enable) the requested origin in the CORS response
       } else {
-        corsOptions = { origin: false }; // disable CORS for this request
+        const originalUri = req.headers["x-original-uri"];
+
+        if (originalUri === "/") {
+          corsOptions = { origin: true }; // allow CORS for index route
+        } else {
+          const allowed = allowedUri.find((uri) => uri.startsWith(originalUri)) ? true : false;
+          corsOptions = { origin: allowed };
+        }
       }
     } else {
       corsOptions = { origin: false };
@@ -93,10 +103,9 @@ app.use("/api/admin", adminRoute);
 app.use("/api/sws-pocket", swsPocketRoute);
 app.use("/api/public", publicRoute);
 
-app.get("/", getRoot);
-
-// get app version for shields.io
 app.get("/app-version", getAppVersion);
+
+app.get("/", getRoot);
 
 // Handling invalid routes
 app.use(invalidEndpointHandler);
