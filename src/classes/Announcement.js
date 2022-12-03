@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { getFirestore } from "firebase-admin/firestore";
-=======
 import { getFirestore } from 'firebase-admin/firestore';
->>>>>>> d7c747e697f66ee462e286968a8518746228d6db
 
 const db = getFirestore(); //get default database
 
