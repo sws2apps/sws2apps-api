@@ -191,6 +191,8 @@ export class Congregation {
     const validSchedule = currentSchedule.students.filter((schedule) => schedule.expiredDate > currentDate);
     const validSource = currentSource.students.filter((source) => source.expiredDate > currentDate);
 
+    const { month, year } = cong_schedule;
+
     const lastDate = new Date(year, month + 1, 0);
     let expiredDate = new Date();
     expiredDate.setDate(lastDate.getDate() + 90);
@@ -219,11 +221,11 @@ export class Congregation {
     };
     const newSource = { ...currentSource, students: newStudentsSource };
 
-    await db.collection("congregations").doc(id).update({
+    await db.collection("congregations").doc(this.id).update({
       cong_schedule: newSchedule,
       cong_sourceMaterial: newSource,
     });
 
-    await this.loadDetails();
+    await this.loadDetails(this.id);
   };
 }
