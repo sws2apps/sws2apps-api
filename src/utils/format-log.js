@@ -7,7 +7,7 @@ export const formatLog = (message, req, res) => {
     const clientIp = requestIp.getClientIp(req);
     log.method = req.method;
     log.status = res.statusCode;
-    log.path = res.originalUrl;
+    log.path = req.headers["x-original-uri"];
     log.origin = req.headers.origin || req.hostname;
     if (clientIp) log.ip = clientIp;
   }

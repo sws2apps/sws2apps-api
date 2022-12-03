@@ -16,11 +16,11 @@ import { Announcements } from "./src/classes/Announcements.js";
 const PORT = process.env.PORT || 8000;
 const APP_VERSION = process.env.npm_package_version;
 
-app.listen(PORT, async () => {
-  await Announcements.loadAll();
-  await Users.loadAll();
-  await Congregations.loadAll();
-  await CongregationRequests.loadAll();
+await Announcements.loadAll();
+await Users.loadAll();
+await Congregations.loadAll();
+await CongregationRequests.loadAll();
 
+app.listen(PORT, async () => {
   logger("info", JSON.stringify({ details: `server up and running (v${APP_VERSION})` }));
 });
