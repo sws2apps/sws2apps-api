@@ -1,56 +1,40 @@
-// dependencies
-import express from 'express';
-import { body } from 'express-validator';
-
-// import controllers
+import express from "express";
+import { body } from "express-validator";
 import {
-	addCongregationUser,
-	approveCongregationRequest,
-	deleteCongregation,
-	disapproveCongregationRequest,
-	getAllCongregations,
-	getCongregationRequests,
-	removeCongregationUser,
-	updateCongregationUserRole,
-} from '../controllers/admin-congregation-controller.js';
+  addCongregationUser,
+  approveCongregationRequest,
+  deleteCongregation,
+  disapproveCongregationRequest,
+  getAllCongregations,
+  getCongregationRequests,
+  removeCongregationUser,
+  updateCongregationUserRole,
+} from "../controllers/admin-congregation-controller.js";
 
 const router = express.Router();
 
 // get all congregations
-router.get('/', getAllCongregations);
+router.get("/", getAllCongregations);
 
 // get all congregation requests
-router.get('/requests', getCongregationRequests);
+router.get("/requests", getCongregationRequests);
 
 // approve congregation request
-router.put('/:id/approve', approveCongregationRequest);
+router.put("/:id/approve", approveCongregationRequest);
 
 // disapprove congregation request
-router.put(
-	'/:id/disapprove',
-	body('reason').notEmpty(),
-	disapproveCongregationRequest
-);
+router.put("/:id/disapprove", body("reason").notEmpty(), disapproveCongregationRequest);
 
 // delete congregation
-router.delete('/:id', deleteCongregation);
+router.delete("/:id", deleteCongregation);
 
 // add user to a congregation
-router.patch('/:id/add-user', body('user_uid').notEmpty(), addCongregationUser);
+router.patch("/:id/add-user", body("user_uid").notEmpty(), addCongregationUser);
 
 // remove user from a congregation
-router.patch(
-	'/:id/remove-user',
-	body('user_uid').notEmpty(),
-	removeCongregationUser
-);
+router.patch("/:id/remove-user", body("user_uid").notEmpty(), removeCongregationUser);
 
 // update user role in a congregation
-router.patch(
-	'/:id/update-role',
-	body('user_uid').notEmpty(),
-	body('user_role').isArray(),
-	updateCongregationUserRole
-);
+router.patch("/:id/update-role", body("user_uid").notEmpty(), body("user_role").isArray(), updateCongregationUserRole);
 
 export default router;
