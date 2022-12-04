@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/sws2apps/sws2apps-api/compare/v2.0.6...v2.1.0) (2022-12-04)
+
+
+### Features
+
+* **api:** update otp library ([e9ce7d3](https://github.com/sws2apps/sws2apps-api/commit/e9ce7d3601fcd493159a29a05c46d42edd95553e))
+
 ## [2.0.6](https://github.com/sws2apps/sws2apps-api/compare/v2.0.5...v2.0.6) (2022-12-03)
 
 
