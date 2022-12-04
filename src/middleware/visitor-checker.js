@@ -27,7 +27,7 @@ export const visitorChecker = () => {
       const user = await Users.findUserByEmail(email);
 
       if (user) {
-        const { id, disabled } = user;
+        const { disabled } = user;
 
         // remove expired sessions
         await user.removeExpiredSession();

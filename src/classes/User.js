@@ -3,7 +3,7 @@ import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import * as OTPAuth from "otpauth";
 import randomstring from "randomstring";
 import { decryptData, encryptData } from "../utils/encryption-utils.js";
-import { sendUserResetPassword } from "../utils/sendEmail.js";
+import { sendUserResetPassword, sendVerificationEmail } from "../utils/sendEmail.js";
 import { Congregations } from "./Congregations.js";
 import { Users } from "./Users.js";
 
@@ -282,7 +282,8 @@ export class User {
   assignCongregation = async (congInfo) => {
     try {
       await db.collection("users").doc(this.id).set(congInfo, { merge: true });
-      await this.loadDetails(id);
+      
+      await Users.loadAll()
       await Congregations.loadAll();
     } catch (err) {
       throw new Error(err.message);
@@ -309,7 +310,7 @@ export class User {
 
   resetPassword = async () => {
     const resetLink = await getAuth().generatePasswordResetLink(this.user_uid);
-    sendUserResetPassword(this.user_uid, user.username, resetLink);
+    sendUserResetPassword(this.user_uid, this.username, resetLink);
   };
 
   revokeToken = async () => {
@@ -341,7 +342,7 @@ export class User {
     };
     await db.collection("users").doc(this.id).update(data);
 
-    await this.loadDetails();
+    await Users.loadAll();
   };
 
   makeAdmin = async () => {
@@ -369,8 +370,7 @@ export class User {
 
     await db.collection("users").doc(this.id).update({ "congregation.devices": updatedDevices });
 
-    await this.loadDetails();
-
+    await Users.loadAll()
     await Congregations.loadAll();
   };
 
