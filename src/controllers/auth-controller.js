@@ -87,13 +87,14 @@ export const loginUser = async (req, res, next) => {
 
             res.status(200).json({ message: "MFA_VERIFY" });
           } else {
-            const secret = await user.generateSecret(email);
+            const secret = await user.generateSecret();
 
             res.locals.type = "warn";
             res.locals.message = "user authentication rejected because account mfa is not yet setup";
             res.status(403).json({
               secret: secret.secret,
               qrCode: secret.uri,
+              version: secret.version,
             });
           }
         } else {

@@ -1,10 +1,11 @@
 import { getAuth } from "firebase-admin/auth";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
-import twofactor from "node-2fa";
+import * as OTPAuth from "otpauth";
 import randomstring from "randomstring";
 import { decryptData, encryptData } from "../utils/encryption-utils.js";
 import { sendUserResetPassword } from "../utils/sendEmail.js";
 import { Congregations } from "./Congregations.js";
+import { Users } from "./Users.js";
 
 const db = getFirestore(); //get default database
 
@@ -184,12 +185,24 @@ export class User {
     this.sessions = [];
   };
 
-  generateSecret = async (email) => {
+  generateSecret = async () => {
     try {
-      const secret = twofactor.generateSecret({
-        name: "sws2apps",
-        account: email,
+      const tempSecret = new OTPAuth.Secret().base32;
+
+      const totp = new OTPAuth.TOTP({
+        issuer: "sws2apps",
+        label: this.user_uid,
+        algorithm: "SHA1",
+        digits: 6,
+        period: 30,
+        secret: OTPAuth.Secret.fromBase32(tempSecret),
       });
+
+      const secret = {
+        secret: tempSecret,
+        uri: totp.toString(),
+        version: 2,
+      };
 
       const encryptedData = encryptData(secret);
 
@@ -223,7 +236,8 @@ export class User {
   decryptSecret = () => {
     try {
       const decryptedData = decryptData(this.secret);
-      return JSON.parse(decryptedData);
+      const secret = JSON.parse(decryptedData);
+      return { ...secret, version: secret.version || 1 };
     } catch (error) {
       throw new Error(error.message);
     }
@@ -300,10 +314,22 @@ export class User {
 
   revokeToken = async () => {
     // generate new secret and encrypt
-    const secret = twofactor.generateSecret({
-      name: "sws2apps",
-      account: this.user_uid,
+    const tempSecret = new OTPAuth.Secret().base32;
+
+    const totp = new OTPAuth.TOTP({
+      issuer: "sws2apps",
+      label: this.user_uid,
+      algorithm: "SHA1",
+      digits: 6,
+      period: 30,
+      secret: OTPAuth.Secret.fromBase32(tempSecret),
     });
+
+    const secret = {
+      secret: tempSecret,
+      uri: totp.toString(),
+      version: 2,
+    };
 
     const encryptedData = encryptData(secret);
 
@@ -361,6 +387,7 @@ export class User {
 
     this.sessions = newSessions;
 
+    await Users.loadAll();
     await Congregations.loadAll();
   };
 }
