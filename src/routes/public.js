@@ -1,5 +1,4 @@
 import express from "express";
-import { check } from "express-validator";
 import { getSchedules } from "../controllers/public-controller.js";
 
 const router = express.Router();

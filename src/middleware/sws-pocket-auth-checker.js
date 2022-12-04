@@ -1,5 +1,5 @@
-// dependencies
 import { check, validationResult } from "express-validator";
+import { Users } from "../classes/Users.js";
 
 export const pocketAuthChecker = () => {
   return async (req, res, next) => {

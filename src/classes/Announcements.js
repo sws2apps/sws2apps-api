@@ -80,7 +80,7 @@ class clsAnnouncements {
       await announcementRef.delete();
     }
 
-    const newList = list.filter((announcement) => announcement.id !== id);
+    const newList = this.list.filter((announcement) => announcement.id !== id);
     this.list = newList;
     return newList;
   };
