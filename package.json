@@ -16,6 +16,10 @@
       "react-app"
     ]
   },
+  "engines": {
+    "node": ">=18",
+    "npm": ">=9"
+  },
   "dependencies": {
     "@fingerprintjs/fingerprintjs-pro-server-api": "^1.4.0",
     "@logtail/node": "^0.1.14",
