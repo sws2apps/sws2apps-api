@@ -1,3 +1,10 @@
+## [2.1.4](https://github.com/sws2apps/sws2apps-api/compare/v2.1.3...v2.1.4) (2022-12-05)
+
+
+### Bug Fixes
+
+* **api:** update some variable name ([5c28201](https://github.com/sws2apps/sws2apps-api/commit/5c2820164502f1d562bf6465784c329b114b19e9))
+
 ## [2.1.3](https://github.com/sws2apps/sws2apps-api/compare/v2.1.2...v2.1.3) (2022-12-05)
 
 
