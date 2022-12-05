@@ -283,11 +283,7 @@ export class User {
 
   assignCongregation = async (congInfo) => {
     try {
-<<<<<<< HEAD
-      await db.collection("users").doc(this.id).set(congInfo, { merge: true });
-=======
       await db.collection('users').doc(this.id).set(congInfo, { merge: true });
->>>>>>> b67e7d4e775648559330e3f93203ac795babc152
 
       await Users.loadAll();
       await Congregations.loadAll();
