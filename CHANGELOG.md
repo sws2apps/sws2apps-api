@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/sws2apps/sws2apps-api/compare/v2.1.1...v2.1.2) (2022-12-05)
+
+
+### Bug Fixes
+
+* **middleware:** update function name to find pocket user ([421832f](https://github.com/sws2apps/sws2apps-api/commit/421832f56736c129ede51e1e012ba71cc6731fbf))
+
 ## [2.1.1](https://github.com/sws2apps/sws2apps-api/compare/v2.1.0...v2.1.1) (2022-12-04)
 
 
