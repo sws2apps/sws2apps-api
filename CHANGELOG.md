@@ -1,3 +1,11 @@
+## [2.1.1](https://github.com/sws2apps/sws2apps-api/compare/v2.1.0...v2.1.1) (2022-12-04)
+
+
+### Bug Fixes
+
+* **api:** handle few undefined variables in classes ([6ce965b](https://github.com/sws2apps/sws2apps-api/commit/6ce965bfd6cb4a54791eebcdcf9129f68245797d))
+* **logger:** update to capture original url ([6cb6c3e](https://github.com/sws2apps/sws2apps-api/commit/6cb6c3e4c8c8ea3ceb68daf4aa9a1a357c80943a))
+
 # [2.1.0](https://github.com/sws2apps/sws2apps-api/compare/v2.0.6...v2.1.0) (2022-12-04)
 
 
