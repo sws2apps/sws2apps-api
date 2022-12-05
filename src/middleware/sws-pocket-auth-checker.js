@@ -24,7 +24,7 @@ export const pocketAuthChecker = () => {
 
       const { visitorid } = req.headers;
 
-      const user = await Users.findPocketByVisitorID(visitorid);
+      const user = await Users.findPocketByVisitorId(visitorid);
 
       // found user or it is a sign up request
       if (user || req.path === "/signup") {
