@@ -227,6 +227,8 @@ export class User {
 
       this.pocket_oCode = secureCode;
 
+      await Users.loadAll();
+
       return code;
     } catch (error) {
       throw new Error(error.message);
@@ -282,8 +284,8 @@ export class User {
   assignCongregation = async (congInfo) => {
     try {
       await db.collection("users").doc(this.id).set(congInfo, { merge: true });
-      
-      await Users.loadAll()
+
+      await Users.loadAll();
       await Congregations.loadAll();
     } catch (err) {
       throw new Error(err.message);
@@ -368,9 +370,9 @@ export class User {
       ...filteredDevices,
     ];
 
-    await db.collection("users").doc(this.id).update({ "congregation.devices": updatedDevices });
+    await db.collection("users").doc(this.id).update({ "congregation.devices": updatedDevices, "congregation.oCode": FieldValue.delete() });
 
-    await Users.loadAll()
+    await Users.loadAll();
     await Congregations.loadAll();
   };
 
