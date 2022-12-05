@@ -51,12 +51,11 @@ class clsUsers {
   };
 
   findUserByOTPCode = (code) => {
-    try {
-      let user;
-      for (let i = 0; i < this.list.length; i++) {
-        const item = this.list[i];
-        const otpCode = item.pocket_oCode;
-
+    let user;
+    for (let i = 0; i < this.list.length; i++) {
+      const item = this.list[i];
+      const otpCode = item.pocket_oCode;
+      if (otpCode !== "") {
         const pocket_oCode = decryptData(otpCode);
 
         if (code === pocket_oCode) {
@@ -64,11 +63,9 @@ class clsUsers {
           break;
         }
       }
-
-      return user;
-    } catch (error) {
-      throw new Error(error.message);
     }
+
+    return user;
   };
 
   findPocketUser = (pocketId) => {
