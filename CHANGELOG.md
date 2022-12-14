@@ -1,3 +1,11 @@
+# [2.2.0](https://github.com/sws2apps/sws2apps-api/compare/v2.1.4...v2.2.0) (2022-12-14)
+
+
+### Features
+
+* **deps:** bump jw-epub-parser from 1.28.0 to 1.29.0 ([c5e8a99](https://github.com/sws2apps/sws2apps-api/commit/c5e8a9972ab216c10828a46adb13d130340be54d))
+* **deps:** bump nodemailer-express-handlebars from 5.0.0 to 6.0.0 ([1a7369a](https://github.com/sws2apps/sws2apps-api/commit/1a7369a4bd569188cd48f61315bcedfcc3f27007))
+
 ## [2.1.4](https://github.com/sws2apps/sws2apps-api/compare/v2.1.3...v2.1.4) (2022-12-05)
 
 
