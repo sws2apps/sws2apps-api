@@ -1,3 +1,10 @@
+## [2.3.1](https://github.com/sws2apps/sws2apps-api/compare/v2.3.0...v2.3.1) (2022-12-16)
+
+
+### Bug Fixes
+
+* **controllers:** fix undefined variable in congregation approval process ([0925e48](https://github.com/sws2apps/sws2apps-api/commit/0925e48990d919292061062c0e817b00c10ac2f0))
+
 # [2.3.0](https://github.com/sws2apps/sws2apps-api/compare/v2.2.0...v2.3.0) (2022-12-16)
 
 
