@@ -43,7 +43,7 @@ export class Congregation {
 
     const usersList = Users.list;
     for (let a = 0; a < usersList.length; a++) {
-      if (usersList[a].global_role === "vip" && usersList[a].cong_id === id) {
+      if (usersList[a].cong_id === id) {
         cong.cong_members.push({
           id: usersList[a].id,
           user_uid: usersList[a].user_uid,
@@ -126,8 +126,8 @@ export class Congregation {
     const userRef = db.collection("users").doc(userId);
     await userRef.update({ congregation: FieldValue.delete() });
 
-    await Users.loadAll()
-    await Congregations.loadAll()
+    await Users.loadAll();
+    await Congregations.loadAll();
   };
 
   addUser = async (userId) => {
@@ -140,8 +140,8 @@ export class Congregation {
 
     await db.collection("users").doc(userId).set(data, { merge: true });
 
-    await Users.loadAll()
-    await Congregations.loadAll()
+    await Users.loadAll();
+    await Congregations.loadAll();
   };
 
   updateUserRole = async (userId, userRole) => {
@@ -154,8 +154,8 @@ export class Congregation {
 
     await db.collection("users").doc(userId).set(data, { merge: true });
 
-    await Users.loadAll()
-    await Congregations.loadAll()
+    await Users.loadAll();
+    await Congregations.loadAll();
   };
 
   createPocketUser = async (pocketName, pocketId) => {
@@ -177,8 +177,8 @@ export class Congregation {
       },
     });
 
-    await Users.loadAll()
-    await Congregations.loadAll()
+    await Users.loadAll();
+    await Congregations.loadAll();
 
     return code;
   };
@@ -231,7 +231,7 @@ export class Congregation {
       cong_sourceMaterial: newSource,
     });
 
-    await Users.loadAll()
-    await Congregations.loadAll()
+    await Users.loadAll();
+    await Congregations.loadAll();
   };
 }

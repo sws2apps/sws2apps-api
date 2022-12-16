@@ -15,7 +15,6 @@ export class User {
   pocket_local_id = '';
   pocket_devices = [];
   pocket_oCode = '';
-  pocket_role = [];
   pocket_members = [];
   cong_id = '';
   cong_name = '';
@@ -51,13 +50,33 @@ export class User {
       user.pocket_local_id = userSnap.data().congregation?.local_id || '';
       user.pocket_devices = userSnap.data().congregation?.devices || [];
       user.pocket_oCode = userSnap.data().congregation?.oCode || '';
-      user.pocket_role = userSnap.data().congregation?.pocket_role || [];
+      user.cong_role = userSnap.data().congregation?.pocket_role || [];
       user.pocket_members = userSnap.data().congregation?.pocket_members || [];
+
+      let lastSeens = user.pocket_devices.map((device) => {
+        return { last_seen: device.sws_last_seen };
+      });
+  
+      lastSeens.sort((a, b) => {
+        return a.last_seen > b.last_seen ? -1 : 1;
+      });
+  
+      user.last_seen = lastSeens[0]?.last_seen || undefined;
     } else {
       const userRecord = await getAuth().getUserByEmail(user.user_uid);
       user.auth_uid = userRecord.uid;
       user.emailVerified = userRecord.emailVerified;
       user.disabled = userRecord.disabled;
+
+      let lastSeens = user.sessions.map((session) => {
+        return { last_seen: session.sws_last_seen };
+      });
+  
+      lastSeens.sort((a, b) => {
+        return a.last_seen > b.last_seen ? -1 : 1;
+      });
+  
+      user.last_seen = lastSeens[0]?.last_seen || undefined;
     }
 
     if (user.cong_id.length > 0) {
@@ -66,16 +85,6 @@ export class User {
       user.cong_name = docSnap.data().cong_name || '';
       user.cong_number = docSnap.data().cong_number || '';
     }
-
-    let lastSeens = user.sessions.map((session) => {
-      return { last_seen: session.sws_last_seen };
-    });
-
-    lastSeens.sort((a, b) => {
-      return a.last_seen > b.last_seen ? -1 : 1;
-    });
-
-    user.last_seen = lastSeens[0]?.last_seen || undefined;
 
     return user;
   };
