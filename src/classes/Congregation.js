@@ -2,6 +2,7 @@ import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import randomstring from "randomstring";
 import { decryptData, encryptData } from "../utils/encryption-utils.js";
 import { Congregations } from "./Congregations.js";
+import { User } from "./User.js";
 import { Users } from "./Users.js";
 
 const db = getFirestore(); //get default database
@@ -44,14 +45,18 @@ export class Congregation {
     const usersList = Users.list;
     for (let a = 0; a < usersList.length; a++) {
       if (usersList[a].cong_id === id) {
-        cong.cong_members.push({
-          id: usersList[a].id,
-          user_uid: usersList[a].user_uid,
-          name: usersList[a].username,
-          role: usersList[a].cong_role,
-          global_role: usersList[a].global_role,
-          last_seen: usersList[a].last_seen,
-        });
+        const user = new User();
+
+        const data = await user.loadDetails(usersList[a].id);
+
+        const otpCode = data.pocket_oCode;
+        let pocket_oCode = "";
+
+        if (otpCode && otpCode !== "") {
+          pocket_oCode = decryptData(otpCode);
+        }
+
+        cong.cong_members.push({ ...data, pocket_oCode: pocket_oCode });
       }
     }
 
