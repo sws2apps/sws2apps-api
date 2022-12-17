@@ -40,12 +40,14 @@ class clsCongregationRequests {
     this.list = await getCongregationsRequests();
   };
 
-  findRequestByEmail = async (email) => {
-    return this.list.find((request) => request.email === email);
+  findRequestByEmail = (email) => {
+    const found = this.list.find((request) => request.email === email);
+    return found;
   };
 
-  findRequestById = async (id) => {
-    return this.list.find((request) => request.id === id);
+  findRequestById = (id) => {
+    const found = this.list.find((request) => request.id === id);
+    return found;
   };
 
   createAccount = async (data) => {

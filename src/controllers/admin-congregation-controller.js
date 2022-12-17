@@ -56,8 +56,7 @@ export const approveCongregationRequest = async (req, res, next) => {
           const userData = {
             congregation: { id: cong.id, role: request.cong_role },
           };
-          await user.assignCongregation();
-          await db.collection("users").doc(request.user_id).set(userData, { merge: true });
+          await user.assignCongregation(userData);
 
           // update request props
           await request.approve();

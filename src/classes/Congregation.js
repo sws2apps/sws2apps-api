@@ -1,6 +1,7 @@
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import randomstring from "randomstring";
 import { decryptData, encryptData } from "../utils/encryption-utils.js";
+import { Congregations } from "./Congregations.js";
 import { Users } from "./Users.js";
 
 const db = getFirestore(); //get default database
@@ -125,7 +126,8 @@ export class Congregation {
     const userRef = db.collection("users").doc(userId);
     await userRef.update({ congregation: FieldValue.delete() });
 
-    await this.loadDetails();
+    await Users.loadAll()
+    await Congregations.loadAll()
   };
 
   addUser = async (userId) => {
@@ -138,7 +140,8 @@ export class Congregation {
 
     await db.collection("users").doc(userId).set(data, { merge: true });
 
-    await this.loadDetails();
+    await Users.loadAll()
+    await Congregations.loadAll()
   };
 
   updateUserRole = async (userId, userRole) => {
@@ -151,7 +154,8 @@ export class Congregation {
 
     await db.collection("users").doc(userId).set(data, { merge: true });
 
-    await this.loadDetails();
+    await Users.loadAll()
+    await Congregations.loadAll()
   };
 
   createPocketUser = async (pocketName, pocketId) => {
@@ -173,7 +177,8 @@ export class Congregation {
       },
     });
 
-    await this.loadDetails();
+    await Users.loadAll()
+    await Congregations.loadAll()
 
     return code;
   };
@@ -226,6 +231,7 @@ export class Congregation {
       cong_sourceMaterial: newSource,
     });
 
-    await this.loadDetails(this.id);
+    await Users.loadAll()
+    await Congregations.loadAll()
   };
 }

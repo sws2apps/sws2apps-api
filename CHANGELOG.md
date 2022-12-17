@@ -1,3 +1,75 @@
+## [2.3.1](https://github.com/sws2apps/sws2apps-api/compare/v2.3.0...v2.3.1) (2022-12-16)
+
+
+### Bug Fixes
+
+* **controllers:** fix undefined variable in congregation approval process ([0925e48](https://github.com/sws2apps/sws2apps-api/commit/0925e48990d919292061062c0e817b00c10ac2f0))
+
+# [2.3.0](https://github.com/sws2apps/sws2apps-api/compare/v2.2.0...v2.3.0) (2022-12-16)
+
+
+### Features
+
+* **deps:** bump firebase-admin from 11.3.0 to 11.4.0 ([8e9974e](https://github.com/sws2apps/sws2apps-api/commit/8e9974efa7b17c81e3b7a63aa4c973d29e256050))
+
+# [2.2.0](https://github.com/sws2apps/sws2apps-api/compare/v2.1.4...v2.2.0) (2022-12-14)
+
+
+### Features
+
+* **deps:** bump jw-epub-parser from 1.28.0 to 1.29.0 ([c5e8a99](https://github.com/sws2apps/sws2apps-api/commit/c5e8a9972ab216c10828a46adb13d130340be54d))
+* **deps:** bump nodemailer-express-handlebars from 5.0.0 to 6.0.0 ([1a7369a](https://github.com/sws2apps/sws2apps-api/commit/1a7369a4bd569188cd48f61315bcedfcc3f27007))
+
+## [2.1.4](https://github.com/sws2apps/sws2apps-api/compare/v2.1.3...v2.1.4) (2022-12-05)
+
+
+### Bug Fixes
+
+* **api:** update some variable name ([5c28201](https://github.com/sws2apps/sws2apps-api/commit/5c2820164502f1d562bf6465784c329b114b19e9))
+
+## [2.1.3](https://github.com/sws2apps/sws2apps-api/compare/v2.1.2...v2.1.3) (2022-12-05)
+
+
+### Bug Fixes
+
+* **api:** update sign up flow for sws pocket ([81b2d4a](https://github.com/sws2apps/sws2apps-api/commit/81b2d4a71cbbfa8e989efa021a30b3a927f0be49))
+
+## [2.1.2](https://github.com/sws2apps/sws2apps-api/compare/v2.1.1...v2.1.2) (2022-12-05)
+
+
+### Bug Fixes
+
+* **middleware:** update function name to find pocket user ([421832f](https://github.com/sws2apps/sws2apps-api/commit/421832f56736c129ede51e1e012ba71cc6731fbf))
+
+## [2.1.1](https://github.com/sws2apps/sws2apps-api/compare/v2.1.0...v2.1.1) (2022-12-04)
+
+
+### Bug Fixes
+
+* **api:** handle few undefined variables in classes ([6ce965b](https://github.com/sws2apps/sws2apps-api/commit/6ce965bfd6cb4a54791eebcdcf9129f68245797d))
+* **logger:** update to capture original url ([6cb6c3e](https://github.com/sws2apps/sws2apps-api/commit/6cb6c3e4c8c8ea3ceb68daf4aa9a1a357c80943a))
+
+# [2.1.0](https://github.com/sws2apps/sws2apps-api/compare/v2.0.6...v2.1.0) (2022-12-04)
+
+
+### Features
+
+* **api:** update otp library ([e9ce7d3](https://github.com/sws2apps/sws2apps-api/commit/e9ce7d3601fcd493159a29a05c46d42edd95553e))
+
+## [2.0.6](https://github.com/sws2apps/sws2apps-api/compare/v2.0.5...v2.0.6) (2022-12-03)
+
+
+### Bug Fixes
+
+* **api:** update cors settings for public route ([c496b11](https://github.com/sws2apps/sws2apps-api/commit/c496b1148d0895afeb06441c7f9ab79cc4a6fa64))
+
+## [2.0.5](https://github.com/sws2apps/sws2apps-api/compare/v2.0.4...v2.0.5) (2022-12-03)
+
+
+### Bug Fixes
+
+* **classes:** fix congregation not being able to publish schedule ([2c083fa](https://github.com/sws2apps/sws2apps-api/commit/2c083faa101e0c080f6241edc57bb9775128f829))
+
 ## [2.0.4](https://github.com/sws2apps/sws2apps-api/compare/v2.0.3...v2.0.4) (2022-12-03)
 
 
