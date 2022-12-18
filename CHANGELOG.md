@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/sws2apps/sws2apps-api/compare/v2.3.1...v2.4.0) (2022-12-18)
+
+
+### Features
+
+* **congregation:** update for cpe users management from client app ([4e6f6e9](https://github.com/sws2apps/sws2apps-api/commit/4e6f6e9f6e3da162afd70b254840f2a04b9a7e79))
+
 ## [2.3.1](https://github.com/sws2apps/sws2apps-api/compare/v2.3.0...v2.3.1) (2022-12-16)
 
 
