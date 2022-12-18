@@ -1,26 +1,28 @@
-import { FieldValue, getFirestore } from "firebase-admin/firestore";
+import dayjs from "dayjs";
 import randomstring from "randomstring";
+import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import { decryptData, encryptData } from "../utils/encryption-utils.js";
 import { Congregations } from "./Congregations.js";
+import { User } from "./User.js";
 import { Users } from "./Users.js";
 
 const db = getFirestore(); //get default database
 
 export class Congregation {
-  id;
-  cong_name = "";
-  cong_number = "";
-  cong_persons = "";
-  cong_members = [];
-  cong_sourceMaterial = [];
-  cong_schedule = [];
-  cong_sourceMaterial_draft = [];
-  cong_schedule_draft = [];
-  cong_swsPocket = [];
-  cong_settings;
-  last_backup = {};
-
-  constructor() {}
+  constructor() {
+    this.id = "";
+    this.cong_name = "";
+    this.cong_number = "";
+    this.cong_persons = "";
+    this.cong_members = [];
+    this.cong_sourceMaterial = [];
+    this.cong_schedule = [];
+    this.cong_sourceMaterial_draft = [];
+    this.cong_schedule_draft = [];
+    this.cong_swsPocket = [];
+    this.cong_settings = [];
+    this.last_backup = {};
+  }
 
   loadDetails = async (id) => {
     const congRef = db.collection("congregations").doc(id);
@@ -43,20 +45,24 @@ export class Congregation {
 
     const usersList = Users.list;
     for (let a = 0; a < usersList.length; a++) {
-      if (usersList[a].global_role === "vip" && usersList[a].cong_id === id) {
-        cong.cong_members.push({
-          id: usersList[a].id,
-          user_uid: usersList[a].user_uid,
-          name: usersList[a].username,
-          role: usersList[a].cong_role,
-          global_role: usersList[a].global_role,
-          last_seen: usersList[a].last_seen,
-        });
+      if (usersList[a].cong_id === id) {
+        const user = new User();
+
+        const data = await user.loadDetails(usersList[a].id);
+
+        const otpCode = data.pocket_oCode;
+        let pocket_oCode = "";
+
+        if (otpCode && otpCode !== "") {
+          pocket_oCode = decryptData(otpCode);
+        }
+
+        cong.cong_members.push({ ...data, pocket_oCode: pocket_oCode });
       }
     }
 
     if (congSnap.data().last_backup) {
-      const fDate = Date.parse(congSnap.data().last_backup.date.toDate().toString());
+      const fDate = dayjs.unix(congSnap.data().last_backup.date._seconds).$d;
       cong.last_backup.date = fDate;
 
       const user = await Users.findUserById(congSnap.data().last_backup.by);
@@ -126,8 +132,8 @@ export class Congregation {
     const userRef = db.collection("users").doc(userId);
     await userRef.update({ congregation: FieldValue.delete() });
 
-    await Users.loadAll()
-    await Congregations.loadAll()
+    await Users.loadAll();
+    await Congregations.loadAll();
   };
 
   addUser = async (userId) => {
@@ -140,8 +146,8 @@ export class Congregation {
 
     await db.collection("users").doc(userId).set(data, { merge: true });
 
-    await Users.loadAll()
-    await Congregations.loadAll()
+    await Users.loadAll();
+    await Congregations.loadAll();
   };
 
   updateUserRole = async (userId, userRole) => {
@@ -154,8 +160,8 @@ export class Congregation {
 
     await db.collection("users").doc(userId).set(data, { merge: true });
 
-    await Users.loadAll()
-    await Congregations.loadAll()
+    await Users.loadAll();
+    await Congregations.loadAll();
   };
 
   createPocketUser = async (pocketName, pocketId) => {
@@ -172,15 +178,13 @@ export class Congregation {
         local_id: pocketId,
         devices: [],
         oCode: secureCode,
-        pocket_role: ["view_meeting_schedule"],
+        pocket_role: [],
         pocket_members: [],
       },
     });
 
-    await Users.loadAll()
-    await Congregations.loadAll()
-
-    return code;
+    await Users.loadAll();
+    await Congregations.loadAll();
   };
 
   deletePocketUser = async (userId) => {
@@ -231,7 +235,7 @@ export class Congregation {
       cong_sourceMaterial: newSource,
     });
 
-    await Users.loadAll()
-    await Congregations.loadAll()
+    await Users.loadAll();
+    await Congregations.loadAll();
   };
 }

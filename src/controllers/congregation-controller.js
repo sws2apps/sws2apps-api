@@ -319,6 +319,13 @@ export const findUserByCongregation = async (req, res, next) => {
                 return;
               }
 
+              if (userData.cong_id !== "") {
+                res.locals.type = "warn";
+                res.locals.message = "user could not be found";
+                res.status(404).json({ message: "ACCOUNT_NOT_FOUND" });
+                return;
+              }
+
               res.locals.type = "info";
               res.locals.message = "user details fetched successfully";
               res.status(200).json(userData);
@@ -359,66 +366,41 @@ export const findUserByCongregation = async (req, res, next) => {
 
 export const addCongregationUser = async (req, res, next) => {
   try {
-    const { id, user } = req.params;
+    const { id } = req.params;
     const { email } = req.headers;
 
-    if (id && user) {
+    if (id) {
       const cong = await Congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 
         if (isValid) {
+          const errors = validationResult(req);
+
+          if (!errors.isEmpty()) {
+            let msg = "";
+            errors.array().forEach((error) => {
+              msg += `${msg === "" ? "" : ", "}${error.param}: ${error.msg}`;
+            });
+
+            res.locals.type = "warn";
+            res.locals.message = `invalid input: ${msg}`;
+
+            res.status(400).json({
+              message: "Bad request: provided inputs are invalid.",
+            });
+
+            return;
+          }
+
+          const user = req.body.user_id;
           const findUser = await Users.findUserById(user);
 
           if (findUser.cong_id === "") {
-            const errors = validationResult(req);
-
-            if (!errors.isEmpty()) {
-              let msg = "";
-              errors.array().forEach((error) => {
-                msg += `${msg === "" ? "" : ", "}${error.param}: ${error.msg}`;
-              });
-
-              res.locals.type = "warn";
-              res.locals.message = `invalid input: ${msg}`;
-
-              res.status(400).json({
-                message: "Bad request: provided inputs are invalid.",
-              });
-
-              return;
-            }
-
-            const { user_role } = req.body;
-
-            // validate provided role
-            let isRoleValid = true;
-            const allowedRoles = ["admin", "lmmo", "lmmo-backup"];
-            if (user_role > 0) {
-              for (let i = 0; i < user_role.length; i++) {
-                const role = user_role[i];
-                if (!allowedRoles.includes(role)) {
-                  isRoleValid = false;
-                  break;
-                }
-              }
-            }
-
-            if (!isRoleValid) {
-              res.locals.type = "warn";
-              res.locals.message = `invalid role provided`;
-
-              res.status(400).json({
-                message: "Bad request: provided inputs are invalid.",
-              });
-
-              return;
-            }
-
             const data = {
               congregation: {
                 id: id,
-                role: user_role,
+                role: [],
               },
             };
 
@@ -649,10 +631,10 @@ export const getCongregationPockerUser = async (req, res, next) => {
 
 export const createNewPocketUser = async (req, res, next) => {
   try {
-    const { id, user } = req.params;
+    const { id } = req.params;
     const { email } = req.headers;
 
-    if (id && user) {
+    if (id) {
       const cong = await Congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
@@ -676,12 +658,81 @@ export const createNewPocketUser = async (req, res, next) => {
             return;
           }
 
-          const { username } = req.body;
-          const code = await cong.createPocketUser(username, user);
+          const { pocket_local_id, username } = req.body;
+
+          await cong.createPocketUser(username, pocket_local_id);
 
           res.locals.type = "info";
           res.locals.message = "pocket user created successfully";
-          res.status(200).json({ username, code });
+          res.status(200).json({ message: "POCKET_CREATED" });
+          return;
+        }
+
+        res.locals.type = "warn";
+        res.locals.message = "user not authorized to access the provided congregation";
+        res.status(403).json({ message: "UNAUTHORIZED_REQUEST" });
+        return;
+      }
+
+      res.locals.type = "warn";
+      res.locals.message = "no congregation could not be found with the provided id";
+      res.status(404).json({ message: "CONGREGATION_NOT_FOUND" });
+      return;
+    }
+
+    res.locals.type = "warn";
+    res.locals.message = "the congregation and user ids params are undefined";
+    res.status(400).json({ message: "CONG_USER_ID_INVALID" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updatePocketDetails = async (req, res, next) => {
+  try {
+    const { id, user } = req.params;
+    const { email } = req.headers;
+
+    if (id && user) {
+      const cong = await Congregations.findCongregationById(id);
+      if (cong) {
+        const isValid = await cong.isMember(email);
+
+        if (isValid) {
+          const userData = await Users.findUserById(user);
+
+          if (userData) {
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+              let msg = "";
+              errors.array().forEach((error) => {
+                msg += `${msg === "" ? "" : ", "}${error.param}: ${error.msg}`;
+              });
+
+              res.locals.type = "warn";
+              res.locals.message = `invalid input: ${msg}`;
+
+              res.status(400).json({
+                message: "Bad request: provided inputs are invalid.",
+              });
+
+              return;
+            }
+
+            const { cong_role, pocket_members } = req.body;
+
+            await userData.updatePocketDetails({ cong_role, pocket_members });
+
+            res.locals.type = "info";
+            res.locals.message = "pocket details updated";
+            res.status(200).json({ message: "POCKET_USER_UPDATED" });
+            return;
+          }
+
+          res.locals.type = "warn";
+          res.locals.message = "pocket user could not be found";
+          res.status(404).json({ message: "POCKET_NOT_FOUND" });
           return;
         }
 
@@ -850,7 +901,7 @@ export const generatePocketOTPCode = async (req, res, next) => {
         const isValid = await cong.isMember(email);
 
         if (isValid) {
-          const userData = await Users.findPocketUser(user);
+          const userData = await Users.findUserById(user);
 
           if (userData) {
             const code = await userData.generatePocketCode();
@@ -858,6 +909,83 @@ export const generatePocketOTPCode = async (req, res, next) => {
             res.locals.type = "info";
             res.locals.message = "pocket otp code generated";
             res.status(200).json({ code });
+            return;
+          }
+
+          res.locals.type = "warn";
+          res.locals.message = "pocket user could not be found";
+          res.status(404).json({ message: "POCKET_NOT_FOUND" });
+          return;
+        }
+
+        res.locals.type = "warn";
+        res.locals.message = "user not authorized to access the provided congregation";
+        res.status(403).json({ message: "UNAUTHORIZED_REQUEST" });
+        return;
+      }
+
+      res.locals.type = "warn";
+      res.locals.message = "no congregation could not be found with the provided id";
+      res.status(404).json({ message: "CONGREGATION_NOT_FOUND" });
+      return;
+    }
+
+    res.locals.type = "warn";
+    res.locals.message = "the congregation and user ids params are undefined";
+    res.status(400).json({ message: "CONG_USER_ID_INVALID" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deletePocketOTPCode = async (req, res, next) => {
+  try {
+    const { id, user } = req.params;
+    const { email } = req.headers;
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      let msg = "";
+      errors.array().forEach((error) => {
+        msg += `${msg === "" ? "" : ", "}${error.param}: ${error.msg}`;
+      });
+
+      res.locals.type = "warn";
+      res.locals.message = `invalid input: ${msg}`;
+
+      res.status(400).json({
+        message: "Bad request: provided inputs are invalid.",
+      });
+
+      return;
+    }
+
+    if (id && user) {
+      const cong = await Congregations.findCongregationById(id);
+      if (cong) {
+        const isValid = await cong.isMember(email);
+
+        if (isValid) {
+          const userData = await Users.findUserById(user);
+
+          if (userData) {
+            await userData.removePocketCode();
+
+            // if no device, delete pocket user
+            let devices = userData.pocket_devices || [];
+            if (devices.length === 0) {
+              await cong.deletePocketUser(userData.id);
+
+              res.locals.type = "info";
+              res.locals.message = "pocket code removed, and pocket user deleted";
+              res.status(200).json({ message: "POCKET_USER_DELETED" });
+            } else {
+              res.locals.type = "info";
+              res.locals.message = "pocket code successfully removed";
+              res.status(200).json({ message: "POCKET_CODE_REMOVED" });
+            }
+
             return;
           }
 
@@ -918,7 +1046,7 @@ export const deletePocketDevice = async (req, res, next) => {
         const isValid = await cong.isMember(email);
 
         if (isValid) {
-          const userData = await Users.findPocketUser(user);
+          const userData = await Users.findUserById(user);
 
           if (userData) {
             // remove device

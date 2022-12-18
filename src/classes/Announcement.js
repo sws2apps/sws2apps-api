@@ -1,19 +1,19 @@
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore } from "firebase-admin/firestore";
 
 const db = getFirestore(); //get default database
 
 export class Announcement {
-  id;
-  data;
-  appTarget;
-  expiredDate;
-  isDraft;
-  publishedDate;
-
-  constructor() {}
+  constructor() {
+    this.id = "";
+    this.data = [];
+    this.appTarget = "";
+    this.expiredDate = "";
+    this.isDraft = true;
+    this.publishedDate = "";
+  }
 
   loadDetails = async (id) => {
-    const announcementRef = db.collection('announcements').doc(id);
+    const announcementRef = db.collection("announcements").doc(id);
     const announcementSnap = await announcementRef.get();
 
     const dbItem = announcementSnap.data();
