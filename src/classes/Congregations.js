@@ -29,9 +29,9 @@ const getCongregations = async () => {
 };
 
 class clsCongregations {
-  list = [];
-
-  constructor() {}
+  constructor() {
+    this.list = [];
+  }
 
   loadAll = async () => {
     this.list = await getCongregations();

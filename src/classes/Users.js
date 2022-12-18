@@ -1,13 +1,13 @@
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
-import { decryptData } from '../utils/encryption-utils.js';
-import { sendVerificationEmail } from '../utils/sendEmail.js';
-import { User } from './User.js';
+import { getAuth } from "firebase-admin/auth";
+import { getFirestore } from "firebase-admin/firestore";
+import { decryptData } from "../utils/encryption-utils.js";
+import { sendVerificationEmail } from "../utils/sendEmail.js";
+import { User } from "./User.js";
 
 const db = getFirestore(); //get default database
 
 const getUsers = async () => {
-  const userRef = db.collection('users');
+  const userRef = db.collection("users");
   const snapshot = await userRef.get();
 
   const tmpUsers = [];
@@ -32,9 +32,9 @@ const getUsers = async () => {
 };
 
 class clsUsers {
-  list = [];
-
-  constructor() {}
+  constructor() {
+    this.list = [];
+  }
 
   loadAll = async () => {
     this.list = await getUsers();
@@ -55,7 +55,7 @@ class clsUsers {
     for (let i = 0; i < this.list.length; i++) {
       const item = this.list[i];
       const otpCode = item.pocket_oCode;
-      if (otpCode !== '') {
+      if (otpCode !== "") {
         const pocket_oCode = decryptData(otpCode);
 
         if (code === pocket_oCode) {
@@ -107,18 +107,18 @@ class clsUsers {
     const data = {
       about: {
         name: fullname,
-        role: 'vip',
+        role: "vip",
         user_uid: userEmail,
       },
     };
 
-    await db.collection('users').add(data);
+    await db.collection("users").add(data);
 
     await this.loadAll();
   };
 
   delete = async (userId, authId) => {
-    await db.collection('users').doc(userId).delete();
+    await db.collection("users").doc(userId).delete();
 
     // remove from auth if qualified
     if (authId) await getAuth().deleteUser(authId);

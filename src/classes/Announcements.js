@@ -32,9 +32,9 @@ const getAnnouncements = async () => {
 };
 
 class clsAnnouncements {
-  list = [];
-
-  constructor() {}
+  constructor() {
+    this.list = [];
+  }
 
   loadAll = async () => {
     this.list = await getAnnouncements();

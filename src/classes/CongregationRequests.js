@@ -32,9 +32,9 @@ const getCongregationsRequests = async () => {
 };
 
 class clsCongregationRequests {
-  list = [];
-
-  constructor() {}
+  constructor() {
+    this.list = [];
+  }
 
   loadAll = async () => {
     this.list = await getCongregationsRequests();
@@ -69,18 +69,18 @@ class clsCongregationRequests {
 export const CongregationRequests = new clsCongregationRequests();
 
 class CongregationRequest {
-  id;
-  cong_name = "";
-  cong_number = "";
-  email = "";
-  username = "";
-  user_id = "";
-  cong_role = [];
-  approved = false;
-  request_date;
-  request_open = true;
-
-  constructor() {}
+  constructor() {
+    this.id = "";
+    this.cong_name = "";
+    this.cong_number = "";
+    this.email = "";
+    this.username = "";
+    this.user_id = "";
+    this.cong_role = [];
+    this.approved = false;
+    this.request_date = "";
+    this.request_open = true;
+  }
 
   loadDetails = async (id) => {
     const requestRef = db.collection("congregation_request").doc(id);
