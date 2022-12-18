@@ -1,89 +1,110 @@
-import { getAuth } from 'firebase-admin/auth';
-import { FieldValue, getFirestore } from 'firebase-admin/firestore';
-import * as OTPAuth from 'otpauth';
-import randomstring from 'randomstring';
-import { decryptData, encryptData } from '../utils/encryption-utils.js';
-import { sendUserResetPassword, sendVerificationEmail } from '../utils/sendEmail.js';
-import { Congregations } from './Congregations.js';
-import { Users } from './Users.js';
+import { getAuth } from "firebase-admin/auth";
+import { FieldValue, getFirestore } from "firebase-admin/firestore";
+import * as OTPAuth from "otpauth";
+import randomstring from "randomstring";
+import { decryptData, encryptData } from "../utils/encryption-utils.js";
+import { sendUserResetPassword, sendVerificationEmail } from "../utils/sendEmail.js";
+import { Congregations } from "./Congregations.js";
+import { Users } from "./Users.js";
 
 const db = getFirestore(); //get default database
 
 export class User {
-  id;
-  user_uid = '';
-  pocket_local_id = '';
-  pocket_devices = [];
-  pocket_oCode = '';
-  pocket_role = [];
-  pocket_members = [];
-  cong_id = '';
-  cong_name = '';
-  cong_number = '';
-  mfaEnabled = false;
-  username = '';
-  global_role = '';
-  sessions = [];
-  last_seen;
-  auth_uid = '';
-  emailVerified = false;
-  disabled = true;
-  secret = '';
-
-  constructor() {}
+  constructor() {
+    this.id = "";
+    this.user_uid = "";
+    this.pocket_local_id = "";
+    this.pocket_devices = [];
+    this.pocket_oCode = "";
+    this.pocket_members = [];
+    this.cong_id = "";
+    this.cong_name = "";
+    this.cong_number = "";
+    this.cong_role = [];
+    this.mfaEnabled = false;
+    this.username = "";
+    this.global_role = "";
+    this.sessions = [];
+    this.last_seen = "";
+    this.auth_uid = "";
+    this.emailVerified = false;
+    this.disabled = true;
+    this.secret = "";
+  }
 
   loadDetails = async (id) => {
-    const userRef = db.collection('users').doc(id);
+    const userRef = db.collection("users").doc(id);
     const userSnap = await userRef.get();
 
     const user = new User();
     user.id = id;
     user.username = userSnap.data().about.name;
-    user.user_uid = userSnap.data().about?.user_uid?.toLowerCase() || '';
-    user.secret = userSnap.data().about?.secret || '';
+    user.user_uid = userSnap.data().about?.user_uid?.toLowerCase() || "";
+    user.secret = userSnap.data().about?.secret || "";
     user.sessions = userSnap.data().about?.sessions || [];
     user.global_role = userSnap.data().about.role;
     user.mfaEnabled = userSnap.data().about?.mfaEnabled || false;
-    user.cong_id = userSnap.data().congregation?.id || '';
+    user.cong_id = userSnap.data().congregation?.id || "";
     user.cong_role = userSnap.data().congregation?.role || [];
 
-    if (user.global_role === 'pocket') {
-      user.pocket_local_id = userSnap.data().congregation?.local_id || '';
+    if (user.global_role === "pocket") {
+      user.pocket_local_id = userSnap.data().congregation?.local_id || "";
       user.pocket_devices = userSnap.data().congregation?.devices || [];
-      user.pocket_oCode = userSnap.data().congregation?.oCode || '';
-      user.pocket_role = userSnap.data().congregation?.pocket_role || [];
+      user.pocket_oCode = userSnap.data().congregation?.oCode || "";
+      user.cong_role = userSnap.data().congregation?.pocket_role || [];
       user.pocket_members = userSnap.data().congregation?.pocket_members || [];
+
+      let lastSeens = user.pocket_devices.map((device) => {
+        return { last_seen: device.sws_last_seen };
+      });
+
+      lastSeens.sort((a, b) => {
+        return a.last_seen > b.last_seen ? -1 : 1;
+      });
+
+      user.last_seen = lastSeens[0]?.last_seen || undefined;
     } else {
       const userRecord = await getAuth().getUserByEmail(user.user_uid);
       user.auth_uid = userRecord.uid;
       user.emailVerified = userRecord.emailVerified;
       user.disabled = userRecord.disabled;
+
+      let lastSeens = user.sessions.map((session) => {
+        return { last_seen: session.sws_last_seen };
+      });
+
+      lastSeens.sort((a, b) => {
+        return a.last_seen > b.last_seen ? -1 : 1;
+      });
+
+      user.last_seen = lastSeens[0]?.last_seen || undefined;
     }
 
     if (user.cong_id.length > 0) {
-      const congRef = db.collection('congregations').doc(user.cong_id);
+      const congRef = db.collection("congregations").doc(user.cong_id);
       const docSnap = await congRef.get();
-      user.cong_name = docSnap.data().cong_name || '';
-      user.cong_number = docSnap.data().cong_number || '';
+      user.cong_name = docSnap.data().cong_name || "";
+      user.cong_number = docSnap.data().cong_number || "";
     }
-
-    let lastSeens = user.sessions.map((session) => {
-      return { last_seen: session.sws_last_seen };
-    });
-
-    lastSeens.sort((a, b) => {
-      return a.last_seen > b.last_seen ? -1 : 1;
-    });
-
-    user.last_seen = lastSeens[0]?.last_seen || undefined;
 
     return user;
   };
 
   updateFullname = async (value) => {
     try {
-      await db.collection('users').doc(this.id).update({ 'about.name': value });
+      await db.collection("users").doc(this.id).update({ "about.name": value });
       this.username = value;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
+
+  updatePocketDetails = async ({ cong_role, pocket_members }) => {
+    try {
+      await db.collection("users").doc(this.id).update({ "congregation.pocket_members": pocket_members, "congregation.pocket_role": cong_role });
+
+      this.pocket_members = pocket_members;
+      this.cong_role = cong_role;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -91,7 +112,7 @@ export class User {
 
   updatePocketMembers = async (members) => {
     try {
-      await db.collection('users').doc(this.id).update({ 'congregation.pocket_members': members });
+      await db.collection("users").doc(this.id).update({ "congregation.pocket_members": members });
       this.pocket_members = members;
     } catch (error) {
       throw new Error(error.message);
@@ -130,7 +151,7 @@ export class User {
     try {
       const newSessions = this.sessions.filter((session) => session.visitorid !== visitorID);
 
-      await db.collection('users').doc(this.id).update({ 'about.sessions': newSessions });
+      await db.collection("users").doc(this.id).update({ "about.sessions": newSessions });
 
       this.sessions = newSessions;
       return this.getUserActiveSession();
@@ -144,7 +165,7 @@ export class User {
       const currentDate = new Date().getTime();
       let validSessions = this.sessions.filter((session) => session.expires > currentDate);
 
-      await db.collection('users').doc(this.id).update({ 'about.sessions': validSessions });
+      await db.collection("users").doc(this.id).update({ "about.sessions": validSessions });
 
       this.sessions = validSessions;
     } catch (error) {
@@ -154,7 +175,7 @@ export class User {
 
   updateSessions = async (sessions) => {
     try {
-      await db.collection('users').doc(this.id).update({ 'about.sessions': sessions });
+      await db.collection("users").doc(this.id).update({ "about.sessions": sessions });
 
       this.sessions = sessions;
     } catch (error) {
@@ -164,7 +185,7 @@ export class User {
 
   enableMFA = async () => {
     try {
-      await db.collection('users').doc(this.id).update({ 'about.mfaEnabled': true });
+      await db.collection("users").doc(this.id).update({ "about.mfaEnabled": true });
 
       this.mfaEnabled = true;
     } catch (error) {
@@ -181,7 +202,7 @@ export class User {
   };
 
   adminLogout = async () => {
-    await db.collection('users').doc(this.id).update({ 'about.sessions': [] });
+    await db.collection("users").doc(this.id).update({ "about.sessions": [] });
     this.sessions = [];
   };
 
@@ -190,9 +211,9 @@ export class User {
       const tempSecret = new OTPAuth.Secret().base32;
 
       const totp = new OTPAuth.TOTP({
-        issuer: 'sws2apps',
+        issuer: "sws2apps",
         label: this.user_uid,
-        algorithm: 'SHA1',
+        algorithm: "SHA1",
         digits: 6,
         period: 30,
         secret: OTPAuth.Secret.fromBase32(tempSecret),
@@ -207,7 +228,7 @@ export class User {
       const encryptedData = encryptData(secret);
 
       // save secret
-      await db.collection('users').doc(this.id).update({ 'about.secret': encryptedData });
+      await db.collection("users").doc(this.id).update({ "about.secret": encryptedData });
 
       this.secret = encryptedData;
       return secret;
@@ -221,8 +242,8 @@ export class User {
       const code = randomstring.generate(10).toUpperCase();
       const secureCode = encryptData(code);
 
-      await db.collection('users').doc(this.id).update({
-        'congregation.oCode': secureCode,
+      await db.collection("users").doc(this.id).update({
+        "congregation.oCode": secureCode,
       });
 
       this.pocket_oCode = secureCode;
@@ -230,6 +251,20 @@ export class User {
       await Users.loadAll();
 
       return code;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
+
+  removePocketCode = async () => {
+    try {
+      await db.collection("users").doc(this.id).update({
+        "congregation.oCode": "",
+      });
+
+      this.pocket_oCode = "";
+
+      await Users.loadAll();
     } catch (error) {
       throw new Error(error.message);
     }
@@ -247,12 +282,12 @@ export class User {
 
   updatePocketDevices = async (devices) => {
     try {
-      await db.collection('users').doc(this.id).update({
-        'congregation.oCode': FieldValue.delete(),
-        'congregation.devices': devices,
+      await db.collection("users").doc(this.id).update({
+        "congregation.oCode": FieldValue.delete(),
+        "congregation.devices": devices,
       });
 
-      this.pocket_oCode = '';
+      this.pocket_oCode = "";
       this.pocket_devices = devices;
 
       return this;
@@ -262,8 +297,8 @@ export class User {
   };
 
   removePocketDevice = async (devices) => {
-    await db.collection('users').doc(this.id).update({
-      'congregation.devices': devices,
+    await db.collection("users").doc(this.id).update({
+      "congregation.devices": devices,
     });
 
     this.pocket_devices = devices;
@@ -271,11 +306,11 @@ export class User {
 
   removeCongregation = async () => {
     try {
-      await db.collection('users').doc(this.id).update({ congregation: FieldValue.delete() });
+      await db.collection("users").doc(this.id).update({ congregation: FieldValue.delete() });
 
-      this.cong_id = '';
-      this.cong_name = '';
-      this.cong_number = '';
+      this.cong_id = "";
+      this.cong_name = "";
+      this.cong_number = "";
     } catch (error) {
       throw new Error(error.message);
     }
@@ -283,7 +318,7 @@ export class User {
 
   assignCongregation = async (congInfo) => {
     try {
-      await db.collection('users').doc(this.id).set(congInfo, { merge: true });
+      await db.collection("users").doc(this.id).set(congInfo, { merge: true });
 
       await Users.loadAll();
       await Congregations.loadAll();
@@ -293,8 +328,8 @@ export class User {
   };
 
   enable = async () => {
-    if (this.global_role === 'pocket') {
-      await db.collection('users').doc(this.id).update({ 'about.pocket_disabled': false });
+    if (this.global_role === "pocket") {
+      await db.collection("users").doc(this.id).update({ "about.pocket_disabled": false });
     } else {
       await getAuth().updateUser(this.auth_uid, { disabled: false });
       this.disabled = false;
@@ -302,8 +337,8 @@ export class User {
   };
 
   disable = async () => {
-    if (this.global_role === 'pocket') {
-      await db.collection('users').doc(this.id).update({ 'about.pocket_disabled': true });
+    if (this.global_role === "pocket") {
+      await db.collection("users").doc(this.id).update({ "about.pocket_disabled": true });
     } else {
       await getAuth().updateUser(this.auth_uid, { disabled: true });
       this.disabled = true;
@@ -320,9 +355,9 @@ export class User {
     const tempSecret = new OTPAuth.Secret().base32;
 
     const totp = new OTPAuth.TOTP({
-      issuer: 'sws2apps',
+      issuer: "sws2apps",
       label: this.user_uid,
-      algorithm: 'SHA1',
+      algorithm: "SHA1",
       digits: 6,
       period: 30,
       secret: OTPAuth.Secret.fromBase32(tempSecret),
@@ -338,18 +373,18 @@ export class User {
 
     // remove all sessions and save new secret
     const data = {
-      'about.mfaEnabled': false,
-      'about.secret': encryptedData,
-      'about.sessions': [],
+      "about.mfaEnabled": false,
+      "about.secret": encryptedData,
+      "about.sessions": [],
     };
-    await db.collection('users').doc(this.id).update(data);
+    await db.collection("users").doc(this.id).update(data);
 
     await Users.loadAll();
   };
 
   makeAdmin = async () => {
-    await db.collection('users').doc(this.id).update({ 'about.role': 'admin' });
-    this.global_role = 'admin';
+    await db.collection("users").doc(this.id).update({ "about.role": "admin" });
+    this.global_role = "admin";
   };
 
   resendVerificationEmail = async () => {
@@ -370,7 +405,7 @@ export class User {
       ...filteredDevices,
     ];
 
-    await db.collection('users').doc(this.id).update({ 'congregation.devices': updatedDevices, 'congregation.oCode': FieldValue.delete() });
+    await db.collection("users").doc(this.id).update({ "congregation.devices": updatedDevices, "congregation.oCode": FieldValue.delete() });
 
     await Users.loadAll();
     await Congregations.loadAll();
@@ -385,7 +420,7 @@ export class User {
       }
     });
 
-    await db.collection('users').doc(this.id).update({ 'about.sessions': newSessions });
+    await db.collection("users").doc(this.id).update({ "about.sessions": newSessions });
 
     this.sessions = newSessions;
 

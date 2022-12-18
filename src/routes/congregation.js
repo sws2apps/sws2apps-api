@@ -7,6 +7,7 @@ import {
   addCongregationUser,
   createNewPocketUser,
   deletePocketDevice,
+  deletePocketOTPCode,
   findUserByCongregation,
   generatePocketOTPCode,
   getCongregationBackup,
@@ -19,6 +20,7 @@ import {
   saveCongregationBackup,
   sendPocketSchedule,
   updateCongregationRole,
+  updatePocketDetails,
   updatePocketMembers,
   updatePocketUsername,
 } from "../controllers/congregation-controller.js";
@@ -76,7 +78,7 @@ router.get("/:id/members/:user", getCongregationUser);
 router.delete("/:id/members/:user", removeCongregationUser);
 
 // add user to congregation
-router.put("/:id/members/:user", body("user_role").isArray(), addCongregationUser);
+router.put("/:id/members", body("user_id").isString(), addCongregationUser);
 
 // update user role in congregation
 router.patch("/:id/members/:user/role", body("user_role").isArray(), updateCongregationRole);
@@ -85,7 +87,10 @@ router.patch("/:id/members/:user/role", body("user_role").isArray(), updateCongr
 router.get("/:id/pockets/:user", getCongregationPockerUser);
 
 // create new pocket user
-router.put("/:id/pockets/:user", body("username").notEmpty(), createNewPocketUser);
+router.put("/:id/pockets", body("pocket_local_id").notEmpty().isString(), body("username").notEmpty().isString(), createNewPocketUser);
+
+// update pocket member
+router.patch("/:id/pockets/:user", body("cong_role").isArray(), body("pocket_members").isArray(), updatePocketDetails);
 
 // update pocket username
 router.patch("/:id/pockets/:user/username", body("username").notEmpty(), updatePocketUsername);
@@ -95,6 +100,9 @@ router.patch("/:id/pockets/:user/members", body("members").notEmpty(), updatePoc
 
 // generate new pocket otp code
 router.get("/:id/pockets/:user/code", generatePocketOTPCode);
+
+// delete pocket otp code
+router.delete("/:id/pockets/:user/code", deletePocketOTPCode);
 
 // delete pocket device
 router.delete("/:id/pockets/:user", body("pocket_visitorid").notEmpty(), deletePocketDevice);
