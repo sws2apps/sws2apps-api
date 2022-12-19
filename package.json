@@ -54,7 +54,7 @@
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.2",
     "@semantic-release/git": "^10.0.1",
-    "eslint": "^8.29.0",
+    "eslint": "^8.30.0",
     "eslint-config-react-app": "^7.0.1",
     "find-unused-exports": "^5.0.0",
     "nodemon": "^2.0.20"
