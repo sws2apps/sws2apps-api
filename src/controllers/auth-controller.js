@@ -2,7 +2,7 @@
 import fetch from "node-fetch";
 import { validationResult } from "express-validator";
 import { FingerprintJsServerApiClient, Region } from "@fingerprintjs/fingerprintjs-pro-server-api";
-import { Users } from "../classes/Users.js";
+import { users } from "../classes/Users.js";
 
 export const loginUser = async (req, res, next) => {
   try {
@@ -62,46 +62,52 @@ export const loginUser = async (req, res, next) => {
         res.status(data.error.code).json({ message: data.error.message });
       } else {
         // clean expired session
-        const user = Users.findUserByEmail(email);
+        const user = users.findUserByEmail(email);
+        if (user) {
+          if (user.id) await user.removeExpiredSession();
 
-        if (user.id) await user.removeExpiredSession();
+          if (user.emailVerified) {
+            // revoke matched session
+            let newSessions = user.sessions.filter((session) => session.visitorid !== visitorid);
 
-        if (user.emailVerified) {
-          // revoke matched session
-          let newSessions = user.sessions.filter((session) => session.visitorid !== visitorid);
+            const expiryDate = new Date().getTime() + 24 * 60 * 60000; // expired after 1 day
 
-          const expiryDate = new Date().getTime() + 24 * 60 * 60000; // expired after 1 day
-
-          newSessions.push({
-            visitorid: visitorid,
-            visitor_details: { ...visitorHistory.visits[0] },
-            expires: expiryDate,
-            mfaVerified: false,
-          });
-
-          await user.updateSessions(newSessions);
-
-          if (user.mfaEnabled) {
-            res.locals.type = "info";
-            res.locals.message = "user required to verify mfa";
-
-            res.status(200).json({ message: "MFA_VERIFY" });
-          } else {
-            const secret = await user.generateSecret();
-
-            res.locals.type = "warn";
-            res.locals.message = "user authentication rejected because account mfa is not yet setup";
-            res.status(403).json({
-              secret: secret.secret,
-              qrCode: secret.uri,
-              version: secret.version,
+            newSessions.push({
+              visitorid: visitorid,
+              visitor_details: { ...visitorHistory.visits[0] },
+              expires: expiryDate,
+              mfaVerified: false,
             });
+
+            await user.updateSessions(newSessions);
+
+            if (user.mfaEnabled) {
+              res.locals.type = "info";
+              res.locals.message = "user required to verify mfa";
+
+              res.status(200).json({ message: "MFA_VERIFY" });
+            } else {
+              const secret = await user.generateSecret();
+
+              res.locals.type = "warn";
+              res.locals.message = "user authentication rejected because account mfa is not yet setup";
+              res.status(403).json({
+                secret: secret.secret,
+                qrCode: secret.uri,
+                version: secret.version,
+              });
+            }
+          } else {
+            res.locals.type = "warn";
+            res.locals.message = "user authentication rejected because account not yet verified";
+            res.status(403).json({ message: "NOT_VERIFIED" });
           }
-        } else {
-          res.locals.type = "warn";
-          res.locals.message = "user authentication rejected because account not yet verified";
-          res.status(403).json({ message: "NOT_VERIFIED" });
+          return;
         }
+
+        res.locals.type = "warn";
+        res.locals.message = "user authentication rejected because account could not be found anymore";
+        res.status(400).json({ message: "ACCOUNT_NOT_FOUND" });
       }
     } else {
       res.locals.failedLoginAttempt = true;

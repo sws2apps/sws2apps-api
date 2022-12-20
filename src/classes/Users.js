@@ -2,127 +2,129 @@ import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 import { decryptData } from "../utils/encryption-utils.js";
 import { sendVerificationEmail } from "../utils/sendEmail.js";
+import { dbFetchUsers } from "../utils/user-utils.js";
+import { congregations } from "./Congregations.js";
 import { User } from "./User.js";
 
 const db = getFirestore(); //get default database
 
-const getUsers = async () => {
-  const userRef = db.collection("users");
-  const snapshot = await userRef.get();
-
-  const tmpUsers = [];
-
-  snapshot.forEach((doc) => {
-    tmpUsers.push({ id: doc.id, username: doc.data().about.name });
-  });
-
-  tmpUsers.sort((a, b) => {
-    return a.username > b.username ? 1 : -1;
-  });
-
-  const finalResult = [];
-
-  for (let i = 0; i < tmpUsers.length; i++) {
-    const UserClass = new User();
-    const user = await UserClass.loadDetails(tmpUsers[i].id);
-    finalResult.push(user);
-  }
-
-  return finalResult;
-};
-
-class clsUsers {
+class Users {
   constructor() {
     this.list = [];
   }
+}
 
-  loadAll = async () => {
-    this.list = await getUsers();
-  };
+Users.prototype.sort = function () {
+  this.list.sort((a, b) => {
+    return a.username > b.username ? 1 : -1;
+  });
+};
 
-  findUserByEmail = (email) => {
-    const found = this.list.find((user) => user.user_uid === email);
-    return found;
-  };
+Users.prototype.addNew = async function (id) {
+  const NewClass = new User(id);
+  const newItem = await NewClass.loadDetails();
+  this.list.push(newItem);
+  this.sort();
+};
 
-  findUserById = (id) => {
-    const found = this.list.find((user) => user.id === id);
-    return found;
-  };
+Users.prototype.loadAll = async function () {
+  this.list = await dbFetchUsers();
+  this.sort();
+};
 
-  findUserByOTPCode = (code) => {
-    let user;
-    for (let i = 0; i < this.list.length; i++) {
-      const item = this.list[i];
-      const otpCode = item.pocket_oCode;
-      if (otpCode !== "") {
-        const pocket_oCode = decryptData(otpCode);
+Users.prototype.findUserByEmail = function (email) {
+  const found = this.list.find((user) => user.user_uid === email);
+  return found;
+};
 
-        if (code === pocket_oCode) {
-          user = item;
-          break;
-        }
-      }
-    }
+Users.prototype.findUserById = function (id) {
+  const found = this.list.find((user) => user.id === id);
+  return found;
+};
 
-    return user;
-  };
+Users.prototype.findUserByOTPCode = function (code) {
+  let user;
+  for (let i = 0; i < this.list.length; i++) {
+    const item = this.list[i];
+    const otpCode = item.pocket_oCode;
+    if (otpCode !== "") {
+      const pocket_oCode = decryptData(otpCode);
 
-  findPocketUser = (pocketId) => {
-    const found = this.list.find((user) => user.pocket_local_id === pocketId);
-    return found;
-  };
-
-  findPocketByVisitorId = async (visitorid) => {
-    const users = this.list;
-
-    let user;
-
-    for (let i = 0; i < users.length; i++) {
-      const devices = users[i].pocket_devices || [];
-      const found = devices.find((device) => device.visitorid === visitorid);
-
-      if (found) {
-        user = users[i];
+      if (code === pocket_oCode) {
+        user = item;
         break;
       }
     }
+  }
 
-    return user;
+  return user;
+};
+
+Users.prototype.findPocketUser = function (pocketId) {
+  const found = this.list.find((user) => user.pocket_local_id === pocketId);
+  return found;
+};
+
+Users.prototype.findPocketByVisitorId = async function (visitorid) {
+  const users = this.list;
+
+  let user;
+
+  for (let i = 0; i < users.length; i++) {
+    const devices = users[i].pocket_devices || [];
+    const found = devices.find((device) => device.visitorid === visitorid);
+
+    if (found) {
+      user = users[i];
+      break;
+    }
+  }
+
+  return user;
+};
+
+Users.prototype.create = async function (fullname, email, password) {
+  const userRecord = await getAuth().createUser({
+    email: email,
+    emailVerified: false,
+    password: password,
+    disabled: false,
+  });
+
+  const userEmail = userRecord.email;
+  const link = await getAuth().generateEmailVerificationLink(userEmail);
+
+  sendVerificationEmail(userEmail, fullname, link);
+
+  const data = {
+    about: {
+      name: fullname,
+      role: "vip",
+      user_uid: userEmail,
+    },
   };
 
-  create = async (fullname, email, password) => {
-    const userRecord = await getAuth().createUser({
-      email: email,
-      emailVerified: false,
-      password: password,
-      disabled: false,
-    });
+  const ref = await db.collection("users").add(data);
+  await this.addNew(ref.id);
+};
 
-    const userEmail = userRecord.email;
-    const link = await getAuth().generateEmailVerificationLink(userEmail);
+Users.prototype.delete = async function (userId, authId) {
+  await db.collection("users").doc(userId).delete();
 
-    sendVerificationEmail(userEmail, fullname, link);
+  // remove from auth if qualified
+  if (authId) await getAuth().deleteUser(authId);
 
-    const data = {
-      about: {
-        name: fullname,
-        role: "vip",
-        user_uid: userEmail,
-      },
-    };
+  // get congregation id
+  const user = this.findUserById(userId);
+  const congId = user.cong_id;
 
-    await db.collection("users").add(data);
+  this.list = this.list.filter((user) => user.id !== userId);
 
-    await this.loadAll();
-  };
+  // update cong member if any
+  if (congId !== "") {
+    const cong = congregations.findCongregationById(congId);
+    cong.reloadMembers();
+  }
+};
 
-  delete = async (userId, authId) => {
-    await db.collection("users").doc(userId).delete();
-
-    // remove from auth if qualified
-    if (authId) await getAuth().deleteUser(authId);
-  };
-}
-
-export const Users = new clsUsers();
+export const users = new Users();

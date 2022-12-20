@@ -1,9 +1,9 @@
 import { validationResult } from "express-validator";
 import { decryptData } from "../utils/encryption-utils.js";
 import { sendCongregationRequest } from "../utils/sendEmail.js";
-import { CongregationRequests } from "../classes/CongregationRequests.js";
-import { Users } from "../classes/Users.js";
-import { Congregations } from "../classes/Congregations.js";
+import { congregationRequests } from "../classes/congregationRequests.js";
+import { users } from "../classes/Users.js";
+import { congregations } from "../classes/Congregations.js";
 
 export const requestCongregation = async (req, res, next) => {
   try {
@@ -38,7 +38,7 @@ export const requestCongregation = async (req, res, next) => {
       return;
     }
 
-    const userRequest = await CongregationRequests.findRequestByEmail(email);
+    const userRequest = await congregationRequests.findRequestByEmail(email);
 
     if (userRequest) {
       res.locals.type = "warn";
@@ -58,9 +58,9 @@ export const requestCongregation = async (req, res, next) => {
       request_open: true,
     };
 
-    await CongregationRequests.createAccount(data);
+    await congregationRequests.create(data);
 
-    const userInfo = Users.findUserByEmail(email);
+    const userInfo = users.findUserByEmail(email);
     sendCongregationRequest(cong_name, cong_number, userInfo.username);
 
     res.locals.type = "info";
@@ -77,7 +77,7 @@ export const getLastCongregationBackup = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id) {
-      const cong = Congregations.findCongregationById(id);
+      const cong = congregations.findCongregationById(id);
       if (cong) {
         const isValid = cong.isMember(email);
 
@@ -120,7 +120,7 @@ export const saveCongregationBackup = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id) {
-      const cong = Congregations.findCongregationById(id);
+      const cong = congregations.findCongregationById(id);
       if (cong) {
         const errors = validationResult(req);
 
@@ -178,7 +178,7 @@ export const getCongregationBackup = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id) {
-      const cong = await Congregations.findCongregationById(id);
+      const cong = await congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 
@@ -215,7 +215,7 @@ export const getCongregationMembers = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id) {
-      const cong = Congregations.findCongregationById(id);
+      const cong = congregations.findCongregationById(id);
       if (cong) {
         const isValid = cong.isMember(email);
 
@@ -252,15 +252,14 @@ export const removeCongregationUser = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id && user) {
-      const cong = Congregations.findCongregationById(id);
+      const cong = congregations.findCongregationById(id);
       if (cong) {
         const isValid = cong.isMember(email);
 
         if (isValid) {
-          const findUser = Users.findUserById(user);
+          const findUser = users.findUserById(user);
 
           if (findUser.cong_id === id) {
-            await findUser.removeCongregation();
             const members = cong.removeUser(id);
 
             res.locals.type = "info";
@@ -303,13 +302,13 @@ export const findUserByCongregation = async (req, res, next) => {
     const search = req.query.search;
 
     if (id) {
-      const cong = await Congregations.findCongregationById(id);
+      const cong = await congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 
         if (isValid) {
           if (search && search.length > 0) {
-            const userData = await Users.findUserByEmail(search);
+            const userData = await users.findUserByEmail(search);
 
             if (userData && !userData.disabled && userData.mfaEnabled) {
               if (userData.cong_id === id) {
@@ -370,7 +369,7 @@ export const addCongregationUser = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id) {
-      const cong = await Congregations.findCongregationById(id);
+      const cong = await congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 
@@ -394,7 +393,7 @@ export const addCongregationUser = async (req, res, next) => {
           }
 
           const user = req.body.user_id;
-          const findUser = await Users.findUserById(user);
+          const findUser = await users.findUserById(user);
 
           if (findUser.cong_id === "") {
             const data = {
@@ -444,12 +443,12 @@ export const updateCongregationRole = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id && user) {
-      const cong = await Congregations.findCongregationById(id);
+      const cong = await congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 
         if (isValid) {
-          const findUser = await Users.findUserById(user);
+          const findUser = await users.findUserById(user);
 
           if (findUser.cong_id === id) {
             const errors = validationResult(req);
@@ -536,12 +535,12 @@ export const getCongregationUser = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id && user) {
-      const cong = await Congregations.findCongregationById(id);
+      const cong = await congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 
         if (isValid) {
-          const userData = await Users.findUserById(user);
+          const userData = await users.findUserById(user);
 
           if (userData) {
             res.locals.type = "info";
@@ -582,12 +581,12 @@ export const getCongregationPockerUser = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id && user && user !== "undefined") {
-      const cong = await Congregations.findCongregationById(id);
+      const cong = await congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 
         if (isValid) {
-          const userData = Users.findPocketUser(user);
+          const userData = users.findPocketUser(user);
 
           if (userData) {
             const otpCode = userData.pocket_oCode;
@@ -635,7 +634,7 @@ export const createNewPocketUser = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id) {
-      const cong = await Congregations.findCongregationById(id);
+      const cong = await congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 
@@ -694,12 +693,12 @@ export const updatePocketDetails = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id && user) {
-      const cong = await Congregations.findCongregationById(id);
+      const cong = await congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 
         if (isValid) {
-          const userData = await Users.findUserById(user);
+          const userData = await users.findUserById(user);
 
           if (userData) {
             const errors = validationResult(req);
@@ -762,12 +761,12 @@ export const updatePocketUsername = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id && user) {
-      const cong = await Congregations.findCongregationById(id);
+      const cong = await congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 
         if (isValid) {
-          const userData = await Users.findPocketUser(user);
+          const userData = await users.findPocketUser(user);
 
           if (userData) {
             const errors = validationResult(req);
@@ -829,12 +828,12 @@ export const updatePocketMembers = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id && user) {
-      const cong = await Congregations.findCongregationById(id);
+      const cong = await congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 
         if (isValid) {
-          const userData = await Users.findPocketUser(user);
+          const userData = await users.findPocketUser(user);
 
           if (userData) {
             const errors = validationResult(req);
@@ -896,12 +895,12 @@ export const generatePocketOTPCode = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id && user) {
-      const cong = await Congregations.findCongregationById(id);
+      const cong = await congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 
         if (isValid) {
-          const userData = await Users.findUserById(user);
+          const userData = await users.findUserById(user);
 
           if (userData) {
             const code = await userData.generatePocketCode();
@@ -962,12 +961,12 @@ export const deletePocketOTPCode = async (req, res, next) => {
     }
 
     if (id && user) {
-      const cong = await Congregations.findCongregationById(id);
+      const cong = await congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 
         if (isValid) {
-          const userData = await Users.findUserById(user);
+          const userData = await users.findUserById(user);
 
           if (userData) {
             await userData.removePocketCode();
@@ -1041,12 +1040,12 @@ export const deletePocketDevice = async (req, res, next) => {
     const { pocket_visitorid } = req.body;
 
     if (id && user) {
-      const cong = await Congregations.findCongregationById(id);
+      const cong = await congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 
         if (isValid) {
-          const userData = await Users.findUserById(user);
+          const userData = await users.findUserById(user);
 
           if (userData) {
             // remove device
@@ -1105,7 +1104,7 @@ export const sendPocketSchedule = async (req, res, next) => {
     const { email } = req.headers;
 
     if (id) {
-      const cong = await Congregations.findCongregationById(id);
+      const cong = await congregations.findCongregationById(id);
       if (cong) {
         const isValid = await cong.isMember(email);
 

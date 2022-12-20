@@ -1,13 +1,13 @@
 import { userAccountChecker } from "../utils/user-utils.js";
-import { Users } from "../classes/Users.js";
+import { users } from "../classes/Users.js";
 
 export const getAllUsers = async (req, res, next) => {
   try {
-    const users = await Users.list;
+    const list = await users.list;
 
     res.locals.type = "info";
     res.locals.message = "admin fetched all users";
-    res.status(200).json(users);
+    res.status(200).json(list);
   } catch (err) {
     next(err);
   }
@@ -20,7 +20,7 @@ export const deleteUser = async (req, res, next) => {
 
     if (isParamsValid) {
       if (userFound) {
-        await Users.delete(id, user.auth_uid);
+        await users.delete(id, user.auth_uid);
 
         res.locals.type = "info";
         res.locals.message = "the user has been deleted";
@@ -208,7 +208,7 @@ export const findUser = async (req, res, next) => {
     const search = req.query.search;
 
     if (search && search.length > 0) {
-      const userData = await Users.findUserByEmail(search);
+      const userData = await users.findUserByEmail(search);
 
       if (userData) {
         res.locals.type = "info";

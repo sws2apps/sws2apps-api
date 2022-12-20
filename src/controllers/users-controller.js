@@ -1,6 +1,6 @@
 import { validationResult } from "express-validator";
-import { Users } from "../classes/Users.js";
-import { Announcements } from "../classes/Announcements.js";
+import { users } from "../classes/Users.js";
+import { announcements } from "../classes/Announcements.js";
 
 export const createAccount = async (req, res, next) => {
   try {
@@ -24,7 +24,7 @@ export const createAccount = async (req, res, next) => {
 
     const { fullname, email, password } = req.body;
 
-    await Users.create(fullname, email, password);
+    await users.create(fullname, email, password);
 
     res.locals.type = "info";
     res.locals.message = `user account created and the verification email queued for sending`;
@@ -36,12 +36,12 @@ export const createAccount = async (req, res, next) => {
 
 export const getAnnouncements = async (req, res, next) => {
   try {
-    const announcements = Announcements.list;
+    const list = announcements.list;
 
     res.locals.type = "info";
     res.locals.message = `client fetched announcements`;
 
-    res.status(200).json(announcements);
+    res.status(200).json(list);
   } catch (err) {
     next(err);
   }
@@ -50,7 +50,7 @@ export const getAnnouncements = async (req, res, next) => {
 export const validateUser = async (req, res, next) => {
   try {
     const { email } = req.headers;
-    const { id, cong_id, cong_name, cong_number, cong_role } = await Users.findUserByEmail(email);
+    const { id, cong_id, cong_name, cong_number, cong_role } = await users.findUserByEmail(email);
 
     if (cong_name.length > 0) {
       let obj = { id, cong_id, cong_name, cong_number, cong_role };
@@ -73,7 +73,7 @@ export const validateUser = async (req, res, next) => {
 export const resendVerificationEmail = async (req, res, next) => {
   try {
     const { email } = req.headers;
-    const user = await Users.findUserByEmail(email);
+    const user = await users.findUserByEmail(email);
 
     if (user) {
       await user.resendVerificationEmail();
@@ -119,7 +119,7 @@ export const updateUserFullname = async (req, res, next) => {
 
       const { fullname } = req.body;
 
-      const user = Users.findUserById(id);
+      const user = users.findUserById(id);
       await user.updateFullname(fullname);
 
       res.locals.type = "info";
@@ -160,7 +160,7 @@ export const updateUserPassword = async (req, res, next) => {
 
       const { password } = req.body;
 
-      const user = Users.findUserById(id);
+      const user = users.findUserById(id);
       await user.updatePassword(password);
 
       res.locals.type = "info";
@@ -181,7 +181,7 @@ export const getUserSecretToken = async (req, res, next) => {
     const { id } = req.params;
 
     if (id) {
-      const user = Users.findUserById(id);
+      const user = users.findUserById(id);
       const { secret, uri } = user.decryptSecret();
 
       res.locals.type = "info";
@@ -205,7 +205,7 @@ export const getUserSessions = async (req, res, next) => {
     const { id } = req.params;
 
     if (id) {
-      const user = Users.findUserById(id);
+      const user = users.findUserById(id);
       const sessions = user.getActiveSessions();
 
       res.locals.type = "info";
@@ -246,7 +246,7 @@ export const deleteUserSession = async (req, res, next) => {
 
       const { session } = req.body;
 
-      const user = Users.findUserById(id);
+      const user = users.findUserById(id);
       const sessions = user.revokeSession(session);
 
       res.locals.type = "info";
@@ -266,7 +266,7 @@ export const userLogout = async (req, res, next) => {
   try {
     const { email, visitorid } = req.headers;
 
-    const user = Users.findUserByEmail(email);
+    const user = users.findUserByEmail(email);
     await user.revokeSession(visitorid);
 
     res.locals.type = "info";

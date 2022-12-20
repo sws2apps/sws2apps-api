@@ -1,7 +1,7 @@
 import twofactor from "node-2fa";
 import * as OTPAuth from "otpauth";
 import { validationResult } from "express-validator";
-import { Users } from "../classes/Users.js";
+import { users } from "../classes/Users.js";
 
 export const verifyToken = async (req, res, next) => {
   const errors = validationResult(req);
@@ -27,7 +27,7 @@ export const verifyToken = async (req, res, next) => {
   const { id, sessions, username, cong_name, cong_number, cong_role, cong_id } = res.locals.currentUser;
 
   try {
-    const user = Users.findUserById(id);
+    const user = users.findUserById(id);
     const secret = user.decryptSecret();
 
     //check secret version
