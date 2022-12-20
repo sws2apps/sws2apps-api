@@ -1,5 +1,5 @@
 import { check, validationResult } from "express-validator";
-import { Users } from "../classes/Users.js";
+import { users } from "../classes/Users.js";
 
 export const pocketAuthChecker = () => {
   return async (req, res, next) => {
@@ -24,7 +24,7 @@ export const pocketAuthChecker = () => {
 
       const { visitorid } = req.headers;
 
-      const user = await Users.findPocketByVisitorId(visitorid);
+      const user = await users.findPocketByVisitorId(visitorid);
 
       // found user or it is a sign up request
       if (user || req.path === "/signup") {

@@ -8,18 +8,18 @@ import app from "./src/app.js";
 import { logger } from "./src/utils/logger.js";
 
 // load classes
-import { Users } from "./src/classes/Users.js";
-import { Congregations } from "./src/classes/Congregations.js";
-import { CongregationRequests } from "./src/classes/CongregationRequests.js";
-import { Announcements } from "./src/classes/Announcements.js";
+import { users } from "./src/classes/Users.js";
+import { congregations } from "./src/classes/Congregations.js";
+import { congregationRequests } from "./src/classes/CongregationRequests.js";
+import { announcements } from "./src/classes/Announcements.js";
 
 const PORT = process.env.PORT || 8000;
 const APP_VERSION = process.env.npm_package_version;
 
-await Announcements.loadAll();
-await Users.loadAll();
-await Congregations.loadAll();
-await CongregationRequests.loadAll();
+await announcements.loadAll();
+await users.loadAll();
+await congregations.loadAll();
+await congregationRequests.loadAll();
 
 app.listen(PORT, async () => {
   logger("info", JSON.stringify({ details: `server up and running (v${APP_VERSION})` }));

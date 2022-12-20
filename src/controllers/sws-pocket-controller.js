@@ -1,8 +1,8 @@
 // dependencies
 import { validationResult } from "express-validator";
 import { FingerprintJsServerApiClient, Region } from "@fingerprintjs/fingerprintjs-pro-server-api";
-import { Users } from "../classes/Users.js";
-import { Congregations } from "../classes/Congregations.js";
+import { users } from "../classes/Users.js";
+import { congregations } from "../classes/Congregations.js";
 
 export const validatePocket = async (req, res, next) => {
   try {
@@ -56,7 +56,7 @@ export const pocketSignUp = async (req, res, next) => {
     });
 
     if (visitorHistory.visits?.length > 0) {
-      const user = await Users.findUserByOTPCode(otp_code);
+      const user = await users.findUserByOTPCode(otp_code);
 
       if (user) {
         // add visitor id and remove otp_code
@@ -106,7 +106,7 @@ export const getSchedule = async (req, res, next) => {
   try {
     const { cong_id } = res.locals.currentUser;
 
-    const { cong_sourceMaterial, cong_schedule } = Congregations.findCongregationById(cong_id);
+    const { cong_sourceMaterial, cong_schedule } = congregations.findCongregationById(cong_id);
 
     res.locals.type = "info";
     res.locals.message = "pocket user has fetched the schedule";

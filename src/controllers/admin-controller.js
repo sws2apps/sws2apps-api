@@ -1,8 +1,8 @@
 import { check, validationResult } from "express-validator";
-import { Users } from "../classes/Users.js";
-import { Announcements } from "../classes/Announcements.js";
-import { CongregationRequests } from "../classes/CongregationRequests.js";
-import { Congregations } from "../classes/Congregations.js";
+import { users } from "../classes/Users.js";
+import { announcements } from "../classes/Announcements.js";
+import { congregationRequests } from "../classes/CongregationRequests.js";
+import { congregations } from "../classes/Congregations.js";
 
 export const validateAdmin = async (req, res, next) => {
   try {
@@ -19,7 +19,7 @@ export const logoutAdmin = async (req, res, next) => {
   try {
     // remove all sessions
     const { id } = res.locals.currentUser;
-    const admin = Users.findUserById(id);
+    const admin = users.findUserById(id);
 
     await admin.adminLogout();
 
@@ -34,11 +34,14 @@ export const logoutAdmin = async (req, res, next) => {
 export const getBlockedRequests = async (req, res, next) => {
   try {
     let reqs = [];
+    // eslint-disable-next-line no-undef
     for (let i = 0; i < requestTracker.length; i++) {
+      // eslint-disable-next-line no-undef
       const retryOn = requestTracker[i].retryOn || 0;
       if (retryOn > 0) {
         const currentDate = new Date().getTime();
         if (currentDate < retryOn) {
+          // eslint-disable-next-line no-undef
           reqs.push(requestTracker[i]);
         }
       }
@@ -72,6 +75,7 @@ export const unblockRequest = async (req, res, next) => {
       return;
     }
 
+    // eslint-disable-next-line no-undef
     const ipIndex = requestTracker.findIndex((client) => client.ip === req.body.request_ip);
 
     if (ipIndex === -1) {
@@ -79,9 +83,11 @@ export const unblockRequest = async (req, res, next) => {
       res.locals.message = "failed to unblock request since ip is not valid";
       res.status(400).json({ message: "UNBLOCK_FAILED" });
     } else {
+      // eslint-disable-next-line no-undef
       requestTracker.splice(ipIndex, 1);
       res.locals.type = "info";
       res.locals.message = "request unblocked successfully";
+      // eslint-disable-next-line no-undef
       res.status(200).json({ message: requestTracker });
     }
   } catch (err) {
@@ -91,11 +97,11 @@ export const unblockRequest = async (req, res, next) => {
 
 export const getAllAnnouncements = async (req, res, next) => {
   try {
-    const announcements = Announcements.list;
+    const list = announcements.list;
 
     res.locals.type = "info";
     res.locals.message = "announcements fetched successfully";
-    res.status(200).json(announcements);
+    res.status(200).json(list);
   } catch (err) {
     next(err);
   }
@@ -122,11 +128,11 @@ export const saveAnnouncementDraft = async (req, res, next) => {
     }
 
     const { announcement } = req.body;
-    const announcements = await Announcements.saveDraft(announcement);
+    const list = await announcements.saveDraft({ ...announcement, isDraft: true });
 
     res.locals.type = "info";
     res.locals.message = "draft announcement saved successfully";
-    res.status(200).json(announcements);
+    res.status(200).json(list);
   } catch (err) {
     next(err);
   }
@@ -153,7 +159,7 @@ export const getAnnouncementAdmin = async (req, res, next) => {
     }
 
     const { announcementid } = req.headers;
-    const announcement = Announcements.findById(announcementid);
+    const announcement = announcements.findById(announcementid);
 
     if (announcement) {
       res.locals.type = "info";
@@ -190,11 +196,11 @@ export const deleteAnnouncementAdmin = async (req, res, next) => {
     }
 
     const { announcement_id } = req.headers;
-    const announcements = await Announcements.delete(announcement_id);
+    const list = await announcements.delete(announcement_id);
 
     res.locals.type = "info";
     res.locals.message = "announcement deleted successfully";
-    res.status(200).json(announcements);
+    res.status(200).json(list);
   } catch (err) {
     next(err);
   }
@@ -221,11 +227,11 @@ export const publishAnnouncementAdmin = async (req, res, next) => {
     }
 
     const { announcement } = req.body;
-    const announcements = await Announcements.publish(announcement);
+    const list = await announcements.publish(announcement);
 
     res.locals.type = "info";
     res.locals.message = "announcement published successfully";
-    res.status(200).json(announcements);
+    res.status(200).json(list);
   } catch (err) {
     next(err);
   }
@@ -233,17 +239,17 @@ export const publishAnnouncementAdmin = async (req, res, next) => {
 
 export const getAdminDashboard = async (req, res, next) => {
   try {
-    const finalResult = CongregationRequests.list;
-    const congsList = Congregations.list;
-    const users = Users.list;
+    const finalResult = congregationRequests.list;
+    const congsList = congregations.list;
+    const usersList = users.list;
 
     const obj = {
       users: {
-        total: users.length,
-        active: users.filter((user) => user.mfaEnabled === true).length,
-        mfaPending: users.filter((user) => user.emailVerified === true && user.mfaEnabled === false).length,
-        unverified: users.filter((user) => user.emailVerified === false).length,
-        pockets: users.filter((user) => user.global_role === "pocket").length,
+        total: usersList.length,
+        active: usersList.filter((user) => user.mfaEnabled === true).length,
+        mfaPending: usersList.filter((user) => user.emailVerified === true && user.mfaEnabled === false).length,
+        unverified: usersList.filter((user) => user.emailVerified === false).length,
+        pockets: usersList.filter((user) => user.global_role === "pocket").length,
       },
       congregations: {
         requests: finalResult.length,

@@ -32,7 +32,7 @@ router.delete("/:id", deleteCongregation);
 router.patch("/:id/add-user", body("user_uid").notEmpty(), addCongregationUser);
 
 // remove user from a congregation
-router.patch("/:id/remove-user", body("user_uid").notEmpty(), removeCongregationUser);
+router.patch("/:id/remove-user", body("user_id").notEmpty(), removeCongregationUser);
 
 // update user role in a congregation
 router.patch("/:id/update-role", body("user_uid").notEmpty(), body("user_role").isArray(), updateCongregationUserRole);

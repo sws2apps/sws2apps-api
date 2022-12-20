@@ -1,15 +1,12 @@
 import { validationResult } from "express-validator";
-import { getFirestore } from "firebase-admin/firestore";
-import { CongregationRequests } from "../classes/CongregationRequests.js";
-import { Congregations } from "../classes/Congregations.js";
-import { Users } from "../classes/Users.js";
+import { congregationRequests } from "../classes/CongregationRequests.js";
+import { congregations } from "../classes/Congregations.js";
+import { users } from "../classes/Users.js";
 import { sendCongregationAccountCreated, sendCongregationAccountDisapproved } from "../utils/sendEmail.js";
-
-const db = getFirestore();
 
 export const getAllCongregations = async (req, res, next) => {
   try {
-    const congsList = Congregations.list;
+    const congsList = congregations.list;
 
     res.locals.type = "info";
     res.locals.message = "admin fetched all congregation";
@@ -21,7 +18,7 @@ export const getAllCongregations = async (req, res, next) => {
 
 export const getCongregationRequests = async (req, res, next) => {
   try {
-    const finalResult = CongregationRequests.list;
+    const finalResult = congregationRequests.list;
 
     res.locals.type = "info";
     res.locals.message = "admin fetched pending requests";
@@ -36,7 +33,7 @@ export const approveCongregationRequest = async (req, res, next) => {
     const { id } = req.params;
 
     if (id) {
-      const request = CongregationRequests.findRequestById(id);
+      const request = congregationRequests.findRequestById(id);
       if (request) {
         if (request.approved) {
           res.locals.type = "warn";
@@ -49,14 +46,10 @@ export const approveCongregationRequest = async (req, res, next) => {
             cong_number: request.cong_number,
           };
 
-          const cong = await Congregations.create(congData);
+          const cong = await congregations.create(congData);
 
           // update requestor info
-          const user = Users.findUserById(request.user_id);
-          const userData = {
-            congregation: { id: cong.id, role: request.cong_role },
-          };
-          await user.assignCongregation(userData);
+          await cong.addUser(request.user_id, request.cong_role);
 
           // update request props
           await request.approve();
@@ -106,7 +99,7 @@ export const disapproveCongregationRequest = async (req, res, next) => {
         return;
       }
 
-      const request = await CongregationRequests.findRequestById(id);
+      const request = await congregationRequests.findRequestById(id);
       if (request) {
         if (!request.approved && !request.request_open) {
           res.locals.type = "warn";
@@ -144,7 +137,7 @@ export const deleteCongregation = async (req, res, next) => {
     const { id } = req.params;
 
     if (id) {
-      const cong = Congregations.findCongregationById(id);
+      const cong = congregations.findCongregationById(id);
       if (cong) {
         if (cong.cong_members.length > 0) {
           res.locals.type = "warn";
@@ -152,7 +145,7 @@ export const deleteCongregation = async (req, res, next) => {
           res.status(405).json({ message: "CONG_ACTIVE" });
         } else {
           // remove from firestore
-          await Congregations.delete(id);
+          await congregations.delete(id);
 
           res.locals.type = "info";
           res.locals.message = "congregation deleted";
@@ -178,7 +171,7 @@ export const addCongregationUser = async (req, res, next) => {
     const { id } = req.params;
 
     if (id) {
-      const cong = Congregations.findCongregationById(id);
+      const cong = congregations.findCongregationById(id);
 
       if (cong) {
         const errors = validationResult(req);
@@ -200,7 +193,7 @@ export const addCongregationUser = async (req, res, next) => {
         }
 
         const { user_uid } = req.body;
-        const user = Users.findUserByEmail(user_uid);
+        const user = users.findUserByEmail(user_uid);
 
         if (user) {
           if (user.cong_id === id) {
@@ -210,7 +203,7 @@ export const addCongregationUser = async (req, res, next) => {
           } else {
             await cong.addUser(user.id);
 
-            const congsList = await Congregations.loadAll();
+            const congsList = await congregations.loadAll();
 
             res.locals.type = "info";
             res.locals.message = "member added to congregation";
@@ -241,7 +234,7 @@ export const removeCongregationUser = async (req, res, next) => {
     const { id } = req.params;
 
     if (id) {
-      const cong = Congregations.findCongregationById(id);
+      const cong = congregations.findCongregationById(id);
 
       if (cong) {
         const errors = validationResult(req);
@@ -262,14 +255,18 @@ export const removeCongregationUser = async (req, res, next) => {
           return;
         }
 
-        const { user_uid } = req.body;
-        const user = Users.findUserByEmail(user_uid);
+        const { user_id } = req.body;
+        const user = users.findUserById(user_id);
 
         if (user) {
           if (user.cong_id === id) {
-            cong.removeUser(user.id);
+            if (user.global_role === "pocket") {
+              await cong.deletePocketUser(user.id);
+            } else {
+              await cong.removeUser(user.id);
+            }
 
-            const congsList = await Congregations.loadAll();
+            const congsList = congregations.list;
 
             res.locals.type = "info";
             res.locals.message = "member removed to congregation";
@@ -304,7 +301,7 @@ export const updateCongregationUserRole = async (req, res, next) => {
     const { id } = req.params;
 
     if (id) {
-      const cong = Congregations.findCongregationById(id);
+      const cong = congregations.findCongregationById(id);
       if (cong) {
         const errors = validationResult(req);
 
@@ -350,12 +347,12 @@ export const updateCongregationUserRole = async (req, res, next) => {
           return;
         }
 
-        const user = Users.findUserByEmail(user_uid);
+        const user = users.findUserByEmail(user_uid);
 
         if (user) {
           cong.updateUserRole(user.id, user_role);
 
-          const congsList = await Congregations.loadAll();
+          const congsList = await congregations.loadAll();
 
           res.locals.type = "info";
           res.locals.message = "user role saved successfully";

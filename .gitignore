@@ -10,6 +10,7 @@ lmm-oa-sws
 
 # testing
 /coverage
+/emulators
 
 # production
 /build

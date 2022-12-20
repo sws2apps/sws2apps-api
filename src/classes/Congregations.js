@@ -1,58 +1,46 @@
 import { getFirestore } from "firebase-admin/firestore";
+import { dbFetchCongregations } from "../utils/congregation-utils.js";
 import { Congregation } from "./Congregation.js";
 
 const db = getFirestore(); //get default database
 
-const getCongregations = async () => {
-  const congRef = db.collection("congregations");
-  const snapshot = await congRef.get();
-
-  const congsList = [];
-
-  snapshot.forEach((doc) => {
-    congsList.push({ id: doc.id, username: doc.data().cong_name });
-  });
-
-  congsList.sort((a, b) => {
-    return a.cong_name > b.cong_name ? 1 : -1;
-  });
-
-  const finalResult = [];
-
-  for (let i = 0; i < congsList.length; i++) {
-    const CongClass = new Congregation();
-    const cong = await CongClass.loadDetails(congsList[i].id);
-    finalResult.push(cong);
-  }
-
-  return finalResult;
-};
-
-class clsCongregations {
+class Congregations {
   constructor() {
     this.list = [];
   }
-
-  loadAll = async () => {
-    this.list = await getCongregations();
-    return this.list;
-  };
-
-  findCongregationById = (id) => {
-    return this.list.find((cong) => cong.id === id);
-  };
-
-  create = async (congInfo) => {
-    const cong = await db.collection("congregations").add(congInfo);
-    await this.loadAll();
-    return cong;
-  };
-
-  delete = async (id) => {
-    await db.collection("congregations").doc(id).delete();
-
-    await this.loadAll();
-  };
 }
 
-export const Congregations = new clsCongregations();
+Congregations.prototype.sort = function () {
+  this.list.sort((a, b) => {
+    return a.cong_name > b.cong_name ? 1 : -1;
+  });
+};
+
+Congregations.prototype.loadAll = async function () {
+  this.list = await dbFetchCongregations();
+  this.sort();
+  return this.list;
+};
+
+Congregations.prototype.findCongregationById = function (id) {
+  return this.list.find((cong) => cong.id === id);
+};
+
+Congregations.prototype.create = async function (congInfo) {
+  const cong = await db.collection("congregations").add(congInfo);
+
+  const NewCong = new Congregation(cong.id);
+  const newCong = await NewCong.loadDetails();
+  this.list.push(newCong);
+  this.sort();
+
+  return cong;
+};
+
+Congregations.prototype.delete = async function (id) {
+  await db.collection("congregations").doc(id).delete();
+
+  this.list = this.list.filter((cong) => cong.id !== id);
+};
+
+export const congregations = new Congregations();

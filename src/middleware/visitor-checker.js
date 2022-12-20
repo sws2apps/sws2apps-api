@@ -1,5 +1,5 @@
 import { check, validationResult } from "express-validator";
-import { Users } from "../classes/Users.js";
+import { users } from "../classes/Users.js";
 
 export const visitorChecker = () => {
   return async (req, res, next) => {
@@ -24,7 +24,7 @@ export const visitorChecker = () => {
       }
 
       const { email, visitorid } = req.headers;
-      const user = await Users.findUserByEmail(email);
+      const user = users.findUserByEmail(email);
 
       if (user) {
         const { disabled } = user;
