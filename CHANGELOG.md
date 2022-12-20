@@ -1,3 +1,10 @@
+# [2.5.0](https://github.com/sws2apps/sws2apps-api/compare/v2.4.0...v2.5.0) (2022-12-20)
+
+
+### Features
+
+* **api:** code improvement ([e69eafc](https://github.com/sws2apps/sws2apps-api/commit/e69eafc42ec0c749e18d06c7ad18a8201273554c))
+
 # [2.4.0](https://github.com/sws2apps/sws2apps-api/compare/v2.3.1...v2.4.0) (2022-12-18)
 
 
