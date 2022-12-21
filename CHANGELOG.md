@@ -1,3 +1,10 @@
+## [2.5.1](https://github.com/sws2apps/sws2apps-api/compare/v2.5.0...v2.5.1) (2022-12-21)
+
+
+### Bug Fixes
+
+* **controller:** fix class name ([1e75a79](https://github.com/sws2apps/sws2apps-api/commit/1e75a792aedaf239edcda6f394169e8e6e629bf4))
+
 # [2.5.0](https://github.com/sws2apps/sws2apps-api/compare/v2.4.0...v2.5.0) (2022-12-20)
 
 
