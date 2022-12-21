@@ -1,7 +1,7 @@
 import { validationResult } from "express-validator";
 import { decryptData } from "../utils/encryption-utils.js";
 import { sendCongregationRequest } from "../utils/sendEmail.js";
-import { congregationRequests } from "../classes/congregationRequests.js";
+import { congregationRequests } from "../classes/CongregationRequests.js";
 import { users } from "../classes/Users.js";
 import { congregations } from "../classes/Congregations.js";
 
