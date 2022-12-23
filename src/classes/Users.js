@@ -1,10 +1,11 @@
-import { getAuth } from "firebase-admin/auth";
-import { getFirestore } from "firebase-admin/firestore";
-import { decryptData } from "../utils/encryption-utils.js";
-import { sendVerificationEmail } from "../utils/sendEmail.js";
-import { dbFetchUsers } from "../utils/user-utils.js";
-import { congregations } from "./Congregations.js";
-import { User } from "./User.js";
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
+import { remoteApp } from '../config/firebase-config.js';
+import { decryptData } from '../utils/encryption-utils.js';
+import { sendVerificationEmail } from '../utils/sendEmail.js';
+import { dbFetchUsers } from '../utils/user-utils.js';
+import { congregations } from './Congregations.js';
+import { User } from './User.js';
 
 const db = getFirestore(); //get default database
 
@@ -47,7 +48,7 @@ Users.prototype.findUserByOTPCode = function (code) {
   for (let i = 0; i < this.list.length; i++) {
     const item = this.list[i];
     const otpCode = item.pocket_oCode;
-    if (otpCode !== "") {
+    if (otpCode !== '') {
       const pocket_oCode = decryptData(otpCode);
 
       if (code === pocket_oCode) {
@@ -84,12 +85,18 @@ Users.prototype.findPocketByVisitorId = async function (visitorid) {
 };
 
 Users.prototype.create = async function (fullname, email, password) {
-  const userRecord = await getAuth().createUser({
+  const userData = {
     email: email,
     emailVerified: false,
     password: password,
     disabled: false,
-  });
+  };
+
+  if (remoteApp) {
+    await getAuth(remoteApp).createUser(userData);
+  }
+
+  const userRecord = await getAuth().createUser(userData);
 
   const userEmail = userRecord.email;
   const link = await getAuth().generateEmailVerificationLink(userEmail);
@@ -99,19 +106,23 @@ Users.prototype.create = async function (fullname, email, password) {
   const data = {
     about: {
       name: fullname,
-      role: "vip",
+      role: 'vip',
       user_uid: userEmail,
     },
   };
 
-  const ref = await db.collection("users").add(data);
+  const ref = await db.collection('users').add(data);
   await this.addNew(ref.id);
 };
 
 Users.prototype.delete = async function (userId, authId) {
-  await db.collection("users").doc(userId).delete();
+  await db.collection('users').doc(userId).delete();
 
   // remove from auth if qualified
+  if (remoteApp && authId) {
+    await getAuth(remoteApp).deleteUser(authId);
+  }
+
   if (authId) await getAuth().deleteUser(authId);
 
   // get congregation id
@@ -121,7 +132,7 @@ Users.prototype.delete = async function (userId, authId) {
   this.list = this.list.filter((user) => user.id !== userId);
 
   // update cong member if any
-  if (congId !== "") {
+  if (congId !== '') {
     const cong = congregations.findCongregationById(congId);
     cong.reloadMembers();
   }

@@ -10,13 +10,7 @@ SWS API follows semantic versioning. We release patch versions for bugfixes, min
 
 ## Branch Organization
 
-We used three different branches to make production, beta and alpha releases of SWS API:
-
-| branch | whats for                                                                                           |
-| :----- | :-------------------------------------------------------------------------------------------------- |
-| main   | production release: bug fix for the current version will be queued in this branch                   |
-| beta   | beta release, available on staging environment: new features will be queued in this branch          |
-| alpha  | alpha release, available on development environment: breaking changes will be queued in this branch |
+We only use the `main` branch. Feature flags are used for new features and major changes.
 
 ## Bugs
 
@@ -36,20 +30,35 @@ If you’re only fixing a bug, it’s fine to submit a pull request right away b
 
 ## Contribution Prerequisites
 
-- You have the latest version of [Node](https://nodejs.org) and [Git](https://git-scm.com) installed
+- You have the latest version of [Node](https://nodejs.org), [Git](https://git-scm.com) and [Firebase CLI](https://firebase.google.com/docs/cli) installed
 - You will be working on one item at a time.
 - If you do not have it yet, fork the repository. Clone it if you will work locally.
 - If you have already forked and clone the repository, make sure that it is in sync with the upstream repository ([Syncing a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork)).
-- Setup the environment variable .env. To get the right values, contact one of the developers contributing to this project. Alternatively, you can create your own values while you are working.
-  ```bash
-  GOOGLE_CONFIG_BASE64=firebase-admin-key-encoded-base64-string
-  FIREBASE_API_KEY=firebase-api-key
-  SALT_ROUNDS=encryption-salt
-  GMAIL_APP_PASSWORD=gmail-app-password
-  GMAIL_ADDRESS=gmail-address
-  GMAIL_SENDER_NAME=gmail-sender-name
-  ```
 - Run `npm i` to install the needed dependencies
+
+### Setup Firebase Emulators
+
+We use Firebase to be our backend. Therefore, during development, Firebase Emulators is used.
+
+- If it is the first time you use Firebase CLI, run `firebase login` to authenticate to your account.
+- Run `npm run setup:emulators`, and if not selected, choose `Authentication Emulator` and `Firestore Emulator`. Emulators Ports are already defined in the `emulators/firebase.json` file. Feel free to change them later if you want to use different values.
+- Complete the wizard until Firebase initialization is completed.
+- Run `npm run start:emulators` to start the Firebase Emulators.
+
+### Setup Environment Variables
+
+Environment variables are required in order to locally run this API. Please find below the necessary instructions on how to create them.
+
+- FINGERPRINT_API_SERVER_KEY: Fingerprint Pro Secret API Key. To create this value, create a free account on [Fingerprint Pro](https://dashboard.fingerprint.com/). In the left side navigation, click on API Keys > Create Key > Secret API Key.
+- GMAIL_ADDRESS: the email address you want to use for testing.
+- GMAIL_APP_PASSWORD: your gmail address app password. To create this value, follow [this guide](https://support.google.com/mail/answer/185833).
+- GMAIL_SENDER_NAME: sender name for your email address.
+- FIREBASE_API_KEY: your firebase project `Web API Key`. Create a new Firebase Project in the Firebase Console, and get the API key in the Project Settings page.
+- GOOGLE_CONFIG_BASE64: a Service Account for your Firebase Project encoded in `base64` string.
+- JW_CDN: set the value to `https://app.jw-cdn.org/apis/pub-media/GETPUBMEDIALINKS?`
+- SEC_ENCRYPT_KEY: create a secret string for your internal encryption.
+- FIREBASE_AUTH_EMULATOR_HOST: the `Host:Port` for Authentication Emulator.
+- FIRESTORE_EMULATOR_HOST: the `Host:Port` for Firestore Emulator.
 
 ## Sending a Pull Request (PR)
 
