@@ -248,6 +248,9 @@ User.prototype.generatePocketCode = async function () {
 
     this.pocket_oCode = secureCode;
 
+    const cong = congregations.findCongregationById(this.cong_id);
+    cong.reloadMembers();
+
     return code;
   } catch (error) {
     throw new Error(error.message);
@@ -261,6 +264,9 @@ User.prototype.removePocketCode = async function () {
     });
 
     this.pocket_oCode = '';
+
+    const cong = congregations.findCongregationById(this.cong_id);
+    cong.reloadMembers();
   } catch (error) {
     throw new Error(error.message);
   }
@@ -302,6 +308,10 @@ User.prototype.removePocketDevice = async function (devices) {
   });
 
   this.pocket_devices = devices;
+
+  // update cong info
+  const cong = congregations.findCongregationById(this.cong_id);
+  cong.reloadMembers();
 };
 
 User.prototype.enable = async function () {

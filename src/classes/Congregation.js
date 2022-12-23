@@ -204,44 +204,56 @@ Congregation.prototype.deletePocketUser = async function (userId) {
   this.reloadMembers();
 };
 
-Congregation.prototype.sendPocketSchedule = async function (cong_schedule, cong_sourceMaterial) {
+Congregation.prototype.sendPocketSchedule = async function (data) {
   const currentSchedule = this.cong_schedule;
   const currentSource = this.cong_sourceMaterial;
 
   // remove expired schedule and source (> 3 months)
   const currentDate = new Date().getTime();
-  const validSchedule = currentSchedule.students.filter((schedule) => schedule.expiredDate > currentDate);
-  const validSource = currentSource.students.filter((source) => source.expiredDate > currentDate);
+  const validSchedule = currentSchedule.midweekMeeting?.filter((schedule) => schedule.expiredDate > currentDate) || [];
+  const validSource = currentSource.midweekMeeting?.filter((source) => source.expiredDate > currentDate) || [];
 
-  const { month, year } = cong_schedule;
+  let newStudentsSchedule = validSchedule;
+  let newStudentsSource = validSource;
 
-  const lastDate = new Date(year, month + 1, 0);
-  let expiredDate = new Date();
-  expiredDate.setDate(lastDate.getDate() + 90);
-  const expiredTime = expiredDate.getTime();
+  for (let i = 0; i < data.length; i++) {
+    const schedule = data[i];
 
-  const objSchedule = {
-    ...cong_schedule,
-    expiredDate: expiredTime,
-    modifiedDate: new Date().getTime(),
-  };
-  const objSource = {
-    ...cong_sourceMaterial,
-    expiredDate: expiredTime,
-    modifiedDate: new Date().getTime(),
-  };
+    const { id, month, year, schedules, sources } = schedule;
 
-  let newStudentsSchedule = validSchedule.filter((schedule) => schedule.id !== objSchedule.id);
-  newStudentsSchedule.push(objSchedule);
+    const lastDate = new Date(year, month + 1, 0);
+    let expiredDate = new Date();
+    expiredDate.setDate(lastDate.getDate() + 90);
+    const expiredTime = expiredDate.getTime();
 
-  let newStudentsSource = validSource.filter((source) => source.id !== objSource.id);
-  newStudentsSource.push(objSource);
+    const objSchedule = {
+      expiredDate: expiredTime,
+      id,
+      modifiedDate: new Date().getTime(),
+      month,
+      schedules,
+      year,
+    };
+    const objSource = {
+      expiredDate: expiredTime,
 
-  const newSchedule = {
-    ...currentSchedule,
-    students: newStudentsSchedule,
-  };
-  const newSource = { ...currentSource, students: newStudentsSource };
+      id,
+      modifiedDate: new Date().getTime(),
+      month,
+
+      sources,
+      year,
+    };
+
+    newStudentsSchedule = newStudentsSchedule.filter((schedule) => schedule.id !== objSchedule.id);
+    newStudentsSchedule.push(objSchedule);
+
+    newStudentsSource = newStudentsSource.filter((source) => source.id !== objSource.id);
+    newStudentsSource.push(objSource);
+  }
+
+  const newSchedule = { midweekMeeting: newStudentsSchedule };
+  const newSource = { midweekMeeting: newStudentsSource };
 
   await db.collection('congregations').doc(this.id).update({
     cong_schedule: newSchedule,
