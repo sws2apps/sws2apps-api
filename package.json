@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon index.js",
-    "start": "cross-env NODE_ENV=production node index.js"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "setup:emulators": "cd emulators && firebase init emulators",
+    "start:emulators": "cd emulators && firebase emulators:start"
   },
   "keywords": [],
   "author": "",
@@ -32,6 +34,7 @@
     "express": "^4.18.2",
     "express-rate-limit": "^6.7.0",
     "express-validator": "^6.14.2",
+    "firebase": "^9.15.0",
     "firebase-admin": "^11.4.1",
     "geoip-lite": "^1.4.6",
     "helmet": "^6.0.1",

@@ -1,17 +1,17 @@
-import dayjs from "dayjs";
-import randomstring from "randomstring";
-import { FieldValue, getFirestore } from "firebase-admin/firestore";
-import { decryptData, encryptData } from "../utils/encryption-utils.js";
-import { users } from "./Users.js";
+import dayjs from 'dayjs';
+import randomstring from 'randomstring';
+import { FieldValue, getFirestore } from 'firebase-admin/firestore';
+import { decryptData, encryptData } from '../utils/encryption-utils.js';
+import { users } from './Users.js';
 
 const db = getFirestore(); //get default database
 
 export class Congregation {
   constructor(id) {
     this.id = id;
-    this.cong_name = "";
-    this.cong_number = "";
-    this.cong_persons = "";
+    this.cong_name = '';
+    this.cong_number = '';
+    this.cong_persons = '';
     this.cong_members = [];
     this.cong_sourceMaterial = [];
     this.cong_schedule = [];
@@ -24,13 +24,13 @@ export class Congregation {
 }
 
 Congregation.prototype.loadDetails = async function () {
-  const congRef = db.collection("congregations").doc(this.id);
+  const congRef = db.collection('congregations').doc(this.id);
   const congSnap = await congRef.get();
 
   this.cong_name = congSnap.data().cong_name;
   this.cong_number = congSnap.data().cong_number;
   this.last_backup = congSnap.data().last_backup;
-  this.cong_persons = congSnap.data().cong_persons || "";
+  this.cong_persons = congSnap.data().cong_persons || '';
   this.cong_sourceMaterial = congSnap.data().cong_sourceMaterial || [];
   this.cong_schedule = congSnap.data().cong_schedule || [];
   this.cong_sourceMaterial_draft = congSnap.data().cong_sourceMaterial_draft || [];
@@ -42,9 +42,9 @@ Congregation.prototype.loadDetails = async function () {
   users.list.forEach((user) => {
     if (user.cong_id === this.id) {
       const otpCode = user.pocket_oCode;
-      let pocket_oCode = "";
+      let pocket_oCode = '';
 
-      if (otpCode && otpCode !== "") {
+      if (otpCode && otpCode !== '') {
         pocket_oCode = decryptData(otpCode);
       }
 
@@ -57,7 +57,7 @@ Congregation.prototype.loadDetails = async function () {
     this.last_backup.date = fDate;
 
     const user = users.findUserById(congSnap.data().last_backup.by);
-    this.last_backup.by = user?.username || "";
+    this.last_backup.by = user?.username || '';
   }
 
   return this;
@@ -68,9 +68,9 @@ Congregation.prototype.reloadMembers = async function () {
   users.list.forEach((user) => {
     if (user.cong_id === this.id) {
       const otpCode = user.pocket_oCode;
-      let pocket_oCode = "";
+      let pocket_oCode = '';
 
-      if (otpCode && otpCode !== "") {
+      if (otpCode && otpCode !== '') {
         pocket_oCode = decryptData(otpCode);
       }
 
@@ -104,7 +104,7 @@ Congregation.prototype.saveBackup = async function (cong_persons, cong_schedule,
       },
     };
 
-    await db.collection("congregations").doc(this.id).set(data, { merge: true });
+    await db.collection('congregations').doc(this.id).set(data, { merge: true });
 
     this.cong_persons = encryptedPersons;
     this.cong_schedule_draft = cong_schedule;
@@ -135,13 +135,13 @@ Congregation.prototype.retrieveBackup = function () {
 };
 
 Congregation.prototype.removeUser = async function (userId) {
-  await db.collection("users").doc(userId).update({ congregation: FieldValue.delete() });
+  await db.collection('users').doc(userId).update({ congregation: FieldValue.delete() });
 
   // update users list
   const user = users.findUserById(userId);
-  user.cong_id = "";
-  user.cong_name = "";
-  user.cong_number = "";
+  user.cong_id = '';
+  user.cong_name = '';
+  user.cong_number = '';
 
   // update congregation members
   this.reloadMembers();
@@ -150,13 +150,13 @@ Congregation.prototype.removeUser = async function (userId) {
 Congregation.prototype.addUser = async function (userId, role) {
   const newRole = role || [];
   const data = { congregation: { id: this.id, role: newRole } };
-  await db.collection("users").doc(userId).set(data, { merge: true });
+  await db.collection('users').doc(userId).set(data, { merge: true });
 
   // update users list
   const user = users.findUserById(userId);
   user.cong_id = this.id;
   user.cong_name = this.cong_name;
-  user.cong_number = this.cong_name;
+  user.cong_number = this.cong_number;
 
   // update congregation members
   this.reloadMembers();
@@ -164,7 +164,7 @@ Congregation.prototype.addUser = async function (userId, role) {
 
 Congregation.prototype.updateUserRole = async function (userId, userRole) {
   const data = { congregation: { id: this.id, role: userRole } };
-  await db.collection("users").doc(userId).set(data, { merge: true });
+  await db.collection('users').doc(userId).set(data, { merge: true });
 
   // update users list
   const user = users.findUserById(userId);
@@ -178,8 +178,8 @@ Congregation.prototype.createPocketUser = async function (pocketName, pocketId) 
   const code = randomstring.generate(10).toUpperCase();
   const secureCode = encryptData(code);
 
-  const ref = await db.collection("users").add({
-    about: { name: pocketName, role: "pocket" },
+  const ref = await db.collection('users').add({
+    about: { name: pocketName, role: 'pocket' },
     congregation: {
       id: this.id,
       local_id: pocketId,
@@ -243,7 +243,7 @@ Congregation.prototype.sendPocketSchedule = async function (cong_schedule, cong_
   };
   const newSource = { ...currentSource, students: newStudentsSource };
 
-  await db.collection("congregations").doc(this.id).update({
+  await db.collection('congregations').doc(this.id).update({
     cong_schedule: newSchedule,
     cong_sourceMaterial: newSource,
   });

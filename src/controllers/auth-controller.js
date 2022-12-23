@@ -1,24 +1,24 @@
 // import dependencies
-import fetch from "node-fetch";
-import { validationResult } from "express-validator";
-import { FingerprintJsServerApiClient, Region } from "@fingerprintjs/fingerprintjs-pro-server-api";
-import { users } from "../classes/Users.js";
+import fetch from 'node-fetch';
+import { validationResult } from 'express-validator';
+import { FingerprintJsServerApiClient, Region } from '@fingerprintjs/fingerprintjs-pro-server-api';
+import { users } from '../classes/Users.js';
 
 export const loginUser = async (req, res, next) => {
   try {
     // validate through express middleware
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      let msg = "";
+      let msg = '';
       errors.array().forEach((error) => {
-        msg += `${msg === "" ? "" : ", "}${error.param}: ${error.msg}`;
+        msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
       });
 
-      res.locals.type = "warn";
+      res.locals.type = 'warn';
       res.locals.message = `invalid input: ${msg}`;
 
       res.status(400).json({
-        message: "Bad request: provided inputs are invalid.",
+        message: 'Bad request: provided inputs are invalid.',
       });
 
       return;
@@ -41,9 +41,9 @@ export const loginUser = async (req, res, next) => {
       const googleKit = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`;
 
       const response = await fetch(googleKit, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           email: email,
@@ -57,7 +57,7 @@ export const loginUser = async (req, res, next) => {
       // check for built-in errors from google
       if (data.error) {
         res.locals.failedLoginAttempt = true;
-        res.locals.type = "warn";
+        res.locals.type = 'warn';
         res.locals.message = `user failed to login: ${data.error.message}`;
         res.status(data.error.code).json({ message: data.error.message });
       } else {
@@ -82,15 +82,15 @@ export const loginUser = async (req, res, next) => {
             await user.updateSessions(newSessions);
 
             if (user.mfaEnabled) {
-              res.locals.type = "info";
-              res.locals.message = "user required to verify mfa";
+              res.locals.type = 'info';
+              res.locals.message = 'user required to verify mfa';
 
-              res.status(200).json({ message: "MFA_VERIFY" });
+              res.status(200).json({ message: 'MFA_VERIFY' });
             } else {
               const secret = await user.generateSecret();
 
-              res.locals.type = "warn";
-              res.locals.message = "user authentication rejected because account mfa is not yet setup";
+              res.locals.type = 'warn';
+              res.locals.message = 'user authentication rejected because account mfa is not yet setup';
               res.status(403).json({
                 secret: secret.secret,
                 qrCode: secret.uri,
@@ -98,22 +98,22 @@ export const loginUser = async (req, res, next) => {
               });
             }
           } else {
-            res.locals.type = "warn";
-            res.locals.message = "user authentication rejected because account not yet verified";
-            res.status(403).json({ message: "NOT_VERIFIED" });
+            res.locals.type = 'warn';
+            res.locals.message = 'user authentication rejected because account not yet verified';
+            res.status(403).json({ message: 'NOT_VERIFIED' });
           }
           return;
         }
 
-        res.locals.type = "warn";
-        res.locals.message = "user authentication rejected because account could not be found anymore";
-        res.status(400).json({ message: "ACCOUNT_NOT_FOUND" });
+        res.locals.type = 'warn';
+        res.locals.message = 'user authentication rejected because account could not be found anymore';
+        res.status(400).json({ message: 'ACCOUNT_NOT_FOUND' });
       }
     } else {
       res.locals.failedLoginAttempt = true;
-      res.locals.type = "warn";
-      res.locals.message = "the authentication request seems to be fraudulent";
-      res.status(403).json({ message: "UNAUTHORIZED_REQUEST" });
+      res.locals.type = 'warn';
+      res.locals.message = 'the authentication request seems to be fraudulent';
+      res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
     }
   } catch (err) {
     next(err);

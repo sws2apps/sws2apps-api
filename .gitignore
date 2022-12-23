@@ -10,7 +10,6 @@ lmm-oa-sws
 
 # testing
 /coverage
-/emulators
 
 # production
 /build
@@ -26,3 +25,5 @@ lmm-oa-sws
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*-debug.log
+.firebaserc
