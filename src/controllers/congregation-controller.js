@@ -1120,18 +1120,9 @@ export const sendPocketSchedule = async (req, res, next) => {
             return;
           }
 
-          // assign expiration date
-          const { cong_sourceMaterial, cong_schedule } = req.body;
-          const { month, year } = cong_schedule;
+          const { schedules } = req.body;
 
-          if (isNaN(month) || isNaN(year)) {
-            res.locals.type = 'warn';
-            res.locals.message = 'schedule month and year were invalid: not a number';
-            res.status(400).json({ message: 'BAD_REQUEST' });
-            return;
-          }
-
-          await cong.sendPocketSchedule(cong_schedule, cong_sourceMaterial);
+          await cong.sendPocketSchedule(schedules);
 
           res.locals.type = 'info';
           res.locals.message = 'schedule save for sws pocket application';
