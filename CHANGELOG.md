@@ -1,3 +1,10 @@
+# [2.7.0](https://github.com/sws2apps/sws2apps-api/compare/v2.6.0...v2.7.0) (2022-12-23)
+
+
+### Features
+
+* **congregation:** update schedule format when publishing ([7fa7bb5](https://github.com/sws2apps/sws2apps-api/commit/7fa7bb5878a73b748ec64bf4341a8825292d6f7e))
+
 # [2.6.0](https://github.com/sws2apps/sws2apps-api/compare/v2.5.1...v2.6.0) (2022-12-23)
 
 
