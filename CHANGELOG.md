@@ -1,3 +1,10 @@
+## [2.7.1](https://github.com/sws2apps/sws2apps-api/compare/v2.7.0...v2.7.1) (2022-12-24)
+
+
+### Bug Fixes
+
+* **auth:** fix an error preventing email verification to be validated ([f9e2aac](https://github.com/sws2apps/sws2apps-api/commit/f9e2aacebc1595d12918999a293594f4f7beb6b7))
+
 # [2.7.0](https://github.com/sws2apps/sws2apps-api/compare/v2.6.0...v2.7.0) (2022-12-23)
 
 
