@@ -36,13 +36,13 @@ CongregationRequests.prototype.create = async function (data) {
   try {
     const reqRef = await db.collection('congregation_request').add(data);
 
-    const ReqClass = new CongregationRequest(reqRef.id);
-    const request = await ReqClass.loadDetails();
+    const requestCong = new CongregationRequest(reqRef.id);
+    await requestCong.loadDetails();
 
-    this.list.push(request);
+    this.list.push(requestCong);
     this.sort();
 
-    return request;
+    return requestCong;
   } catch (error) {
     throw new Error(error.message);
   }
