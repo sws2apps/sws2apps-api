@@ -41,7 +41,7 @@ If you’re only fixing a bug, it’s fine to submit a pull request right away b
 We use Firebase to be our backend. Therefore, during development, Firebase Emulators is used.
 
 - If it is the first time you use Firebase CLI, run `firebase login` to authenticate to your account.
-- Run `npm run setup:emulators`, and if not selected, choose `Authentication Emulator` and `Firestore Emulator`. Emulators Ports are already defined in the `emulators/firebase.json` file. Feel free to change them later if you want to use different values.
+- Run `npm run setup:emulators`, and if not selected, choose `Authentication Emulator` and `Firestore Emulator`. Emulators Ports are already defined in the `firebase.json` file. Feel free to change them later if you want to use different values.
 - Complete the wizard until Firebase initialization is completed.
 - Run `npm run start:emulators` to start the Firebase Emulators.
 
@@ -71,6 +71,7 @@ We are monitoring for pull requests. We will review your pull request and either
 **Before submitting a PR**, please make sure the following is done:
 
 - Test your changes to make sure that they are working as intended.
+- Run `npm run firebase:test` to make sure that your changes passed the automated checks.
 
 **When commiting your changes**, we recommend the following command to be run:
 

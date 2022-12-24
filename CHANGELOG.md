@@ -1,3 +1,10 @@
+## [2.7.3](https://github.com/sws2apps/sws2apps-api/compare/v2.7.2...v2.7.3) (2022-12-24)
+
+
+### Bug Fixes
+
+* **api:** update code to improve performance ([3ba5676](https://github.com/sws2apps/sws2apps-api/commit/3ba5676b89f67c11991105390390092efaf7c494))
+
 ## [2.7.2](https://github.com/sws2apps/sws2apps-api/compare/v2.7.1...v2.7.2) (2022-12-24)
 
 
