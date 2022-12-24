@@ -1,6 +1,6 @@
 import { validationResult } from 'express-validator';
 import { decryptData } from '../utils/encryption-utils.js';
-import { sendCongregationRequest } from '../utils/sendEmail.js';
+import { sendCongregationAccountCreated, sendCongregationRequest } from '../utils/sendEmail.js';
 import { congregationRequests } from '../classes/CongregationRequests.js';
 import { users } from '../classes/Users.js';
 import { congregations } from '../classes/Congregations.js';
@@ -58,14 +58,35 @@ export const requestCongregation = async (req, res, next) => {
       request_open: true,
     };
 
-    await congregationRequests.create(data);
+    const requestCong = await congregationRequests.create(data);
 
-    const userInfo = users.findUserByEmail(email);
-    sendCongregationRequest(cong_name, cong_number, userInfo.username);
+    const isProd = process.env.NODE_ENV === 'production';
+    if (isProd) {
+      const userInfo = users.findUserByEmail(email);
+      sendCongregationRequest(cong_name, cong_number, userInfo.username);
 
-    res.locals.type = 'info';
-    res.locals.message = 'congregation request sent for approval';
-    res.status(200).json({ message: 'OK' });
+      res.locals.type = 'info';
+      res.locals.message = 'congregation request sent for approval';
+      res.status(200).json({ message: 'OK' });
+    } else {
+      // auto-approve during development
+      // create congregation data
+      const congData = { cong_name, cong_number };
+      const cong = await congregations.create(congData);
+
+      // update requestor info
+      await cong.addUser(requestCong.user_id, requestCong.cong_role);
+
+      // update request props
+      await requestCong.approve();
+
+      // send email to user
+      sendCongregationAccountCreated(email, requestCong.username, cong_name, cong_number);
+
+      res.locals.type = 'info';
+      res.locals.message = 'congregation created';
+      res.status(200).json({ message: 'OK' });
+    }
   } catch (err) {
     next(err);
   }

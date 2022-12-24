@@ -1,6 +1,6 @@
-import { getFirestore } from "firebase-admin/firestore";
-import { dbFetchCongregations } from "../utils/congregation-utils.js";
-import { Congregation } from "./Congregation.js";
+import { getFirestore } from 'firebase-admin/firestore';
+import { dbFetchCongregations } from '../utils/congregation-utils.js';
+import { Congregation } from './Congregation.js';
 
 const db = getFirestore(); //get default database
 
@@ -27,18 +27,18 @@ Congregations.prototype.findCongregationById = function (id) {
 };
 
 Congregations.prototype.create = async function (congInfo) {
-  const cong = await db.collection("congregations").add(congInfo);
+  const cong = await db.collection('congregations').add(congInfo);
 
-  const NewCong = new Congregation(cong.id);
-  const newCong = await NewCong.loadDetails();
+  const newCong = new Congregation(cong.id);
+  await newCong.loadDetails();
   this.list.push(newCong);
   this.sort();
 
-  return cong;
+  return newCong;
 };
 
 Congregations.prototype.delete = async function (id) {
-  await db.collection("congregations").doc(id).delete();
+  await db.collection('congregations').doc(id).delete();
 
   this.list = this.list.filter((cong) => cong.id !== id);
 };
