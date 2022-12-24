@@ -4,25 +4,25 @@ import { congregationAdminChecker } from '../middleware/congregation-admin-check
 import { congregationRoleChecker } from '../middleware/congregation-role-checker.js';
 import { visitorChecker } from '../middleware/visitor-checker.js';
 import {
-  addCongregationUser,
-  createNewPocketUser,
-  deletePocketDevice,
-  deletePocketOTPCode,
-  findUserByCongregation,
-  generatePocketOTPCode,
-  getCongregationBackup,
-  getCongregationMembers,
-  getCongregationPockerUser,
-  getCongregationUser,
-  getLastCongregationBackup,
-  removeCongregationUser,
-  requestCongregation,
-  saveCongregationBackup,
-  sendPocketSchedule,
-  updateCongregationRole,
-  updatePocketDetails,
-  updatePocketMembers,
-  updatePocketUsername,
+	addCongregationUser,
+	createNewPocketUser,
+	deletePocketDevice,
+	deletePocketOTPCode,
+	findUserByCongregation,
+	generatePocketOTPCode,
+	getCongregationBackup,
+	getCongregationMembers,
+	getCongregationPockerUser,
+	getCongregationUser,
+	getLastCongregationBackup,
+	removeCongregationUser,
+	requestCongregation,
+	saveCongregationBackup,
+	sendPocketSchedule,
+	updateCongregationRole,
+	updatePocketDetails,
+	updatePocketMembers,
+	updatePocketUsername,
 } from '../controllers/congregation-controller.js';
 
 const router = express.Router();
@@ -31,12 +31,12 @@ router.use(visitorChecker());
 
 // request a new congregation
 router.put(
-  '/',
-  body('email').isEmail(),
-  body('cong_name').notEmpty(),
-  body('cong_number').isNumeric(),
-  body('app_requestor').notEmpty(),
-  requestCongregation
+	'/',
+	body('email').isEmail(),
+	body('cong_name').notEmpty(),
+	body('cong_number').isNumeric(),
+	body('app_requestor').notEmpty(),
+	requestCongregation
 );
 
 // activate role checker middleware
@@ -47,13 +47,13 @@ router.get('/:id/backup/last', getLastCongregationBackup);
 
 // save congregation backup
 router.post(
-  '/:id/backup',
-  body('cong_persons').isArray(),
-  body('cong_schedule').isArray(),
-  body('cong_sourceMaterial').isArray(),
-  body('cong_swsPocket').isArray(),
-  body('cong_settings').isArray(),
-  saveCongregationBackup
+	'/:id/backup',
+	body('cong_persons').isArray(),
+	body('cong_schedule').isArray(),
+	body('cong_sourceMaterial').isArray(),
+	body('cong_swsPocket').isArray(),
+	body('cong_settings').isArray(),
+	saveCongregationBackup
 );
 
 // get last backup data
@@ -87,7 +87,12 @@ router.patch('/:id/members/:user/role', body('user_role').isArray(), updateCongr
 router.get('/:id/pockets/:user', getCongregationPockerUser);
 
 // create new pocket user
-router.put('/:id/pockets', body('pocket_local_id').notEmpty().isString(), body('username').notEmpty().isString(), createNewPocketUser);
+router.put(
+	'/:id/pockets',
+	body('pocket_local_id').notEmpty().isString(),
+	body('username').notEmpty().isString(),
+	createNewPocketUser
+);
 
 // update pocket member
 router.patch('/:id/pockets/:user', body('cong_role').isArray(), body('pocket_members').isArray(), updatePocketDetails);

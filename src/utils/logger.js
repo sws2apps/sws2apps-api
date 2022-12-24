@@ -1,18 +1,18 @@
 import { Logtail } from '@logtail/node';
 
 export const logger = (level, message) => {
-  const isProd = process.env.NODE_ENV === 'production';
+	if (global.isProd || global.isDev) {
+		const logtail = global.isProd ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN) : undefined;
 
-  const logtail = isProd ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN) : undefined;
-
-  if (level === 'info') {
-    console.log(message);
-    if (isProd) logtail.info(message);
-  } else if (level === 'warn') {
-    console.warn(message);
-    if (isProd) logtail.warn(message);
-  } else if (level === 'error') {
-    console.error(message);
-    if (isProd) logtail.error(message);
-  }
+		if (level === 'info') {
+			console.log(message);
+			if (global.isProd) logtail.info(message);
+		} else if (level === 'warn') {
+			console.warn(message);
+			if (global.isProd) logtail.warn(message);
+		} else if (level === 'error') {
+			console.error(message);
+			if (global.isProd) logtail.error(message);
+		}
+	}
 };
