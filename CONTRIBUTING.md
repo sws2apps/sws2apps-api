@@ -61,14 +61,20 @@ Environment variables are required in order to locally run this API. Please find
 - FIREBASE_AUTH_EMULATOR_HOST: the `Host:Port` for Authentication Emulator.
 - FIRESTORE_EMULATOR_HOST: the `Host:Port` for Firestore Emulator.
 
+### Starting the Development Server
+
+You are now ready to start the development server, and interact with the API.
+
+- Run `npm run dev` to start the server.
+- Pleae note that when you are working with the front end applications, the congregation request is automatically approved.
+
 ## Sending a Pull Request (PR)
 
 We are monitoring for pull requests. We will review your pull request and either merge it, request changes to it, or close it with an explanation. We’ll do our best to provide updates and feedback throughout the process.
 
 **Before submitting a PR**, please make sure the following is done:
 
-1. Run `npm run dev` to make sure that the local development server is running correctly.
-2. Test your changes to make sure that they are working as intended.
+- Test your changes to make sure that they are working as intended.
 
 **When commiting your changes**, we recommend the following command to be run:
 
