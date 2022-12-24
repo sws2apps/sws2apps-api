@@ -9,5 +9,3 @@ if (process.env.FIREBASE_AUTH_EMULATOR_HOST && process.env.FIRESTORE_EMULATOR_HO
     credential: cert(serviceAccount),
   });
 }
-
-export const remoteApp = process.env.FIREBASE_AUTH_EMULATOR_HOST ? initializeApp({ credential: cert(serviceAccount) }, 'remoteApp') : undefined;

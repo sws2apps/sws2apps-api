@@ -59,8 +59,6 @@ Congregation.prototype.loadDetails = async function () {
     const user = users.findUserById(congSnap.data().last_backup.by);
     this.last_backup.by = user?.username || '';
   }
-
-  return this;
 };
 
 Congregation.prototype.reloadMembers = async function () {

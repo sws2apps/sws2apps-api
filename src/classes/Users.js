@@ -1,6 +1,5 @@
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
-import { remoteApp } from '../config/firebase-config.js';
 import { decryptData } from '../utils/encryption-utils.js';
 import { sendVerificationEmail } from '../utils/sendEmail.js';
 import { dbFetchUsers } from '../utils/user-utils.js';
@@ -92,10 +91,6 @@ Users.prototype.create = async function (fullname, email, password) {
     disabled: false,
   };
 
-  if (remoteApp) {
-    await getAuth(remoteApp).createUser(userData);
-  }
-
   const userRecord = await getAuth().createUser(userData);
 
   const userEmail = userRecord.email;
@@ -117,11 +112,6 @@ Users.prototype.create = async function (fullname, email, password) {
 
 Users.prototype.delete = async function (userId, authId) {
   await db.collection('users').doc(userId).delete();
-
-  // remove from auth if qualified
-  if (remoteApp && authId) {
-    await getAuth(remoteApp).deleteUser(authId);
-  }
 
   if (authId) await getAuth().deleteUser(authId);
 

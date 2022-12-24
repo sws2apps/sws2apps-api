@@ -1,6 +1,6 @@
-import { getFirestore } from "firebase-admin/firestore";
-import { dbFetchRequestsCongregation } from "../utils/congregation-request-utils.js";
-import CongregationRequest from "./CongregationRequest.js";
+import { getFirestore } from 'firebase-admin/firestore';
+import { dbFetchRequestsCongregation } from '../utils/congregation-request-utils.js';
+import CongregationRequest from './CongregationRequest.js';
 
 // get firestore
 const db = getFirestore(); //get default database
@@ -34,13 +34,15 @@ CongregationRequests.prototype.findRequestById = function (id) {
 
 CongregationRequests.prototype.create = async function (data) {
   try {
-    const reqRef = await db.collection("congregation_request").add(data);
+    const reqRef = await db.collection('congregation_request').add(data);
 
-    const ReqClass = new CongregationRequest();
-    const request = await ReqClass.loadDetails(reqRef.id);
+    const ReqClass = new CongregationRequest(reqRef.id);
+    const request = await ReqClass.loadDetails();
 
     this.list.push(request);
     this.sort();
+
+    return request;
   } catch (error) {
     throw new Error(error.message);
   }

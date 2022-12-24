@@ -38,7 +38,14 @@ export const loginUser = async (req, res, next) => {
 
     if (visitorHistory.visits?.length > 0) {
       // pass to google toolkit for authentication
-      const googleKit = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`;
+
+      let googleKit;
+      const isProd = process.env.NODE_ENV === 'production';
+      if (isProd) {
+        googleKit = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`;
+      } else {
+        googleKit = `http://${process.env.FIREBASE_AUTH_EMULATOR_HOST}/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`;
+      }
 
       const response = await fetch(googleKit, {
         method: 'POST',
@@ -64,6 +71,7 @@ export const loginUser = async (req, res, next) => {
         // clean expired session
         const user = users.findUserByEmail(email);
         if (user) {
+          await user.loadDetails();
           if (user.id) await user.removeExpiredSession();
 
           if (user.emailVerified) {
