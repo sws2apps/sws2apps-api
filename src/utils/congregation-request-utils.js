@@ -1,10 +1,10 @@
-import { getFirestore } from "firebase-admin/firestore";
-import CongregationRequest from "../classes/CongregationRequest.js";
+import { getFirestore } from 'firebase-admin/firestore';
+import CongregationRequest from '../classes/CongregationRequest.js';
 
 const db = getFirestore();
 
 export const dbFetchRequestsCongregation = async () => {
-  const congRef = db.collection("congregation_request");
+  const congRef = db.collection('congregation_request');
   const snapshot = await congRef.get();
 
   const items = [];
@@ -17,8 +17,8 @@ export const dbFetchRequestsCongregation = async () => {
 
   let finalResult = [];
   for (let i = 0; i < items.length; i++) {
-    const RequestClass = new CongregationRequest(items[i]);
-    const request = await RequestClass.loadDetails();
+    const request = new CongregationRequest(items[i]);
+    await request.loadDetails();
     finalResult.push(request);
   }
 
