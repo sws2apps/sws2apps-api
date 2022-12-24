@@ -27,7 +27,7 @@ export const visitorChecker = () => {
 			const user = users.findUserByEmail(email);
 
 			if (user) {
-				if (user.global_role === 'admin' && !global.isProd) {
+				if (user.global_role === 'admin' && !isProd) {
 					res.locals.currentUser = user;
 					next();
 				} else {

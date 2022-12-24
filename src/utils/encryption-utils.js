@@ -1,5 +1,5 @@
 import Cryptr from 'cryptr';
-const myKey = `&sws2apps_${global.isProd ? process.env.SEC_ENCRYPT_KEY : 'your-secret-encryption-string'}`;
+const myKey = `&sws2apps_${isProd ? process.env.SEC_ENCRYPT_KEY : 'your-secret-encryption-string'}`;
 const cryptr = new Cryptr(myKey);
 
 export const encryptData = (data) => {

@@ -53,7 +53,7 @@ export const verifyToken = async (req, res, next) => {
 			// v2 2fa verification
 
 			const totp = new OTPAuth.TOTP({
-				issuer: global.isProd ? 'sws2apps' : 'sws2apps-test',
+				issuer: isProd ? 'sws2apps' : 'sws2apps-test',
 				label: user.user_uid,
 				algorithm: 'SHA1',
 				digits: 6,

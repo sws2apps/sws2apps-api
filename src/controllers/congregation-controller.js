@@ -60,7 +60,7 @@ export const requestCongregation = async (req, res, next) => {
 
 		const requestCong = await congregationRequests.create(data);
 
-		if (global.isDev) {
+		if (isDev) {
 			// auto-approve during development
 			// create congregation data
 			const congData = { cong_name, cong_number };

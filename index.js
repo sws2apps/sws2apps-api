@@ -23,7 +23,7 @@ global.isProd = process.env.NODE_ENV === 'production';
 global.isDev = process.env.NODE_ENV === 'development';
 global.isTesting = process.env.NODE_ENV === 'testing';
 
-if (!global.isProd) {
+if (!isProd) {
 	await createAdmin();
 }
 

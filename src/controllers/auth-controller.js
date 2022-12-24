@@ -40,7 +40,7 @@ export const loginUser = async (req, res, next) => {
 			// pass to google toolkit for authentication
 
 			let googleKit;
-			if (global.isProd) {
+			if (isProd) {
 				googleKit = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`;
 			} else {
 				googleKit = `http://${process.env.FIREBASE_AUTH_EMULATOR_HOST}/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=0`;

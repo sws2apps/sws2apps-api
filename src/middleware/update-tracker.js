@@ -9,19 +9,19 @@ export const updateTracker = () => {
 			const reqCity = geo === null ? 'Unknown' : `${geo.city} (${geo.country})`;
 
 			const clientIp = req.clientIp;
-			const ipIndex = global.requestTracker.findIndex((client) => client.ip === clientIp);
+			const ipIndex = requestTracker.findIndex((client) => client.ip === clientIp);
 
 			res.on('close', () => {
 				if (res.finished) {
 					let failedLoginAttempt = 0;
 
 					if (res.locals.failedLoginAttempt) {
-						const reqTrackRef = global.requestTracker.find((client) => client.ip === clientIp);
+						const reqTrackRef = requestTracker.find((client) => client.ip === clientIp);
 
 						failedLoginAttempt = reqTrackRef?.failedLoginAttempt || 0;
 						failedLoginAttempt = failedLoginAttempt + 1;
 
-						global.requestTracker.splice(ipIndex, 1);
+						requestTracker.splice(ipIndex, 1);
 
 						let obj = {};
 						obj.ip = clientIp;
@@ -30,9 +30,9 @@ export const updateTracker = () => {
 						obj.failedLoginAttempt = failedLoginAttempt;
 						obj.retryOn = '';
 
-						global.requestTracker.push(obj);
+						requestTracker.push(obj);
 					} else {
-						global.requestTracker.splice(ipIndex, 1);
+						requestTracker.splice(ipIndex, 1);
 					}
 
 					let log = {};
@@ -47,7 +47,7 @@ export const updateTracker = () => {
 					logger(res.locals.type, JSON.stringify(log));
 				} else {
 					if (ipIndex >= 0) {
-						global.requestTracker.splice(ipIndex, 1);
+						requestTracker.splice(ipIndex, 1);
 					}
 					res.status(400);
 
