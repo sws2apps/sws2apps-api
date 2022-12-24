@@ -53,11 +53,7 @@ Environment variables are required in order to locally run this API. Please find
 - GMAIL_ADDRESS: the email address you want to use for testing.
 - GMAIL_APP_PASSWORD: your gmail address app password. To create this value, follow [this guide](https://support.google.com/mail/answer/185833).
 - GMAIL_SENDER_NAME: sender name for your email address.
-- FIREBASE_PROJECT_ID: your firebase `Project ID`.
-- FIREBASE_API_KEY: your firebase project `Web API Key`. Create a new Firebase Project in the Firebase Console, and get the API key in the Project Settings page.
-- GOOGLE_CONFIG_BASE64: a Service Account for your Firebase Project encoded in `base64` string.
-- JW_CDN: set the value to `https://app.jw-cdn.org/apis/pub-media/GETPUBMEDIALINKS?`
-- SEC_ENCRYPT_KEY: create a secret string for your internal encryption.
+- JW_CDN: set the value to be `https://app.jw-cdn.org/apis/pub-media/GETPUBMEDIALINKS?`
 - FIREBASE_AUTH_EMULATOR_HOST: the `Host:Port` for Authentication Emulator.
 - FIRESTORE_EMULATOR_HOST: the `Host:Port` for Firestore Emulator.
 

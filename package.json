@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon index.js",
     "start": "cross-env NODE_ENV=production node index.js",
-    "setup:emulators": "cd emulators && firebase init emulators",
-    "start:emulators": "cd emulators && firebase emulators:start"
+    "setup:emulators": "firebase init emulators",
+    "start:emulators": "firebase emulators:start",
+    "test": "cross-env NODE_ENV=testing mocha --exit",
+    "firebase:test": "firebase emulators:exec \"npm run test\""
   },
   "keywords": [],
   "author": "",
@@ -34,7 +36,6 @@
     "express": "^4.18.2",
     "express-rate-limit": "^6.7.0",
     "express-validator": "^6.14.2",
-    "firebase": "^9.15.0",
     "firebase-admin": "^11.4.1",
     "geoip-lite": "^1.4.6",
     "helmet": "^6.0.1",
@@ -56,9 +57,13 @@
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.2",
     "@semantic-release/git": "^10.0.1",
+    "chai": "^4.3.7",
+    "chai-http": "^4.3.0",
     "eslint": "^8.30.0",
     "eslint-config-react-app": "^7.0.1",
     "find-unused-exports": "^5.0.0",
-    "nodemon": "^2.0.20"
+    "mocha": "^10.2.0",
+    "nodemon": "^2.0.20",
+    "puppeteer": "^19.4.1"
   }
 }

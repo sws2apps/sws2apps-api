@@ -6,7 +6,34 @@ on:
 permissions: read-all
 
 jobs:
-  deploy_dev:
+  ci:
+    name: CI
+    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository for cypress tests
+        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+
+      - name: Use Node.js current version
+        uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516
+        with:
+          node-version: current
+
+      - name: Install firebase tools
+        run: npm intall -g firebase-tools
+
+      - name: Install dependency
+        run: npm ci
+
+      - name: Run tests
+        run: npm run firebase:test
+        env:
+          FINGERPRINT_API_SERVER_KEY: ${{ secrets.FINGERPRINT_API_SERVER_KEY }}
+          JW_CDN: ${{ secrets.JW_CDN }}
+
+  deploy:
+    needs: ci
     name: Deploy API to Render
     if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
     environment:
