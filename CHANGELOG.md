@@ -1,3 +1,10 @@
+## [2.7.2](https://github.com/sws2apps/sws2apps-api/compare/v2.7.1...v2.7.2) (2022-12-24)
+
+
+### Bug Fixes
+
+* **utils:** fix issue where congregation backup could not be retrieved ([2c0c70f](https://github.com/sws2apps/sws2apps-api/commit/2c0c70f4258bd92878d6f67ef5b7a7359fd7a7a3))
+
 ## [2.7.1](https://github.com/sws2apps/sws2apps-api/compare/v2.7.0...v2.7.1) (2022-12-24)
 
 
