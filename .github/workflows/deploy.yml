@@ -21,7 +21,11 @@ jobs:
           node-version: current
 
       - name: Install firebase tools
+<<<<<<< HEAD
+        run: npm install -g firebase-tools
+=======
         run: npm intall -g firebase-tools
+>>>>>>> 3ba5676b89f67c11991105390390092efaf7c494
 
       - name: Install dependency
         run: npm ci
