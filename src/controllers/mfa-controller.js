@@ -4,6 +4,8 @@ import { validationResult } from 'express-validator';
 import { users } from '../classes/Users.js';
 
 export const verifyToken = async (req, res, next) => {
+	const isProd = process.env.NODE_ENV === 'production';
+	
 	const errors = validationResult(req);
 
 	if (!errors.isEmpty()) {

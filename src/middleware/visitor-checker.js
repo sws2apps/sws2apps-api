@@ -4,6 +4,8 @@ import { users } from '../classes/Users.js';
 export const visitorChecker = () => {
 	return async (req, res, next) => {
 		try {
+			const isProd = process.env.NODE_ENV === 'production';
+			
 			await check('visitorid').notEmpty().run(req);
 			await check('email').isEmail().run(req);
 

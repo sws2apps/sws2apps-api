@@ -1,6 +1,9 @@
 import { Logtail } from '@logtail/node';
 
 export const logger = (level, message) => {
+	const isProd = process.env.NODE_ENV === 'production';
+	const isDev = process.env.NODE_ENV === 'development';
+
 	if (isProd || isDev) {
 		const logtail = isProd ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN) : undefined;
 

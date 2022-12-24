@@ -211,6 +211,8 @@ User.prototype.adminLogout = async function () {
 
 User.prototype.generateSecret = async function () {
 	try {
+		const isProd = process.env.NODE_ENV === 'production';
+		
 		if (this.secret && this.secret !== '') {
 			const decryptedData = JSON.parse(decryptData(this.secret));
 			return decryptedData;

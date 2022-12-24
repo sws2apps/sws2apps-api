@@ -6,6 +6,8 @@ import { users } from '../classes/Users.js';
 
 export const loginUser = async (req, res, next) => {
 	try {
+		const isProd = process.env.NODE_ENV === 'production';
+		
 		// validate through express middleware
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {

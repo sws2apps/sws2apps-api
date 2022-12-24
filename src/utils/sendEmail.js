@@ -16,6 +16,8 @@ const transporter = nodemailer.createTransport(gmailConfig.transport);
 transporter.use('compile', hbs(handlebarsOptions));
 
 export const sendVerificationEmail = async (recipient, fullname, activation) => {
+	const isTesting = process.env.NODE_ENV === 'testing';
+
 	if (!isTesting) {
 		const options = {
 			from: gmailConfig.sender,
@@ -66,6 +68,8 @@ export const sendVerificationEmail = async (recipient, fullname, activation) => 
 };
 
 export const sendCongregationAccountCreated = async (recipient, fullname, congregation_name, congregation_number) => {
+	const isTesting = process.env.NODE_ENV === 'testing';
+
 	if (!isTesting) {
 		const options = {
 			from: gmailConfig.sender,
@@ -123,6 +127,8 @@ export const sendCongregationAccountDisapproved = async (
 	congregation_number,
 	disapproval_reason
 ) => {
+	const isTesting = process.env.NODE_ENV === 'testing';
+
 	if (!isTesting) {
 		const options = {
 			from: gmailConfig.sender,
@@ -175,6 +181,8 @@ export const sendCongregationAccountDisapproved = async (
 };
 
 export const sendUserResetPassword = async (recipient, fullname, resetPasswordLink) => {
+	const isTesting = process.env.NODE_ENV === 'testing';
+
 	if (!isTesting) {
 		const options = {
 			from: gmailConfig.sender,
@@ -225,6 +233,8 @@ export const sendUserResetPassword = async (recipient, fullname, resetPasswordLi
 };
 
 export const sendCongregationRequest = async (congregation_name, congregation_number, requestor_name) => {
+	const isTesting = process.env.NODE_ENV === 'testing';
+
 	if (!isTesting) {
 		const options = {
 			from: gmailConfig.sender,
