@@ -35,14 +35,14 @@ export const getBlockedRequests = async (req, res, next) => {
 	try {
 		let reqs = [];
 		// eslint-disable-next-line no-undef
-		for (let i = 0; i < global.requestTracker.length; i++) {
+		for (let i = 0; i < requestTracker.length; i++) {
 			// eslint-disable-next-line no-undef
-			const retryOn = global.requestTracker[i].retryOn || 0;
+			const retryOn = requestTracker[i].retryOn || 0;
 			if (retryOn > 0) {
 				const currentDate = new Date().getTime();
 				if (currentDate < retryOn) {
 					// eslint-disable-next-line no-undef
-					reqs.push(global.requestTracker[i]);
+					reqs.push(requestTracker[i]);
 				}
 			}
 		}
@@ -76,7 +76,7 @@ export const unblockRequest = async (req, res, next) => {
 		}
 
 		// eslint-disable-next-line no-undef
-		const ipIndex = global.requestTracker.findIndex((client) => client.ip === req.body.request_ip);
+		const ipIndex = requestTracker.findIndex((client) => client.ip === req.body.request_ip);
 
 		if (ipIndex === -1) {
 			res.locals.type = 'warn';
@@ -84,11 +84,11 @@ export const unblockRequest = async (req, res, next) => {
 			res.status(400).json({ message: 'UNBLOCK_FAILED' });
 		} else {
 			// eslint-disable-next-line no-undef
-			global.requestTracker.splice(ipIndex, 1);
+			requestTracker.splice(ipIndex, 1);
 			res.locals.type = 'info';
 			res.locals.message = 'request unblocked successfully';
 			// eslint-disable-next-line no-undef
-			res.status(200).json({ message: global.requestTracker });
+			res.status(200).json({ message: requestTracker });
 		}
 	} catch (err) {
 		next(err);

@@ -19,11 +19,10 @@ const APP_VERSION = process.env.npm_package_version;
 
 // define global variables
 global.requestTracker = [];
-global.isProd = process.env.NODE_ENV === 'production';
-global.isDev = process.env.NODE_ENV === 'development';
-global.isTesting = process.env.NODE_ENV === 'testing';
 
-if (!global.isProd) {
+const isProd = process.env.NODE_ENV === 'production';
+
+if (!isProd) {
 	await createAdmin();
 }
 

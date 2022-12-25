@@ -211,6 +211,8 @@ User.prototype.adminLogout = async function () {
 
 User.prototype.generateSecret = async function () {
 	try {
+		const isProd = process.env.NODE_ENV === 'production';
+		
 		if (this.secret && this.secret !== '') {
 			const decryptedData = JSON.parse(decryptData(this.secret));
 			return decryptedData;
@@ -218,7 +220,7 @@ User.prototype.generateSecret = async function () {
 			const tempSecret = new OTPAuth.Secret().base32;
 
 			const totp = new OTPAuth.TOTP({
-				issuer: global.isProd ? 'sws2apps' : 'sws2apps-test',
+				issuer: isProd ? 'sws2apps' : 'sws2apps-test',
 				label: this.user_uid,
 				algorithm: 'SHA1',
 				digits: 6,

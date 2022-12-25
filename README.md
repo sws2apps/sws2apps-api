@@ -1,6 +1,7 @@
 # Scheduling Workbox System (SWS) API
 
 [![CI](https://github.com/sws2apps/sws2apps-api/actions/workflows/ci.yml/badge.svg)](https://github.com/sws2apps/sws2apps-api/actions/workflows/ci.yml)
+[![CD](https://github.com/sws2apps/sws2apps-api/actions/workflows/deploy.yml/badge.svg)](https://github.com/sws2apps/sws2apps-api/actions/workflows/deploy.yml)
 
 Backend service for all SWS applications.
 

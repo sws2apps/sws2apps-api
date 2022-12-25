@@ -4,6 +4,8 @@ import { users } from '../classes/Users.js';
 export const visitorChecker = () => {
 	return async (req, res, next) => {
 		try {
+			const isProd = process.env.NODE_ENV === 'production';
+			
 			await check('visitorid').notEmpty().run(req);
 			await check('email').isEmail().run(req);
 
@@ -27,7 +29,7 @@ export const visitorChecker = () => {
 			const user = users.findUserByEmail(email);
 
 			if (user) {
-				if (user.global_role === 'admin' && !global.isProd) {
+				if (user.global_role === 'admin' && !isProd) {
 					res.locals.currentUser = user;
 					next();
 				} else {
