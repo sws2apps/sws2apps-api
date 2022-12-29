@@ -148,6 +148,7 @@ Congregation.prototype.removeUser = async function (userId) {
 	user.cong_id = '';
 	user.cong_name = '';
 	user.cong_number = '';
+	user.cong_role = [];
 
 	// update congregation members
 	this.reloadMembers();

@@ -119,6 +119,28 @@ User.prototype.updatePocketMembers = async function (members) {
 	try {
 		await db.collection('users').doc(this.id).update({ 'congregation.pocket_members': members });
 		this.pocket_members = members;
+
+		// update cong members
+		const cong = congregations.findCongregationById(this.cong_id);
+		cong.reloadMembers();
+	} catch (error) {
+		throw new Error(error.message);
+	}
+};
+
+User.prototype.updatePocketLocalId = async function (id) {
+	try {
+		if (id !== '') {
+			await db.collection('users').doc(this.id).update({ 'congregation.local_id': id });
+		} else {
+			await db.collection('users').doc(this.id).update({ 'congregation.local_id': FieldValue.delete() });
+		}
+
+		this.pocket_local_id = id;
+
+		// update cong members
+		const cong = congregations.findCongregationById(this.cong_id);
+		cong.reloadMembers();
 	} catch (error) {
 		throw new Error(error.message);
 	}
@@ -212,7 +234,7 @@ User.prototype.adminLogout = async function () {
 User.prototype.generateSecret = async function () {
 	try {
 		const isProd = process.env.NODE_ENV === 'production';
-		
+
 		if (this.secret && this.secret !== '') {
 			const decryptedData = JSON.parse(decryptData(this.secret));
 			return decryptedData;
@@ -423,4 +445,8 @@ User.prototype.updateSessionsInfo = async function (visitorid) {
 	await db.collection('users').doc(this.id).update({ 'about.sessions': newSessions });
 
 	this.sessions = newSessions;
+
+	// update cong members
+	const cong = congregations.findCongregationById(this.cong_id);
+	cong.reloadMembers();
 };

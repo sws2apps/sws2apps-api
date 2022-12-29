@@ -15,11 +15,12 @@ import {
 	getCongregationPockerUser,
 	getCongregationUser,
 	getLastCongregationBackup,
+	getMeetingSchedules,
 	removeCongregationUser,
 	requestCongregation,
 	saveCongregationBackup,
 	sendPocketSchedule,
-	updateCongregationRole,
+	updateCongregationMemberDetails,
 	updatePocketDetails,
 	updatePocketMembers,
 	updatePocketUsername,
@@ -38,6 +39,9 @@ router.put(
 	body('app_requestor').notEmpty(),
 	requestCongregation
 );
+
+// get meeting schedule
+router.get('/:id/meeting-schedule', getMeetingSchedules);
 
 // activate role checker middleware
 router.use(congregationRoleChecker());
@@ -81,18 +85,19 @@ router.delete('/:id/members/:user', removeCongregationUser);
 router.put('/:id/members', body('user_id').isString(), addCongregationUser);
 
 // update user role in congregation
-router.patch('/:id/members/:user/role', body('user_role').isArray(), updateCongregationRole);
+router.patch(
+	'/:id/members/:user',
+	body('user_role').isArray(),
+	body('pocket_local_id').exists(),
+	body('pocket_members').isArray(),
+	updateCongregationMemberDetails
+);
 
 // get congregation pocket user
 router.get('/:id/pockets/:user', getCongregationPockerUser);
 
 // create new pocket user
-router.put(
-	'/:id/pockets',
-	body('pocket_local_id').notEmpty().isString(),
-	body('username').notEmpty().isString(),
-	createNewPocketUser
-);
+router.put('/:id/pockets', body('pocket_local_id').exists(), body('username').notEmpty().isString(), createNewPocketUser);
 
 // update pocket member
 router.patch('/:id/pockets/:user', body('cong_role').isArray(), body('pocket_members').isArray(), updatePocketDetails);
