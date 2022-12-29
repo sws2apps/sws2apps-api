@@ -8,12 +8,12 @@ export const requestChecker = () => {
 			const reqCity = geo === null ? 'Unknown' : `${geo.city} (${geo.country})`;
 
 			const clientIp = req.clientIp;
-			const reqTrackRef = global.requestTracker.find((client) => client.ip === clientIp);
+			const reqTrackRef = requestTracker.find((client) => client.ip === clientIp);
 
 			if (reqTrackRef) {
 				const { retryOn, failedLoginAttempt } = reqTrackRef;
 
-				const ipIndex = global.requestTracker.findIndex((client) => client.ip === clientIp);
+				const ipIndex = requestTracker.findIndex((client) => client.ip === clientIp);
 
 				if (retryOn !== '') {
 					const currentDate = new Date().getTime();
@@ -22,7 +22,7 @@ export const requestChecker = () => {
 						res.locals.message = 'login from this IP address has been blocked temporarily due to many failed attempts';
 						res.status(403).json({ message: 'BLOCKED_TEMPORARILY_TRY_AGAIN' });
 					} else {
-						global.requestTracker.splice(ipIndex, 1);
+						requestTracker.splice(ipIndex, 1);
 						next();
 					}
 				} else {
@@ -35,9 +35,9 @@ export const requestChecker = () => {
 							const currentD = new Date();
 							const retryDate = currentD.getTime() + 15 * 60000;
 
-							const ipIndex = global.requestTracker.findIndex((client) => client.ip === clientIp);
+							const ipIndex = requestTracker.findIndex((client) => client.ip === clientIp);
 
-							global.requestTracker.splice(ipIndex, 1);
+							requestTracker.splice(ipIndex, 1);
 
 							let obj = {};
 							obj.ip = clientIp;
@@ -46,10 +46,10 @@ export const requestChecker = () => {
 							obj.failedLoginAttempt = 3;
 							obj.retryOn = retryDate;
 
-							global.requestTracker.push(obj);
+							requestTracker.push(obj);
 						});
 					} else {
-						global.requestTracker.splice(ipIndex, 1);
+						requestTracker.splice(ipIndex, 1);
 
 						let obj = {};
 						obj.ip = clientIp;
@@ -58,7 +58,7 @@ export const requestChecker = () => {
 						obj.failedLoginAttempt = failedLoginAttempt;
 						obj.retryOn = '';
 
-						global.requestTracker.push(obj);
+						requestTracker.push(obj);
 						next();
 					}
 				}
@@ -69,7 +69,7 @@ export const requestChecker = () => {
 				obj.reqInProgress = true;
 				obj.failedLoginAttempt = 0;
 				obj.retryOn = '';
-				global.requestTracker.push(obj);
+				requestTracker.push(obj);
 
 				next();
 			}

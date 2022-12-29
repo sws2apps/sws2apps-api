@@ -86,9 +86,11 @@ Users.prototype.findPocketByVisitorId = async function (visitorid) {
 };
 
 Users.prototype.create = async function (fullname, email, password) {
+	const isTesting = process.env.NODE_ENV === 'testing';
+
 	const userData = {
 		email: email,
-		emailVerified: global.isTesting ? true : false,
+		emailVerified: isTesting ? true : false,
 		password: password,
 		disabled: false,
 	};
