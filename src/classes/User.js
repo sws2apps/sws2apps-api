@@ -447,6 +447,8 @@ User.prototype.updateSessionsInfo = async function (visitorid) {
 	this.sessions = newSessions;
 
 	// update cong members
-	const cong = congregations.findCongregationById(this.cong_id);
-	cong.reloadMembers();
+	if (this.cong_id !== '') {
+		const cong = congregations.findCongregationById(this.cong_id);
+		cong.reloadMembers();
+	}
 };

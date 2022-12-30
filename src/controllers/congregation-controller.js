@@ -1204,11 +1204,11 @@ export const getMeetingSchedules = async (req, res, next) => {
 						return;
 					}
 
-					const { cong_sourceMaterial, cong_schedule } = congregations.findCongregationById(id);
+					const { cong_sourceMaterial, cong_schedule, cong_settings } = congregations.findCongregationById(id);
 
 					res.locals.type = 'info';
 					res.locals.message = 'user has fetched the schedule';
-					res.status(200).json({ cong_sourceMaterial, cong_schedule });
+					res.status(200).json({ cong_sourceMaterial, cong_schedule, class_count: cong_settings[0].class_count });
 					return;
 				}
 
