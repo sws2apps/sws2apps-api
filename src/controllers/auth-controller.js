@@ -1,13 +1,16 @@
 // import dependencies
 import fetch from 'node-fetch';
+import * as OTPAuth from 'otpauth';
 import { validationResult } from 'express-validator';
 import { FingerprintJsServerApiClient, Region } from '@fingerprintjs/fingerprintjs-pro-server-api';
 import { users } from '../classes/Users.js';
+import { decryptData } from '../utils/encryption-utils.js';
 
 export const loginUser = async (req, res, next) => {
 	try {
 		const isProd = process.env.NODE_ENV === 'production';
-		
+		const isDev = process.env.NODE_ENV === 'development';
+
 		// validate through express middleware
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -90,9 +93,27 @@ export const loginUser = async (req, res, next) => {
 
 						await user.updateSessions(newSessions);
 
+						const generateTokenDev = () => {
+							const { secret } = JSON.parse(decryptData(user.secret));
+							const totp = new OTPAuth.TOTP({
+								issuer: 'sws2apps-test',
+								label: email,
+								algorithm: 'SHA1',
+								digits: 6,
+								period: 30,
+								secret: OTPAuth.Secret.fromBase32(secret),
+							});
+
+							return totp.generate();
+						};
+
 						if (user.mfaEnabled) {
 							res.locals.type = 'info';
 							res.locals.message = 'user required to verify mfa';
+
+							if (isDev) {
+								console.log(`Please use this OTP code to complete your login: ${generateTokenDev()}`);
+							}
 
 							res.status(200).json({ message: 'MFA_VERIFY' });
 						} else {
@@ -100,6 +121,11 @@ export const loginUser = async (req, res, next) => {
 
 							res.locals.type = 'warn';
 							res.locals.message = 'user authentication rejected because account mfa is not yet setup';
+
+							if (isDev) {
+								console.log(`Please use this OTP code to complete your login: ${generateTokenDev()}`);
+							}
+
 							res.status(403).json({
 								secret: secret.secret,
 								qrCode: secret.uri,
@@ -111,6 +137,7 @@ export const loginUser = async (req, res, next) => {
 						res.locals.message = 'user authentication rejected because account not yet verified';
 						res.status(403).json({ message: 'NOT_VERIFIED' });
 					}
+
 					return;
 				}
 

@@ -3,6 +3,8 @@ import { getFirestore } from 'firebase-admin/firestore';
 
 const db = getFirestore();
 
+const isTesting = process.env.NODE_ENV === 'testing';
+
 // create admin user
 export const createAdmin = async () => {
 	try {
@@ -20,7 +22,7 @@ export const createAdmin = async () => {
 				name: 'admin',
 				role: 'admin',
 				user_uid: 'admin@gmail.com',
-				mfaEnabled: true,
+				mfaEnabled: isTesting ? true : false,
 			},
 		};
 

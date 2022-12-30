@@ -116,8 +116,10 @@ Congregation.prototype.saveBackup = async function (
 		this.cong_sourceMaterial_draft = cong_sourceMaterial;
 		this.cong_swsPocket = cong_swsPocket;
 		this.cong_settings = cong_settings;
-		this.last_backup.by = userInfo.username;
-		this.last_backup.date = data.last_backup.date;
+		this.last_backup = {
+			by: userInfo.username,
+			date: data.last_backup.date,
+		};
 	} catch (error) {
 		throw new Error(error.message);
 	}
@@ -148,6 +150,7 @@ Congregation.prototype.removeUser = async function (userId) {
 	user.cong_id = '';
 	user.cong_name = '';
 	user.cong_number = '';
+	user.cong_role = [];
 
 	// update congregation members
 	this.reloadMembers();

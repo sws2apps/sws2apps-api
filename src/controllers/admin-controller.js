@@ -107,7 +107,7 @@ export const getAllAnnouncements = async (req, res, next) => {
 	}
 };
 
-export const saveAnnouncementDraft = async (req, res, next) => {
+export const handleAnnouncementAction = async (req, res, next) => {
 	try {
 		const errors = validationResult(req);
 
@@ -127,12 +127,24 @@ export const saveAnnouncementDraft = async (req, res, next) => {
 			return;
 		}
 
-		const { announcement } = req.body;
-		const list = await announcements.saveDraft({ ...announcement, isDraft: true });
+		let { action, announcement } = req.body;
+		if (action !== 'publish') action = 'save';
 
-		res.locals.type = 'info';
-		res.locals.message = 'draft announcement saved successfully';
-		res.status(200).json(list);
+		if (action === 'save') {
+			const list = await announcements.saveDraft(announcement);
+
+			res.locals.type = 'info';
+			res.locals.message = 'draft announcement saved successfully';
+			res.status(200).json(list);
+		}
+
+		if (action === 'publish') {
+			const list = await announcements.publish(announcement);
+
+			res.locals.type = 'info';
+			res.locals.message = 'announcement published successfully';
+			res.status(200).json(list);
+		}
 	} catch (err) {
 		next(err);
 	}
@@ -200,37 +212,6 @@ export const deleteAnnouncementAdmin = async (req, res, next) => {
 
 		res.locals.type = 'info';
 		res.locals.message = 'announcement deleted successfully';
-		res.status(200).json(list);
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const publishAnnouncementAdmin = async (req, res, next) => {
-	try {
-		const errors = validationResult(req);
-
-		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-			});
-
-			res.locals.type = 'warn';
-			res.locals.message = `invalid input: ${msg}`;
-
-			res.status(400).json({
-				message: 'Bad request: provided inputs are invalid.',
-			});
-
-			return;
-		}
-
-		const { announcement } = req.body;
-		const list = await announcements.publish(announcement);
-
-		res.locals.type = 'info';
-		res.locals.message = 'announcement published successfully';
 		res.status(200).json(list);
 	} catch (err) {
 		next(err);
