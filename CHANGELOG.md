@@ -1,3 +1,10 @@
+# [2.8.0](https://github.com/sws2apps/sws2apps-api/compare/v2.7.3...v2.8.0) (2022-12-31)
+
+
+### Features
+
+* **public:** update parser for source materials ([d728ce2](https://github.com/sws2apps/sws2apps-api/commit/d728ce278bdce2df29fef6c5c90a8449d0e33929))
+
 ## [2.7.3](https://github.com/sws2apps/sws2apps-api/compare/v2.7.2...v2.7.3) (2022-12-24)
 
 
