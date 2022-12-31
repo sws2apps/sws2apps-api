@@ -40,7 +40,7 @@
     "geoip-lite": "^1.4.6",
     "helmet": "^6.0.1",
     "is-online": "^10.0.0",
-    "jw-epub-parser": "^1.30.0-alpha.2",
+    "jw-epub-parser": "^1.30.0-alpha.7",
     "node-2fa": "^2.0.3",
     "node-fetch": "^3.3.0",
     "nodemailer": "^6.8.0",

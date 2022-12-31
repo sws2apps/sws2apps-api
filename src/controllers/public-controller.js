@@ -6,17 +6,6 @@ export const getSchedules = async (req, res, next) => {
 		let { language } = req.params;
 		language = language.toUpperCase();
 
-		if (language !== 'E' && language !== 'MG') {
-			res.locals.type = 'warn';
-			res.locals.message = `invalid language for source material`;
-
-			res.status(400).json({
-				message: 'Sorry, the provided source language is not yet supported',
-			});
-
-			return;
-		}
-
 		// get current issue
 		const today = new Date();
 		const day = today.getDay();
@@ -43,7 +32,6 @@ export const getSchedules = async (req, res, next) => {
 				});
 
 			const res = await fetch(url);
-
 			if (res.status === 404) {
 				notFound = true;
 			} else {
@@ -70,9 +58,15 @@ export const getSchedules = async (req, res, next) => {
 			}
 		} while (notFound === false);
 
-		res.locals.type = 'info';
-		res.locals.message = 'updated schedules fetched from jw.org';
-		res.status(200).json(mergedSources);
+		if (mergedSources.length > 0) {
+			res.locals.type = 'info';
+			res.locals.message = 'updated schedules fetched from jw.org';
+			res.status(200).json(mergedSources);
+		} else {
+			res.locals.type = 'warn';
+			res.locals.message = 'schedules could not be fetched because language is invalid or not available yet';
+			res.status(404).json({ message: 'FETCHING_FAILED' });
+		}
 	} catch (err) {
 		next(err);
 	}

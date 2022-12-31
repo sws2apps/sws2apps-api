@@ -13,7 +13,7 @@ Get active source materials using EPUB file downloaded on the fly from JW.ORG.
 
 #### `lang`
 
-Language code of the materials you want to fetch. Currently, only English (`e`) and Malagasy (`mg`) are supported.
+Language code of the materials you want to fetch.
 
 #### Response
 
