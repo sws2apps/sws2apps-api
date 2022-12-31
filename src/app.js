@@ -24,46 +24,46 @@ import { errorHandler, getAppVersion, getRoot, invalidEndpointHandler } from './
 
 // allowed apps url
 const whitelist = [
-  'https://alpha-sws-pocket.web.app',
-  'https://alpha-sws-pocket.firebaseapp.com',
-  'https://sws-pocket.web.app',
-  'https://sws-pocket.firebaseapp.com',
-  'https://lmm-oa-sws.web.app',
-  'https://lmm-oa-sws.firebaseapp.com',
-  'https://sws-apps-dev.web.app',
-  'https://sws-apps-dev.firebaseapp.com',
-  'https://sws2apps-tools.web.app',
-  'https://sws2apps-tools.firebaseapp.com',
+	'https://alpha-sws-pocket.web.app',
+	'https://alpha-sws-pocket.firebaseapp.com',
+	'https://sws-pocket.web.app',
+	'https://sws-pocket.firebaseapp.com',
+	'https://lmm-oa-sws.web.app',
+	'https://lmm-oa-sws.firebaseapp.com',
+	'https://sws-apps-dev.web.app',
+	'https://sws-apps-dev.firebaseapp.com',
+	'https://sws2apps-tools.web.app',
+	'https://sws2apps-tools.firebaseapp.com',
 ];
 
 const allowedUri = ['/app-version', '/api/public/source-material'];
 
 const corsOptionsDelegate = function (req, callback) {
-  var corsOptions;
+	var corsOptions;
 
-  if (process.env.NODE_ENV === 'production') {
-    const reqOrigin = req.header('Origin');
-    if (reqOrigin) {
-      if (whitelist.indexOf(reqOrigin) !== -1) {
-        corsOptions = { origin: true }; // reflect (enable) the requested origin in the CORS response
-      } else {
-        const originalUri = req.headers['x-original-uri'];
+	if (process.env.NODE_ENV === 'production') {
+		const reqOrigin = req.header('Origin');
+		if (reqOrigin) {
+			if (whitelist.indexOf(reqOrigin) !== -1) {
+				corsOptions = { origin: true }; // reflect (enable) the requested origin in the CORS response
+			} else {
+				const originalUri = req.headers['x-original-uri'];
 
-        if (originalUri === '/') {
-          corsOptions = { origin: true }; // allow CORS for index route
-        } else {
-          const allowed = allowedUri.find((uri) => uri.startsWith(originalUri)) ? true : false;
-          corsOptions = { origin: allowed };
-        }
-      }
-    } else {
-      corsOptions = { origin: false };
-    }
-  } else {
-    corsOptions = { origin: true }; // allow cors during dev
-  }
+				if (originalUri === '/') {
+					corsOptions = { origin: true }; // allow CORS for index route
+				} else {
+					const allowed = allowedUri.find((uri) => uri.startsWith(originalUri)) ? true : false;
+					corsOptions = { origin: allowed };
+				}
+			}
+		} else {
+			corsOptions = { origin: false };
+		}
+	} else {
+		corsOptions = { origin: true }; // allow cors during dev
+	}
 
-  callback(null, corsOptions); // callback expects two parameters: error and options
+	callback(null, corsOptions); // callback expects two parameters: error and options
 };
 
 const app = express();
@@ -84,13 +84,13 @@ app.use(requestChecker());
 app.use(updateTracker());
 
 app.use(
-  rateLimit({
-    windowMs: 1000,
-    max: 20,
-    message: JSON.stringify({
-      message: 'TOO_MANY_REQUESTS',
-    }),
-  })
+	rateLimit({
+		windowMs: 1000,
+		max: 20,
+		message: JSON.stringify({
+			message: 'TOO_MANY_REQUESTS',
+		}),
+	})
 );
 
 app.use('/', authRoute);

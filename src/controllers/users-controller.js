@@ -50,10 +50,11 @@ export const getAnnouncements = async (req, res, next) => {
 export const validateUser = async (req, res, next) => {
 	try {
 		const { email } = req.headers;
-		const { id, cong_id, cong_name, cong_number, cong_role } = await users.findUserByEmail(email);
+		const { id, cong_id, cong_name, cong_number, cong_role, pocket_local_id, pocket_members, username } =
+			await users.findUserByEmail(email);
 
 		if (cong_name.length > 0) {
-			let obj = { id, cong_id, cong_name, cong_number, cong_role };
+			let obj = { id, cong_id, cong_name, cong_number, cong_role, pocket_local_id, pocket_members, username };
 
 			res.locals.type = 'info';
 			res.locals.message = 'visitor id has been validated';

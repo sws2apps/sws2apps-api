@@ -70,6 +70,7 @@ export const requestCongregation = async (req, res, next) => {
 
 			// update requestor info
 			await cong.addUser(requestCong.user_id, requestCong.cong_role);
+			await cong.reloadMembers();
 
 			// update request props
 			await requestCong.approve();
@@ -282,11 +283,11 @@ export const removeCongregationUser = async (req, res, next) => {
 					const findUser = users.findUserById(user);
 
 					if (findUser.cong_id === id) {
-						const members = cong.removeUser(id);
+						await cong.removeUser(user);
 
 						res.locals.type = 'info';
 						res.locals.message = 'member removed from the congregation';
-						res.status(200).json(members);
+						res.status(200).json({ message: 'OK' });
 						return;
 					}
 
@@ -452,7 +453,7 @@ export const addCongregationUser = async (req, res, next) => {
 	}
 };
 
-export const updateCongregationRole = async (req, res, next) => {
+export const updateCongregationMemberDetails = async (req, res, next) => {
 	try {
 		const { id, user } = req.params;
 		const { email } = req.headers;
@@ -484,11 +485,11 @@ export const updateCongregationRole = async (req, res, next) => {
 							return;
 						}
 
-						const { user_role } = req.body;
+						const { pocket_local_id, pocket_members, user_role } = req.body;
 
 						// validate provided role
 						let isRoleValid = true;
-						const allowedRoles = ['admin', 'lmmo', 'lmmo-backup'];
+						const allowedRoles = ['admin', 'lmmo', 'lmmo-backup', 'view_meeting_schedule'];
 						if (user_role > 0) {
 							for (let i = 0; i < user_role.length; i++) {
 								const role = user_role[i];
@@ -511,10 +512,12 @@ export const updateCongregationRole = async (req, res, next) => {
 						}
 
 						await cong.updateUserRole(user, user_role);
+						await findUser.updatePocketMembers(pocket_members);
+						await findUser.updatePocketLocalId(pocket_local_id);
 
 						res.locals.type = 'info';
-						res.locals.message = 'member role in congregation updated';
-						res.status(200).json({ message: 'ROLE_UPDATED' });
+						res.locals.message = 'member details in congregation updated';
+						res.status(200).json({ message: 'MEMBER_UPDATED' });
 						return;
 					}
 
@@ -1149,6 +1152,63 @@ export const sendPocketSchedule = async (req, res, next) => {
 					res.locals.type = 'info';
 					res.locals.message = 'schedule save for sws pocket application';
 					res.status(200).json({ message: 'SCHEDULE_SENT' });
+					return;
+				}
+
+				res.locals.type = 'warn';
+				res.locals.message = 'user not authorized to access the provided congregation';
+				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+				return;
+			}
+
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation id params is undefined';
+		res.status(400).json({ message: 'CONG_ID_INVALID' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const getMeetingSchedules = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const { email } = req.headers;
+
+		if (id) {
+			const cong = await congregations.findCongregationById(id);
+			if (cong) {
+				const isValid = await cong.isMember(email);
+
+				if (isValid) {
+					const errors = validationResult(req);
+
+					if (!errors.isEmpty()) {
+						let msg = '';
+						errors.array().forEach((error) => {
+							msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+						});
+
+						res.locals.type = 'warn';
+						res.locals.message = `invalid input: ${msg}`;
+
+						res.status(400).json({
+							message: 'Bad request: provided inputs are invalid.',
+						});
+
+						return;
+					}
+
+					const { cong_sourceMaterial, cong_schedule, cong_settings } = congregations.findCongregationById(id);
+
+					res.locals.type = 'info';
+					res.locals.message = 'user has fetched the schedule';
+					res.status(200).json({ cong_sourceMaterial, cong_schedule, class_count: cong_settings[0].class_count });
 					return;
 				}
 

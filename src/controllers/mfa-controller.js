@@ -5,7 +5,7 @@ import { users } from '../classes/Users.js';
 
 export const verifyToken = async (req, res, next) => {
 	const isProd = process.env.NODE_ENV === 'production';
-	
+
 	const errors = validationResult(req);
 
 	if (!errors.isEmpty()) {
@@ -26,7 +26,8 @@ export const verifyToken = async (req, res, next) => {
 
 	const { token } = req.body;
 
-	const { id, sessions, username, cong_name, cong_number, cong_role, cong_id } = res.locals.currentUser;
+	const { id, sessions, username, cong_name, cong_number, cong_role, cong_id, pocket_local_id, pocket_members } =
+		res.locals.currentUser;
 
 	try {
 		const user = users.findUserById(id);
@@ -88,14 +89,18 @@ export const verifyToken = async (req, res, next) => {
 				await user.updateSessions(newSessions);
 
 				// init response object
-				const obj = {};
-				obj.message = 'TOKEN_VALID';
-				obj.id = id;
-				obj.username = username;
-				obj.cong_name = cong_name;
-				obj.cong_number = cong_number;
-				obj.cong_role = cong_role;
-				obj.cong_id = cong_id;
+				const obj = {
+					message: 'TOKEN_VALID',
+					id,
+					username,
+					cong_name,
+					cong_number,
+					cong_role,
+					cong_id,
+					global_role: user.global_role,
+					pocket_local_id,
+					pocket_members,
+				};
 
 				res.locals.type = 'info';
 				res.locals.message = 'OTP token verification success';

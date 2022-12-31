@@ -59,10 +59,14 @@ Environment variables are required in order to locally run this API. Please find
 
 ### Starting the Development Server
 
-You are now ready to start the development server, and interact with the API.
+- Run `npm run dev` to start the development server, and interact with the API.
 
-- Run `npm run dev` to start the server.
-- Pleae note that when you are working with the front end applications, the congregation request is automatically approved.
+### Creating Your Congregation Account
+
+As each development server will start with a new and clean Firebase Emulator instance, you have to create your user and congregation account.
+
+- When creating user account, the use of authenticator app is optional. When required, the OTP code is printed on the dev console. If you still want to use authenticator app, you have to delete and create a new account each time you run the dev server.
+- The congregation request is automatically approved.
 
 ## Sending a Pull Request (PR)
 

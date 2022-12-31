@@ -4,8 +4,8 @@ import { users } from '../classes/Users.js';
 export const visitorChecker = () => {
 	return async (req, res, next) => {
 		try {
-			const isProd = process.env.NODE_ENV === 'production';
-			
+			const isTesting = process.env.NODE_ENV === 'testing';
+
 			await check('visitorid').notEmpty().run(req);
 			await check('email').isEmail().run(req);
 
@@ -29,7 +29,7 @@ export const visitorChecker = () => {
 			const user = users.findUserByEmail(email);
 
 			if (user) {
-				if (user.global_role === 'admin' && !isProd) {
+				if (user.global_role === 'admin' && isTesting) {
 					res.locals.currentUser = user;
 					next();
 				} else {
@@ -84,7 +84,7 @@ export const visitorChecker = () => {
 				res.locals.type = 'warn';
 				res.locals.message = 'this user account no longer exists';
 
-				res.status(403).json({ message: 'ACCOUNT_NOT_FOUND' });
+				res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
 			}
 		} catch (err) {
 			next(err);
