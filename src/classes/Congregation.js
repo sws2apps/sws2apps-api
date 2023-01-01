@@ -37,7 +37,6 @@ Congregation.prototype.loadDetails = async function () {
 	this.cong_schedule_draft = congSnap.data().cong_schedule_draft || [];
 	this.cong_swsPocket = congSnap.data().cong_swsPocket || [];
 	this.cong_settings = congSnap.data().cong_settings || [];
-	this.members = [];
 
 	users.list.forEach((user) => {
 		if (user.cong_id === this.id) {
@@ -166,6 +165,7 @@ Congregation.prototype.addUser = async function (userId, role) {
 	user.cong_id = this.id;
 	user.cong_name = this.cong_name;
 	user.cong_number = this.cong_number;
+	user.cong_role = newRole;
 
 	// update congregation members
 	this.reloadMembers();

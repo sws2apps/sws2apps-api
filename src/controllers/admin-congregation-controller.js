@@ -188,7 +188,7 @@ export const addCongregationUser = async (req, res, next) => {
 					return;
 				}
 
-				const { user_uid } = req.body;
+				const { user_uid, user_role } = req.body;
 				const user = users.findUserByEmail(user_uid);
 
 				if (user) {
@@ -197,13 +197,11 @@ export const addCongregationUser = async (req, res, next) => {
 						res.locals.message = 'action not allowed since the user is already member of congregation';
 						res.status(405).json({ message: 'USER_ALREADY_MEMBER' });
 					} else {
-						await cong.addUser(user.id);
-
-						const congsList = await congregations.loadAll();
+						await cong.addUser(user.id, user_role);
 
 						res.locals.type = 'info';
 						res.locals.message = 'member added to congregation';
-						res.status(200).json(congsList);
+						res.status(200).json({ message: 'MEMBER_ADDED' });
 					}
 				} else {
 					res.locals.type = 'warn';
@@ -321,7 +319,7 @@ export const updateCongregationUserRole = async (req, res, next) => {
 
 				// validate provided role
 				let isValid = true;
-				const allowedRoles = ['admin', 'lmmo', 'view-schedule-meeting'];
+				const allowedRoles = ['admin', 'lmmo', 'lmmo-backup', 'view_schedule_meeting'];
 				if (user_role > 0) {
 					for (let i = 0; i < user_role.length; i++) {
 						const role = user_role[i];
@@ -348,11 +346,9 @@ export const updateCongregationUserRole = async (req, res, next) => {
 				if (user) {
 					cong.updateUserRole(user.id, user_role);
 
-					const congsList = await congregations.loadAll();
-
 					res.locals.type = 'info';
 					res.locals.message = 'user role saved successfully';
-					res.status(200).json(congsList);
+					res.status(200).json({ message: 'ROLE_UPDATED' });
 				} else {
 					res.locals.type = 'warn';
 					res.locals.message = 'user could not be found';
