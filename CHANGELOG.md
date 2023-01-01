@@ -1,3 +1,10 @@
+# [2.9.0](https://github.com/sws2apps/sws2apps-api/compare/v2.8.0...v2.9.0) (2023-01-01)
+
+
+### Features
+
+* **api:** update some routes to support new sws website ([2c5cfd6](https://github.com/sws2apps/sws2apps-api/commit/2c5cfd65abebb0b549276802f977ba42afaedf16))
+
 # [2.8.0](https://github.com/sws2apps/sws2apps-api/compare/v2.7.3...v2.8.0) (2022-12-31)
 
 
