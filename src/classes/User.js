@@ -434,9 +434,10 @@ User.prototype.updatePocketDevicesInfo = async function (visitorid) {
 };
 
 User.prototype.updateSessionsInfo = async function (visitorid) {
+	const time = new Date().getTime();
 	let newSessions = this.sessions.map((session) => {
 		if (session.visitorid === visitorid) {
-			return { ...session, sws_last_seen: new Date().getTime() };
+			return { ...session, sws_last_seen: time };
 		} else {
 			return session;
 		}
@@ -445,6 +446,7 @@ User.prototype.updateSessionsInfo = async function (visitorid) {
 	await db.collection('users').doc(this.id).update({ 'about.sessions': newSessions });
 
 	this.sessions = newSessions;
+	this.last_seen = time;
 
 	// update cong members
 	if (this.cong_id !== '') {
