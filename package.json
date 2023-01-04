@@ -1,6 +1,6 @@
 {
   "name": "sws2apps-api",
-  "version": "2.8.0",
+  "version": "2.9.0",
   "description": "Node apps to handle backend operations for all sws2apps services",
   "main": "index.js",
   "scripts": {
@@ -30,7 +30,7 @@
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
-    "cryptr": "^6.0.3",
+    "cryptr": "^6.1.0",
     "dayjs": "^1.11.7",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
@@ -59,7 +59,7 @@
     "@semantic-release/git": "^10.0.1",
     "chai": "^4.3.7",
     "chai-http": "^4.3.0",
-    "eslint": "^8.30.0",
+    "eslint": "^8.31.0",
     "eslint-config-react-app": "^7.0.1",
     "find-unused-exports": "^5.0.0",
     "mocha": "^10.2.0",
