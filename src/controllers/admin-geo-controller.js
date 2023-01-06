@@ -15,6 +15,8 @@ export const getCountries = async (req, res, next) => {
 
 export const geoBulkImport = async (req, res, next) => {
 	try {
+		const { geo_list, language } = req.body;
+
 		const errors = validationResult(req);
 
 		if (!errors.isEmpty()) {
@@ -33,7 +35,17 @@ export const geoBulkImport = async (req, res, next) => {
 			return;
 		}
 
-		const { geo_list, language } = req.body;
+		const langsAllowed = ['E', 'MG'];
+		if (langsAllowed.includes(language) === false) {
+			res.locals.type = 'warn';
+			res.locals.message = `invalid language`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
 
 		for await (const item of geo_list) {
 			const country = countries.findByCountryCode(item.code);
@@ -55,6 +67,8 @@ export const geoBulkImport = async (req, res, next) => {
 export const congBulkImport = async (req, res, next) => {
 	try {
 		const { id } = req.params;
+		const { cong_list, language } = req.body;
+
 		if (id) {
 			const errors = validationResult(req);
 
@@ -74,11 +88,21 @@ export const congBulkImport = async (req, res, next) => {
 				return;
 			}
 
+			const langsAllowed = ['E', 'MG'];
+			if (langsAllowed.includes(language) === false) {
+				res.locals.type = 'warn';
+				res.locals.message = `invalid language`;
+
+				res.status(400).json({
+					message: 'Bad request: provided inputs are invalid.',
+				});
+
+				return;
+			}
+
 			const country = countries.findById(id);
 
 			if (country) {
-				const { cong_list, language } = req.body;
-
 				for await (const item of cong_list) {
 					const cong = country.findCongregationByNumber(item.number);
 					if (cong) {

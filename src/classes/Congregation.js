@@ -60,6 +60,12 @@ Congregation.prototype.loadDetails = async function () {
 	}
 };
 
+Congregation.prototype.updateInfo = async function (congInfo) {
+	await db.collection('congregations').doc(this.id).set(congInfo);
+	this.cong_name = congInfo.cong_name;
+	this.cong_number = congInfo.cong_number;
+};
+
 Congregation.prototype.reloadMembers = async function () {
 	const members = [];
 	users.list.forEach((user) => {

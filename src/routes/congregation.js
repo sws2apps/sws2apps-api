@@ -1,10 +1,11 @@
 import express from 'express';
-import { body } from 'express-validator';
+import { body, check } from 'express-validator';
 import { congregationAdminChecker } from '../middleware/congregation-admin-checker.js';
 import { congregationRoleChecker } from '../middleware/congregation-role-checker.js';
 import { visitorChecker } from '../middleware/visitor-checker.js';
 import {
 	addCongregationUser,
+	createCongregation,
 	createNewPocketUser,
 	deletePocketDevice,
 	deletePocketOTPCode,
@@ -13,13 +14,15 @@ import {
 	getCongregationBackup,
 	getCongregationMembers,
 	getCongregationPockerUser,
+	getCongregations,
 	getCongregationUser,
+	getCountries,
 	getLastCongregationBackup,
 	getMeetingSchedules,
 	removeCongregationUser,
-	requestCongregation,
 	saveCongregationBackup,
 	sendPocketSchedule,
+	updateCongregationInfo,
 	updateCongregationMemberDetails,
 	updatePocketDetails,
 	updatePocketMembers,
@@ -30,14 +33,24 @@ const router = express.Router();
 
 router.use(visitorChecker());
 
-// request a new congregation
+router.get('/countries', check('language').isString().notEmpty(), getCountries);
+
+router.get(
+	'/list-by-country',
+	check('language').isString().notEmpty(),
+	check('country').isString().notEmpty(),
+	check('name').isString().isLength({ min: 2 }),
+	getCongregations
+);
+
+// create a new congregation
 router.put(
 	'/',
 	body('email').isEmail(),
 	body('cong_name').notEmpty(),
 	body('cong_number').isNumeric(),
 	body('app_requestor').notEmpty(),
-	requestCongregation
+	createCongregation
 );
 
 // get meeting schedule
@@ -45,6 +58,9 @@ router.get('/:id/meeting-schedule', getMeetingSchedules);
 
 // activate role checker middleware
 router.use(congregationRoleChecker());
+
+// create a new congregation
+router.patch('/:id', body('cong_name').notEmpty(), body('cong_number').isNumeric(), updateCongregationInfo);
 
 // get last backup information
 router.get('/:id/backup/last', getLastCongregationBackup);

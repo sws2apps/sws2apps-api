@@ -52,8 +52,9 @@ Country.prototype.addCongregation = async function (congInfo, language) {
 		name: {
 			E: congInfo.name,
 		},
-		language: congInfo.language,
 	};
+
+	if (language === 'E') newData.language = congInfo.language;
 
 	this.congregations.push(newData);
 	const data = { congregations: this.congregations };
@@ -65,7 +66,7 @@ Country.prototype.addCongregation = async function (congInfo, language) {
 Country.prototype.updateCongregation = async function (congInfo, language) {
 	const cong = this.congregations.find((congregation) => congregation.number === congInfo.number);
 	cong.name[language] = congInfo.name;
-	cong.language = congInfo.language;
+	if (language === 'E') cong.language = congInfo.language;
 
 	const data = { congregations: this.congregations };
 
