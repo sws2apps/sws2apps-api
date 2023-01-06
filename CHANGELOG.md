@@ -1,3 +1,12 @@
+# [2.10.0](https://github.com/sws2apps/sws2apps-api/compare/v2.9.0...v2.10.0) (2023-01-06)
+
+
+### Features
+
+* **admin:** support for assigning congregations geo locations ([015a9eb](https://github.com/sws2apps/sws2apps-api/commit/015a9ebb6134f48d74ba80e5586b52030310fc09))
+* **deps:** bump cryptr from 6.0.3 to 6.1.0 ([f34ec53](https://github.com/sws2apps/sws2apps-api/commit/f34ec53161c1de75a415237d665505ff47ce3aef))
+* **deps:** bump json5 from 1.0.1 to 1.0.2 ([53c7158](https://github.com/sws2apps/sws2apps-api/commit/53c7158304b901d2e7d072e855e58df013095fde))
+
 # [2.9.0](https://github.com/sws2apps/sws2apps-api/compare/v2.8.0...v2.9.0) (2023-01-01)
 
 
