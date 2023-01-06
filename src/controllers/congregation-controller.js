@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 import { validationResult } from 'express-validator';
 import { decryptData } from '../utils/encryption-utils.js';
 import { sendCongregationAccountCreated, sendCongregationRequest } from '../utils/sendEmail.js';
@@ -1209,6 +1210,245 @@ export const getMeetingSchedules = async (req, res, next) => {
 					res.locals.type = 'info';
 					res.locals.message = 'user has fetched the schedule';
 					res.status(200).json({ cong_sourceMaterial, cong_schedule, class_count: cong_settings[0].class_count });
+					return;
+				}
+
+				res.locals.type = 'warn';
+				res.locals.message = 'user not authorized to access the provided congregation';
+				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+				return;
+			}
+
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation id params is undefined';
+		res.status(400).json({ message: 'CONG_ID_INVALID' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const getCountries = async (req, res, next) => {
+	try {
+		let { language } = req.headers;
+
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		language = language.toUpperCase();
+
+		const langsAllowed = ['E', 'MG'];
+		if (langsAllowed.includes(language) === false) {
+			res.locals.type = 'warn';
+			res.locals.message = `invalid language`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const url =
+			process.env.JW_COUNTRY_API +
+			new URLSearchParams({
+				languageCode: language,
+			});
+
+		const response = await fetch(url);
+
+		if (response.ok) {
+			const countriesList = await response.json();
+			res.locals.type = 'info';
+			res.locals.message = 'user fetched all countries';
+			res.status(200).json(countriesList);
+		} else {
+			res.locals.type = 'warn';
+			res.locals.message = 'an error occured while getting list of all countries';
+			res.status(response.status).json({ message: 'FETCH_FAILED' });
+		}
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const getCongregations = async (req, res, next) => {
+	try {
+		let { country, language, name } = req.headers;
+
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		language = language.toUpperCase();
+		country = country.toUpperCase();
+
+		const langsAllowed = ['E', 'MG'];
+		if (langsAllowed.includes(language) === false) {
+			res.locals.type = 'warn';
+			res.locals.message = `invalid language`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const url =
+			process.env.JW_CONGREGATION_API +
+			`/${country}?` +
+			new URLSearchParams({
+				languageCode: language,
+				name: name,
+			});
+
+		const response = await fetch(url);
+
+		if (response.ok) {
+			const congsList = await response.json();
+			res.locals.type = 'info';
+			res.locals.message = 'user fetched congregations';
+			res.status(200).json(congsList);
+		} else {
+			res.locals.type = 'warn';
+			res.locals.message = 'an error occured while getting congregations list';
+			res.status(response.status).json({ message: 'FETCH_FAILED' });
+		}
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const createCongregation = async (req, res, next) => {
+	try {
+		const { email, cong_name, cong_number, app_requestor } = req.body;
+
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		if (app_requestor !== 'lmmo') {
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${app_requestor}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		// find congregation
+		const cong = congregations.findByNumber(cong_number);
+		if (cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation requested already exists';
+			res.status(404).json({ message: 'CONG_EXISTS' });
+
+			return;
+		}
+
+		// create congregation
+		const congData = { cong_name, cong_number };
+		const newCong = await congregations.create(congData);
+
+		// add user to congregation
+		const tmpUser = users.findUserByEmail(email);
+		const user = await newCong.addUser(tmpUser.id, ['admin', 'lmmo']);
+
+		res.locals.type = 'info';
+		res.locals.message = 'congregation created successfully';
+		res.status(200).json(user);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const updateCongregationInfo = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const { email } = req.headers;
+		const { cong_name, cong_number } = req.body;
+
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		if (id) {
+			const cong = congregations.findCongregationById(id);
+			if (cong) {
+				const isValid = cong.isMember(email);
+
+				if (isValid) {
+					const data = { cong_name, cong_number };
+					await cong.updateInfo(data);
+
+					const user = users.findUserByEmail(email);
+
+					res.locals.type = 'info';
+					res.locals.message = 'congregation information updated';
+					res.status(200).json(user);
 					return;
 				}
 
