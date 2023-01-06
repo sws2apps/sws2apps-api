@@ -1444,8 +1444,13 @@ export const updateCongregationInfo = async (req, res, next) => {
 					const data = { cong_name, cong_number };
 					await cong.updateInfo(data);
 
+					for await (const user of cong.cong_members) {
+						const tmpUser = users.findUserById(user.id);
+						await tmpUser.loadDetails();
+					}
+
+					cong.reloadMembers();
 					const user = users.findUserByEmail(email);
-					await user.loadDetails();
 
 					res.locals.type = 'info';
 					res.locals.message = 'congregation information updated';
