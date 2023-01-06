@@ -92,11 +92,12 @@ describe('Testing signin', () => {
 
 	describe('POST /api/mfa/verify-token', () => {
 		it('does not allow invalid token to login', (done) => {
+			const token = 100000;
 			chai
 				.request(api)
 				.post('/api/mfa/verify-token')
 				.set({ visitorid, email: 'user@gmail.com' })
-				.send({ token: '00000' })
+				.send({ token })
 				.end((err, res) => {
 					expect(res).to.have.status(403);
 					expect(res.body.message).to.be.equal('TOKEN_INVALID');

@@ -1,3 +1,10 @@
+# [2.11.0](https://github.com/sws2apps/sws2apps-api/compare/v2.10.0...v2.11.0) (2023-01-06)
+
+
+### Features
+
+* **congregations:** signup using predefined list ([714b447](https://github.com/sws2apps/sws2apps-api/commit/714b44770377fcd9cb76a6e77d4c0ceac61b9270))
+
 # [2.10.0](https://github.com/sws2apps/sws2apps-api/compare/v2.9.0...v2.10.0) (2023-01-06)
 
 
