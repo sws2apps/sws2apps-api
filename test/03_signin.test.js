@@ -98,7 +98,6 @@ describe('Testing signin', () => {
 				.set({ visitorid, email: 'user@gmail.com' })
 				.send({ token: '00000' })
 				.end((err, res) => {
-					console.log(res.status, res.body);
 					expect(res).to.have.status(403);
 					expect(res.body.message).to.be.equal('TOKEN_INVALID');
 					done();
