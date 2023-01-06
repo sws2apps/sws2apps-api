@@ -1451,7 +1451,6 @@ export const updateCongregationInfo = async (req, res, next) => {
 
 					cong.reloadMembers();
 					const user = users.findUserByEmail(email);
-					await user.loadDetails();
 
 					res.locals.type = 'info';
 					res.locals.message = 'congregation information updated';
