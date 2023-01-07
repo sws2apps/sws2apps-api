@@ -44,14 +44,13 @@ User.prototype.loadDetails = async function () {
 	this.mfaEnabled = userSnap.data().about?.mfaEnabled || false;
 	this.cong_id = userSnap.data().congregation?.id || '';
 	this.cong_role = userSnap.data().congregation?.role || [];
+	this.pocket_local_id = userSnap.data().congregation?.local_id || null;
+	this.pocket_members = userSnap.data().congregation?.pocket_members || [];
 
 	if (this.global_role === 'pocket') {
-		this.pocket_local_id = userSnap.data().congregation?.local_id || '';
 		this.pocket_devices = userSnap.data().congregation?.devices || [];
 		this.pocket_oCode = userSnap.data().congregation?.oCode || '';
 		this.cong_role = userSnap.data().congregation?.pocket_role || [];
-		this.pocket_members = userSnap.data().congregation?.pocket_members || [];
-
 		let lastSeens = this.pocket_devices.map((device) => {
 			return { last_seen: device.sws_last_seen };
 		});
