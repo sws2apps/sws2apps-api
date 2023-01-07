@@ -221,7 +221,7 @@ Congregation.prototype.deletePocketUser = async function (userId) {
 	this.reloadMembers();
 };
 
-Congregation.prototype.sendPocketSchedule = async function (data) {
+Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong_settings) {
 	const currentSchedule = this.cong_schedule;
 	const currentSource = this.cong_sourceMaterial;
 
@@ -233,8 +233,8 @@ Congregation.prototype.sendPocketSchedule = async function (data) {
 	let newStudentsSchedule = validSchedule;
 	let newStudentsSource = validSource;
 
-	for (let i = 0; i < data.length; i++) {
-		const schedule = data[i];
+	for (let i = 0; i < cong_schedules.length; i++) {
+		const schedule = cong_schedules[i];
 
 		const { id, month, year, schedules, sources } = schedule;
 
@@ -275,8 +275,10 @@ Congregation.prototype.sendPocketSchedule = async function (data) {
 	await db.collection('congregations').doc(this.id).update({
 		cong_schedule: newSchedule,
 		cong_sourceMaterial: newSource,
+		cong_settings,
 	});
 
 	this.cong_schedule = newSchedule;
 	this.cong_sourceMaterial = newSource;
+	this.cong_settings = cong_settings;
 };

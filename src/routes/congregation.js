@@ -80,7 +80,7 @@ router.post(
 router.get('/:id/backup', getCongregationBackup);
 
 // post new sws pocket schedule
-router.post('/:id/schedule', body('schedules').isArray(), sendPocketSchedule);
+router.post('/:id/schedule', body('schedules').isArray(), body('cong_settings').isArray(), sendPocketSchedule);
 
 // activate congregation admin role checker
 router.use(congregationAdminChecker());

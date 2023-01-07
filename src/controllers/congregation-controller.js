@@ -1146,9 +1146,9 @@ export const sendPocketSchedule = async (req, res, next) => {
 						return;
 					}
 
-					const { schedules } = req.body;
+					const { schedules, cong_settings } = req.body;
 
-					await cong.sendPocketSchedule(schedules);
+					await cong.sendPocketSchedule(schedules, cong_settings);
 
 					res.locals.type = 'info';
 					res.locals.message = 'schedule save for sws pocket application';
@@ -1209,7 +1209,12 @@ export const getMeetingSchedules = async (req, res, next) => {
 
 					res.locals.type = 'info';
 					res.locals.message = 'user has fetched the schedule';
-					res.status(200).json({ cong_sourceMaterial, cong_schedule, class_count: cong_settings[0].class_count });
+					res.status(200).json({
+						cong_sourceMaterial,
+						cong_schedule,
+						class_count: cong_settings[0].class_count,
+						source_lang: cong_settings[0].source_lang,
+					});
 					return;
 				}
 
