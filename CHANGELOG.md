@@ -1,3 +1,10 @@
+## [2.11.2](https://github.com/sws2apps/sws2apps-api/compare/v2.11.1...v2.11.2) (2023-01-06)
+
+
+### Bug Fixes
+
+* **congregations:** update congregation members info after update ([1ca1c71](https://github.com/sws2apps/sws2apps-api/commit/1ca1c712d2d5a0c6d34dfe37a69fbed3fb4af9fe))
+
 ## [2.11.1](https://github.com/sws2apps/sws2apps-api/compare/v2.11.0...v2.11.1) (2023-01-06)
 
 
