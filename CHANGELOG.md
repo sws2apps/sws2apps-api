@@ -1,3 +1,10 @@
+## [2.12.1](https://github.com/sws2apps/sws2apps-api/compare/v2.12.0...v2.12.1) (2023-01-08)
+
+
+### Bug Fixes
+
+* **classes:** fix code format when adding new pocket device ([99866ce](https://github.com/sws2apps/sws2apps-api/commit/99866ce7e8d9bcad05d483235a46525dbdd2017f))
+
 # [2.12.0](https://github.com/sws2apps/sws2apps-api/compare/v2.11.2...v2.12.0) (2023-01-08)
 
 
