@@ -1,3 +1,10 @@
+## [2.12.2](https://github.com/sws2apps/sws2apps-api/compare/v2.12.1...v2.12.2) (2023-01-08)
+
+
+### Bug Fixes
+
+* **classes:** update secure code for pocket ([84362ff](https://github.com/sws2apps/sws2apps-api/commit/84362ff59397c53dc4bc497367129a34a5f076a4))
+
 ## [2.12.1](https://github.com/sws2apps/sws2apps-api/compare/v2.12.0...v2.12.1) (2023-01-08)
 
 
