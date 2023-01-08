@@ -13,10 +13,10 @@ describe('Testing announcements', () => {
 			chai
 				.request(api)
 				.get('/api/users/announcement')
-				.send({ app: 'lmm-oa' })
+				.set({ app: 'lmm-oa' })
 				.end((err, res) => {
 					expect(res).to.have.status(200);
-					expect(res.status).to.be.an('array');
+					expect(res.body).to.be.an('array');
 					done();
 				});
 		});
@@ -27,7 +27,7 @@ describe('Testing announcements', () => {
 			chai
 				.request(api)
 				.get('/api/users/announcement')
-				.send({ app: 'junk' })
+				.set({ app: 'junk' })
 				.end((err, res) => {
 					expect(res).to.have.status(400);
 					done();

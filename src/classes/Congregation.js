@@ -63,6 +63,7 @@ Congregation.prototype.loadDetails = async function () {
 };
 
 Congregation.prototype.updateInfo = async function (congInfo) {
+	congInfo.cong_number = congInfo.cong_number.toString();
 	await db.collection('congregations').doc(this.id).set(congInfo, { merge: true });
 	this.country_code = congInfo.country_code;
 	this.cong_name = congInfo.cong_name;
