@@ -34,7 +34,7 @@ describe('Testing congregation signin and approval', () => {
 				.end((err, res) => {
 					expect(res).to.have.status(200);
 					expect(res.body.cong_name).to.be.equal('Test Congregation');
-					expect(res.body.cong_number).to.be.equal(1234);
+					expect(res.body.cong_number).to.be.equal('1234');
 					done();
 				});
 		});
@@ -44,7 +44,13 @@ describe('Testing congregation signin and approval', () => {
 				.request(api)
 				.put('/api/congregations')
 				.set({ visitorid, email: 'user@gmail.com' })
-				.send({ email: 'user@gmail.com', cong_name: 'Test Congregation', cong_number: 1234, app_requestor: 'lmmo' })
+				.send({
+					email: 'user@gmail.com',
+					country_code: 'MDG',
+					cong_name: 'Test Congregation',
+					cong_number: 1234,
+					app_requestor: 'lmmo',
+				})
 				.end((err, res) => {
 					expect(res).to.have.status(404);
 					expect(res.body.message).to.be.equal('CONG_EXISTS');

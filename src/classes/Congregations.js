@@ -37,6 +37,7 @@ Congregations.prototype.findByNumber = function (number) {
 };
 
 Congregations.prototype.create = async function (congInfo) {
+	congInfo.cong_number = congInfo.cong_number.toString();
 	const cong = await db.collection('congregations').add(congInfo);
 
 	const newCong = new Congregation(cong.id);
