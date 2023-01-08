@@ -1,3 +1,16 @@
+# [2.12.0](https://github.com/sws2apps/sws2apps-api/compare/v2.11.2...v2.12.0) (2023-01-08)
+
+
+### Bug Fixes
+
+* **congregation:** issue when congregation update overwrites cloud data ([3bb98bd](https://github.com/sws2apps/sws2apps-api/commit/3bb98bd4b37c6114c765e3a3d311f633e8d7e804))
+
+
+### Features
+
+* **announcements:** filter by app name ([ab592ef](https://github.com/sws2apps/sws2apps-api/commit/ab592efb780014018a280d6aacbed0eb4ceb1a87))
+* **api:** update to handle the new sws-vip application ([6052379](https://github.com/sws2apps/sws2apps-api/commit/6052379792f336e30366895bc76e8b23b39f17dc))
+
 ## [2.11.2](https://github.com/sws2apps/sws2apps-api/compare/v2.11.1...v2.11.2) (2023-01-06)
 
 
