@@ -36,7 +36,21 @@ export const createAccount = async (req, res, next) => {
 
 export const getAnnouncements = async (req, res, next) => {
 	try {
-		const list = announcements.list;
+		const { app } = req.headers;
+
+		const appsAllowed = ['lmm-oa', 'sws-vip', 'sws-pocket'];
+		if (appsAllowed.includes(app) === false) {
+			res.locals.type = 'warn';
+			res.locals.message = `invalid app`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const list = announcements.findByTarget(app);
 
 		res.locals.type = 'info';
 		res.locals.message = `client fetched announcements`;

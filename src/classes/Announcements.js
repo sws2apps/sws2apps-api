@@ -79,6 +79,11 @@ Announcements.prototype.findById = function (id) {
 	return found;
 };
 
+Announcements.prototype.findByTarget = function (appTarget) {
+	const found = this.list.filter((announcement) => announcement.appTarget === appTarget) || [];
+	return found;
+};
+
 Announcements.prototype.delete = async function (id) {
 	const announcementRef = db.collection('announcements').doc(id);
 	const announcementSnap = await announcementRef.get();
