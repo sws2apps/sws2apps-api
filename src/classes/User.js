@@ -270,8 +270,10 @@ User.prototype.generateSecret = async function () {
 
 User.prototype.generatePocketCode = async function () {
 	try {
+		const cong = congregations.findCongregationById(this.cong_id);
+
 		const code = randomstring.generate(10).toUpperCase();
-		const secureCode = encryptData(code);
+		const secureCode = encryptData(`${cong.country_code}${cong.cong_number}-${code}`);
 
 		await db.collection('users').doc(this.id).update({
 			'congregation.oCode': secureCode,
@@ -279,7 +281,6 @@ User.prototype.generatePocketCode = async function () {
 
 		this.pocket_oCode = secureCode;
 
-		const cong = congregations.findCongregationById(this.cong_id);
 		cong.reloadMembers();
 
 		return code;
