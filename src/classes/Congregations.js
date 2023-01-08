@@ -27,7 +27,13 @@ Congregations.prototype.findCongregationById = function (id) {
 };
 
 Congregations.prototype.findByNumber = function (number) {
-	return this.list.find((cong) => cong.cong_number === number);
+	const regex = new RegExp('\\d+');
+
+	const array = regex.exec(number);
+	const cong_country = number.substring(0, array.index);
+	const cong_number = array[0];
+
+	return this.list.find((cong) => cong.country_code === cong_country && cong.cong_number === cong_number);
 };
 
 Congregations.prototype.create = async function (congInfo) {

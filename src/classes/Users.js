@@ -1,6 +1,5 @@
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
-import { decryptData } from '../utils/encryption-utils.js';
 import { sendVerificationEmail } from '../utils/sendEmail.js';
 import { dbFetchUsers } from '../utils/user-utils.js';
 import { congregations } from './Congregations.js';
@@ -46,14 +45,17 @@ Users.prototype.findUserById = function (id) {
 
 Users.prototype.findUserByOTPCode = function (code) {
 	let user;
-	for (let i = 0; i < this.list.length; i++) {
-		const item = this.list[i];
-		const otpCode = item.pocket_oCode;
-		if (otpCode !== '') {
-			const pocket_oCode = decryptData(otpCode);
 
-			if (code === pocket_oCode) {
-				user = item;
+	// parse otp code
+	const cong_number = code.split('-')[0];
+
+	// get congregation
+	const cong = congregations.findByNumber(cong_number);
+	if (cong) {
+		for (let i = 0; i < cong.cong_members.length; i++) {
+			const item = cong.cong_members[i];
+			if (code === item.pocket_oCode) {
+				user = this.findUserById(item.id);
 				break;
 			}
 		}

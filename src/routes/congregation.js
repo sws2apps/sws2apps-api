@@ -47,6 +47,7 @@ router.get(
 router.put(
 	'/',
 	body('email').isEmail(),
+	body('country_code').isString().notEmpty(),
 	body('cong_name').notEmpty(),
 	body('cong_number').isNumeric(),
 	body('app_requestor').notEmpty(),
@@ -59,8 +60,14 @@ router.get('/:id/meeting-schedule', getMeetingSchedules);
 // activate role checker middleware
 router.use(congregationRoleChecker());
 
-// create a new congregation
-router.patch('/:id', body('cong_name').notEmpty(), body('cong_number').isNumeric(), updateCongregationInfo);
+// update congregation details
+router.patch(
+	'/:id',
+	body('country_code').isString().notEmpty(),
+	body('cong_name').notEmpty(),
+	body('cong_number').isNumeric(),
+	updateCongregationInfo
+);
 
 // get last backup information
 router.get('/:id/backup/last', getLastCongregationBackup);

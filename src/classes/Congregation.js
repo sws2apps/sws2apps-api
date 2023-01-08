@@ -9,6 +9,7 @@ const db = getFirestore(); //get default database
 export class Congregation {
 	constructor(id) {
 		this.id = id;
+		this.country_code = '';
 		this.cong_name = '';
 		this.cong_number = '';
 		this.cong_persons = '';
@@ -27,6 +28,7 @@ Congregation.prototype.loadDetails = async function () {
 	const congRef = db.collection('congregations').doc(this.id);
 	const congSnap = await congRef.get();
 
+	this.country_code = congSnap.data().country_code;
 	this.cong_name = congSnap.data().cong_name;
 	this.cong_number = congSnap.data().cong_number;
 	this.last_backup = congSnap.data().last_backup;
@@ -61,7 +63,8 @@ Congregation.prototype.loadDetails = async function () {
 };
 
 Congregation.prototype.updateInfo = async function (congInfo) {
-	await db.collection('congregations').doc(this.id).set(congInfo);
+	await db.collection('congregations').doc(this.id).set(congInfo, { merge: true });
+	this.country_code = congInfo.country_code;
 	this.cong_name = congInfo.cong_name;
 	this.cong_number = congInfo.cong_number;
 };
@@ -193,7 +196,7 @@ Congregation.prototype.updateUserRole = async function (userId, userRole) {
 
 Congregation.prototype.createPocketUser = async function (pocketName, pocketId) {
 	const code = randomstring.generate(10).toUpperCase();
-	const secureCode = encryptData(code);
+	const secureCode = encryptData(`${this.country_code}${this.cong_number}-${code}`);
 
 	const ref = await db.collection('users').add({
 		about: { name: pocketName, role: 'pocket' },
