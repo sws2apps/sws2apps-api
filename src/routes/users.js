@@ -2,25 +2,31 @@ import express from 'express';
 import { body, header } from 'express-validator';
 import { visitorChecker } from '../middleware/visitor-checker.js';
 import {
-  createAccount,
-  deleteUserSession,
-  getAnnouncements,
-  getUserSecretToken,
-  getUserSessions,
-  resendVerificationEmail,
-  updateUserFullname,
-  updateUserPassword,
-  userLogout,
-  validateUser,
+	createAccount,
+	deleteUserSession,
+	getAnnouncements,
+	getUserSecretToken,
+	getUserSessions,
+	resendVerificationEmail,
+	updateUserFullname,
+	updateUserPassword,
+	userLogout,
+	validateUser,
 } from '../controllers/users-controller.js';
 
 const router = express.Router();
 
 // create a new user account
-router.post('/create-account', body('fullname').isLength({ min: 3 }), body('email').isEmail(), body('password').isLength({ min: 10 }), createAccount);
+router.post(
+	'/create-account',
+	body('fullname').isLength({ min: 3 }),
+	body('email').isEmail(),
+	body('password').isLength({ min: 10 }),
+	createAccount
+);
 
 // get announcements
-router.get('/announcement', getAnnouncements);
+router.get('/announcement', header('app').isString().notEmpty(), getAnnouncements);
 
 // resend verification email
 router.get('/resend-verification', header('email').isEmail(), resendVerificationEmail);
