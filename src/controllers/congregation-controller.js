@@ -1359,7 +1359,7 @@ export const getCongregations = async (req, res, next) => {
 
 export const createCongregation = async (req, res, next) => {
 	try {
-		const { email, cong_name, cong_number, app_requestor } = req.body;
+		const { email, country_code, cong_name, cong_number, app_requestor } = req.body;
 
 		const errors = validationResult(req);
 
@@ -1391,7 +1391,7 @@ export const createCongregation = async (req, res, next) => {
 		}
 
 		// find congregation
-		const cong = congregations.findByNumber(cong_number);
+		const cong = congregations.findByNumber(`${country_code}${cong_number}`);
 		if (cong) {
 			res.locals.type = 'warn';
 			res.locals.message = 'the congregation requested already exists';
@@ -1401,8 +1401,7 @@ export const createCongregation = async (req, res, next) => {
 		}
 
 		// create congregation
-		const congData = { cong_name, cong_number };
-		const newCong = await congregations.create(congData);
+		const newCong = await congregations.create({ country_code, cong_name, cong_number });
 
 		// add user to congregation
 		const tmpUser = users.findUserByEmail(email);
@@ -1420,7 +1419,7 @@ export const updateCongregationInfo = async (req, res, next) => {
 	try {
 		const { id } = req.params;
 		const { email } = req.headers;
-		const { cong_name, cong_number } = req.body;
+		const { country_code, cong_name, cong_number } = req.body;
 
 		const errors = validationResult(req);
 
@@ -1446,7 +1445,7 @@ export const updateCongregationInfo = async (req, res, next) => {
 				const isValid = cong.isMember(email);
 
 				if (isValid) {
-					const data = { cong_name, cong_number };
+					const data = { country_code, cong_name, cong_number };
 					await cong.updateInfo(data);
 
 					for await (const user of cong.cong_members) {
