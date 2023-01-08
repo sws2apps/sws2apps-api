@@ -225,7 +225,6 @@ export const getUserSessions = async (req, res, next) => {
 
 		if (id) {
 			const user = users.findUserById(id);
-			console.log(id, user);
 			const sessions = user.getActiveSessions();
 
 			res.locals.type = 'info';
