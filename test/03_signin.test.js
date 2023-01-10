@@ -23,7 +23,7 @@ describe('Testing signin', () => {
 		const page = await browser.newPage();
 		await page.goto('https://www.google.com');
 		const id = await page.evaluate(async () => {
-			const FingerprintJS = await import('https://fpjscdn.net/v3/XwmESck7zm6PZAfspXbs');
+			const FingerprintJS = await import('https://fpjscdn.net/v3/ReXJ93Fmp7vvQKdkSphj');
 			const fp = await FingerprintJS.load();
 			const result = await fp.get();
 			return result.visitorId;

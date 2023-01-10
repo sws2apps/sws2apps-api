@@ -1,3 +1,17 @@
+## [2.12.4](https://github.com/sws2apps/sws2apps-api/compare/v2.12.3...v2.12.4) (2023-01-10)
+
+
+### Bug Fixes
+
+* **api:** add sws-vip to cors ([4e4667c](https://github.com/sws2apps/sws2apps-api/commit/4e4667c54f680bea0b976d5c3d0db783ce823bd9))
+
+## [2.12.3](https://github.com/sws2apps/sws2apps-api/compare/v2.12.2...v2.12.3) (2023-01-08)
+
+
+### Bug Fixes
+
+* **controller:** fix issue if cong settings is undefined ([ff25cc5](https://github.com/sws2apps/sws2apps-api/commit/ff25cc5e9fcf911f5c8f7ef553ff4dfef4bff533))
+
 ## [2.12.2](https://github.com/sws2apps/sws2apps-api/compare/v2.12.1...v2.12.2) (2023-01-08)
 
 

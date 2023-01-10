@@ -24,14 +24,12 @@ import { errorHandler, getAppVersion, getRoot, invalidEndpointHandler } from './
 
 // allowed apps url
 const whitelist = [
-	'https://alpha-sws-pocket.web.app',
-	'https://alpha-sws-pocket.firebaseapp.com',
 	'https://sws-pocket.web.app',
 	'https://sws-pocket.firebaseapp.com',
 	'https://lmm-oa-sws.web.app',
 	'https://lmm-oa-sws.firebaseapp.com',
-	'https://sws-apps-dev.web.app',
-	'https://sws-apps-dev.firebaseapp.com',
+	'https://sws-vip.web.app',
+	'https://sws-vip.firebaseapp.com',
 	'https://sws2apps-tools.web.app',
 	'https://sws2apps-tools.firebaseapp.com',
 ];
