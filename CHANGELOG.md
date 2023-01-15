@@ -1,3 +1,11 @@
+# [2.13.0](https://github.com/sws2apps/sws2apps-api/compare/v2.12.4...v2.13.0) (2023-01-15)
+
+
+### Features
+
+* **deps:** bump @logtail/node from 0.1.14 to 0.1.15 ([28a4b1b](https://github.com/sws2apps/sws2apps-api/commit/28a4b1bdbe1028f7f74565730da3a7ca0da7982c))
+* **deps:** bump nodemailer from 6.8.0 to 6.9.0 ([cd18182](https://github.com/sws2apps/sws2apps-api/commit/cd181826fd65d3bfc5b8fef37573d01fbad10c87))
+
 ## [2.12.4](https://github.com/sws2apps/sws2apps-api/compare/v2.12.3...v2.12.4) (2023-01-10)
 
 
