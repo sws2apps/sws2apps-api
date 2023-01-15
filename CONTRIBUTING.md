@@ -40,9 +40,6 @@ If you’re only fixing a bug, it’s fine to submit a pull request right away b
 
 We use Firebase to be our backend. Therefore, during development, Firebase Emulators is used.
 
-- If it is the first time you use Firebase CLI, run `firebase login` to authenticate to your account.
-- Run `npm run setup:emulators`, and if not selected, choose `Authentication Emulator` and `Firestore Emulator`. Emulators Ports are already defined in the `firebase.json` file. Feel free to change them later if you want to use different values.
-- Complete the wizard until Firebase initialization is completed.
 - Run `npm run start:emulators` to start the Firebase Emulators.
 
 ### Setup Environment Variables
@@ -54,19 +51,20 @@ Environment variables are required in order to locally run this API. Please find
 - GMAIL_APP_PASSWORD: your gmail address app password. To create this value, follow [this guide](https://support.google.com/mail/answer/185833).
 - GMAIL_SENDER_NAME: sender name for your email address.
 - JW_CDN: set the value to be `https://app.jw-cdn.org/apis/pub-media/GETPUBMEDIALINKS?`
+- JW_COUNTRY_API: set the value to be `https://apps.jw.org/api/donations.v1/countries?`
+- JW_CONGREGATION_API: set the value to be `https://apps.jw.org/api/conventions/convention-congregation-list`
 - FIREBASE_AUTH_EMULATOR_HOST: the `Host:Port` for Authentication Emulator.
 - FIRESTORE_EMULATOR_HOST: the `Host:Port` for Firestore Emulator.
 
 ### Starting the Development Server
 
-- Run `npm run dev` to start the development server, and interact with the API.
+- Open a new terminal and run `npm run dev` to start the development server, and interact with the API.
 
 ### Creating Your Congregation Account
 
 As each development server will start with a new and clean Firebase Emulator instance, you have to create your user and congregation account.
 
 - When creating user account, the use of authenticator app is optional. When required, the OTP code is printed on the dev console. If you still want to use authenticator app, you have to delete and create a new account each time you run the dev server.
-- The congregation request is automatically approved.
 
 ## Sending a Pull Request (PR)
 
