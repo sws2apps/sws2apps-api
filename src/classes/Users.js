@@ -89,6 +89,8 @@ Users.prototype.findPocketByVisitorId = async function (visitorid) {
 
 Users.prototype.create = async function (fullname, email, password) {
 	const isTesting = process.env.NODE_ENV === 'testing';
+	const isDev = process.env.NODE_ENV === 'development';
+	const isProd = process.env.NODE_ENV === 'production';
 
 	const userData = {
 		email: email,
@@ -102,7 +104,11 @@ Users.prototype.create = async function (fullname, email, password) {
 	const userEmail = userRecord.email;
 	const link = await getAuth().generateEmailVerificationLink(userEmail);
 
-	sendVerificationEmail(userEmail, fullname, link);
+	if (isDev) {
+		console.log(`Please use this link to verify your account: ${link}`);
+	}
+
+	if (isProd) sendVerificationEmail(userEmail, fullname, link);
 
 	const data = {
 		about: {

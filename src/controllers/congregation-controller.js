@@ -167,9 +167,17 @@ export const saveCongregationBackup = async (req, res, next) => {
 				const isValid = cong.isMember(email);
 
 				if (isValid) {
-					const { cong_persons, cong_schedule, cong_sourceMaterial, cong_swsPocket, cong_settings } = req.body;
+					const { cong_persons, cong_deleted, cong_schedule, cong_sourceMaterial, cong_swsPocket, cong_settings } = req.body;
 
-					await cong.saveBackup(cong_persons, cong_schedule, cong_sourceMaterial, cong_swsPocket, cong_settings, email);
+					await cong.saveBackup(
+						cong_persons,
+						cong_deleted,
+						cong_schedule,
+						cong_sourceMaterial,
+						cong_swsPocket,
+						cong_settings,
+						email
+					);
 
 					res.locals.type = 'info';
 					res.locals.message = 'user send backup for congregation successfully';
