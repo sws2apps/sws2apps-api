@@ -94,6 +94,7 @@ Congregation.prototype.isMember = function (email) {
 
 Congregation.prototype.saveBackup = async function (
 	cong_persons,
+	cong_deleted,
 	cong_schedule,
 	cong_sourceMaterial,
 	cong_swsPocket,
@@ -101,14 +102,203 @@ Congregation.prototype.saveBackup = async function (
 	email
 ) {
 	try {
+		let finalPersons = [];
+
+		// new backup persons
+		if (this.cong_persons === '') {
+			finalPersons = cong_persons;
+		}
+
+		// updated persons
+		if (this.cong_persons !== '') {
+			const decryptedPersons = JSON.parse(decryptData(this.cong_persons));
+
+			// handle modified person record
+			decryptedPersons.forEach((oldPerson) => {
+				const newPerson = cong_persons.find((person) => person.person_uid === oldPerson.person_uid);
+				if (newPerson) {
+					const oldChanges = oldPerson.changes;
+					const newChanges = newPerson.changes;
+
+					const arrayFields = [
+						{ name: 'assignments', id: 'assignmentId' },
+						{ name: 'timeAway', id: 'timeAwayId' },
+					];
+
+					if (newChanges) {
+						// handle non-assignments and non-time away changes
+						newChanges.forEach((change) => {
+							if (arrayFields.findIndex((field) => field.name === change.field) === -1) {
+								let isChanged = false;
+
+								const oldChange = oldChanges.find((old) => old.field === change.field);
+								const originalDate = oldChange?.date || undefined;
+
+								if (!oldChange) {
+									isChanged = true;
+								}
+
+								if (originalDate) {
+									const dateA = new Date(originalDate);
+									const dateB = new Date(change.date);
+
+									if (dateB > dateA) {
+										isChanged = true;
+									}
+								}
+
+								if (isChanged) {
+									oldPerson[change.field] = change.value;
+
+									if (oldPerson.changes) {
+										const findIndex = oldPerson.changes.findIndex((item) => item.field === change.field) || -1;
+										if (findIndex !== -1) oldPerson.changes.splice(findIndex, 1);
+									}
+
+									if (!oldPerson.changes) {
+										oldPerson.changes = [];
+									}
+
+									oldPerson.changes.push(change);
+								}
+							}
+						});
+
+						// handle assignments and time away changes
+						newChanges.forEach((change) => {
+							const foundArray = arrayFields.find((field) => field.name === change.field);
+							if (foundArray) {
+								// handle deleted item
+								if (change.isDeleted) {
+									const toBeDeleted = oldPerson[change.field].findIndex(
+										(item) => item[foundArray.id] === change.value[foundArray.id]
+									);
+									if (toBeDeleted !== -1) oldPerson[change.field].splice(toBeDeleted, 1);
+								}
+
+								// handle added item
+								if (change.isAdded) {
+									oldPerson[change.field].push(change.value);
+									if (!oldPerson.changes) oldPerson.changes = [];
+									oldPerson.changes.push(change);
+								}
+
+								// handle modified item
+								if (change.isModified) {
+									const toBeModified = oldPerson[change.field].findIndex(
+										(item) => item[foundArray.id] === change.value[foundArray.id]
+									);
+
+									if (toBeModified !== -1) oldPerson[change.field].splice(toBeModified, 1);
+									oldPerson[change.field].push(change.value);
+								}
+
+								// update changes
+								if (change.isDeleted || change.isModified) {
+									if (!oldPerson.changes) oldPerson.changes = [];
+									const findIndex = oldPerson.changes.findIndex(
+										(item) => item.value[foundArray.id] === change.value[foundArray.id]
+									);
+									if (findIndex !== -1) oldPerson.changes.splice(findIndex, 1);
+									oldPerson.changes.push(change);
+								}
+							}
+						});
+					}
+				}
+
+				finalPersons.push(oldPerson);
+			});
+
+			// handle new person record
+			cong_persons.forEach((newPerson) => {
+				const oldPerson = decryptedPersons.find((person) => person.person_uid === newPerson.person_uid);
+				if (!oldPerson) {
+					finalPersons.push(newPerson);
+				}
+			});
+
+			// handle deleted person record
+			cong_deleted.forEach((deleted) => {
+				const foundPerson = finalPersons.findIndex((person) => person.person_uid === deleted.ref);
+				if (foundPerson !== -1) finalPersons.splice(foundPerson, 1);
+			});
+		}
+
 		// encrypt cong_persons data
-		const encryptedPersons = encryptData(cong_persons);
+		const encryptedPersons = encryptData(finalPersons);
+
+		let finalSchedule = [];
+
+		// new backup schedule
+		if (this.cong_schedule_draft.length === 0) {
+			finalSchedule = cong_schedule;
+		}
+
+		// updated schedule
+		if (this.cong_schedule_draft.length > 0) {
+			// handle modified schedule
+			this.cong_schedule_draft.forEach((oldSchedule) => {
+				const newSchedule = cong_schedule.find((schedule) => schedule.weekOf === oldSchedule.weekOf);
+				if (newSchedule) {
+					const oldChanges = oldSchedule.changes;
+					const newChanges = newSchedule.changes;
+
+					if (newChanges) {
+						newChanges.forEach((change) => {
+							let isChanged = false;
+
+							const oldChange = oldChanges.find((old) => old.field === change.field);
+							const originalDate = oldChange?.date || undefined;
+
+							if (!oldChange) {
+								isChanged = true;
+							}
+
+							if (originalDate) {
+								const dateA = new Date(originalDate);
+								const dateB = new Date(change.date);
+
+								if (dateB > dateA) {
+									isChanged = true;
+								}
+							}
+
+							if (isChanged) {
+								oldSchedule[change.field] = change.value;
+
+								if (oldSchedule.changes) {
+									const findIndex = oldSchedule.changes.findIndex((item) => item.field === change.field) || -1;
+									if (findIndex !== -1) oldSchedule.changes.splice(findIndex, 1);
+								}
+
+								if (!oldSchedule.changes) {
+									oldSchedule.changes = [];
+								}
+
+								oldSchedule.changes.push(change);
+							}
+						});
+					}
+				}
+
+				finalSchedule.push(oldSchedule);
+			});
+
+			// handle new schedule record
+			cong_schedule.forEach((newSchedule) => {
+				const oldSchedule = this.cong_schedule_draft.find((schedule) => schedule.weekOf === newSchedule.weekOf);
+				if (!oldSchedule) {
+					finalSchedule.push(newSchedule);
+				}
+			});
+		}
 
 		const userInfo = users.findUserByEmail(email);
 
 		const data = {
 			cong_persons: encryptedPersons,
-			cong_schedule_draft: cong_schedule,
+			cong_schedule_draft: finalSchedule,
 			cong_sourceMaterial_draft: cong_sourceMaterial,
 			cong_swsPocket: cong_swsPocket,
 			cong_settings: cong_settings,
@@ -121,7 +311,7 @@ Congregation.prototype.saveBackup = async function (
 		await db.collection('congregations').doc(this.id).set(data, { merge: true });
 
 		this.cong_persons = encryptedPersons;
-		this.cong_schedule_draft = cong_schedule;
+		this.cong_schedule_draft = finalSchedule;
 		this.cong_sourceMaterial_draft = cong_sourceMaterial;
 		this.cong_swsPocket = cong_swsPocket;
 		this.cong_settings = cong_settings;
