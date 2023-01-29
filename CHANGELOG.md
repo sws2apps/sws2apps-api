@@ -1,3 +1,13 @@
+# [2.14.0](https://github.com/sws2apps/sws2apps-api/compare/v2.13.0...v2.14.0) (2023-01-23)
+
+
+### Features
+
+* **classes:** allow merge for congregation backup ([6adaf2d](https://github.com/sws2apps/sws2apps-api/commit/6adaf2d7fc274b4502ccb56cb5a0608a3ac65af0))
+* **deps:** bump cookiejar from 2.1.3 to 2.1.4 ([8b931dd](https://github.com/sws2apps/sws2apps-api/commit/8b931dd6c629aab34429a4a019ef45aca8790892))
+* **deps:** bump express-validator from 6.14.2 to 6.14.3 ([ca7a2ff](https://github.com/sws2apps/sws2apps-api/commit/ca7a2fff2ae9581bef3e2e1565ae412a84950f99))
+* **deps:** bump firebase-admin from 11.4.1 to 11.5.0 ([53df454](https://github.com/sws2apps/sws2apps-api/commit/53df454fd166b38800b60e39e246acc36afee576))
+
 # [2.13.0](https://github.com/sws2apps/sws2apps-api/compare/v2.12.4...v2.13.0) (2023-01-15)
 
 

@@ -334,7 +334,11 @@ Congregation.prototype.saveBackup = async function (
 		const data = {
 			cong_persons: encryptedPersons,
 			cong_schedule_draft: finalSchedule,
+<<<<<<< HEAD
 			cong_sourceMaterial_draft: finalSource,
+=======
+			cong_sourceMaterial_draft: cong_sourceMaterial,
+>>>>>>> 86e9f7f3314512ba260085909cc89b342929f1c0
 			cong_swsPocket: cong_swsPocket,
 			cong_settings: cong_settings,
 			last_backup: {
@@ -347,7 +351,11 @@ Congregation.prototype.saveBackup = async function (
 
 		this.cong_persons = encryptedPersons;
 		this.cong_schedule_draft = finalSchedule;
+<<<<<<< HEAD
 		this.cong_sourceMaterial_draft = finalSource;
+=======
+		this.cong_sourceMaterial_draft = cong_sourceMaterial;
+>>>>>>> 86e9f7f3314512ba260085909cc89b342929f1c0
 		this.cong_swsPocket = cong_swsPocket;
 		this.cong_settings = cong_settings;
 		this.last_backup = {
