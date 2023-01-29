@@ -1,3 +1,11 @@
+# [2.15.0](https://github.com/sws2apps/sws2apps-api/compare/v2.14.0...v2.15.0) (2023-01-29)
+
+
+### Features
+
+* **classes:** update congregation to support new backup format ([843b0b8](https://github.com/sws2apps/sws2apps-api/commit/843b0b8bd3655fa038cc7d6d0436d53b2017af14))
+* **deps:** bump geoip-lite from 1.4.6 to 1.4.7 ([7b23a18](https://github.com/sws2apps/sws2apps-api/commit/7b23a18dcfc07be7def297c070eb3fabc2df0bbe))
+
 # [2.14.0](https://github.com/sws2apps/sws2apps-api/compare/v2.13.0...v2.14.0) (2023-01-23)
 
 
