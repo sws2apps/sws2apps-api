@@ -42,7 +42,7 @@ export const updateTracker = () => {
 					log.path = req.originalUrl;
 					log.origin = req.headers.origin || req.hostname;
 					if (clientIp) log.ip = clientIp;
-					log.details = res.locals.message.replace(/\n|\r/g, '');
+					log.details = res.locals.message?.replace(/\n|\r/g, '') || '';
 
 					logger(res.locals.type, JSON.stringify(log));
 				} else {
