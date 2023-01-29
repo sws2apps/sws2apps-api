@@ -294,12 +294,47 @@ Congregation.prototype.saveBackup = async function (
 			});
 		}
 
+		let finalSource = [];
+		cong_sourceMaterial.forEach((newSource) => {
+			const oldSource = this.cong_sourceMaterial_draft.find((source) => source.weekOf === newSource.weekOf);
+
+			if (oldSource) {
+				// restore keepOverride if qualified
+				const newKeepOverride = newSource.keepOverride || undefined;
+				const oldKeepOverride = oldSource ? oldSource.keepOverride : undefined;
+				let isRestore = false;
+
+				if (!newKeepOverride) {
+					isRestore = true;
+				}
+
+				if (newKeepOverride && oldKeepOverride) {
+					const oldDate = new Date(oldKeepOverride);
+					const newDate = new Date(newKeepOverride);
+
+					if (oldDate > newDate) {
+						isRestore = true;
+					}
+				}
+
+				if (isRestore) {
+					for (const [key, value] of Object.entries(oldSource)) {
+						if (key.indexOf('_override') !== -1) {
+							if (value) newSource[key] = value;
+						}
+					}
+				}
+			}
+
+			finalSource.push(newSource);
+		});
+
 		const userInfo = users.findUserByEmail(email);
 
 		const data = {
 			cong_persons: encryptedPersons,
 			cong_schedule_draft: finalSchedule,
-			cong_sourceMaterial_draft: cong_sourceMaterial,
+			cong_sourceMaterial_draft: finalSource,
 			cong_swsPocket: cong_swsPocket,
 			cong_settings: cong_settings,
 			last_backup: {
@@ -312,7 +347,7 @@ Congregation.prototype.saveBackup = async function (
 
 		this.cong_persons = encryptedPersons;
 		this.cong_schedule_draft = finalSchedule;
-		this.cong_sourceMaterial_draft = cong_sourceMaterial;
+		this.cong_sourceMaterial_draft = finalSource;
 		this.cong_swsPocket = cong_swsPocket;
 		this.cong_settings = cong_settings;
 		this.last_backup = {
