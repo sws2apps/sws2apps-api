@@ -319,7 +319,7 @@ Congregation.prototype.saveBackup = async function (
 
 				if (isRestore) {
 					for (const [key, value] of Object.entries(oldSource)) {
-						if (key.indexOf('_override')) {
+						if (key.indexOf('_override') !== -1) {
 							if (value) newSource[key] = value;
 						}
 					}
