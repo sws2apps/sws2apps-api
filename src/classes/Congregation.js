@@ -247,7 +247,7 @@ Congregation.prototype.saveBackup = async function (
 					newChanges.forEach((change) => {
 						let isChanged = false;
 
-						const oldChange = oldChanges.find((old) => old.field === change.field);
+						const oldChange = oldChanges?.find((old) => old.field === change.field);
 						const originalDate = oldChange?.date || undefined;
 
 						if (!oldChange) {
