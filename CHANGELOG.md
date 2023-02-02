@@ -1,3 +1,12 @@
+# [2.16.0](https://github.com/sws2apps/sws2apps-api/compare/v2.15.0...v2.16.0) (2023-02-02)
+
+
+### Features
+
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([e70d38c](https://github.com/sws2apps/sws2apps-api/commit/e70d38c1c4a9eb481a7e4c1385420d637ffcf906))
+* **deps:** bump http-cache-semantics from 4.1.0 to 4.1.1 ([c16a40d](https://github.com/sws2apps/sws2apps-api/commit/c16a40dfbb2820340a13e5b4e96ca756577a8d97))
+* **deps:** bump nodemailer from 6.9.0 to 6.9.1 ([58af22f](https://github.com/sws2apps/sws2apps-api/commit/58af22f15538176ba22f4ebb74d4649831b68b46))
+
 # [2.15.0](https://github.com/sws2apps/sws2apps-api/compare/v2.14.0...v2.15.0) (2023-01-29)
 
 
