@@ -1,3 +1,10 @@
+## [2.16.3](https://github.com/sws2apps/sws2apps-api/compare/v2.16.2...v2.16.3) (2023-02-03)
+
+
+### Bug Fixes
+
+* **classes:** handle undefined value in backup ([733a46c](https://github.com/sws2apps/sws2apps-api/commit/733a46caa820bd7e7af3aa161f8a9f038e21601c))
+
 ## [2.16.2](https://github.com/sws2apps/sws2apps-api/compare/v2.16.1...v2.16.2) (2023-02-03)
 
 
