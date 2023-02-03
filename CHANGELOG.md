@@ -1,3 +1,17 @@
+## [2.16.2](https://github.com/sws2apps/sws2apps-api/compare/v2.16.1...v2.16.2) (2023-02-03)
+
+
+### Bug Fixes
+
+* **classes:** catch undefined variable in save congregation backup ([c39e58d](https://github.com/sws2apps/sws2apps-api/commit/c39e58d1e2bd3879f0f52d476ac5e922a18decc1))
+
+## [2.16.1](https://github.com/sws2apps/sws2apps-api/compare/v2.16.0...v2.16.1) (2023-02-02)
+
+
+### Bug Fixes
+
+* **classes:** update saveBackup method in congregation ([dec9161](https://github.com/sws2apps/sws2apps-api/commit/dec916142df5752689cefa48d89456b76ee08b74))
+
 # [2.16.0](https://github.com/sws2apps/sws2apps-api/compare/v2.15.0...v2.16.0) (2023-02-02)
 
 
