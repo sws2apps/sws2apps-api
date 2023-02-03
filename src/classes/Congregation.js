@@ -264,7 +264,7 @@ Congregation.prototype.saveBackup = async function (
 						}
 
 						if (isChanged) {
-							oldSchedule[change.field] = change.value;
+							oldSchedule[change.field] = change.value || null;
 
 							if (oldSchedule.changes) {
 								const findIndex = oldSchedule.changes.findIndex((item) => item.field === change.field) || -1;
