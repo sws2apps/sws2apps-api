@@ -1,3 +1,10 @@
+# [2.17.0](https://github.com/sws2apps/sws2apps-api/compare/v2.16.3...v2.17.0) (2023-02-03)
+
+
+### Features
+
+* **deps:** bump http-cache-semantics from 4.1.0 to 4.1.1 ([c9dd099](https://github.com/sws2apps/sws2apps-api/commit/c9dd099b5830931b651e05b009496c43605f41cd))
+
 ## [2.16.3](https://github.com/sws2apps/sws2apps-api/compare/v2.16.2...v2.16.3) (2023-02-03)
 
 
