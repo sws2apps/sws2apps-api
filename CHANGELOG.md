@@ -1,3 +1,17 @@
+# [2.17.0](https://github.com/sws2apps/sws2apps-api/compare/v2.16.3...v2.17.0) (2023-02-03)
+
+
+### Features
+
+* **deps:** bump http-cache-semantics from 4.1.0 to 4.1.1 ([c9dd099](https://github.com/sws2apps/sws2apps-api/commit/c9dd099b5830931b651e05b009496c43605f41cd))
+
+## [2.16.3](https://github.com/sws2apps/sws2apps-api/compare/v2.16.2...v2.16.3) (2023-02-03)
+
+
+### Bug Fixes
+
+* **classes:** handle undefined value in backup ([733a46c](https://github.com/sws2apps/sws2apps-api/commit/733a46caa820bd7e7af3aa161f8a9f038e21601c))
+
 ## [2.16.2](https://github.com/sws2apps/sws2apps-api/compare/v2.16.1...v2.16.2) (2023-02-03)
 
 
