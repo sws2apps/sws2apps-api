@@ -493,6 +493,8 @@ Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong
 	const newSchedule = { midweekMeeting: newStudentsSchedule };
 	const newSource = { midweekMeeting: newStudentsSource };
 
+	console.log(newSchedule);
+
 	await db.collection('congregations').doc(this.id).update({
 		cong_schedule: newSchedule,
 		cong_sourceMaterial: newSource,

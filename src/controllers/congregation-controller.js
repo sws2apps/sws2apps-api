@@ -1155,6 +1155,7 @@ export const sendPocketSchedule = async (req, res, next) => {
 					}
 
 					const { schedules, cong_settings } = req.body;
+					console.log(schedules)
 
 					await cong.sendPocketSchedule(schedules, cong_settings);
 
