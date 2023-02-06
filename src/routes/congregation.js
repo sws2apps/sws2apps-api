@@ -46,7 +46,7 @@ router.get(
 // create a new congregation
 router.put(
 	'/',
-	body('email').isEmail(),
+	body('uid').isString().notEmpty(),
 	body('country_code').isString().notEmpty(),
 	body('cong_name').notEmpty(),
 	body('cong_number').isNumeric(),

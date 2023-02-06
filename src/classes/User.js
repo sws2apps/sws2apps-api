@@ -87,6 +87,14 @@ User.prototype.loadDetails = async function () {
 	return this;
 };
 
+User.prototype.updateEmailAuth = async function (uid, email) {
+	try {
+		await getAuth().updateUser(uid, { email });
+	} catch (error) {
+		throw new Error(error.message);
+	}
+};
+
 User.prototype.updateFullname = async function (value) {
 	try {
 		await db.collection('users').doc(this.id).update({ 'about.name': value });

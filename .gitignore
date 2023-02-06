@@ -22,6 +22,7 @@ lmm-oa-sws
 .env.development.local
 .env.test.local
 .env.production.local
+jwt.js
 
 npm-debug.log*
 yarn-debug.log*

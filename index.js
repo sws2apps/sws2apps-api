@@ -26,7 +26,6 @@ const isProd = process.env.NODE_ENV === 'production';
 if (!isProd) {
 	await createAdmin();
 }
-
 await announcements.loadAll();
 await users.loadAll();
 await congregations.loadAll();

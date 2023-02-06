@@ -1,6 +1,8 @@
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
-import { sendVerificationEmail } from '../utils/sendEmail.js';
+import jwt from 'jsonwebtoken';
+import randomstring from 'randomstring';
+import { sendPasswordlessLinkSignUp } from '../utils/sendEmail.js';
 import { dbFetchUsers } from '../utils/user-utils.js';
 import { congregations } from './Congregations.js';
 import { User } from './User.js';
@@ -40,6 +42,11 @@ Users.prototype.findUserByEmail = function (email) {
 
 Users.prototype.findUserById = function (id) {
 	const found = this.list.find((user) => user.id === id);
+	return found;
+};
+
+Users.prototype.findUserByAuthUid = function (uid) {
+	const found = this.list.find((user) => user.auth_uid === uid);
 	return found;
 };
 
@@ -87,34 +94,28 @@ Users.prototype.findPocketByVisitorId = async function (visitorid) {
 	return user;
 };
 
-Users.prototype.create = async function (fullname, email, password) {
-	const isTesting = process.env.NODE_ENV === 'testing';
-	const isDev = process.env.NODE_ENV === 'development';
-	const isProd = process.env.NODE_ENV === 'production';
-
-	const userData = {
-		email: email,
-		emailVerified: isTesting ? true : false,
-		password: password,
-		disabled: false,
+Users.prototype.create = async function (fullname, email) {
+	const data = {
+		about: {
+			name: fullname,
+			role: 'vip',
+			user_uid: email,
+		},
 	};
 
-	const userRecord = await getAuth().createUser(userData);
+	const ref = await db.collection('users').add(data);
+	const user = await this.addNew(ref.id);
+	return user;
+};
 
-	const userEmail = userRecord.email;
-	const link = await getAuth().generateEmailVerificationLink(userEmail);
-
-	if (isDev) {
-		console.log(`Please use this link to verify your account: ${link}`);
-	}
-
-	if (isProd) sendVerificationEmail(userEmail, fullname, link);
+Users.prototype.createPasswordless = async function (fullname, email, uid) {
+	await getAuth().updateUser(uid, { email });
 
 	const data = {
 		about: {
 			name: fullname,
 			role: 'vip',
-			user_uid: userEmail,
+			user_uid: email,
 		},
 	};
 
@@ -138,6 +139,52 @@ Users.prototype.delete = async function (userId, authId) {
 	if (congId !== '') {
 		const cong = congregations.findCongregationById(congId);
 		cong.reloadMembers();
+	}
+};
+
+Users.prototype.createPasswordlessLink = async function (email, language, origin) {
+	const isDev = process.env.NODE_ENV === 'development';
+
+	// find user by email
+	const user = this.findUserByEmail(email);
+	let token;
+
+	if (!user) {
+		const tempUid = randomstring.generate(28);
+		token = await getAuth().createCustomToken(tempUid);
+	}
+
+	if (user) {
+		token = await getAuth().createCustomToken(user.auth_uid);
+	}
+
+	const link = `${origin}/#/?code=${token}&user=${user ? 'edit' : 'create'}`;
+
+	if (isDev) {
+		console.log(`Please use this link to complete your sign in: ${link}`);
+		return;
+	}
+
+	sendPasswordlessLinkSignUp(email, link, language);
+};
+
+Users.prototype.verifyPasswordlessLink = async function (code, fullname) {
+	const decoded = jwt.verify(code, process.env.JWT_SECRET);
+
+	// create a new user
+	if (decoded.isNewUser) {
+		if (!fullname) {
+			throw new Error('fullname required');
+		}
+
+		const user = await this.create(fullname, decoded.email);
+		return user;
+	}
+
+	// fetch user
+	if (!decoded.isNewUser) {
+		const user = this.findUserByEmail(decoded.email);
+		return user;
 	}
 };
 

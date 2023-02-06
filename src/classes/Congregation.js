@@ -87,8 +87,8 @@ Congregation.prototype.reloadMembers = async function () {
 	this.cong_members = members;
 };
 
-Congregation.prototype.isMember = function (email) {
-	const user = users.findUserByEmail(email);
+Congregation.prototype.isMember = function (uid) {
+	const user = users.findUserByAuthUid(uid);
 	return user.cong_id === this.id;
 };
 
@@ -99,7 +99,7 @@ Congregation.prototype.saveBackup = async function (
 	cong_sourceMaterial,
 	cong_swsPocket,
 	cong_settings,
-	email
+	uid
 ) {
 	let finalPersons = [];
 
@@ -328,7 +328,7 @@ Congregation.prototype.saveBackup = async function (
 		finalSource.push(newSource);
 	});
 
-	const userInfo = users.findUserByEmail(email);
+	const userInfo = users.findUserByAuthUid(uid);
 
 	const data = {
 		cong_persons: encryptedPersons,

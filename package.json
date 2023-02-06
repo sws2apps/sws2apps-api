@@ -1,69 +1,67 @@
 {
-  "name": "sws2apps-api",
-  "version": "2.16.3",
-  "description": "Node apps to handle backend operations for all sws2apps services",
-  "main": "index.js",
-  "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon index.js",
-    "start": "cross-env NODE_ENV=production node index.js",
-    "setup:emulators": "firebase init emulators",
-    "start:emulators": "firebase emulators:start",
-    "test": "cross-env NODE_ENV=testing mocha --exit",
-    "firebase:test": "firebase emulators:exec \"npm run test\""
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
-  "eslintConfig": {
-    "extends": [
-      "react-app"
-    ]
-  },
-  "engines": {
-    "node": ">=18",
-    "npm": ">=9"
-  },
-  "dependencies": {
-    "@fingerprintjs/fingerprintjs-pro-server-api": "^2.0.0",
-    "@logtail/node": "^0.1.15",
-    "bcrypt": "^5.1.0",
-    "cors": "^2.8.5",
-    "cross-env": "^7.0.3",
-    "cryptr": "^6.1.0",
-    "dayjs": "^1.11.7",
-    "dotenv": "^16.0.3",
-    "express": "^4.18.2",
-    "express-rate-limit": "^6.7.0",
-    "express-validator": "^6.14.3",
-    "firebase-admin": "^11.5.0",
-    "geoip-lite": "^1.4.7",
-    "helmet": "^6.0.1",
-    "is-online": "^10.0.0",
-    "jw-epub-parser": "^1.30.0-alpha.7",
-    "node-2fa": "^2.0.3",
-    "node-fetch": "^3.3.0",
-    "nodemailer": "^6.9.1",
-    "nodemailer-express-handlebars": "^6.0.0",
-    "otpauth": "^9.0.2",
-    "randomstring": "^1.2.3",
-    "request-ip": "^3.3.0",
-    "serve-favicon": "^2.5.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/sws2apps/sws2apps-api.git"
-  },
-  "devDependencies": {
-    "@semantic-release/changelog": "^6.0.2",
-    "@semantic-release/git": "^10.0.1",
-    "chai": "^4.3.7",
-    "chai-http": "^4.3.0",
-    "eslint": "^8.33.0",
-    "eslint-config-react-app": "^7.0.1",
-    "find-unused-exports": "^5.0.0",
-    "mocha": "^10.2.0",
-    "nodemon": "^2.0.20",
-    "puppeteer": "^19.6.3"
-  }
+	"name": "sws2apps-api",
+	"version": "2.16.3",
+	"description": "Node apps to handle backend operations for all sws2apps services",
+	"main": "index.js",
+	"scripts": {
+		"dev": "cross-env NODE_ENV=development nodemon index.js",
+		"start": "cross-env NODE_ENV=production node index.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "module",
+	"eslintConfig": {
+		"extends": [
+			"react-app"
+		]
+	},
+	"engines": {
+		"node": ">=18",
+		"npm": ">=9"
+	},
+	"dependencies": {
+		"@fingerprintjs/fingerprintjs-pro-server-api": "^2.0.0",
+		"@logtail/node": "^0.1.15",
+		"bcrypt": "^5.1.0",
+		"cors": "^2.8.5",
+		"cross-env": "^7.0.3",
+		"cryptr": "^6.1.0",
+		"dayjs": "^1.11.7",
+		"dotenv": "^16.0.3",
+		"express": "^4.18.2",
+		"express-rate-limit": "^6.7.0",
+		"express-validator": "^6.14.3",
+		"firebase-admin": "^11.5.0",
+		"geoip-lite": "^1.4.7",
+		"helmet": "^6.0.1",
+		"i18next": "^22.4.9",
+		"is-online": "^10.0.0",
+		"jsonwebtoken": "^9.0.0",
+		"jw-epub-parser": "^1.30.0-alpha.7",
+		"node-2fa": "^2.0.3",
+		"node-fetch": "^3.3.0",
+		"nodemailer": "^6.9.1",
+		"nodemailer-express-handlebars": "^6.0.0",
+		"otpauth": "^9.0.2",
+		"randomstring": "^1.2.3",
+		"request-ip": "^3.3.0",
+		"serve-favicon": "^2.5.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/sws2apps/sws2apps-api.git"
+	},
+	"devDependencies": {
+		"@semantic-release/changelog": "^6.0.2",
+		"@semantic-release/git": "^10.0.1",
+		"chai": "^4.3.7",
+		"chai-http": "^4.3.0",
+		"eslint": "^8.33.0",
+		"eslint-config-react-app": "^7.0.1",
+		"find-unused-exports": "^5.0.0",
+		"mocha": "^10.2.0",
+		"nodemon": "^2.0.20",
+		"puppeteer": "^19.6.3"
+	}
 }
