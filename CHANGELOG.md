@@ -1,3 +1,10 @@
+# [2.18.0](https://github.com/sws2apps/sws2apps-api/compare/v2.17.0...v2.18.0) (2023-02-06)
+
+
+### Features
+
+* **deps:** bump @logtail/node from 0.1.15 to 0.1.17 ([24a22ef](https://github.com/sws2apps/sws2apps-api/commit/24a22ef0aca87b2aef9aac5c91ff14a50f0c0ba6))
+
 # [2.17.0](https://github.com/sws2apps/sws2apps-api/compare/v2.16.3...v2.17.0) (2023-02-03)
 
 
