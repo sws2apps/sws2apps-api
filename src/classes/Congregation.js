@@ -3,6 +3,7 @@ import randomstring from 'randomstring';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { decryptData, encryptData } from '../utils/encryption-utils.js';
 import { users } from './Users.js';
+import { logger } from '../utils/logger.js';
 
 const db = getFirestore(); //get default database
 
@@ -493,7 +494,7 @@ Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong
 	const newSchedule = { midweekMeeting: newStudentsSchedule };
 	const newSource = { midweekMeeting: newStudentsSource };
 
-	console.log(newSchedule);
+	logger('info', newSchedule);
 
 	await db.collection('congregations').doc(this.id).update({
 		cong_schedule: newSchedule,
