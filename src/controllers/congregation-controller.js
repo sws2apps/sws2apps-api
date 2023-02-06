@@ -5,7 +5,6 @@ import { sendCongregationAccountCreated, sendCongregationRequest } from '../util
 import { congregationRequests } from '../classes/CongregationRequests.js';
 import { users } from '../classes/Users.js';
 import { congregations } from '../classes/Congregations.js';
-import { logger } from '../utils/logger.js';
 
 export const requestCongregation = async (req, res, next) => {
 	try {
@@ -1156,12 +1155,11 @@ export const sendPocketSchedule = async (req, res, next) => {
 					}
 
 					const { schedules, cong_settings } = req.body;
-					logger(schedules, 'info');
 
 					await cong.sendPocketSchedule(schedules, cong_settings);
 
 					res.locals.type = 'info';
-					res.locals.message = 'schedule save for sws pocket application';
+					res.locals.message = `schedule save for sws pocket application: ${schedules}`;
 					res.status(200).json({ message: 'SCHEDULE_SENT' });
 					return;
 				}
