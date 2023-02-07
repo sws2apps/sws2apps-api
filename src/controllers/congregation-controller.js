@@ -1159,7 +1159,7 @@ export const sendPocketSchedule = async (req, res, next) => {
 					await cong.sendPocketSchedule(schedules, cong_settings);
 
 					res.locals.type = 'info';
-					res.locals.message = `schedule save for sws pocket application: ${schedules}`;
+					res.locals.message = 'schedule save for sws pocket application';
 					res.status(200).json({ message: 'SCHEDULE_SENT' });
 					return;
 				}
