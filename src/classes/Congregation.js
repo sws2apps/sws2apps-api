@@ -3,6 +3,7 @@ import randomstring from 'randomstring';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { decryptData, encryptData } from '../utils/encryption-utils.js';
 import { users } from './Users.js';
+import { logger } from '../utils/logger.js';
 
 const db = getFirestore(); //get default database
 
