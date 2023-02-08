@@ -1,3 +1,10 @@
+# [2.19.0](https://github.com/sws2apps/sws2apps-api/compare/v2.18.0...v2.19.0) (2023-02-08)
+
+
+### Features
+
+* **api:** add support for Portuguese (Brazil) language ([d1971b4](https://github.com/sws2apps/sws2apps-api/commit/d1971b4bd25152367259124dd1c8d066328502f7))
+
 # [2.18.0](https://github.com/sws2apps/sws2apps-api/compare/v2.17.0...v2.18.0) (2023-02-06)
 
 
