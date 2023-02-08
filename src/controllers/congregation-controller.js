@@ -1269,7 +1269,7 @@ export const getCountries = async (req, res, next) => {
 
 		language = language.toUpperCase();
 
-		const langsAllowed = ['E', 'MG'];
+		const langsAllowed = ['E', 'MG', 'T'];
 		if (langsAllowed.includes(language) === false) {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid language`;
@@ -1328,7 +1328,7 @@ export const getCongregations = async (req, res, next) => {
 		language = language.toUpperCase();
 		country = country.toUpperCase();
 
-		const langsAllowed = ['E', 'MG'];
+		const langsAllowed = ['E', 'MG', 'T'];
 		if (langsAllowed.includes(language) === false) {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid language`;
