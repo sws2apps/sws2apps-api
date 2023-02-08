@@ -26,6 +26,7 @@ export const getSchedules = async (req, res, next) => {
 				new URLSearchParams({
 					langwritten: language,
 					pub: 'mwb',
+					fileformat: 'epub',
 					output: 'json',
 					issue: issueDate,
 				});
@@ -35,68 +36,20 @@ export const getSchedules = async (req, res, next) => {
 				notFound = true;
 			} else {
 				const result = await res.json();
-				const hasEPUB = result.files[language].EPUB;
+				const epubEntry = result.files[language].EPUB;
 
-				if (hasEPUB) {
-					const epubFile = hasEPUB[0].file;
-					const epubUrl = epubFile.url;
-					const epubModifiedDate = epubFile.modifiedDatetime;
+				const epubFile = epubEntry[0].file;
+				const epubUrl = epubFile.url;
+				const epubModifiedDate = epubFile.modifiedDatetime;
 
-					const epubData = await loadEPUB({ url: epubUrl });
-					const obj = {
-						issueDate,
-						modifiedDateTime: epubModifiedDate,
-						...epubData,
-					};
+				const epubData = await loadEPUB({ url: epubUrl });
+				const obj = {
+					issueDate,
+					modifiedDateTime: epubModifiedDate,
+					...epubData,
+				};
 
-					mergedSources.push(obj);
-				}
-
-				if (!hasEPUB) {
-					const url =
-						process.env.JW_FINDER +
-						new URLSearchParams({
-							wtlocale: language,
-							pub: 'mwb',
-							issue: issueDate,
-						});
-
-					const res = await fetch(url);
-					const result = await res.text();
-
-					const parser = new window.DOMParser();
-					const htmlItem = parser.parseFromString(result, 'text/html');
-
-					const docIds = [];
-					const accordionItems = htmlItem.getElementsByClassName('docClass-106');
-					for (const weekLink of accordionItems) {
-						weekLink.classList.forEach((item) => {
-							if (item.indexOf('docId-') !== -1) {
-								docIds.push(item.split('-')[1]);
-							}
-						});
-					}
-
-					const htmlDocs = [];
-					for (let z = 0; z < docIds.length; z++) {
-						const docId = docIds[z];
-						const finderLink = `https://www.jw.org/finder?wtlocale=${language}&docid=${docId}`;
-						const res2 = await fetch(finderLink);
-						const result2 = await res2.text();
-
-						const parser = new window.DOMParser();
-						const htmlItem = parser.parseFromString(result2, 'text/html');
-						htmlDocs.push(htmlItem);
-					}
-
-					const htmlData = await loadEPUB({ htmlDocs, mwbYear: currentYear, lang: language });
-					const obj = {
-						issueDate,
-						...htmlData,
-					};
-
-					mergedSources.push(obj);
-				}
+				mergedSources.push(obj);
 
 				// assigning next issue
 				monthMwb = monthMwb + 2;
