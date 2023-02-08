@@ -35,7 +35,7 @@ export const geoBulkImport = async (req, res, next) => {
 			return;
 		}
 
-		const langsAllowed = ['E', 'MG', 'T'];
+		const langsAllowed = ['E', 'MG'];
 		if (langsAllowed.includes(language) === false) {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid language`;
@@ -88,7 +88,7 @@ export const congBulkImport = async (req, res, next) => {
 				return;
 			}
 
-			const langsAllowed = ['E', 'MG', 'T'];
+			const langsAllowed = ['E', 'MG'];
 			if (langsAllowed.includes(language) === false) {
 				res.locals.type = 'warn';
 				res.locals.message = `invalid language`;
