@@ -35,8 +35,10 @@ export const getSchedules = async (req, res, next) => {
 			if (res.status === 404) {
 				notFound = true;
 			} else {
-				const data = await res.json();
-				const epubFile = data.files[language].EPUB[0].file;
+				const result = await res.json();
+				const epubEntry = result.files[language].EPUB;
+
+				const epubFile = epubEntry[0].file;
 				const epubUrl = epubFile.url;
 				const epubModifiedDate = epubFile.modifiedDatetime;
 
