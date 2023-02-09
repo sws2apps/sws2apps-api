@@ -1,3 +1,10 @@
+## [2.20.1](https://github.com/sws2apps/sws2apps-api/compare/v2.20.0...v2.20.1) (2023-02-09)
+
+
+### Bug Fixes
+
+* **public:** reduce timing needed to fetch jw.org schedule ([2dd24cd](https://github.com/sws2apps/sws2apps-api/commit/2dd24cdb4a8f9fcb0d92a3069ad74bc7614053b2))
+
 # [2.20.0](https://github.com/sws2apps/sws2apps-api/compare/v2.19.0...v2.20.0) (2023-02-09)
 
 
