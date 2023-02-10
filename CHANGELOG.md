@@ -1,3 +1,10 @@
+# [2.21.0](https://github.com/sws2apps/sws2apps-api/compare/v2.20.1...v2.21.0) (2023-02-10)
+
+
+### Features
+
+* **public:** add routes to handle support for no epub languages ([c81f063](https://github.com/sws2apps/sws2apps-api/commit/c81f0635a4d57c010114d4203d8ca4fae8ba4591))
+
 ## [2.20.1](https://github.com/sws2apps/sws2apps-api/compare/v2.20.0...v2.20.1) (2023-02-09)
 
 
