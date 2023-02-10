@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 import { extractScheduleDocsId, fetchData } from '../utils/public-utils.js';
 
 export const getSchedules = async (req, res, next) => {
@@ -93,22 +94,24 @@ export const getScheduleRawHTML = async (req, res, next) => {
 		let { language, docid } = req.params;
 		language = language.toUpperCase();
 
-		const url =
-			process.env.JW_FINDER +
-			new URLSearchParams({
-				wtlocale: language,
-				docid,
-			});
+		if (docid !== 'undefined') {
+			const url =
+				process.env.JW_FINDER +
+				new URLSearchParams({
+					wtlocale: language,
+					docid,
+				});
 
-		const resLocal = await fetch(url);
+			const resLocal = await fetch(url);
 
-		if (resLocal.status === 200) {
-			const result = await resLocal.text();
+			if (resLocal.status === 200) {
+				const result = await resLocal.text();
 
-			res.locals.type = 'info';
-			res.locals.message = 'publication content successfully extracted';
-			res.status(200).json(result);
-			return;
+				res.locals.type = 'info';
+				res.locals.message = 'publication content successfully extracted';
+				res.status(200).json(result);
+				return;
+			}
 		}
 
 		res.locals.type = 'warn';
