@@ -1,3 +1,10 @@
+## [2.21.1](https://github.com/sws2apps/sws2apps-api/compare/v2.21.0...v2.21.1) (2023-02-10)
+
+
+### Bug Fixes
+
+* **public:** use node-fetch ([8ddd5b0](https://github.com/sws2apps/sws2apps-api/commit/8ddd5b0b2feb8f96cf2d9093f6b6f8d2cb19e11e))
+
 # [2.21.0](https://github.com/sws2apps/sws2apps-api/compare/v2.20.1...v2.21.0) (2023-02-10)
 
 
