@@ -3,7 +3,6 @@ import randomstring from 'randomstring';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { decryptData, encryptData } from '../utils/encryption-utils.js';
 import { users } from './Users.js';
-import { logger } from '../utils/logger.js';
 
 const db = getFirestore(); //get default database
 
@@ -40,7 +39,7 @@ Congregation.prototype.loadDetails = async function () {
 	this.cong_schedule_draft = congSnap.data().cong_schedule_draft || [];
 	this.cong_swsPocket = congSnap.data().cong_swsPocket || [];
 	this.cong_settings = congSnap.data().cong_settings || [];
-
+	this.cong_members.length = 0;
 	users.list.forEach((user) => {
 		if (user.cong_id === this.id) {
 			const otpCode = user.pocket_oCode;
@@ -88,8 +87,8 @@ Congregation.prototype.reloadMembers = async function () {
 	this.cong_members = members;
 };
 
-Congregation.prototype.isMember = function (email) {
-	const user = users.findUserByEmail(email);
+Congregation.prototype.isMember = function (uid) {
+	const user = users.findUserByAuthUid(uid);
 	return user.cong_id === this.id;
 };
 
@@ -100,7 +99,7 @@ Congregation.prototype.saveBackup = async function (
 	cong_sourceMaterial,
 	cong_swsPocket,
 	cong_settings,
-	email
+	uid
 ) {
 	let finalPersons = [];
 
@@ -329,7 +328,7 @@ Congregation.prototype.saveBackup = async function (
 		finalSource.push(newSource);
 	});
 
-	const userInfo = users.findUserByEmail(email);
+	const userInfo = users.findUserByAuthUid(uid);
 
 	const data = {
 		cong_persons: encryptedPersons,
@@ -383,10 +382,16 @@ Congregation.prototype.removeUser = async function (userId) {
 	this.reloadMembers();
 };
 
-Congregation.prototype.addUser = async function (userId, role) {
+Congregation.prototype.addUser = async function (userId, role, fullname) {
 	const newRole = role || [];
 	const data = { congregation: { id: this.id, role: newRole } };
 	await db.collection('users').doc(userId).set(data, { merge: true });
+
+	if (fullname) {
+		await db.collection('users').doc(userId).update({
+			'about.name': fullname,
+		});
+	}
 
 	// update users list
 	const user = users.findUserById(userId);

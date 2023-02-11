@@ -63,9 +63,9 @@ export const getAnnouncements = async (req, res, next) => {
 
 export const validateUser = async (req, res, next) => {
 	try {
-		const { email } = req.headers;
+		const { uid } = req.headers;
 		const { id, cong_id, cong_name, cong_number, cong_role, pocket_local_id, pocket_members, username } =
-			await users.findUserByEmail(email);
+			await users.findUserByAuthUid(uid);
 
 		if (cong_name.length > 0) {
 			let obj = { id, cong_id, cong_name, cong_number, cong_role, pocket_local_id, pocket_members, username };
@@ -105,8 +105,8 @@ export const resendVerificationEmail = async (req, res, next) => {
 			return;
 		}
 
-		const { email } = req.headers;
-		const user = await users.findUserByEmail(email);
+		const { uid } = req.headers;
+		const user = await users.findUserByAuthUid(uid);
 
 		if (user) {
 			await user.resendVerificationEmail();
@@ -297,9 +297,9 @@ export const deleteUserSession = async (req, res, next) => {
 
 export const userLogout = async (req, res, next) => {
 	try {
-		const { email, visitorid } = req.headers;
+		const { uid, visitorid } = req.headers;
 
-		const user = users.findUserByEmail(email);
+		const user = users.findUserByAuthUid(uid);
 		await user.revokeSession(visitorid);
 
 		res.locals.type = 'info';

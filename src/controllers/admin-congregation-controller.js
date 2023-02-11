@@ -2,7 +2,6 @@ import { validationResult } from 'express-validator';
 import { congregationRequests } from '../classes/CongregationRequests.js';
 import { congregations } from '../classes/Congregations.js';
 import { users } from '../classes/Users.js';
-import { sendCongregationAccountCreated, sendCongregationAccountDisapproved } from '../utils/sendEmail.js';
 
 export const getAllCongregations = async (req, res, next) => {
 	try {
@@ -54,9 +53,6 @@ export const approveCongregationRequest = async (req, res, next) => {
 					// update request props
 					await request.approve();
 
-					// send email to user
-					sendCongregationAccountCreated(request.email, request.username, request.cong_name, request.cong_number);
-
 					res.locals.type = 'info';
 					res.locals.message = 'congregation created';
 					res
@@ -105,10 +101,6 @@ export const disapproveCongregationRequest = async (req, res, next) => {
 			if (request) {
 				// update request props
 				await request.disapprove();
-
-				// send email to user
-				const { reason } = req.body;
-				sendCongregationAccountDisapproved(request.email, request.username, request.cong_name, request.cong_number, reason);
 
 				res.locals.type = 'info';
 				res.locals.message = 'congregation request disapproved';

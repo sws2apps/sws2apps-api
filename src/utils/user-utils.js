@@ -1,33 +1,33 @@
-import { getFirestore } from "firebase-admin/firestore";
-import { User } from "../classes/User.js";
-import { users } from "../classes/Users.js";
+import { getFirestore } from 'firebase-admin/firestore';
+import { User } from '../classes/User.js';
+import { users } from '../classes/Users.js';
 
 const db = getFirestore();
 
 export const dbFetchUsers = async () => {
-  const userRef = db.collection("users");
-  const snapshot = await userRef.get();
+	const userRef = db.collection('users');
+	const snapshot = await userRef.get();
 
-  const items = [];
+	const items = [];
 
-  snapshot.forEach((doc) => {
-    items.push(doc.id);
-  });
+	snapshot.forEach((doc) => {
+		items.push(doc.id);
+	});
 
-  const finalResult = [];
+	const finalResult = [];
 
-  for (let i = 0; i < items.length; i++) {
-    const UserClass = new User(items[i]);
-    const user = await UserClass.loadDetails();
-    finalResult.push(user);
-  }
+	for (let i = 0; i < items.length; i++) {
+		const UserClass = new User(items[i]);
+		const user = await UserClass.loadDetails();
+		finalResult.push(user);
+	}
 
-  return finalResult;
+	return finalResult;
 };
 
 export const userAccountChecker = async (id) => {
-  const user = await users.findUserById(id);
-  const userFound = user ? true : false;
+	const user = await users.findUserById(id);
+	const userFound = user ? true : false;
 
-  return { isParamsValid: id !== undefined, userFound, user };
+	return { isParamsValid: id !== undefined, userFound, user };
 };
