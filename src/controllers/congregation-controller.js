@@ -1213,8 +1213,8 @@ export const getMeetingSchedules = async (req, res, next) => {
 					res.status(200).json({
 						cong_sourceMaterial,
 						cong_schedule,
-						class_count: cong_settings[0].class_count,
-						source_lang: cong_settings[0].source_lang,
+						class_count: cong_settings[0]?.class_count,
+						source_lang: cong_settings[0]?.source_lang,
 					});
 					return;
 				}

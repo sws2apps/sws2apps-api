@@ -168,7 +168,7 @@ export const verifyPasswordlessInfo = async (req, res, next) => {
 			return;
 		}
 
-		const { email, visitorid } = req.body;
+		const { email, visitorid, fullname } = req.body;
 		const { uid } = req.headers;
 
 		// validate visitor id
@@ -193,7 +193,7 @@ export const verifyPasswordlessInfo = async (req, res, next) => {
 			}
 
 			if (!authUser) {
-				authUser = await users.createPasswordless(email, uid);
+				authUser = await users.createPasswordless(email, uid, fullname);
 			}
 
 			newSessions.push({

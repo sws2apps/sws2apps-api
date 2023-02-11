@@ -108,13 +108,14 @@ Users.prototype.create = async function (fullname, uid) {
 	return user;
 };
 
-Users.prototype.createPasswordless = async function (email, uid) {
+Users.prototype.createPasswordless = async function (email, uid, fullname) {
 	await getAuth().updateUser(uid, { email });
 
 	const data = {
 		about: {
 			role: 'vip',
 			auth_uid: uid,
+			name: fullname || '',
 		},
 	};
 

@@ -386,9 +386,11 @@ Congregation.prototype.addUser = async function (userId, role, fullname) {
 	const newRole = role || [];
 	const data = { congregation: { id: this.id, role: newRole } };
 	await db.collection('users').doc(userId).set(data, { merge: true });
-	await db.collection('users').doc(userId).update({
-		'about.name': fullname,
-	});
+	if (fullname) {
+		await db.collection('users').doc(userId).update({
+			'about.name': fullname,
+		});
+	}
 
 	// update users list
 	const user = users.findUserById(userId);
