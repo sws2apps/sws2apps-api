@@ -46,11 +46,11 @@ router.get(
 // create a new congregation
 router.put(
 	'/',
-	body('email').isEmail(),
 	body('country_code').isString().notEmpty(),
-	body('cong_name').notEmpty(),
+	body('cong_name').isString().notEmpty(),
 	body('cong_number').isNumeric(),
-	body('app_requestor').notEmpty(),
+	body('app_requestor').isString().notEmpty(),
+	body('fullname').isString().notEmpty(),
 	createCongregation
 );
 

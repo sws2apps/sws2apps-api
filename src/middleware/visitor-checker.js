@@ -4,10 +4,8 @@ import { users } from '../classes/Users.js';
 export const visitorChecker = () => {
 	return async (req, res, next) => {
 		try {
-			const isTesting = process.env.NODE_ENV === 'testing';
-
-			await check('visitorid').notEmpty().run(req);
-			await check('email').isEmail().run(req);
+			await check('visitorid').isString().notEmpty().run(req);
+			await check('uid').isString().notEmpty().run(req);
 
 			const errors = validationResult(req);
 
@@ -25,59 +23,54 @@ export const visitorChecker = () => {
 				return;
 			}
 
-			const { email, visitorid } = req.headers;
-			const user = users.findUserByEmail(email);
+			const { uid, visitorid } = req.headers;
+			const user = users.findUserByAuthUid(uid);
 
 			if (user) {
-				if (user.global_role === 'admin' && isTesting) {
-					res.locals.currentUser = user;
-					next();
+				const { disabled } = user;
+
+				// remove expired sessions
+				await user.removeExpiredSession();
+
+				if (disabled) {
+					res.locals.type = 'warn';
+					res.locals.message = 'this user account is currently disabled';
+
+					res.status(403).json({ message: 'ACCOUNT_DISABLED' });
 				} else {
-					const { disabled } = user;
+					// get user session
+					let sessions = user.sessions;
 
-					// remove expired sessions
-					await user.removeExpiredSession();
+					// find if visitor id has valid session
+					const findSession = sessions.find((session) => session.visitorid === visitorid);
 
-					if (disabled) {
-						res.locals.type = 'warn';
-						res.locals.message = 'this user account is currently disabled';
+					if (findSession) {
+						// assign local vars for current user in next route
+						res.locals.currentUser = user;
 
-						res.status(403).json({ message: 'ACCOUNT_DISABLED' });
-					} else {
-						// get user session
-						let sessions = user.sessions;
+						const { mfaVerified } = findSession;
+						if (mfaVerified) {
+							// update last seen
 
-						// find if visitor id has valid session
-						const findSession = sessions.find((session) => session.visitorid === visitorid);
+							await user.updateSessionsInfo(visitorid);
 
-						if (findSession) {
-							// assign local vars for current user in next route
-							res.locals.currentUser = user;
-
-							const { mfaVerified } = findSession;
-							if (mfaVerified) {
-								// update last seen
-
-								await user.updateSessionsInfo(visitorid);
-
+							next();
+						} else {
+							// allow verify token to pass this middleware
+							if (req.path === '/verify-token') {
 								next();
 							} else {
-								// allow verify token to pass this middleware
-								if (req.path === '/verify-token') {
-									next();
-								} else {
-									res.locals.type = 'warn';
-									res.locals.message = 'two factor authentication required';
+								res.locals.type = 'warn';
+								res.locals.message = 'two factor authentication required';
 
-									res.status(403).json({ message: 'LOGIN_FIRST' });
-								}
+								res.status(403).json({ message: 'LOGIN_FIRST' });
 							}
-						} else {
-							res.locals.type = 'warn';
-							res.locals.message = 'the visitor id is invalid or does not have an active session';
-
-							res.status(403).json({ message: 'LOGIN_FIRST' });
 						}
+					} else {
+						res.locals.type = 'warn';
+						res.locals.message = 'the visitor id is invalid or does not have an active session';
+
+						res.status(403).json({ message: 'LOGIN_FIRST' });
 					}
 				}
 			} else {

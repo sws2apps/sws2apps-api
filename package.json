@@ -4,12 +4,10 @@
   "description": "Node apps to handle backend operations for all sws2apps services",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon index.js",
-    "start": "cross-env NODE_ENV=production node index.js",
-    "setup:emulators": "firebase init emulators",
-    "start:emulators": "firebase emulators:start",
-    "test": "cross-env NODE_ENV=testing mocha --exit",
-    "firebase:test": "firebase emulators:exec \"npm run test\""
+		"dev": "cross-env NODE_ENV=development nodemon index.js",
+		"start": "cross-env NODE_ENV=production node index.js",
+		"setup:emulators": "firebase init emulators",
+		"start:emulators": "firebase emulators:start"
   },
   "keywords": [],
   "author": "",
