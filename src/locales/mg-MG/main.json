@@ -1,1 +1,8 @@
-{}
+{
+	"emailPasswordlessSubject": "Rohy Hidirana Amin’ny Programa CPE",
+	"greetingsNoName": "Salama,",
+	"passwordLessIntro": "Naharay fangatahana avy amin’ity adiresy email ity izahay mba hidirana amin’ny Congregation Program for Everyone. Raha maniry hiditra amin’ny kaontinao {{ email }} ianao, dia midira amin’ity rohy manaraka ity:",
+	"passwordLessIgnore": "Tsy misy olana raha toa ka tsy nangataka an’ity rohy ity ianao.",
+	"thankYou": "Misaotra betsaka",
+	"sws2appsTeam": "Ny Ekipa Scheduling Workbox System"
+}
