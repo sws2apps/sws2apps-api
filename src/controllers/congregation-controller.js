@@ -1360,7 +1360,8 @@ export const getCongregations = async (req, res, next) => {
 
 export const createCongregation = async (req, res, next) => {
 	try {
-		const { uid, country_code, cong_name, cong_number, app_requestor } = req.body;
+		const { country_code, cong_name, cong_number, app_requestor, fullname } = req.body;
+		const { uid } = req.headers;
 
 		const errors = validationResult(req);
 
@@ -1406,7 +1407,7 @@ export const createCongregation = async (req, res, next) => {
 
 		// add user to congregation
 		const tmpUser = users.findUserByAuthUid(uid);
-		const user = await newCong.addUser(tmpUser.id, ['admin', 'lmmo']);
+		const user = await newCong.addUser(tmpUser.id, ['admin', 'lmmo'], fullname);
 
 		res.locals.type = 'info';
 		res.locals.message = 'congregation created successfully';

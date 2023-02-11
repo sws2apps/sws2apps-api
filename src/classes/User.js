@@ -37,7 +37,7 @@ User.prototype.loadDetails = async function () {
 	const userSnap = await userRef.get();
 
 	this.username = userSnap.data().about.name;
-	this.user_uid = userSnap.data().about?.user_uid?.toLowerCase() || '';
+	this.auth_uid = userSnap.data().about?.auth_uid || '';
 	this.secret = userSnap.data().about?.secret || '';
 	this.sessions = userSnap.data().about?.sessions || [];
 	this.global_role = userSnap.data().about.role;
@@ -61,8 +61,8 @@ User.prototype.loadDetails = async function () {
 
 		this.last_seen = lastSeens[0]?.last_seen || undefined;
 	} else {
-		const userRecord = await getAuth().getUserByEmail(this.user_uid);
-		this.auth_uid = userRecord.uid;
+		const userRecord = await getAuth().getUser(this.auth_uid);
+		this.user_uid = userRecord.email;
 		this.emailVerified = userRecord.emailVerified;
 		this.disabled = userRecord.disabled;
 

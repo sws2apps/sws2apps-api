@@ -94,12 +94,12 @@ Users.prototype.findPocketByVisitorId = async function (visitorid) {
 	return user;
 };
 
-Users.prototype.create = async function (fullname, email) {
+Users.prototype.create = async function (fullname, uid) {
 	const data = {
 		about: {
 			name: fullname,
 			role: 'vip',
-			user_uid: email,
+			auth_uid: uid,
 		},
 	};
 
@@ -108,14 +108,13 @@ Users.prototype.create = async function (fullname, email) {
 	return user;
 };
 
-Users.prototype.createPasswordless = async function (fullname, email, uid) {
+Users.prototype.createPasswordless = async function (email, uid) {
 	await getAuth().updateUser(uid, { email });
 
 	const data = {
 		about: {
-			name: fullname,
 			role: 'vip',
-			user_uid: email,
+			auth_uid: uid,
 		},
 	};
 
@@ -142,7 +141,7 @@ Users.prototype.delete = async function (userId, authId) {
 	}
 };
 
-Users.prototype.createPasswordlessLink = async function (email, language, origin) {
+Users.prototype.createPasswordlessLink = async function (email, uid, language, origin) {
 	const isDev = process.env.NODE_ENV === 'development';
 
 	// find user by email
@@ -152,6 +151,11 @@ Users.prototype.createPasswordlessLink = async function (email, language, origin
 	if (!user) {
 		const tempUid = randomstring.generate(28);
 		token = await getAuth().createCustomToken(tempUid);
+	}
+
+	if (uid) {
+		await getAuth().deleteUser(uid);
+		await getAuth().createUser({ uid, email });
 	}
 
 	if (user) {

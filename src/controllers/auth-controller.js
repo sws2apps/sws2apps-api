@@ -54,7 +54,7 @@ export const loginUser = async (req, res, next) => {
 
 			if (!authUser) {
 				const userRecord = await getAuth().getUser(uid);
-				authUser = await users.create(userRecord.displayName, userRecord.email);
+				authUser = await users.create(userRecord.displayName, uid);
 			}
 
 			newSessions.push({
@@ -134,10 +134,10 @@ export const createSignInLink = async (req, res, next) => {
 			return;
 		}
 
-		const { email } = req.body;
+		const { email, uid } = req.body;
 		const language = req.headers.applanguage || 'e';
 
-		await users.createPasswordlessLink(email, language, req.headers.origin);
+		await users.createPasswordlessLink(email, uid, language, req.headers.origin);
 
 		res.locals.type = 'info';
 		res.locals.message = 'passwordless link will be sent to user';
@@ -147,7 +147,7 @@ export const createSignInLink = async (req, res, next) => {
 	}
 };
 
-export const updatePasswordlessInfo = async (req, res, next) => {
+export const verifyPasswordlessInfo = async (req, res, next) => {
 	const isDev = process.env.NODE_ENV === 'development';
 
 	try {
@@ -168,7 +168,7 @@ export const updatePasswordlessInfo = async (req, res, next) => {
 			return;
 		}
 
-		const { email, fullname, visitorid } = req.body;
+		const { email, visitorid } = req.body;
 		const { uid } = req.headers;
 
 		// validate visitor id
@@ -193,7 +193,7 @@ export const updatePasswordlessInfo = async (req, res, next) => {
 			}
 
 			if (!authUser) {
-				authUser = await users.createPasswordless(fullname, email, uid);
+				authUser = await users.createPasswordless(email, uid);
 			}
 
 			newSessions.push({

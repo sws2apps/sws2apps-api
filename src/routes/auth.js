@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, check } from 'express-validator';
-import { createSignInLink, loginUser, updatePasswordlessInfo } from '../controllers/auth-controller.js';
+import { createSignInLink, loginUser, verifyPasswordlessInfo } from '../controllers/auth-controller.js';
 
 const router = express.Router();
 
@@ -9,12 +9,11 @@ router.post('/user-login', check('uid').isString().notEmpty(), body('visitorid')
 router.post('/user-passwordless-login', body('email').isEmail(), createSignInLink);
 
 router.post(
-	'/user-passwordless-info',
+	'/user-passwordless-verify',
 	check('uid').isString().notEmpty(),
 	body('email').isEmail(),
-	body('fullname').isString().notEmpty(),
 	body('visitorid').notEmpty(),
-	updatePasswordlessInfo
+	verifyPasswordlessInfo
 );
 
 export default router;
