@@ -1,13 +1,13 @@
 {
   "name": "sws2apps-api",
-  "version": "2.21.1",
+  "version": "2.22.0",
   "description": "Node apps to handle backend operations for all sws2apps services",
   "main": "index.js",
   "scripts": {
-		"dev": "cross-env NODE_ENV=development nodemon index.js",
-		"start": "cross-env NODE_ENV=production node index.js",
-		"setup:emulators": "firebase init emulators",
-		"start:emulators": "firebase emulators:start"
+    "dev": "cross-env NODE_ENV=development nodemon index.js",
+    "start": "cross-env NODE_ENV=production node index.js",
+    "setup:emulators": "firebase init emulators",
+    "start:emulators": "firebase emulators:start"
   },
   "keywords": [],
   "author": "",
