@@ -1,3 +1,11 @@
+# [2.22.0](https://github.com/sws2apps/sws2apps-api/compare/v2.21.1...v2.22.0) (2023-02-12)
+
+
+### Features
+
+* **auth:** support for new oauth for user authentication ([3661b1d](https://github.com/sws2apps/sws2apps-api/commit/3661b1de58edbd30a38e4b80535542517e414656))
+* **deps:** bump cacheable-request and got ([cfbda56](https://github.com/sws2apps/sws2apps-api/commit/cfbda5674d3e934a9a55bcad78f2db109ddc1ec4))
+
 ## [2.21.1](https://github.com/sws2apps/sws2apps-api/compare/v2.21.0...v2.21.1) (2023-02-10)
 
 
