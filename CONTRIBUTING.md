@@ -24,13 +24,14 @@ Please do not report security bugs in the public issues; go through the process 
 
 ## Proposing a Change
 
-If you intend to add new features or suggest major changes to LMM-OA, check first that your idea is not yet in our tracking issues list. If not, we recommend creating a new [discussion first](https://github.com/sws2apps/sws2apps-api/discussions/categories/ideas). This lets us reach an agreement on your proposal before you put significant effort into it. After it has been approved, please create [new issue](https://github.com/sws2apps/sws2apps-api/issues), and choose the correct template.
+If you intend to add new features or suggest major changes to this API, check first that your idea is not yet in our tracking issues list. If not, we recommend creating a new [discussion first](https://github.com/sws2apps/sws2apps-api/discussions/categories/ideas). This lets us reach an agreement on your proposal before you put significant effort into it. After it has been approved, please create [new issue](https://github.com/sws2apps/sws2apps-api/issues), and choose the correct template.
 
 If you’re only fixing a bug, it’s fine to submit a pull request right away but we still recommend to file an issue detailing what you’re fixing. This is helpful in case we don’t accept that specific fix but want to keep track of the issue.
 
 ## Contribution Prerequisites
 
 - You have the latest version of [Node](https://nodejs.org), [Git](https://git-scm.com) and [Firebase CLI](https://firebase.google.com/docs/cli) installed
+- You have a dedicated project on Firebase for your local testing.
 - You will be working on one item at a time.
 - If you do not have it yet, fork the repository. Clone it if you will work locally.
 - If you have already forked and clone the repository, make sure that it is in sync with the upstream repository ([Syncing a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork)).
@@ -40,6 +41,9 @@ If you’re only fixing a bug, it’s fine to submit a pull request right away b
 
 We use Firebase to be our backend. Therefore, during development, Firebase Emulators is used.
 
+- If it is the first time you use Firebase CLI, run `firebase login` to authenticate to your account.
+- Run `npm run setup:emulators`, and if not selected, choose `Firestore Emulator`. Emulators Ports are already defined in the `firebase.json` file. Feel free to change them later if you want to use different values.
+- Complete the wizard until Firebase initialization is completed.
 - Run `npm run start:emulators` to start the Firebase Emulators.
 
 ### Setup Environment Variables
@@ -51,9 +55,10 @@ Environment variables are required in order to locally run this API. Please find
 - GMAIL_APP_PASSWORD: your gmail address app password. To create this value, follow [this guide](https://support.google.com/mail/answer/185833).
 - GMAIL_SENDER_NAME: sender name for your email address.
 - JW_CDN: set the value to be `https://app.jw-cdn.org/apis/pub-media/GETPUBMEDIALINKS?`
+- JW_FINDER: set the value to be `https://www.jw.org/finder?`
 - JW_COUNTRY_API: set the value to be `https://apps.jw.org/api/donations.v1/countries?`
 - JW_CONGREGATION_API: set the value to be `https://apps.jw.org/api/conventions/convention-congregation-list`
-- FIREBASE_AUTH_EMULATOR_HOST: the `Host:Port` for Authentication Emulator.
+- FIREBASE_APP_NAME: your Firebase Project ID defined in the Firebase Console.
 - FIRESTORE_EMULATOR_HOST: the `Host:Port` for Firestore Emulator.
 
 ### Starting the Development Server
@@ -73,7 +78,6 @@ We are monitoring for pull requests. We will review your pull request and either
 **Before submitting a PR**, please make sure the following is done:
 
 - Test your changes to make sure that they are working as intended.
-- Run `npm run firebase:test` to make sure that your changes passed the automated checks.
 
 **When commiting your changes**, we recommend the following command to be run:
 
