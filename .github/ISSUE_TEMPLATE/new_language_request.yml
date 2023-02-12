@@ -1,0 +1,15 @@
+name: Translation for sws2apps API
+description: Request a new language to be added to sws2apps API
+labels: [i18n]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Add an issue title with this format: [Language] - New Language Request
+  - type: textarea
+    attributes:
+      label: 'Message body'
+      placeholder: |
+        Message body
+    validations:
+      required: true
