@@ -31,7 +31,7 @@ jobs:
 
       - name: Render Deployment
         if: ${{ steps.semantic.outputs.new_release_published == 'true' }}
-        uses: sws2apps/render-deployment@cb4cce83b99653bee952b81acbba65ddfc9226d8
+        uses: sws2apps/render-deployment@5c3274c95919e875da2e6d8af0f93489d1d6e3e6
         with:
           serviceId: ${{ secrets.RENDER_SERVICE_ID }}
           apiKey: ${{ secrets.RENDER_API_KEY }}
