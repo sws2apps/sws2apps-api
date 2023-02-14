@@ -1,3 +1,11 @@
+# [2.23.0](https://github.com/sws2apps/sws2apps-api/compare/v2.22.0...v2.23.0) (2023-02-14)
+
+
+### Features
+
+* **deps:** bump jw-epub-parser from 1.30.5 to 1.31.1 ([c10190f](https://github.com/sws2apps/sws2apps-api/commit/c10190f1dcd00f0fd5cd33c82386fa1839b0d8f0))
+* **email:** send email in Portuguese (Brazil) language ([fcacffa](https://github.com/sws2apps/sws2apps-api/commit/fcacffa9a962b0dc9338ed743922477771c5fc03))
+
 # [2.22.0](https://github.com/sws2apps/sws2apps-api/compare/v2.21.1...v2.22.0) (2023-02-12)
 
 
