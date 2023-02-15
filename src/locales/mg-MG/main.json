@@ -1,10 +1,10 @@
 {
 	"emailPasswordlessSubject": "Rohy Hidirana Amin’ny Programa CPE",
 	"greetingsNoName": "Salama,",
-	"passwordLessIntro": "We received a request to sign in to Congregation Program for Everyone using this email address. If you want to sign in with your {{ email }} account, please use the link below.",
-	"signIn": "Sign in",
+	"passwordLessIntro": "Naharay fangatahana avy amin’ity adiresy email ity izahay mba hidirana amin’ny Congregation Program for Everyone. Raha maniry hiditra amin’ny kaontinao {{ email }} ianao, dia sokafy ity rohy manaraka ity.",
+	"signIn": "Hiditra",
 	"passwordLessIgnore": "Tsy misy olana raha toa ka tsy nangataka an’ity rohy ity ianao.",
-	"passwordLessLinkFull": "If you are having trouble opening the link above, please use the following link. Make sure the link is not cropped when you are opening it.",
+	"passwordLessLinkFull": "Raha misy olana ka tsy mandeha ny rohy eo ambony, dia ampiasao indray ity rohy manaraka ity. Ataovy azo antoka tsara hoe tsy misy tapaka ny soratra rehetra amin’ilay rohy.",
 	"thankYou": "Misaotra betsaka",
 	"sws2appsTeam": "Ny Ekipa Scheduling Workbox System"
 }
