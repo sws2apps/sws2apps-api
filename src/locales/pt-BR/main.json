@@ -1,10 +1,10 @@
 {
 	"emailPasswordlessSubject": "Link sem senha para entrar no aplicativo CPE",
 	"greetingsNoName": "Olá,",
-	"passwordLessIntro": "We received a request to sign in to Congregation Program for Everyone using this email address. If you want to sign in with your {{ email }} account, please use the link below.",
-	"signIn": "Sign in",
-	"passwordLessIgnore": "Se você não solicitou este link, ignore este email.",
-	"passwordLessLinkFull": "If you are having trouble opening the link above, please use the following link. Make sure the link is not cropped when you are opening it.",
+	"passwordLessIntro": "Você deseja entrar no Programa Congregação para Todos utilizando este email {{ email }}? Se desejar, clique neste link.",
+	"signIn": "Entrar",
+	"passwordLessIgnore": "Se você não fez o cadastro no CPE, ignore este email.",
+	"passwordLessLinkFull": "Se você não conseguir abrir o link acima, use o link abaixo. Certifique-se de que o link está completo ao você abrir.",
 	"thankYou": "Obrigado",
 	"sws2appsTeam": "Equipe Sistema de Agendamento Workbox"
 }
