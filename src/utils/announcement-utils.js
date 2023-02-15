@@ -85,7 +85,6 @@ export const fetchCrowdinAnnouncements = async (app) => {
 								const target = (await stringTranslationsApi.listStringTranslations(project.id, source.id, language.id)).data[0]
 									.data;
 
-								console.log(target.updatedAt);
 								const targetTitleModified = target.updatedAt || target.createdAt;
 								const targetTitleModifiedISO = new Date(targetTitleModified).toISOString();
 
