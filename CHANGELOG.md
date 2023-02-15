@@ -1,3 +1,15 @@
+# [2.24.0](https://github.com/sws2apps/sws2apps-api/compare/v2.23.0...v2.24.0) (2023-02-15)
+
+
+### Bug Fixes
+
+* **crowdin:** udpate crowdin translation updated field ([719e255](https://github.com/sws2apps/sws2apps-api/commit/719e25540b28ad0d80edb7fa1a021485b96ded9f))
+
+
+### Features
+
+* **announcements:** get announcements from Crowdin ([a92c11a](https://github.com/sws2apps/sws2apps-api/commit/a92c11a462c93e7eafe47a88b1c5c16398da8b1c))
+
 # [2.23.0](https://github.com/sws2apps/sws2apps-api/compare/v2.22.0...v2.23.0) (2023-02-14)
 
 
