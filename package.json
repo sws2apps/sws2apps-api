@@ -1,6 +1,6 @@
 {
   "name": "sws2apps-api",
-  "version": "2.22.0",
+  "version": "2.23.0",
   "description": "Node apps to handle backend operations for all sws2apps services",
   "main": "index.js",
   "scripts": {
@@ -42,7 +42,7 @@
     "i18next": "^22.4.9",
     "is-online": "^10.0.0",
     "jsdom": "^21.1.0",
-    "jw-epub-parser": "^1.30.5",
+    "jw-epub-parser": "^1.31.1",
     "node-2fa": "^2.0.3",
     "node-fetch": "^3.3.0",
     "nodemailer": "^6.9.1",
@@ -61,11 +61,11 @@
     "@semantic-release/git": "^10.0.1",
     "chai": "^4.3.7",
     "chai-http": "^4.3.0",
-    "eslint": "^8.33.0",
+    "eslint": "^8.34.0",
     "eslint-config-react-app": "^7.0.1",
     "find-unused-exports": "^5.0.0",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.20",
-    "puppeteer": "^19.6.3"
+    "puppeteer": "^19.7.0"
   }
 }
