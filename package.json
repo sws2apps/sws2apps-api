@@ -23,6 +23,7 @@
     "npm": ">=9"
   },
   "dependencies": {
+    "@crowdin/crowdin-api-client": "^1.21.2",
     "@fingerprintjs/fingerprintjs-pro-server-api": "^2.0.0",
     "@logtail/node": "^0.2.0",
     "bcrypt": "^5.1.0",

@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import hbs from 'nodemailer-express-handlebars';
 import path from 'path';
 import { gmailConfig } from '../config/gmail-config.js';
-import { i18n } from '../config/i18n.js';
+import { i18n } from '../config/i18n-config.js';
 import { logger } from './logger.js';
 
 const handlebarsOptions = {
@@ -64,8 +64,10 @@ export const sendPasswordlessLinkSignUp = async (recipient, link, templateLang) 
 		context: {
 			greetings: t('greetingsNoName'),
 			passwordLessIntro: t('passwordLessIntro', { email: recipient }),
-			activation: link,
 			passwordLessIgnore: t('passwordLessIgnore'),
+			signIn: t('signIn'),
+			passwordLessLinkFull: t('passwordLessLinkFull'),
+			link: link,
 			thankYou: t('thankYou'),
 			sws2appsTeam: t('sws2appsTeam'),
 		},
