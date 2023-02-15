@@ -1,6 +1,7 @@
 import { validationResult } from 'express-validator';
 import { users } from '../classes/Users.js';
 import { announcements } from '../classes/Announcements.js';
+import { fetchCrowdinAnnouncements } from '../utils/announcement-utils.js';
 
 export const createAccount = async (req, res, next) => {
 	try {
@@ -305,6 +306,33 @@ export const userLogout = async (req, res, next) => {
 		res.locals.type = 'info';
 		res.locals.message = `the current user has logged out`;
 		res.status(200).json({ message: 'OK' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const getAnnouncementsV2 = async (req, res, next) => {
+	try {
+		const { app } = req.headers;
+
+		const appsAllowed = ['lmmo', 'vip', 'pocket'];
+		if (appsAllowed.includes(app) === false) {
+			res.locals.type = 'warn';
+			res.locals.message = `invalid app`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const list = await fetchCrowdinAnnouncements(app);
+
+		res.locals.type = 'info';
+		res.locals.message = `client fetched announcements`;
+
+		res.status(200).json(list);
 	} catch (err) {
 		next(err);
 	}

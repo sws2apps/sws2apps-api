@@ -6,8 +6,9 @@ import path from 'node:path';
 import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
 
+import './config/crowdin-config.js';
 import './config/firebase-config.js';
-import './config/i18n.js';
+import './config/i18n-config.js';
 
 import authRoute from './routes/auth.js';
 import congregationRoute from './routes/congregation.js';
