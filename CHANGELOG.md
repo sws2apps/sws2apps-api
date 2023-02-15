@@ -1,3 +1,10 @@
+## [2.24.1](https://github.com/sws2apps/sws2apps-api/compare/v2.24.0...v2.24.1) (2023-02-15)
+
+
+### Bug Fixes
+
+* **classes:** fix issue where username for new user is not updated ([bd35e21](https://github.com/sws2apps/sws2apps-api/commit/bd35e21918257defc48437313ff8d966ff7b5df6))
+
 # [2.24.0](https://github.com/sws2apps/sws2apps-api/compare/v2.23.0...v2.24.0) (2023-02-15)
 
 
