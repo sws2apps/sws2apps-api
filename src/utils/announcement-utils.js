@@ -51,11 +51,10 @@ export const fetchCrowdinAnnouncements = async (app) => {
 
 					if (bodySource) {
 						const obj = { id: source.id, appTarget };
-
-						const sourceTitleModified = source.modifiedAt || source.createdAt;
+						const sourceTitleModified = source.updatedAt === null ? source.createdAt : source.updatedAt;
 						const sourceTitleModifiedISO = new Date(sourceTitleModified).toISOString();
 
-						const sourceBodyModified = bodySource.data.modifiedAt || bodySource.data.createdAt;
+						const sourceBodyModified = bodySource.data.updatedAt === null ? bodySource.data.createdAt : bodySource.data.updatedAt;
 						const sourceBodyModifiedISO = new Date(sourceBodyModified).toISOString();
 
 						obj.title = [];
@@ -85,7 +84,8 @@ export const fetchCrowdinAnnouncements = async (app) => {
 							if (translationTitleInfo.length > 0) {
 								const target = (await stringTranslationsApi.listStringTranslations(project.id, source.id, language.id)).data[0]
 									.data;
-								const targetTitleModified = target.modifiedAt || target.createdAt;
+
+								const targetTitleModified = target.updatedAt || target.createdAt;
 								const targetTitleModifiedISO = new Date(targetTitleModified).toISOString();
 
 								targetTitleObj.text = target.text;
@@ -104,7 +104,7 @@ export const fetchCrowdinAnnouncements = async (app) => {
 							if (translationBodyInfo.length > 0) {
 								const target = (await stringTranslationsApi.listStringTranslations(project.id, bodySource.data.id, language.id))
 									.data[0].data;
-								const targetBodyModified = target.modifiedAt || target.createdAt;
+								const targetBodyModified = target.updatedAt || target.createdAt;
 								const targetBodyModifiedISO = new Date(targetBodyModified).toISOString();
 
 								targetBodyObj.text = target.text;
