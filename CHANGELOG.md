@@ -1,3 +1,10 @@
+# [2.26.0](https://github.com/sws2apps/sws2apps-api/compare/v2.25.0...v2.26.0) (2023-02-17)
+
+
+### Features
+
+* **controllers:** get circuit overseer name for vip and pocket apps ([aa5eda8](https://github.com/sws2apps/sws2apps-api/commit/aa5eda8d54e78df1f73931118d793eaff5be7a61))
+
 # [2.25.0](https://github.com/sws2apps/sws2apps-api/compare/v2.24.1...v2.25.0) (2023-02-17)
 
 
