@@ -1216,6 +1216,8 @@ export const getMeetingSchedules = async (req, res, next) => {
 						cong_schedule,
 						class_count: cong_settings[0]?.class_count,
 						source_lang: cong_settings[0]?.source_lang,
+						co_name: cong_settings[0]?.co_name || '',
+						co_displayName: cong_settings[0]?.co_displayName || '',
 					});
 					return;
 				}
