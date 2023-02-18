@@ -1,3 +1,10 @@
+# [2.27.0](https://github.com/sws2apps/sws2apps-api/compare/v2.26.0...v2.27.0) (2023-02-18)
+
+
+### Features
+
+* **classes:** update congregation to support new format of assignments ([09024fa](https://github.com/sws2apps/sws2apps-api/commit/09024fafc79a3f4f8cd7c40981efacf4a9e7fa1a))
+
 # [2.26.0](https://github.com/sws2apps/sws2apps-api/compare/v2.25.0...v2.26.0) (2023-02-17)
 
 
