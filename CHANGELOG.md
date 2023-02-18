@@ -1,3 +1,10 @@
+# [2.28.0](https://github.com/sws2apps/sws2apps-api/compare/v2.27.0...v2.28.0) (2023-02-18)
+
+
+### Features
+
+* **classes:** add auth_provider to user details ([ecf53d9](https://github.com/sws2apps/sws2apps-api/commit/ecf53d9d30af3e3bd8877f3b8fdcf49dc66dd3b0))
+
 # [2.27.0](https://github.com/sws2apps/sws2apps-api/compare/v2.26.0...v2.27.0) (2023-02-18)
 
 
