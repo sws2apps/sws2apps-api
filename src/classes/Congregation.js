@@ -119,15 +119,10 @@ Congregation.prototype.saveBackup = async function (
 				const oldChanges = oldPerson.changes;
 				const newChanges = newPerson.changes;
 
-				const arrayFields = [
-					{ name: 'assignments', id: 'assignmentId' },
-					{ name: 'timeAway', id: 'timeAwayId' },
-				];
-
 				if (newChanges) {
 					// handle non-assignments and non-time away changes
 					newChanges.forEach((change) => {
-						if (arrayFields.findIndex((field) => field.name === change.field) === -1) {
+						if (change.field !== 'timeAway' && change.field !== 'assignments') {
 							let isChanged = false;
 
 							const oldChange = oldChanges?.find((old) => old.field === change.field);
@@ -163,15 +158,35 @@ Congregation.prototype.saveBackup = async function (
 						}
 					});
 
-					// handle assignments and time away changes
+					// handle assignments changes
 					newChanges.forEach((change) => {
-						const foundArray = arrayFields.find((field) => field.name === change.field);
-						if (foundArray) {
+						if (change.field === 'assignments') {
+							// handle deleted assignment
+							if (change.isDeleted) {
+								const toBeDeleted = oldPerson[change.field].findIndex((item) => item.code === change.value.code);
+								if (toBeDeleted !== -1) oldPerson[change.field].splice(toBeDeleted, 1);
+							}
+
+							// handle added item
+							if (change.isAdded) {
+								const isExist = oldPerson[change.field].findIndex((item) => item.code === change.value.code);
+								if (!isExist) oldPerson[change.field].push(change.value);
+							}
+
+							// update changes
+							if (!oldPerson.changes) oldPerson.changes = [];
+							const findIndex = oldPerson.changes.findIndex((item) => item.value.code === change.value.code);
+							if (findIndex !== -1) oldPerson.changes.splice(findIndex, 1);
+							oldPerson.changes.push(change);
+						}
+					});
+
+					// handle time away changes
+					newChanges.forEach((change) => {
+						if (change.field === 'timeAway') {
 							// handle deleted item
 							if (change.isDeleted) {
-								const toBeDeleted = oldPerson[change.field].findIndex(
-									(item) => item[foundArray.id] === change.value[foundArray.id]
-								);
+								const toBeDeleted = oldPerson[change.field].findIndex((item) => item.timeAwayId === change.value.timeAwayId);
 								if (toBeDeleted !== -1) oldPerson[change.field].splice(toBeDeleted, 1);
 							}
 
@@ -184,9 +199,7 @@ Congregation.prototype.saveBackup = async function (
 
 							// handle modified item
 							if (change.isModified) {
-								const toBeModified = oldPerson[change.field].findIndex(
-									(item) => item[foundArray.id] === change.value[foundArray.id]
-								);
+								const toBeModified = oldPerson[change.field].findIndex((item) => item.timeAwayId === change.value.timeAwayId);
 
 								if (toBeModified !== -1) oldPerson[change.field].splice(toBeModified, 1);
 								oldPerson[change.field].push(change.value);
@@ -195,9 +208,7 @@ Congregation.prototype.saveBackup = async function (
 							// update changes
 							if (change.isDeleted || change.isModified) {
 								if (!oldPerson.changes) oldPerson.changes = [];
-								const findIndex = oldPerson.changes.findIndex(
-									(item) => item.value[foundArray.id] === change.value[foundArray.id]
-								);
+								const findIndex = oldPerson.changes.findIndex((item) => item.value.timeAwayId === change.value.timeAwayId);
 								if (findIndex !== -1) oldPerson.changes.splice(findIndex, 1);
 								oldPerson.changes.push(change);
 							}
