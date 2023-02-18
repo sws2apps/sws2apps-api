@@ -29,6 +29,7 @@ export class User {
 		this.emailVerified = false;
 		this.disabled = true;
 		this.secret = '';
+		this.auth_provider = '';
 	}
 }
 
@@ -63,6 +64,7 @@ User.prototype.loadDetails = async function () {
 	} else {
 		const userRecord = await getAuth().getUser(this.auth_uid);
 		this.user_uid = userRecord.email;
+		this.auth_provider = userRecord.providerData[0]?.providerId || 'email';
 		this.emailVerified = userRecord.emailVerified;
 		this.disabled = userRecord.disabled;
 
