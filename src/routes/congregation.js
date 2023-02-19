@@ -33,11 +33,10 @@ const router = express.Router();
 
 router.use(visitorChecker());
 
-router.get('/countries', check('language').isString().notEmpty(), getCountries);
+router.get('/countries', getCountries);
 
 router.get(
 	'/list-by-country',
-	check('language').isString().notEmpty(),
 	check('country').isString().notEmpty(),
 	check('name').isString().isLength({ min: 2 }),
 	getCongregations

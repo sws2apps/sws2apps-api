@@ -1244,7 +1244,7 @@ export const getMeetingSchedules = async (req, res, next) => {
 
 export const getCountries = async (req, res, next) => {
 	try {
-		let { language } = req.headers;
+		let language = req.headers.language || 'e';
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -1302,7 +1302,8 @@ export const getCountries = async (req, res, next) => {
 
 export const getCongregations = async (req, res, next) => {
 	try {
-		let { country, language, name } = req.headers;
+		let { country, name } = req.headers;
+		let language = req.headers.language || 'e';
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {

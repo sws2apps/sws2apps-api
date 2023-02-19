@@ -410,6 +410,7 @@ Congregation.prototype.addUser = async function (userId, role, fullname) {
 	user.cong_name = this.cong_name;
 	user.cong_number = this.cong_number;
 	user.cong_role = newRole;
+	user.cong_country = this.country_code;
 	if (fullname) user.username = fullname;
 
 	// update congregation members

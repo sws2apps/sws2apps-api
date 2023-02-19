@@ -17,6 +17,7 @@ export class User {
 		this.pocket_oCode = '';
 		this.pocket_members = [];
 		this.cong_id = '';
+		this.cong_country = '';
 		this.cong_name = '';
 		this.cong_number = '';
 		this.cong_role = [];
@@ -84,6 +85,7 @@ User.prototype.loadDetails = async function () {
 		const docSnap = await congRef.get();
 		this.cong_name = docSnap.data().cong_name || '';
 		this.cong_number = docSnap.data().cong_number || '';
+		this.cong_country = docSnap.data().country_code || '';
 	}
 
 	return this;
