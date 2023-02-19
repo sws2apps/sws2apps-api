@@ -1,3 +1,15 @@
+# [2.29.0](https://github.com/sws2apps/sws2apps-api/compare/v2.28.1...v2.29.0) (2023-02-19)
+
+
+### Bug Fixes
+
+* **controller:** handle undefined display name from firebase auth ([5b9dfd4](https://github.com/sws2apps/sws2apps-api/commit/5b9dfd4a676a640e191f57e5b12e0e6ba393909e))
+
+
+### Features
+
+* **admin:** allow admin to assign congregation to an user ([b0d5d1a](https://github.com/sws2apps/sws2apps-api/commit/b0d5d1a18e1a56b2ad03d39ce4f361e8056a1b85))
+
 ## [2.28.1](https://github.com/sws2apps/sws2apps-api/compare/v2.28.0...v2.28.1) (2023-02-19)
 
 
