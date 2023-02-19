@@ -54,7 +54,8 @@ export const loginUser = async (req, res, next) => {
 
 			if (!authUser) {
 				const userRecord = await getAuth().getUser(uid);
-				authUser = await users.create(userRecord.displayName, uid);
+				const displayName = userRecord.displayName || userRecord.providerData[0].displayName;
+				authUser = await users.create(displayName, uid);
 			}
 
 			newSessions.push({
