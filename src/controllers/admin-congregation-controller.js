@@ -154,6 +154,60 @@ export const deleteCongregation = async (req, res, next) => {
 	}
 };
 
+export const addCongregationUserWithoutId = async (req, res, next) => {
+	try {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const { cong_country, cong_name, cong_number, user_uid, user_role } = req.body;
+		const user = users.findUserByEmail(user_uid);
+
+		if (!user) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user could not be found';
+			res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+			return;
+		}
+
+		let cong = congregations.findByNumber(`${cong_country}${cong_number}`);
+
+		if (!cong) {
+			const congData = { country_code: cong_country, cong_name, cong_number };
+			cong = await congregations.create(congData);
+		}
+
+		if (user.cong_id === cong.id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'action not allowed since the user is already member of congregation';
+			res.status(405).json({ message: 'USER_ALREADY_MEMBER' });
+			return;
+		}
+
+		await cong.addUser(user.id, user_role);
+
+		res.locals.type = 'info';
+		res.locals.message = 'member added to congregation';
+		res.status(200).json({ message: 'MEMBER_ADDED' });
+	} catch (err) {
+		next(err);
+	}
+};
+
 export const addCongregationUser = async (req, res, next) => {
 	try {
 		const { id } = req.params;
