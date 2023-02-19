@@ -1,3 +1,10 @@
+## [2.28.1](https://github.com/sws2apps/sws2apps-api/compare/v2.28.0...v2.28.1) (2023-02-19)
+
+
+### Bug Fixes
+
+* **deps:** update jw-epub-parser from 1.31.1 to 1.32.1 ([d37d7bf](https://github.com/sws2apps/sws2apps-api/commit/d37d7bf251820073d49a635a90b094c2017341da))
+
 # [2.28.0](https://github.com/sws2apps/sws2apps-api/compare/v2.27.0...v2.28.0) (2023-02-18)
 
 
