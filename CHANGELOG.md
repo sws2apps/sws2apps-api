@@ -1,3 +1,11 @@
+# [2.30.0](https://github.com/sws2apps/sws2apps-api/compare/v2.29.0...v2.30.0) (2023-02-22)
+
+
+### Features
+
+* **controllers:** add new expiration date if device is trusted ([7948425](https://github.com/sws2apps/sws2apps-api/commit/79484251f67858d4b063e4451fd46fbdc9ea5ad8))
+* **deps:** bump i18next from 22.4.9 to 22.4.10 ([fe86250](https://github.com/sws2apps/sws2apps-api/commit/fe862508ff7ec9c876ef7f483550c7700641d91a))
+
 # [2.29.0](https://github.com/sws2apps/sws2apps-api/compare/v2.28.1...v2.29.0) (2023-02-19)
 
 
