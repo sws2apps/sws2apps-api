@@ -1,3 +1,15 @@
+# [2.31.0](https://github.com/sws2apps/sws2apps-api/compare/v2.30.0...v2.31.0) (2023-02-24)
+
+
+### Bug Fixes
+
+* **classes:** fix undefined prop on old person changes ([133c90a](https://github.com/sws2apps/sws2apps-api/commit/133c90a3b2598bf6bad5fd509ee61555b0ca5e6f))
+
+
+### Features
+
+* **deps:** bump @logtail/node from 0.2.0 to 0.2.2 ([48c0498](https://github.com/sws2apps/sws2apps-api/commit/48c04984154e3c8f739040762bc419c43ed9a9e7))
+
 # [2.30.0](https://github.com/sws2apps/sws2apps-api/compare/v2.29.0...v2.30.0) (2023-02-22)
 
 
