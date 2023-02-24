@@ -175,7 +175,7 @@ Congregation.prototype.saveBackup = async function (
 
 							// update changes
 							if (!oldPerson.changes) oldPerson.changes = [];
-							const findIndex = oldPerson.changes.findIndex((item) => item.value.code === change.value.code);
+							const findIndex = oldPerson.changes.findIndex((item) => item.code === change.value.code);
 							if (findIndex !== -1) oldPerson.changes.splice(findIndex, 1);
 							oldPerson.changes.push(change);
 						}
