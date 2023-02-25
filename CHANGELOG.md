@@ -1,3 +1,10 @@
+# [2.32.0](https://github.com/sws2apps/sws2apps-api/compare/v2.31.0...v2.32.0) (2023-02-25)
+
+
+### Features
+
+* **api:** support merge of all cpe apps ([1eb0718](https://github.com/sws2apps/sws2apps-api/commit/1eb071881a3820b204f7ba46e8f570776cffe5fe))
+
 # [2.31.0](https://github.com/sws2apps/sws2apps-api/compare/v2.30.0...v2.31.0) (2023-02-24)
 
 
