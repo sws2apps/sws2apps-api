@@ -313,21 +313,9 @@ export const userLogout = async (req, res, next) => {
 
 export const getAnnouncementsV2 = async (req, res, next) => {
 	try {
-		const { app } = req.headers;
+		const { cong_role } = req.headers;
 
-		const appsAllowed = ['lmmo', 'vip', 'pocket'];
-		if (appsAllowed.includes(app) === false) {
-			res.locals.type = 'warn';
-			res.locals.message = `invalid app`;
-
-			res.status(400).json({
-				message: 'Bad request: provided inputs are invalid.',
-			});
-
-			return;
-		}
-
-		const list = await fetchCrowdinAnnouncements(app);
+		const list = await fetchCrowdinAnnouncements(cong_role);
 
 		res.locals.type = 'info';
 		res.locals.message = `client fetched announcements`;
