@@ -30,7 +30,7 @@ router.post(
 router.get('/announcement', header('app').isString().notEmpty(), getAnnouncements);
 
 // get announcements
-router.get('/announcement-v2', header('app').isString().notEmpty(), getAnnouncementsV2);
+router.get('/announcement-v2', getAnnouncementsV2);
 
 // resend verification email
 router.get('/resend-verification', header('email').isEmail(), resendVerificationEmail);
