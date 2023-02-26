@@ -32,7 +32,11 @@ Congregation.prototype.loadDetails = async function () {
 	this.cong_name = congSnap.data().cong_name;
 	this.cong_number = congSnap.data().cong_number;
 	this.last_backup = congSnap.data().last_backup;
-	this.cong_persons = congSnap.data().cong_persons || '';
+	this.cong_persons = '';
+	if (congSnap.data().cong_persons) {
+		const resultStr = congSnap.data().cong_persons.toString();
+		this.cong_persons = resultStr;
+	}
 	this.cong_sourceMaterial = congSnap.data().cong_sourceMaterial || [];
 	this.cong_schedule = congSnap.data().cong_schedule || [];
 	this.cong_sourceMaterial_draft = congSnap.data().cong_sourceMaterial_draft || [];
@@ -217,6 +221,7 @@ Congregation.prototype.saveBackup = async function (
 				}
 			}
 
+			if (oldPerson.id) delete oldPerson.id;
 			finalPersons.push(oldPerson);
 		});
 
@@ -224,6 +229,7 @@ Congregation.prototype.saveBackup = async function (
 		cong_persons.forEach((newPerson) => {
 			const oldPerson = decryptedPersons.find((person) => person.person_uid === newPerson.person_uid);
 			if (!oldPerson) {
+				if (newPerson.id) delete newPerson.id;
 				finalPersons.push(newPerson);
 			}
 		});
@@ -345,8 +351,10 @@ Congregation.prototype.saveBackup = async function (
 
 	const userInfo = users.findUserByAuthUid(uid);
 
+	const buffer = Buffer.from(encryptedPersons, 'utf-8');
+
 	const data = {
-		cong_persons: encryptedPersons,
+		cong_persons: buffer,
 		cong_schedule_draft: finalSchedule,
 		cong_sourceMaterial_draft: this.cong_sourceMaterial_draft,
 		cong_swsPocket: cong_swsPocket,
