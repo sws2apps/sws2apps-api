@@ -1,3 +1,10 @@
+## [2.33.1](https://github.com/sws2apps/sws2apps-api/compare/v2.33.0...v2.33.1) (2023-02-26)
+
+
+### Bug Fixes
+
+* **public:** use issue date when checking document id ([85bd9b2](https://github.com/sws2apps/sws2apps-api/commit/85bd9b2f9a136b0a2249d785c846f3e713c89770))
+
 # [2.33.0](https://github.com/sws2apps/sws2apps-api/compare/v2.32.1...v2.33.0) (2023-02-26)
 
 
