@@ -1,3 +1,10 @@
+## [2.32.1](https://github.com/sws2apps/sws2apps-api/compare/v2.32.0...v2.32.1) (2023-02-26)
+
+
+### Bug Fixes
+
+* **congregation:** update source material when backup instead of overwrite ([cfaa2b4](https://github.com/sws2apps/sws2apps-api/commit/cfaa2b48b56b8644b8c54766c1adac25d1091f35))
+
 # [2.32.0](https://github.com/sws2apps/sws2apps-api/compare/v2.31.0...v2.32.0) (2023-02-25)
 
 
