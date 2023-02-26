@@ -35,6 +35,12 @@ export const fetchData = async (language) => {
 	let monthMwb = monthOdd ? currentMonth : currentMonth - 1;
 	let currentYear = weekDate.getFullYear();
 
+	monthMwb = monthMwb - 2;
+	if (monthMwb === -1) {
+		monthMwb = 11;
+		currentYear--;
+	}
+
 	const issues = [];
 
 	do {

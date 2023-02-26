@@ -4,22 +4,22 @@ import { Congregation } from '../classes/Congregation.js';
 const db = getFirestore(); //get default database
 
 export const dbFetchCongregations = async () => {
-  const congRef = db.collection('congregations');
-  const snapshot = await congRef.get();
+	const congRef = db.collection('congregations');
+	const snapshot = await congRef.get();
 
-  const items = [];
+	const items = [];
 
-  snapshot.forEach((doc) => {
-    items.push(doc.id);
-  });
+	snapshot.forEach((doc) => {
+		items.push(doc.id);
+	});
 
-  const finalResult = [];
+	const finalResult = [];
 
-  for (let i = 0; i < items.length; i++) {
-    const cong = new Congregation(items[i]);
-    await cong.loadDetails();
-    finalResult.push(cong);
-  }
+	for (let i = 0; i < items.length; i++) {
+		const cong = new Congregation(items[i]);
+		await cong.loadDetails();
+		finalResult.push(cong);
+	}
 
-  return finalResult;
+	return finalResult;
 };
