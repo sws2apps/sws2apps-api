@@ -1,3 +1,10 @@
+# [2.34.0](https://github.com/sws2apps/sws2apps-api/compare/v2.33.1...v2.34.0) (2023-02-26)
+
+
+### Features
+
+* **public:** update range for fetching jw.org schedule ([de176ea](https://github.com/sws2apps/sws2apps-api/commit/de176ea6609528c68edbea75708026ab29bf76a9))
+
 ## [2.33.1](https://github.com/sws2apps/sws2apps-api/compare/v2.33.0...v2.33.1) (2023-02-26)
 
 
