@@ -304,9 +304,13 @@ Congregation.prototype.saveBackup = async function (
 		});
 	}
 
-	let finalSource = [];
 	cong_sourceMaterial.forEach((newSource) => {
 		const oldSource = this.cong_sourceMaterial_draft.find((source) => source.weekOf === newSource.weekOf);
+		const oldSourceIndex = this.cong_sourceMaterial_draft.findIndex((source) => source.weekOf === newSource.weekOf);
+
+		if (!oldSource) {
+			this.cong_sourceMaterial_draft.push(newSource);
+		}
 
 		if (oldSource) {
 			// restore keepOverride if qualified
@@ -333,10 +337,10 @@ Congregation.prototype.saveBackup = async function (
 						if (value) newSource[key] = value;
 					}
 				}
+
+				this.cong_sourceMaterial_draft.splice(oldSourceIndex, 1, newSource);
 			}
 		}
-
-		finalSource.push(newSource);
 	});
 
 	const userInfo = users.findUserByAuthUid(uid);
@@ -344,7 +348,7 @@ Congregation.prototype.saveBackup = async function (
 	const data = {
 		cong_persons: encryptedPersons,
 		cong_schedule_draft: finalSchedule,
-		cong_sourceMaterial_draft: finalSource,
+		cong_sourceMaterial_draft: this.cong_sourceMaterial_draft,
 		cong_swsPocket: cong_swsPocket,
 		cong_settings: cong_settings,
 		last_backup: {
@@ -357,7 +361,6 @@ Congregation.prototype.saveBackup = async function (
 
 	this.cong_persons = encryptedPersons;
 	this.cong_schedule_draft = finalSchedule;
-	this.cong_sourceMaterial_draft = finalSource;
 	this.cong_swsPocket = cong_swsPocket;
 	this.cong_settings = cong_settings;
 	this.last_backup = {
