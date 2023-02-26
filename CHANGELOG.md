@@ -1,3 +1,10 @@
+# [2.33.0](https://github.com/sws2apps/sws2apps-api/compare/v2.32.1...v2.33.0) (2023-02-26)
+
+
+### Features
+
+* **firebase:** save congregation person list as blob in firestore ([db113b1](https://github.com/sws2apps/sws2apps-api/commit/db113b192ae347916d123f1531106112d96e596f))
+
 ## [2.32.1](https://github.com/sws2apps/sws2apps-api/compare/v2.32.0...v2.32.1) (2023-02-26)
 
 
