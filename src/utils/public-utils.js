@@ -18,54 +18,153 @@ export const fetchIssueData = (issue) => {
 				resolve(obj);
 			});
 		}
+
+		if (!issue.hasEPUB) {
+			const language = issue.language;
+
+			const url =
+				process.env.JW_FINDER +
+				new URLSearchParams({
+					wtlocale: language,
+					pub: 'mwb',
+					issue: issue.issueDate,
+				});
+
+			fetch(url).then((res) =>
+				res.text().then((result) => {
+					const parser = new window.DOMParser();
+					const htmlItem = parser.parseFromString(result, 'text/html');
+
+					const docIds = [];
+					const accordionItems = htmlItem.getElementsByClassName(`docClass-106 iss-${issue.issueDate}`);
+					for (const weekLink of accordionItems) {
+						weekLink.classList.forEach((item) => {
+							if (item.indexOf('docId-') !== -1) {
+								docIds.push(item.split('-')[1]);
+							}
+						});
+					}
+
+					const htmlRaws = [];
+
+					const fetchSchedule1 = fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[0]}`).then((res) =>
+						res.text()
+					);
+					const fetchSchedule2 = fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[1]}`).then((res) =>
+						res.text()
+					);
+					const fetchSchedule3 = fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[2]}`).then((res) =>
+						res.text()
+					);
+					const fetchSchedule4 = fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[3]}`).then((res) =>
+						res.text()
+					);
+					const fetchSchedule5 = fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[4]}`).then((res) =>
+						res.text()
+					);
+					const fetchSchedule6 = fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[5]}`).then((res) =>
+						res.text()
+					);
+					const fetchSchedule7 = fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[6]}`).then((res) =>
+						res.text()
+					);
+					const fetchSchedule8 = docIds[7]
+						? fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[7]}`).then((res) => res.text())
+						: Promise.resolve('');
+					const fetchSchedule9 = docIds[8]
+						? fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[8]}`).then((res) => res.text())
+						: Promise.resolve('');
+					const fetchSchedule10 = docIds[9]
+						? fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[9]}`).then((res) => res.text())
+						: Promise.resolve('');
+
+					const allData = Promise.all([
+						fetchSchedule1,
+						fetchSchedule2,
+						fetchSchedule3,
+						fetchSchedule4,
+						fetchSchedule5,
+						fetchSchedule6,
+						fetchSchedule7,
+						fetchSchedule8,
+						fetchSchedule9,
+						fetchSchedule10,
+					]);
+
+					allData.then((raws) => {
+						for (let z = 0; z < raws.length; z++) {
+							const rawText = raws[z];
+							if (rawText !== '') {
+								htmlRaws.push(rawText);
+							}
+						}
+
+						loadEPUB({ htmlRaws, mwbYear: issue.currentYear, lang: language }).then((epubData) => {
+							const obj = {
+								issueDate: issue.issueDate,
+								...epubData,
+							};
+
+							resolve(obj);
+						});
+					});
+				})
+			);
+		}
 	});
 };
 
-export const fetchData = async (language) => {
+export const fetchData = async (language, updateOld) => {
 	const mergedSources = [];
 	let notFound = false;
+	let validDate;
 
 	// get current issue
 	const today = new Date();
 	const day = today.getDay();
 	const diff = today.getDate() - day + (day === 0 ? -6 : 1);
 	const weekDate = new Date(today.setDate(diff));
-	const currentMonth = weekDate.getMonth() + 1;
+
+	if (updateOld) {
+		validDate = weekDate.setMonth(weekDate.getMonth() - 12);
+	}
+	if (!updateOld) {
+		validDate = weekDate.setMonth(weekDate.getMonth());
+	}
+
+	const startDate = new Date(validDate);
+	const currentMonth = startDate.getMonth() + 1;
 	const monthOdd = currentMonth % 2 === 0 ? false : true;
 	let monthMwb = monthOdd ? currentMonth : currentMonth - 1;
-	let currentYear = weekDate.getFullYear();
-
-	monthMwb = monthMwb - 2;
-	if (monthMwb === -1) {
-		monthMwb = 11;
-		currentYear--;
-	}
+	let currentYear = startDate.getFullYear();
 
 	const issues = [];
 
 	do {
-		const issueDate = currentYear + String(monthMwb).padStart(2, '0');
-		const url =
-			process.env.JW_CDN +
-			new URLSearchParams({
-				langwritten: language,
-				pub: 'mwb',
-				fileformat: 'epub',
-				output: 'json',
-				issue: issueDate,
-			});
+		if ((currentYear === 2022 && monthMwb > 5) || currentYear > 2022) {
+			const issueDate = currentYear + String(monthMwb).padStart(2, '0');
+			const url =
+				process.env.JW_CDN +
+				new URLSearchParams({
+					langwritten: language,
+					pub: 'mwb',
+					fileformat: 'epub',
+					output: 'json',
+					issue: issueDate,
+				});
 
-		const res = await fetch(url);
+			const res = await fetch(url);
 
-		if (res.status === 200) {
-			const result = await res.json();
-			const hasEPUB = result.files[language].EPUB;
+			if (res.status === 200) {
+				const result = await res.json();
+				const hasEPUB = result.files[language].EPUB;
 
-			issues.push({ issueDate, currentYear, language, hasEPUB: hasEPUB });
-		}
+				issues.push({ issueDate, currentYear, language, hasEPUB: hasEPUB });
+			}
 
-		if (res.status === 404) {
-			notFound = true;
+			if (res.status === 404) {
+				notFound = true;
+			}
 		}
 
 		// assigning next issue
@@ -81,8 +180,29 @@ export const fetchData = async (language) => {
 		const fetchSource2 = issues.length > 1 ? fetchIssueData(issues[1]) : Promise.resolve({});
 		const fetchSource3 = issues.length > 2 ? fetchIssueData(issues[2]) : Promise.resolve({});
 		const fetchSource4 = issues.length > 3 ? fetchIssueData(issues[3]) : Promise.resolve({});
+		const fetchSource5 = issues.length > 4 ? fetchIssueData(issues[4]) : Promise.resolve({});
+		const fetchSource6 = issues.length > 5 ? fetchIssueData(issues[5]) : Promise.resolve({});
+		const fetchSource7 = issues.length > 6 ? fetchIssueData(issues[6]) : Promise.resolve({});
+		const fetchSource8 = issues.length > 7 ? fetchIssueData(issues[7]) : Promise.resolve({});
+		const fetchSource9 = issues.length > 8 ? fetchIssueData(issues[8]) : Promise.resolve({});
+		const fetchSource10 = issues.length > 9 ? fetchIssueData(issues[9]) : Promise.resolve({});
+		const fetchSource11 = issues.length > 10 ? fetchIssueData(issues[10]) : Promise.resolve({});
+		const fetchSource12 = issues.length > 11 ? fetchIssueData(issues[11]) : Promise.resolve({});
 
-		const allData = await Promise.all([fetchSource1, fetchSource2, fetchSource3, fetchSource4]);
+		const allData = await Promise.all([
+			fetchSource1,
+			fetchSource2,
+			fetchSource3,
+			fetchSource4,
+			fetchSource5,
+			fetchSource6,
+			fetchSource7,
+			fetchSource8,
+			fetchSource9,
+			fetchSource10,
+			fetchSource11,
+			fetchSource12,
+		]);
 
 		for (let z = 0; z < allData.length; z++) {
 			const tempObj = allData[z];
