@@ -1,3 +1,12 @@
+# [2.35.0](https://github.com/sws2apps/sws2apps-api/compare/v2.34.0...v2.35.0) (2023-02-28)
+
+
+### Features
+
+* **congregation:** check retention when sending backup ([8a96142](https://github.com/sws2apps/sws2apps-api/commit/8a961425238fd8adac22e56f1b12d8520e552119))
+* **deps:** bump @logtail/node from 0.2.2 to 0.3.1 ([a73e4ed](https://github.com/sws2apps/sws2apps-api/commit/a73e4edbae7aa47cb3a1924d7b0e76dd7ac51bc6))
+* **deps:** bump jw-epub-parser from 1.33.0 to 1.35.0 ([6b3ee44](https://github.com/sws2apps/sws2apps-api/commit/6b3ee44dfc5778ad81119f4cd4938c30c6e61ac1))
+
 # [2.34.0](https://github.com/sws2apps/sws2apps-api/compare/v2.33.1...v2.34.0) (2023-02-26)
 
 
