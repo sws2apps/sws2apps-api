@@ -20,160 +20,87 @@ export const fetchIssueData = (issue) => {
 		}
 
 		if (!issue.hasEPUB) {
-			const language = issue.language;
-
-			const url =
-				process.env.JW_FINDER +
-				new URLSearchParams({
-					wtlocale: language,
-					pub: 'mwb',
-					issue: issue.issueDate,
-				});
-
-			fetch(url).then((res) =>
-				res.text().then((result) => {
-					const parser = new window.DOMParser();
-					const htmlItem = parser.parseFromString(result, 'text/html');
-
-					const docIds = [];
-					const accordionItems = htmlItem.getElementsByClassName(`docClass-106 iss-${issue.issueDate}`);
-					for (const weekLink of accordionItems) {
-						weekLink.classList.forEach((item) => {
-							if (item.indexOf('docId-') !== -1) {
-								docIds.push(item.split('-')[1]);
-							}
-						});
-					}
-
-					const htmlRaws = [];
-
-					const fetchSchedule1 = fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[0]}`).then((res) =>
-						res.text()
-					);
-					const fetchSchedule2 = fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[1]}`).then((res) =>
-						res.text()
-					);
-					const fetchSchedule3 = fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[2]}`).then((res) =>
-						res.text()
-					);
-					const fetchSchedule4 = fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[3]}`).then((res) =>
-						res.text()
-					);
-					const fetchSchedule5 = fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[4]}`).then((res) =>
-						res.text()
-					);
-					const fetchSchedule6 = fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[5]}`).then((res) =>
-						res.text()
-					);
-					const fetchSchedule7 = fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[6]}`).then((res) =>
-						res.text()
-					);
-					const fetchSchedule8 = docIds[7]
-						? fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[7]}`).then((res) => res.text())
-						: Promise.resolve('');
-					const fetchSchedule9 = docIds[8]
-						? fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[8]}`).then((res) => res.text())
-						: Promise.resolve('');
-					const fetchSchedule10 = docIds[9]
-						? fetch(`https://www.jw.org/finder?wtlocale=${language}&docid=${docIds[9]}`).then((res) => res.text())
-						: Promise.resolve('');
-
-					const allData = Promise.all([
-						fetchSchedule1,
-						fetchSchedule2,
-						fetchSchedule3,
-						fetchSchedule4,
-						fetchSchedule5,
-						fetchSchedule6,
-						fetchSchedule7,
-						fetchSchedule8,
-						fetchSchedule9,
-						fetchSchedule10,
-					]);
-
-					allData.then((raws) => {
-						for (let z = 0; z < raws.length; z++) {
-							const rawText = raws[z];
-							if (rawText !== '') {
-								htmlRaws.push(rawText);
-							}
-						}
-
-						loadEPUB({ htmlRaws, mwbYear: issue.currentYear, lang: language }).then((epubData) => {
-							const obj = {
-								issueDate: issue.issueDate,
-								...epubData,
-							};
-
-							resolve(obj);
-						});
-					});
-				})
-			);
+			resolve({});
 		}
 	});
 };
 
-export const fetchData = async (language, updateOld) => {
+export const fetchData = async (language, issue) => {
 	const mergedSources = [];
 	let notFound = false;
-	let validDate;
-
-	// get current issue
-	const today = new Date();
-	const day = today.getDay();
-	const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-	const weekDate = new Date(today.setDate(diff));
-
-	if (updateOld) {
-		validDate = weekDate.setMonth(weekDate.getMonth() - 12);
-	}
-	if (!updateOld) {
-		validDate = weekDate.setMonth(weekDate.getMonth());
-	}
-
-	const startDate = new Date(validDate);
-	const currentMonth = startDate.getMonth() + 1;
-	const monthOdd = currentMonth % 2 === 0 ? false : true;
-	let monthMwb = monthOdd ? currentMonth : currentMonth - 1;
-	let currentYear = startDate.getFullYear();
 
 	const issues = [];
 
-	do {
-		if ((currentYear === 2022 && monthMwb > 5) || currentYear > 2022) {
-			const issueDate = currentYear + String(monthMwb).padStart(2, '0');
-			const url =
-				process.env.JW_CDN +
-				new URLSearchParams({
-					langwritten: language,
-					pub: 'mwb',
-					fileformat: 'epub',
-					output: 'json',
-					issue: issueDate,
-				});
+	if (issue === '') {
+		// get current issue
+		const today = new Date();
+		const day = today.getDay();
+		const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+		const weekDate = new Date(today.setDate(diff));
+		const validDate = weekDate.setMonth(weekDate.getMonth());
 
-			const res = await fetch(url);
+		const startDate = new Date(validDate);
+		const currentMonth = startDate.getMonth() + 1;
+		const monthOdd = currentMonth % 2 === 0 ? false : true;
+		let monthMwb = monthOdd ? currentMonth : currentMonth - 1;
+		let currentYear = startDate.getFullYear();
 
-			if (res.status === 200) {
-				const result = await res.json();
-				const hasEPUB = result.files[language].EPUB;
+		do {
+			if ((currentYear === 2022 && monthMwb > 5) || currentYear > 2022) {
+				const issueDate = currentYear + String(monthMwb).padStart(2, '0');
+				const url =
+					process.env.JW_CDN +
+					new URLSearchParams({
+						langwritten: language,
+						pub: 'mwb',
+						fileformat: 'epub',
+						output: 'json',
+						issue: issueDate,
+					});
 
-				issues.push({ issueDate, currentYear, language, hasEPUB: hasEPUB });
+				const res = await fetch(url);
+
+				if (res.status === 200) {
+					const result = await res.json();
+					const hasEPUB = result.files[language].EPUB;
+
+					issues.push({ issueDate, currentYear, language, hasEPUB: hasEPUB });
+				}
+
+				if (res.status === 404) {
+					notFound = true;
+				}
 			}
 
-			if (res.status === 404) {
-				notFound = true;
+			// assigning next issue
+			monthMwb = monthMwb + 2;
+			if (monthMwb === 13) {
+				monthMwb = 1;
+				currentYear++;
 			}
-		}
+		} while (notFound === false);
+	}
 
-		// assigning next issue
-		monthMwb = monthMwb + 2;
-		if (monthMwb === 13) {
-			monthMwb = 1;
-			currentYear++;
+	if (issue !== '') {
+		const url =
+			process.env.JW_CDN +
+			new URLSearchParams({
+				langwritten: language,
+				pub: 'mwb',
+				fileformat: 'epub',
+				output: 'json',
+				issue,
+			});
+
+		const res = await fetch(url);
+
+		if (res.status === 200) {
+			const result = await res.json();
+			const hasEPUB = result.files[language].EPUB;
+			const currentYear = issue.substring(0, 4);
+			issues.push({ issueDate: issue, currentYear, language, hasEPUB: hasEPUB });
 		}
-	} while (notFound === false);
+	}
 
 	if (issues.length > 0) {
 		const fetchSource1 = fetchIssueData(issues[0]);
@@ -182,27 +109,8 @@ export const fetchData = async (language, updateOld) => {
 		const fetchSource4 = issues.length > 3 ? fetchIssueData(issues[3]) : Promise.resolve({});
 		const fetchSource5 = issues.length > 4 ? fetchIssueData(issues[4]) : Promise.resolve({});
 		const fetchSource6 = issues.length > 5 ? fetchIssueData(issues[5]) : Promise.resolve({});
-		const fetchSource7 = issues.length > 6 ? fetchIssueData(issues[6]) : Promise.resolve({});
-		const fetchSource8 = issues.length > 7 ? fetchIssueData(issues[7]) : Promise.resolve({});
-		const fetchSource9 = issues.length > 8 ? fetchIssueData(issues[8]) : Promise.resolve({});
-		const fetchSource10 = issues.length > 9 ? fetchIssueData(issues[9]) : Promise.resolve({});
-		const fetchSource11 = issues.length > 10 ? fetchIssueData(issues[10]) : Promise.resolve({});
-		const fetchSource12 = issues.length > 11 ? fetchIssueData(issues[11]) : Promise.resolve({});
 
-		const allData = await Promise.all([
-			fetchSource1,
-			fetchSource2,
-			fetchSource3,
-			fetchSource4,
-			fetchSource5,
-			fetchSource6,
-			fetchSource7,
-			fetchSource8,
-			fetchSource9,
-			fetchSource10,
-			fetchSource11,
-			fetchSource12,
-		]);
+		const allData = await Promise.all([fetchSource1, fetchSource2, fetchSource3, fetchSource4, fetchSource5, fetchSource6]);
 
 		for (let z = 0; z < allData.length; z++) {
 			const tempObj = allData[z];

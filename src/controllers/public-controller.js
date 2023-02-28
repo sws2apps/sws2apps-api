@@ -4,13 +4,11 @@ import { extractScheduleDocsId, fetchData } from '../utils/public-utils.js';
 export const getSchedules = async (req, res, next) => {
 	try {
 		let { language } = req.params;
-		let updateOld = req.headers.updateold || 'false';
-
-		updateOld = updateOld === 'false' ? false : true;
+		const issue = req.headers.issuedate || '';
 
 		language = language.toUpperCase();
 
-		const mergedSources = await fetchData(language, updateOld);
+		const mergedSources = await fetchData(language, issue);
 
 		if (mergedSources.length > 0) {
 			res.locals.type = 'info';
