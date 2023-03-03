@@ -31,6 +31,7 @@ export class User {
 		this.disabled = true;
 		this.secret = '';
 		this.auth_provider = '';
+		this.isTest = false;
 	}
 }
 
@@ -39,6 +40,7 @@ User.prototype.loadDetails = async function () {
 	const userSnap = await userRef.get();
 
 	this.username = userSnap.data().about.name;
+	this.isTest = userSnap.data().about.isTest || false;
 	this.auth_uid = userSnap.data().about?.auth_uid || '';
 	this.secret = userSnap.data().about?.secret || '';
 	this.sessions = userSnap.data().about?.sessions || [];

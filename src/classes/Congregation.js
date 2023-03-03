@@ -1,6 +1,9 @@
+import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import dayjs from 'dayjs';
 import randomstring from 'randomstring';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 import { decryptData, encryptData } from '../utils/encryption-utils.js';
 import { users } from './Users.js';
 import { getOldestWeekDate, getWeekDate } from '../utils/date.js';
@@ -33,6 +36,22 @@ Congregation.prototype.loadDetails = async function () {
 	this.cong_name = congSnap.data().cong_name;
 	this.cong_number = congSnap.data().cong_number;
 	this.last_backup = congSnap.data().last_backup;
+
+	// if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
+	// if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
+
+	// const options = {
+	// 	destination: `./cong_backup/${this.id}/persons.txt`,
+	// };
+
+	// const storageBucket = getStorage().bucket();
+	// const file = await storageBucket.file(`${this.id}/persons.txt`);
+	// const [fileExist] = await file.exists();
+	// if (fileExist) await file.download(options);
+
+	// await readFile(`./cong_backup/${this.id}/persons.txt`);
+	// await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
+
 	this.cong_persons = '';
 	if (congSnap.data().cong_persons) {
 		const resultStr = congSnap.data().cong_persons.toString();
@@ -379,6 +398,12 @@ Congregation.prototype.saveBackup = async function (
 
 	const buffer = Buffer.from(encryptedPersons, 'utf-8');
 
+	if (userInfo.isTest) {
+		if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
+		if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
+		await writeFile(`./cong_backup/${this.id}/persons.txt`, encryptedPersons);
+	}
+
 	const data = {
 		cong_persons: buffer,
 		cong_schedule_draft: finalSchedule,
@@ -401,6 +426,12 @@ Congregation.prototype.saveBackup = async function (
 		by: userInfo.username,
 		date: data.last_backup.date,
 	};
+
+	if (userInfo.isTest) {
+		const storageBucket = getStorage().bucket();
+		await storageBucket.upload(`./cong_backup/${this.id}/persons.txt`, { destination: `${this.id}/persons.txt` });
+		await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
+	}
 };
 
 Congregation.prototype.retrieveBackup = function () {
