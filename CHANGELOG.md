@@ -1,3 +1,10 @@
+## [2.36.1](https://github.com/sws2apps/sws2apps-api/compare/v2.36.0...v2.36.1) (2023-03-03)
+
+
+### Bug Fixes
+
+* **public:** fix non-array value when getting news ([f8c6745](https://github.com/sws2apps/sws2apps-api/commit/f8c674537d72b1d9534fda07ebc32ca37c012dd0))
+
 # [2.36.0](https://github.com/sws2apps/sws2apps-api/compare/v2.35.0...v2.36.0) (2023-03-03)
 
 
