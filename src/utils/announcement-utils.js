@@ -28,6 +28,8 @@ export const dbFetchAnnouncements = async () => {
 export const fetchCrowdinAnnouncements = async (role) => {
 	if (!role) role = [];
 
+	if (role) role = JSON.parse(role);
+
 	const isDev = process.env.NODE_ENV === 'development';
 
 	const projects = (await projectsGroupsApi.listProjects()).data;
