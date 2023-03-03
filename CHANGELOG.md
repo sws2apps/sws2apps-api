@@ -1,3 +1,11 @@
+# [2.36.0](https://github.com/sws2apps/sws2apps-api/compare/v2.35.0...v2.36.0) (2023-03-03)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.21.2 to 1.22.0 ([e2b05ff](https://github.com/sws2apps/sws2apps-api/commit/e2b05ff46fefdcc6b6d11b700b768314ba1f49d2))
+* **deps:** bump dns-packet from 5.3.1 to 5.4.0 ([e6b363f](https://github.com/sws2apps/sws2apps-api/commit/e6b363ffb885b240f24c88169fd61331e8a5b117))
+
 # [2.35.0](https://github.com/sws2apps/sws2apps-api/compare/v2.34.0...v2.35.0) (2023-02-28)
 
 
