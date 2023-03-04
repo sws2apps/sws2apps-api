@@ -1,0 +1,35 @@
+name: CD-Evennode
+
+on:
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  redeploy_evennode:
+    name: Deploy API to Evennode
+    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
+    environment:
+      name: Prod.env
+      url: https://sws2apps-api.eu-4.evennode.com
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@02d189fc92ea6279c0fea0e7a259da1b4f1d22a5
+        with:
+          key: ${{ secrets.EVENNODE_SSH_KEY }}
+          known_hosts: 'git.evennode.com'
+
+      - name: Checkout for release preparation
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Deploy to evennode.com
+        run: |
+          git remote add evennode ${{ secrets.EVENNODE_REPO_URL }}
+          git config --global user.email "${{ secrets.EVENNODE_GIT_EMAIL }}"
+          git config --global user.name "${{ secrets.EVENNODE_GIT_NAME }}"
+          git push evennode main

@@ -6,7 +6,7 @@ on:
 permissions: read-all
 
 jobs:
-  redeploy_dev:
+  redeploy_render:
     name: Redeploy API to Render
     if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
     environment:
