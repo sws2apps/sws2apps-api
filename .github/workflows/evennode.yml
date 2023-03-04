@@ -36,4 +36,4 @@ jobs:
           git remote add evennode ${{ secrets.EVENNODE_REPO_URL }}
           git config --global user.email "${{ secrets.EVENNODE_GIT_EMAIL }}"
           git config --global user.name "${{ secrets.EVENNODE_GIT_NAME }}"
-          git push evennode main
+          git push evennode main -f
