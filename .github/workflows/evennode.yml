@@ -15,12 +15,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout for release preparation
-        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
-        with:
-          ref: main
-          persist-credentials: false
-
       - name: Install SSH key
         uses: shimataro/ssh-key-action@02d189fc92ea6279c0fea0e7a259da1b4f1d22a5
         with:
@@ -30,6 +24,11 @@ jobs:
       - name: Add git.evennode.com to known_hosts
         run: |
           ssh-keyscan -H git.evennode.com > ~/.ssh/known_hosts
+
+      - name: Checkout for release preparation
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+        with:
+          fetch-depth: 0
 
       - name: Deploy to evennode.com
         run: |
