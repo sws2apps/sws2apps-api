@@ -20,12 +20,16 @@ jobs:
         with:
           ref: main
           persist-credentials: false
-          
+
       - name: Install SSH key
         uses: shimataro/ssh-key-action@02d189fc92ea6279c0fea0e7a259da1b4f1d22a5
         with:
           key: ${{ secrets.EVENNODE_SSH_KEY }}
-          known_hosts: 'git.evennode.com'
+          known_hosts: ' '
+
+      - name: Add git.evennode.com to known_hosts
+        run: |
+          ssh-keyscan -H git.evennode.com > ~/.ssh/known_hosts
 
       - name: Deploy to evennode.com
         run: |
