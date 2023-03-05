@@ -29,10 +29,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: Render Deployment
+      - name: Deploy API to Heroku
         if: ${{ steps.semantic.outputs.new_release_published == 'true' }}
-        uses: sws2apps/render-deployment@5c3274c95919e875da2e6d8af0f93489d1d6e3e6
+        uses: akhileshns/heroku-deploy@5ef17ff17a3fb8e9ad822ae6a61648a3ef9e0c3d
         with:
-          serviceId: ${{ secrets.RENDER_SERVICE_ID }}
-          apiKey: ${{ secrets.RENDER_API_KEY }}
-          multipleDeployment: false
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: sws2apps
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
