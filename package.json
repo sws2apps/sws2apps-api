@@ -1,6 +1,6 @@
 {
 	"name": "sws2apps-api",
-	"version": "2.36.1",
+	"version": "2.36.2",
 	"description": "Node apps to handle backend operations for all sws2apps services",
 	"main": "index.js",
 	"scripts": {
@@ -14,7 +14,9 @@
 	"license": "ISC",
 	"type": "module",
 	"eslintConfig": {
-		"extends": ["react-app"]
+		"extends": [
+			"react-app"
+		]
 	},
 	"engines": {
 		"node": ">=18",

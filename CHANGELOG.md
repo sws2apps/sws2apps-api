@@ -1,3 +1,10 @@
+## [2.36.2](https://github.com/sws2apps/sws2apps-api/compare/v2.36.1...v2.36.2) (2023-03-06)
+
+
+### Bug Fixes
+
+* **cors:** include new url to access cpe ([b6b1e51](https://github.com/sws2apps/sws2apps-api/commit/b6b1e51d18e8f8cdd3f1c16f04496520f26775d5))
+
 ## [2.36.1](https://github.com/sws2apps/sws2apps-api/compare/v2.36.0...v2.36.1) (2023-03-03)
 
 
