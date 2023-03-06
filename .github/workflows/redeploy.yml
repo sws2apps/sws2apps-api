@@ -11,7 +11,7 @@ jobs:
     if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
     environment:
       name: Prod.env
-      url: https://www.sws2apps.com
+      url: https://api.sws2apps.com
     runs-on: ubuntu-latest
 
     steps:
