@@ -1,3 +1,10 @@
+## [2.36.3](https://github.com/sws2apps/sws2apps-api/compare/v2.36.2...v2.36.3) (2023-03-06)
+
+
+### Bug Fixes
+
+* **cors:** allow admin url to use api ([cda2457](https://github.com/sws2apps/sws2apps-api/commit/cda2457cb74a21c4ac721a88a3caa7498afb11bf))
+
 ## [2.36.2](https://github.com/sws2apps/sws2apps-api/compare/v2.36.1...v2.36.2) (2023-03-06)
 
 
