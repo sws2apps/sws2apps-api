@@ -7,9 +7,19 @@ export const getAllCongregations = async (req, res, next) => {
 	try {
 		const congsList = congregations.list;
 
+		const result = congsList.map((cong) => {
+			return {
+				id: cong.id,
+				country_code: cong.country_code,
+				cong_name: cong.cong_name,
+				cong_number: cong.cong_number,
+				cong_members: cong.cong_members,
+			};
+		});
+
 		res.locals.type = 'info';
 		res.locals.message = 'admin fetched all congregation';
-		res.status(200).json(congsList);
+		res.status(200).json(result);
 	} catch (err) {
 		next(err);
 	}
