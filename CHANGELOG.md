@@ -1,3 +1,17 @@
+# [2.37.0](https://github.com/sws2apps/sws2apps-api/compare/v2.36.3...v2.37.0) (2023-03-07)
+
+
+### Bug Fixes
+
+* **controllers:** update response when fetching all congregations ([b164765](https://github.com/sws2apps/sws2apps-api/commit/b164765812eb128ef3543655fff823d75ed2e682))
+
+
+### Features
+
+* **deps:** bump cryptr from 6.1.0 to 6.2.0 ([2ba781c](https://github.com/sws2apps/sws2apps-api/commit/2ba781c68e16d6a69cd07ff6b86a0d59a7183a22))
+* **deps:** bump i18next from 22.4.10 to 22.4.11 ([d8493b7](https://github.com/sws2apps/sws2apps-api/commit/d8493b79fe57c56838e34ee8e2307356f864ff1d))
+* **deps:** bump nodemailer-express-handlebars from 6.0.0 to 6.1.0 ([1a8c923](https://github.com/sws2apps/sws2apps-api/commit/1a8c9238051092e7fa44569933cc048104cc403d))
+
 ## [2.36.3](https://github.com/sws2apps/sws2apps-api/compare/v2.36.2...v2.36.3) (2023-03-06)
 
 
