@@ -254,3 +254,123 @@ export const verifyPasswordlessInfo = async (req, res, next) => {
 		next(err);
 	}
 };
+
+export const createUserTempOTPCode = async (req, res, next) => {
+	try {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const { uid } = req.headers;
+		const language = req.headers.applanguage || 'e';
+		const user = await users.findUserByAuthUid(uid);
+
+		if (user) {
+			await user.createTempOTPCode(language);
+
+			res.locals.type = 'info';
+			res.locals.message = `temporary code for signin has been queued for sending`;
+
+			res.status(200).json({ message: 'CHECK_EMAIL' });
+			return;
+		}
+
+		res.locals.type = 'warn';
+		res.locals.message = `user record could not be found`;
+		res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const verifyUserTempOTPCode = async (req, res, next) => {
+	try {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const { uid, visitorid } = req.headers;
+		const { code } = req.body;
+		const user = await users.findUserByAuthUid(uid);
+
+		if (!user) {
+			res.locals.type = 'warn';
+			res.locals.message = `user record could not be found`;
+			res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+			return;
+		}
+
+		const result = await user.verifyTempOTPCode(code);
+
+		if (!result) {
+			res.locals.type = 'warn';
+			res.locals.message = 'Email OTP token invalid';
+			res.status(403).json({ message: 'EMAIL_OTP_INVALID' });
+			return;
+		}
+
+		const { id, sessions, username, cong_name, cong_number, cong_role, cong_id, pocket_local_id, pocket_members } = user;
+
+		let newSessions = sessions.map((session) => {
+			if (session.visitorid === visitorid) {
+				return {
+					...session,
+					mfaVerified: true,
+					sws_last_seen: new Date().getTime(),
+				};
+			} else {
+				return session;
+			}
+		});
+
+		await user.updateSessions(newSessions);
+
+		// init response object
+		const obj = {
+			message: 'TOKEN_VALID',
+			id,
+			username,
+			cong_name,
+			cong_number,
+			cong_role,
+			cong_id,
+			global_role: user.global_role,
+			pocket_local_id,
+			pocket_members,
+		};
+
+		res.locals.type = 'info';
+		res.locals.message = 'OTP token verification success';
+		res.status(200).json(obj);
+	} catch (err) {
+		next(err);
+	}
+};
