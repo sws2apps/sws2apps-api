@@ -3,7 +3,7 @@ import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import * as OTPAuth from 'otpauth';
 import randomstring from 'randomstring';
 import { decryptData, encryptData } from '../utils/encryption-utils.js';
-import { sendUserResetPassword, sendVerificationEmail } from '../utils/sendEmail.js';
+import { sendEmailOTPCode, sendUserResetPassword, sendVerificationEmail } from '../utils/sendEmail.js';
 import { congregations } from './Congregations.js';
 
 const db = getFirestore(); //get default database
@@ -32,6 +32,7 @@ export class User {
 		this.secret = '';
 		this.auth_provider = '';
 		this.isTest = false;
+		this.emailOTP = {};
 	}
 }
 
@@ -46,6 +47,7 @@ User.prototype.loadDetails = async function () {
 	this.sessions = userSnap.data().about?.sessions || [];
 	this.global_role = userSnap.data().about.role;
 	this.mfaEnabled = userSnap.data().about?.mfaEnabled || false;
+	this.emailOTP = userSnap.data().about?.emailOTP || {};
 	this.cong_id = userSnap.data().congregation?.id || '';
 	this.cong_role = userSnap.data().congregation?.role || [];
 	this.pocket_local_id = userSnap.data().congregation?.local_id || null;
@@ -468,4 +470,39 @@ User.prototype.updateSessionsInfo = async function (visitorid) {
 		const cong = congregations.findCongregationById(this.cong_id);
 		cong.reloadMembers();
 	}
+};
+
+User.prototype.createTempOTPCode = async function (language) {
+	const codeValue = randomstring.generate({
+		length: 6,
+		charset: 'numeric',
+	});
+	const codeEncrypted = encryptData(codeValue);
+
+	const data = {
+		code: codeEncrypted,
+		expired: new Date().getTime() + 5 * 60000, // expired after 5 min
+	};
+
+	await db.collection('users').doc(this.id).update({ 'about.emailOTP': data });
+	this.emailOTP = data;
+
+	sendEmailOTPCode(this.user_uid, codeValue, language);
+};
+
+User.prototype.verifyTempOTPCode = async function (code) {
+	if (this.emailOTP.code) {
+		const verify = decryptData(this.emailOTP.code);
+		const timeExpired = this.emailOTP.expired;
+
+		const currentTime = new Date().getTime();
+
+		if (code === verify && currentTime <= timeExpired) {
+			await db.collection('users').doc(this.id).update({ 'about.emailOTP': FieldValue.delete() });
+			this.emailOTP = {};
+			return true;
+		}
+	}
+
+	return false;
 };
