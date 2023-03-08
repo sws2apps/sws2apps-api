@@ -1,3 +1,164 @@
+# [2.37.0](https://github.com/sws2apps/sws2apps-api/compare/v2.36.3...v2.37.0) (2023-03-07)
+
+
+### Bug Fixes
+
+* **controllers:** update response when fetching all congregations ([b164765](https://github.com/sws2apps/sws2apps-api/commit/b164765812eb128ef3543655fff823d75ed2e682))
+
+
+### Features
+
+* **deps:** bump cryptr from 6.1.0 to 6.2.0 ([2ba781c](https://github.com/sws2apps/sws2apps-api/commit/2ba781c68e16d6a69cd07ff6b86a0d59a7183a22))
+* **deps:** bump i18next from 22.4.10 to 22.4.11 ([d8493b7](https://github.com/sws2apps/sws2apps-api/commit/d8493b79fe57c56838e34ee8e2307356f864ff1d))
+* **deps:** bump nodemailer-express-handlebars from 6.0.0 to 6.1.0 ([1a8c923](https://github.com/sws2apps/sws2apps-api/commit/1a8c9238051092e7fa44569933cc048104cc403d))
+
+## [2.36.3](https://github.com/sws2apps/sws2apps-api/compare/v2.36.2...v2.36.3) (2023-03-06)
+
+
+### Bug Fixes
+
+* **cors:** allow admin url to use api ([cda2457](https://github.com/sws2apps/sws2apps-api/commit/cda2457cb74a21c4ac721a88a3caa7498afb11bf))
+
+## [2.36.2](https://github.com/sws2apps/sws2apps-api/compare/v2.36.1...v2.36.2) (2023-03-06)
+
+
+### Bug Fixes
+
+* **cors:** include new url to access cpe ([b6b1e51](https://github.com/sws2apps/sws2apps-api/commit/b6b1e51d18e8f8cdd3f1c16f04496520f26775d5))
+
+## [2.36.1](https://github.com/sws2apps/sws2apps-api/compare/v2.36.0...v2.36.1) (2023-03-03)
+
+
+### Bug Fixes
+
+* **public:** fix non-array value when getting news ([f8c6745](https://github.com/sws2apps/sws2apps-api/commit/f8c674537d72b1d9534fda07ebc32ca37c012dd0))
+
+# [2.36.0](https://github.com/sws2apps/sws2apps-api/compare/v2.35.0...v2.36.0) (2023-03-03)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.21.2 to 1.22.0 ([e2b05ff](https://github.com/sws2apps/sws2apps-api/commit/e2b05ff46fefdcc6b6d11b700b768314ba1f49d2))
+* **deps:** bump dns-packet from 5.3.1 to 5.4.0 ([e6b363f](https://github.com/sws2apps/sws2apps-api/commit/e6b363ffb885b240f24c88169fd61331e8a5b117))
+
+# [2.35.0](https://github.com/sws2apps/sws2apps-api/compare/v2.34.0...v2.35.0) (2023-02-28)
+
+
+### Features
+
+* **congregation:** check retention when sending backup ([8a96142](https://github.com/sws2apps/sws2apps-api/commit/8a961425238fd8adac22e56f1b12d8520e552119))
+* **deps:** bump @logtail/node from 0.2.2 to 0.3.1 ([a73e4ed](https://github.com/sws2apps/sws2apps-api/commit/a73e4edbae7aa47cb3a1924d7b0e76dd7ac51bc6))
+* **deps:** bump jw-epub-parser from 1.33.0 to 1.35.0 ([6b3ee44](https://github.com/sws2apps/sws2apps-api/commit/6b3ee44dfc5778ad81119f4cd4938c30c6e61ac1))
+
+# [2.34.0](https://github.com/sws2apps/sws2apps-api/compare/v2.33.1...v2.34.0) (2023-02-26)
+
+
+### Features
+
+* **public:** update range for fetching jw.org schedule ([de176ea](https://github.com/sws2apps/sws2apps-api/commit/de176ea6609528c68edbea75708026ab29bf76a9))
+
+## [2.33.1](https://github.com/sws2apps/sws2apps-api/compare/v2.33.0...v2.33.1) (2023-02-26)
+
+
+### Bug Fixes
+
+* **public:** use issue date when checking document id ([85bd9b2](https://github.com/sws2apps/sws2apps-api/commit/85bd9b2f9a136b0a2249d785c846f3e713c89770))
+
+# [2.33.0](https://github.com/sws2apps/sws2apps-api/compare/v2.32.1...v2.33.0) (2023-02-26)
+
+
+### Features
+
+* **firebase:** save congregation person list as blob in firestore ([db113b1](https://github.com/sws2apps/sws2apps-api/commit/db113b192ae347916d123f1531106112d96e596f))
+
+## [2.32.1](https://github.com/sws2apps/sws2apps-api/compare/v2.32.0...v2.32.1) (2023-02-26)
+
+
+### Bug Fixes
+
+* **congregation:** update source material when backup instead of overwrite ([cfaa2b4](https://github.com/sws2apps/sws2apps-api/commit/cfaa2b48b56b8644b8c54766c1adac25d1091f35))
+
+# [2.32.0](https://github.com/sws2apps/sws2apps-api/compare/v2.31.0...v2.32.0) (2023-02-25)
+
+
+### Features
+
+* **api:** support merge of all cpe apps ([1eb0718](https://github.com/sws2apps/sws2apps-api/commit/1eb071881a3820b204f7ba46e8f570776cffe5fe))
+
+# [2.31.0](https://github.com/sws2apps/sws2apps-api/compare/v2.30.0...v2.31.0) (2023-02-24)
+
+
+### Bug Fixes
+
+* **classes:** fix undefined prop on old person changes ([133c90a](https://github.com/sws2apps/sws2apps-api/commit/133c90a3b2598bf6bad5fd509ee61555b0ca5e6f))
+
+
+### Features
+
+* **deps:** bump @logtail/node from 0.2.0 to 0.2.2 ([48c0498](https://github.com/sws2apps/sws2apps-api/commit/48c04984154e3c8f739040762bc419c43ed9a9e7))
+
+# [2.30.0](https://github.com/sws2apps/sws2apps-api/compare/v2.29.0...v2.30.0) (2023-02-22)
+
+
+### Features
+
+* **controllers:** add new expiration date if device is trusted ([7948425](https://github.com/sws2apps/sws2apps-api/commit/79484251f67858d4b063e4451fd46fbdc9ea5ad8))
+* **deps:** bump i18next from 22.4.9 to 22.4.10 ([fe86250](https://github.com/sws2apps/sws2apps-api/commit/fe862508ff7ec9c876ef7f483550c7700641d91a))
+
+# [2.29.0](https://github.com/sws2apps/sws2apps-api/compare/v2.28.1...v2.29.0) (2023-02-19)
+
+
+### Bug Fixes
+
+* **controller:** handle undefined display name from firebase auth ([5b9dfd4](https://github.com/sws2apps/sws2apps-api/commit/5b9dfd4a676a640e191f57e5b12e0e6ba393909e))
+
+
+### Features
+
+* **admin:** allow admin to assign congregation to an user ([b0d5d1a](https://github.com/sws2apps/sws2apps-api/commit/b0d5d1a18e1a56b2ad03d39ce4f361e8056a1b85))
+
+## [2.28.1](https://github.com/sws2apps/sws2apps-api/compare/v2.28.0...v2.28.1) (2023-02-19)
+
+
+### Bug Fixes
+
+* **deps:** update jw-epub-parser from 1.31.1 to 1.32.1 ([d37d7bf](https://github.com/sws2apps/sws2apps-api/commit/d37d7bf251820073d49a635a90b094c2017341da))
+
+# [2.28.0](https://github.com/sws2apps/sws2apps-api/compare/v2.27.0...v2.28.0) (2023-02-18)
+
+
+### Features
+
+* **classes:** add auth_provider to user details ([ecf53d9](https://github.com/sws2apps/sws2apps-api/commit/ecf53d9d30af3e3bd8877f3b8fdcf49dc66dd3b0))
+
+# [2.27.0](https://github.com/sws2apps/sws2apps-api/compare/v2.26.0...v2.27.0) (2023-02-18)
+
+
+### Features
+
+* **classes:** update congregation to support new format of assignments ([09024fa](https://github.com/sws2apps/sws2apps-api/commit/09024fafc79a3f4f8cd7c40981efacf4a9e7fa1a))
+
+# [2.26.0](https://github.com/sws2apps/sws2apps-api/compare/v2.25.0...v2.26.0) (2023-02-17)
+
+
+### Features
+
+* **controllers:** get circuit overseer name for vip and pocket apps ([aa5eda8](https://github.com/sws2apps/sws2apps-api/commit/aa5eda8d54e78df1f73931118d793eaff5be7a61))
+
+# [2.25.0](https://github.com/sws2apps/sws2apps-api/compare/v2.24.1...v2.25.0) (2023-02-17)
+
+
+### Features
+
+* **deps:** bump express-validator from 6.14.3 to 6.15.0 ([b6785b0](https://github.com/sws2apps/sws2apps-api/commit/b6785b0469bb88dafef792472a4f0f7b068b71f6))
+
+## [2.24.1](https://github.com/sws2apps/sws2apps-api/compare/v2.24.0...v2.24.1) (2023-02-15)
+
+
+### Bug Fixes
+
+* **classes:** fix issue where username for new user is not updated ([bd35e21](https://github.com/sws2apps/sws2apps-api/commit/bd35e21918257defc48437313ff8d966ff7b5df6))
+
 # [2.24.0](https://github.com/sws2apps/sws2apps-api/compare/v2.23.0...v2.24.0) (2023-02-15)
 
 

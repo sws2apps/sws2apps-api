@@ -25,7 +25,11 @@ export const dbFetchAnnouncements = async () => {
 	return finalResult;
 };
 
-export const fetchCrowdinAnnouncements = async (app) => {
+export const fetchCrowdinAnnouncements = async (role) => {
+	if (!role) role = [];
+
+	if (role) role = JSON.parse(role);
+
 	const isDev = process.env.NODE_ENV === 'development';
 
 	const projects = (await projectsGroupsApi.listProjects()).data;
@@ -36,9 +40,13 @@ export const fetchCrowdinAnnouncements = async (app) => {
 
 	const finalResult = [];
 
+	if (role.includes('lmmo-backup')) role.push('lmmo');
+
 	for await (const { data: source } of sourceStrings) {
-		const appTarget = source.identifier.split('-')[0];
-		if (appTarget === app) {
+		let appTarget = source.identifier.split('-')[0];
+		if (appTarget === 'pocket') appTarget = 'view_meeting_schedule';
+
+		if (appTarget === 'public' || role.includes(appTarget)) {
 			if (source.identifier.indexOf('-title') !== -1) {
 				const dateCreated = new Date(source.createdAt);
 				const validDate = dateCreated.setHours(dateCreated.getHours() + 1);

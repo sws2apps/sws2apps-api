@@ -26,6 +26,10 @@ import { errorHandler, getAppVersion, getRoot, invalidEndpointHandler } from './
 
 // allowed apps url
 const whitelist = [
+	'https://cpe-web.sws2apps.com',
+	'https://admin.sws2apps.com',
+	'https://cpe-sws.web.app',
+	'https://cpe-sws.firebaseapp.com',
 	'https://sws-pocket.web.app',
 	'https://sws-pocket.firebaseapp.com',
 	'https://lmm-oa-sws.web.app',

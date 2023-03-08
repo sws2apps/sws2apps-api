@@ -1216,6 +1216,8 @@ export const getMeetingSchedules = async (req, res, next) => {
 						cong_schedule,
 						class_count: cong_settings[0]?.class_count,
 						source_lang: cong_settings[0]?.source_lang,
+						co_name: cong_settings[0]?.co_name || '',
+						co_displayName: cong_settings[0]?.co_displayName || '',
 					});
 					return;
 				}
@@ -1242,7 +1244,7 @@ export const getMeetingSchedules = async (req, res, next) => {
 
 export const getCountries = async (req, res, next) => {
 	try {
-		let { language } = req.headers;
+		let language = req.headers.language || 'e';
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -1300,7 +1302,8 @@ export const getCountries = async (req, res, next) => {
 
 export const getCongregations = async (req, res, next) => {
 	try {
-		let { country, language, name } = req.headers;
+		let { country, name } = req.headers;
+		let language = req.headers.language || 'e';
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {

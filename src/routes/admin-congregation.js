@@ -2,6 +2,7 @@ import express from 'express';
 import { body } from 'express-validator';
 import {
 	addCongregationUser,
+	addCongregationUserWithoutId,
 	approveCongregationRequest,
 	deleteCongregation,
 	disapproveCongregationRequest,
@@ -27,6 +28,17 @@ router.put('/:id/disapprove', body('reason').notEmpty(), disapproveCongregationR
 
 // delete congregation
 router.delete('/:id', deleteCongregation);
+
+// add user to congregation without id
+router.post(
+	'/add-user',
+	body('cong_country').notEmpty(),
+	body('cong_name').notEmpty(),
+	body('cong_number').notEmpty(),
+	body('user_uid').notEmpty(),
+	body('user_role').isArray(),
+	addCongregationUserWithoutId
+);
 
 // add user to a congregation
 router.patch('/:id/add-user', body('user_uid').notEmpty(), body('user_role').isArray(), addCongregationUser);

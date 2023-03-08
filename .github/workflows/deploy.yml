@@ -11,7 +11,7 @@ jobs:
     if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
     environment:
       name: Prod.env
-      url: https://sws2apps-api.onrender.com
+      url: https://api.sws2apps.com
     runs-on: ubuntu-latest
 
     steps:
@@ -23,16 +23,16 @@ jobs:
 
       - name: Semantic Release
         id: semantic
-        uses: cycjimmy/semantic-release-action@8f6ceb9d5aae5578b1dcda6af00008235204e7fa
+        uses: cycjimmy/semantic-release-action@4223352d770913cb84156b647ff08e7dcaba1028
         with:
           semantic_version: 19.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: Render Deployment
+      - name: Deploy API to Heroku
         if: ${{ steps.semantic.outputs.new_release_published == 'true' }}
-        uses: sws2apps/render-deployment@5c3274c95919e875da2e6d8af0f93489d1d6e3e6
+        uses: akhileshns/heroku-deploy@5ef17ff17a3fb8e9ad822ae6a61648a3ef9e0c3d
         with:
-          serviceId: ${{ secrets.RENDER_SERVICE_ID }}
-          apiKey: ${{ secrets.RENDER_API_KEY }}
-          multipleDeployment: false
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: sws2apps
+          heroku_email: ${{secrets.HEROKU_EMAIL}}

@@ -171,3 +171,20 @@ export const sendUserResetPassword = async (recipient, fullname, resetPasswordLi
 
 	return !retry;
 };
+
+export const sendEmailOTPCode = async (recipient, code, templateLang) => {
+	const t = i18n(templateLang.toLowerCase());
+
+	const options = {
+		from: gmailConfig.sender,
+		to: recipient,
+		subject: t('emailOTPCodeSubject'),
+		template: 'emailOTPCodeSignIn',
+		context: {
+			emailOTPCodeTemplate: t('emailOTPCodeTemplate', { emailOTPCode: code }),
+			emailFooter: t('emailFooter'),
+		},
+	};
+
+	sendEmail(options, 'Email OTP code sent to user');
+};

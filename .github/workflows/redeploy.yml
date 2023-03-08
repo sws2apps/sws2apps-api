@@ -6,12 +6,12 @@ on:
 permissions: read-all
 
 jobs:
-  redeploy_dev:
+  redeploy_render:
     name: Redeploy API to Render
     if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
     environment:
       name: Prod.env
-      url: https://sws2apps-api.onrender.com
+      url: https://api.sws2apps.com
     runs-on: ubuntu-latest
 
     steps:
@@ -21,9 +21,9 @@ jobs:
           ref: main
           persist-credentials: false
 
-      - name: Render Deployment
-        uses: sws2apps/render-deployment@5c3274c95919e875da2e6d8af0f93489d1d6e3e6
+      - name: Deploy API to Heroku
+        uses: akhileshns/heroku-deploy@5ef17ff17a3fb8e9ad822ae6a61648a3ef9e0c3d
         with:
-          serviceId: ${{ secrets.RENDER_SERVICE_ID }}
-          apiKey: ${{ secrets.RENDER_API_KEY }}
-          multipleDeployment: false
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: sws2apps
+          heroku_email: ${{secrets.HEROKU_EMAIL}}

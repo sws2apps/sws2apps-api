@@ -1,8 +1,12 @@
+import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import dayjs from 'dayjs';
 import randomstring from 'randomstring';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 import { decryptData, encryptData } from '../utils/encryption-utils.js';
 import { users } from './Users.js';
+import { getOldestWeekDate, getWeekDate } from '../utils/date.js';
 
 const db = getFirestore(); //get default database
 
@@ -32,7 +36,27 @@ Congregation.prototype.loadDetails = async function () {
 	this.cong_name = congSnap.data().cong_name;
 	this.cong_number = congSnap.data().cong_number;
 	this.last_backup = congSnap.data().last_backup;
-	this.cong_persons = congSnap.data().cong_persons || '';
+
+	// if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
+	// if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
+
+	// const options = {
+	// 	destination: `./cong_backup/${this.id}/persons.txt`,
+	// };
+
+	// const storageBucket = getStorage().bucket();
+	// const file = await storageBucket.file(`${this.id}/persons.txt`);
+	// const [fileExist] = await file.exists();
+	// if (fileExist) await file.download(options);
+
+	// await readFile(`./cong_backup/${this.id}/persons.txt`);
+	// await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
+
+	this.cong_persons = '';
+	if (congSnap.data().cong_persons) {
+		const resultStr = congSnap.data().cong_persons.toString();
+		this.cong_persons = resultStr;
+	}
 	this.cong_sourceMaterial = congSnap.data().cong_sourceMaterial || [];
 	this.cong_schedule = congSnap.data().cong_schedule || [];
 	this.cong_sourceMaterial_draft = congSnap.data().cong_sourceMaterial_draft || [];
@@ -101,6 +125,8 @@ Congregation.prototype.saveBackup = async function (
 	cong_settings,
 	uid
 ) {
+	const oldestWeekDate = getOldestWeekDate();
+
 	let finalPersons = [];
 
 	// new backup persons
@@ -119,15 +145,10 @@ Congregation.prototype.saveBackup = async function (
 				const oldChanges = oldPerson.changes;
 				const newChanges = newPerson.changes;
 
-				const arrayFields = [
-					{ name: 'assignments', id: 'assignmentId' },
-					{ name: 'timeAway', id: 'timeAwayId' },
-				];
-
 				if (newChanges) {
 					// handle non-assignments and non-time away changes
 					newChanges.forEach((change) => {
-						if (arrayFields.findIndex((field) => field.name === change.field) === -1) {
+						if (change.field !== 'timeAway' && change.field !== 'assignments') {
 							let isChanged = false;
 
 							const oldChange = oldChanges?.find((old) => old.field === change.field);
@@ -163,15 +184,35 @@ Congregation.prototype.saveBackup = async function (
 						}
 					});
 
-					// handle assignments and time away changes
+					// handle assignments changes
 					newChanges.forEach((change) => {
-						const foundArray = arrayFields.find((field) => field.name === change.field);
-						if (foundArray) {
+						if (change.field === 'assignments') {
+							// handle deleted assignment
+							if (change.isDeleted) {
+								const toBeDeleted = oldPerson[change.field].findIndex((item) => item.code === change.value.code);
+								if (toBeDeleted !== -1) oldPerson[change.field].splice(toBeDeleted, 1);
+							}
+
+							// handle added item
+							if (change.isAdded) {
+								const isExist = oldPerson[change.field].findIndex((item) => item.code === change.value.code);
+								if (!isExist) oldPerson[change.field].push(change.value);
+							}
+
+							// update changes
+							if (!oldPerson.changes) oldPerson.changes = [];
+							const findIndex = oldPerson.changes.findIndex((item) => item.code === change.value.code);
+							if (findIndex !== -1) oldPerson.changes.splice(findIndex, 1);
+							oldPerson.changes.push(change);
+						}
+					});
+
+					// handle time away changes
+					newChanges.forEach((change) => {
+						if (change.field === 'timeAway') {
 							// handle deleted item
 							if (change.isDeleted) {
-								const toBeDeleted = oldPerson[change.field].findIndex(
-									(item) => item[foundArray.id] === change.value[foundArray.id]
-								);
+								const toBeDeleted = oldPerson[change.field].findIndex((item) => item.timeAwayId === change.value.timeAwayId);
 								if (toBeDeleted !== -1) oldPerson[change.field].splice(toBeDeleted, 1);
 							}
 
@@ -184,9 +225,7 @@ Congregation.prototype.saveBackup = async function (
 
 							// handle modified item
 							if (change.isModified) {
-								const toBeModified = oldPerson[change.field].findIndex(
-									(item) => item[foundArray.id] === change.value[foundArray.id]
-								);
+								const toBeModified = oldPerson[change.field].findIndex((item) => item.timeAwayId === change.value.timeAwayId);
 
 								if (toBeModified !== -1) oldPerson[change.field].splice(toBeModified, 1);
 								oldPerson[change.field].push(change.value);
@@ -195,9 +234,7 @@ Congregation.prototype.saveBackup = async function (
 							// update changes
 							if (change.isDeleted || change.isModified) {
 								if (!oldPerson.changes) oldPerson.changes = [];
-								const findIndex = oldPerson.changes.findIndex(
-									(item) => item.value[foundArray.id] === change.value[foundArray.id]
-								);
+								const findIndex = oldPerson.changes.findIndex((item) => item.value.timeAwayId === change.value.timeAwayId);
 								if (findIndex !== -1) oldPerson.changes.splice(findIndex, 1);
 								oldPerson.changes.push(change);
 							}
@@ -206,6 +243,7 @@ Congregation.prototype.saveBackup = async function (
 				}
 			}
 
+			if (oldPerson.id) delete oldPerson.id;
 			finalPersons.push(oldPerson);
 		});
 
@@ -213,6 +251,7 @@ Congregation.prototype.saveBackup = async function (
 		cong_persons.forEach((newPerson) => {
 			const oldPerson = decryptedPersons.find((person) => person.person_uid === newPerson.person_uid);
 			if (!oldPerson) {
+				if (newPerson.id) delete newPerson.id;
 				finalPersons.push(newPerson);
 			}
 		});
@@ -231,109 +270,144 @@ Congregation.prototype.saveBackup = async function (
 
 	// new backup schedule
 	if (this.cong_schedule_draft.length === 0) {
-		finalSchedule = cong_schedule;
+		cong_schedule.forEach((schedule) => {
+			const weekOfDate = getWeekDate(schedule.weekOf);
+
+			if (weekOfDate >= oldestWeekDate) {
+				finalSchedule.push(schedule);
+			}
+		});
 	}
 
 	// updated schedule
 	if (this.cong_schedule_draft.length > 0) {
 		// handle modified schedule
 		this.cong_schedule_draft.forEach((oldSchedule) => {
-			const newSchedule = cong_schedule.find((schedule) => schedule.weekOf === oldSchedule.weekOf);
-			if (newSchedule) {
-				const oldChanges = oldSchedule.changes;
-				const newChanges = newSchedule.changes;
+			const weekOfDate = getWeekDate(oldSchedule.weekOf);
 
-				if (newChanges) {
-					newChanges.forEach((change) => {
-						let isChanged = false;
+			if (weekOfDate >= oldestWeekDate) {
+				const newSchedule = cong_schedule.find((schedule) => schedule.weekOf === oldSchedule.weekOf);
+				if (newSchedule) {
+					const oldChanges = oldSchedule.changes;
+					const newChanges = newSchedule.changes;
 
-						const oldChange = oldChanges?.find((old) => old.field === change.field);
-						const originalDate = oldChange?.date || undefined;
+					if (newChanges) {
+						newChanges.forEach((change) => {
+							let isChanged = false;
 
-						if (!oldChange) {
-							isChanged = true;
-						}
+							const oldChange = oldChanges?.find((old) => old.field === change.field);
+							const originalDate = oldChange?.date || undefined;
 
-						if (originalDate) {
-							const dateA = new Date(originalDate);
-							const dateB = new Date(change.date);
-
-							if (dateB > dateA) {
+							if (!oldChange) {
 								isChanged = true;
 							}
-						}
 
-						if (isChanged) {
-							oldSchedule[change.field] = change.value || null;
+							if (originalDate) {
+								const dateA = new Date(originalDate);
+								const dateB = new Date(change.date);
 
-							if (oldSchedule.changes) {
-								const findIndex = oldSchedule.changes.findIndex((item) => item.field === change.field) || -1;
-								if (findIndex !== -1) oldSchedule.changes.splice(findIndex, 1);
+								if (dateB > dateA) {
+									isChanged = true;
+								}
 							}
 
-							if (!oldSchedule.changes) {
-								oldSchedule.changes = [];
-							}
+							if (isChanged) {
+								oldSchedule[change.field] = change.value || null;
 
-							oldSchedule.changes.push(change);
-						}
-					});
+								if (oldSchedule.changes) {
+									const findIndex = oldSchedule.changes.findIndex((item) => item.field === change.field) || -1;
+									if (findIndex !== -1) oldSchedule.changes.splice(findIndex, 1);
+								}
+
+								if (!oldSchedule.changes) {
+									oldSchedule.changes = [];
+								}
+
+								oldSchedule.changes.push(change);
+							}
+						});
+					}
 				}
-			}
 
-			finalSchedule.push(oldSchedule);
+				finalSchedule.push(oldSchedule);
+			}
 		});
 
 		// handle new schedule record
 		cong_schedule.forEach((newSchedule) => {
-			const oldSchedule = this.cong_schedule_draft.find((schedule) => schedule.weekOf === newSchedule.weekOf);
-			if (!oldSchedule) {
-				finalSchedule.push(newSchedule);
+			const weekOfDate = getWeekDate(newSchedule.weekOf);
+			const oldestWeekDate = getOldestWeekDate();
+
+			if (weekOfDate >= oldestWeekDate) {
+				const oldSchedule = this.cong_schedule_draft.find((schedule) => schedule.weekOf === newSchedule.weekOf);
+				if (!oldSchedule) {
+					finalSchedule.push(newSchedule);
+				}
 			}
 		});
 	}
 
-	let finalSource = [];
 	cong_sourceMaterial.forEach((newSource) => {
-		const oldSource = this.cong_sourceMaterial_draft.find((source) => source.weekOf === newSource.weekOf);
+		const weekOfDate = getWeekDate(newSource.weekOf);
 
-		if (oldSource) {
-			// restore keepOverride if qualified
-			const newKeepOverride = newSource.keepOverride || undefined;
-			const oldKeepOverride = oldSource ? oldSource.keepOverride : undefined;
-			let isRestore = false;
+		if (weekOfDate >= oldestWeekDate) {
+			const oldSource = this.cong_sourceMaterial_draft.find((source) => source.weekOf === newSource.weekOf);
+			const oldSourceIndex = this.cong_sourceMaterial_draft.findIndex((source) => source.weekOf === newSource.weekOf);
 
-			if (!newKeepOverride) {
-				isRestore = true;
+			if (!oldSource) {
+				this.cong_sourceMaterial_draft.push(newSource);
 			}
 
-			if (newKeepOverride && oldKeepOverride) {
-				const oldDate = new Date(oldKeepOverride);
-				const newDate = new Date(newKeepOverride);
+			if (oldSource) {
+				// restore keepOverride if qualified
+				const newKeepOverride = newSource.keepOverride || undefined;
+				const oldKeepOverride = oldSource ? oldSource.keepOverride : undefined;
+				let isRestore = false;
 
-				if (oldDate > newDate) {
+				if (!newKeepOverride) {
 					isRestore = true;
 				}
-			}
 
-			if (isRestore) {
-				for (const [key, value] of Object.entries(oldSource)) {
-					if (key.indexOf('_override') !== -1) {
-						if (value) newSource[key] = value;
+				if (newKeepOverride && oldKeepOverride) {
+					const oldDate = new Date(oldKeepOverride);
+					const newDate = new Date(newKeepOverride);
+
+					if (oldDate > newDate) {
+						isRestore = true;
 					}
+				}
+
+				if (isRestore) {
+					for (const [key, value] of Object.entries(oldSource)) {
+						if (key.indexOf('_override') !== -1) {
+							if (value) newSource[key] = value;
+						}
+					}
+
+					this.cong_sourceMaterial_draft.splice(oldSourceIndex, 1, newSource);
 				}
 			}
 		}
-
-		finalSource.push(newSource);
 	});
+
+	this.cong_sourceMaterial_draft = this.cong_sourceMaterial_draft.filter(
+		(source) => getWeekDate(source.weekOf) >= oldestWeekDate
+	);
 
 	const userInfo = users.findUserByAuthUid(uid);
 
+	const buffer = Buffer.from(encryptedPersons, 'utf-8');
+
+	if (userInfo.isTest) {
+		if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
+		if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
+		await writeFile(`./cong_backup/${this.id}/persons.txt`, encryptedPersons);
+	}
+
 	const data = {
-		cong_persons: encryptedPersons,
+		cong_persons: buffer,
 		cong_schedule_draft: finalSchedule,
-		cong_sourceMaterial_draft: finalSource,
+		cong_sourceMaterial_draft: this.cong_sourceMaterial_draft,
 		cong_swsPocket: cong_swsPocket,
 		cong_settings: cong_settings,
 		last_backup: {
@@ -346,13 +420,18 @@ Congregation.prototype.saveBackup = async function (
 
 	this.cong_persons = encryptedPersons;
 	this.cong_schedule_draft = finalSchedule;
-	this.cong_sourceMaterial_draft = finalSource;
 	this.cong_swsPocket = cong_swsPocket;
 	this.cong_settings = cong_settings;
 	this.last_backup = {
 		by: userInfo.username,
 		date: data.last_backup.date,
 	};
+
+	if (userInfo.isTest) {
+		const storageBucket = getStorage().bucket();
+		await storageBucket.upload(`./cong_backup/${this.id}/persons.txt`, { destination: `${this.id}/persons.txt` });
+		await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
+	}
 };
 
 Congregation.prototype.retrieveBackup = function () {
@@ -399,6 +478,8 @@ Congregation.prototype.addUser = async function (userId, role, fullname) {
 	user.cong_name = this.cong_name;
 	user.cong_number = this.cong_number;
 	user.cong_role = newRole;
+	user.cong_country = this.country_code;
+	if (fullname) user.username = fullname;
 
 	// update congregation members
 	this.reloadMembers();
