@@ -1,3 +1,10 @@
+# [2.38.0](https://github.com/sws2apps/sws2apps-api/compare/v2.37.0...v2.38.0) (2023-03-08)
+
+
+### Features
+
+* **users:** allow sending sigin verification code to email ([fa6c055](https://github.com/sws2apps/sws2apps-api/commit/fa6c055366aa90e5d54d4f7aba7e53e83f1b5935))
+
 # [2.37.0](https://github.com/sws2apps/sws2apps-api/compare/v2.36.3...v2.37.0) (2023-03-07)
 
 
