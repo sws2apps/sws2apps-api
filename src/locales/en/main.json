@@ -8,6 +8,6 @@
 	"thankYou": "Thank you",
 	"sws2appsTeam": "The Scheduling Workbox System Team",
 	"emailOTPCodeSubject": "Verification Code for for sign in to CPE app",
-	"emailOTPCodeTemplate": "<p>Hello</p><p>Here’s your verification code to sign in to Congregation Program for Everyone:</p><p class='otp-code'>{{ emailOTPCode }}</p><p>Please make sure you never share this code with anyone.<br><strong>Note:</strong> The code will expire in 5 minutes.</p>",
-	"emailFooter": "<p>Thank you<br>The Scheduling Workbox System Team</p>"
+	"emailOTPCodeTemplate": "<p>Hello</p>\n<p>Here’s your verification code to sign in to Congregation Program for Everyone:</p><p class='otp-code'>{{ emailOTPCode }}</p>\n<p>Please make sure you never share this code with anyone.\n<br><strong>Note:</strong> The code will expire in 5 minutes.</p>",
+	"emailFooter": "<p>Thank you\n<br>The Scheduling Workbox System Team</p>"
 }

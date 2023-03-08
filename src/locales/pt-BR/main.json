@@ -6,5 +6,8 @@
 	"passwordLessIgnore": "Se você não fez o cadastro no CPE, ignore este email.",
 	"passwordLessLinkFull": "Se você não conseguir abrir o link acima, use o link abaixo. Certifique-se de que o link está completo ao você abrir.",
 	"thankYou": "Obrigado",
-	"sws2appsTeam": "Sistema de Agendamento Workbox"
+	"sws2appsTeam": "Sistema de Agendamento Workbox",
+	"emailOTPCodeSubject": "Verification Code for for sign in to CPE app",
+	"emailOTPCodeTemplate": "<p>Hello</p>\n<p>Here’s your verification code to sign in to Congregation Program for Everyone:</p><p class='otp-code'>{{ emailOTPCode }}</p>\n<p>Please make sure you never share this code with anyone.\n<br><strong>Note:</strong> The code will expire in 5 minutes.</p>",
+	"emailFooter": "<p>Thank you\n<br>The Scheduling Workbox System Team</p>"
 }
