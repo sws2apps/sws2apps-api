@@ -7,7 +7,7 @@
 	"passwordLessLinkFull": "Raha misy olana ka tsy mandeha ny rohy eo ambony, dia ampiasao indray ity rohy manaraka ity. Ataovy azo antoka tsara hoe tsy misy tapaka ny soratra rehetra amin’ilay rohy.",
 	"thankYou": "Misaotra betsaka",
 	"sws2appsTeam": "Ny Ekipa Scheduling Workbox System",
-	"emailOTPCodeSubject": "Verification Code for for sign in to CPE app",
-	"emailOTPCodeTemplate": "<p>Hello</p>\n<p>Here’s your verification code to sign in to Congregation Program for Everyone:</p><p class='otp-code'>{{ emailOTPCode }}</p>\n<p>Please make sure you never share this code with anyone.\n<br><strong>Note:</strong> The code will expire in 5 minutes.</p>",
-	"emailFooter": "<p>Thank you\n<br>The Scheduling Workbox System Team</p>"
+	"emailOTPCodeSubject": "Kaody Fanamarinana Hidirana Amin’ny CPE",
+	"emailOTPCodeTemplate": "<p>Salama,</p>\n<p>Ampiasao ity kaody fanamarinana ity mba hidiranao amin’ny Congregation Program for Everyone:</p>\n<p class='otp-code'>{{ emailOTPCode }}</p>\n<p>Aza zaraina amin’iza n’iza mihitsy io kaody io.\n<br><strong>Tsara ho fantatra:</strong> Tsy ho azo ampiasaina intsony io kaody io afaka 5 minitra.</p>",
+	"emailFooter": "<p>Misaotra betsaka\n<br>Ny Ekipa Scheduling Workbox System Team</p>"
 }
