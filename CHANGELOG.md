@@ -1,3 +1,15 @@
+# [2.39.0](https://github.com/sws2apps/sws2apps-api/compare/v2.38.0...v2.39.0) (2023-03-09)
+
+
+### Bug Fixes
+
+* **congregation:** handle empty congregation persons ([db2fb65](https://github.com/sws2apps/sws2apps-api/commit/db2fb6540027d78f11c1686eb3807ddc4fecdbec))
+
+
+### Features
+
+* **congregation:** use firebase storage to save congregation persons ([b5db4a0](https://github.com/sws2apps/sws2apps-api/commit/b5db4a0b7155ad84c2fb1ed2c0b29b481681b4ba))
+
 # [2.38.0](https://github.com/sws2apps/sws2apps-api/compare/v2.37.0...v2.38.0) (2023-03-08)
 
 
