@@ -7,7 +7,7 @@
 	"passwordLessLinkFull": "Se você não conseguir abrir o link acima, use o link abaixo. Certifique-se de que o link está completo ao você abrir.",
 	"thankYou": "Obrigado",
 	"sws2appsTeam": "Sistema de Agendamento Workbox",
-	"emailOTPCodeSubject": "Verification Code for for sign in to CPE app",
-	"emailOTPCodeTemplate": "<p>Hello</p>\n<p>Here’s your verification code to sign in to Congregation Program for Everyone:</p>\n<p class='otp-code'>{{ emailOTPCode }}</p>\n<p>Please make sure you never share this code with anyone.\n<br><strong>Note:</strong> The code will expire in 5 minutes.</p>",
-	"emailFooter": "<p>Thank you\n<br>The Scheduling Workbox System Team</p>"
+	"emailOTPCodeSubject": "Código de verificação para entrar no aplicativo CPE",
+	"emailOTPCodeTemplate": "<p>Olá</p>\n<p>Aqui está seu código de verificação para entrar no Programa de Congregação para Todos:</p>\n<p class='otp-code'>{{ emailOTPCode }}</p>\n<p>Nunca compartilhe este código com ninguém.\n<br><strong>Observação:</strong> Esse código vai expirar em 5 minutos.</p>",
+	"emailFooter": "<p>Obrigado\n<br>Sistema de Agendamento Workbox</p>"
 }
