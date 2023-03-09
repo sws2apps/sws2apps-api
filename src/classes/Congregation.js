@@ -424,7 +424,7 @@ Congregation.prototype.saveBackup = async function (
 
 Congregation.prototype.retrieveBackup = function () {
 	// decrypt cong_persons data
-	const decryptedPersons = JSON.parse(decryptData(this.cong_persons));
+	const decryptedPersons = this.cong_persons === '' ? [] : JSON.parse(decryptData(this.cong_persons));
 
 	return {
 		cong_persons: decryptedPersons,
