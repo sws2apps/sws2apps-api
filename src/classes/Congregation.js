@@ -1,4 +1,4 @@
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import dayjs from 'dayjs';
 import randomstring from 'randomstring';
@@ -36,27 +36,22 @@ Congregation.prototype.loadDetails = async function () {
 	this.cong_name = congSnap.data().cong_name;
 	this.cong_number = congSnap.data().cong_number;
 	this.last_backup = congSnap.data().last_backup;
-
-	// if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
-	// if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
-
-	// const options = {
-	// 	destination: `./cong_backup/${this.id}/persons.txt`,
-	// };
-
-	// const storageBucket = getStorage().bucket();
-	// const file = await storageBucket.file(`${this.id}/persons.txt`);
-	// const [fileExist] = await file.exists();
-	// if (fileExist) await file.download(options);
-
-	// await readFile(`./cong_backup/${this.id}/persons.txt`);
-	// await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
-
 	this.cong_persons = '';
-	if (congSnap.data().cong_persons) {
-		const resultStr = congSnap.data().cong_persons.toString();
-		this.cong_persons = resultStr;
+
+	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
+	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
+
+	const storageBucket = getStorage().bucket();
+	const file = await storageBucket.file(`${this.id}/persons.txt`);
+	const [fileExist] = await file.exists();
+
+	if (fileExist) {
+		await file.download({ destination: `./cong_backup/${this.id}/persons.txt` });
+		const tempPersons = await readFile(`./cong_backup/${this.id}/persons.txt`);
+		this.cong_persons = tempPersons.toString();
+		await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 	}
+
 	this.cong_sourceMaterial = congSnap.data().cong_sourceMaterial || [];
 	this.cong_schedule = congSnap.data().cong_schedule || [];
 	this.cong_sourceMaterial_draft = congSnap.data().cong_sourceMaterial_draft || [];
@@ -396,16 +391,7 @@ Congregation.prototype.saveBackup = async function (
 
 	const userInfo = users.findUserByAuthUid(uid);
 
-	const buffer = Buffer.from(encryptedPersons, 'utf-8');
-
-	if (userInfo.isTest) {
-		if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
-		if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
-		await writeFile(`./cong_backup/${this.id}/persons.txt`, encryptedPersons);
-	}
-
 	const data = {
-		cong_persons: buffer,
 		cong_schedule_draft: finalSchedule,
 		cong_sourceMaterial_draft: this.cong_sourceMaterial_draft,
 		cong_swsPocket: cong_swsPocket,
@@ -418,6 +404,14 @@ Congregation.prototype.saveBackup = async function (
 
 	await db.collection('congregations').doc(this.id).set(data, { merge: true });
 
+	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
+	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
+	await writeFile(`./cong_backup/${this.id}/persons.txt`, encryptedPersons);
+
+	const storageBucket = getStorage().bucket();
+	await storageBucket.upload(`./cong_backup/${this.id}/persons.txt`, { destination: `${this.id}/persons.txt` });
+	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
+
 	this.cong_persons = encryptedPersons;
 	this.cong_schedule_draft = finalSchedule;
 	this.cong_swsPocket = cong_swsPocket;
@@ -426,12 +420,6 @@ Congregation.prototype.saveBackup = async function (
 		by: userInfo.username,
 		date: data.last_backup.date,
 	};
-
-	if (userInfo.isTest) {
-		const storageBucket = getStorage().bucket();
-		await storageBucket.upload(`./cong_backup/${this.id}/persons.txt`, { destination: `${this.id}/persons.txt` });
-		await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
-	}
 };
 
 Congregation.prototype.retrieveBackup = function () {
