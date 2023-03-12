@@ -1,5 +1,4 @@
 import { validationResult } from 'express-validator';
-import { congregationRequests } from '../classes/CongregationRequests.js';
 import { congregations } from '../classes/Congregations.js';
 import { users } from '../classes/Users.js';
 
@@ -20,111 +19,6 @@ export const getAllCongregations = async (req, res, next) => {
 		res.locals.type = 'info';
 		res.locals.message = 'admin fetched all congregation';
 		res.status(200).json(result);
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const getCongregationRequests = async (req, res, next) => {
-	try {
-		const finalResult = congregationRequests.list;
-
-		res.locals.type = 'info';
-		res.locals.message = 'admin fetched pending requests';
-		res.status(200).json(finalResult);
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const approveCongregationRequest = async (req, res, next) => {
-	try {
-		const { id } = req.params;
-
-		if (id) {
-			const request = congregationRequests.findRequestById(id);
-			if (request) {
-				if (request.approved) {
-					res.locals.type = 'warn';
-					res.locals.message = 'this congregation request was already approved';
-					res.status(405).json({ message: 'REQUEST_APPROVED' });
-				} else {
-					// create congregation data
-					const congData = {
-						cong_name: request.cong_name,
-						cong_number: request.cong_number,
-					};
-
-					const cong = await congregations.create(congData);
-
-					// update requestor info
-					const user = await cong.addUser(request.user_id, request.cong_role);
-
-					// update request props
-					await request.approve();
-
-					res.locals.type = 'info';
-					res.locals.message = 'congregation created';
-					res
-						.status(200)
-						.json({ message: 'OK', cong_name: cong.cong_name, cong_number: cong.cong_number, user_cong_name: user.cong_name });
-				}
-			} else {
-				res.locals.type = 'warn';
-				res.locals.message = 'no congregation request could not be found with the provided id';
-				res.status(404).json({ message: 'REQUEST_NOT_FOUND' });
-			}
-		} else {
-			res.locals.type = 'warn';
-			res.locals.message = 'the congregation request id params is undefined';
-			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
-		}
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const disapproveCongregationRequest = async (req, res, next) => {
-	try {
-		const { id } = req.params;
-
-		if (id) {
-			const errors = validationResult(req);
-
-			if (!errors.isEmpty()) {
-				let msg = '';
-				errors.array().forEach((error) => {
-					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-				});
-
-				res.locals.type = 'warn';
-				res.locals.message = `invalid input: ${msg}`;
-
-				res.status(400).json({
-					message: 'Bad request: provided inputs are invalid.',
-				});
-
-				return;
-			}
-
-			const request = await congregationRequests.findRequestById(id);
-			if (request) {
-				// update request props
-				await request.disapprove();
-
-				res.locals.type = 'info';
-				res.locals.message = 'congregation request disapproved';
-				res.status(200).json({ message: 'OK' });
-			} else {
-				res.locals.type = 'warn';
-				res.locals.message = 'no congregation request could not be found with the provided id';
-				res.status(404).json({ message: 'REQUEST_NOT_FOUND' });
-			}
-		} else {
-			res.locals.type = 'warn';
-			res.locals.message = 'the congregation request id params is undefined';
-			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
-		}
 	} catch (err) {
 		next(err);
 	}
