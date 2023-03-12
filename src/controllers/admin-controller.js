@@ -1,7 +1,5 @@
-import { check, validationResult } from 'express-validator';
+import { validationResult } from 'express-validator';
 import { users } from '../classes/Users.js';
-import { announcements } from '../classes/Announcements.js';
-import { congregationRequests } from '../classes/CongregationRequests.js';
 import { congregations } from '../classes/Congregations.js';
 
 export const validateAdmin = async (req, res, next) => {
@@ -95,132 +93,8 @@ export const unblockRequest = async (req, res, next) => {
 	}
 };
 
-export const getAllAnnouncements = async (req, res, next) => {
-	try {
-		const list = announcements.list;
-
-		res.locals.type = 'info';
-		res.locals.message = 'announcements fetched successfully';
-		res.status(200).json(list);
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const handleAnnouncementAction = async (req, res, next) => {
-	try {
-		const errors = validationResult(req);
-
-		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-			});
-
-			res.locals.type = 'warn';
-			res.locals.message = `invalid input: ${msg}`;
-
-			res.status(400).json({
-				message: 'Bad request: provided inputs are invalid.',
-			});
-
-			return;
-		}
-
-		let { action, announcement } = req.body;
-		if (action !== 'publish') action = 'save';
-
-		if (action === 'save') {
-			const list = await announcements.saveDraft(announcement);
-
-			res.locals.type = 'info';
-			res.locals.message = 'draft announcement saved successfully';
-			res.status(200).json(list);
-		}
-
-		if (action === 'publish') {
-			const list = await announcements.publish(announcement);
-
-			res.locals.type = 'info';
-			res.locals.message = 'announcement published successfully';
-			res.status(200).json(list);
-		}
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const getAnnouncementAdmin = async (req, res, next) => {
-	try {
-		await check('announcementid').notEmpty().run(req);
-
-		const errors = validationResult(req);
-
-		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-			});
-
-			res.locals.type = 'warn';
-			res.locals.message = `invalid input: ${msg}`;
-
-			res.status(400).json({ message: 'INPUT_INVALID' });
-
-			return;
-		}
-
-		const { announcementid } = req.headers;
-		const announcement = announcements.findById(announcementid);
-
-		if (announcement) {
-			res.locals.type = 'info';
-			res.locals.message = 'announcement fetched successfully';
-			res.status(200).json(announcement);
-		} else {
-			res.locals.type = 'warn';
-			res.locals.message = 'announcement could not be found';
-			res.status(404).json({ message: 'NOT_FOUND' });
-		}
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const deleteAnnouncementAdmin = async (req, res, next) => {
-	try {
-		await check('announcement_id').notEmpty().run(req);
-
-		const errors = validationResult(req);
-
-		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-			});
-
-			res.locals.type = 'warn';
-			res.locals.message = `invalid input: ${msg}`;
-
-			res.status(400).json({ message: 'INPUT_INVALID' });
-
-			return;
-		}
-
-		const { announcement_id } = req.headers;
-		const list = await announcements.delete(announcement_id);
-
-		res.locals.type = 'info';
-		res.locals.message = 'announcement deleted successfully';
-		res.status(200).json(list);
-	} catch (err) {
-		next(err);
-	}
-};
-
 export const getAdminDashboard = async (req, res, next) => {
 	try {
-		const finalResult = congregationRequests.list;
 		const congsList = congregations.list;
 		const usersList = users.list;
 
@@ -233,7 +107,6 @@ export const getAdminDashboard = async (req, res, next) => {
 				pockets: usersList.filter((user) => user.global_role === 'pocket').length,
 			},
 			congregations: {
-				requests: finalResult.length,
 				active: congsList.length,
 			},
 		};

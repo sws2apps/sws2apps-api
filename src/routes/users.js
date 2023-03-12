@@ -4,7 +4,6 @@ import { visitorChecker } from '../middleware/visitor-checker.js';
 import {
 	createAccount,
 	deleteUserSession,
-	getAnnouncements,
 	getAnnouncementsV2,
 	getUserSecretToken,
 	getUserSessions,
@@ -25,9 +24,6 @@ router.post(
 	body('password').isLength({ min: 10 }),
 	createAccount
 );
-
-// get announcements
-router.get('/announcement', header('app').isString().notEmpty(), getAnnouncements);
 
 // get announcements
 router.get('/announcement-v2', getAnnouncementsV2);

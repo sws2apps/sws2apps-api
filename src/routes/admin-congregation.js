@@ -3,11 +3,8 @@ import { body } from 'express-validator';
 import {
 	addCongregationUser,
 	addCongregationUserWithoutId,
-	approveCongregationRequest,
 	deleteCongregation,
-	disapproveCongregationRequest,
 	getAllCongregations,
-	getCongregationRequests,
 	removeCongregationUser,
 	updateCongregationUserRole,
 } from '../controllers/admin-congregation-controller.js';
@@ -16,15 +13,6 @@ const router = express.Router();
 
 // get all congregations
 router.get('/', getAllCongregations);
-
-// get all congregation requests
-router.get('/requests', getCongregationRequests);
-
-// approve congregation request
-router.put('/:id/approve', approveCongregationRequest);
-
-// disapprove congregation request
-router.put('/:id/disapprove', body('reason').notEmpty(), disapproveCongregationRequest);
 
 // delete congregation
 router.delete('/:id', deleteCongregation);
