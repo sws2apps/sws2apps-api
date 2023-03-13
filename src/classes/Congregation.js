@@ -37,25 +37,42 @@ Congregation.prototype.loadDetails = async function () {
 	this.cong_number = congSnap.data().cong_number;
 	this.last_backup = congSnap.data().last_backup;
 	this.cong_persons = '';
+	this.cong_sourceMaterial_draft = [];
+	this.cong_schedule_draft = [];
 
 	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
 	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
 
 	const storageBucket = getStorage().bucket();
-	const file = await storageBucket.file(`${this.id}/persons.txt`);
-	const [fileExist] = await file.exists();
 
-	if (fileExist) {
-		await file.download({ destination: `./cong_backup/${this.id}/persons.txt` });
+	const filePerson = await storageBucket.file(`${this.id}/persons.txt`);
+	const [filePersonExist] = await filePerson.exists();
+	if (filePersonExist) {
+		await filePerson.download({ destination: `./cong_backup/${this.id}/persons.txt` });
 		const tempPersons = await readFile(`./cong_backup/${this.id}/persons.txt`);
 		this.cong_persons = tempPersons.toString();
-		await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 	}
+
+	const fileSchedule = await storageBucket.file(`${this.id}/schedules.txt`);
+	const [fileScheduleExist] = await fileSchedule.exists();
+	if (fileScheduleExist) {
+		await fileSchedule.download({ destination: `./cong_backup/${this.id}/schedules.txt` });
+		const tempSchedules = await readFile(`./cong_backup/${this.id}/schedules.txt`);
+		this.cong_schedule_draft = JSON.parse(tempSchedules);
+	}
+
+	const fileSource = await storageBucket.file(`${this.id}/sources.txt`);
+	const [fileSourceExist] = await fileSource.exists();
+	if (fileSourceExist) {
+		await fileSource.download({ destination: `./cong_backup/${this.id}/sources.txt` });
+		const tempSources = await readFile(`./cong_backup/${this.id}/sources.txt`);
+		this.cong_sourceMaterial_draft = JSON.parse(tempSources);
+	}
+
+	if (existsSync(`./cong_backup/${this.id}`)) await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 
 	this.cong_sourceMaterial = congSnap.data().cong_sourceMaterial || [];
 	this.cong_schedule = congSnap.data().cong_schedule || [];
-	this.cong_sourceMaterial_draft = congSnap.data().cong_sourceMaterial_draft || [];
-	this.cong_schedule_draft = congSnap.data().cong_schedule_draft || [];
 	this.cong_swsPocket = congSnap.data().cong_swsPocket || [];
 	this.cong_settings = congSnap.data().cong_settings || [];
 	this.cong_members.length = 0;
@@ -392,8 +409,6 @@ Congregation.prototype.saveBackup = async function (
 	const userInfo = users.findUserByAuthUid(uid);
 
 	const data = {
-		cong_schedule_draft: finalSchedule,
-		cong_sourceMaterial_draft: this.cong_sourceMaterial_draft,
 		cong_swsPocket: cong_swsPocket,
 		cong_settings: cong_settings,
 		last_backup: {
@@ -407,9 +422,13 @@ Congregation.prototype.saveBackup = async function (
 	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
 	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
 	await writeFile(`./cong_backup/${this.id}/persons.txt`, encryptedPersons);
+	await writeFile(`./cong_backup/${this.id}/schedules.txt`, JSON.stringify(finalSchedule));
+	await writeFile(`./cong_backup/${this.id}/sources.txt`, JSON.stringify(this.cong_sourceMaterial_draft));
 
 	const storageBucket = getStorage().bucket();
 	await storageBucket.upload(`./cong_backup/${this.id}/persons.txt`, { destination: `${this.id}/persons.txt` });
+	await storageBucket.upload(`./cong_backup/${this.id}/schedules.txt`, { destination: `${this.id}/schedules.txt` });
+	await storageBucket.upload(`./cong_backup/${this.id}/sources.txt`, { destination: `${this.id}/sources.txt` });
 	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 
 	this.cong_persons = encryptedPersons;
