@@ -1,3 +1,10 @@
+## [2.40.1](https://github.com/sws2apps/sws2apps-api/compare/v2.40.0...v2.40.1) (2023-03-13)
+
+
+### Bug Fixes
+
+* **congregation:** saving congregation schedules and sources to storage ([aeac767](https://github.com/sws2apps/sws2apps-api/commit/aeac76783ff35a083a5725d3ef47efbc6b59f6bd))
+
 # [2.40.0](https://github.com/sws2apps/sws2apps-api/compare/v2.39.0...v2.40.0) (2023-03-13)
 
 
