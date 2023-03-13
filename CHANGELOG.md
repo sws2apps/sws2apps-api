@@ -1,3 +1,11 @@
+# [2.40.0](https://github.com/sws2apps/sws2apps-api/compare/v2.39.0...v2.40.0) (2023-03-13)
+
+
+### Features
+
+* **deps:** bump jsdom from 21.1.0 to 21.1.1 ([f008222](https://github.com/sws2apps/sws2apps-api/commit/f0082222b8f1158919bd786827a8cb354c98214b))
+* **deps:** bump node-fetch from 3.3.0 to 3.3.1 ([6782356](https://github.com/sws2apps/sws2apps-api/commit/67823564db100965e26764313692095ad8213883))
+
 # [2.39.0](https://github.com/sws2apps/sws2apps-api/compare/v2.38.0...v2.39.0) (2023-03-09)
 
 
