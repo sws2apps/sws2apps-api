@@ -42,7 +42,7 @@
 		"i18next": "^22.4.11",
 		"is-online": "^10.0.0",
 		"jsdom": "^21.1.1",
-		"jw-epub-parser": "^1.35.0",
+		"jw-epub-parser": "^1.36.0",
 		"node-2fa": "^2.0.3",
 		"node-fetch": "^3.3.1",
 		"nodemailer": "^6.9.1",
