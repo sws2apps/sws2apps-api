@@ -7,7 +7,7 @@ permissions: read-all
 
 jobs:
   deploy:
-    name: Deploy API to Render
+    name: Deploy API to Production
     if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
     environment:
       name: Prod.env
