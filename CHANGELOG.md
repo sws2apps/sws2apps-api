@@ -1,3 +1,15 @@
+# [2.41.0](https://github.com/sws2apps/sws2apps-api/compare/v2.40.1...v2.41.0) (2023-03-21)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.22.0 to 1.22.1 ([a810e94](https://github.com/sws2apps/sws2apps-api/commit/a810e94beb46289ae1383279b67eee5077115fa9))
+* **deps:** bump @logtail/node from 0.3.1 to 0.3.3 ([0027df5](https://github.com/sws2apps/sws2apps-api/commit/0027df5e02c9d4c8884c6aefe5f73c2095903de8))
+* **deps:** bump global-jsdom from 8.7.0 to 8.8.0 ([75e3cb0](https://github.com/sws2apps/sws2apps-api/commit/75e3cb038fa9c16f5450377d05550c91c23f5643))
+* **deps:** bump i18next from 22.4.11 to 22.4.12 ([6c18f5a](https://github.com/sws2apps/sws2apps-api/commit/6c18f5ac3ff2b712829c23f0fb114d9ab63bc261))
+* **deps:** bump jw-epub-parser from 1.35.0 to 1.36.0 ([0365c55](https://github.com/sws2apps/sws2apps-api/commit/0365c5599d8e70b6941643ec2fe647647ebd92bb))
+* **deps:** bump otpauth from 9.0.2 to 9.1.0 ([f46f176](https://github.com/sws2apps/sws2apps-api/commit/f46f176663366c29fd11e6a0380eca8a239fb8df))
+
 ## [2.40.1](https://github.com/sws2apps/sws2apps-api/compare/v2.40.0...v2.40.1) (2023-03-13)
 
 
