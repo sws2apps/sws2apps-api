@@ -37,7 +37,7 @@
 		"express-validator": "^6.15.0",
 		"firebase-admin": "^11.5.0",
 		"geoip-lite": "^1.4.7",
-		"global-jsdom": "^8.7.0",
+		"global-jsdom": "^8.8.0",
 		"helmet": "^6.0.1",
 		"i18next": "^22.4.12",
 		"is-online": "^10.0.0",
