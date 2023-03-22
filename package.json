@@ -39,7 +39,7 @@
 		"geoip-lite": "^1.4.7",
 		"global-jsdom": "^8.8.0",
 		"helmet": "^6.0.1",
-		"i18next": "^22.4.12",
+		"i18next": "^22.4.13",
 		"is-online": "^10.0.0",
 		"jsdom": "^21.1.1",
 		"jw-epub-parser": "^1.36.0",
