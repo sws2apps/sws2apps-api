@@ -1,3 +1,10 @@
+# [2.42.0](https://github.com/sws2apps/sws2apps-api/compare/v2.41.0...v2.42.0) (2023-03-23)
+
+
+### Features
+
+* **deps:** bump i18next from 22.4.12 to 22.4.13 ([a768dd0](https://github.com/sws2apps/sws2apps-api/commit/a768dd0c11f9857d913024fdf4f0218dab7e317c))
+
 # [2.41.0](https://github.com/sws2apps/sws2apps-api/compare/v2.40.1...v2.41.0) (2023-03-21)
 
 
