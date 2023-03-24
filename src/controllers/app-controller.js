@@ -34,6 +34,7 @@ export const invalidEndpointHandler = async (req, res) => {
 export const errorHandler = (error, req, res, next) => {
 	res.locals.type = 'warn';
 	res.locals.message = `an error occured: ${error.stack || error}`;
+	console.log(`an error occured: ${error.stack || error}`)
 	if (error.errorInfo?.code === 'auth/email-already-exists') {
 		res.status(403).json({
 			message: 'USER_NOT_FOUND',
