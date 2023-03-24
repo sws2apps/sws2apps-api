@@ -1,3 +1,10 @@
+## [2.42.1](https://github.com/sws2apps/sws2apps-api/compare/v2.42.0...v2.42.1) (2023-03-24)
+
+
+### Bug Fixes
+
+* **api:** add manual log for error ([6abe458](https://github.com/sws2apps/sws2apps-api/commit/6abe458dd1c077ab32932516b1ce26650f5872d4))
+
 # [2.42.0](https://github.com/sws2apps/sws2apps-api/compare/v2.41.0...v2.42.0) (2023-03-23)
 
 
