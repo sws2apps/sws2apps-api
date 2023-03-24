@@ -1,3 +1,10 @@
+## [2.42.2](https://github.com/sws2apps/sws2apps-api/compare/v2.42.1...v2.42.2) (2023-03-24)
+
+
+### Bug Fixes
+
+* **api:** increase payload limit ([1f39f99](https://github.com/sws2apps/sws2apps-api/commit/1f39f999718d1fd2507ae46dca2b42fa042588eb))
+
 ## [2.42.1](https://github.com/sws2apps/sws2apps-api/compare/v2.42.0...v2.42.1) (2023-03-24)
 
 
