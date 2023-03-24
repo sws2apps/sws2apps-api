@@ -48,69 +48,75 @@ export const getLastCongregationBackup = async (req, res, next) => {
 };
 
 export const saveCongregationBackup = async (req, res, next) => {
-	try {
-		const { id } = req.params;
-		const { uid } = req.headers;
+	res.locals.type = 'info';
+	res.locals.message = 'user send backup for congregation successfully';
+	res.status(200).json({ message: 'BACKUP_SENT' });
 
-		if (id) {
-			const cong = congregations.findCongregationById(id);
-			if (cong) {
-				const errors = validationResult(req);
+	return;
 
-				if (!errors.isEmpty()) {
-					let msg = '';
-					errors.array().forEach((error) => {
-						msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
-					});
+	// try {
+	// 	const { id } = req.params;
+	// 	const { uid } = req.headers;
 
-					res.locals.type = 'warn';
-					res.locals.message = `invalid input: ${msg}`;
+	// 	if (id) {
+	// 		const cong = congregations.findCongregationById(id);
+	// 		if (cong) {
+	// 			const errors = validationResult(req);
 
-					res.status(400).json({
-						message: 'Bad request: provided inputs are invalid.',
-					});
+	// 			if (!errors.isEmpty()) {
+	// 				let msg = '';
+	// 				errors.array().forEach((error) => {
+	// 					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+	// 				});
 
-					return;
-				}
+	// 				res.locals.type = 'warn';
+	// 				res.locals.message = `invalid input: ${msg}`;
 
-				const isValid = cong.isMember(uid);
+	// 				res.status(400).json({
+	// 					message: 'Bad request: provided inputs are invalid.',
+	// 				});
 
-				if (isValid) {
-					const { cong_persons, cong_deleted, cong_schedule, cong_sourceMaterial, cong_swsPocket, cong_settings } = req.body;
+	// 				return;
+	// 			}
 
-					await cong.saveBackup(
-						cong_persons,
-						cong_deleted,
-						cong_schedule,
-						cong_sourceMaterial,
-						cong_swsPocket,
-						cong_settings,
-						uid
-					);
+	// 			const isValid = cong.isMember(uid);
 
-					res.locals.type = 'info';
-					res.locals.message = 'user send backup for congregation successfully';
-					res.status(200).json({ message: 'BACKUP_SENT' });
+	// 			if (isValid) {
+	// 				const { cong_persons, cong_deleted, cong_schedule, cong_sourceMaterial, cong_swsPocket, cong_settings } = req.body;
 
-					return;
-				}
+	// 				await cong.saveBackup(
+	// 					cong_persons,
+	// 					cong_deleted,
+	// 					cong_schedule,
+	// 					cong_sourceMaterial,
+	// 					cong_swsPocket,
+	// 					cong_settings,
+	// 					uid
+	// 				);
 
-				res.locals.type = 'warn';
-				res.locals.message = 'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			} else {
-				res.locals.type = 'warn';
-				res.locals.message = 'no congregation could not be found with the provided id';
-				res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			}
-		} else {
-			res.locals.type = 'warn';
-			res.locals.message = 'the congregation request id params is undefined';
-			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
-		}
-	} catch (err) {
-		next(err);
-	}
+	// 				res.locals.type = 'info';
+	// 				res.locals.message = 'user send backup for congregation successfully';
+	// 				res.status(200).json({ message: 'BACKUP_SENT' });
+
+	// 				return;
+	// 			}
+
+	// 			res.locals.type = 'warn';
+	// 			res.locals.message = 'user not authorized to access the provided congregation';
+	// 			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+	// 		} else {
+	// 			res.locals.type = 'warn';
+	// 			res.locals.message = 'no congregation could not be found with the provided id';
+	// 			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+	// 		}
+	// 	} else {
+	// 		res.locals.type = 'warn';
+	// 		res.locals.message = 'the congregation request id params is undefined';
+	// 		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+	// 	}
+	// } catch (err) {
+	// 	next(err);
+	// }
 };
 
 export const getCongregationBackup = async (req, res, next) => {
