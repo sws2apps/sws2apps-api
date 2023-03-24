@@ -276,7 +276,8 @@ Congregation.prototype.saveBackup = async function (
 	}
 
 	// encrypt cong_persons data
-	const encryptedPersons = encryptData(finalPersons);
+	let encryptedPersons = encryptData(finalPersons);
+	finalPersons = null;
 
 	let finalSchedule = [];
 
@@ -439,6 +440,9 @@ Congregation.prototype.saveBackup = async function (
 		by: userInfo.username,
 		date: data.last_backup.date,
 	};
+
+	encryptedPersons = null;
+	finalSchedule = null;
 };
 
 Congregation.prototype.retrieveBackup = function () {
