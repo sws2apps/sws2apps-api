@@ -1,6 +1,6 @@
 {
 	"name": "sws2apps-api",
-	"version": "2.42.3",
+	"version": "2.42.4",
 	"description": "Node apps to handle backend operations for all sws2apps services",
 	"main": "index.js",
 	"scripts": {

@@ -1,3 +1,11 @@
+## [2.42.4](https://github.com/sws2apps/sws2apps-api/compare/v2.42.3...v2.42.4) (2023-03-24)
+
+
+### Bug Fixes
+
+* **congregation:** remove some property in changes field ([610dce8](https://github.com/sws2apps/sws2apps-api/commit/610dce8003f962bc0f0a2264bc7377b7f67ad3ca))
+* **congregation:** save assignments from newer backup ([6320443](https://github.com/sws2apps/sws2apps-api/commit/6320443ae6a59cbcc4b451ddf2d9da925786e49e))
+
 ## [2.42.3](https://github.com/sws2apps/sws2apps-api/compare/v2.42.2...v2.42.3) (2023-03-24)
 
 
