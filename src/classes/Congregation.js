@@ -155,12 +155,15 @@ Congregation.prototype.saveBackup = async function (
 			const newPerson = cong_persons.find((person) => person.person_uid === oldPerson.person_uid);
 			if (newPerson) {
 				const oldChanges = oldPerson.changes;
-				const newChanges = newPerson.changes;
+				let newChanges = newPerson.changes;
 
 				if (newChanges) {
 					// handle non-assignments and non-time away changes
+					newChanges = newChanges.filter((item) => item.field !== 'lastAssignment');
+					newChanges = newChanges.filter((item) => item.field !== 'assignments');
+
 					newChanges.forEach((change) => {
-						if (change.field !== 'timeAway' && change.field !== 'assignments') {
+						if (change.field !== 'timeAway') {
 							let isChanged = false;
 
 							const oldChange = oldChanges?.find((old) => old.field === change.field);
@@ -183,8 +186,7 @@ Congregation.prototype.saveBackup = async function (
 								oldPerson[change.field] = change.value;
 
 								if (oldPerson.changes) {
-									const findIndex = oldPerson.changes.findIndex((item) => item.field === change.field) || -1;
-									if (findIndex !== -1) oldPerson.changes.splice(findIndex, 1);
+									oldPerson.changes = oldPerson.changes.filter((item) => item.field !== change.field);
 								}
 
 								if (!oldPerson.changes) {
@@ -193,29 +195,6 @@ Congregation.prototype.saveBackup = async function (
 
 								oldPerson.changes.push(change);
 							}
-						}
-					});
-
-					// handle assignments changes
-					newChanges.forEach((change) => {
-						if (change.field === 'assignments') {
-							// handle deleted assignment
-							if (change.isDeleted) {
-								const toBeDeleted = oldPerson[change.field].findIndex((item) => item.code === change.value.code);
-								if (toBeDeleted !== -1) oldPerson[change.field].splice(toBeDeleted, 1);
-							}
-
-							// handle added item
-							if (change.isAdded) {
-								const isExist = oldPerson[change.field].findIndex((item) => item.code === change.value.code);
-								if (!isExist) oldPerson[change.field].push(change.value);
-							}
-
-							// update changes
-							if (!oldPerson.changes) oldPerson.changes = [];
-							const findIndex = oldPerson.changes.findIndex((item) => item.code === change.value.code);
-							if (findIndex !== -1) oldPerson.changes.splice(findIndex, 1);
-							oldPerson.changes.push(change);
 						}
 					});
 
@@ -256,6 +235,8 @@ Congregation.prototype.saveBackup = async function (
 			}
 
 			if (oldPerson.id) delete oldPerson.id;
+			oldPerson.changes = oldPerson.changes?.filter((item) => item.field !== 'lastAssignment') || [];
+			oldPerson.changes = oldPerson.changes.filter((item) => item.field !== 'assignments');
 			finalPersons.push(oldPerson);
 		});
 
@@ -264,6 +245,8 @@ Congregation.prototype.saveBackup = async function (
 			const oldPerson = decryptedPersons.find((person) => person.person_uid === newPerson.person_uid);
 			if (!oldPerson) {
 				if (newPerson.id) delete newPerson.id;
+				newPerson.changes = newPerson.changes?.filter((item) => item.field !== 'lastAssignment') || [];
+				newPerson.changes = newPerson.changes.filter((item) => item.field !== 'assignments');
 				finalPersons.push(newPerson);
 			}
 		});
@@ -328,8 +311,7 @@ Congregation.prototype.saveBackup = async function (
 								oldSchedule[change.field] = change.value || null;
 
 								if (oldSchedule.changes) {
-									const findIndex = oldSchedule.changes.findIndex((item) => item.field === change.field) || -1;
-									if (findIndex !== -1) oldSchedule.changes.splice(findIndex, 1);
+									oldSchedule.changes = oldSchedule.changes.filter((item) => item.field !== change.field);
 								}
 
 								if (!oldSchedule.changes) {
@@ -430,7 +412,7 @@ Congregation.prototype.saveBackup = async function (
 	await storageBucket.upload(`./cong_backup/${this.id}/persons.txt`, { destination: `${this.id}/persons.txt` });
 	await storageBucket.upload(`./cong_backup/${this.id}/schedules.txt`, { destination: `${this.id}/schedules.txt` });
 	await storageBucket.upload(`./cong_backup/${this.id}/sources.txt`, { destination: `${this.id}/sources.txt` });
-	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
+	// await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 
 	this.cong_persons = encryptedPersons;
 	this.cong_schedule_draft = finalSchedule;
