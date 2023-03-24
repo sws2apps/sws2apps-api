@@ -1,3 +1,10 @@
+## [2.42.3](https://github.com/sws2apps/sws2apps-api/compare/v2.42.2...v2.42.3) (2023-03-24)
+
+
+### Bug Fixes
+
+* **api:** temporarily disable congregation backup ([677c762](https://github.com/sws2apps/sws2apps-api/commit/677c76297a93882473f892d981e3e756143a1b53))
+
 ## [2.42.2](https://github.com/sws2apps/sws2apps-api/compare/v2.42.1...v2.42.2) (2023-03-24)
 
 
