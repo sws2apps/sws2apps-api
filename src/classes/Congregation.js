@@ -232,6 +232,8 @@ Congregation.prototype.saveBackup = async function (
 						}
 					});
 				}
+
+				oldPerson.assignments = newPerson.assignments;
 			}
 
 			if (oldPerson.id) delete oldPerson.id;
