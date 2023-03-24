@@ -79,8 +79,8 @@ app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 app.use(cors(corsOptionsDelegate));
 
-app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ limit: '1mb', extended: true }));
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ limit: '5mb', extended: true }));
 
 app.use(requestIp.mw()); // get IP address middleware
 app.use(internetChecker());
