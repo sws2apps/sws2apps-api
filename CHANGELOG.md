@@ -1,3 +1,10 @@
+## [2.42.5](https://github.com/sws2apps/sws2apps-api/compare/v2.42.4...v2.42.5) (2023-03-25)
+
+
+### Bug Fixes
+
+* **congregation:** clean-up upload folder after backup ([d3cc647](https://github.com/sws2apps/sws2apps-api/commit/d3cc647ee90eabb10c5dcdb653f3aab7bd08bedf))
+
 ## [2.42.4](https://github.com/sws2apps/sws2apps-api/compare/v2.42.3...v2.42.4) (2023-03-24)
 
 
