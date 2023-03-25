@@ -4,7 +4,7 @@
 			"port": 8080
 		},
 		"ui": {
-			"port": 8040
+			"enabled": false
 		},
 		"singleProjectMode": true,
 		"storage": {
