@@ -414,7 +414,7 @@ Congregation.prototype.saveBackup = async function (
 	await storageBucket.upload(`./cong_backup/${this.id}/persons.txt`, { destination: `${this.id}/persons.txt` });
 	await storageBucket.upload(`./cong_backup/${this.id}/schedules.txt`, { destination: `${this.id}/schedules.txt` });
 	await storageBucket.upload(`./cong_backup/${this.id}/sources.txt`, { destination: `${this.id}/sources.txt` });
-	// await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
+	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 
 	this.cong_persons = encryptedPersons;
 	this.cong_schedule_draft = finalSchedule;
