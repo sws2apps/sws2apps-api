@@ -1,3 +1,15 @@
+# [2.43.0](https://github.com/sws2apps/sws2apps-api/compare/v2.42.5...v2.43.0) (2023-03-27)
+
+
+### Bug Fixes
+
+* **congregation:** move pocket schedules and sources to storage ([47c3fa2](https://github.com/sws2apps/sws2apps-api/commit/47c3fa2668f52d8ba43475b579ad7a9421575ab8))
+
+
+### Features
+
+* **deps:** bump otpauth from 9.1.0 to 9.1.1 ([50a0e46](https://github.com/sws2apps/sws2apps-api/commit/50a0e46a4be35ab2a7231f8151c797726c067361))
+
 ## [2.42.5](https://github.com/sws2apps/sws2apps-api/compare/v2.42.4...v2.42.5) (2023-03-25)
 
 
