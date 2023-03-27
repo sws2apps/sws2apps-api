@@ -39,6 +39,8 @@ Congregation.prototype.loadDetails = async function () {
 	this.cong_persons = '';
 	this.cong_sourceMaterial_draft = [];
 	this.cong_schedule_draft = [];
+	this.cong_sourceMaterial = [];
+	this.cong_schedule = [];
 
 	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
 	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
@@ -69,10 +71,24 @@ Congregation.prototype.loadDetails = async function () {
 		this.cong_sourceMaterial_draft = JSON.parse(tempSources);
 	}
 
+	const filePocketSchedule = await storageBucket.file(`${this.id}/pocket-schedules.txt`);
+	const [filePocketScheduleExist] = await filePocketSchedule.exists();
+	if (filePocketScheduleExist) {
+		await filePocketSchedule.download({ destination: `./cong_backup/${this.id}/pocket-schedules.txt` });
+		const tempSchedules = await readFile(`./cong_backup/${this.id}/pocket-schedules.txt`);
+		this.cong_schedule = JSON.parse(tempSchedules);
+	}
+
+	const filePocketSource = await storageBucket.file(`${this.id}/pocket-sources.txt`);
+	const [filePocketSourceExist] = await filePocketSource.exists();
+	if (filePocketSourceExist) {
+		await filePocketSource.download({ destination: `./cong_backup/${this.id}/pocket-sources.txt` });
+		const tempSources = await readFile(`./cong_backup/${this.id}/pocket-sources.txt`);
+		this.cong_sourceMaterial = JSON.parse(tempSources);
+	}
+
 	if (existsSync(`./cong_backup/${this.id}`)) await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 
-	this.cong_sourceMaterial = congSnap.data().cong_sourceMaterial || [];
-	this.cong_schedule = congSnap.data().cong_schedule || [];
 	this.cong_swsPocket = congSnap.data().cong_swsPocket || [];
 	this.cong_settings = congSnap.data().cong_settings || [];
 	this.cong_members.length = 0;
@@ -536,9 +552,7 @@ Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong
 	let newStudentsSchedule = validSchedule;
 	let newStudentsSource = validSource;
 
-	for (let i = 0; i < cong_schedules.length; i++) {
-		const schedule = cong_schedules[i];
-
+	for (const schedule of cong_schedules) {
 		const { id, month, year, schedules, sources } = schedule;
 
 		const lastDate = new Date(year, month + 1, 0);
@@ -576,10 +590,18 @@ Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong
 	const newSource = { midweekMeeting: newStudentsSource };
 
 	await db.collection('congregations').doc(this.id).update({
-		cong_schedule: newSchedule,
-		cong_sourceMaterial: newSource,
 		cong_settings,
 	});
+
+	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
+	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
+	await writeFile(`./cong_backup/${this.id}/pocket-schedules.txt`, JSON.stringify(newSchedule));
+	await writeFile(`./cong_backup/${this.id}/pocket-sources.txt`, JSON.stringify(newSource));
+
+	const storageBucket = getStorage().bucket();
+	await storageBucket.upload(`./cong_backup/${this.id}/pocket-schedules.txt`, { destination: `${this.id}/pocket-schedules.txt` });
+	await storageBucket.upload(`./cong_backup/${this.id}/pocket-sources.txt`, { destination: `${this.id}/pocket-sources.txt` });
+	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 
 	this.cong_schedule = newSchedule;
 	this.cong_sourceMaterial = newSource;
