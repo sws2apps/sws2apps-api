@@ -1,3 +1,11 @@
+# [2.44.0](https://github.com/sws2apps/sws2apps-api/compare/v2.43.0...v2.44.0) (2023-04-01)
+
+
+### Features
+
+* **deps:** bump @logtail/node from 0.3.3 to 0.4.0 ([7d73c87](https://github.com/sws2apps/sws2apps-api/commit/7d73c877c371dd27e364dda51b627017e5f34f26))
+* **deps:** bump jw-epub-parser from 1.36.0 to 1.37.0 ([1be7cc8](https://github.com/sws2apps/sws2apps-api/commit/1be7cc8bb8c31671616121663530521c62820e8c))
+
 # [2.43.0](https://github.com/sws2apps/sws2apps-api/compare/v2.42.5...v2.43.0) (2023-03-27)
 
 
