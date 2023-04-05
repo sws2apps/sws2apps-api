@@ -1,3 +1,11 @@
+# [2.45.0](https://github.com/sws2apps/sws2apps-api/compare/v2.44.0...v2.45.0) (2023-04-05)
+
+
+### Features
+
+* **congregation:** allow multi-edit of user assignments ([8243bf9](https://github.com/sws2apps/sws2apps-api/commit/8243bf9f30def2a11285c93933d6a78e693bf4fe))
+* **deps:** bump i18next from 22.4.13 to 22.4.14 ([9c1eacc](https://github.com/sws2apps/sws2apps-api/commit/9c1eacc2f5470bb982fbbea7f70b443d2ad45063))
+
 # [2.44.0](https://github.com/sws2apps/sws2apps-api/compare/v2.43.0...v2.44.0) (2023-04-01)
 
 
