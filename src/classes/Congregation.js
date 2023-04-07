@@ -311,136 +311,138 @@ Congregation.prototype.saveBackup = async function (
 	finalPersons = null;
 
 	let finalSchedule = [];
+	if (cong_schedule) {
+		// new backup schedule
+		if (this.cong_schedule_draft.length === 0) {
+			cong_schedule.forEach((schedule) => {
+				const weekOfDate = getWeekDate(schedule.weekOf);
 
-	// new backup schedule
-	if (this.cong_schedule_draft.length === 0) {
-		cong_schedule.forEach((schedule) => {
-			const weekOfDate = getWeekDate(schedule.weekOf);
+				if (weekOfDate >= oldestWeekDate) {
+					finalSchedule.push(schedule);
+				}
+			});
+		}
 
-			if (weekOfDate >= oldestWeekDate) {
-				finalSchedule.push(schedule);
-			}
-		});
-	}
+		// updated schedule
+		if (this.cong_schedule_draft.length > 0) {
+			// handle modified schedule
+			this.cong_schedule_draft.forEach((oldSchedule) => {
+				const weekOfDate = getWeekDate(oldSchedule.weekOf);
 
-	// updated schedule
-	if (this.cong_schedule_draft.length > 0) {
-		// handle modified schedule
-		this.cong_schedule_draft.forEach((oldSchedule) => {
-			const weekOfDate = getWeekDate(oldSchedule.weekOf);
+				if (weekOfDate >= oldestWeekDate) {
+					const newSchedule = cong_schedule.find((schedule) => schedule.weekOf === oldSchedule.weekOf);
+					if (newSchedule) {
+						const oldChanges = oldSchedule.changes;
+						const newChanges = newSchedule.changes;
 
-			if (weekOfDate >= oldestWeekDate) {
-				const newSchedule = cong_schedule.find((schedule) => schedule.weekOf === oldSchedule.weekOf);
-				if (newSchedule) {
-					const oldChanges = oldSchedule.changes;
-					const newChanges = newSchedule.changes;
+						if (newChanges) {
+							newChanges.forEach((change) => {
+								let isChanged = false;
 
-					if (newChanges) {
-						newChanges.forEach((change) => {
-							let isChanged = false;
+								const oldChange = oldChanges?.find((old) => old.field === change.field);
+								const originalDate = oldChange?.date || undefined;
 
-							const oldChange = oldChanges?.find((old) => old.field === change.field);
-							const originalDate = oldChange?.date || undefined;
-
-							if (!oldChange) {
-								isChanged = true;
-							}
-
-							if (originalDate) {
-								const dateA = new Date(originalDate);
-								const dateB = new Date(change.date);
-
-								if (dateB > dateA) {
+								if (!oldChange) {
 									isChanged = true;
 								}
-							}
 
-							if (isChanged) {
-								oldSchedule[change.field] = change.value || null;
+								if (originalDate) {
+									const dateA = new Date(originalDate);
+									const dateB = new Date(change.date);
 
-								if (oldSchedule.changes) {
-									oldSchedule.changes = oldSchedule.changes.filter((item) => item.field !== change.field);
+									if (dateB > dateA) {
+										isChanged = true;
+									}
 								}
 
-								if (!oldSchedule.changes) {
-									oldSchedule.changes = [];
+								if (isChanged) {
+									oldSchedule[change.field] = change.value || null;
+
+									if (oldSchedule.changes) {
+										oldSchedule.changes = oldSchedule.changes.filter((item) => item.field !== change.field);
+									}
+
+									if (!oldSchedule.changes) {
+										oldSchedule.changes = [];
+									}
+
+									oldSchedule.changes.push(change);
 								}
-
-								oldSchedule.changes.push(change);
-							}
-						});
-					}
-				}
-
-				finalSchedule.push(oldSchedule);
-			}
-		});
-
-		// handle new schedule record
-		cong_schedule.forEach((newSchedule) => {
-			const weekOfDate = getWeekDate(newSchedule.weekOf);
-			const oldestWeekDate = getOldestWeekDate();
-
-			if (weekOfDate >= oldestWeekDate) {
-				const oldSchedule = this.cong_schedule_draft.find((schedule) => schedule.weekOf === newSchedule.weekOf);
-				if (!oldSchedule) {
-					finalSchedule.push(newSchedule);
-				}
-			}
-		});
-	}
-
-	cong_sourceMaterial.forEach((newSource) => {
-		const weekOfDate = getWeekDate(newSource.weekOf);
-
-		if (weekOfDate >= oldestWeekDate) {
-			const oldSource = this.cong_sourceMaterial_draft.find((source) => source.weekOf === newSource.weekOf);
-			const oldSourceIndex = this.cong_sourceMaterial_draft.findIndex((source) => source.weekOf === newSource.weekOf);
-
-			if (!oldSource) {
-				this.cong_sourceMaterial_draft.push(newSource);
-			}
-
-			if (oldSource) {
-				// restore keepOverride if qualified
-				const newKeepOverride = newSource.keepOverride || undefined;
-				const oldKeepOverride = oldSource ? oldSource.keepOverride : undefined;
-				let isRestore = false;
-
-				if (!newKeepOverride) {
-					isRestore = true;
-				}
-
-				if (newKeepOverride && oldKeepOverride) {
-					const oldDate = new Date(oldKeepOverride);
-					const newDate = new Date(newKeepOverride);
-
-					if (oldDate > newDate) {
-						isRestore = true;
-					}
-				}
-
-				if (isRestore) {
-					for (const [key, value] of Object.entries(oldSource)) {
-						if (key.indexOf('_override') !== -1) {
-							if (value) newSource[key] = value;
+							});
 						}
 					}
 
-					this.cong_sourceMaterial_draft.splice(oldSourceIndex, 1, newSource);
+					finalSchedule.push(oldSchedule);
+				}
+			});
+
+			// handle new schedule record
+			cong_schedule.forEach((newSchedule) => {
+				const weekOfDate = getWeekDate(newSchedule.weekOf);
+				const oldestWeekDate = getOldestWeekDate();
+
+				if (weekOfDate >= oldestWeekDate) {
+					const oldSchedule = this.cong_schedule_draft.find((schedule) => schedule.weekOf === newSchedule.weekOf);
+					if (!oldSchedule) {
+						finalSchedule.push(newSchedule);
+					}
+				}
+			});
+		}
+	}
+
+	if (cong_sourceMaterial) {
+		cong_sourceMaterial.forEach((newSource) => {
+			const weekOfDate = getWeekDate(newSource.weekOf);
+
+			if (weekOfDate >= oldestWeekDate) {
+				const oldSource = this.cong_sourceMaterial_draft.find((source) => source.weekOf === newSource.weekOf);
+				const oldSourceIndex = this.cong_sourceMaterial_draft.findIndex((source) => source.weekOf === newSource.weekOf);
+
+				if (!oldSource) {
+					this.cong_sourceMaterial_draft.push(newSource);
+				}
+
+				if (oldSource) {
+					// restore keepOverride if qualified
+					const newKeepOverride = newSource.keepOverride || undefined;
+					const oldKeepOverride = oldSource ? oldSource.keepOverride : undefined;
+					let isRestore = false;
+
+					if (!newKeepOverride) {
+						isRestore = true;
+					}
+
+					if (newKeepOverride && oldKeepOverride) {
+						const oldDate = new Date(oldKeepOverride);
+						const newDate = new Date(newKeepOverride);
+
+						if (oldDate > newDate) {
+							isRestore = true;
+						}
+					}
+
+					if (isRestore) {
+						for (const [key, value] of Object.entries(oldSource)) {
+							if (key.indexOf('_override') !== -1) {
+								if (value) newSource[key] = value;
+							}
+						}
+
+						this.cong_sourceMaterial_draft.splice(oldSourceIndex, 1, newSource);
+					}
 				}
 			}
-		}
-	});
+		});
 
-	this.cong_sourceMaterial_draft = this.cong_sourceMaterial_draft.filter(
-		(source) => getWeekDate(source.weekOf) >= oldestWeekDate
-	);
+		this.cong_sourceMaterial_draft = this.cong_sourceMaterial_draft.filter(
+			(source) => getWeekDate(source.weekOf) >= oldestWeekDate
+		);
+	}
 
 	const userInfo = users.findUserByAuthUid(uid);
 
 	const data = {
-		cong_swsPocket: cong_swsPocket,
 		cong_settings: cong_settings,
 		last_backup: {
 			by: userInfo.id,
@@ -448,23 +450,39 @@ Congregation.prototype.saveBackup = async function (
 		},
 	};
 
+	if (cong_swsPocket) {
+		data.cong_swsPocket = cong_swsPocket;
+	}
+
 	await db.collection('congregations').doc(this.id).set(data, { merge: true });
 
 	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
 	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
 	await writeFile(`./cong_backup/${this.id}/persons.txt`, encryptedPersons);
-	await writeFile(`./cong_backup/${this.id}/schedules.txt`, JSON.stringify(finalSchedule));
-	await writeFile(`./cong_backup/${this.id}/sources.txt`, JSON.stringify(this.cong_sourceMaterial_draft));
+	if (cong_schedule) {
+		await writeFile(`./cong_backup/${this.id}/schedules.txt`, JSON.stringify(finalSchedule));
+	}
+	if (cong_sourceMaterial) {
+		await writeFile(`./cong_backup/${this.id}/sources.txt`, JSON.stringify(this.cong_sourceMaterial_draft));
+	}
 
 	const storageBucket = getStorage().bucket();
 	await storageBucket.upload(`./cong_backup/${this.id}/persons.txt`, { destination: `${this.id}/persons.txt` });
-	await storageBucket.upload(`./cong_backup/${this.id}/schedules.txt`, { destination: `${this.id}/schedules.txt` });
-	await storageBucket.upload(`./cong_backup/${this.id}/sources.txt`, { destination: `${this.id}/sources.txt` });
+	if (cong_schedule) {
+		await storageBucket.upload(`./cong_backup/${this.id}/schedules.txt`, { destination: `${this.id}/schedules.txt` });
+	}
+	if (cong_sourceMaterial) {
+		await storageBucket.upload(`./cong_backup/${this.id}/sources.txt`, { destination: `${this.id}/sources.txt` });
+	}
 	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 
 	this.cong_persons = encryptedPersons;
-	this.cong_schedule_draft = finalSchedule;
-	this.cong_swsPocket = cong_swsPocket;
+	if (cong_schedule) {
+		this.cong_schedule_draft = finalSchedule;
+	}
+	if (cong_swsPocket) {
+		this.cong_swsPocket = cong_swsPocket;
+	}
 	this.cong_settings = cong_settings;
 	this.last_backup = {
 		by: userInfo.username,

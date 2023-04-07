@@ -1301,7 +1301,9 @@ export const createCongregation = async (req, res, next) => {
 			return;
 		}
 
-		if (app_requestor !== 'lmmo') {
+		const validRole = ['lmmo', 'secretary'];
+
+		if (!validRole.includes(app_requestor)) {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: ${app_requestor}`;
 
@@ -1327,7 +1329,7 @@ export const createCongregation = async (req, res, next) => {
 
 		// add user to congregation
 		const tmpUser = users.findUserByAuthUid(uid);
-		const user = await newCong.addUser(tmpUser.id, ['admin', 'lmmo'], fullname);
+		const user = await newCong.addUser(tmpUser.id, ['admin', app_requestor], fullname);
 
 		res.locals.type = 'info';
 		res.locals.message = 'congregation created successfully';
