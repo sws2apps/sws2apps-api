@@ -260,6 +260,8 @@ Congregation.prototype.saveBackup = async function (
 
 							// handle modified item
 							if (change.isModified) {
+								if (!oldPerson[change.field]) oldPerson[change.field] = [];
+
 								const toBeModified = oldPerson[change.field].findIndex((item) => item.timeAwayId === change.value.timeAwayId);
 
 								if (toBeModified !== -1) oldPerson[change.field].splice(toBeModified, 1);
