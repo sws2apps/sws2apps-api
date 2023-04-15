@@ -1,6 +1,6 @@
 {
 	"name": "sws2apps-api",
-	"version": "2.45.0",
+	"version": "2.46.0",
 	"description": "Node apps to handle backend operations for all sws2apps services",
 	"main": "index.js",
 	"scripts": {
@@ -11,7 +11,7 @@
 	},
 	"keywords": [],
 	"author": "",
-	"license": "ISC",
+	"license": "MIT",
 	"type": "module",
 	"eslintConfig": {
 		"extends": [
@@ -19,7 +19,7 @@
 		]
 	},
 	"engines": {
-		"node": ">=18",
+		"node": ">=18 <19",
 		"npm": ">=9"
 	},
 	"dependencies": {
@@ -38,7 +38,7 @@
 		"firebase-admin": "^11.6.0",
 		"geoip-lite": "^1.4.7",
 		"global-jsdom": "^8.8.0",
-		"helmet": "^6.0.1",
+		"helmet": "^6.1.5",
 		"i18next": "^22.4.14",
 		"is-online": "^10.0.0",
 		"jsdom": "^21.1.1",
@@ -61,11 +61,11 @@
 		"@semantic-release/git": "^10.0.1",
 		"chai": "^4.3.7",
 		"chai-http": "^4.3.0",
-		"eslint": "^8.37.0",
+		"eslint": "^8.38.0",
 		"eslint-config-react-app": "^7.0.1",
 		"find-unused-exports": "^5.0.0",
 		"mocha": "^10.2.0",
 		"nodemon": "^2.0.22",
-		"puppeteer": "^19.8.5"
+		"puppeteer": "^19.9.0"
 	}
 }
