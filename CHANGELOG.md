@@ -1,3 +1,17 @@
+# [2.46.0](https://github.com/sws2apps/sws2apps-api/compare/v2.45.0...v2.46.0) (2023-04-15)
+
+
+### Bug Fixes
+
+* **congregation:** fix undefined array when updating time away ([d07d84f](https://github.com/sws2apps/sws2apps-api/commit/d07d84f14b2e35222e132817e225a3baa47d92e6))
+
+
+### Features
+
+* **deps:** bump firebase-admin from 11.5.0 to 11.6.0 ([a5ae6e7](https://github.com/sws2apps/sws2apps-api/commit/a5ae6e7461989c9fc1f54b0f545bca46c703a190))
+* **deps:** bump helmet from 6.0.1 to 6.1.4 ([06aa3a4](https://github.com/sws2apps/sws2apps-api/commit/06aa3a42a76a1c2bc20e43a482b254467d5ee502))
+* **deps:** bump helmet from 6.1.4 to 6.1.5 ([f229d85](https://github.com/sws2apps/sws2apps-api/commit/f229d85e5876143358ec6803b2496a8e7b5e287b))
+
 # [2.45.0](https://github.com/sws2apps/sws2apps-api/compare/v2.44.0...v2.45.0) (2023-04-05)
 
 
