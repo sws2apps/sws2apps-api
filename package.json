@@ -24,7 +24,7 @@
 	},
 	"dependencies": {
 		"@crowdin/crowdin-api-client": "^1.22.1",
-		"@fingerprintjs/fingerprintjs-pro-server-api": "^2.0.0",
+		"@fingerprintjs/fingerprintjs-pro-server-api": "^2.0.1",
 		"@logtail/node": "^0.4.0",
 		"bcrypt": "^5.1.0",
 		"cors": "^2.8.5",
