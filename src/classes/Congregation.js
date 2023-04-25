@@ -218,8 +218,8 @@ Congregation.prototype.saveBackup = async function (
 						if (change.field === 'assignments') {
 							// handle deleted assignment
 							if (change.isDeleted) {
-								const toBeDeleted = oldPerson[change.field].findIndex((item) => item.code === change.value.code);
-								if (toBeDeleted !== -1) oldPerson[change.field].splice(toBeDeleted, 1);
+								const toBeDeleted = oldPerson[change.field]?.findIndex((item) => item.code === change.value.code);
+								if (toBeDeleted && toBeDeleted !== -1) oldPerson[change.field].splice(toBeDeleted, 1);
 							}
 
 							// handle added item
@@ -247,8 +247,8 @@ Congregation.prototype.saveBackup = async function (
 						if (change.field === 'timeAway') {
 							// handle deleted item
 							if (change.isDeleted) {
-								const toBeDeleted = oldPerson[change.field].findIndex((item) => item.timeAwayId === change.value.timeAwayId);
-								if (toBeDeleted !== -1) oldPerson[change.field].splice(toBeDeleted, 1);
+								const toBeDeleted = oldPerson[change.field]?.findIndex((item) => item.timeAwayId === change.value.timeAwayId);
+								if (toBeDeleted && toBeDeleted !== -1) oldPerson[change.field].splice(toBeDeleted, 1);
 							}
 
 							// handle added item
@@ -262,9 +262,11 @@ Congregation.prototype.saveBackup = async function (
 							if (change.isModified) {
 								if (!oldPerson[change.field]) oldPerson[change.field] = [];
 
-								const toBeModified = oldPerson[change.field].findIndex((item) => item.timeAwayId === change.value.timeAwayId);
+								const toBeModified = oldPerson[change.field]?.findIndex((item) => item.timeAwayId === change.value.timeAwayId);
 
-								if (toBeModified !== -1) oldPerson[change.field].splice(toBeModified, 1);
+								if (toBeModified && toBeModified !== -1) oldPerson[change.field].splice(toBeModified, 1);
+
+								if (!oldPerson[change.field]) oldPerson[change.field] = []
 								oldPerson[change.field].push(change.value);
 							}
 
