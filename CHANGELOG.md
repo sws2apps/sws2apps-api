@@ -1,3 +1,19 @@
+# [2.47.0](https://github.com/sws2apps/sws2apps-api/compare/v2.46.0...v2.47.0) (2023-04-25)
+
+
+### Bug Fixes
+
+* **classes:** check for undefined timeAway field before looking up ([27b21c0](https://github.com/sws2apps/sws2apps-api/commit/27b21c07dd7a8c0af6ccc30c1969bab2d1a4f932))
+
+
+### Features
+
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([64be33c](https://github.com/sws2apps/sws2apps-api/commit/64be33c3b38baee7e103e93a9b92819b08bfc467))
+* **deps:** bump express-validator from 6.15.0 to 7.0.1 ([005a032](https://github.com/sws2apps/sws2apps-api/commit/005a0325998da7b30fdf7f7cc23bd7b9c72cbb51))
+* **deps:** bump firebase-admin from 11.6.0 to 11.7.0 ([1234a3d](https://github.com/sws2apps/sws2apps-api/commit/1234a3d7c1d82a3fcf9d35e5e9bd173dadca3f94))
+* **deps:** bump i18next from 22.4.14 to 22.4.15 ([abf8b60](https://github.com/sws2apps/sws2apps-api/commit/abf8b607cd8855a6c9e6e6940ef364bf060aa0c7))
+* **deps:** bump jw-epub-parser from 1.37.0 to 1.38.1 ([bf25c1a](https://github.com/sws2apps/sws2apps-api/commit/bf25c1abfe23db88b3291ec1753325db9abf59da))
+
 # [2.46.0](https://github.com/sws2apps/sws2apps-api/compare/v2.45.0...v2.46.0) (2023-04-15)
 
 
