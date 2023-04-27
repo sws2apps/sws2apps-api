@@ -216,10 +216,11 @@ Congregation.prototype.saveBackup = async function (
 					// handle assignments changes
 					newChanges.forEach((change) => {
 						if (change.field === 'assignments') {
+							if (!oldPerson[change.field]) oldPerson[change.field] = [];
+
 							// handle deleted assignment
 							if (change.isDeleted) {
-								const toBeDeleted = oldPerson[change.field]?.findIndex((item) => item.code === change.value.code);
-								if (toBeDeleted && toBeDeleted !== -1) oldPerson[change.field].splice(toBeDeleted, 1);
+								oldPerson[change.field] = oldPerson[change.field].filter((item) => item.code !== change.value.code);
 							}
 
 							// handle added item
@@ -245,28 +246,26 @@ Congregation.prototype.saveBackup = async function (
 					// handle time away changes
 					newChanges.forEach((change) => {
 						if (change.field === 'timeAway') {
+							if (!oldPerson[change.field]) oldPerson[change.field] = [];
+
 							// handle deleted item
 							if (change.isDeleted) {
-								const toBeDeleted = oldPerson[change.field]?.findIndex((item) => item.timeAwayId === change.value.timeAwayId);
-								if (toBeDeleted && toBeDeleted !== -1) oldPerson[change.field].splice(toBeDeleted, 1);
+								oldPerson[change.field] = oldPerson[change.field].filter((item) => item.timeAwayId !== change.value.timeAwayId);
 							}
 
 							// handle added item
 							if (change.isAdded) {
-								oldPerson[change.field].push(change.value);
-								if (!oldPerson.changes) oldPerson.changes = [];
-								oldPerson.changes.push(change);
+								const isExist = oldPerson[change.field].find((item) => item.timeAwayId === change.value.timeAwayId);
+								if (!isExist) {
+									oldPerson[change.field].push(change.value);
+									if (!oldPerson.changes) oldPerson.changes = [];
+									oldPerson.changes.push(change);
+								}
 							}
 
 							// handle modified item
 							if (change.isModified) {
-								if (!oldPerson[change.field]) oldPerson[change.field] = [];
-
-								const toBeModified = oldPerson[change.field]?.findIndex((item) => item.timeAwayId === change.value.timeAwayId);
-
-								if (toBeModified && toBeModified !== -1) oldPerson[change.field].splice(toBeModified, 1);
-
-								if (!oldPerson[change.field]) oldPerson[change.field] = []
+								oldPerson[change.field] = oldPerson[change.field].filter((item) => item.timeAwayId !== change.value.timeAwayId);
 								oldPerson[change.field].push(change.value);
 							}
 
