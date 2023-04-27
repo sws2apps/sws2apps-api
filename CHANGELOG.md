@@ -1,3 +1,15 @@
+# [2.48.0](https://github.com/sws2apps/sws2apps-api/compare/v2.47.0...v2.48.0) (2023-04-27)
+
+
+### Bug Fixes
+
+* **classes:** handle issue with duplicate time away records ([cae5799](https://github.com/sws2apps/sws2apps-api/commit/cae5799252cc5a6c71c9b211bc2cdd08926e3008))
+
+
+### Features
+
+* **deps:** bump jw-epub-parser from 1.38.1 to 1.39.0 ([063163e](https://github.com/sws2apps/sws2apps-api/commit/063163ef7c16bf39fa2ad65bba59c17cce0a4e90))
+
 # [2.47.0](https://github.com/sws2apps/sws2apps-api/compare/v2.46.0...v2.47.0) (2023-04-25)
 
 
