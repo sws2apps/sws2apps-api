@@ -76,9 +76,6 @@ router.post(
 	'/:id/backup',
 	body('cong_persons').isArray(),
 	body('cong_deleted').isArray(),
-	body('cong_schedule').isArray(),
-	body('cong_sourceMaterial').isArray(),
-	body('cong_swsPocket').isArray(),
 	body('cong_settings').isArray(),
 	saveCongregationBackup
 );

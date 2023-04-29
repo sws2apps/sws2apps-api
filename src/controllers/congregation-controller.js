@@ -76,22 +76,53 @@ export const saveCongregationBackup = async (req, res, next) => {
 				const isValid = cong.isMember(uid);
 
 				if (isValid) {
-					const { cong_persons, cong_deleted, cong_schedule, cong_sourceMaterial, cong_swsPocket, cong_settings } = req.body;
+					const user = users.findUserByAuthUid(uid);
+					const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
+					const secretaryRole = user.cong_role.includes('secretary');
 
-					await cong.saveBackup(
-						cong_persons,
-						cong_deleted,
-						cong_schedule,
-						cong_sourceMaterial,
-						cong_swsPocket,
-						cong_settings,
-						uid
-					);
+					if (lmmoRole || secretaryRole) {
+						if (secretaryRole) {
+							const cong_serviceYear = req.body.cong_serviceYear;
+							const isServiceYearValid = cong.isServiceYearValid(cong_serviceYear);
 
-					res.locals.type = 'info';
-					res.locals.message = 'user send backup for congregation successfully';
-					res.status(200).json({ message: 'BACKUP_SENT' });
+							if (!isServiceYearValid) {
+								res.locals.type = 'warn';
+								res.locals.message = 'backup aborted because of service years discrepancies';
+								res.status(400).json({ message: 'BACKUP_DISCREPANCY' });
 
+								return;
+							}
+						}
+
+						const payload = req.body;
+
+						await cong.saveBackup({
+							cong_persons: payload.cong_persons,
+							cong_deleted: payload.cong_deleted,
+							cong_schedule: payload.cong_schedule,
+							cong_sourceMaterial: payload.cong_sourceMaterial,
+							cong_swsPocket: payload.cong_swsPocket,
+							cong_settings: payload.cong_settings,
+							cong_branchReports: payload.cong_branchReports,
+							cong_fieldServiceGroup: payload.cong_fieldServiceGroup,
+							cong_fieldServiceReports: payload.cong_fieldServiceReports,
+							cong_lateReports: payload.cong_lateReports,
+							cong_meetingAttendance: payload.cong_meetingAttendance,
+							cong_minutesReports: payload.cong_minutesReports,
+							cong_serviceYear: payload.cong_serviceYear,
+							uid,
+						});
+
+						res.locals.type = 'info';
+						res.locals.message = 'user send backup for congregation successfully';
+						res.status(200).json({ message: 'BACKUP_SENT' });
+
+						return;
+					}
+
+					res.locals.type = 'warn';
+					res.locals.message = 'user not authorized to send congregation backup';
+					res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
 					return;
 				}
 
@@ -124,11 +155,39 @@ export const getCongregationBackup = async (req, res, next) => {
 				const isValid = await cong.isMember(uid);
 
 				if (isValid) {
-					const obj = cong.retrieveBackup();
+					const user = users.findUserByAuthUid(uid);
+					const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
+					const secretaryRole = user.cong_role.includes('secretary');
 
-					res.locals.type = 'info';
-					res.locals.message = 'user retrieve backup for congregation successfully';
-					res.status(200).json(obj);
+					if (lmmoRole || secretaryRole) {
+						const backupData = cong.retrieveBackup();
+						const obj = { cong_persons: backupData.cong_persons, cong_settings: backupData.cong_settings };
+
+						if (lmmoRole) {
+							obj.cong_schedule = backupData.cong_schedule;
+							obj.cong_sourceMaterial = backupData.cong_sourceMaterial;
+							obj.cong_swsPocket = backupData.cong_swsPocket;
+						}
+
+						if (secretaryRole) {
+							obj.cong_branchReports = backupData.cong_branchReports;
+							obj.cong_fieldServiceGroup = backupData.cong_fieldServiceGroup;
+							obj.cong_fieldServiceReports = backupData.cong_fieldServiceReports;
+							obj.cong_lateReports = backupData.cong_lateReports;
+							obj.cong_meetingAttendance = backupData.cong_meetingAttendance;
+							obj.cong_minutesReports = backupData.cong_minutesReports;
+							obj.cong_serviceYear = backupData.cong_serviceYear;
+						}
+
+						res.locals.type = 'info';
+						res.locals.message = 'user retrieve backup for congregation successfully';
+						res.status(200).json(obj);
+						return;
+					}
+
+					res.locals.type = 'warn';
+					res.locals.message = 'user not authorized to access the congregation backup';
+					res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
 					return;
 				}
 
@@ -1301,7 +1360,9 @@ export const createCongregation = async (req, res, next) => {
 			return;
 		}
 
-		if (app_requestor !== 'lmmo') {
+		const validRole = ['lmmo', 'secretary'];
+
+		if (!validRole.includes(app_requestor)) {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: ${app_requestor}`;
 
@@ -1327,7 +1388,7 @@ export const createCongregation = async (req, res, next) => {
 
 		// add user to congregation
 		const tmpUser = users.findUserByAuthUid(uid);
-		const user = await newCong.addUser(tmpUser.id, ['admin', 'lmmo'], fullname);
+		const user = await newCong.addUser(tmpUser.id, ['admin', app_requestor], fullname);
 
 		res.locals.type = 'info';
 		res.locals.message = 'congregation created successfully';
