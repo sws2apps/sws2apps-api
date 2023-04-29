@@ -1,3 +1,10 @@
+# [2.49.0](https://github.com/sws2apps/sws2apps-api/compare/v2.48.0...v2.49.0) (2023-04-29)
+
+
+### Features
+
+* **api:** update api to support congregation secretary role ([79a1c5d](https://github.com/sws2apps/sws2apps-api/commit/79a1c5de882360925f7da7cdac730ba8c59540d1))
+
 # [2.48.0](https://github.com/sws2apps/sws2apps-api/compare/v2.47.0...v2.48.0) (2023-04-27)
 
 
