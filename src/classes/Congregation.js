@@ -1,12 +1,13 @@
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import dayjs from 'dayjs';
 import randomstring from 'randomstring';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
-import { getStorage } from 'firebase-admin/storage';
 import { decryptData, encryptData } from '../utils/encryption-utils.js';
 import { users } from './Users.js';
 import { getOldestWeekDate, getWeekDate } from '../utils/date.js';
+import { getFileFromStorage, uploadFileToStorage } from '../utils/storage-utils.js';
+import { serviceYearExpired, serviceYearFromMonth } from '../utils/congregation-utils.js';
 
 const db = getFirestore(); //get default database
 
@@ -41,56 +42,36 @@ Congregation.prototype.loadDetails = async function () {
 	this.cong_schedule_draft = [];
 	this.cong_sourceMaterial = [];
 	this.cong_schedule = [];
+	this.cong_branchReports = [];
+	this.cong_fieldServiceGroup = [];
+	this.cong_fieldServiceReports = [];
+	this.cong_lateReports = [];
+	this.cong_meetingAttendance = [];
+	this.cong_minutesReports = [];
+	this.cong_serviceYear = [];
 
 	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
 	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
 
-	const storageBucket = getStorage().bucket();
+	this.cong_persons = await getFileFromStorage(this.id, 'persons.txt', true);
+	this.cong_schedule_draft = await getFileFromStorage(this.id, 'schedules.txt');
+	this.cong_sourceMaterial_draft = await getFileFromStorage(this.id, 'sources.txt');
+	this.cong_schedule = await getFileFromStorage(this.id, 'pocket-schedules.txt');
+	this.cong_sourceMaterial = await getFileFromStorage(this.id, 'pocket-sources.txt');
+	this.cong_branchReports = await getFileFromStorage(this.id, 'branch-reports.txt');
+	this.cong_fieldServiceGroup = await getFileFromStorage(this.id, 'field-service-group.txt');
+	this.cong_fieldServiceReports = await getFileFromStorage(this.id, 'field-service-reports.txt');
+	this.cong_meetingAttendance = await getFileFromStorage(this.id, 'meeting-attendance.txt');
 
-	const filePerson = await storageBucket.file(`${this.id}/persons.txt`);
-	const [filePersonExist] = await filePerson.exists();
-	if (filePersonExist) {
-		await filePerson.download({ destination: `./cong_backup/${this.id}/persons.txt` });
-		const tempPersons = await readFile(`./cong_backup/${this.id}/persons.txt`);
-		this.cong_persons = tempPersons.toString();
+	if (existsSync(`./cong_backup/${this.id}`)) {
+		await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 	}
-
-	const fileSchedule = await storageBucket.file(`${this.id}/schedules.txt`);
-	const [fileScheduleExist] = await fileSchedule.exists();
-	if (fileScheduleExist) {
-		await fileSchedule.download({ destination: `./cong_backup/${this.id}/schedules.txt` });
-		const tempSchedules = await readFile(`./cong_backup/${this.id}/schedules.txt`);
-		this.cong_schedule_draft = JSON.parse(tempSchedules);
-	}
-
-	const fileSource = await storageBucket.file(`${this.id}/sources.txt`);
-	const [fileSourceExist] = await fileSource.exists();
-	if (fileSourceExist) {
-		await fileSource.download({ destination: `./cong_backup/${this.id}/sources.txt` });
-		const tempSources = await readFile(`./cong_backup/${this.id}/sources.txt`);
-		this.cong_sourceMaterial_draft = JSON.parse(tempSources);
-	}
-
-	const filePocketSchedule = await storageBucket.file(`${this.id}/pocket-schedules.txt`);
-	const [filePocketScheduleExist] = await filePocketSchedule.exists();
-	if (filePocketScheduleExist) {
-		await filePocketSchedule.download({ destination: `./cong_backup/${this.id}/pocket-schedules.txt` });
-		const tempSchedules = await readFile(`./cong_backup/${this.id}/pocket-schedules.txt`);
-		this.cong_schedule = JSON.parse(tempSchedules);
-	}
-
-	const filePocketSource = await storageBucket.file(`${this.id}/pocket-sources.txt`);
-	const [filePocketSourceExist] = await filePocketSource.exists();
-	if (filePocketSourceExist) {
-		await filePocketSource.download({ destination: `./cong_backup/${this.id}/pocket-sources.txt` });
-		const tempSources = await readFile(`./cong_backup/${this.id}/pocket-sources.txt`);
-		this.cong_sourceMaterial = JSON.parse(tempSources);
-	}
-
-	if (existsSync(`./cong_backup/${this.id}`)) await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 
 	this.cong_swsPocket = congSnap.data().cong_swsPocket || [];
 	this.cong_settings = congSnap.data().cong_settings || [];
+	this.cong_serviceYear = congSnap.data().cong_serviceYear || [];
+	this.cong_minutesReports = congSnap.data().cong_minutesReports || [];
+	this.cong_lateReports = congSnap.data().cong_lateReports || [];
 	this.cong_members.length = 0;
 	users.list.forEach((user) => {
 		if (user.cong_id === this.id) {
@@ -144,17 +125,7 @@ Congregation.prototype.isMember = function (uid) {
 	return user.cong_id === this.id;
 };
 
-Congregation.prototype.saveBackup = async function (
-	cong_persons,
-	cong_deleted,
-	cong_schedule,
-	cong_sourceMaterial,
-	cong_swsPocket,
-	cong_settings,
-	uid
-) {
-	const oldestWeekDate = getOldestWeekDate();
-
+Congregation.prototype.mergePersonsFromBackup = function (cong_persons, cong_deleted) {
 	let finalPersons = [];
 
 	// new backup persons
@@ -384,144 +355,549 @@ Congregation.prototype.saveBackup = async function (
 		});
 	}
 
-	// encrypt cong_persons data
-	let encryptedPersons = encryptData(finalPersons);
-	finalPersons = null;
+	return finalPersons;
+};
 
+Congregation.prototype.mergeSchedulesFromBackup = function (cong_schedule) {
 	let finalSchedule = [];
-	if (cong_schedule) {
-		// new backup schedule
-		if (this.cong_schedule_draft.length === 0) {
-			cong_schedule.forEach((schedule) => {
-				const weekOfDate = getWeekDate(schedule.weekOf);
 
-				if (weekOfDate >= oldestWeekDate) {
-					finalSchedule.push(schedule);
-				}
-			});
-		}
+	const oldestWeekDate = getOldestWeekDate();
 
-		// updated schedule
-		if (this.cong_schedule_draft.length > 0) {
-			// handle modified schedule
-			this.cong_schedule_draft.forEach((oldSchedule) => {
-				const weekOfDate = getWeekDate(oldSchedule.weekOf);
-
-				if (weekOfDate >= oldestWeekDate) {
-					const newSchedule = cong_schedule.find((schedule) => schedule.weekOf === oldSchedule.weekOf);
-					if (newSchedule) {
-						const oldChanges = oldSchedule.changes;
-						const newChanges = newSchedule.changes;
-
-						if (newChanges) {
-							newChanges.forEach((change) => {
-								let isChanged = false;
-
-								const oldChange = oldChanges?.find((old) => old.field === change.field);
-								const originalDate = oldChange?.date || undefined;
-
-								if (!oldChange) {
-									isChanged = true;
-								}
-
-								if (originalDate) {
-									const dateA = new Date(originalDate);
-									const dateB = new Date(change.date);
-
-									if (dateB > dateA) {
-										isChanged = true;
-									}
-								}
-
-								if (isChanged) {
-									oldSchedule[change.field] = change.value || null;
-
-									if (oldSchedule.changes) {
-										oldSchedule.changes = oldSchedule.changes.filter((item) => item.field !== change.field);
-									}
-
-									if (!oldSchedule.changes) {
-										oldSchedule.changes = [];
-									}
-
-									oldSchedule.changes.push(change);
-								}
-							});
-						}
-					}
-
-					finalSchedule.push(oldSchedule);
-				}
-			});
-
-			// handle new schedule record
-			cong_schedule.forEach((newSchedule) => {
-				const weekOfDate = getWeekDate(newSchedule.weekOf);
-				const oldestWeekDate = getOldestWeekDate();
-
-				if (weekOfDate >= oldestWeekDate) {
-					const oldSchedule = this.cong_schedule_draft.find((schedule) => schedule.weekOf === newSchedule.weekOf);
-					if (!oldSchedule) {
-						finalSchedule.push(newSchedule);
-					}
-				}
-			});
-		}
-	}
-
-	if (cong_sourceMaterial) {
-		cong_sourceMaterial.forEach((newSource) => {
-			const weekOfDate = getWeekDate(newSource.weekOf);
+	// new backup schedule
+	if (this.cong_schedule_draft.length === 0) {
+		cong_schedule.forEach((schedule) => {
+			const weekOfDate = getWeekDate(schedule.weekOf);
 
 			if (weekOfDate >= oldestWeekDate) {
-				const oldSource = this.cong_sourceMaterial_draft.find((source) => source.weekOf === newSource.weekOf);
-				const oldSourceIndex = this.cong_sourceMaterial_draft.findIndex((source) => source.weekOf === newSource.weekOf);
+				finalSchedule.push(schedule);
+			}
+		});
+	}
 
-				if (!oldSource) {
-					this.cong_sourceMaterial_draft.push(newSource);
-				}
+	// updated schedule
+	if (this.cong_schedule_draft.length > 0) {
+		// handle modified schedule
+		this.cong_schedule_draft.forEach((oldSchedule) => {
+			const weekOfDate = getWeekDate(oldSchedule.weekOf);
 
-				if (oldSource) {
-					// restore keepOverride if qualified
-					const newKeepOverride = newSource.keepOverride || undefined;
-					const oldKeepOverride = oldSource ? oldSource.keepOverride : undefined;
-					let isRestore = false;
+			if (weekOfDate >= oldestWeekDate) {
+				const newSchedule = cong_schedule.find((schedule) => schedule.weekOf === oldSchedule.weekOf);
+				if (newSchedule) {
+					const oldChanges = oldSchedule.changes;
+					const newChanges = newSchedule.changes;
 
-					if (!newKeepOverride) {
-						isRestore = true;
-					}
+					if (newChanges) {
+						newChanges.forEach((change) => {
+							let isChanged = false;
 
-					if (newKeepOverride && oldKeepOverride) {
-						const oldDate = new Date(oldKeepOverride);
-						const newDate = new Date(newKeepOverride);
+							const oldChange = oldChanges?.find((old) => old.field === change.field);
+							const originalDate = oldChange?.date || undefined;
 
-						if (oldDate > newDate) {
-							isRestore = true;
-						}
-					}
-
-					if (isRestore) {
-						for (const [key, value] of Object.entries(oldSource)) {
-							if (key.indexOf('_override') !== -1) {
-								if (value) newSource[key] = value;
+							if (!oldChange) {
+								isChanged = true;
 							}
-						}
 
-						this.cong_sourceMaterial_draft.splice(oldSourceIndex, 1, newSource);
+							if (originalDate) {
+								const dateA = new Date(originalDate);
+								const dateB = new Date(change.date);
+
+								if (dateB > dateA) {
+									isChanged = true;
+								}
+							}
+
+							if (isChanged) {
+								oldSchedule[change.field] = change.value || null;
+
+								if (oldSchedule.changes) {
+									oldSchedule.changes = oldSchedule.changes.filter((item) => item.field !== change.field);
+								}
+
+								if (!oldSchedule.changes) {
+									oldSchedule.changes = [];
+								}
+
+								oldSchedule.changes.push(change);
+							}
+						});
 					}
 				}
+
+				finalSchedule.push(oldSchedule);
 			}
 		});
 
-		this.cong_sourceMaterial_draft = this.cong_sourceMaterial_draft.filter(
-			(source) => getWeekDate(source.weekOf) >= oldestWeekDate
+		// handle new schedule record
+		cong_schedule.forEach((newSchedule) => {
+			const weekOfDate = getWeekDate(newSchedule.weekOf);
+			const oldestWeekDate = getOldestWeekDate();
+
+			if (weekOfDate >= oldestWeekDate) {
+				const oldSchedule = this.cong_schedule_draft.find((schedule) => schedule.weekOf === newSchedule.weekOf);
+				if (!oldSchedule) {
+					finalSchedule.push(newSchedule);
+				}
+			}
+		});
+	}
+
+	return finalSchedule;
+};
+
+Congregation.prototype.mergeSourceMaterialsFromBackup = function (cong_sourceMaterial) {
+	const oldestWeekDate = getOldestWeekDate();
+
+	cong_sourceMaterial.forEach((newSource) => {
+		const weekOfDate = getWeekDate(newSource.weekOf);
+
+		if (weekOfDate >= oldestWeekDate) {
+			const oldSource = this.cong_sourceMaterial_draft.find((source) => source.weekOf === newSource.weekOf);
+			const oldSourceIndex = this.cong_sourceMaterial_draft.findIndex((source) => source.weekOf === newSource.weekOf);
+
+			if (!oldSource) {
+				this.cong_sourceMaterial_draft.push(newSource);
+			}
+
+			if (oldSource) {
+				// restore keepOverride if qualified
+				const newKeepOverride = newSource.keepOverride || undefined;
+				const oldKeepOverride = oldSource ? oldSource.keepOverride : undefined;
+				let isRestore = false;
+
+				if (!newKeepOverride) {
+					isRestore = true;
+				}
+
+				if (newKeepOverride && oldKeepOverride) {
+					const oldDate = new Date(oldKeepOverride);
+					const newDate = new Date(newKeepOverride);
+
+					if (oldDate > newDate) {
+						isRestore = true;
+					}
+				}
+
+				if (isRestore) {
+					for (const [key, value] of Object.entries(oldSource)) {
+						if (key.indexOf('_override') !== -1) {
+							if (value) newSource[key] = value;
+						}
+					}
+
+					this.cong_sourceMaterial_draft.splice(oldSourceIndex, 1, newSource);
+				}
+			}
+		}
+	});
+
+	this.cong_sourceMaterial_draft = this.cong_sourceMaterial_draft.filter(
+		(source) => getWeekDate(source.weekOf) >= oldestWeekDate
+	);
+};
+
+Congregation.prototype.mergeServiceYearFromBackup = function (cong_serviceYear) {
+	// clean existing
+	let newServiceYear = [];
+
+	for (const existSY of this.cong_serviceYear) {
+		if (!serviceYearExpired(existSY.value)) {
+			newServiceYear.push(existSY);
+		}
+	}
+
+	for (const newSY of cong_serviceYear) {
+		const isExist = newServiceYear.find((record) => record.value === newSY.value);
+		if (!isExist && !serviceYearExpired(newSY.value)) {
+			newServiceYear.push(newSY);
+		}
+	}
+
+	this.cong_serviceYear = newServiceYear;
+};
+
+Congregation.prototype.mergeLateReportsFromBackup = function (cong_lateReports) {
+	// check if there are deleted records from backup
+	const deletedRecords = cong_lateReports.filter((record) => record.deleted === true);
+	let newRecords = [];
+
+	for (const record of this.cong_lateReports) {
+		const isDeleted = deletedRecords.find((item) => item.person_uid === record.person_uid && item.month === record.month);
+
+		if (isDeleted) continue;
+
+		newRecords.push(record);
+	}
+
+	this.cong_lateReports = newRecords;
+};
+
+Congregation.prototype.mergeMinutesReportsFromBackup = function (cong_minutesReports) {
+	// check if there are deleted records from backup
+	const deletedRecords = cong_minutesReports.filter((record) => record.deleted === true);
+	let newRecords = [];
+
+	for (const record of this.cong_minutesReports) {
+		const isDeleted = deletedRecords.find((item) => item.person_uid === record.person_uid && item.month === record.month);
+
+		if (isDeleted) continue;
+
+		newRecords.push(record);
+	}
+
+	this.cong_minutesReports = newRecords;
+};
+
+Congregation.prototype.mergeMeetingAttendanceFromBackup = function (cong_meetingAttendance) {
+	for (const attendance of cong_meetingAttendance) {
+		if (attendance.changes && attendance.changes.length > 0) {
+			const foundAttendance = this.cong_meetingAttendance.find(
+				(record) => record.service_year === attendance.service_year && record.month_value === attendance.month_value
+			);
+
+			if (!foundAttendance) {
+				this.cong_meetingAttendance.push(attendance);
+			}
+
+			if (foundAttendance) {
+				const changes = attendance.changes;
+				changes.sort((a, b) => {
+					return a.date > b.date ? 1 : -1;
+				});
+
+				for (const change of changes) {
+					const oldChange = foundAttendance.changes.find((item) => item.type === change.type && item.index === change.index);
+
+					let isUpdate = false;
+
+					if (!oldChange) isUpdate = true;
+					if (oldChange) {
+						const dateA = new Date(oldChange.date);
+						const dateB = new Date(change.date);
+
+						if (dateB > dateA) isUpdate = true;
+					}
+
+					if (isUpdate) {
+						let meetingArray = change.type === 'midweek' ? foundAttendance.midweek_meeting : foundAttendance.weekend_meeting;
+
+						meetingArray = meetingArray.filter((record) => record.index !== change.index);
+						meetingArray.push({ index: change.index, count: change.count });
+
+						if (change.type === 'midweek') {
+							foundAttendance.midweek_meeting = meetingArray;
+						}
+
+						if (change.type === 'weekend') {
+							foundAttendance.weekend_meeting = meetingArray;
+						}
+
+						const newChanges = [];
+						for (const oldChange of foundAttendance.changes) {
+							if (oldChange.type === change.type && oldChange.index === change.index) {
+								continue;
+							}
+
+							newChanges.push(oldChange);
+						}
+
+						foundAttendance.changes = [...newChanges];
+						foundAttendance.changes.push(change);
+					}
+				}
+			}
+		}
+	}
+};
+
+Congregation.prototype.mergeBranchReportsFromBackup = function (cong_branchReports) {
+	// clean existing
+	let newReports = [];
+
+	for (const report of this.cong_branchReports) {
+		const currentSY = serviceYearFromMonth(report.month);
+
+		if (!serviceYearExpired(currentSY)) {
+			newReports.push(report);
+		}
+	}
+
+	for (const report of cong_branchReports) {
+		const currentSY = serviceYearFromMonth(report.month);
+		if (!serviceYearExpired(currentSY)) {
+			if (report.updatedAt !== null) {
+				const oldReport = newReports.find((item) => item.report === report.report && item.month === report.month);
+
+				if (!oldReport) {
+					newReports.push(report);
+				}
+
+				if (oldReport) {
+					const reportDate = new Date(report.updatedAt);
+					const oldDate = new Date(oldReport.updatedAt);
+
+					if (reportDate > oldDate) {
+						oldReport.updatedAt = report.updatedAt;
+						oldReport.details = report.details;
+					}
+				}
+			}
+		}
+	}
+
+	return newReports;
+};
+
+Congregation.prototype.mergeFieldServiceReportsFromBackup = function (cong_fieldServiceReports, cong_deleted) {
+	let newReports = [];
+
+	newReports = [...this.cong_fieldServiceReports];
+
+	for (const report of cong_fieldServiceReports) {
+		const oldRecord = newReports.find(
+			(record) => record.service_year === report.service_year && record.person_uid === report.person_uid
 		);
+
+		if (!oldRecord) {
+			newReports.push(report);
+		}
+
+		if (oldRecord) {
+			for (const monthReport of report.months) {
+				const oldMonth = oldRecord.months.find((record) => record.month_value === monthReport.month_value);
+
+				if (!oldMonth) {
+					oldRecord.months.push(monthReport);
+				}
+
+				if (oldMonth) {
+					for (const change of monthReport.changes) {
+						const oldChange = oldMonth.changes.find((item) => item.field === change.field);
+						if (!oldChange) {
+							oldMonth[change.field] = change.value;
+							oldMonth.changes.push(change);
+						}
+
+						if (oldChange) {
+							const oldDate = new Date(oldChange.date);
+							const newDate = new Date(change.date);
+
+							if (newDate > oldDate) {
+								oldMonth[change.field] = change.value;
+								oldMonth.changes = oldMonth.changes.filter((item) => item.field !== change.field);
+								oldMonth.changes.push(change);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// remove reports for deleted persons
+	cong_deleted.forEach((deleted) => {
+		newReports = newReports.filter((record) => record.person_uid !== deleted.ref);
+	});
+
+	return newReports;
+};
+
+Congregation.prototype.mergeFieldServiceGroupFromBackup = function (cong_fieldServiceGroup, cong_deleted) {
+	// check if there are deleted records from backup
+	const deletedRecords = cong_fieldServiceGroup.filter((record) => record.deleted === true);
+	let newRecords = [];
+
+	for (const record of this.cong_fieldServiceGroup) {
+		const isDeleted = deletedRecords.find((item) => item.fieldServiceGroup_uid === record.fieldServiceGroup_uid);
+		if (isDeleted) continue;
+
+		newRecords.push(record);
+	}
+
+	for (const newList of cong_fieldServiceGroup) {
+		const oldList = newRecords.find((item) => item.fieldServiceGroup_uid === newList.fieldServiceGroup_uid);
+
+		if (!oldList) {
+			newRecords.push(newList);
+		}
+
+		if (oldList) {
+			// check for deleted groups
+			const deletedGroups = newList.changes.filter((record) => record.type === 'deleted');
+			for (const deleted of deletedGroups) {
+				oldList.groups = oldList.groups.filter((record) => record.group_uid !== deleted.group_uid);
+
+				const newChanges = [];
+				for (const change of oldList.changes) {
+					if (change.type === 'deleted' && change.group_uid === deleted.group_uid) continue;
+					newChanges.push(change);
+				}
+				oldList.changes = [...newChanges];
+				oldList.changes.push(deleted);
+			}
+
+			// check for added or modified groups
+			const activeGroups = newList.changes.filter((record) => record.type === 'added' || record.type === 'modified');
+			activeGroups.sort((a, b) => {
+				return a.index > b.index ? 1 : -1;
+			});
+
+			const oldGroups = JSON.parse(JSON.stringify(oldList.groups));
+			oldList.groups.length = 0;
+
+			for (const group of activeGroups) {
+				const current = oldGroups.find((item) => item.group_uid === group.group_uid);
+				if (current) {
+					oldList.groups.push(current);
+				}
+
+				if (!current) {
+					oldList.groups.push({ group_uid: group.group_uid, persons: [] });
+				}
+
+				const newChanges = [];
+				for (const change of oldList.changes) {
+					if (change.type === group.type && change.group_uid === group.group_uid) continue;
+					newChanges.push(change);
+				}
+				oldList.changes = [...newChanges];
+				oldList.changes.push(group);
+			}
+
+			// handle person changes
+			const personChanges = newList.changes.filter(
+				(record) => record.type === 'person_added' || record.type === 'person_modified' || record.type === 'person_removed'
+			);
+
+			personChanges.sort((a, b) => {
+				const dateA = new Date(a.date);
+				const dateB = new Date(b.date);
+				return dateA > dateB ? 1 : -1;
+			});
+
+			for (const personChange of personChanges) {
+				const personDeleted = cong_deleted.find((deleted) => deleted.ref === personChange.person_uid);
+				const currentGroup = oldList.groups.find((group) => group.group_uid === personChange.group_uid);
+
+				if (personDeleted) {
+					currentGroup.persons = currentGroup.persons.filter((person) => person.person_uid !== personChange.person_uid);
+					oldList.changes = oldList.changes.filter((change) => change.person_uid !== personChange.person_uid);
+				}
+
+				if (!personDeleted) {
+					const currentPerson = currentGroup.persons.find((person) => person.person_uid === personChange.person_uid);
+
+					if (!currentPerson && personChange.type === 'person_added') {
+						currentGroup.persons.push({ person_uid: personChange.person_uid, isAssistant: false, isOverseer: false });
+					}
+
+					if (personChange.type === 'person_removed' || personChange.type === 'person_modified') {
+						currentGroup.persons = currentGroup.persons.filter((person) => person.person_uid !== personChange.person_uid);
+					}
+
+					if (personChange.type === 'person_modified') {
+						const isOverseer = personChange.isOverseer || false;
+						const isAssistant = personChange.isAssistant || false;
+						currentGroup.persons.push({ person_uid: personChange.person_uid, isAssistant, isOverseer });
+					}
+
+					const newChanges = [];
+					for (const change of oldList.changes) {
+						if (
+							change.type === personChange.type &&
+							change.group_uid === personChange.group_uid &&
+							change.person_uid === personChange.person_uid
+						)
+							continue;
+						newChanges.push(change);
+					}
+					oldList.changes = [...newChanges];
+					oldList.changes.push(personChange);
+				}
+			}
+		}
+	}
+
+	return newRecords;
+};
+
+Congregation.prototype.saveBackup = async function (payload) {
+	const cong_persons = payload.cong_persons;
+	const cong_deleted = payload.cong_deleted;
+	const cong_schedule = payload.cong_schedule;
+	const cong_sourceMaterial = payload.cong_sourceMaterial;
+	const cong_swsPocket = payload.cong_swsPocket;
+	const cong_settings = payload.cong_settings;
+	const cong_branchReports = payload.cong_branchReports;
+	const cong_fieldServiceGroup = payload.cong_fieldServiceGroup;
+	const cong_fieldServiceReports = payload.cong_fieldServiceReports;
+	const cong_lateReports = payload.cong_lateReports;
+	const cong_meetingAttendance = payload.cong_meetingAttendance;
+	const cong_minutesReports = payload.cong_minutesReports;
+	const cong_serviceYear = payload.cong_serviceYear;
+	const uid = payload.uid;
+
+	// update and encrypt cong_persons data
+	let finalPersons = this.mergePersonsFromBackup(cong_persons, cong_deleted);
+	let encryptedPersons = encryptData(finalPersons);
+	finalPersons = null;
+
+	// update cong_schedule data
+	let finalSchedule = [];
+	if (cong_schedule) {
+		finalSchedule = this.mergeSchedulesFromBackup(cong_schedule);
+	}
+
+	// update cong_sourceMaterial data
+	if (cong_sourceMaterial) {
+		this.mergeSourceMaterialsFromBackup(cong_sourceMaterial);
+	}
+
+	// update cong_serviceYear data
+	if (cong_serviceYear) {
+		this.mergeServiceYearFromBackup(cong_serviceYear);
+	}
+
+	// update cong_lateReports data
+	if (cong_lateReports) {
+		this.mergeLateReportsFromBackup(cong_lateReports);
+	}
+
+	// update cong_minutesReports data
+	if (cong_minutesReports) {
+		this.mergeMinutesReportsFromBackup(cong_minutesReports);
+	}
+
+	// update cong_meetingAttendance data
+	if (cong_meetingAttendance) {
+		this.mergeMeetingAttendanceFromBackup(cong_meetingAttendance);
+	}
+
+	// update cong_branchReports data
+	let finalBranchReports = [];
+	if (cong_branchReports) {
+		finalBranchReports = this.mergeBranchReportsFromBackup(cong_branchReports);
+	}
+
+	// update cong_branchReports data
+	let finalFieldServiceReports = [];
+	if (cong_fieldServiceGroup) {
+		finalFieldServiceReports = this.mergeFieldServiceReportsFromBackup(cong_fieldServiceReports, cong_deleted);
+	}
+
+	// update cong_branchReports data
+	let finalFieldServiceGroup = [];
+	if (cong_fieldServiceGroup) {
+		finalFieldServiceGroup = this.mergeFieldServiceGroupFromBackup(cong_fieldServiceGroup, cong_deleted);
 	}
 
 	const userInfo = users.findUserByAuthUid(uid);
 
+	// prepare data to be stored to firestore
 	const data = {
 		cong_settings: cong_settings,
+		cong_serviceYear: this.cong_serviceYear,
+		cong_lateReports: this.cong_lateReports,
+		cong_minutesReports: this.cong_minutesReports,
 		last_backup: {
 			by: userInfo.id,
 			date: new Date(),
@@ -534,38 +910,50 @@ Congregation.prototype.saveBackup = async function (
 
 	await db.collection('congregations').doc(this.id).set(data, { merge: true });
 
+	// prepare data to be saved to storage
 	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
 	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
-	await writeFile(`./cong_backup/${this.id}/persons.txt`, encryptedPersons);
+
+	await uploadFileToStorage(this.id, encryptedPersons, 'persons.txt');
+
 	if (cong_schedule) {
-		await writeFile(`./cong_backup/${this.id}/schedules.txt`, JSON.stringify(finalSchedule));
-	}
-	if (cong_sourceMaterial) {
-		await writeFile(`./cong_backup/${this.id}/sources.txt`, JSON.stringify(this.cong_sourceMaterial_draft));
+		await uploadFileToStorage(this.id, JSON.stringify(finalSchedule), 'schedules.txt');
 	}
 
-	const storageBucket = getStorage().bucket();
-	await storageBucket.upload(`./cong_backup/${this.id}/persons.txt`, { destination: `${this.id}/persons.txt` });
-	if (cong_schedule) {
-		await storageBucket.upload(`./cong_backup/${this.id}/schedules.txt`, { destination: `${this.id}/schedules.txt` });
-	}
 	if (cong_sourceMaterial) {
-		await storageBucket.upload(`./cong_backup/${this.id}/sources.txt`, { destination: `${this.id}/sources.txt` });
+		await uploadFileToStorage(this.id, JSON.stringify(this.cong_sourceMaterial_draft), 'sources.txt');
 	}
+
+	if (cong_meetingAttendance) {
+		await uploadFileToStorage(this.id, JSON.stringify(this.cong_meetingAttendance), 'meeting-attendance.txt');
+	}
+
+	if (cong_branchReports) {
+		await uploadFileToStorage(this.id, JSON.stringify(finalBranchReports), 'branch-reports.txt');
+	}
+
+	if (cong_fieldServiceReports) {
+		await uploadFileToStorage(this.id, JSON.stringify(finalFieldServiceReports), 'field-service-reports.txt');
+	}
+
+	if (cong_fieldServiceGroup) {
+		await uploadFileToStorage(this.id, JSON.stringify(finalFieldServiceGroup), 'field-service-group.txt');
+	}
+
 	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 
+	// update class values
 	this.cong_persons = encryptedPersons;
-	if (cong_schedule) {
-		this.cong_schedule_draft = finalSchedule;
-	}
-	if (cong_swsPocket) {
-		this.cong_swsPocket = cong_swsPocket;
-	}
 	this.cong_settings = cong_settings;
 	this.last_backup = {
 		by: userInfo.username,
 		date: data.last_backup.date,
 	};
+	if (cong_schedule) this.cong_schedule_draft = finalSchedule;
+	if (cong_swsPocket) this.cong_swsPocket = cong_swsPocket;
+	if (cong_branchReports) this.cong_branchReports = finalBranchReports;
+	if (cong_fieldServiceReports) this.cong_fieldServiceReports = finalFieldServiceReports;
+	if (cong_fieldServiceGroup) this.cong_fieldServiceGroup = finalFieldServiceGroup;
 
 	encryptedPersons = null;
 	finalSchedule = null;
@@ -581,6 +969,13 @@ Congregation.prototype.retrieveBackup = function () {
 		cong_sourceMaterial: this.cong_sourceMaterial_draft,
 		cong_swsPocket: this.cong_swsPocket,
 		cong_settings: this.cong_settings,
+		cong_branchReports: this.cong_branchReports,
+		cong_fieldServiceGroup: this.cong_fieldServiceGroup,
+		cong_fieldServiceReports: this.cong_fieldServiceReports,
+		cong_lateReports: this.cong_lateReports,
+		cong_meetingAttendance: this.cong_meetingAttendance,
+		cong_minutesReports: this.cong_minutesReports,
+		cong_serviceYear: this.cong_serviceYear,
 	};
 };
 
@@ -721,15 +1116,27 @@ Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong
 
 	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
 	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
-	await writeFile(`./cong_backup/${this.id}/pocket-schedules.txt`, JSON.stringify(newSchedule));
-	await writeFile(`./cong_backup/${this.id}/pocket-sources.txt`, JSON.stringify(newSource));
 
-	const storageBucket = getStorage().bucket();
-	await storageBucket.upload(`./cong_backup/${this.id}/pocket-schedules.txt`, { destination: `${this.id}/pocket-schedules.txt` });
-	await storageBucket.upload(`./cong_backup/${this.id}/pocket-sources.txt`, { destination: `${this.id}/pocket-sources.txt` });
+	await uploadFileToStorage(this.id, JSON.stringify(newSchedule), 'pocket-schedules.txt');
+	await uploadFileToStorage(this.id, JSON.stringify(newSource), 'pocket-sources.txt');
+
 	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 
 	this.cong_schedule = newSchedule;
 	this.cong_sourceMaterial = newSource;
 	this.cong_settings = cong_settings;
+};
+
+Congregation.prototype.isServiceYearValid = function (cong_serviceYear) {
+	let isValid = true;
+
+	for (const incomingSY of cong_serviceYear) {
+		const findExisting = this.cong_serviceYear.find((record) => record.value === incomingSY.value);
+		if (findExisting) {
+			isValid = incomingSY.uid === findExisting.uid;
+			break;
+		}
+	}
+
+	return isValid;
 };
