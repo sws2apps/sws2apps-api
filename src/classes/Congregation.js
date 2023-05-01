@@ -895,14 +895,15 @@ Congregation.prototype.saveBackup = async function (payload) {
 	// prepare data to be stored to firestore
 	const data = {
 		cong_settings: cong_settings,
-		cong_serviceYear: this.cong_serviceYear,
-		cong_lateReports: this.cong_lateReports,
-		cong_minutesReports: this.cong_minutesReports,
 		last_backup: {
 			by: userInfo.id,
 			date: new Date(),
 		},
 	};
+
+	if (cong_serviceYear) data.cong_serviceYear = this.cong_serviceYear
+	if (cong_lateReports) data.cong_lateReports = this.cong_lateReports
+	if (cong_minutesReports) data.cong_minutesReports = this.cong_minutesReports
 
 	if (cong_swsPocket) {
 		data.cong_swsPocket = cong_swsPocket;
