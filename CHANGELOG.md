@@ -1,3 +1,10 @@
+## [2.49.1](https://github.com/sws2apps/sws2apps-api/compare/v2.49.0...v2.49.1) (2023-05-01)
+
+
+### Bug Fixes
+
+* **congregation:** update fields to be updated depending on user role ([8d099f8](https://github.com/sws2apps/sws2apps-api/commit/8d099f8f3d77c8be49146fca62ed6fc58e6b5eb1))
+
 # [2.49.0](https://github.com/sws2apps/sws2apps-api/compare/v2.48.0...v2.49.0) (2023-04-29)
 
 
