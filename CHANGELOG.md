@@ -1,3 +1,17 @@
+# [2.50.0](https://github.com/sws2apps/sws2apps-api/compare/v2.49.1...v2.50.0) (2023-05-05)
+
+
+### Bug Fixes
+
+* **controller:** fix condition to validate user congregation role ([272d1c9](https://github.com/sws2apps/sws2apps-api/commit/272d1c9c877fbe1d48d1ebc0210ae3045f5b4091))
+
+
+### Features
+
+* **deps:** bump firebase-admin from 11.7.0 to 11.8.0 ([b71953c](https://github.com/sws2apps/sws2apps-api/commit/b71953cf4f2dbb2c34d6622951c16fde1ed198b4))
+* **deps:** bump jsdom and global-jsdom ([7917c4e](https://github.com/sws2apps/sws2apps-api/commit/7917c4e4c67f7e121838edd49cc234dc5b4ecf28))
+* **deps:** bump jsdom from 21.1.1 to 21.1.2 ([c70e049](https://github.com/sws2apps/sws2apps-api/commit/c70e049b6e6cedd7440684ce0462eb47cad66e79))
+
 ## [2.49.1](https://github.com/sws2apps/sws2apps-api/compare/v2.49.0...v2.49.1) (2023-05-01)
 
 
