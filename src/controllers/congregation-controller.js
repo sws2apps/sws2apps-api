@@ -467,10 +467,9 @@ export const updateCongregationMemberDetails = async (req, res, next) => {
 
 						// validate provided role
 						let isRoleValid = true;
-						const allowedRoles = ['admin', 'lmmo', 'lmmo-backup', 'view_meeting_schedule'];
-						if (user_role > 0) {
-							for (let i = 0; i < user_role.length; i++) {
-								const role = user_role[i];
+						const allowedRoles = ['admin', 'lmmo', 'lmmo-backup', 'view_meeting_schedule', 'secretary'];
+						if (user_role.length > 0) {
+							for (const role of user_role) {
 								if (!allowedRoles.includes(role)) {
 									isRoleValid = false;
 									break;
