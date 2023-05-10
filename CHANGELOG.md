@@ -1,3 +1,11 @@
+# [2.51.0](https://github.com/sws2apps/sws2apps-api/compare/v2.50.0...v2.51.0) (2023-05-10)
+
+
+### Features
+
+* **deps:** bump helmet from 6.1.5 to 7.0.0 ([409b992](https://github.com/sws2apps/sws2apps-api/commit/409b9923ef151481b39d4d182f0f95f3733ff49a))
+* **deps:** bump otpauth from 9.1.1 to 9.1.2 ([7fe10e8](https://github.com/sws2apps/sws2apps-api/commit/7fe10e82de07235d0a02899061e755f52165388a))
+
 # [2.50.0](https://github.com/sws2apps/sws2apps-api/compare/v2.49.1...v2.50.0) (2023-05-05)
 
 
