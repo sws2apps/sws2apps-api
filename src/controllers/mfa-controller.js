@@ -26,7 +26,7 @@ export const verifyToken = async (req, res, next) => {
 
 	const { token, trusted } = req.body;
 
-	const { id, sessions, username, cong_name, cong_number, cong_role, cong_id, pocket_local_id, pocket_members } =
+	const { id, sessions, username, cong_name, cong_number, cong_role, cong_id, user_local_uid, user_members_delegate } =
 		res.locals.currentUser;
 
 	try {
@@ -103,8 +103,8 @@ export const verifyToken = async (req, res, next) => {
 					cong_role,
 					cong_id,
 					global_role: user.global_role,
-					pocket_local_id,
-					pocket_members,
+					user_local_uid,
+					user_members_delegate,
 				};
 
 				res.locals.type = 'info';

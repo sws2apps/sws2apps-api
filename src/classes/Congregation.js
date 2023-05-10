@@ -892,24 +892,40 @@ Congregation.prototype.saveBackup = async function (payload) {
 
 	const userInfo = users.findUserByAuthUid(uid);
 
+	// remove user settings from settings
+	const settingItem = { ...cong_settings[0] };
+
+	delete settingItem.user_local_uid;
+	delete settingItem.user_members_delegate;
+	delete settingItem.pocket_local_id;
+	delete settingItem.pocket_members;
+	delete settingItem.local_uid;
+
 	// prepare data to be stored to firestore
 	const data = {
-		cong_settings: cong_settings,
+		cong_settings: [settingItem],
 		last_backup: {
 			by: userInfo.id,
 			date: new Date(),
 		},
 	};
 
-	if (cong_serviceYear) data.cong_serviceYear = this.cong_serviceYear
-	if (cong_lateReports) data.cong_lateReports = this.cong_lateReports
-	if (cong_minutesReports) data.cong_minutesReports = this.cong_minutesReports
+	if (cong_serviceYear) data.cong_serviceYear = this.cong_serviceYear;
+	if (cong_lateReports) data.cong_lateReports = this.cong_lateReports;
+	if (cong_minutesReports) data.cong_minutesReports = this.cong_minutesReports;
 
 	if (cong_swsPocket) {
 		data.cong_swsPocket = cong_swsPocket;
 	}
 
 	await db.collection('congregations').doc(this.id).set(data, { merge: true });
+
+	// update user setting
+	const userLocalUID = cong_settings[0].user_local_uid || '';
+	const userMembersDelegate = cong_settings[0].user_members_delegate || [];
+
+	await userInfo.updateLocalUID(userLocalUID);
+	await userInfo.updateMembersDelegate(userMembersDelegate);
 
 	// prepare data to be saved to storage
 	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
@@ -945,7 +961,7 @@ Congregation.prototype.saveBackup = async function (payload) {
 
 	// update class values
 	this.cong_persons = encryptedPersons;
-	this.cong_settings = cong_settings;
+	this.cong_settings = [settingItem];
 	this.last_backup = {
 		by: userInfo.username,
 		date: data.last_backup.date,
@@ -1040,11 +1056,11 @@ Congregation.prototype.createPocketUser = async function (pocketName, pocketId) 
 		about: { name: pocketName, role: 'pocket' },
 		congregation: {
 			id: this.id,
-			local_id: pocketId,
+			local_uid: pocketId,
 			devices: [],
 			oCode: secureCode,
 			pocket_role: [],
-			pocket_members: [],
+			members_delegate: [],
 		},
 	});
 

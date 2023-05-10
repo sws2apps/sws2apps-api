@@ -221,9 +221,17 @@ export const getCongregationMembers = async (req, res, next) => {
 				const isValid = cong.isMember(uid);
 
 				if (isValid) {
+					// format members before send
+					const cong_members = cong.cong_members.map((member) => {
+						delete member.secret;
+						delete member.emailOTP;
+
+						return member;
+					});
+
 					res.locals.type = 'info';
 					res.locals.message = 'user fetched congregation members';
-					res.status(200).json(cong.cong_members);
+					res.status(200).json(cong_members);
 					return;
 				}
 
@@ -463,7 +471,7 @@ export const updateCongregationMemberDetails = async (req, res, next) => {
 							return;
 						}
 
-						const { pocket_local_id, pocket_members, user_role } = req.body;
+						const { user_local_uid, user_members_delegate, user_role } = req.body;
 
 						// validate provided role
 						let isRoleValid = true;
@@ -489,8 +497,8 @@ export const updateCongregationMemberDetails = async (req, res, next) => {
 						}
 
 						await cong.updateUserRole(user, user_role);
-						await findUser.updatePocketMembers(pocket_members);
-						await findUser.updatePocketLocalId(pocket_local_id);
+						await findUser.updateMembersDelegate(user_members_delegate);
+						await findUser.updateLocalUID(user_local_uid);
 
 						res.locals.type = 'info';
 						res.locals.message = 'member details in congregation updated';
@@ -652,9 +660,9 @@ export const createNewPocketUser = async (req, res, next) => {
 						return;
 					}
 
-					const { pocket_local_id, username } = req.body;
+					const { user_local_uid, username } = req.body;
 
-					await cong.createPocketUser(username, pocket_local_id);
+					await cong.createPocketUser(username, user_local_uid);
 
 					res.locals.type = 'info';
 					res.locals.message = 'pocket user created successfully';
@@ -714,9 +722,9 @@ export const updatePocketDetails = async (req, res, next) => {
 							return;
 						}
 
-						const { cong_role, pocket_members } = req.body;
+						const { user_role, user_members_delegate } = req.body;
 
-						await userData.updatePocketDetails({ cong_role, pocket_members });
+						await userData.updatePocketDetails({ user_role, user_members_delegate });
 
 						res.locals.type = 'info';
 						res.locals.message = 'pocket details updated';
@@ -817,7 +825,7 @@ export const updatePocketUsername = async (req, res, next) => {
 	}
 };
 
-export const updatePocketMembers = async (req, res, next) => {
+export const updateMembersDelegate = async (req, res, next) => {
 	try {
 		const { id, user } = req.params;
 		const { uid } = req.headers;
@@ -850,11 +858,11 @@ export const updatePocketMembers = async (req, res, next) => {
 						}
 
 						const { members } = req.body;
-						await userData.updatePocketMembers(members);
+						await userData.updateMembersDelegate(members);
 
 						res.locals.type = 'info';
-						res.locals.message = 'pocket members updated';
-						res.status(200).json({ pocket_members: members });
+						res.locals.message = 'user members deledate updated';
+						res.status(200).json({ user_members_delegate: members });
 						return;
 					}
 

@@ -37,11 +37,11 @@ export const createAccount = async (req, res, next) => {
 export const validateUser = async (req, res, next) => {
 	try {
 		const { uid } = req.headers;
-		const { id, cong_id, cong_name, cong_number, cong_role, pocket_local_id, pocket_members, username } =
+		const { id, cong_id, cong_name, cong_number, cong_role, user_local_uid, user_members_delegate, username } =
 			await users.findUserByAuthUid(uid);
 
 		if (cong_name.length > 0) {
-			let obj = { id, cong_id, cong_name, cong_number, cong_role, pocket_local_id, pocket_members, username };
+			let obj = { id, cong_id, cong_name, cong_number, cong_role, user_local_uid, user_members_delegate, username };
 
 			res.locals.type = 'info';
 			res.locals.message = 'visitor id has been validated';

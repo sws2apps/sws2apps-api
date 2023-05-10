@@ -71,7 +71,7 @@ Users.prototype.findUserByOTPCode = function (code) {
 };
 
 Users.prototype.findPocketUser = function (pocketId) {
-	const found = this.list.find((user) => user.pocket_local_id === pocketId);
+	const found = this.list.find((user) => user.user_local_uid === pocketId);
 	return found;
 };
 

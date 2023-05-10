@@ -12,10 +12,10 @@ export class User {
 	constructor(id) {
 		this.id = id;
 		this.user_uid = '';
-		this.pocket_local_id = '';
+		this.user_local_uid = '';
 		this.pocket_devices = [];
 		this.pocket_oCode = '';
-		this.pocket_members = [];
+		this.user_members_delegate = [];
 		this.cong_id = '';
 		this.cong_country = '';
 		this.cong_name = '';
@@ -50,8 +50,8 @@ User.prototype.loadDetails = async function () {
 	this.emailOTP = userSnap.data().about?.emailOTP || {};
 	this.cong_id = userSnap.data().congregation?.id || '';
 	this.cong_role = userSnap.data().congregation?.role || [];
-	this.pocket_local_id = userSnap.data().congregation?.local_id || null;
-	this.pocket_members = userSnap.data().congregation?.pocket_members || [];
+	this.user_local_uid = userSnap.data().congregation?.local_uid || null;
+	this.user_members_delegate = userSnap.data().congregation?.members_delegate || [];
 
 	if (this.global_role === 'pocket') {
 		this.pocket_devices = userSnap.data().congregation?.devices || [];
@@ -112,15 +112,15 @@ User.prototype.updateFullname = async function (value) {
 	}
 };
 
-User.prototype.updatePocketDetails = async function ({ cong_role, pocket_members }) {
+User.prototype.updatePocketDetails = async function ({ user_role, user_members_delegate }) {
 	try {
 		await db
 			.collection('users')
 			.doc(this.id)
-			.update({ 'congregation.pocket_members': pocket_members, 'congregation.pocket_role': cong_role });
+			.update({ 'congregation.members_delegate': user_members_delegate, 'congregation.pocket_role': user_role });
 
-		this.pocket_members = pocket_members;
-		this.cong_role = cong_role;
+		this.user_members_delegate = user_members_delegate;
+		this.cong_role = user_role;
 
 		// update cong members
 		const cong = congregations.findCongregationById(this.cong_id);
@@ -130,10 +130,10 @@ User.prototype.updatePocketDetails = async function ({ cong_role, pocket_members
 	}
 };
 
-User.prototype.updatePocketMembers = async function (members) {
+User.prototype.updateMembersDelegate = async function (members) {
 	try {
-		await db.collection('users').doc(this.id).update({ 'congregation.pocket_members': members });
-		this.pocket_members = members;
+		await db.collection('users').doc(this.id).update({ 'congregation.members_delegate': members });
+		this.user_members_delegate = members;
 
 		// update cong members
 		const cong = congregations.findCongregationById(this.cong_id);
@@ -143,15 +143,15 @@ User.prototype.updatePocketMembers = async function (members) {
 	}
 };
 
-User.prototype.updatePocketLocalId = async function (id) {
+User.prototype.updateLocalUID = async function (id) {
 	try {
 		if (id !== '') {
-			await db.collection('users').doc(this.id).update({ 'congregation.local_id': id });
+			await db.collection('users').doc(this.id).update({ 'congregation.local_uid': id });
 		} else {
-			await db.collection('users').doc(this.id).update({ 'congregation.local_id': FieldValue.delete() });
+			await db.collection('users').doc(this.id).update({ 'congregation.local_uid': FieldValue.delete() });
 		}
 
-		this.pocket_local_id = id;
+		this.user_local_uid = id;
 
 		// update cong members
 		const cong = congregations.findCongregationById(this.cong_id);
