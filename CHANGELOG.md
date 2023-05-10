@@ -1,3 +1,10 @@
+# [2.52.0](https://github.com/sws2apps/sws2apps-api/compare/v2.51.0...v2.52.0) (2023-05-10)
+
+
+### Features
+
+* **api:** update fields to store user settings ([7833142](https://github.com/sws2apps/sws2apps-api/commit/7833142ea45819c59c6b45f5ab6e5cf515e7c404))
+
 # [2.51.0](https://github.com/sws2apps/sws2apps-api/compare/v2.50.0...v2.51.0) (2023-05-10)
 
 
