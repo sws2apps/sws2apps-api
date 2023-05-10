@@ -25,7 +25,7 @@ import {
 	updateCongregationInfo,
 	updateCongregationMemberDetails,
 	updatePocketDetails,
-	updatePocketMembers,
+	updateMembersDelegate,
 	updatePocketUsername,
 } from '../controllers/congregation-controller.js';
 
@@ -108,8 +108,8 @@ router.put('/:id/members', body('user_id').isString(), addCongregationUser);
 router.patch(
 	'/:id/members/:user',
 	body('user_role').isArray(),
-	body('pocket_local_id').exists(),
-	body('pocket_members').isArray(),
+	body('user_local_uid').notEmpty().isString(),
+	body('user_members_delegate').isArray(),
 	updateCongregationMemberDetails
 );
 
@@ -117,16 +117,21 @@ router.patch(
 router.get('/:id/pockets/:user', getCongregationPockerUser);
 
 // create new pocket user
-router.put('/:id/pockets', body('pocket_local_id').exists(), body('username').notEmpty().isString(), createNewPocketUser);
+router.put(
+	'/:id/pockets',
+	body('user_local_uid').notEmpty().isString(),
+	body('username').notEmpty().isString(),
+	createNewPocketUser
+);
 
 // update pocket member
-router.patch('/:id/pockets/:user', body('cong_role').isArray(), body('pocket_members').isArray(), updatePocketDetails);
+router.patch('/:id/pockets/:user', body('user_role').isArray(), body('user_members_delegate').isArray(), updatePocketDetails);
 
 // update pocket username
 router.patch('/:id/pockets/:user/username', body('username').notEmpty(), updatePocketUsername);
 
 // update pocket members
-router.patch('/:id/pockets/:user/members', body('members').notEmpty(), updatePocketMembers);
+router.patch('/:id/pockets/:user/members', body('members').notEmpty(), updateMembersDelegate);
 
 // generate new pocket otp code
 router.get('/:id/pockets/:user/code', generatePocketOTPCode);
