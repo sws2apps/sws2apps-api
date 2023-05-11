@@ -22,7 +22,7 @@ jobs:
           persist-credentials: false
 
       - name: Deploy API to Heroku
-        uses: akhileshns/heroku-deploy@5ef17ff17a3fb8e9ad822ae6a61648a3ef9e0c3d
+        uses: akhileshns/heroku-deploy@9fd0f9faae4aa93a38d6f5e25b9128589f1371b0
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: sws2apps
