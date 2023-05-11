@@ -1,3 +1,10 @@
+## [2.52.1](https://github.com/sws2apps/sws2apps-api/compare/v2.52.0...v2.52.1) (2023-05-11)
+
+
+### Bug Fixes
+
+* **api:** block requests from old websites ([fa3a2b6](https://github.com/sws2apps/sws2apps-api/commit/fa3a2b694a1a9647a4c671b5196e14785ac54fa8))
+
 # [2.52.0](https://github.com/sws2apps/sws2apps-api/compare/v2.51.0...v2.52.0) (2023-05-10)
 
 
