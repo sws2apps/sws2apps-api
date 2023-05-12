@@ -108,7 +108,7 @@ router.put('/:id/members', body('user_id').isString(), addCongregationUser);
 router.patch(
 	'/:id/members/:user',
 	body('user_role').isArray(),
-	body('user_local_uid').notEmpty().isString(),
+	body('user_local_uid').isString(),
 	body('user_members_delegate').isArray(),
 	updateCongregationMemberDetails
 );
