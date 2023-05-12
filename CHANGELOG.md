@@ -1,3 +1,15 @@
+# [2.53.0](https://github.com/sws2apps/sws2apps-api/compare/v2.52.1...v2.53.0) (2023-05-12)
+
+
+### Bug Fixes
+
+* **congregation:** update midleware to ignore if local record is not set ([e2840b8](https://github.com/sws2apps/sws2apps-api/commit/e2840b89f514d364ab5b7464167e959a9ad210b4))
+
+
+### Features
+
+* **deps:** bump nodemailer from 6.9.1 to 6.9.2 ([2b0fa37](https://github.com/sws2apps/sws2apps-api/commit/2b0fa3730f0e6ec8fdc46963f6562e9d8a6d4312))
+
 ## [2.52.1](https://github.com/sws2apps/sws2apps-api/compare/v2.52.0...v2.52.1) (2023-05-11)
 
 
