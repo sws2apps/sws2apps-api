@@ -1,3 +1,10 @@
+## [2.53.1](https://github.com/sws2apps/sws2apps-api/compare/v2.53.0...v2.53.1) (2023-05-15)
+
+
+### Bug Fixes
+
+* **congregation:** user local uid not updated for some users ([577f085](https://github.com/sws2apps/sws2apps-api/commit/577f0853656fd8427ae6e4b8461139fd6d0620ca))
+
 # [2.53.0](https://github.com/sws2apps/sws2apps-api/compare/v2.52.1...v2.53.0) (2023-05-12)
 
 
