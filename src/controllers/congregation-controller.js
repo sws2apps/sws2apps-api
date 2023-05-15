@@ -722,9 +722,9 @@ export const updatePocketDetails = async (req, res, next) => {
 							return;
 						}
 
-						const { user_role, user_members_delegate } = req.body;
+						const { user_local_uid, user_role, user_members_delegate } = req.body;
 
-						await userData.updatePocketDetails({ user_role, user_members_delegate });
+						await userData.updatePocketDetails({ user_local_uid, user_role, user_members_delegate });
 
 						res.locals.type = 'info';
 						res.locals.message = 'pocket details updated';

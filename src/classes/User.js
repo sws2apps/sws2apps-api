@@ -112,13 +112,15 @@ User.prototype.updateFullname = async function (value) {
 	}
 };
 
-User.prototype.updatePocketDetails = async function ({ user_role, user_members_delegate }) {
+User.prototype.updatePocketDetails = async function ({ user_local_uid, user_role, user_members_delegate }) {
 	try {
-		await db
-			.collection('users')
-			.doc(this.id)
-			.update({ 'congregation.members_delegate': user_members_delegate, 'congregation.pocket_role': user_role });
+		await db.collection('users').doc(this.id).update({
+			'congregation.local_uid': user_local_uid,
+			'congregation.members_delegate': user_members_delegate,
+			'congregation.pocket_role': user_role,
+		});
 
+		this.user_local_uid = user_local_uid;
 		this.user_members_delegate = user_members_delegate;
 		this.cong_role = user_role;
 
