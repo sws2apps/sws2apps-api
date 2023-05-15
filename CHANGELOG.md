@@ -1,3 +1,10 @@
+## [2.53.2](https://github.com/sws2apps/sws2apps-api/compare/v2.53.1...v2.53.2) (2023-05-15)
+
+
+### Bug Fixes
+
+* **congregation:** override parts not saved in backup ([e18ddc7](https://github.com/sws2apps/sws2apps-api/commit/e18ddc73958bfcd6533f154db91e2c721815356f))
+
 ## [2.53.1](https://github.com/sws2apps/sws2apps-api/compare/v2.53.0...v2.53.1) (2023-05-15)
 
 
