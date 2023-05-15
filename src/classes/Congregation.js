@@ -447,7 +447,7 @@ Congregation.prototype.mergeSchedulesFromBackup = function (cong_schedule) {
 Congregation.prototype.mergeSourceMaterialsFromBackup = function (cong_sourceMaterial) {
 	const oldestWeekDate = getOldestWeekDate();
 
-	cong_sourceMaterial.forEach((newSource) => {
+	for (const newSource of cong_sourceMaterial) {
 		const weekOfDate = getWeekDate(newSource.weekOf);
 
 		if (weekOfDate >= oldestWeekDate) {
@@ -456,6 +456,7 @@ Congregation.prototype.mergeSourceMaterialsFromBackup = function (cong_sourceMat
 
 			if (!oldSource) {
 				this.cong_sourceMaterial_draft.push(newSource);
+				continue;
 			}
 
 			if (oldSource) {
@@ -483,12 +484,12 @@ Congregation.prototype.mergeSourceMaterialsFromBackup = function (cong_sourceMat
 							if (value) newSource[key] = value;
 						}
 					}
-
-					this.cong_sourceMaterial_draft.splice(oldSourceIndex, 1, newSource);
 				}
+
+				this.cong_sourceMaterial_draft.splice(oldSourceIndex, 1, newSource);
 			}
 		}
-	});
+	}
 
 	this.cong_sourceMaterial_draft = this.cong_sourceMaterial_draft.filter(
 		(source) => getWeekDate(source.weekOf) >= oldestWeekDate
