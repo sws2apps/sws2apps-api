@@ -125,7 +125,13 @@ router.put(
 );
 
 // update pocket member
-router.patch('/:id/pockets/:user', body('user_role').isArray(), body('user_members_delegate').isArray(), updatePocketDetails);
+router.patch(
+	'/:id/pockets/:user',
+	body('user_local_uid').notEmpty().isString(),
+	body('user_role').isArray(),
+	body('user_members_delegate').isArray(),
+	updatePocketDetails
+);
 
 // update pocket username
 router.patch('/:id/pockets/:user/username', body('username').notEmpty(), updatePocketUsername);
