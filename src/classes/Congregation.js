@@ -1088,8 +1088,8 @@ Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong
 	const validSchedule = currentSchedule.midweekMeeting?.filter((schedule) => schedule.expiredDate > currentDate) || [];
 	const validSource = currentSource.midweekMeeting?.filter((source) => source.expiredDate > currentDate) || [];
 
-	let newStudentsSchedule = validSchedule;
-	let newStudentsSource = validSource;
+	const newStudentsSchedule = [];
+	const newStudentsSource = [];
 
 	for (const schedule of cong_schedules) {
 		const { id, month, year, schedules, sources } = schedule;
@@ -1118,10 +1118,22 @@ Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong
 			year,
 		};
 
-		newStudentsSchedule = newStudentsSchedule.filter((schedule) => schedule.id !== objSchedule.id);
+		// remove previous schedule
+		for (const oldSchedule of validSchedule) {
+			if (oldSchedule.id === objSchedule.id) continue;
+			if (oldSchedule.month === objSchedule.month && oldSchedule.year === objSchedule.year) continue;
+
+			newStudentsSchedule.push(oldSchedule);
+		}
 		newStudentsSchedule.push(objSchedule);
 
-		newStudentsSource = newStudentsSource.filter((source) => source.id !== objSource.id);
+		// remove previous source
+		for (const oldSource of validSource) {
+			if (oldSource.id === objSource.id) continue;
+			if (oldSource.month === objSource.month && oldSource.year === objSource.year) continue;
+
+			newStudentsSource.push(oldSource);
+		}
 		newStudentsSource.push(objSource);
 	}
 
