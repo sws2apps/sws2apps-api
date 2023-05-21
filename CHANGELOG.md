@@ -1,3 +1,10 @@
+# [2.55.0](https://github.com/sws2apps/sws2apps-api/compare/v2.54.0...v2.55.0) (2023-05-21)
+
+
+### Features
+
+* **api:** check app name and version on some routes ([285d158](https://github.com/sws2apps/sws2apps-api/commit/285d15838fde264af270ec0c26c4ee03ad6e31a9))
+
 # [2.54.0](https://github.com/sws2apps/sws2apps-api/compare/v2.53.3...v2.54.0) (2023-05-21)
 
 
