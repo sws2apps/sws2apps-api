@@ -9,7 +9,7 @@ export const createAccount = async (req, res, next) => {
 		if (!errors.isEmpty()) {
 			let msg = '';
 			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 			});
 
 			res.locals.type = 'warn';
@@ -65,7 +65,7 @@ export const resendVerificationEmail = async (req, res, next) => {
 		if (!errors.isEmpty()) {
 			let msg = '';
 			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 			});
 
 			res.locals.type = 'warn';
@@ -110,7 +110,7 @@ export const updateUserFullname = async (req, res, next) => {
 			if (!errors.isEmpty()) {
 				let msg = '';
 				errors.array().forEach((error) => {
-					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+					msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 				});
 
 				res.locals.type = 'warn';
@@ -151,7 +151,7 @@ export const updateUserPassword = async (req, res, next) => {
 			if (!errors.isEmpty()) {
 				let msg = '';
 				errors.array().forEach((error) => {
-					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+					msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 				});
 
 				res.locals.type = 'warn';
@@ -237,7 +237,7 @@ export const deleteUserSession = async (req, res, next) => {
 			if (!errors.isEmpty()) {
 				let msg = '';
 				errors.array().forEach((error) => {
-					msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+					msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 				});
 
 				res.locals.type = 'warn';

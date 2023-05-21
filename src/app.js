@@ -21,6 +21,7 @@ import publicRoute from './routes/public.js';
 import { internetChecker } from './middleware/internet-checker.js';
 import { requestChecker } from './middleware/request-checker.js';
 import { updateTracker } from './middleware/update-tracker.js';
+import { appVersionChecker } from './middleware/app-version-checker.js';
 
 import { errorHandler, getAppVersion, getRoot, invalidEndpointHandler } from './controllers/app-controller.js';
 
@@ -91,17 +92,17 @@ app.use(
 	})
 );
 
+app.use('/api/public', publicRoute);
+app.get('/app-version', getAppVersion);
+app.get('/', getRoot);
+
+app.use(appVersionChecker());
 app.use('/', authRoute);
 app.use('/api/congregations', congregationRoute);
 app.use('/api/mfa', mfaRoute);
 app.use('/api/users', userRoute);
 app.use('/api/admin', adminRoute);
 app.use('/api/sws-pocket', swsPocketRoute);
-app.use('/api/public', publicRoute);
-
-app.get('/app-version', getAppVersion);
-
-app.get('/', getRoot);
 
 // Handling invalid routes
 app.use(invalidEndpointHandler);
