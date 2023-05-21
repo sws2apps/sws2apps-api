@@ -97,10 +97,13 @@ export const getSchedule = async (req, res, next) => {
 		res.status(200).json({
 			cong_sourceMaterial,
 			cong_schedule,
-			class_count: cong_settings[0]?.class_count || 1,
-			source_lang: cong_settings[0]?.source_lang || 'e',
-			co_name: cong_settings[0]?.co_name || '',
-			co_displayName: cong_settings[0]?.co_displayName || '',
+			cong_settings: {
+				class_count: cong_settings[0]?.class_count || 1,
+				source_lang: cong_settings[0]?.source_lang || 'e',
+				co_name: cong_settings[0]?.co_name || '',
+				co_displayName: cong_settings[0]?.co_displayName || '',
+				opening_prayer_autoAssign: cong_settings[0]?.opening_prayer_autoAssign || false,
+			},
 		});
 	} catch (err) {
 		next(err);
