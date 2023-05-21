@@ -15,7 +15,7 @@ export const loginUser = async (req, res, next) => {
 		if (!errors.isEmpty()) {
 			let msg = '';
 			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 			});
 
 			res.locals.type = 'warn';
@@ -122,7 +122,7 @@ export const createSignInLink = async (req, res, next) => {
 		if (!errors.isEmpty()) {
 			let msg = '';
 			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 			});
 
 			res.locals.type = 'warn';
@@ -156,7 +156,7 @@ export const verifyPasswordlessInfo = async (req, res, next) => {
 		if (!errors.isEmpty()) {
 			let msg = '';
 			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 			});
 
 			res.locals.type = 'warn';
@@ -262,7 +262,7 @@ export const createUserTempOTPCode = async (req, res, next) => {
 		if (!errors.isEmpty()) {
 			let msg = '';
 			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 			});
 
 			res.locals.type = 'warn';
@@ -304,7 +304,7 @@ export const verifyUserTempOTPCode = async (req, res, next) => {
 		if (!errors.isEmpty()) {
 			let msg = '';
 			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 			});
 
 			res.locals.type = 'warn';

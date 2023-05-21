@@ -60,7 +60,7 @@ export const saveCongregationBackup = async (req, res, next) => {
 				if (!errors.isEmpty()) {
 					let msg = '';
 					errors.array().forEach((error) => {
-						msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+						msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 					});
 
 					res.locals.type = 'warn';
@@ -388,7 +388,7 @@ export const addCongregationUser = async (req, res, next) => {
 					if (!errors.isEmpty()) {
 						let msg = '';
 						errors.array().forEach((error) => {
-							msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+							msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 						});
 
 						res.locals.type = 'warn';
@@ -458,7 +458,7 @@ export const updateCongregationMemberDetails = async (req, res, next) => {
 						if (!errors.isEmpty()) {
 							let msg = '';
 							errors.array().forEach((error) => {
-								msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+								msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 							});
 
 							res.locals.type = 'warn';
@@ -647,7 +647,7 @@ export const createNewPocketUser = async (req, res, next) => {
 					if (!errors.isEmpty()) {
 						let msg = '';
 						errors.array().forEach((error) => {
-							msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+							msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 						});
 
 						res.locals.type = 'warn';
@@ -709,7 +709,7 @@ export const updatePocketDetails = async (req, res, next) => {
 						if (!errors.isEmpty()) {
 							let msg = '';
 							errors.array().forEach((error) => {
-								msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+								msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 							});
 
 							res.locals.type = 'warn';
@@ -777,7 +777,7 @@ export const updatePocketUsername = async (req, res, next) => {
 						if (!errors.isEmpty()) {
 							let msg = '';
 							errors.array().forEach((error) => {
-								msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+								msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 							});
 
 							res.locals.type = 'warn';
@@ -844,7 +844,7 @@ export const updateMembersDelegate = async (req, res, next) => {
 						if (!errors.isEmpty()) {
 							let msg = '';
 							errors.array().forEach((error) => {
-								msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+								msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 							});
 
 							res.locals.type = 'warn';
@@ -950,7 +950,7 @@ export const deletePocketOTPCode = async (req, res, next) => {
 		if (!errors.isEmpty()) {
 			let msg = '';
 			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 			});
 
 			res.locals.type = 'warn';
@@ -1027,7 +1027,7 @@ export const deletePocketDevice = async (req, res, next) => {
 		if (!errors.isEmpty()) {
 			let msg = '';
 			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 			});
 
 			res.locals.type = 'warn';
@@ -1117,7 +1117,7 @@ export const sendPocketSchedule = async (req, res, next) => {
 					if (!errors.isEmpty()) {
 						let msg = '';
 						errors.array().forEach((error) => {
-							msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+							msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 						});
 
 						res.locals.type = 'warn';
@@ -1176,7 +1176,7 @@ export const getMeetingSchedules = async (req, res, next) => {
 					if (!errors.isEmpty()) {
 						let msg = '';
 						errors.array().forEach((error) => {
-							msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+							msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 						});
 
 						res.locals.type = 'warn';
@@ -1235,7 +1235,7 @@ export const getCountries = async (req, res, next) => {
 		if (!errors.isEmpty()) {
 			let msg = '';
 			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 			});
 
 			res.locals.type = 'warn';
@@ -1294,7 +1294,7 @@ export const getCongregations = async (req, res, next) => {
 		if (!errors.isEmpty()) {
 			let msg = '';
 			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 			});
 
 			res.locals.type = 'warn';
@@ -1357,7 +1357,7 @@ export const createCongregation = async (req, res, next) => {
 		if (!errors.isEmpty()) {
 			let msg = '';
 			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 			});
 
 			res.locals.type = 'warn';
@@ -1419,7 +1419,7 @@ export const updateCongregationInfo = async (req, res, next) => {
 		if (!errors.isEmpty()) {
 			let msg = '';
 			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.param}: ${error.msg}`;
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
 			});
 
 			res.locals.type = 'warn';
