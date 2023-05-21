@@ -1,3 +1,12 @@
+# [2.54.0](https://github.com/sws2apps/sws2apps-api/compare/v2.53.3...v2.54.0) (2023-05-21)
+
+
+### Features
+
+* **controllers:** include opening prayer autoassign setting when fetching schedules ([f32b4de](https://github.com/sws2apps/sws2apps-api/commit/f32b4de61559af271f050279363282bf80c5dc26))
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([f26d966](https://github.com/sws2apps/sws2apps-api/commit/f26d966f84e00b7d1b2403c82e89ea6fdadfa6cf))
+* **deps:** bump i18next from 22.4.15 to 22.5.0 ([7c7854b](https://github.com/sws2apps/sws2apps-api/commit/7c7854b054c2bc9b2f15f1639b12cb1aedc31281))
+
 ## [2.53.3](https://github.com/sws2apps/sws2apps-api/compare/v2.53.2...v2.53.3) (2023-05-16)
 
 
