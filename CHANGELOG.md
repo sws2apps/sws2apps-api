@@ -1,3 +1,10 @@
+## [2.55.1](https://github.com/sws2apps/sws2apps-api/compare/v2.55.0...v2.55.1) (2023-05-25)
+
+
+### Bug Fixes
+
+* **middleware:** change minimun cpe version ([62f15cb](https://github.com/sws2apps/sws2apps-api/commit/62f15cb854bf72ccb2d8445385ee201a2178c333))
+
 # [2.55.0](https://github.com/sws2apps/sws2apps-api/compare/v2.54.0...v2.55.0) (2023-05-21)
 
 
