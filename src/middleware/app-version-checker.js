@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { check, validationResult } from 'express-validator';
 
 export const appVersionChecker = () => {
@@ -31,11 +30,7 @@ export const appVersionChecker = () => {
 				return;
 			}
 
-			const resGist = await fetch('https://api.github.com/gists/fb4930b45152ebe196ef64718a80820f');
-			const data = await resGist.json();
-			const apiReq = JSON.parse(data.files['sws2apps_api.json'].content);
-
-			const cpeMinimum = apiReq.find((record) => record.client === 'cpe').version;
+			const cpeMinimum = '2.78.0';
 
 			if (appVersion >= cpeMinimum) {
 				next();
