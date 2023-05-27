@@ -1,3 +1,10 @@
+## [2.56.1](https://github.com/sws2apps/sws2apps-api/compare/v2.56.0...v2.56.1) (2023-05-27)
+
+
+### Bug Fixes
+
+* **congregation:** remove previous data when sending pocket schedules ([4f28b92](https://github.com/sws2apps/sws2apps-api/commit/4f28b92a9bdecb001c40e75ba5bda64e55d73ac8))
+
 # [2.56.0](https://github.com/sws2apps/sws2apps-api/compare/v2.55.1...v2.56.0) (2023-05-27)
 
 
