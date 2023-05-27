@@ -1088,8 +1088,8 @@ Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong
 	const validSchedule = currentSchedule.midweekMeeting?.filter((schedule) => schedule.expiredDate > currentDate) || [];
 	const validSource = currentSource.midweekMeeting?.filter((source) => source.expiredDate > currentDate) || [];
 
-	const newStudentsSchedule = [];
-	const newStudentsSource = [];
+	let newStudentsSchedule = structuredClone(validSchedule);
+	let newStudentsSource = structuredClone(validSource);
 
 	for (const schedule of cong_schedules) {
 		const { id, month, year, schedules, sources } = schedule;
@@ -1107,33 +1107,46 @@ Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong
 			schedules,
 			year,
 		};
+
 		const objSource = {
 			expiredDate: expiredTime,
-
 			id,
 			modifiedDate: new Date().getTime(),
 			month,
-
 			sources,
 			year,
 		};
 
 		// remove previous schedule
-		for (const oldSchedule of validSchedule) {
-			if (oldSchedule.id === objSchedule.id) continue;
-			if (oldSchedule.month === objSchedule.month && oldSchedule.year === objSchedule.year) continue;
+		newStudentsSchedule = newStudentsSchedule.filter((record) => record.id !== objSchedule.id);
 
-			newStudentsSchedule.push(oldSchedule);
+		let tmpSchedulesDel = newStudentsSchedule.filter(
+			(record) => record.month === objSchedule.month && record.year === objSchedule.year
+		);
+
+		tmpSchedulesDel = tmpSchedulesDel.map((record) => {
+			return record.id;
+		});
+
+		for (const toDel of tmpSchedulesDel) {
+			newStudentsSchedule = newStudentsSchedule.filter((record) => record.id !== toDel);
 		}
+
 		newStudentsSchedule.push(objSchedule);
 
-		// remove previous source
-		for (const oldSource of validSource) {
-			if (oldSource.id === objSource.id) continue;
-			if (oldSource.month === objSource.month && oldSource.year === objSource.year) continue;
+		// clean old source
+		newStudentsSource = newStudentsSource.filter((record) => record.id !== objSource.id);
 
-			newStudentsSource.push(oldSource);
+		let tmpSourcesDel = newStudentsSource.filter((record) => record.month === objSource.month && record.year === objSource.year);
+
+		tmpSourcesDel = tmpSourcesDel.map((record) => {
+			return record.id;
+		});
+
+		for (const toDel of tmpSourcesDel) {
+			newStudentsSource = newStudentsSource.filter((record) => record.id !== toDel);
 		}
+
 		newStudentsSource.push(objSource);
 	}
 
