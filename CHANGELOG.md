@@ -1,3 +1,15 @@
+# [2.56.0](https://github.com/sws2apps/sws2apps-api/compare/v2.55.1...v2.56.0) (2023-05-27)
+
+
+### Bug Fixes
+
+* **routes:** allow user local uid to be null on update ([8f58321](https://github.com/sws2apps/sws2apps-api/commit/8f583217b3c31e3adb456335d451a5c97c71703e))
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.22.1 to 1.22.2 ([d2d3b29](https://github.com/sws2apps/sws2apps-api/commit/d2d3b2995f357d2eeb3a959d380968e085da08ef))
+
 ## [2.55.1](https://github.com/sws2apps/sws2apps-api/compare/v2.55.0...v2.55.1) (2023-05-25)
 
 
