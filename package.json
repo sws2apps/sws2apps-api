@@ -41,7 +41,7 @@
 		"helmet": "^7.0.0",
 		"i18next": "^22.5.0",
 		"is-online": "^10.0.0",
-		"jsdom": "^22.0.0",
+		"jsdom": "^22.1.0",
 		"jw-epub-parser": "^1.39.0",
 		"node-2fa": "^2.0.3",
 		"node-fetch": "^3.3.1",
