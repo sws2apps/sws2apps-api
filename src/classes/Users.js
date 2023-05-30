@@ -44,6 +44,11 @@ Users.prototype.findUserById = function (id) {
 	return found;
 };
 
+Users.prototype.findUserByLocalUid = function (uid) {
+	const found = this.list.find((user) => user.user_local_uid === uid);
+	return found;
+};
+
 Users.prototype.findUserByAuthUid = function (uid) {
 	const found = this.list.find((user) => user.auth_uid === uid);
 	return found;

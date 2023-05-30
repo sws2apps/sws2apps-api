@@ -1,10 +1,15 @@
+import { mkdir, rm } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { getAuth } from 'firebase-admin/auth';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import * as OTPAuth from 'otpauth';
+import dayjs from 'dayjs';
 import randomstring from 'randomstring';
 import { decryptData, encryptData } from '../utils/encryption-utils.js';
 import { sendEmailOTPCode, sendUserResetPassword, sendVerificationEmail } from '../utils/sendEmail.js';
 import { congregations } from './Congregations.js';
+import { getFileFromStorage } from '../utils/storage-utils.js';
+import { uploadFileToStorage } from '../utils/storage-utils.js';
 
 const db = getFirestore(); //get default database
 
@@ -33,6 +38,9 @@ export class User {
 		this.auth_provider = '';
 		this.isTest = false;
 		this.emailOTP = {};
+		this.bibleStudies = [];
+		this.fieldServiceReports = [];
+		this.last_backup = undefined;
 	}
 }
 
@@ -52,6 +60,13 @@ User.prototype.loadDetails = async function () {
 	this.cong_role = userSnap.data().congregation?.role || [];
 	this.user_local_uid = userSnap.data().congregation?.local_uid || null;
 	this.user_members_delegate = userSnap.data().congregation?.members_delegate || [];
+
+	let tmpDate = userSnap.data().congregation?.last_backup || undefined;
+	if (tmpDate) {
+		tmpDate = dayjs.unix(tmpDate._seconds).$d;
+	}
+
+	this.last_backup = tmpDate;
 
 	if (this.global_role === 'pocket') {
 		this.pocket_devices = userSnap.data().congregation?.devices || [];
@@ -90,6 +105,15 @@ User.prototype.loadDetails = async function () {
 		this.cong_name = docSnap.data().cong_name || '';
 		this.cong_number = docSnap.data().cong_number || '';
 		this.cong_country = docSnap.data().country_code || '';
+
+		if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
+		if (!existsSync(`./cong_backup/${this.cong_id}`)) await mkdir(`./cong_backup/${this.cong_id}`);
+		if (!existsSync(`./cong_backup/${this.cong_id}/usersData`)) await mkdir(`./cong_backup/${this.cong_id}/usersData`);
+		if (!existsSync(`./cong_backup/${this.cong_id}/usersData/${this.user_local_uid}`))
+			await mkdir(`./cong_backup/${this.cong_id}/usersData/${this.user_local_uid}`);
+
+		this.bibleStudies = await getFileFromStorage(this.cong_id, `usersData/${this.user_local_uid}/bibleStudies.txt`);
+		this.fieldServiceReports = await getFileFromStorage(this.cong_id, `usersData/${this.user_local_uid}/fieldServiceReports.txt`);
 	}
 
 	return this;
@@ -507,4 +531,233 @@ User.prototype.verifyTempOTPCode = async function (code) {
 	}
 
 	return false;
+};
+
+User.prototype.saveBibleStudiesBackup = async function (user_bibleStudies) {
+	if (user_bibleStudies) {
+		// check if there are deleted records from backup
+		const deletedRecords = user_bibleStudies.filter((record) => record.isDeleted === true);
+
+		const newRecords = [];
+
+		// clean existing records to remove deleted
+		for (const record of this.bibleStudies) {
+			const isDeleted = deletedRecords.find((item) => item.uid === record.uid);
+
+			// skip deleted
+			if (isDeleted) continue;
+
+			newRecords.push(record);
+		}
+
+		// append from backup
+		for (const record of user_bibleStudies) {
+			const oldRecord = newRecords.find((item) => item.uid === record.uid);
+
+			// add new record and continue loop
+			if (!oldRecord) {
+				newRecords.push(record);
+				continue;
+			}
+
+			// update existing
+			if (oldRecord) {
+				const newChanges = record.changes || [];
+				const oldChanges = oldRecord.changes || [];
+
+				for (const change of newChanges) {
+					const oldChange = oldChanges.find((item) => item.field === change.field);
+
+					if (!oldChange) {
+						oldRecord[change.field] = change.value;
+						if (!oldRecord.changes) oldRecord.changes = [];
+						oldRecord.changes.push(change);
+					}
+
+					if (oldChange) {
+						const oldDate = new Date(oldChange.date);
+						const newDate = new Date(change.date);
+
+						if (newDate > oldDate) {
+							oldRecord[change.field] = change.value;
+							oldRecord.changes = oldRecord.changes.filter((item) => item.field !== change.field);
+							oldRecord.changes.push(change);
+						}
+					}
+				}
+			}
+		}
+
+		this.bibleStudies = newRecords;
+	}
+};
+
+User.prototype.saveFieldServiceReportsBackup = async function (user_fieldServiceReports) {
+	if (user_fieldServiceReports) {
+		// check if there are deleted records from backup
+		const deletedRecords = user_fieldServiceReports.filter((record) => record.isDeleted === true);
+
+		const newRecords = [];
+
+		// clean existing records to remove deleted
+		for (const record of this.fieldServiceReports) {
+			const isDeleted = deletedRecords.find((item) => item.report_uid === record.report_uid);
+
+			// skip deleted
+			if (isDeleted) continue;
+
+			newRecords.push(record);
+		}
+
+		// append from backup
+		for (const record of user_fieldServiceReports) {
+			const oldRecord = newRecords.find((item) => item.report_uid === record.report_uid);
+
+			// add new record and continue loop
+			if (!oldRecord) {
+				newRecords.push(record);
+				continue;
+			}
+
+			// update existing
+			if (oldRecord) {
+				const newChanges = record.changes || [];
+				const oldChanges = oldRecord.changes || [];
+
+				for (const change of newChanges) {
+					// update S4 and S21 records
+					if (record.isS4 || record.isS21) {
+						const oldDate = oldChanges[0] ? new Date(oldChanges[0].date) : undefined;
+						const newDate = new Date(change.date);
+
+						let isUpdate = false;
+
+						if (!oldDate) isUpdate = true;
+						if (oldDate && oldDate < newDate) isUpdate = true;
+
+						if (isUpdate) {
+							oldRecord.changes = [];
+							oldRecord.changes.push(change);
+
+							for (const [key, value] of Object.entries(record)) {
+								if (key !== 'changes') oldRecord[key] = value;
+							}
+						}
+					}
+
+					// update daily records
+					if (!record.isS4 && !record.isS21) {
+						const oldChange = oldChanges.find((item) => item.field === change.field);
+
+						if (!oldChange) {
+							oldRecord[change.field] = change.value;
+							if (!oldRecord.changes) oldRecord.changes = [];
+							oldRecord.changes.push(change);
+						}
+
+						if (oldChange) {
+							const oldDate = new Date(oldChange.date);
+							const newDate = new Date(change.date);
+
+							if (newDate > oldDate) {
+								oldRecord[change.field] = change.value;
+								oldRecord.changes = oldRecord.changes.filter((item) => item.field !== change.field);
+								oldRecord.changes.push(change);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		this.fieldServiceReports = newRecords;
+	}
+};
+
+User.prototype.saveBackup = async function (payload) {
+	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
+	if (!existsSync(`./cong_backup/${this.cong_id}`)) await mkdir(`./cong_backup/${this.cong_id}`);
+	if (!existsSync(`./cong_backup/${this.cong_id}/usersData`)) await mkdir(`./cong_backup/${this.cong_id}/usersData`);
+	if (!existsSync(`./cong_backup/${this.cong_id}/usersData/${this.user_local_uid}`))
+		await mkdir(`./cong_backup/${this.cong_id}/usersData/${this.user_local_uid}`);
+
+	const user_bibleStudies = payload.user_bibleStudies;
+	const user_fieldServiceReports = payload.user_fieldServiceReports;
+
+	await this.saveBibleStudiesBackup(user_bibleStudies);
+	await this.saveFieldServiceReportsBackup(user_fieldServiceReports);
+
+	await uploadFileToStorage(this.cong_id, JSON.stringify(this.bibleStudies), 'bibleStudies.txt', this.user_local_uid);
+
+	await uploadFileToStorage(
+		this.cong_id,
+		JSON.stringify(this.fieldServiceReports),
+		'fieldServiceReports.txt',
+		this.user_local_uid
+	);
+
+	await rm(`./cong_backup/${this.cong_id}`, { recursive: true, force: true });
+
+	const lastBackup = new Date();
+
+	await db.collection('users').doc(this.id).update({ 'congregation.last_backup': lastBackup });
+
+	this.last_backup = lastBackup;
+};
+
+User.prototype.retrieveBackup = function () {
+	return {
+		user_bibleStudies: this.bibleStudies,
+		user_fieldServiceReports: this.fieldServiceReports,
+	};
+};
+
+User.prototype.quickSaveFieldServiceReports = async function () {
+	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
+	if (!existsSync(`./cong_backup/${this.cong_id}`)) await mkdir(`./cong_backup/${this.cong_id}`);
+	if (!existsSync(`./cong_backup/${this.cong_id}/usersData`)) await mkdir(`./cong_backup/${this.cong_id}/usersData`);
+	if (!existsSync(`./cong_backup/${this.cong_id}/usersData/${this.user_local_uid}`))
+		await mkdir(`./cong_backup/${this.cong_id}/usersData/${this.user_local_uid}`);
+
+	await uploadFileToStorage(
+		this.cong_id,
+		JSON.stringify(this.fieldServiceReports),
+		'fieldServiceReports.txt',
+		this.user_local_uid
+	);
+
+	await rm(`./cong_backup/${this.cong_id}`, { recursive: true, force: true });
+};
+
+User.prototype.updatePendingFieldServiceReports = async function (report) {
+	this.fieldServiceReports = this.fieldServiceReports.filter((record) => record.report_uid !== report.report_uid);
+	this.fieldServiceReports.push(report);
+
+	await this.quickSaveFieldServiceReports();
+};
+
+User.prototype.unpostFieldServiceReports = async function (month) {
+	const currentS4 = this.fieldServiceReports.find((oldReport) => oldReport.isS4 && oldReport.month === month);
+	currentS4.isSubmitted = false;
+
+	await this.quickSaveFieldServiceReports();
+};
+
+User.prototype.approveFieldServiceReports = async function (month) {
+	const currentS4 = this.fieldServiceReports.find((oldReport) => oldReport.isS4 && oldReport.month === month);
+	currentS4.changes = [];
+	currentS4.changes.push({ date: new Date() });
+	currentS4.isPending = false;
+
+	await this.quickSaveFieldServiceReports();
+};
+
+User.prototype.disapproveFieldServiceReports = async function (month) {
+	const currentS4 = this.fieldServiceReports.find((oldReport) => oldReport.isS4 && oldReport.month === month);
+	currentS4.changes = [];
+	currentS4.changes.push({ date: new Date() });
+	currentS4.isPending = true;
+	currentS4.isSubmitted = false;
+
+	await this.quickSaveFieldServiceReports();
 };
