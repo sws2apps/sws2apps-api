@@ -64,7 +64,7 @@ export const getUserReportsAll = async (cong_id) => {
 
 		return reportFiles;
 	} catch (err) {
-		console.error(err);
+		console.error(err.message);
 	}
 };
 
