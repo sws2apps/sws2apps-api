@@ -45,7 +45,7 @@
 		"jw-epub-parser": "^1.40.0",
 		"node-2fa": "^2.0.3",
 		"node-fetch": "^3.3.1",
-		"nodemailer": "^6.9.2",
+		"nodemailer": "^6.9.3",
 		"nodemailer-express-handlebars": "^6.1.0",
 		"otpauth": "^9.1.2",
 		"randomstring": "^1.2.3",
