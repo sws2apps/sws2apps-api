@@ -9,39 +9,56 @@ export const getLastCongregationBackup = async (req, res, next) => {
 		const { id } = req.params;
 		const { uid } = req.headers;
 
-		if (id) {
-			const cong = congregations.findCongregationById(id);
-			if (cong) {
-				const isValid = cong.isMember(uid);
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation request id params is undefined';
+			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+			return;
+		}
 
-				if (isValid) {
-					if (cong.last_backup) {
-						res.locals.type = 'info';
-						res.locals.message = 'user get the latest backup info for the congregation';
-						res.status(200).json(cong.last_backup);
-					} else {
-						res.locals.type = 'info';
-						res.locals.message = 'no backup has been made yet for the congregation';
-						res.status(200).json({ message: 'NO_BACKUP' });
-					}
-					return;
-				}
+		const cong = congregations.findCongregationById(id);
 
-				res.locals.type = 'warn';
-				res.locals.message = 'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
-
+		if (!cong) {
 			res.locals.type = 'warn';
 			res.locals.message = 'no congregation could not be found with the provided id';
 			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
 			return;
 		}
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
+		const isValid = cong.isMember(uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const user = users.findUserByAuthUid(uid);
+
+		const isPublisher = cong.isPublisher(user.user_local_uid);
+		const isMS = cong.isMS(user.user_local_uid);
+		const isElder = cong.isElder(user.user_local_uid);
+
+		const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
+		const secretaryRole = user.cong_role.includes('secretary');
+		const publisherRole = isPublisher || isMS || isElder;
+
+		if (!lmmoRole && !secretaryRole && !publisherRole) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to get congregation backup info';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const obj = { user_last_backup: user.last_backup ? { date: user.last_backup } : 'NO_BACKUP' };
+		if (lmmoRole || secretaryRole) {
+			obj.cong_last_backup = cong.last_backup ? cong.last_backup : 'NO_BACKUP';
+		}
+
+		res.locals.type = 'info';
+		res.locals.message = 'user get the latest backup info for the congregation';
+		res.status(200).json(obj);
 	} catch (err) {
 		next(err);
 	}
@@ -52,93 +69,92 @@ export const saveCongregationBackup = async (req, res, next) => {
 		const { id } = req.params;
 		const { uid } = req.headers;
 
-		if (id) {
-			const cong = congregations.findCongregationById(id);
-			if (cong) {
-				const errors = validationResult(req);
-
-				if (!errors.isEmpty()) {
-					let msg = '';
-					errors.array().forEach((error) => {
-						msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
-					});
-
-					res.locals.type = 'warn';
-					res.locals.message = `invalid input: ${msg}`;
-
-					res.status(400).json({
-						message: 'Bad request: provided inputs are invalid.',
-					});
-
-					return;
-				}
-
-				const isValid = cong.isMember(uid);
-
-				if (isValid) {
-					const user = users.findUserByAuthUid(uid);
-					const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
-					const secretaryRole = user.cong_role.includes('secretary');
-
-					if (lmmoRole || secretaryRole) {
-						if (secretaryRole) {
-							const cong_serviceYear = req.body.cong_serviceYear;
-							const isServiceYearValid = cong.isServiceYearValid(cong_serviceYear);
-
-							if (!isServiceYearValid) {
-								res.locals.type = 'warn';
-								res.locals.message = 'backup aborted because of service years discrepancies';
-								res.status(400).json({ message: 'BACKUP_DISCREPANCY' });
-
-								return;
-							}
-						}
-
-						const payload = req.body;
-
-						await cong.saveBackup({
-							cong_persons: payload.cong_persons,
-							cong_deleted: payload.cong_deleted,
-							cong_schedule: payload.cong_schedule,
-							cong_sourceMaterial: payload.cong_sourceMaterial,
-							cong_swsPocket: payload.cong_swsPocket,
-							cong_settings: payload.cong_settings,
-							cong_branchReports: payload.cong_branchReports,
-							cong_fieldServiceGroup: payload.cong_fieldServiceGroup,
-							cong_fieldServiceReports: payload.cong_fieldServiceReports,
-							cong_lateReports: payload.cong_lateReports,
-							cong_meetingAttendance: payload.cong_meetingAttendance,
-							cong_minutesReports: payload.cong_minutesReports,
-							cong_serviceYear: payload.cong_serviceYear,
-							uid,
-						});
-
-						res.locals.type = 'info';
-						res.locals.message = 'user send backup for congregation successfully';
-						res.status(200).json({ message: 'BACKUP_SENT' });
-
-						return;
-					}
-
-					res.locals.type = 'warn';
-					res.locals.message = 'user not authorized to send congregation backup';
-					res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-					return;
-				}
-
-				res.locals.type = 'warn';
-				res.locals.message = 'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			} else {
-				res.locals.type = 'warn';
-				res.locals.message = 'no congregation could not be found with the provided id';
-				res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			}
-		} else {
+		if (!id) {
 			res.locals.type = 'warn';
 			res.locals.message = 'the congregation request id params is undefined';
 			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+			return;
 		}
+
+		const cong = congregations.findCongregationById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = cong.isMember(uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const user = users.findUserByAuthUid(uid);
+
+		const isPublisher = cong.isPublisher(user.user_local_uid);
+		const isMS = cong.isMS(user.user_local_uid);
+		const isElder = cong.isElder(user.user_local_uid);
+
+		const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
+		const secretaryRole = user.cong_role.includes('secretary');
+		const publisherRole = isPublisher || isMS || isElder;
+
+		if (!lmmoRole && !secretaryRole && !publisherRole) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to send congregation backup';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		if (secretaryRole) {
+			const cong_serviceYear = req.body.cong_serviceYear;
+			const isServiceYearValid = cong.isServiceYearValid(cong_serviceYear);
+
+			if (!isServiceYearValid) {
+				res.locals.type = 'warn';
+				res.locals.message = 'backup aborted because of service years discrepancies';
+				res.status(400).json({ message: 'BACKUP_DISCREPANCY' });
+
+				return;
+			}
+		}
+
+		const payload = req.body;
+
+		if (lmmoRole || secretaryRole) {
+			await cong.saveBackup({
+				cong_persons: payload.cong_persons,
+				cong_deleted: payload.cong_deleted,
+				cong_schedule: payload.cong_schedule,
+				cong_sourceMaterial: payload.cong_sourceMaterial,
+				cong_swsPocket: payload.cong_swsPocket,
+				cong_settings: payload.cong_settings,
+				cong_branchReports: payload.cong_branchReports,
+				cong_fieldServiceGroup: payload.cong_fieldServiceGroup,
+				cong_fieldServiceReports: payload.cong_fieldServiceReports,
+				cong_lateReports: payload.cong_lateReports,
+				cong_meetingAttendance: payload.cong_meetingAttendance,
+				cong_minutesReports: payload.cong_minutesReports,
+				cong_serviceYear: payload.cong_serviceYear,
+				uid,
+			});
+		}
+
+		if (publisherRole) {
+			await user.saveBackup({
+				user_bibleStudies: payload.user_bibleStudies,
+				user_fieldServiceReports: payload.user_fieldServiceReports,
+			});
+		}
+
+		res.locals.type = 'info';
+		res.locals.message = 'user send backup for congregation successfully';
+		res.status(200).json({ message: 'BACKUP_SENT' });
 	} catch (err) {
 		next(err);
 	}
@@ -149,61 +165,81 @@ export const getCongregationBackup = async (req, res, next) => {
 		const { id } = req.params;
 		const { uid } = req.headers;
 
-		if (id) {
-			const cong = await congregations.findCongregationById(id);
-			if (cong) {
-				const isValid = await cong.isMember(uid);
-
-				if (isValid) {
-					const user = users.findUserByAuthUid(uid);
-					const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
-					const secretaryRole = user.cong_role.includes('secretary');
-
-					if (lmmoRole || secretaryRole) {
-						const backupData = cong.retrieveBackup();
-						const obj = { cong_persons: backupData.cong_persons, cong_settings: backupData.cong_settings };
-
-						if (lmmoRole) {
-							obj.cong_schedule = backupData.cong_schedule;
-							obj.cong_sourceMaterial = backupData.cong_sourceMaterial;
-							obj.cong_swsPocket = backupData.cong_swsPocket;
-						}
-
-						if (secretaryRole) {
-							obj.cong_branchReports = backupData.cong_branchReports;
-							obj.cong_fieldServiceGroup = backupData.cong_fieldServiceGroup;
-							obj.cong_fieldServiceReports = backupData.cong_fieldServiceReports;
-							obj.cong_lateReports = backupData.cong_lateReports;
-							obj.cong_meetingAttendance = backupData.cong_meetingAttendance;
-							obj.cong_minutesReports = backupData.cong_minutesReports;
-							obj.cong_serviceYear = backupData.cong_serviceYear;
-						}
-
-						res.locals.type = 'info';
-						res.locals.message = 'user retrieve backup for congregation successfully';
-						res.status(200).json(obj);
-						return;
-					}
-
-					res.locals.type = 'warn';
-					res.locals.message = 'user not authorized to access the congregation backup';
-					res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-					return;
-				}
-
-				res.locals.type = 'warn';
-				res.locals.message = 'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			} else {
-				res.locals.type = 'warn';
-				res.locals.message = 'no congregation could not be found with the provided id';
-				res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			}
-		} else {
+		if (!id) {
 			res.locals.type = 'warn';
 			res.locals.message = 'the congregation request id params is undefined';
 			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+			return;
 		}
+
+		const cong = await congregations.findCongregationById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = await cong.isMember(uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const user = users.findUserByAuthUid(uid);
+		const isPublisher = cong.isPublisher(user.user_local_uid);
+		const isMS = cong.isMS(user.user_local_uid);
+		const isElder = cong.isElder(user.user_local_uid);
+
+		const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
+		const secretaryRole = user.cong_role.includes('secretary');
+		const publisherRole = isPublisher || isMS || isElder;
+
+		if (!lmmoRole && !secretaryRole && !publisherRole) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the congregation backup';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const obj = {};
+
+		if (lmmoRole || secretaryRole) {
+			const backupData = cong.retrieveBackup();
+
+			obj.cong_persons = backupData.cong_persons;
+			obj.cong_settings = backupData.cong_settings;
+
+			if (lmmoRole) {
+				obj.cong_schedule = backupData.cong_schedule;
+				obj.cong_sourceMaterial = backupData.cong_sourceMaterial;
+				obj.cong_swsPocket = backupData.cong_swsPocket;
+			}
+
+			if (secretaryRole) {
+				obj.cong_branchReports = backupData.cong_branchReports;
+				obj.cong_fieldServiceGroup = backupData.cong_fieldServiceGroup;
+				obj.cong_fieldServiceReports = backupData.cong_fieldServiceReports;
+				obj.cong_lateReports = backupData.cong_lateReports;
+				obj.cong_meetingAttendance = backupData.cong_meetingAttendance;
+				obj.cong_minutesReports = backupData.cong_minutesReports;
+				obj.cong_serviceYear = backupData.cong_serviceYear;
+			}
+		}
+
+		if (publisherRole) {
+			const backupData = user.retrieveBackup();
+			obj.user_bibleStudies = backupData.user_bibleStudies;
+			obj.user_fieldServiceReports = backupData.user_fieldServiceReports;
+		}
+
+		res.locals.type = 'info';
+		res.locals.message = 'user retrieve backup for congregation successfully';
+		res.status(200).json(obj);
 	} catch (err) {
 		next(err);
 	}
@@ -1470,6 +1506,322 @@ export const updateCongregationInfo = async (req, res, next) => {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const postUserFieldServiceReports = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const { uid } = req.headers;
+
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation request id params is undefined';
+			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+			return;
+		}
+
+		const cong = await congregations.findCongregationById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = await cong.isMember(uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const user = users.findUserByAuthUid(uid);
+
+		const isPublisher = cong.isPublisher(user.user_local_uid);
+		const isMS = cong.isMS(user.user_local_uid);
+		const isElder = cong.isElder(user.user_local_uid);
+
+		const publisherRole = isPublisher || isMS || isElder;
+
+		if (!publisherRole) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to post field service reports';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const report = req.body;
+		await user.updatePendingFieldServiceReports(report);
+
+		const data = { user_local_uid: user.user_local_uid, ...report };
+		cong.updatePendingFieldServiceReports(data);
+
+		res.locals.type = 'info';
+		res.locals.message = 'user posted field service reports';
+		res.status(200).json({ message: 'OK' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const unpostUserFieldServiceReports = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const { uid } = req.headers;
+
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation request id params is undefined';
+			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+			return;
+		}
+
+		const cong = await congregations.findCongregationById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = await cong.isMember(uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const user = users.findUserByAuthUid(uid);
+
+		const isPublisher = cong.isPublisher(user.user_local_uid);
+		const isMS = cong.isMS(user.user_local_uid);
+		const isElder = cong.isElder(user.user_local_uid);
+
+		const publisherRole = isPublisher || isMS || isElder;
+
+		if (!publisherRole) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to post field service reports';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const month = req.body.month;
+		await user.unpostFieldServiceReports(month);
+		cong.removePendingFieldServiceReports(user.user_local_uid, month);
+
+		res.locals.type = 'info';
+		res.locals.message = 'user unposted field service reports';
+		res.status(200).json({ message: 'OK' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const getPendingFieldServiceReports = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const { uid } = req.headers;
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation id params is undefined';
+			res.status(400).json({ message: 'CONG_ID_INVALID' });
+			return;
+		}
+
+		const cong = await congregations.findCongregationById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = await cong.isMember(uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		res.locals.type = 'info';
+		res.locals.message = 'user fetched congregation pending field service reports';
+		res.status(200).json(cong.cong_pending_fieldServiceReports);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const approvePendingFieldServiceReports = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const { uid } = req.headers;
+
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation id params is undefined';
+			res.status(400).json({ message: 'CONG_ID_INVALID' });
+			return;
+		}
+
+		const cong = await congregations.findCongregationById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = await cong.isMember(uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const { user_local_uid, month } = req.body;
+
+		cong.removePendingFieldServiceReports(user_local_uid, month);
+
+		const user = users.findUserByLocalUid(user_local_uid);
+		await user.approveFieldServiceReports(month);
+
+		res.locals.type = 'info';
+		res.locals.message = 'user approved pending field service reports';
+		res.status(200).json({ message: 'S4_REPORT_APPROVED' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const disapprovePendingFieldServiceReports = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const { uid } = req.headers;
+
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation id params is undefined';
+			res.status(400).json({ message: 'CONG_ID_INVALID' });
+			return;
+		}
+
+		const cong = await congregations.findCongregationById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = await cong.isMember(uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const { user_local_uid, month } = req.body;
+
+		cong.removePendingFieldServiceReports(user_local_uid, month);
+
+		const user = users.findUserByLocalUid(user_local_uid);
+		await user.disapproveFieldServiceReports(month);
+
+		res.locals.type = 'info';
+		res.locals.message = 'user disapproved pending field service reports';
+		res.status(200).json({ message: 'S4_REPORT_DISAPPROVED' });
 	} catch (err) {
 		next(err);
 	}

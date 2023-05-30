@@ -1,6 +1,7 @@
 import { validationResult } from 'express-validator';
 import { users } from '../classes/Users.js';
 import { fetchCrowdinAnnouncements } from '../utils/announcement-utils.js';
+import { congregations } from '../classes/Congregations.js';
 
 export const createAccount = async (req, res, next) => {
 	try {
@@ -37,15 +38,43 @@ export const createAccount = async (req, res, next) => {
 export const validateUser = async (req, res, next) => {
 	try {
 		const { uid } = req.headers;
-		const { id, cong_id, cong_name, cong_number, cong_role, user_local_uid, user_members_delegate, username } =
-			await users.findUserByAuthUid(uid);
+		const result = await users.findUserByAuthUid(uid);
 
-		if (cong_name.length > 0) {
-			let obj = { id, cong_id, cong_name, cong_number, cong_role, user_local_uid, user_members_delegate, username };
+		if (result.cong_name.length > 0) {
+			const userInfo = structuredClone(result);
+
+			const cong = congregations.findCongregationById(userInfo.cong_id);
+			const isPublisher = cong.isPublisher(userInfo.user_local_uid);
+			const isMS = cong.isMS(userInfo.user_local_uid);
+			const isElder = cong.isElder(userInfo.user_local_uid);
+
+			const obj = {
+				id: userInfo.id,
+				cong_id: userInfo.cong_id,
+				cong_name: userInfo.cong_name,
+				cong_number: userInfo.cong_number,
+				cong_role: userInfo.cong_role,
+				user_local_uid: userInfo.user_local_uid,
+				user_members_delegate: userInfo.user_members_delegate,
+				username: userInfo.username,
+			};
+
+			if (isPublisher) obj.cong_role.push('publisher');
+			if (isMS) obj.cong_role.push('ms');
+			if (isElder) {
+				obj.cong_role.push('elder');
+
+				const lmmoRole = obj.cong_role.includes('lmmo') || obj.cong_role.includes('lmmo-backup');
+				const secretaryRole = obj.cong_role.includes('secretary');
+
+				if (!lmmoRole && !secretaryRole) {
+					const backupData = cong.retrieveBackup();
+					obj.cong_persons = backupData.cong_persons;
+				}
+			}
 
 			res.locals.type = 'info';
 			res.locals.message = 'visitor id has been validated';
-
 			res.status(200).json(obj);
 		} else {
 			res.locals.type = 'warn';

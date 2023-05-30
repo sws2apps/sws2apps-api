@@ -1,5 +1,5 @@
 import express from 'express';
-import { body, check } from 'express-validator';
+import { body, check, oneOf } from 'express-validator';
 import { congregationAdminChecker } from '../middleware/congregation-admin-checker.js';
 import { congregationRoleChecker } from '../middleware/congregation-role-checker.js';
 import { visitorChecker } from '../middleware/visitor-checker.js';
@@ -27,6 +27,11 @@ import {
 	updatePocketDetails,
 	updateMembersDelegate,
 	updatePocketUsername,
+	postUserFieldServiceReports,
+	unpostUserFieldServiceReports,
+	getPendingFieldServiceReports,
+	approvePendingFieldServiceReports,
+	disapprovePendingFieldServiceReports,
 } from '../controllers/congregation-controller.js';
 
 const router = express.Router();
@@ -56,6 +61,31 @@ router.put(
 // get meeting schedule
 router.get('/:id/meeting-schedule', getMeetingSchedules);
 
+// get last backup information
+router.get('/:id/backup/last', getLastCongregationBackup);
+
+// save congregation backup
+router.post('/:id/backup', saveCongregationBackup);
+
+// get last backup data
+router.get('/:id/backup', getCongregationBackup);
+
+// post field service reports
+router.post(
+	'/:id/field-service-reports',
+	body('month').isString().notEmpty(),
+	oneOf([body('placements').isEmpty(), body('placements').isNumeric()]),
+	oneOf([body('videos').isEmpty(), body('placements').isNumeric()]),
+	body('duration').isString(),
+	oneOf([body('returnVisits').isEmpty(), body('returnVisits').isNumeric()]),
+	oneOf([body('bibleStudies').isEmpty(), body('bibleStudies').isNumeric()]),
+	body('comments').isString(),
+	postUserFieldServiceReports
+);
+
+// unpost field service reports
+router.delete('/:id/field-service-reports', body('month').isString().notEmpty(), unpostUserFieldServiceReports);
+
 // activate role checker middleware
 router.use(congregationRoleChecker());
 
@@ -67,21 +97,6 @@ router.patch(
 	body('cong_number').isNumeric(),
 	updateCongregationInfo
 );
-
-// get last backup information
-router.get('/:id/backup/last', getLastCongregationBackup);
-
-// save congregation backup
-router.post(
-	'/:id/backup',
-	body('cong_persons').isArray(),
-	body('cong_deleted').isArray(),
-	body('cong_settings').isArray(),
-	saveCongregationBackup
-);
-
-// get last backup data
-router.get('/:id/backup', getCongregationBackup);
 
 // post new sws pocket schedule
 router.post('/:id/schedule', body('schedules').isArray(), body('cong_settings').isArray(), sendPocketSchedule);
@@ -146,5 +161,24 @@ router.delete('/:id/pockets/:user/code', deletePocketOTPCode);
 
 // delete pocket device
 router.delete('/:id/pockets/:user', body('pocket_visitorid').notEmpty(), deletePocketDevice);
+
+// get pending field service reports
+router.get('/:id/field-service-reports', getPendingFieldServiceReports);
+
+// approve pending field service reports
+router.patch(
+	'/:id/field-service-reports/approve',
+	body('user_local_uid').isString().notEmpty(),
+	body('month').isString().notEmpty(),
+	approvePendingFieldServiceReports
+);
+
+// diapprove pending field service reports
+router.patch(
+	'/:id/field-service-reports/disapprove',
+	body('user_local_uid').isString().notEmpty(),
+	body('month').isString().notEmpty(),
+	disapprovePendingFieldServiceReports
+);
 
 export default router;

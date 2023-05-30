@@ -1,4 +1,5 @@
 import { mkdir, rm } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import dayjs from 'dayjs';
 import randomstring from 'randomstring';
@@ -6,7 +7,7 @@ import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { decryptData, encryptData } from '../utils/encryption-utils.js';
 import { users } from './Users.js';
 import { getOldestWeekDate, getWeekDate } from '../utils/date.js';
-import { getFileFromStorage, uploadFileToStorage } from '../utils/storage-utils.js';
+import { getUserReportsAll, getFileFromStorage, uploadFileToStorage, getUserReport } from '../utils/storage-utils.js';
 import { serviceYearExpired, serviceYearFromMonth } from '../utils/congregation-utils.js';
 
 const db = getFirestore(); //get default database
@@ -26,6 +27,14 @@ export class Congregation {
 		this.cong_swsPocket = [];
 		this.cong_settings = [];
 		this.last_backup = {};
+		this.cong_branchReports = [];
+		this.cong_fieldServiceGroup = [];
+		this.cong_fieldServiceReports = [];
+		this.cong_lateReports = [];
+		this.cong_meetingAttendance = [];
+		this.cong_minutesReports = [];
+		this.cong_serviceYear = [];
+		this.cong_pending_fieldServiceReports = [];
 	}
 }
 
@@ -52,6 +61,7 @@ Congregation.prototype.loadDetails = async function () {
 
 	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
 	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
+	if (!existsSync(`./cong_backup/${this.id}/usersData`)) await mkdir(`./cong_backup/${this.id}/usersData`);
 
 	this.cong_persons = await getFileFromStorage(this.id, 'persons.txt', true);
 	this.cong_schedule_draft = await getFileFromStorage(this.id, 'schedules.txt');
@@ -62,6 +72,21 @@ Congregation.prototype.loadDetails = async function () {
 	this.cong_fieldServiceGroup = await getFileFromStorage(this.id, 'field-service-group.txt');
 	this.cong_fieldServiceReports = await getFileFromStorage(this.id, 'field-service-reports.txt');
 	this.cong_meetingAttendance = await getFileFromStorage(this.id, 'meeting-attendance.txt');
+
+	const usersReportsAll = await getUserReportsAll(this.id);
+	for (const usersReports of usersReportsAll) {
+		for (const report of usersReports.reports) {
+			if (report.isS4 && report.isSubmitted && report.isPending) {
+				const user = users.findUserByLocalUid(usersReports.user_local_uid);
+				if (user) {
+					const secretaryRole = user.cong_role.includes('secretary');
+					if (!secretaryRole) {
+						this.cong_pending_fieldServiceReports.push({ user_local_uid: user.user_local_uid, ...report });
+					}
+				}
+			}
+		}
+	}
 
 	if (existsSync(`./cong_backup/${this.id}`)) {
 		await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
@@ -103,7 +128,7 @@ Congregation.prototype.updateInfo = async function (congInfo) {
 	this.cong_number = congInfo.cong_number;
 };
 
-Congregation.prototype.reloadMembers = async function () {
+Congregation.prototype.reloadMembers = function () {
 	const members = [];
 	users.list.forEach((user) => {
 		if (user.cong_id === this.id) {
@@ -519,7 +544,8 @@ Congregation.prototype.mergeServiceYearFromBackup = function (cong_serviceYear) 
 Congregation.prototype.mergeLateReportsFromBackup = function (cong_lateReports) {
 	// check if there are deleted records from backup
 	const deletedRecords = cong_lateReports.filter((record) => record.deleted === true);
-	let newRecords = [];
+
+	const newRecords = [];
 
 	for (const record of this.cong_lateReports) {
 		const isDeleted = deletedRecords.find((item) => item.person_uid === record.person_uid && item.month === record.month);
@@ -529,13 +555,21 @@ Congregation.prototype.mergeLateReportsFromBackup = function (cong_lateReports) 
 		newRecords.push(record);
 	}
 
+	for (const record of cong_lateReports) {
+		const isExist = newRecords.find((report) => report.uid === record.uid);
+		if (!isExist) {
+			newRecords.push(record);
+		}
+	}
+
 	this.cong_lateReports = newRecords;
 };
 
 Congregation.prototype.mergeMinutesReportsFromBackup = function (cong_minutesReports) {
 	// check if there are deleted records from backup
 	const deletedRecords = cong_minutesReports.filter((record) => record.deleted === true);
-	let newRecords = [];
+
+	const newRecords = [];
 
 	for (const record of this.cong_minutesReports) {
 		const isDeleted = deletedRecords.find((item) => item.person_uid === record.person_uid && item.month === record.month);
@@ -543,6 +577,13 @@ Congregation.prototype.mergeMinutesReportsFromBackup = function (cong_minutesRep
 		if (isDeleted) continue;
 
 		newRecords.push(record);
+	}
+
+	for (const record of cong_minutesReports) {
+		const isExist = newRecords.find((report) => report.uid === record.uid);
+		if (!isExist) {
+			newRecords.push(record);
+		}
 	}
 
 	this.cong_minutesReports = newRecords;
@@ -742,7 +783,7 @@ Congregation.prototype.mergeFieldServiceGroupFromBackup = function (cong_fieldSe
 				return a.index > b.index ? 1 : -1;
 			});
 
-			const oldGroups = JSON.parse(JSON.stringify(oldList.groups));
+			const oldGroups = structuredClone(oldList.groups);
 			oldList.groups.length = 0;
 
 			for (const group of activeGroups) {
@@ -881,7 +922,7 @@ Congregation.prototype.saveBackup = async function (payload) {
 
 	// update cong_branchReports data
 	let finalFieldServiceReports = [];
-	if (cong_fieldServiceGroup) {
+	if (cong_fieldServiceReports) {
 		finalFieldServiceReports = this.mergeFieldServiceReportsFromBackup(cong_fieldServiceReports, cong_deleted);
 	}
 
@@ -958,8 +999,6 @@ Congregation.prototype.saveBackup = async function (payload) {
 		await uploadFileToStorage(this.id, JSON.stringify(finalFieldServiceGroup), 'field-service-group.txt');
 	}
 
-	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
-
 	// update class values
 	this.cong_persons = encryptedPersons;
 	this.cong_settings = [settingItem];
@@ -972,6 +1011,10 @@ Congregation.prototype.saveBackup = async function (payload) {
 	if (cong_branchReports) this.cong_branchReports = finalBranchReports;
 	if (cong_fieldServiceReports) this.cong_fieldServiceReports = finalFieldServiceReports;
 	if (cong_fieldServiceGroup) this.cong_fieldServiceGroup = finalFieldServiceGroup;
+
+	await this.updateMemberFieldServiceReports();
+
+	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 
 	encryptedPersons = null;
 	finalSchedule = null;
@@ -1182,4 +1225,248 @@ Congregation.prototype.isServiceYearValid = function (cong_serviceYear) {
 	}
 
 	return isValid;
+};
+
+Congregation.prototype.isPublisher = function (person_uid) {
+	const month = `${new Date().getFullYear()}/${String(new Date().getMonth() + 1).padStart(2, '0')}/01`;
+
+	let result = false;
+
+	const congPersons = this.cong_persons === '' ? [] : JSON.parse(decryptData(this.cong_persons));
+	const person = congPersons.find((record) => record.person_uid === person_uid);
+
+	if (person) {
+		const publisherDates = person.spiritualStatus?.filter((status) => status.status === 'publisher') || [];
+
+		for (const service of publisherDates) {
+			const varDate = new Date(month);
+			const tmpStartDate = new Date(service.startDate);
+			const startDate = new Date(tmpStartDate.getFullYear(), tmpStartDate.getMonth(), 1);
+
+			if (startDate > varDate) {
+				continue;
+			}
+
+			if (service.endDate === null) {
+				result = true;
+				break;
+			}
+
+			const endDate = new Date(service.endDate);
+			if (varDate < endDate) {
+				result = true;
+				break;
+			}
+		}
+	}
+
+	return result;
+};
+
+Congregation.prototype.isElder = function (person_uid) {
+	const month = `${new Date().getFullYear()}/${String(new Date().getMonth() + 1).padStart(2, '0')}/01`;
+
+	let result = false;
+
+	const congPersons = this.cong_persons === '' ? [] : JSON.parse(decryptData(this.cong_persons));
+	const person = congPersons.find((record) => record.person_uid === person_uid);
+
+	if (person) {
+		const publisherDates = person.spiritualStatus?.filter((status) => status.status === 'elder') || [];
+
+		for (const service of publisherDates) {
+			const varDate = new Date(month);
+			const tmpStartDate = new Date(service.startDate);
+			const startDate = new Date(tmpStartDate.getFullYear(), tmpStartDate.getMonth(), 1);
+
+			if (startDate > varDate) {
+				continue;
+			}
+
+			if (service.endDate === null) {
+				result = true;
+				break;
+			}
+
+			const endDate = new Date(service.endDate);
+			if (varDate < endDate) {
+				result = true;
+				break;
+			}
+		}
+	}
+
+	return result;
+};
+
+Congregation.prototype.isMS = function (person_uid) {
+	const month = `${new Date().getFullYear()}/${String(new Date().getMonth() + 1).padStart(2, '0')}/01`;
+
+	let result = false;
+
+	const congPersons = this.cong_persons === '' ? [] : JSON.parse(decryptData(this.cong_persons));
+	const person = congPersons.find((record) => record.person_uid === person_uid);
+
+	if (person) {
+		const publisherDates = person.spiritualStatus?.filter((status) => status.status === 'ms') || [];
+
+		for (const service of publisherDates) {
+			const varDate = new Date(month);
+			const tmpStartDate = new Date(service.startDate);
+			const startDate = new Date(tmpStartDate.getFullYear(), tmpStartDate.getMonth(), 1);
+
+			if (startDate > varDate) {
+				continue;
+			}
+
+			if (service.endDate === null) {
+				result = true;
+				break;
+			}
+
+			const endDate = new Date(service.endDate);
+			if (varDate < endDate) {
+				result = true;
+				break;
+			}
+		}
+	}
+
+	return result;
+};
+
+Congregation.prototype.updatePendingFieldServiceReports = function (report) {
+	const newPending = [];
+
+	for (const oldReport of this.cong_pending_fieldServiceReports) {
+		if (oldReport.user_local_uid === report.user_local_uid && oldReport.month === report.month) continue;
+
+		newPending.push(oldReport);
+	}
+
+	newPending.push(report);
+
+	this.cong_pending_fieldServiceReports = newPending;
+};
+
+Congregation.prototype.removePendingFieldServiceReports = function (userLocalUid, month) {
+	const newPending = [];
+
+	for (const oldReport of this.cong_pending_fieldServiceReports) {
+		if (oldReport.user_local_uid === userLocalUid && oldReport.month === month) continue;
+
+		newPending.push(oldReport);
+	}
+
+	this.cong_pending_fieldServiceReports = newPending;
+};
+
+Congregation.prototype.updateMemberFieldServiceReports = async function () {
+	// check for any S1 submitted
+	const submttedS1s = this.cong_branchReports.filter((record) => record.details.isSubmitted === true);
+
+	if (submttedS1s.length > 0) {
+		// get congregation members and update reports
+		const cong_members = this.cong_persons === '' ? [] : JSON.parse(decryptData(this.cong_persons));
+		for await (const member of cong_members) {
+			if (!existsSync(`./cong_backup/${this.id}`)) {
+				await mkdir(`./cong_backup/${this.id}`);
+			}
+
+			if (!existsSync(`./cong_backup/${this.id}/usersData`)) {
+				await mkdir(`./cong_backup/${this.id}/usersData`);
+			}
+
+			const memberReports = await getUserReport(this.id, member.person_uid);
+			if (memberReports && memberReports.length > 0) {
+				for await (const S1 of submttedS1s) {
+					const month = S1.month;
+					for (const report of memberReports) {
+						// mark individual record as deleted
+						if (report.month === month && report.isS21 === false && report.isDeleted === false) {
+							report.isDeleted = true;
+						}
+					}
+
+					// add S4 record from S21
+					const currentSY = serviceYearFromMonth(month);
+					const service_year = this.cong_serviceYear.find((record) => record.value === currentSY).uid;
+					const memberS21 = this.cong_fieldServiceReports.find(
+						(item) => item.service_year === service_year && item.person_uid === member.person_uid
+					);
+
+					if (memberS21) {
+						const memberS4 = memberS21.months.find((record) => record.month_value === month);
+
+						if (memberS4) {
+							let currentReportS21;
+							currentReportS21 = memberReports.find((record) => record.isS21 === true && record.month === month);
+
+							let update = false;
+							let newRecord = false;
+
+							if (currentReportS21) {
+								const oldDate = new Date(currentReportS21.changes[0].date);
+								const newDate = new Date(S1.updatedAt);
+
+								if (oldDate < newDate) update = true;
+							}
+
+							if (!currentReportS21) {
+								newRecord = true;
+								currentReportS21 = {};
+								currentReportS21.report_uid = randomUUID();
+							}
+
+							if (newRecord || update) {
+								currentReportS21.bibleStudies = memberS4.bibleStudies;
+								currentReportS21.changes = [{ date: new Date(S1.updatedAt).toISOString() }];
+								currentReportS21.comments = memberS4.comments;
+
+								let duration;
+
+								if (memberS4.hours === '') {
+									duration = '00';
+								}
+
+								if (memberS4.hours !== '') {
+									duration = String(memberS4.hours).padStart(2, '0');
+								}
+
+								duration += ':';
+
+								if (memberS4.minutes === '') {
+									duration += '00';
+								}
+
+								if (memberS4.minutes !== '') {
+									duration += String(memberS4.minutes).padStart(2, '0');
+								}
+
+								currentReportS21.duration = duration;
+								currentReportS21.duration_start = '';
+								currentReportS21.isDeleted = false;
+								currentReportS21.isPending = true;
+								currentReportS21.isS4 = false;
+								currentReportS21.isS21 = true;
+								currentReportS21.month = month;
+								currentReportS21.month_date = '';
+								currentReportS21.placements = memberS4.placements;
+								currentReportS21.returnVisits = memberS4.returnVisits;
+								currentReportS21.videos = memberS4.videos;
+							}
+
+							if (newRecord) {
+								memberReports.push(currentReportS21);
+							}
+						}
+					}
+				}
+
+				const user = users.findUserByLocalUid(member.person_uid);
+				user.fieldServiceReports = memberReports;
+				await user.quickSaveFieldServiceReports();
+			}
+		}
+	}
 };
