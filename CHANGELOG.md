@@ -1,3 +1,10 @@
+## [2.57.1](https://github.com/sws2apps/sws2apps-api/compare/v2.57.0...v2.57.1) (2023-05-31)
+
+
+### Bug Fixes
+
+* **api:** receive publishers announcements for elders and ministerial servants ([7cfa4b2](https://github.com/sws2apps/sws2apps-api/commit/7cfa4b2e7714f58ce3dbe01b8682b8a88561556a))
+
 # [2.57.0](https://github.com/sws2apps/sws2apps-api/compare/v2.56.1...v2.57.0) (2023-05-31)
 
 
