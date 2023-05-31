@@ -16,6 +16,8 @@ export const fetchCrowdinAnnouncements = async (role) => {
 	const finalResult = [];
 
 	if (role.includes('lmmo-backup')) role.push('lmmo');
+	if (role.includes('elder')) role.push('publisher');
+	if (role.includes('ms')) role.push('publisher');
 
 	for await (const { data: source } of sourceStrings) {
 		let appTarget = source.identifier.split('-')[0];
