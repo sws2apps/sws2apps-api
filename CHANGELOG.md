@@ -1,3 +1,16 @@
+# [2.57.0](https://github.com/sws2apps/sws2apps-api/compare/v2.56.1...v2.57.0) (2023-05-31)
+
+
+### Features
+
+* **api:** support for user field service submission ([e406799](https://github.com/sws2apps/sws2apps-api/commit/e406799fb4330dd34bd6ba0cbd28f2e3b4969cd5))
+* **deps:** bump @crowdin/crowdin-api-client from 1.22.2 to 1.23.1 ([9969817](https://github.com/sws2apps/sws2apps-api/commit/9969817f19e63dd64363056ad5a6d3552d99ae74))
+* **deps:** bump dotenv from 16.0.3 to 16.1.1 ([b9249c1](https://github.com/sws2apps/sws2apps-api/commit/b9249c16d27fa975ce9c465f4588bfb8bd6749e3))
+* **deps:** bump firebase-admin from 11.8.0 to 11.9.0 ([b8da135](https://github.com/sws2apps/sws2apps-api/commit/b8da135b2d757baaaa0eb44db85e03490dc9e44e))
+* **deps:** bump jsdom from 22.0.0 to 22.1.0 ([cf2ccce](https://github.com/sws2apps/sws2apps-api/commit/cf2cccec8065e843bd5824357075f74bed879446))
+* **deps:** bump jw-epub-parser from 1.39.0 to 1.40.0 ([f081b26](https://github.com/sws2apps/sws2apps-api/commit/f081b26288968713cede56fff7f06020b0754d24))
+* **deps:** bump nodemailer from 6.9.2 to 6.9.3 ([4778878](https://github.com/sws2apps/sws2apps-api/commit/47788784cb8d869cf70e1c4d653a9623e879ef84))
+
 ## [2.56.1](https://github.com/sws2apps/sws2apps-api/compare/v2.56.0...v2.56.1) (2023-05-27)
 
 
