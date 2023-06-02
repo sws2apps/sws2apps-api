@@ -101,19 +101,27 @@ export const verifyToken = async (req, res, next) => {
 			const isMS = cong.isMS(user_local_uid);
 			const isElder = cong.isElder(user_local_uid);
 
-			if (isPublisher) userInfo.cong_role.push('publisher');
+			if (isElder) userInfo.cong_role.push('elder');
 			if (isMS) userInfo.cong_role.push('ms');
+			if (isPublisher) userInfo.cong_role.push('publisher');
 
+			// retrieve congregation persons records if elder
 			if (isElder) {
-				userInfo.cong_role.push('elder');
-
 				const lmmoRole = cong_role.includes('lmmo') || cong_role.includes('lmmo-backup');
 				const secretaryRole = cong_role.includes('secretary');
 
+				// exclude lmmo and secretary
 				if (!lmmoRole && !secretaryRole) {
 					const backupData = cong.retrieveBackup();
 					userInfo.cong_persons = backupData.cong_persons;
 				}
+			}
+
+			// retrieve latest field service reports if publisher
+			const publisherRole = isElder || isMS || isPublisher;
+			if (publisherRole) {
+				const backupData = user.retrieveBackup();
+				userInfo.user_fieldServiceReports = backupData.user_fieldServiceReports;
 			}
 		}
 
