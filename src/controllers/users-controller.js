@@ -38,10 +38,10 @@ export const createAccount = async (req, res, next) => {
 export const validateUser = async (req, res, next) => {
 	try {
 		const { uid } = req.headers;
-		const result = await users.findUserByAuthUid(uid);
+		const user = await users.findUserByAuthUid(uid);
 
-		if (result.cong_name.length > 0) {
-			const userInfo = structuredClone(result);
+		if (user.cong_name.length > 0) {
+			const userInfo = structuredClone(user);
 
 			const cong = congregations.findCongregationById(userInfo.cong_id);
 			const isPublisher = cong.isPublisher(userInfo.user_local_uid);
@@ -59,18 +59,27 @@ export const validateUser = async (req, res, next) => {
 				username: userInfo.username,
 			};
 
-			if (isPublisher) obj.cong_role.push('publisher');
+			if (isElder) obj.cong_role.push('elder');
 			if (isMS) obj.cong_role.push('ms');
-			if (isElder) {
-				obj.cong_role.push('elder');
+			if (isPublisher) obj.cong_role.push('publisher');
 
+			// retrieve congregation persons records if elder
+			if (isElder) {
 				const lmmoRole = obj.cong_role.includes('lmmo') || obj.cong_role.includes('lmmo-backup');
 				const secretaryRole = obj.cong_role.includes('secretary');
 
+				// exclude lmmo and secretary
 				if (!lmmoRole && !secretaryRole) {
 					const backupData = cong.retrieveBackup();
 					obj.cong_persons = backupData.cong_persons;
 				}
+			}
+
+			// retrieve latest field service reports if publisher
+			const publisherRole = isElder || isMS || isPublisher;
+			if (publisherRole) {
+				const backupData = user.retrieveBackup();
+				obj.user_fieldServiceReports = backupData.user_fieldServiceReports;
 			}
 
 			res.locals.type = 'info';
