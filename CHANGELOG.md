@@ -1,3 +1,16 @@
+# [2.58.0](https://github.com/sws2apps/sws2apps-api/compare/v2.57.1...v2.58.0) (2023-06-12)
+
+
+### Features
+
+* **api:** get user latest field service reports update on login ([db9554a](https://github.com/sws2apps/sws2apps-api/commit/db9554a6c40ce3380f11a49f1191f573471a9cca))
+* **deps:** bump dayjs from 1.11.7 to 1.11.8 ([ffa1ab4](https://github.com/sws2apps/sws2apps-api/commit/ffa1ab41ea52e3e3e99584615121e889942bafa4))
+* **deps:** bump dotenv from 16.1.1 to 16.1.3 ([d111a3f](https://github.com/sws2apps/sws2apps-api/commit/d111a3f4997dded9df2350b84b299317648e91b5))
+* **deps:** bump dotenv from 16.1.3 to 16.1.4 ([90dbe5c](https://github.com/sws2apps/sws2apps-api/commit/90dbe5cbe7a89e517dabfd6fddae463c80bf61fb))
+* **deps:** bump i18next from 22.5.0 to 22.5.1 ([d9caf3d](https://github.com/sws2apps/sws2apps-api/commit/d9caf3d271cc7be48b2aeba5654bfcd7ae005045))
+* **deps:** bump jw-epub-parser from 1.40.0 to 1.40.1 ([fef6c44](https://github.com/sws2apps/sws2apps-api/commit/fef6c448d275618a3134f435716895c7c19db637))
+* **deps:** bump randomstring from 1.2.3 to 1.3.0 ([0bf1dd7](https://github.com/sws2apps/sws2apps-api/commit/0bf1dd7a2ef5365a44b15f7bdd8e8d71e9fc779c))
+
 ## [2.57.1](https://github.com/sws2apps/sws2apps-api/compare/v2.57.0...v2.57.1) (2023-05-31)
 
 
