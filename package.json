@@ -60,7 +60,7 @@
 		"@semantic-release/changelog": "^6.0.3",
 		"@semantic-release/git": "^10.0.1",
 		"chai": "^4.3.7",
-		"chai-http": "^4.3.0",
+		"chai-http": "^4.4.0",
 		"eslint": "^8.42.0",
 		"eslint-config-react-app": "^7.0.1",
 		"find-unused-exports": "^5.0.0",
