@@ -23,7 +23,8 @@ export const visitorChecker = () => {
 				return;
 			}
 
-			const { uid, visitorid } = req.headers;
+			const { uid } = req.headers;
+			const visitorid = +req.headers.visitorid;
 			const user = users.findUserByAuthUid(uid);
 
 			if (user) {
@@ -42,7 +43,7 @@ export const visitorChecker = () => {
 					let sessions = user.sessions;
 
 					// find if visitor id has valid session
-					const findSession = sessions.find((session) => session.visitorid === visitorid);
+					const findSession = sessions.find((session) => session.visitorid.toString() === visitorid.toString());
 
 					if (findSession) {
 						// assign local vars for current user in next route

@@ -22,7 +22,7 @@ export const pocketAuthChecker = () => {
 				return;
 			}
 
-			const { visitorid } = req.headers;
+			const visitorid = +req.headers.visitorid;
 
 			const user = await users.findPocketByVisitorId(visitorid);
 

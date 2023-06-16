@@ -200,11 +200,10 @@ User.prototype.getActiveSessions = function () {
 		return {
 			visitorid: session.visitorid,
 			ip: session.visitor_details.ip,
-			country_name: session.visitor_details.ipLocation.country.name,
+			country_name: session.visitor_details.ipLocation.country_name,
 			device: {
-				browserName: session.visitor_details.browserDetails.browserName,
-				os: session.visitor_details.browserDetails.os,
-				osVersion: session.visitor_details.browserDetails.osVersion,
+				browserName: session.visitor_details.browser,
+				os: session.visitor_details.os,
 			},
 			last_seen: session.sws_last_seen,
 		};
@@ -461,7 +460,7 @@ User.prototype.updatePocketDevicesInfo = async function (visitorid) {
 	const updatedDevices = [
 		{
 			visitorid,
-			name: foundDevice.name,
+			visitor_details: foundDevice.visitor_details,
 			sws_last_seen: new Date().getTime(),
 		},
 		...filteredDevices,

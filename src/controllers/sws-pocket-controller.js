@@ -1,8 +1,8 @@
 // dependencies
 import { validationResult } from 'express-validator';
-import { FingerprintJsServerApiClient, Region } from '@fingerprintjs/fingerprintjs-pro-server-api';
 import { users } from '../classes/Users.js';
 import { congregations } from '../classes/Congregations.js';
+import { retrieveVisitorDetails } from '../utils/auth-utils.js';
 
 export const validatePocket = async (req, res, next) => {
 	try {
@@ -27,6 +27,8 @@ export const validatePocket = async (req, res, next) => {
 
 export const pocketSignUp = async (req, res, next) => {
 	try {
+		const userIP = req.clientIp;
+		const userAgent = req.headers['user-agent'];
 		const errors = validationResult(req);
 
 		if (!errors.isEmpty()) {
@@ -44,25 +46,8 @@ export const pocketSignUp = async (req, res, next) => {
 		}
 
 		// get visitor ID and otp code
-		const { otp_code, visitorid } = req.body;
-
-		// validate visitor id
-		const client = new FingerprintJsServerApiClient({
-			region: Region.Global,
-			apiKey: process.env.FINGERPRINT_API_SERVER_KEY,
-		});
-
-		const visitorHistory = await client.getVisitorHistory(visitorid, {
-			limit: 1,
-		});
-
-		if (!visitorHistory.visits || visitorHistory.visits?.length === 0) {
-			res.locals.failedLoginAttempt = true;
-			res.locals.type = 'warn';
-			res.locals.message = 'the authentication request seems to be fraudulent';
-			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			return;
-		}
+		const { otp_code } = req.body;
+		const visitorid = +req.body.visitorid;
 
 		const user = await users.findUserByOTPCode(otp_code);
 
@@ -76,10 +61,9 @@ export const pocketSignUp = async (req, res, next) => {
 
 		// add visitor id and remove otp_code
 		let devices = user.pocket_devices || [];
-		const visit = visitorHistory.visits[0];
 		const obj = {
 			visitorid: visitorid,
-			name: `${visit.browserDetails.os} ${visit.browserDetails.osVersion} (${visit.browserDetails.browserName} ${visit.browserDetails.browserFullVersion})`,
+			visitor_details: await retrieveVisitorDetails(userIP, userAgent),
 			sws_last_seen: new Date().getTime(),
 		};
 

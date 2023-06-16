@@ -2,12 +2,14 @@
 import * as OTPAuth from 'otpauth';
 import { getAuth } from 'firebase-admin/auth';
 import { validationResult } from 'express-validator';
-import { FingerprintJsServerApiClient, Region } from '@fingerprintjs/fingerprintjs-pro-server-api';
 import { users } from '../classes/Users.js';
 import { decryptData } from '../utils/encryption-utils.js';
+import { retrieveVisitorDetails } from '../utils/auth-utils.js';
 
 export const loginUser = async (req, res, next) => {
 	try {
+		const userIP = req.clientIp;
+		const userAgent = req.headers['user-agent'];
 		const isDev = process.env.NODE_ENV === 'development';
 
 		// validate through express middleware
@@ -28,88 +30,72 @@ export const loginUser = async (req, res, next) => {
 			return;
 		}
 
-		const { visitorid } = req.body;
+		const visitorid = +req.body.visitorid;
 		const { uid } = req.headers;
 
-		// validate visitor id
-		const client = new FingerprintJsServerApiClient({
-			region: Region.Global,
-			apiKey: process.env.FINGERPRINT_API_SERVER_KEY,
+		let authUser = users.findUserByAuthUid(uid);
+
+		const expiryDate = new Date().getTime() + 24 * 60 * 60000; // expired after 1 day
+		let newSessions = [];
+
+		if (authUser) {
+			await authUser.removeExpiredSession();
+			newSessions = authUser.sessions.filter((session) => session.visitorid !== visitorid);
+		}
+
+		if (!authUser) {
+			const userRecord = await getAuth().getUser(uid);
+			const displayName = userRecord.displayName || userRecord.providerData[0].displayName;
+			authUser = await users.create(displayName, uid);
+		}
+
+		newSessions.push({
+			visitorid: visitorid,
+			visitor_details: await retrieveVisitorDetails(userIP, userAgent),
+			expires: expiryDate,
+			mfaVerified: false,
 		});
 
-		const visitorHistory = await client.getVisitorHistory(visitorid, {
-			limit: 1,
-		});
+		await authUser.updateSessions(newSessions);
 
-		if (visitorHistory.visits?.length > 0) {
-			let authUser = users.findUserByAuthUid(uid);
-
-			const expiryDate = new Date().getTime() + 24 * 60 * 60000; // expired after 1 day
-			let newSessions = [];
-
-			if (authUser) {
-				await authUser.removeExpiredSession();
-				newSessions = authUser.sessions.filter((session) => session.visitorid !== visitorid);
-			}
-
-			if (!authUser) {
-				const userRecord = await getAuth().getUser(uid);
-				const displayName = userRecord.displayName || userRecord.providerData[0].displayName;
-				authUser = await users.create(displayName, uid);
-			}
-
-			newSessions.push({
-				visitorid: visitorid,
-				visitor_details: { ...visitorHistory.visits[0] },
-				expires: expiryDate,
-				mfaVerified: false,
+		const generateTokenDev = () => {
+			const { secret } = JSON.parse(decryptData(authUser.secret));
+			const totp = new OTPAuth.TOTP({
+				issuer: 'sws2apps-test',
+				label: authUser.user_uid,
+				algorithm: 'SHA1',
+				digits: 6,
+				period: 30,
+				secret: OTPAuth.Secret.fromBase32(secret),
 			});
-			await authUser.updateSessions(newSessions);
 
-			const generateTokenDev = () => {
-				const { secret } = JSON.parse(decryptData(authUser.secret));
-				const totp = new OTPAuth.TOTP({
-					issuer: 'sws2apps-test',
-					label: authUser.user_uid,
-					algorithm: 'SHA1',
-					digits: 6,
-					period: 30,
-					secret: OTPAuth.Secret.fromBase32(secret),
-				});
+			return totp.generate();
+		};
 
-				return totp.generate();
-			};
+		if (authUser.mfaEnabled) {
+			res.locals.type = 'info';
+			res.locals.message = 'user required to verify mfa';
 
-			if (authUser.mfaEnabled) {
-				res.locals.type = 'info';
-				res.locals.message = 'user required to verify mfa';
-
-				if (isDev) {
-					console.log(`Please use this OTP code to complete your login: ${generateTokenDev()}`);
-				}
-
-				res.status(200).json({ message: 'MFA_VERIFY' });
-			} else {
-				const secret = await authUser.generateSecret();
-
-				res.locals.type = 'warn';
-				res.locals.message = 'user authentication rejected because account mfa is not yet setup';
-
-				if (isDev) {
-					console.log(`Please use this OTP code to complete your login: ${generateTokenDev()}`);
-				}
-
-				res.status(403).json({
-					secret: secret.secret,
-					qrCode: secret.uri,
-					version: secret.version,
-				});
+			if (isDev) {
+				console.log(`Please use this OTP code to complete your login: ${generateTokenDev()}`);
 			}
+
+			res.status(200).json({ message: 'MFA_VERIFY' });
 		} else {
-			res.locals.failedLoginAttempt = true;
+			const secret = await authUser.generateSecret();
+
 			res.locals.type = 'warn';
-			res.locals.message = 'the authentication request seems to be fraudulent';
-			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			res.locals.message = 'user authentication rejected because account mfa is not yet setup';
+
+			if (isDev) {
+				console.log(`Please use this OTP code to complete your login: ${generateTokenDev()}`);
+			}
+
+			res.status(403).json({
+				secret: secret.secret,
+				qrCode: secret.uri,
+				version: secret.version,
+			});
 		}
 	} catch (err) {
 		next(err);
@@ -149,6 +135,8 @@ export const createSignInLink = async (req, res, next) => {
 };
 
 export const verifyPasswordlessInfo = async (req, res, next) => {
+	const userIP = req.clientIp;
+	const userAgent = req.headers['user-agent'];
 	const isDev = process.env.NODE_ENV === 'development';
 
 	try {
@@ -172,83 +160,66 @@ export const verifyPasswordlessInfo = async (req, res, next) => {
 		const { email, visitorid, fullname } = req.body;
 		const { uid } = req.headers;
 
-		// validate visitor id
-		const client = new FingerprintJsServerApiClient({
-			region: Region.Global,
-			apiKey: process.env.FINGERPRINT_API_SERVER_KEY,
+		let authUser = users.findUserByAuthUid(uid);
+
+		const expiryDate = new Date().getTime() + 24 * 60 * 60000; // expired after 1 day
+		let newSessions = [];
+
+		if (authUser) {
+			await authUser.removeExpiredSession();
+			newSessions = authUser.sessions.filter((session) => session.visitorid !== visitorid);
+		}
+
+		if (!authUser) {
+			authUser = await users.createPasswordless(email, uid, fullname);
+		}
+
+		newSessions.push({
+			visitorid: visitorid,
+			visitor_details: await retrieveVisitorDetails(userIP, userAgent),
+			expires: expiryDate,
+			mfaVerified: false,
 		});
+		await authUser.updateSessions(newSessions);
 
-		const visitorHistory = await client.getVisitorHistory(visitorid, {
-			limit: 1,
-		});
-
-		if (visitorHistory.visits?.length > 0) {
-			let authUser = users.findUserByAuthUid(uid);
-
-			const expiryDate = new Date().getTime() + 24 * 60 * 60000; // expired after 1 day
-			let newSessions = [];
-
-			if (authUser) {
-				await authUser.removeExpiredSession();
-				newSessions = authUser.sessions.filter((session) => session.visitorid !== visitorid);
-			}
-
-			if (!authUser) {
-				authUser = await users.createPasswordless(email, uid, fullname);
-			}
-
-			newSessions.push({
-				visitorid: visitorid,
-				visitor_details: { ...visitorHistory.visits[0] },
-				expires: expiryDate,
-				mfaVerified: false,
+		const generateTokenDev = () => {
+			const { secret } = JSON.parse(decryptData(authUser.secret));
+			const totp = new OTPAuth.TOTP({
+				issuer: 'sws2apps-test',
+				label: authUser.user_uid,
+				algorithm: 'SHA1',
+				digits: 6,
+				period: 30,
+				secret: OTPAuth.Secret.fromBase32(secret),
 			});
-			await authUser.updateSessions(newSessions);
 
-			const generateTokenDev = () => {
-				const { secret } = JSON.parse(decryptData(authUser.secret));
-				const totp = new OTPAuth.TOTP({
-					issuer: 'sws2apps-test',
-					label: authUser.user_uid,
-					algorithm: 'SHA1',
-					digits: 6,
-					period: 30,
-					secret: OTPAuth.Secret.fromBase32(secret),
-				});
+			return totp.generate();
+		};
 
-				return totp.generate();
-			};
+		if (authUser.mfaEnabled) {
+			res.locals.type = 'info';
+			res.locals.message = 'user required to verify mfa';
 
-			if (authUser.mfaEnabled) {
-				res.locals.type = 'info';
-				res.locals.message = 'user required to verify mfa';
-
-				if (isDev) {
-					console.log(`Please use this OTP code to complete your login: ${generateTokenDev()}`);
-				}
-
-				res.status(200).json({ message: 'MFA_VERIFY' });
-			} else {
-				const secret = await authUser.generateSecret();
-
-				res.locals.type = 'warn';
-				res.locals.message = 'user authentication rejected because account mfa is not yet setup';
-
-				if (isDev) {
-					console.log(`Please use this OTP code to complete your login: ${generateTokenDev()}`);
-				}
-
-				res.status(403).json({
-					secret: secret.secret,
-					qrCode: secret.uri,
-					version: secret.version,
-				});
+			if (isDev) {
+				console.log(`Please use this OTP code to complete your login: ${generateTokenDev()}`);
 			}
+
+			res.status(200).json({ message: 'MFA_VERIFY' });
 		} else {
-			res.locals.failedLoginAttempt = true;
+			const secret = await authUser.generateSecret();
+
 			res.locals.type = 'warn';
-			res.locals.message = 'the authentication request seems to be fraudulent';
-			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			res.locals.message = 'user authentication rejected because account mfa is not yet setup';
+
+			if (isDev) {
+				console.log(`Please use this OTP code to complete your login: ${generateTokenDev()}`);
+			}
+
+			res.status(403).json({
+				secret: secret.secret,
+				qrCode: secret.uri,
+				version: secret.version,
+			});
 		}
 	} catch (err) {
 		next(err);

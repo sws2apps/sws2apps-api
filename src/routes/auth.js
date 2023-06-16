@@ -23,18 +23,13 @@ router.post(
 );
 
 // request email otp code
-router.get(
-	'/request-otp-code',
-	header('uid').isString().notEmpty(),
-	header('visitorid').isString().notEmpty(),
-	createUserTempOTPCode
-);
+router.get('/request-otp-code', header('uid').isString().notEmpty(), header('visitorid').notEmpty(), createUserTempOTPCode);
 
 // verify email otp code
 router.post(
 	'/verify-otp-code',
 	header('uid').isString().notEmpty(),
-	header('visitorid').isString().notEmpty(),
+	header('visitorid').notEmpty(),
 	body('code').isNumeric().isLength({ min: 6 }),
 	verifyUserTempOTPCode
 );
