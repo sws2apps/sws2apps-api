@@ -57,7 +57,7 @@ export const verifyToken = async (req, res, next) => {
 			return;
 		}
 
-		const { visitorid } = req.headers;
+		const visitorid = +req.headers.visitorid;
 
 		const newSessions = sessions.map((session) => {
 			if (session.visitorid === visitorid) {
