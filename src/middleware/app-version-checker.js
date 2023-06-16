@@ -30,7 +30,7 @@ export const appVersionChecker = () => {
 				return;
 			}
 
-			const cpeMinimum = '2.81.0';
+			const cpeMinimum = '2.85.0';
 
 			if (appVersion >= cpeMinimum) {
 				next();
