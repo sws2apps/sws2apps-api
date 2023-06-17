@@ -10,12 +10,16 @@ import { logger } from './src/utils/logger.js';
 // load classes
 import { users } from './src/classes/Users.js';
 import { congregations } from './src/classes/Congregations.js';
+import { initializeAPI } from './src/config/cpe.db-config.js';
 
 const PORT = process.env.PORT || 8000;
 const APP_VERSION = process.env.npm_package_version;
 
 // define global variables
 global.requestTracker = [];
+
+await initializeAPI();
+logger('info', JSON.stringify({ details: `API: minimum CPE client version set to ${global.minimumVersionCPE}` }));
 
 await users.loadAll();
 await congregations.loadAll();
