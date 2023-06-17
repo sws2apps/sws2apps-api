@@ -1,3 +1,18 @@
+# [2.59.0](https://github.com/sws2apps/sws2apps-api/compare/v2.58.0...v2.59.0) (2023-06-17)
+
+
+### Bug Fixes
+
+* **api:** update minimum cpe version ([45028d5](https://github.com/sws2apps/sws2apps-api/commit/45028d5d9f182a19181bf6d7e105cb58d8cb7355))
+
+
+### Features
+
+* **api:** read api settings from firestore ([ad2a67e](https://github.com/sws2apps/sws2apps-api/commit/ad2a67ecb8eecc397cd26ab1472cb5dc505ccecd))
+* **api:** remove dependency from fingerprintjs ([194e32c](https://github.com/sws2apps/sws2apps-api/commit/194e32cc33c9cae7eb62221e4732f7ef5f7df88b))
+* **deps:** bump @fingerprintjs/fingerprintjs-pro-server-api ([e5fc9f6](https://github.com/sws2apps/sws2apps-api/commit/e5fc9f66d642d2c750df190c3f42a7fa751975b0))
+* **deps:** bump i18next from 22.5.1 to 23.0.2 ([5f695bd](https://github.com/sws2apps/sws2apps-api/commit/5f695bd20b06571547ad25f2754dd2841624f930))
+
 # [2.58.0](https://github.com/sws2apps/sws2apps-api/compare/v2.57.1...v2.58.0) (2023-06-12)
 
 
