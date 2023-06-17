@@ -17,5 +17,7 @@ export const logger = (level, message) => {
 			console.error(message);
 			if (isProd) logtail.error(message);
 		}
+
+		if (isProd) logtail.flush();
 	}
 };
