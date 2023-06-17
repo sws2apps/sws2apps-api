@@ -47,7 +47,7 @@ export const pocketSignUp = async (req, res, next) => {
 
 		// get visitor ID and otp code
 		const { otp_code } = req.body;
-		const visitorid = +req.body.visitorid;
+		const visitorid = isNaN(req.body.visitorid) ? req.body.visitorid : +req.body.visitorid;
 
 		const user = await users.findUserByOTPCode(otp_code);
 

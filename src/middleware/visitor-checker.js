@@ -24,7 +24,7 @@ export const visitorChecker = () => {
 			}
 
 			const { uid } = req.headers;
-			const visitorid = +req.headers.visitorid;
+			const visitorid = isNaN(req.headers.visitorid) ? req.headers.visitorid : +req.headers.visitorid;
 			const user = users.findUserByAuthUid(uid);
 
 			if (user) {

@@ -30,7 +30,7 @@ export const loginUser = async (req, res, next) => {
 			return;
 		}
 
-		const visitorid = +req.body.visitorid;
+		const visitorid = isNaN(req.body.visitorid) ? req.body.visitorid : +req.body.visitorid;
 		const { uid } = req.headers;
 
 		let authUser = users.findUserByAuthUid(uid);
