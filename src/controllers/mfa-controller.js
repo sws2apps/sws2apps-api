@@ -57,7 +57,7 @@ export const verifyToken = async (req, res, next) => {
 			return;
 		}
 
-		const visitorid = +req.headers.visitorid;
+		const visitorid = isNaN(req.headers.visitorid) ? req.headers.visitorid : +req.headers.visitorid;
 
 		const newSessions = sessions.map((session) => {
 			if (session.visitorid === visitorid) {

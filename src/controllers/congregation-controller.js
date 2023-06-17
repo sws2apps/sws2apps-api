@@ -1076,7 +1076,7 @@ export const deletePocketDevice = async (req, res, next) => {
 			return;
 		}
 
-		const pocket_visitorid = +req.body.pocket_visitorid;
+		const pocket_visitorid = isNaN(req.body.pocket_visitorid) ? req.body.pocket_visitorid : +req.body.pocket_visitorid;
 
 		if (id && user) {
 			const cong = await congregations.findCongregationById(id);

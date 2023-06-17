@@ -309,7 +309,7 @@ export const deleteUserSession = async (req, res, next) => {
 export const userLogout = async (req, res, next) => {
 	try {
 		const { uid } = req.headers;
-		const visitorid = +req.headers.visitorid;
+		const visitorid = isNaN(req.headers.visitorid) ? req.headers.visitorid : +req.headers.visitorid;
 
 		const user = users.findUserByAuthUid(uid);
 		await user.revokeSession(visitorid);
