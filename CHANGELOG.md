@@ -1,3 +1,18 @@
+# [2.60.0](https://github.com/sws2apps/sws2apps-api/compare/v2.59.1...v2.60.0) (2023-06-20)
+
+
+### Bug Fixes
+
+* **controllers:** validate language when admin update public talks ([5a8d87d](https://github.com/sws2apps/sws2apps-api/commit/5a8d87d8d6c663d4c36610197d8b769a02a45130))
+
+
+### Features
+
+* **admin:** add routes for administrator to manage public talks ([3c901bb](https://github.com/sws2apps/sws2apps-api/commit/3c901bbd3d4ca3e6b5165198fcb82c43dd42c887))
+* **deps:** bump dotenv from 16.1.4 to 16.3.1 ([e5c4b96](https://github.com/sws2apps/sws2apps-api/commit/e5c4b96a1582524016f02abe14e36c5219f25bd3))
+* **deps:** bump i18next from 23.0.2 to 23.1.0 ([54aa8c3](https://github.com/sws2apps/sws2apps-api/commit/54aa8c34558a627a828ee2826acc2e2701df00cd))
+* **deps:** bump i18next from 23.1.0 to 23.2.0 ([f0b04bb](https://github.com/sws2apps/sws2apps-api/commit/f0b04bbd9ffb3dc5ad3fdcfcce2250bc10640d6e))
+
 ## [2.59.1](https://github.com/sws2apps/sws2apps-api/compare/v2.59.0...v2.59.1) (2023-06-17)
 
 
