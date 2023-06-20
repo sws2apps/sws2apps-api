@@ -1,5 +1,6 @@
 import { validationResult } from 'express-validator';
 import { publicTalks } from '../classes/PublicTalk.js';
+import { LANGUAGE_LIST } from '../locales/langList.js';
 
 export const getAllPublicTalks = async (req, res, next) => {
 	try {
@@ -34,7 +35,20 @@ export const updatePublicTalk = async (req, res, next) => {
 		const talkNumber = +req.body.talkNumber;
 		const talkTitle = req.body.talkTitle;
 		const talkModified = req.body.talkModified;
-		const language = req.body.language;
+		const language = req.body.language.toUpperCase();
+
+		const isLangValid = LANGUAGE_LIST.find((lang) => lang.code.toUpperCase() === language);
+
+		if (!isLangValid) {
+			res.locals.type = 'warn';
+			res.locals.message = `invalid language`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
 
 		const payload = { talk_number: talkNumber, title: talkTitle, modified: talkModified };
 
