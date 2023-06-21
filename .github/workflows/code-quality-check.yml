@@ -1,0 +1,85 @@
+name: Scheduled Code Quality (Prod)
+
+on:
+  schedule:
+    - cron: '0 12 * * 4'
+
+permissions: read-all
+
+jobs:
+  codeql:
+    name: Code QL
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout repository for code analysis
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+        with:
+          ref: prod
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@cdcdbb579706841c47f7063dda365e292e5cad7a
+        with:
+          languages: javascript
+          queries: security-extended
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@cdcdbb579706841c47f7063dda365e292e5cad7a
+
+  nodejsscan:
+    name: NodeJS Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+        with:
+          ref: prod
+
+      - name: nodejsscan scan
+        id: njsscan
+        uses: ajinabraham/njsscan-action@d58d8b2f26322cd35a9efb8003baac517f226d81
+        with:
+          args: '. --sarif --output results.sarif || true'
+
+      - name: Upload njsscan report
+        uses: github/codeql-action/upload-sarif@cdcdbb579706841c47f7063dda365e292e5cad7a
+        with:
+          sarif_file: results.sarif
+
+  scorecards:
+    name: Scorecards Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      id-token: write
+      actions: read
+      contents: read
+
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+        with:
+          ref: prod
+          persist-credentials: false
+
+      - name: 'Run analysis'
+        uses: ossf/scorecard-action@80e868c13c90f172d68d1f4501dee99e2479f7af
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          repo_token: ${{ secrets.SCORECARD_READ_TOKEN }}
+          publish_results: true
+
+      - name: 'Upload to code-scanning'
+        uses: github/codeql-action/upload-sarif@cdcdbb579706841c47f7063dda365e292e5cad7a
+        with:
+          sarif_file: results.sarif          
