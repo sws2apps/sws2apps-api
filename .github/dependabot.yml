@@ -3,12 +3,16 @@ updates:
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: 'github-actions'
     directory: '/'
+    target-branch: prod
     schedule:
       interval: 'daily'
+    commit-message:
+      prefix: 'chore(actions)'
 
   # Maintain dependencies for npm
   - package-ecosystem: 'npm'
     directory: '/'
+    target-branch: prod
     schedule:
       interval: 'daily'
     allow:
