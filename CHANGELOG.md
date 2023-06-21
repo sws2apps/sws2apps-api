@@ -1,3 +1,15 @@
+# [2.62.0](https://github.com/sws2apps/sws2apps-api/compare/v2.61.0...v2.62.0) (2023-06-21)
+
+
+### Bug Fixes
+
+* **routes:** move approving and disapproving field service report routes ([13188d8](https://github.com/sws2apps/sws2apps-api/commit/13188d87a70b1973afd1f42a7a03b12615e7fbfd))
+
+
+### Features
+
+* **deps:** bump i18next from 23.2.1 to 23.2.2 ([511b02e](https://github.com/sws2apps/sws2apps-api/commit/511b02e0525f7e373743e191b74e840d7b0fafbf))
+
 # [2.61.0](https://github.com/sws2apps/sws2apps-api/compare/v2.60.0...v2.61.0) (2023-06-21)
 
 
