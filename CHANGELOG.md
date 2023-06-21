@@ -1,3 +1,16 @@
+# [2.61.0](https://github.com/sws2apps/sws2apps-api/compare/v2.60.0...v2.61.0) (2023-06-21)
+
+
+### Bug Fixes
+
+* **controllers:** get talks list from request body ([28cb476](https://github.com/sws2apps/sws2apps-api/commit/28cb476e511e312eff58d89ffe28511e9ed8ed62))
+
+
+### Features
+
+* **admin:** add route for public talk bulk updates ([3196dcc](https://github.com/sws2apps/sws2apps-api/commit/3196dccaca8b07e642f6ba313bd99742c3e42637))
+* **deps:** bump i18next from 23.2.0 to 23.2.1 ([2fbc044](https://github.com/sws2apps/sws2apps-api/commit/2fbc0446d01235ae73f743c47c34add7c79b04c8))
+
 # [2.60.0](https://github.com/sws2apps/sws2apps-api/compare/v2.59.1...v2.60.0) (2023-06-20)
 
 
