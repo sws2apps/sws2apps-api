@@ -97,6 +97,8 @@ export const bulkUpdatePublicTalks = async (req, res, next) => {
 			return;
 		}
 
+		const talks = req.body.talks;
+
 		for await (const talk of talks) {
 			const payload = { talk_number: talk.talk_number, title: talk.title, modified: new Date().toISOString() };
 			await publicTalks.update(language, payload);
