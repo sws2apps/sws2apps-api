@@ -8,7 +8,7 @@ permissions: read-all
 jobs:
   redeploy_render:
     name: Redeploy API to Production
-    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/prod' }}
     environment:
       name: Prod.env
       url: https://api.sws2apps.com
