@@ -12,6 +12,7 @@ import './config/i18n-config.js';
 
 import authRoute from './routes/auth.js';
 import congregationRoute from './routes/congregation.js';
+import congregationAdminRoute from './routes/congregation-admin.js';
 import userRoute from './routes/users.js';
 import adminRoute from './routes/admin.js';
 import mfaRoute from './routes/mfa.js';
@@ -99,6 +100,7 @@ app.get('/', getRoot);
 app.use(appVersionChecker());
 app.use('/', authRoute);
 app.use('/api/congregations', congregationRoute);
+app.use('/api/congregations', congregationAdminRoute);
 app.use('/api/mfa', mfaRoute);
 app.use('/api/users', userRoute);
 app.use('/api/admin', adminRoute);
