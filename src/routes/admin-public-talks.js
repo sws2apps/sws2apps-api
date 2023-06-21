@@ -1,6 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
-import { getAllPublicTalks, updatePublicTalk } from '../controllers/admin-public-talks-controller.js';
+import { getAllPublicTalks, updatePublicTalk, bulkUpdatePublicTalks } from '../controllers/admin-public-talks-controller.js';
 
 const router = express.Router();
 
@@ -16,5 +16,7 @@ router.patch(
 	body('talkModified').isString().notEmpty(),
 	updatePublicTalk
 );
+
+router.post('/', body('language').isString().notEmpty(), body('talks').isArray().notEmpty(), bulkUpdatePublicTalks);
 
 export default router;
