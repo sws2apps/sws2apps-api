@@ -3,7 +3,12 @@ export const congregationRoleChecker = () => {
 		try {
 			// check if session is authenticated for an approved role
 			const { cong_role } = res.locals.currentUser;
-			if (cong_role.includes('lmmo') || cong_role.includes('lmmo-backup') || cong_role.includes('secretary')) {
+			if (
+				cong_role.includes('lmmo') ||
+				cong_role.includes('lmmo-backup') ||
+				cong_role.includes('secretary') ||
+				cong_role.includes('public_talk_coordinator')
+			) {
 				next();
 			} else {
 				res.locals.type = 'warn';

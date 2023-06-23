@@ -1,6 +1,7 @@
 import { validationResult } from 'express-validator';
 import { congregations } from '../classes/Congregations.js';
 import { users } from '../classes/Users.js';
+import { allowedRoles } from '../constant/constant.js';
 
 export const getAllCongregations = async (req, res, next) => {
 	try {
@@ -269,7 +270,6 @@ export const updateCongregationUserRole = async (req, res, next) => {
 
 				// validate provided role
 				let isValid = true;
-				const allowedRoles = ['admin', 'lmmo', 'lmmo-backup', 'view_schedule_meeting'];
 				if (user_role > 0) {
 					for (let i = 0; i < user_role.length; i++) {
 						const role = user_role[i];
