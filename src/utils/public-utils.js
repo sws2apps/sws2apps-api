@@ -23,10 +23,10 @@ export const fetchIssueData = async (issue) => {
 export const fetchData = async (language, issue) => {
 	const mergedSources = [];
 
-	for await (const pub of ['mwb', 'w']) {
-		const issues = [];
+	if (issue === '') {
+		for await (const pub of ['mwb', 'w']) {
+			const issues = [];
 
-		if (issue === '') {
 			if (pub === 'mwb') {
 				let notFound = false;
 
@@ -119,65 +119,77 @@ export const fetchData = async (language, issue) => {
 					}
 				} while (notFound === false);
 			}
-		}
 
-		if (issue !== '') {
-			const url =
-				process.env.JW_CDN +
-				new URLSearchParams({
-					langwritten: language,
-					pub,
-					fileformat: 'epub',
-					output: 'json',
-					issue,
-				});
+			if (issues.length > 0) {
+				const fetchSource1 = fetchIssueData(issues[0]);
+				const fetchSource2 = issues.length > 1 ? fetchIssueData(issues[1]) : Promise.resolve([]);
+				const fetchSource3 = issues.length > 2 ? fetchIssueData(issues[2]) : Promise.resolve([]);
+				const fetchSource4 = issues.length > 3 ? fetchIssueData(issues[3]) : Promise.resolve([]);
+				const fetchSource5 = issues.length > 4 ? fetchIssueData(issues[4]) : Promise.resolve([]);
+				const fetchSource6 = issues.length > 5 ? fetchIssueData(issues[5]) : Promise.resolve([]);
+				const fetchSource7 = issues.length > 6 ? fetchIssueData(issues[6]) : Promise.resolve([]);
 
-			const res = await fetch(url);
+				const allData = await Promise.all([
+					fetchSource1,
+					fetchSource2,
+					fetchSource3,
+					fetchSource4,
+					fetchSource5,
+					fetchSource6,
+					fetchSource7,
+				]);
 
-			if (res.status === 200) {
-				const result = await res.json();
-				const hasEPUB = result.files[language].EPUB;
-				const currentYear = issue.substring(0, 4);
-				issues.push({ issueDate: issue, currentYear, language, hasEPUB: hasEPUB });
-			}
-		}
+				for (let z = 0; z < allData.length; z++) {
+					const tempObj = allData[z];
+					if (tempObj.length > 0) {
+						for (const src of tempObj) {
+							const date = src.mwb_week_date || src.w_study_date;
 
-		if (issues.length > 0) {
-			const fetchSource1 = fetchIssueData(issues[0]);
-			const fetchSource2 = issues.length > 1 ? fetchIssueData(issues[1]) : Promise.resolve([]);
-			const fetchSource3 = issues.length > 2 ? fetchIssueData(issues[2]) : Promise.resolve([]);
-			const fetchSource4 = issues.length > 3 ? fetchIssueData(issues[3]) : Promise.resolve([]);
-			const fetchSource5 = issues.length > 4 ? fetchIssueData(issues[4]) : Promise.resolve([]);
-			const fetchSource6 = issues.length > 5 ? fetchIssueData(issues[5]) : Promise.resolve([]);
-			const fetchSource7 = issues.length > 6 ? fetchIssueData(issues[6]) : Promise.resolve([]);
+							const prevSrc = mergedSources.find((item) => item.mwb_week_date === date || item.w_study_date === date);
 
-			const allData = await Promise.all([
-				fetchSource1,
-				fetchSource2,
-				fetchSource3,
-				fetchSource4,
-				fetchSource5,
-				fetchSource6,
-				fetchSource7,
-			]);
+							if (prevSrc) {
+								Object.assign(prevSrc, src);
+							}
 
-			for (let z = 0; z < allData.length; z++) {
-				const tempObj = allData[z];
-				if (tempObj.length > 0) {
-					for (const src of tempObj) {
-						const date = src.mwb_week_date || src.w_study_date;
-
-						const prevSrc = mergedSources.find((item) => item.mwb_week_date === date || item.w_study_date === date);
-
-						if (prevSrc) {
-							Object.assign(prevSrc, src);
-						}
-
-						if (!prevSrc) {
-							mergedSources.push(src);
+							if (!prevSrc) {
+								mergedSources.push(src);
+							}
 						}
 					}
 				}
+			}
+		}
+	}
+
+	if (issue !== '') {
+		const issues = [];
+
+		const pub = issue.split('-')[1].split('_')[0];
+		const pubIssue = issue.split('-')[1].split('_')[1];
+
+		const url =
+			process.env.JW_CDN +
+			new URLSearchParams({
+				langwritten: language,
+				pub,
+				fileformat: 'epub',
+				output: 'json',
+				issue: pubIssue,
+			});
+
+		const res = await fetch(url);
+
+		if (res.status === 200) {
+			const result = await res.json();
+			const hasEPUB = result.files[language].EPUB;
+			const currentYear = issue.substring(0, 4);
+			issues.push({ issueDate: issue, currentYear, language, hasEPUB: hasEPUB });
+		}
+
+		if (issues.length > 0) {
+			const data = await fetchIssueData(issues[0]);
+			for (const src of data) {
+				mergedSources.push(src);
 			}
 		}
 	}

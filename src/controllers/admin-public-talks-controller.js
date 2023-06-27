@@ -102,8 +102,15 @@ export const bulkUpdatePublicTalks = async (req, res, next) => {
 
 		for (const talk of talks) {
 			const findTalk = publicTalks.find(talk.talk_number);
+			let update = false;
 
-			if (talk.talk_title !== findTalk[language].title) {
+			if (!findTalk) update = true;
+
+			if (findTalk && !findTalk[language]) update = true;
+
+			if (findTalk[language] && talk.talk_title !== findTalk[language].title) update = true;
+
+			if (update) {
 				talksToUpdate.push(talk);
 			}
 		}
