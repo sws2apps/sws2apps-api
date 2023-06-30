@@ -17,8 +17,6 @@ import {
 	getPendingFieldServiceReports,
 	approvePendingFieldServiceReports,
 	disapprovePendingFieldServiceReports,
-	getPublicTalks,
-	userBulkUpdatePublicTalks,
 } from '../controllers/congregation-controller.js';
 
 const router = express.Router();
@@ -105,17 +103,6 @@ router.patch(
 	body('user_local_uid').isString().notEmpty(),
 	body('month').isString().notEmpty(),
 	disapprovePendingFieldServiceReports
-);
-
-// get public talks
-router.get('/:id/public-talks', getPublicTalks);
-
-// update public talks
-router.post(
-	'/:id/public-talks',
-	body('language').isString().notEmpty(),
-	body('talks').isArray().notEmpty(),
-	userBulkUpdatePublicTalks
 );
 
 export default router;

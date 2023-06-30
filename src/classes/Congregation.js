@@ -9,6 +9,7 @@ import { users } from './Users.js';
 import { getOldestWeekDate, getWeekDate } from '../utils/date.js';
 import { getUserReportsAll, getFileFromStorage, uploadFileToStorage, getUserReport } from '../utils/storage-utils.js';
 import { serviceYearExpired, serviceYearFromMonth } from '../utils/congregation-utils.js';
+import { congregations } from './Congregations.js';
 
 const db = getFirestore(); //get default database
 
@@ -35,6 +36,8 @@ export class Congregation {
 		this.cong_minutesReports = [];
 		this.cong_serviceYear = [];
 		this.cong_pending_fieldServiceReports = [];
+		this.cong_outgoing_speakers = { speakers: [], access: [] };
+		this.cong_visiting_speakers = [];
 	}
 }
 
@@ -118,6 +121,9 @@ Congregation.prototype.loadDetails = async function () {
 		const user = users.findUserById(congSnap.data().last_backup.by);
 		this.last_backup.by = user?.username || '';
 	}
+
+	this.cong_outgoing_speakers.speakers = congSnap.data().cong_outgoing_speakers?.speakers || [];
+	this.cong_outgoing_speakers.access = congSnap.data().cong_outgoing_speakers?.access || [];
 };
 
 Congregation.prototype.updateInfo = async function (congInfo) {
@@ -1469,4 +1475,29 @@ Congregation.prototype.updateMemberFieldServiceReports = async function () {
 			}
 		}
 	}
+};
+
+Congregation.prototype.updateVisitingSpeakersList = async function (speakers) {
+	const data = { cong_outgoing_speakers: { ...this.cong_outgoing_speakers, speakers: speakers } };
+	await db.collection('congregations').doc(this.id).set(data, { merge: true });
+	this.cong_outgoing_speakers = data.cong_outgoing_speakers;
+};
+
+Congregation.prototype.findVisitingSpeakersCongregations = function (name) {
+	const result = [];
+
+	const data = congregations.list.filter(
+		(cong) => cong.cong_name.toLowerCase().indexOf(name.toLowerCase()) !== -1 && cong.id !== this.id
+	);
+
+	for (const cong of data) {
+		if (cong.cong_outgoing_speakers && cong.cong_outgoing_speakers.speakers.length > 0) {
+			const hasAccess = cong.cong_outgoing_speakers.access.find((record) => record === this.id);
+			if (!hasAccess) {
+				result.push({ cong_name: cong.cong_name, cong_number: +cong.cong_number, cong_id: cong.id });
+			}
+		}
+	}
+
+	return result;
 };
