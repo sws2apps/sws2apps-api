@@ -5,6 +5,7 @@ const cryptr = new Cryptr(myKey);
 
 export const encryptData = (data) => {
 	if (typeof data !== 'string') data = JSON.stringify(data);
+	console.log(data);
 	return cryptr.encrypt(data);
 };
 

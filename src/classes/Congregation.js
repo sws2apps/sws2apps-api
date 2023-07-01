@@ -75,6 +75,9 @@ Congregation.prototype.loadDetails = async function () {
 	this.cong_fieldServiceGroup = await getFileFromStorage(this.id, 'field-service-group.txt');
 	this.cong_fieldServiceReports = await getFileFromStorage(this.id, 'field-service-reports.txt');
 	this.cong_meetingAttendance = await getFileFromStorage(this.id, 'meeting-attendance.txt');
+	this.cong_meetingAttendance = await getFileFromStorage(this.id, 'meeting-attendance.txt');
+	this.cong_visiting_speakers = await getFileFromStorage(this.id, 'speakers_visiting.txt');
+	this.cong_outgoing_speakers.speakers = await getFileFromStorage(this.id, 'speakers_outgoing.txt', true);
 
 	const usersReportsAll = await getUserReportsAll(this.id);
 	for (const usersReports of usersReportsAll) {
@@ -122,8 +125,7 @@ Congregation.prototype.loadDetails = async function () {
 		this.last_backup.by = user?.username || '';
 	}
 
-	this.cong_outgoing_speakers.speakers = congSnap.data().cong_outgoing_speakers?.speakers || [];
-	this.cong_outgoing_speakers.access = congSnap.data().cong_outgoing_speakers?.access || [];
+	this.cong_outgoing_speakers.access = congSnap.data().cong_outgoing_speakers || [];
 };
 
 Congregation.prototype.updateInfo = async function (congInfo) {
@@ -1478,9 +1480,17 @@ Congregation.prototype.updateMemberFieldServiceReports = async function () {
 };
 
 Congregation.prototype.updateVisitingSpeakersList = async function (speakers) {
-	const data = { cong_outgoing_speakers: { ...this.cong_outgoing_speakers, speakers: speakers } };
-	await db.collection('congregations').doc(this.id).set(data, { merge: true });
-	this.cong_outgoing_speakers = data.cong_outgoing_speakers;
+	// prepare data to be saved to storage
+	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
+	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
+
+	let encryptedSpeakers = encryptData(speakers);
+	await uploadFileToStorage(this.id, encryptedSpeakers, 'speakers_outgoing.txt');
+
+	this.cong_outgoing_speakers.speakers = encryptedSpeakers;
+
+	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
+	encryptedSpeakers = null;
 };
 
 Congregation.prototype.findVisitingSpeakersCongregations = function (name) {
@@ -1492,9 +1502,86 @@ Congregation.prototype.findVisitingSpeakersCongregations = function (name) {
 
 	for (const cong of data) {
 		if (cong.cong_outgoing_speakers && cong.cong_outgoing_speakers.speakers.length > 0) {
-			const hasAccess = cong.cong_outgoing_speakers.access.find((record) => record === this.id);
+			const hasAccess = cong.cong_outgoing_speakers.access.find((record) => record.cong_id === this.id);
 			if (!hasAccess) {
 				result.push({ cong_name: cong.cong_name, cong_number: +cong.cong_number, cong_id: cong.id });
+			}
+		}
+	}
+
+	return result;
+};
+
+Congregation.prototype.requestAccessCongregationSpeakers = async function (cong_id) {
+	const requestedCong = congregations.findCongregationById(cong_id);
+	const request = requestedCong.cong_outgoing_speakers.access.find((record) => record.cong_id === this.id);
+
+	if (!request) {
+		requestedCong.cong_outgoing_speakers.access.push({ cong_id: this.id, status: 'pending' });
+	}
+
+	const data = { cong_outgoing_speakers: requestedCong.cong_outgoing_speakers.access };
+
+	await db.collection('congregations').doc(cong_id).set(data, { merge: true });
+};
+
+Congregation.prototype.speakersRequests = function () {
+	const result = [];
+
+	for (const request of this.cong_outgoing_speakers.access) {
+		if (request.status === 'pending') {
+			const currentCong = congregations.findCongregationById(request.cong_id);
+			result.push({ cong_id: request.cong_id, cong_name: currentCong.cong_name, cong_number: currentCong.cong_number });
+		}
+	}
+
+	return result;
+};
+
+Congregation.prototype.speakersRequestsStatus = function (congs) {
+	const result = [];
+
+	congs = congs.filter((v, i, a) => a.findIndex((v2) => v2 === v) === i);
+
+	for (const cong of congs) {
+		const currentCong = congregations.findCongregationById(cong);
+		if (currentCong) {
+			const request = currentCong.cong_outgoing_speakers.access.find((record) => record.cong_id === this.id);
+
+			if (request) {
+				result.push({
+					cong_id: currentCong.id,
+					cong_name: currentCong.cong_name,
+					cong_number: currentCong.cong_number,
+					request_status: request.status,
+				});
+			}
+		}
+	}
+
+	return result;
+};
+
+Congregation.prototype.speakersRequestApprove = async function (cong_id) {
+	const request = this.cong_outgoing_speakers.access.find((record) => record.cong_id === cong_id);
+	if (request) request.status = 'approved';
+
+	const data = { cong_outgoing_speakers: this.cong_outgoing_speakers.access };
+	await db.collection('congregations').doc(this.id).set(data, { merge: true });
+};
+
+Congregation.prototype.visitingSpeakers = function (congs) {
+	const result = [];
+
+	congs = congs.filter((v, i, a) => a.findIndex((v2) => v2 === v) === i);
+
+	for (const cong of congs) {
+		const currentCong = congregations.findCongregationById(cong);
+		if (currentCong) {
+			const request = currentCong.cong_outgoing_speakers.access.find((record) => record.cong_id === this.id);
+			if (request.status === 'approved') {
+				const decryptedSpeakers = JSON.parse(decryptData(currentCong.cong_outgoing_speakers.speakers));
+				result.push({ cong_id: cong, speakers: decryptedSpeakers });
 			}
 		}
 	}

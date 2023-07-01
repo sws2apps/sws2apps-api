@@ -173,7 +173,7 @@ export const getCongregationBackup = async (req, res, next) => {
 			return;
 		}
 
-		const cong = await congregations.findCongregationById(id);
+		const cong = congregations.findCongregationById(id);
 
 		if (!cong) {
 			res.locals.type = 'warn';
@@ -348,7 +348,7 @@ export const findUserByCongregation = async (req, res, next) => {
 		const search = req.query.search;
 
 		if (id) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -415,7 +415,7 @@ export const addCongregationUser = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -482,7 +482,7 @@ export const updateCongregationMemberDetails = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -574,7 +574,7 @@ export const getCongregationUser = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -620,7 +620,7 @@ export const getCongregationPockerUser = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id && user && user !== 'undefined') {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -673,7 +673,7 @@ export const createNewPocketUser = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -732,7 +732,7 @@ export const updatePocketDetails = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -800,7 +800,7 @@ export const updatePocketUsername = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -867,7 +867,7 @@ export const updateMembersDelegate = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -934,7 +934,7 @@ export const generatePocketOTPCode = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -1000,7 +1000,7 @@ export const deletePocketOTPCode = async (req, res, next) => {
 		}
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -1079,7 +1079,7 @@ export const deletePocketDevice = async (req, res, next) => {
 		const pocket_visitorid = isNaN(req.body.pocket_visitorid) ? req.body.pocket_visitorid : +req.body.pocket_visitorid;
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -1143,7 +1143,7 @@ export const sendPocketSchedule = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -1202,7 +1202,7 @@ export const getMeetingSchedules = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -1539,7 +1539,7 @@ export const postUserFieldServiceReports = async (req, res, next) => {
 			return;
 		}
 
-		const cong = await congregations.findCongregationById(id);
+		const cong = congregations.findCongregationById(id);
 
 		if (!cong) {
 			res.locals.type = 'warn';
@@ -1616,7 +1616,7 @@ export const unpostUserFieldServiceReports = async (req, res, next) => {
 			return;
 		}
 
-		const cong = await congregations.findCongregationById(id);
+		const cong = congregations.findCongregationById(id);
 
 		if (!cong) {
 			res.locals.type = 'warn';
@@ -1673,7 +1673,7 @@ export const getPendingFieldServiceReports = async (req, res, next) => {
 			return;
 		}
 
-		const cong = await congregations.findCongregationById(id);
+		const cong = congregations.findCongregationById(id);
 
 		if (!cong) {
 			res.locals.type = 'warn';
@@ -1729,7 +1729,7 @@ export const approvePendingFieldServiceReports = async (req, res, next) => {
 			return;
 		}
 
-		const cong = await congregations.findCongregationById(id);
+		const cong = congregations.findCongregationById(id);
 
 		if (!cong) {
 			res.locals.type = 'warn';
@@ -1792,7 +1792,7 @@ export const disapprovePendingFieldServiceReports = async (req, res, next) => {
 			return;
 		}
 
-		const cong = await congregations.findCongregationById(id);
+		const cong = congregations.findCongregationById(id);
 
 		if (!cong) {
 			res.locals.type = 'warn';

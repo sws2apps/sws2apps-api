@@ -108,7 +108,7 @@ export const bulkUpdatePublicTalks = async (req, res, next) => {
 
 			if (findTalk && !findTalk[language]) update = true;
 
-			if (findTalk[language] && talk.talk_title !== findTalk[language].title) update = true;
+			if (findTalk && findTalk[language] && talk.talk_title !== findTalk[language].title) update = true;
 
 			if (update) {
 				talksToUpdate.push(talk);
