@@ -82,9 +82,39 @@ export const fetchData = async (language, issue) => {
 
 				// get w current issue
 				const today = new Date();
-				const weekDate = new Date(today.setMonth(today.getMonth() - 2));
-				let monthW = weekDate.getMonth() + 1;
-				let currentYear = weekDate.getFullYear();
+				const url = `${process.env.WOL_E}/${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+
+				const res = await fetch(url);
+				const data = await res.json();
+
+				const wData = data.items.find((item) => item.classification === 68);
+				const publicationTitle = wData.publicationTitle;
+
+				const findYear = /\b\d{4}\b/;
+				const array = findYear.exec(publicationTitle);
+				let currentYear = +array[0];
+
+				const months = [
+					'January',
+					'February',
+					'March',
+					'April',
+					'May',
+					'June',
+					'July',
+					'August',
+					'September',
+					'October',
+					'November',
+					'December',
+				];
+
+				const monthsRegex = `(${months.join('|')})`;
+
+				const regex = new RegExp(monthsRegex);
+				const array2 = regex.exec(publicationTitle);
+
+				let monthW = months.findIndex((month) => month === array2[0]) + 1;
 
 				do {
 					const issueDate = currentYear + String(monthW).padStart(2, '0');
