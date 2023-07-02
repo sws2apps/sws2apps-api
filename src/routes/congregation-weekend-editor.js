@@ -4,6 +4,7 @@ import { visitorChecker } from '../middleware/visitor-checker.js';
 import { congregationRoleChecker, congregationWeekendEditorChecker } from '../middleware/congregation-role-checker.js';
 import {
 	approveCongregationSpeakersRequest,
+	disapproveCongregationSpeakersRequest,
 	findVisitingSpeakersCongregations,
 	getCongregationSpeakersRequests,
 	getCongregationSpeakersRequestsStatus,
@@ -48,6 +49,9 @@ router.get('/:id/request-speakers-status', header('congs').isString(), getCongre
 
 // approve congregation speakers request
 router.patch('/:id/request-speakers/approve', header('cong_id').isString().notEmpty(), approveCongregationSpeakersRequest);
+
+// disapprove congregation speakers request
+router.patch('/:id/request-speakers/disapprove', header('cong_id').isString().notEmpty(), disapproveCongregationSpeakersRequest);
 
 // get visiting speakers list
 router.get('/:id/visiting-speakers', header('congs').isString().notEmpty(), getVisitingSpeakers);

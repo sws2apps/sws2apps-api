@@ -1502,7 +1502,17 @@ Congregation.prototype.findVisitingSpeakersCongregations = function (name) {
 
 	for (const cong of data) {
 		if (cong.cong_outgoing_speakers && cong.cong_outgoing_speakers.speakers.length > 0) {
-			const hasAccess = cong.cong_outgoing_speakers.access.find((record) => record.cong_id === this.id);
+			let hasAccess = true;
+
+			const hasRecord = cong.cong_outgoing_speakers.access.find((record) => record.cong_id === this.id);
+			const hasDisapprovedRecord = cong.cong_outgoing_speakers.access.find(
+				(record) => record.cong_id === this.id && record.status === 'disapproved'
+			);
+
+			if (!hasRecord || hasDisapprovedRecord) {
+				hasAccess = false;
+			}
+
 			if (!hasAccess) {
 				result.push({ cong_name: cong.cong_name, cong_number: +cong.cong_number, cong_id: cong.id });
 			}
@@ -1518,6 +1528,10 @@ Congregation.prototype.requestAccessCongregationSpeakers = async function (cong_
 
 	if (!request) {
 		requestedCong.cong_outgoing_speakers.access.push({ cong_id: this.id, status: 'pending' });
+	}
+
+	if (request) {
+		request.status = 'pending';
 	}
 
 	const data = { cong_outgoing_speakers: requestedCong.cong_outgoing_speakers.access };
@@ -1565,6 +1579,14 @@ Congregation.prototype.speakersRequestsStatus = function (congs) {
 Congregation.prototype.speakersRequestApprove = async function (cong_id) {
 	const request = this.cong_outgoing_speakers.access.find((record) => record.cong_id === cong_id);
 	if (request) request.status = 'approved';
+
+	const data = { cong_outgoing_speakers: this.cong_outgoing_speakers.access };
+	await db.collection('congregations').doc(this.id).set(data, { merge: true });
+};
+
+Congregation.prototype.speakersRequestDisapprove = async function (cong_id) {
+	const request = this.cong_outgoing_speakers.access.find((record) => record.cong_id === cong_id);
+	if (request) request.status = 'disapproved';
 
 	const data = { cong_outgoing_speakers: this.cong_outgoing_speakers.access };
 	await db.collection('congregations').doc(this.id).set(data, { merge: true });
