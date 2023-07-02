@@ -594,3 +594,120 @@ export const getVisitingSpeakers = async (req, res, next) => {
 		next(err);
 	}
 };
+
+export const getApprovedVisitingSpeakersAccess = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const { uid } = req.headers;
+
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation id params is undefined';
+			res.status(400).json({ message: 'CONG_ID_INVALID' });
+			return;
+		}
+
+		const cong = congregations.findCongregationById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = await cong.isMember(uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const access = cong.speakersAccess();
+
+		res.locals.type = 'info';
+		res.locals.message = `user fetched congregation speakers access`;
+		res.status(200).json(access);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const updateVisitingSpeakersAccess = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const { uid } = req.headers;
+
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			let msg = '';
+			errors.array().forEach((error) => {
+				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
+			});
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation id params is undefined';
+			res.status(400).json({ message: 'CONG_ID_INVALID' });
+			return;
+		}
+
+		const cong = congregations.findCongregationById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = await cong.isMember(uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const congs = req.body.congs;
+		const access = await cong.updateSpeakersAccess(congs);
+
+		res.locals.type = 'info';
+		res.locals.message = `user updated congregation speakers access`;
+		res.status(200).json(access);
+	} catch (err) {
+		next(err);
+	}
+};

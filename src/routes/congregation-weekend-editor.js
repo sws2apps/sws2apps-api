@@ -6,12 +6,14 @@ import {
 	approveCongregationSpeakersRequest,
 	disapproveCongregationSpeakersRequest,
 	findVisitingSpeakersCongregations,
+	getApprovedVisitingSpeakersAccess,
 	getCongregationSpeakersRequests,
 	getCongregationSpeakersRequestsStatus,
 	getPublicTalks,
 	getVisitingSpeakers,
 	requestAccessSpeakersCongregation,
 	updateVisitingSpeakers,
+	updateVisitingSpeakersAccess,
 	userBulkUpdatePublicTalks,
 } from '../controllers/congregation-weekend-editor-controller.js';
 
@@ -55,5 +57,11 @@ router.patch('/:id/request-speakers/disapprove', header('cong_id').isString().no
 
 // get visiting speakers list
 router.get('/:id/visiting-speakers', header('congs').isString().notEmpty(), getVisitingSpeakers);
+
+// get visiting speakers list
+router.get('/:id/visiting-speakers-access', getApprovedVisitingSpeakersAccess);
+
+// update visiting speakers access
+router.patch('/:id/visiting-speakers-access', body('congs').isArray().notEmpty(), updateVisitingSpeakersAccess);
 
 export default router;

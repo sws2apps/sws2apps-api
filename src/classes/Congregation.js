@@ -1563,6 +1563,15 @@ Congregation.prototype.speakersRequestsStatus = function (congs) {
 					request_status: request.status,
 				});
 			}
+
+			if (!request) {
+				result.push({
+					cong_id: currentCong.id,
+					cong_name: currentCong.cong_name,
+					cong_number: currentCong.cong_number,
+					request_status: 'disapproved',
+				});
+			}
 		}
 	}
 
@@ -1600,6 +1609,44 @@ Congregation.prototype.visitingSpeakers = function (congs) {
 			}
 		}
 	}
+
+	return result;
+};
+
+Congregation.prototype.speakersAccess = function () {
+	const result = [];
+
+	const approvedAccess = this.cong_outgoing_speakers.access.filter((record) => record.status === 'approved');
+
+	for (const access of approvedAccess) {
+		const cong = congregations.findCongregationById(access.cong_id);
+		if (cong) {
+			result.push({ cong_id: access.cong_id, cong_name: cong.cong_name, cong_number: cong.cong_number });
+		}
+	}
+
+	return result;
+};
+
+Congregation.prototype.updateSpeakersAccess = async function (congs) {
+	if (congs.length === 0) {
+		this.cong_outgoing_speakers.access = [];
+	}
+
+	if (congs.length > 0) {
+		for (const cong of congs) {
+			this.cong_outgoing_speakers.access = this.cong_outgoing_speakers.access.filter((record) => record.cong_id !== cong.cong_id);
+		}
+	}
+
+	const data = { cong_outgoing_speakers: this.cong_outgoing_speakers.access };
+	await db.collection('congregations').doc(this.id).set(data, { merge: true });
+
+	const result = this.cong_outgoing_speakers.access.map((access) => {
+		const cong = congregations.findCongregationById(access.cong_id);
+
+		return { cong_id: access.cong_id, cong_name: cong.cong_name, cong_number: cong.cong_number };
+	});
 
 	return result;
 };
