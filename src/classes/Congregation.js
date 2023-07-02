@@ -1502,18 +1502,11 @@ Congregation.prototype.findVisitingSpeakersCongregations = function (name) {
 
 	for (const cong of data) {
 		if (cong.cong_outgoing_speakers && cong.cong_outgoing_speakers.speakers.length > 0) {
-			let hasAccess = true;
-
-			const hasRecord = cong.cong_outgoing_speakers.access.find((record) => record.cong_id === this.id);
-			const hasDisapprovedRecord = cong.cong_outgoing_speakers.access.find(
-				(record) => record.cong_id === this.id && record.status === 'disapproved'
+			const isPending = cong.cong_outgoing_speakers.access.find(
+				(record) => record.cong_id === this.id && record.status === 'pending'
 			);
 
-			if (!hasRecord || hasDisapprovedRecord) {
-				hasAccess = false;
-			}
-
-			if (!hasAccess) {
+			if (!isPending) {
 				result.push({ cong_name: cong.cong_name, cong_number: +cong.cong_number, cong_id: cong.id });
 			}
 		}
