@@ -1497,7 +1497,8 @@ Congregation.prototype.findVisitingSpeakersCongregations = function (name) {
 	const result = [];
 
 	const data = congregations.list.filter(
-		(cong) => cong.cong_name.toLowerCase().indexOf(name.toLowerCase()) !== -1 && cong.id !== this.id
+		(cong) =>
+			(cong.cong_name.toLowerCase().indexOf(name.toLowerCase()) !== -1 || cong.cong_number === name) && cong.id !== this.id
 	);
 
 	for (const cong of data) {
