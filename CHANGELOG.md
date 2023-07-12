@@ -1,3 +1,11 @@
+# [2.64.0](https://github.com/sws2apps/sws2apps-api/compare/v2.63.0...v2.64.0) (2023-07-12)
+
+
+### Features
+
+* **deps:** bump @logtail/node from 0.4.0 to 0.4.2 ([709a2f0](https://github.com/sws2apps/sws2apps-api/commit/709a2f094049dbfda426521ca64bf8a83ca5c139))
+* **deps:** bump i18next from 23.2.8 to 23.2.9 ([3498038](https://github.com/sws2apps/sws2apps-api/commit/3498038fa1cb8a914e4d2c2ef5d0e909730c19fa))
+
 # [2.63.0](https://github.com/sws2apps/sws2apps-api/compare/v2.62.0...v2.63.0) (2023-07-07)
 
 
