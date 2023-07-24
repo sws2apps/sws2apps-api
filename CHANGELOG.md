@@ -1,3 +1,22 @@
+# [2.65.0](https://github.com/sws2apps/sws2apps-api/compare/v2.64.0...v2.65.0) (2023-07-24)
+
+
+### Bug Fixes
+
+* **classes:** save new encrypted token after revoke ([dad1423](https://github.com/sws2apps/sws2apps-api/commit/dad142329a6474c62a8bfc8675843e0423449963))
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.23.3 to 1.23.4 ([f85c7d3](https://github.com/sws2apps/sws2apps-api/commit/f85c7d37b3c91b475ec6c462dbea4168d22e67c7))
+* **deps:** bump @logtail/node from 0.4.2 to 0.4.3 ([d45fbd2](https://github.com/sws2apps/sws2apps-api/commit/d45fbd253dca5164b115685f78defafb04ac0a13))
+* **deps:** bump @logtail/node from 0.4.3 to 0.4.4 ([2f6c327](https://github.com/sws2apps/sws2apps-api/commit/2f6c327fbb9c7a0542e3fafe1eee0dc5c54cf971))
+* **deps:** bump @logtail/node from 0.4.4 to 0.4.5 ([9a6ae46](https://github.com/sws2apps/sws2apps-api/commit/9a6ae46046fd7ead275ec274e7d1d322371d0c7e))
+* **deps:** bump express-rate-limit from 6.7.1 to 6.8.0 ([63b03b0](https://github.com/sws2apps/sws2apps-api/commit/63b03b0fc210fa164cc558598878869dd55c02b0))
+* **deps:** bump firebase-admin from 11.9.0 to 11.10.1 ([b8f712d](https://github.com/sws2apps/sws2apps-api/commit/b8f712d0c5b90a108159105b3fdd0aa62bec6edf))
+* **deps:** bump i18next from 23.2.9 to 23.2.11 ([783b133](https://github.com/sws2apps/sws2apps-api/commit/783b1333e0eeb995a051bd92eef04e3c05c1f601))
+* **deps:** bump nodemailer from 6.9.3 to 6.9.4 ([1119e7f](https://github.com/sws2apps/sws2apps-api/commit/1119e7f659868cab34bcfdb91a0698f07924a6ee))
+
 # [2.64.0](https://github.com/sws2apps/sws2apps-api/compare/v2.63.0...v2.64.0) (2023-07-12)
 
 
