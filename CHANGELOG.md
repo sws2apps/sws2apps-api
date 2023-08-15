@@ -1,3 +1,12 @@
+# [2.67.0](https://github.com/sws2apps/sws2apps-api/compare/v2.66.0...v2.67.0) (2023-08-15)
+
+
+### Features
+
+* **api:** add support for Ukrainian language ([0bc21d1](https://github.com/sws2apps/sws2apps-api/commit/0bc21d164d924b4bf783054a85faffa9d35d9ec3))
+* **deps:** bump @logtail/node from 0.4.5 to 0.4.6 ([4c0d583](https://github.com/sws2apps/sws2apps-api/commit/4c0d5833fd7f6077f986940294698d0daba344d6))
+* **deps:** bump jw-epub-parser from 1.40.1 to 1.41.0 ([8ed0121](https://github.com/sws2apps/sws2apps-api/commit/8ed01214e822d18d57adc1a3c83a5c28d8204c60))
+
 # [2.66.0](https://github.com/sws2apps/sws2apps-api/compare/v2.65.0...v2.66.0) (2023-08-10)
 
 
