@@ -3,6 +3,7 @@ import { validationResult } from 'express-validator';
 import { decryptData } from '../utils/encryption-utils.js';
 import { users } from '../classes/Users.js';
 import { congregations } from '../classes/Congregations.js';
+import { LANGUAGE_LIST } from '../locales/langList.js';
 
 export const getLastCongregationBackup = async (req, res, next) => {
 	try {
@@ -1286,8 +1287,9 @@ export const getCountries = async (req, res, next) => {
 
 		language = language.toUpperCase();
 
-		const langsAllowed = ['E', 'MG', 'T'];
-		if (langsAllowed.includes(language) === false) {
+		const isLangValid = LANGUAGE_LIST.find((lang) => lang.code.toUpperCase() === language);
+
+		if (!isLangValid) {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid language`;
 
@@ -1346,8 +1348,9 @@ export const getCongregations = async (req, res, next) => {
 		language = language.toUpperCase();
 		country = country.toUpperCase();
 
-		const langsAllowed = ['E', 'MG', 'T'];
-		if (langsAllowed.includes(language) === false) {
+		const isLangValid = LANGUAGE_LIST.find((lang) => lang.code.toUpperCase() === language);
+
+		if (!isLangValid) {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid language`;
 
