@@ -439,7 +439,7 @@ User.prototype.revokeToken = async function () {
 	await db.collection('users').doc(this.id).update(data);
 
 	this.mfaEnabled = false;
-	this.secret = encryptData;
+	this.secret = encryptedData;
 	this.sessions = [];
 };
 

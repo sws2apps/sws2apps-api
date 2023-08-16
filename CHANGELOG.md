@@ -1,3 +1,69 @@
+# [2.67.0](https://github.com/sws2apps/sws2apps-api/compare/v2.66.0...v2.67.0) (2023-08-15)
+
+
+### Features
+
+* **api:** add support for Ukrainian language ([0bc21d1](https://github.com/sws2apps/sws2apps-api/commit/0bc21d164d924b4bf783054a85faffa9d35d9ec3))
+* **deps:** bump @logtail/node from 0.4.5 to 0.4.6 ([4c0d583](https://github.com/sws2apps/sws2apps-api/commit/4c0d5833fd7f6077f986940294698d0daba344d6))
+* **deps:** bump jw-epub-parser from 1.40.1 to 1.41.0 ([8ed0121](https://github.com/sws2apps/sws2apps-api/commit/8ed01214e822d18d57adc1a3c83a5c28d8204c60))
+
+# [2.66.0](https://github.com/sws2apps/sws2apps-api/compare/v2.65.0...v2.66.0) (2023-08-10)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.23.4 to 1.24.0 ([680662e](https://github.com/sws2apps/sws2apps-api/commit/680662e8348a4c8279eac6a9e3800890d0d54290))
+* **deps:** bump express-rate-limit from 6.8.0 to 6.8.1 ([29b62cf](https://github.com/sws2apps/sws2apps-api/commit/29b62cfd27c35dc2d0a721135e78949b1c3b06c8))
+* **deps:** bump express-rate-limit from 6.8.1 to 6.9.0 ([425b0f3](https://github.com/sws2apps/sws2apps-api/commit/425b0f38fdb6dd5914e6d548ac6bebf50f2946bf))
+* **deps:** bump global-jsdom from 9.0.1 to 9.1.0 ([77329ab](https://github.com/sws2apps/sws2apps-api/commit/77329abf2268d7b2afa265a286190cdb441d68a4))
+* **deps:** bump i18next from 23.2.11 to 23.3.0 ([faf2aee](https://github.com/sws2apps/sws2apps-api/commit/faf2aeeda2fd625311fca3c684a4ccc0f3987177))
+* **deps:** bump i18next from 23.3.0 to 23.4.1 ([9064bc8](https://github.com/sws2apps/sws2apps-api/commit/9064bc8bfb32b6cf99b690ecf08b0420a7cf4007))
+* **deps:** bump i18next from 23.4.1 to 23.4.4 ([576610e](https://github.com/sws2apps/sws2apps-api/commit/576610e7572d7383627f13a281c0d84d084cee35))
+* **deps:** bump node-fetch from 3.3.1 to 3.3.2 ([ade2d29](https://github.com/sws2apps/sws2apps-api/commit/ade2d29934fc1ae83c63026d16af1200c4efef10))
+* **deps:** bump otpauth from 9.1.3 to 9.1.4 ([7172fda](https://github.com/sws2apps/sws2apps-api/commit/7172fda9755fb912e4edc9f9ae0ce0333243d670))
+
+# [2.65.0](https://github.com/sws2apps/sws2apps-api/compare/v2.64.0...v2.65.0) (2023-07-24)
+
+
+### Bug Fixes
+
+* **classes:** save new encrypted token after revoke ([dad1423](https://github.com/sws2apps/sws2apps-api/commit/dad142329a6474c62a8bfc8675843e0423449963))
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.23.3 to 1.23.4 ([f85c7d3](https://github.com/sws2apps/sws2apps-api/commit/f85c7d37b3c91b475ec6c462dbea4168d22e67c7))
+* **deps:** bump @logtail/node from 0.4.2 to 0.4.3 ([d45fbd2](https://github.com/sws2apps/sws2apps-api/commit/d45fbd253dca5164b115685f78defafb04ac0a13))
+* **deps:** bump @logtail/node from 0.4.3 to 0.4.4 ([2f6c327](https://github.com/sws2apps/sws2apps-api/commit/2f6c327fbb9c7a0542e3fafe1eee0dc5c54cf971))
+* **deps:** bump @logtail/node from 0.4.4 to 0.4.5 ([9a6ae46](https://github.com/sws2apps/sws2apps-api/commit/9a6ae46046fd7ead275ec274e7d1d322371d0c7e))
+* **deps:** bump express-rate-limit from 6.7.1 to 6.8.0 ([63b03b0](https://github.com/sws2apps/sws2apps-api/commit/63b03b0fc210fa164cc558598878869dd55c02b0))
+* **deps:** bump firebase-admin from 11.9.0 to 11.10.1 ([b8f712d](https://github.com/sws2apps/sws2apps-api/commit/b8f712d0c5b90a108159105b3fdd0aa62bec6edf))
+* **deps:** bump i18next from 23.2.9 to 23.2.11 ([783b133](https://github.com/sws2apps/sws2apps-api/commit/783b1333e0eeb995a051bd92eef04e3c05c1f601))
+* **deps:** bump nodemailer from 6.9.3 to 6.9.4 ([1119e7f](https://github.com/sws2apps/sws2apps-api/commit/1119e7f659868cab34bcfdb91a0698f07924a6ee))
+
+# [2.64.0](https://github.com/sws2apps/sws2apps-api/compare/v2.63.0...v2.64.0) (2023-07-12)
+
+
+### Features
+
+* **deps:** bump @logtail/node from 0.4.0 to 0.4.2 ([709a2f0](https://github.com/sws2apps/sws2apps-api/commit/709a2f094049dbfda426521ca64bf8a83ca5c139))
+* **deps:** bump i18next from 23.2.8 to 23.2.9 ([3498038](https://github.com/sws2apps/sws2apps-api/commit/3498038fa1cb8a914e4d2c2ef5d0e909730c19fa))
+
+# [2.63.0](https://github.com/sws2apps/sws2apps-api/compare/v2.62.0...v2.63.0) (2023-07-07)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.23.1 to 1.23.2 ([8061231](https://github.com/sws2apps/sws2apps-api/commit/8061231164ce0e88581dc7e8a1903be10b502a65))
+* **deps:** bump @crowdin/crowdin-api-client from 1.23.2 to 1.23.3 ([837dbcf](https://github.com/sws2apps/sws2apps-api/commit/837dbcfa394857d920ee1498c37d4bdb0e65c6bd))
+* **deps:** bump dayjs from 1.11.8 to 1.11.9 ([ff5abf3](https://github.com/sws2apps/sws2apps-api/commit/ff5abf331f447c99a1b8495b389e541c1fc4f7f2))
+* **deps:** bump express-rate-limit from 6.7.0 to 6.7.1 ([f656663](https://github.com/sws2apps/sws2apps-api/commit/f65666308a5999cf988fed99e33c00bdc9660b02))
+* **deps:** bump i18next from 23.2.2 to 23.2.3 ([2059a3e](https://github.com/sws2apps/sws2apps-api/commit/2059a3e0ee5c891b45e3d7d15c36e182edb0d7ca))
+* **deps:** bump i18next from 23.2.3 to 23.2.6 ([0c38abd](https://github.com/sws2apps/sws2apps-api/commit/0c38abd73d7a4351cb72b7c52d74c57a1d3a0813))
+* **deps:** bump i18next from 23.2.6 to 23.2.7 ([bd7178d](https://github.com/sws2apps/sws2apps-api/commit/bd7178db2f9a5f095dad9e435c6d3f2c6601fa7b))
+* **deps:** bump i18next from 23.2.7 to 23.2.8 ([2997914](https://github.com/sws2apps/sws2apps-api/commit/29979148269053fa03491c44abfa2092ad02338a))
+* **deps:** bump otpauth from 9.1.2 to 9.1.3 ([4f7c46e](https://github.com/sws2apps/sws2apps-api/commit/4f7c46e9c12fc58f3a6a46903426c85438c6c42d))
+
 # [2.62.0](https://github.com/sws2apps/sws2apps-api/compare/v2.61.0...v2.62.0) (2023-06-21)
 
 
