@@ -1,3 +1,11 @@
+# [2.68.0](https://github.com/sws2apps/sws2apps-api/compare/v2.67.0...v2.68.0) (2023-08-18)
+
+
+### Features
+
+* **deps:** bump bcrypt from 5.1.0 to 5.1.1 ([954a7ae](https://github.com/sws2apps/sws2apps-api/commit/954a7ae7d86b53aada83527dfaeedf4c365da930))
+* **locales:** support German language ([7d92c81](https://github.com/sws2apps/sws2apps-api/commit/7d92c81f53611df3ba5c29caa79687797df803a0))
+
 # [2.67.0](https://github.com/sws2apps/sws2apps-api/compare/v2.66.0...v2.67.0) (2023-08-15)
 
 
