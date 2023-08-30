@@ -235,6 +235,11 @@ export const getCongregationBackup = async (req, res, next) => {
 				obj.cong_minutesReports = backupData.cong_minutesReports;
 				obj.cong_serviceYear = backupData.cong_serviceYear;
 			}
+
+			if (weekendEditorRole) {
+				obj.cong_visitingSpeakers = backupData.cong_visitingSpeakers;
+				obj.cong_publicTalks = backupData.cong_publicTalks;
+			}
 		}
 
 		if (publisherRole) {

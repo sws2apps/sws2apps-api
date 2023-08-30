@@ -1175,8 +1175,10 @@ Congregation.prototype.saveBackup = async function (payload) {
 };
 
 Congregation.prototype.retrieveBackup = function () {
-	// decrypt cong_persons data
+	// decrypt persons data
 	const decryptedPersons = this.cong_persons === '' ? [] : JSON.parse(decryptData(this.cong_persons));
+	const decryptedVisitingSpeakers =
+		this.cong_visiting_speakers === '' ? [] : JSON.parse(decryptData(this.cong_visiting_speakers));
 
 	return {
 		cong_persons: decryptedPersons,
@@ -1190,6 +1192,8 @@ Congregation.prototype.retrieveBackup = function () {
 		cong_meetingAttendance: this.cong_meetingAttendance,
 		cong_minutesReports: this.cong_minutesReports,
 		cong_serviceYear: this.cong_serviceYear,
+		cong_visitingSpeakers: decryptedVisitingSpeakers,
+		cong_publicTalks: this.cong_publicTalks,
 	};
 };
 
@@ -1664,7 +1668,7 @@ Congregation.prototype.findVisitingSpeakersCongregations = function (name) {
 	);
 
 	for (const cong of data) {
-		if (cong.cong_outgoing_speakers && cong.cong_outgoing_speakers.speakers.length > 0) {
+		if (cong.cong_outgoing_speakers && cong.cong_outgoing_speakers.length > 0) {
 			const isPending = cong.cong_outgoing_speakers_access.find(
 				(record) => record.cong_id === this.id && record.status === 'pending'
 			);
