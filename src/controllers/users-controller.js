@@ -67,9 +67,11 @@ export const validateUser = async (req, res, next) => {
 			if (isElder) {
 				const lmmoRole = obj.cong_role.includes('lmmo') || obj.cong_role.includes('lmmo-backup');
 				const secretaryRole = obj.cong_role.includes('secretary');
+				const coordinatorRole = obj.cong_role.includes('coordinator');
+				const publicTalkCoordinatorRole = obj.cong_role.includes('public_talk_coordinator');
 
-				// exclude lmmo and secretary
-				if (!lmmoRole && !secretaryRole) {
+				// exclude lmmo, secretary, coordinator, public_talk_coordinator
+				if (!lmmoRole && !secretaryRole && !coordinatorRole && !publicTalkCoordinatorRole) {
 					const backupData = cong.retrieveBackup();
 					obj.cong_persons = backupData.cong_persons;
 				}

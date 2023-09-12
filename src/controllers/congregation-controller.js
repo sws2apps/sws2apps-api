@@ -3,6 +3,7 @@ import { validationResult } from 'express-validator';
 import { decryptData } from '../utils/encryption-utils.js';
 import { users } from '../classes/Users.js';
 import { congregations } from '../classes/Congregations.js';
+import { allowedRoles, createCongregationAllowedRoles } from '../constant/constant.js';
 import { LANGUAGE_LIST } from '../locales/langList.js';
 
 export const getLastCongregationBackup = async (req, res, next) => {
@@ -43,9 +44,10 @@ export const getLastCongregationBackup = async (req, res, next) => {
 
 		const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
 		const secretaryRole = user.cong_role.includes('secretary');
+		const weekendEditorRole = user.cong_role.includes('coordinator') || user.cong_role.includes('public_talk_coordinator');
 		const publisherRole = isPublisher || isMS || isElder;
 
-		if (!lmmoRole && !secretaryRole && !publisherRole) {
+		if (!lmmoRole && !secretaryRole && !publisherRole && !weekendEditorRole) {
 			res.locals.type = 'warn';
 			res.locals.message = 'user not authorized to get congregation backup info';
 			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
@@ -53,7 +55,7 @@ export const getLastCongregationBackup = async (req, res, next) => {
 		}
 
 		const obj = { user_last_backup: user.last_backup ? { date: user.last_backup } : 'NO_BACKUP' };
-		if (lmmoRole || secretaryRole) {
+		if (lmmoRole || secretaryRole || weekendEditorRole) {
 			obj.cong_last_backup = cong.last_backup ? cong.last_backup : 'NO_BACKUP';
 		}
 
@@ -103,9 +105,10 @@ export const saveCongregationBackup = async (req, res, next) => {
 
 		const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
 		const secretaryRole = user.cong_role.includes('secretary');
+		const weekendEditorRole = user.cong_role.includes('coordinator') || user.cong_role.includes('public_talk_coordinator');
 		const publisherRole = isPublisher || isMS || isElder;
 
-		if (!lmmoRole && !secretaryRole && !publisherRole) {
+		if (!lmmoRole && !secretaryRole && !publisherRole && !weekendEditorRole) {
 			res.locals.type = 'warn';
 			res.locals.message = 'user not authorized to send congregation backup';
 			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
@@ -127,7 +130,7 @@ export const saveCongregationBackup = async (req, res, next) => {
 
 		const payload = req.body;
 
-		if (lmmoRole || secretaryRole) {
+		if (lmmoRole || secretaryRole || weekendEditorRole) {
 			await cong.saveBackup({
 				cong_persons: payload.cong_persons,
 				cong_deleted: payload.cong_deleted,
@@ -142,6 +145,8 @@ export const saveCongregationBackup = async (req, res, next) => {
 				cong_meetingAttendance: payload.cong_meetingAttendance,
 				cong_minutesReports: payload.cong_minutesReports,
 				cong_serviceYear: payload.cong_serviceYear,
+				cong_publicTalks: payload.cong_publicTalks,
+				cong_visitingSpeakers: payload.cong_visitingSpeakers,
 				uid,
 			});
 		}
@@ -173,7 +178,7 @@ export const getCongregationBackup = async (req, res, next) => {
 			return;
 		}
 
-		const cong = await congregations.findCongregationById(id);
+		const cong = congregations.findCongregationById(id);
 
 		if (!cong) {
 			res.locals.type = 'warn';
@@ -198,9 +203,10 @@ export const getCongregationBackup = async (req, res, next) => {
 
 		const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
 		const secretaryRole = user.cong_role.includes('secretary');
+		const weekendEditorRole = user.cong_role.includes('coordinator') || user.cong_role.includes('public_talk)coordinator');
 		const publisherRole = isPublisher || isMS || isElder;
 
-		if (!lmmoRole && !secretaryRole && !publisherRole) {
+		if (!lmmoRole && !secretaryRole && !publisherRole && !weekendEditorRole) {
 			res.locals.type = 'warn';
 			res.locals.message = 'user not authorized to access the congregation backup';
 			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
@@ -209,16 +215,15 @@ export const getCongregationBackup = async (req, res, next) => {
 
 		const obj = {};
 
-		if (lmmoRole || secretaryRole) {
+		if (lmmoRole || secretaryRole || weekendEditorRole) {
 			const backupData = cong.retrieveBackup();
 
 			obj.cong_persons = backupData.cong_persons;
 			obj.cong_settings = backupData.cong_settings;
 
-			if (lmmoRole) {
+			if (lmmoRole || weekendEditorRole) {
 				obj.cong_schedule = backupData.cong_schedule;
 				obj.cong_sourceMaterial = backupData.cong_sourceMaterial;
-				obj.cong_swsPocket = backupData.cong_swsPocket;
 			}
 
 			if (secretaryRole) {
@@ -229,6 +234,11 @@ export const getCongregationBackup = async (req, res, next) => {
 				obj.cong_meetingAttendance = backupData.cong_meetingAttendance;
 				obj.cong_minutesReports = backupData.cong_minutesReports;
 				obj.cong_serviceYear = backupData.cong_serviceYear;
+			}
+
+			if (weekendEditorRole) {
+				obj.cong_visitingSpeakers = backupData.cong_visitingSpeakers;
+				obj.cong_publicTalks = backupData.cong_publicTalks;
 			}
 		}
 
@@ -348,7 +358,7 @@ export const findUserByCongregation = async (req, res, next) => {
 		const search = req.query.search;
 
 		if (id) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -415,7 +425,7 @@ export const addCongregationUser = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -482,7 +492,7 @@ export const updateCongregationMemberDetails = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -512,7 +522,6 @@ export const updateCongregationMemberDetails = async (req, res, next) => {
 
 						// validate provided role
 						let isRoleValid = true;
-						const allowedRoles = ['admin', 'lmmo', 'lmmo-backup', 'view_meeting_schedule', 'secretary'];
 						if (user_role.length > 0) {
 							for (const role of user_role) {
 								if (!allowedRoles.includes(role)) {
@@ -575,7 +584,7 @@ export const getCongregationUser = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -621,7 +630,7 @@ export const getCongregationPockerUser = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id && user && user !== 'undefined') {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -674,7 +683,7 @@ export const createNewPocketUser = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -733,7 +742,7 @@ export const updatePocketDetails = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -801,7 +810,7 @@ export const updatePocketUsername = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -868,7 +877,7 @@ export const updateMembersDelegate = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -935,7 +944,7 @@ export const generatePocketOTPCode = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -1001,7 +1010,7 @@ export const deletePocketOTPCode = async (req, res, next) => {
 		}
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -1080,7 +1089,7 @@ export const deletePocketDevice = async (req, res, next) => {
 		const pocket_visitorid = isNaN(req.body.pocket_visitorid) ? req.body.pocket_visitorid : +req.body.pocket_visitorid;
 
 		if (id && user) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -1144,7 +1153,7 @@ export const sendPocketSchedule = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -1203,7 +1212,7 @@ export const getMeetingSchedules = async (req, res, next) => {
 		const { uid } = req.headers;
 
 		if (id) {
-			const cong = await congregations.findCongregationById(id);
+			const cong = congregations.findCongregationById(id);
 			if (cong) {
 				const isValid = await cong.isMember(uid);
 
@@ -1409,9 +1418,7 @@ export const createCongregation = async (req, res, next) => {
 			return;
 		}
 
-		const validRole = ['lmmo', 'secretary'];
-
-		if (!validRole.includes(app_requestor)) {
+		if (!createCongregationAllowedRoles.includes(app_requestor)) {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: ${app_requestor}`;
 
@@ -1544,7 +1551,7 @@ export const postUserFieldServiceReports = async (req, res, next) => {
 			return;
 		}
 
-		const cong = await congregations.findCongregationById(id);
+		const cong = congregations.findCongregationById(id);
 
 		if (!cong) {
 			res.locals.type = 'warn';
@@ -1621,7 +1628,7 @@ export const unpostUserFieldServiceReports = async (req, res, next) => {
 			return;
 		}
 
-		const cong = await congregations.findCongregationById(id);
+		const cong = congregations.findCongregationById(id);
 
 		if (!cong) {
 			res.locals.type = 'warn';
@@ -1678,7 +1685,7 @@ export const getPendingFieldServiceReports = async (req, res, next) => {
 			return;
 		}
 
-		const cong = await congregations.findCongregationById(id);
+		const cong = congregations.findCongregationById(id);
 
 		if (!cong) {
 			res.locals.type = 'warn';
@@ -1734,7 +1741,7 @@ export const approvePendingFieldServiceReports = async (req, res, next) => {
 			return;
 		}
 
-		const cong = await congregations.findCongregationById(id);
+		const cong = congregations.findCongregationById(id);
 
 		if (!cong) {
 			res.locals.type = 'warn';
@@ -1797,7 +1804,7 @@ export const disapprovePendingFieldServiceReports = async (req, res, next) => {
 			return;
 		}
 
-		const cong = await congregations.findCongregationById(id);
+		const cong = congregations.findCongregationById(id);
 
 		if (!cong) {
 			res.locals.type = 'warn';

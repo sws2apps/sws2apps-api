@@ -98,14 +98,30 @@ export const bulkUpdatePublicTalks = async (req, res, next) => {
 		}
 
 		const talks = req.body.talks;
+		const talksToUpdate = [];
 
-		for await (const talk of talks) {
+		for (const talk of talks) {
+			const findTalk = publicTalks.find(talk.talk_number);
+			let update = false;
+
+			if (!findTalk) update = true;
+
+			if (findTalk && !findTalk[language]) update = true;
+
+			if (findTalk && findTalk[language] && talk.talk_title !== findTalk[language].title) update = true;
+
+			if (update) {
+				talksToUpdate.push(talk);
+			}
+		}
+
+		for await (const talk of talksToUpdate) {
 			const payload = { talk_number: talk.talk_number, title: talk.title, modified: new Date().toISOString() };
 			await publicTalks.update(language, payload);
 		}
 
 		res.locals.type = 'info';
-		res.locals.message = `admin updated all public talks for ${language}`;
+		res.locals.message = `admin updated public talks for ${language}`;
 		res.status(200).json({ message: 'TALK_LIST_UPDATED' });
 	} catch (err) {
 		next(err);
