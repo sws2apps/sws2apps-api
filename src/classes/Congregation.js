@@ -8,7 +8,7 @@ import { decryptData, encryptData } from '../utils/encryption-utils.js';
 import { users } from './Users.js';
 import { getOldestWeekDate, getWeekDate } from '../utils/date.js';
 import { getUserReportsAll, getFileFromStorage, uploadFileToStorage, getUserReport } from '../utils/storage-utils.js';
-import { serviceYearExpired, serviceYearFromMonth } from '../utils/congregation-utils.js';
+import { removeExpiredWeeks, serviceYearExpired, serviceYearFromMonth } from '../utils/congregation-utils.js';
 import { congregations } from './Congregations.js';
 
 const db = getFirestore(); //get default database
@@ -71,7 +71,13 @@ Congregation.prototype.loadDetails = async function () {
 	this.cong_schedule_draft = await getFileFromStorage(this.id, 'schedules.txt');
 	this.cong_sourceMaterial_draft = await getFileFromStorage(this.id, 'sources.txt');
 	this.cong_schedule = await getFileFromStorage(this.id, 'pocket-schedules.txt');
+	if (this.cong_schedule.midweekMeeting) {
+		this.cong_schedule = this.cong_schedule.midweekMeeting;
+	}
 	this.cong_sourceMaterial = await getFileFromStorage(this.id, 'pocket-sources.txt');
+	if (this.cong_sourceMaterial.midweekMeeting) {
+		this.cong_sourceMaterial = this.cong_sourceMaterial.midweekMeeting;
+	}
 	this.cong_branchReports = await getFileFromStorage(this.id, 'branch-reports.txt');
 	this.cong_fieldServiceGroup = await getFileFromStorage(this.id, 'field-service-group.txt');
 	this.cong_fieldServiceReports = await getFileFromStorage(this.id, 'field-service-reports.txt');
@@ -1280,69 +1286,39 @@ Congregation.prototype.deletePocketUser = async function (userId) {
 };
 
 Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong_settings) {
-	const currentSchedule = this.cong_schedule;
-	const currentSource = this.cong_sourceMaterial;
+	const currentSchedule = this.cong_schedule.midweekMeeting || this.cong_schedule || [];
+	const currentSource = this.cong_sourceMaterial.midweekMeeting || this.cong_sourceMaterial || [];
 
 	// remove expired schedule and source (> 3 months)
-	const currentDate = new Date().getTime();
-	const validSchedule = currentSchedule.midweekMeeting?.filter((schedule) => schedule.expiredDate > currentDate) || [];
-	const validSource = currentSource.midweekMeeting?.filter((source) => source.expiredDate > currentDate) || [];
+	const validSchedule = removeExpiredWeeks(currentSchedule);
+	const validSource = removeExpiredWeeks(currentSource);
 
-	const oldStudentsSchedule = structuredClone(validSchedule);
-	const oldStudentsSource = structuredClone(validSource);
+	// patch new schedules
+	const { schedules, sources } = cong_schedules;
 
-	const newStudentsSchedule = [];
-	const newStudentsSource = [];
+	for (const schedule of schedules) {
+		const currentSchedule = validSchedule.find((record) => record.weekOf === schedule.weekOf);
 
-	for (const schedule of cong_schedules) {
-		const { month, year, schedules, sources } = schedule;
-
-		const lastDate = new Date(year, month + 1, 0);
-		let expiredDate = new Date();
-		expiredDate.setDate(lastDate.getDate() + 90);
-		const expiredTime = expiredDate.getTime();
-
-		const objSchedule = {
-			expiredDate: expiredTime,
-			modifiedDate: new Date().getTime(),
-			month,
-			schedules,
-			year,
-		};
-
-		const objSource = {
-			expiredDate: expiredTime,
-			modifiedDate: new Date().getTime(),
-			month,
-			sources,
-			year,
-		};
-
-		// remove previous schedule
-		for (const record of oldStudentsSchedule) {
-			if (record.month === objSchedule.month && record.year === objSchedule.year) {
-				continue;
-			}
-
-			newStudentsSchedule.push(record);
+		if (!currentSchedule) {
+			validSchedule.push(schedule);
 		}
 
-		newStudentsSchedule.push(objSchedule);
-
-		// clean old source
-		for (const record of oldStudentsSource) {
-			if (record.month === objSource.month && record.year === objSource.year) {
-				continue;
-			}
-
-			newStudentsSource.push(record);
+		if (currentSchedule) {
+			Object.assign(currentSchedule, schedule);
 		}
-
-		newStudentsSource.push(objSource);
 	}
 
-	const newSchedule = { midweekMeeting: newStudentsSchedule };
-	const newSource = { midweekMeeting: newStudentsSource };
+	for (const src of sources) {
+		const currentSrc = validSource.find((record) => record.weekOf === src.weekOf);
+
+		if (!currentSrc) {
+			validSource.push(src);
+		}
+
+		if (currentSrc) {
+			Object.assign(currentSrc, src);
+		}
+	}
 
 	await db.collection('congregations').doc(this.id).update({
 		cong_settings,
@@ -1351,13 +1327,13 @@ Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong
 	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
 	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
 
-	await uploadFileToStorage(this.id, JSON.stringify(newSchedule), 'pocket-schedules.txt');
-	await uploadFileToStorage(this.id, JSON.stringify(newSource), 'pocket-sources.txt');
+	await uploadFileToStorage(this.id, JSON.stringify(validSchedule), 'pocket-schedules.txt');
+	await uploadFileToStorage(this.id, JSON.stringify(validSource), 'pocket-sources.txt');
 
 	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 
-	this.cong_schedule = newSchedule;
-	this.cong_sourceMaterial = newSource;
+	this.cong_schedule = validSchedule;
+	this.cong_sourceMaterial = validSource;
 	this.cong_settings = cong_settings;
 };
 
