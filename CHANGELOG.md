@@ -1,3 +1,21 @@
+# [2.69.0](https://github.com/sws2apps/sws2apps-api/compare/v2.68.0...v2.69.0) (2023-09-12)
+
+
+### Features
+
+* **deps:** bump @logtail/node from 0.4.6 to 0.4.9 ([b905372](https://github.com/sws2apps/sws2apps-api/commit/b905372f8ad7aeb2e5eea37bea86b0561aa2e6c8))
+* **deps:** bump cryptr from 6.2.0 to 6.3.0 ([87b12b7](https://github.com/sws2apps/sws2apps-api/commit/87b12b7b3e1e6e1902b8b9dccbe94e37abf1b2ec))
+* **deps:** bump express-rate-limit from 6.10.0 to 6.11.0 ([5e130d7](https://github.com/sws2apps/sws2apps-api/commit/5e130d7ebfa761ecd1313d277ff12586c964a0d0))
+* **deps:** bump express-rate-limit from 6.11.0 to 6.11.1 ([00a45cd](https://github.com/sws2apps/sws2apps-api/commit/00a45cd17defaf6bfe3389728a0f20c6aed830c6))
+* **deps:** bump express-rate-limit from 6.11.1 to 6.11.2 ([2a34d3c](https://github.com/sws2apps/sws2apps-api/commit/2a34d3c61dadb95233540fbd21c33aaa4dacd57f))
+* **deps:** bump express-rate-limit from 6.9.0 to 6.10.0 ([e285098](https://github.com/sws2apps/sws2apps-api/commit/e285098ea44baaaa232ac6d9736fa370115537d2))
+* **deps:** bump i18next from 23.4.4 to 23.4.5 ([907bb7e](https://github.com/sws2apps/sws2apps-api/commit/907bb7ed669d742de7271ffcd62918e22d2487a2))
+* **deps:** bump i18next from 23.4.5 to 23.4.6 ([63c88d3](https://github.com/sws2apps/sws2apps-api/commit/63c88d3b3ed0e49e567880fd21a9461139d93c25))
+* **deps:** bump i18next from 23.4.6 to 23.4.9 ([aa81ba0](https://github.com/sws2apps/sws2apps-api/commit/aa81ba09c7bdb1e86800567c098fb26694e90406))
+* **deps:** bump i18next from 23.4.9 to 23.5.0 ([0275138](https://github.com/sws2apps/sws2apps-api/commit/0275138f6b5f7654465c902a2dcaba776a0568b5))
+* **deps:** bump i18next from 23.5.0 to 23.5.1 ([078ca7b](https://github.com/sws2apps/sws2apps-api/commit/078ca7b21487a9218b8f30138d1bebe311e2b5d0))
+* **deps:** bump nodemailer from 6.9.4 to 6.9.5 ([00bb65c](https://github.com/sws2apps/sws2apps-api/commit/00bb65cd6394f9000269454cd0e1684d2b66f68e))
+
 # [2.68.0](https://github.com/sws2apps/sws2apps-api/compare/v2.67.0...v2.68.0) (2023-08-18)
 
 
