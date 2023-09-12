@@ -84,7 +84,7 @@ router.patch(
 );
 
 // post new sws pocket schedule
-router.post('/:id/schedule', body('schedules').isArray(), body('cong_settings').isArray(), sendPocketSchedule);
+router.post('/:id/schedule', body('schedules').isObject().notEmpty(), body('cong_settings').isArray(), sendPocketSchedule);
 
 // get pending field service reports
 router.get('/:id/field-service-reports', getPendingFieldServiceReports);

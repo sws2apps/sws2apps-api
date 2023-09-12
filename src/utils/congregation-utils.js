@@ -52,3 +52,25 @@ export const serviceYearFromMonth = (month) => {
 
 	return current;
 };
+
+export const removeExpiredWeeks = (data) => {
+	const cleaned = [];
+
+	for (const record of data) {
+		// check for new record type
+		if (data.weekOf) {
+			const weekOf = data.weekOf;
+			const month = weekOf.split('/')[0];
+			const year = weekOf.split('/')[2];
+
+			const weekDate = new Date(year, month - 1, 1);
+			const expirationDate = new Date().setDate(-90);
+
+			if (weekDate > expirationDate) {
+				cleaned.push(record);
+			}
+		}
+	}
+
+	return data;
+};
