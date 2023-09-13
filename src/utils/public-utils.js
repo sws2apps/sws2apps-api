@@ -1,26 +1,8 @@
-import 'global-jsdom/register';
 import fetch from 'node-fetch';
-import { loadEPUB } from 'jw-epub-parser/dist/node/index.js';
+import { loadEPUB, parseMWB, parseW } from 'jw-epub-parser/dist/node/index.js';
+import { ALL_LANGUAGES } from '../locales/langList.js';
 
-export const fetchIssueData = async (issue) => {
-	try {
-		if (issue.hasEPUB) {
-			const epubFile = issue.hasEPUB[0].file;
-			const epubUrl = epubFile.url;
-
-			const epubData = await loadEPUB({ url: epubUrl });
-			return epubData;
-		}
-
-		if (!issue.hasEPUB) {
-			return [];
-		}
-	} catch (err) {
-		throw new Error(err);
-	}
-};
-
-export const fetchData = async (language, issue) => {
+const fetchDataFromEPUB = async (language, issue) => {
 	const mergedSources = [];
 
 	if (issue === '') {
@@ -59,9 +41,8 @@ export const fetchData = async (language, issue) => {
 
 					if (res.status === 200) {
 						const result = await res.json();
-						const hasEPUB = result.files[language].EPUB;
-
-						issues.push({ issueDate, currentYear, language, hasEPUB: hasEPUB });
+						const epubURL = result.files[language].EPUB[0].file.url;
+						issues.push({ issueDate, currentYear, language, epubURL });
 					}
 
 					if (res.status === 404) {
@@ -132,9 +113,9 @@ export const fetchData = async (language, issue) => {
 
 					if (res.status === 200) {
 						const result = await res.json();
-						const hasEPUB = result.files[language].EPUB;
+						const epubURL = result.files[language].EPUB[0].file.url;
 
-						issues.push({ issueDate, currentYear, language, hasEPUB: hasEPUB });
+						issues.push({ issueDate, currentYear, language, epubURL });
 					}
 
 					if (res.status === 404) {
@@ -151,13 +132,13 @@ export const fetchData = async (language, issue) => {
 			}
 
 			if (issues.length > 0) {
-				const fetchSource1 = fetchIssueData(issues[0]);
-				const fetchSource2 = issues.length > 1 ? fetchIssueData(issues[1]) : Promise.resolve([]);
-				const fetchSource3 = issues.length > 2 ? fetchIssueData(issues[2]) : Promise.resolve([]);
-				const fetchSource4 = issues.length > 3 ? fetchIssueData(issues[3]) : Promise.resolve([]);
-				const fetchSource5 = issues.length > 4 ? fetchIssueData(issues[4]) : Promise.resolve([]);
-				const fetchSource6 = issues.length > 5 ? fetchIssueData(issues[5]) : Promise.resolve([]);
-				const fetchSource7 = issues.length > 6 ? fetchIssueData(issues[6]) : Promise.resolve([]);
+				const fetchSource1 = fetchIssueData(issues[0].epubURL);
+				const fetchSource2 = issues.length > 1 ? fetchIssueData(issues[1].epubURL) : Promise.resolve([]);
+				const fetchSource3 = issues.length > 2 ? fetchIssueData(issues[2].epubURL) : Promise.resolve([]);
+				const fetchSource4 = issues.length > 3 ? fetchIssueData(issues[3].epubURL) : Promise.resolve([]);
+				const fetchSource5 = issues.length > 4 ? fetchIssueData(issues[4].epubURL) : Promise.resolve([]);
+				const fetchSource6 = issues.length > 5 ? fetchIssueData(issues[5].epubURL) : Promise.resolve([]);
+				const fetchSource7 = issues.length > 6 ? fetchIssueData(issues[6].epubURL) : Promise.resolve([]);
 
 				const allData = await Promise.all([
 					fetchSource1,
@@ -239,6 +220,87 @@ export const fetchData = async (language, issue) => {
 	return mergedSources;
 };
 
+const getMonthFirstWeek = () => {
+	const today = new Date();
+	const targetMonth = today.getMonth();
+	const targetYear = today.getFullYear();
+	const firstDateInMonth = new Date(targetYear, targetMonth, 1);
+	const firstWeekdayInMonth = firstDateInMonth.getDay();
+	const firstMondayDate = 1 + ((8 - firstWeekdayInMonth) % 7);
+	return new Date(targetYear, targetMonth, firstMondayDate);
+};
+
+const fetchDailyDataWOL = async (queryDate, language) => {
+	const WOL_DT = ALL_LANGUAGES.find((lang) => lang.code.toUpperCase() === language).WOL_DT;
+
+	const year = queryDate.getFullYear();
+	const url = `${WOL_DT}/${year}/${queryDate.getMonth() + 1}/${queryDate.getDate()}`;
+	const res = await fetch(url);
+	const data = await res.json();
+
+	const src = {};
+
+	if (data.items.length > 0) {
+		const mwbData = data.items.find((item) => item.classification === 106)?.content;
+		const wData = data.items.find((item) => item.classification === 68 && item.url)?.content;
+
+		if (mwbData) {
+			const mwbItems = parseMWB(mwbData, year, language);
+			Object.assign(src, mwbItems);
+		}
+
+		if (wData) {
+			const wItems = parseW(wData, language);
+			Object.assign(src, wItems);
+		}
+
+		if (src.mwb_week_date) {
+			src.week_date = src.mwb_week_date;
+			delete src.mwb_week_date;
+		}
+
+		if (src.w_study_date) {
+			src.week_date = src.w_study_date;
+			delete src.w_study_date;
+		}
+	}
+
+	return src;
+};
+
+const fetchDataFromWOL = async (language) => {
+	const sources = [];
+
+	let queryDate = getMonthFirstWeek();
+
+	const allFetches = [];
+
+	for (let i = 1; i <= 30; i++) {
+		const fetch = fetchDailyDataWOL(queryDate, language);
+		allFetches.push(fetch);
+		queryDate.setDate(queryDate.getDate() + 7);
+	}
+
+	const result = await Promise.all(allFetches);
+
+	for (const src of result) {
+		if (src.week_date) {
+			sources.push(src);
+		}
+	}
+
+	return sources;
+};
+
+export const fetchIssueData = async (epubURL) => {
+	try {
+		const epubData = await loadEPUB({ url: epubURL });
+		return epubData;
+	} catch (err) {
+		throw new Error(err);
+	}
+};
+
 export const extractScheduleDocsId = async (htmlText, issue) => {
 	const parser = new window.DOMParser();
 	const htmlItem = parser.parseFromString(htmlText, 'text/html');
@@ -254,4 +316,19 @@ export const extractScheduleDocsId = async (htmlText, issue) => {
 	}
 
 	return docIds;
+};
+
+export const fetchData = async (language, issue) => {
+	const hasEPUB = ALL_LANGUAGES.find((lang) => lang.code.toUpperCase() === language).hasEPUB;
+	let data = [];
+
+	if (hasEPUB) {
+		data = await fetchDataFromEPUB(language, issue);
+	}
+
+	if (!hasEPUB) {
+		data = await fetchDataFromWOL(language);
+	}
+
+	return data;
 };

@@ -4,6 +4,7 @@ import { decryptData } from '../utils/encryption-utils.js';
 import { users } from '../classes/Users.js';
 import { congregations } from '../classes/Congregations.js';
 import { allowedRoles, createCongregationAllowedRoles } from '../constant/constant.js';
+import { LANGUAGE_LIST } from '../locales/langList.js';
 
 export const getLastCongregationBackup = async (req, res, next) => {
 	try {
@@ -43,9 +44,10 @@ export const getLastCongregationBackup = async (req, res, next) => {
 
 		const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
 		const secretaryRole = user.cong_role.includes('secretary');
+		const weekendEditorRole = user.cong_role.includes('coordinator') || user.cong_role.includes('public_talk_coordinator');
 		const publisherRole = isPublisher || isMS || isElder;
 
-		if (!lmmoRole && !secretaryRole && !publisherRole) {
+		if (!lmmoRole && !secretaryRole && !publisherRole && !weekendEditorRole) {
 			res.locals.type = 'warn';
 			res.locals.message = 'user not authorized to get congregation backup info';
 			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
@@ -53,7 +55,7 @@ export const getLastCongregationBackup = async (req, res, next) => {
 		}
 
 		const obj = { user_last_backup: user.last_backup ? { date: user.last_backup } : 'NO_BACKUP' };
-		if (lmmoRole || secretaryRole) {
+		if (lmmoRole || secretaryRole || weekendEditorRole) {
 			obj.cong_last_backup = cong.last_backup ? cong.last_backup : 'NO_BACKUP';
 		}
 
@@ -103,9 +105,10 @@ export const saveCongregationBackup = async (req, res, next) => {
 
 		const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
 		const secretaryRole = user.cong_role.includes('secretary');
+		const weekendEditorRole = user.cong_role.includes('coordinator') || user.cong_role.includes('public_talk_coordinator');
 		const publisherRole = isPublisher || isMS || isElder;
 
-		if (!lmmoRole && !secretaryRole && !publisherRole) {
+		if (!lmmoRole && !secretaryRole && !publisherRole && !weekendEditorRole) {
 			res.locals.type = 'warn';
 			res.locals.message = 'user not authorized to send congregation backup';
 			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
@@ -127,7 +130,7 @@ export const saveCongregationBackup = async (req, res, next) => {
 
 		const payload = req.body;
 
-		if (lmmoRole || secretaryRole) {
+		if (lmmoRole || secretaryRole || weekendEditorRole) {
 			await cong.saveBackup({
 				cong_persons: payload.cong_persons,
 				cong_deleted: payload.cong_deleted,
@@ -142,6 +145,8 @@ export const saveCongregationBackup = async (req, res, next) => {
 				cong_meetingAttendance: payload.cong_meetingAttendance,
 				cong_minutesReports: payload.cong_minutesReports,
 				cong_serviceYear: payload.cong_serviceYear,
+				cong_publicTalks: payload.cong_publicTalks,
+				cong_visitingSpeakers: payload.cong_visitingSpeakers,
 				uid,
 			});
 		}
@@ -198,9 +203,10 @@ export const getCongregationBackup = async (req, res, next) => {
 
 		const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
 		const secretaryRole = user.cong_role.includes('secretary');
+		const weekendEditorRole = user.cong_role.includes('coordinator') || user.cong_role.includes('public_talk)coordinator');
 		const publisherRole = isPublisher || isMS || isElder;
 
-		if (!lmmoRole && !secretaryRole && !publisherRole) {
+		if (!lmmoRole && !secretaryRole && !publisherRole && !weekendEditorRole) {
 			res.locals.type = 'warn';
 			res.locals.message = 'user not authorized to access the congregation backup';
 			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
@@ -209,16 +215,15 @@ export const getCongregationBackup = async (req, res, next) => {
 
 		const obj = {};
 
-		if (lmmoRole || secretaryRole) {
+		if (lmmoRole || secretaryRole || weekendEditorRole) {
 			const backupData = cong.retrieveBackup();
 
 			obj.cong_persons = backupData.cong_persons;
 			obj.cong_settings = backupData.cong_settings;
 
-			if (lmmoRole) {
+			if (lmmoRole || weekendEditorRole) {
 				obj.cong_schedule = backupData.cong_schedule;
 				obj.cong_sourceMaterial = backupData.cong_sourceMaterial;
-				obj.cong_swsPocket = backupData.cong_swsPocket;
 			}
 
 			if (secretaryRole) {
@@ -229,6 +234,11 @@ export const getCongregationBackup = async (req, res, next) => {
 				obj.cong_meetingAttendance = backupData.cong_meetingAttendance;
 				obj.cong_minutesReports = backupData.cong_minutesReports;
 				obj.cong_serviceYear = backupData.cong_serviceYear;
+			}
+
+			if (weekendEditorRole) {
+				obj.cong_visitingSpeakers = backupData.cong_visitingSpeakers;
+				obj.cong_publicTalks = backupData.cong_publicTalks;
 			}
 		}
 
@@ -1286,8 +1296,9 @@ export const getCountries = async (req, res, next) => {
 
 		language = language.toUpperCase();
 
-		const langsAllowed = ['E', 'MG', 'T'];
-		if (langsAllowed.includes(language) === false) {
+		const isLangValid = LANGUAGE_LIST.find((lang) => lang.code.toUpperCase() === language);
+
+		if (!isLangValid) {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid language`;
 
@@ -1346,8 +1357,9 @@ export const getCongregations = async (req, res, next) => {
 		language = language.toUpperCase();
 		country = country.toUpperCase();
 
-		const langsAllowed = ['E', 'MG', 'T'];
-		if (langsAllowed.includes(language) === false) {
+		const isLangValid = LANGUAGE_LIST.find((lang) => lang.code.toUpperCase() === language);
+
+		if (!isLangValid) {
 			res.locals.type = 'warn';
 			res.locals.message = `invalid language`;
 

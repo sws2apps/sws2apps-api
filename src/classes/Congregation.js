@@ -8,7 +8,7 @@ import { decryptData, encryptData } from '../utils/encryption-utils.js';
 import { users } from './Users.js';
 import { getOldestWeekDate, getWeekDate } from '../utils/date.js';
 import { getUserReportsAll, getFileFromStorage, uploadFileToStorage, getUserReport } from '../utils/storage-utils.js';
-import { serviceYearExpired, serviceYearFromMonth } from '../utils/congregation-utils.js';
+import { removeExpiredWeeks, serviceYearExpired, serviceYearFromMonth } from '../utils/congregation-utils.js';
 import { congregations } from './Congregations.js';
 
 const db = getFirestore(); //get default database
@@ -25,7 +25,6 @@ export class Congregation {
 		this.cong_schedule = [];
 		this.cong_sourceMaterial_draft = [];
 		this.cong_schedule_draft = [];
-		this.cong_swsPocket = [];
 		this.cong_settings = [];
 		this.last_backup = {};
 		this.cong_branchReports = [];
@@ -36,8 +35,10 @@ export class Congregation {
 		this.cong_minutesReports = [];
 		this.cong_serviceYear = [];
 		this.cong_pending_fieldServiceReports = [];
-		this.cong_outgoing_speakers = { speakers: [], access: [] };
-		this.cong_visiting_speakers = [];
+		this.cong_outgoing_speakers_access = [];
+		this.cong_outgoing_speakers = '';
+		this.cong_visiting_speakers = '';
+		this.cong_publicTalks = [];
 	}
 }
 
@@ -70,14 +71,21 @@ Congregation.prototype.loadDetails = async function () {
 	this.cong_schedule_draft = await getFileFromStorage(this.id, 'schedules.txt');
 	this.cong_sourceMaterial_draft = await getFileFromStorage(this.id, 'sources.txt');
 	this.cong_schedule = await getFileFromStorage(this.id, 'pocket-schedules.txt');
+	if (this.cong_schedule.midweekMeeting) {
+		this.cong_schedule = this.cong_schedule.midweekMeeting;
+	}
 	this.cong_sourceMaterial = await getFileFromStorage(this.id, 'pocket-sources.txt');
+	if (this.cong_sourceMaterial.midweekMeeting) {
+		this.cong_sourceMaterial = this.cong_sourceMaterial.midweekMeeting;
+	}
 	this.cong_branchReports = await getFileFromStorage(this.id, 'branch-reports.txt');
 	this.cong_fieldServiceGroup = await getFileFromStorage(this.id, 'field-service-group.txt');
 	this.cong_fieldServiceReports = await getFileFromStorage(this.id, 'field-service-reports.txt');
 	this.cong_meetingAttendance = await getFileFromStorage(this.id, 'meeting-attendance.txt');
 	this.cong_meetingAttendance = await getFileFromStorage(this.id, 'meeting-attendance.txt');
-	this.cong_visiting_speakers = await getFileFromStorage(this.id, 'speakers_visiting.txt');
-	this.cong_outgoing_speakers.speakers = await getFileFromStorage(this.id, 'speakers_outgoing.txt', true);
+	this.cong_visiting_speakers = await getFileFromStorage(this.id, 'visiting_speakers.txt', true);
+	this.cong_publicTalks = await getFileFromStorage(this.id, 'public_talks.txt');
+	this.cong_outgoing_speakers = await getFileFromStorage(this.id, 'speakers_outgoing.txt', true);
 
 	const usersReportsAll = await getUserReportsAll(this.id);
 	for (const usersReports of usersReportsAll) {
@@ -98,7 +106,6 @@ Congregation.prototype.loadDetails = async function () {
 		await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 	}
 
-	this.cong_swsPocket = congSnap.data().cong_swsPocket || [];
 	this.cong_settings = congSnap.data().cong_settings || [];
 	this.cong_serviceYear = congSnap.data().cong_serviceYear || [];
 	this.cong_minutesReports = congSnap.data().cong_minutesReports || [];
@@ -125,7 +132,7 @@ Congregation.prototype.loadDetails = async function () {
 		this.last_backup.by = user?.username || '';
 	}
 
-	this.cong_outgoing_speakers.access = congSnap.data().cong_outgoing_speakers || [];
+	this.cong_outgoing_speakers_access = congSnap.data().cong_outgoing_speakers || [];
 };
 
 Congregation.prototype.updateInfo = async function (congInfo) {
@@ -870,12 +877,142 @@ Congregation.prototype.mergeFieldServiceGroupFromBackup = function (cong_fieldSe
 	return newRecords;
 };
 
+Congregation.prototype.mergeVisitingSpeakersFromBackup = function (congregations) {
+	let finalCongs = [];
+
+	// new backup congs
+	if (this.cong_visiting_speakers === '') {
+		finalCongs = congregations.filter((cong) => !cong.is_deleted);
+	}
+
+	// updated congs
+	if (this.cong_visiting_speakers !== '') {
+		finalCongs = JSON.parse(decryptData(this.cong_visiting_speakers));
+
+		// remove deleted congs
+		for (const newCong of congregations.filter((cong) => cong.is_deleted)) {
+			finalCongs = finalCongs.filter((oldCong) => oldCong.cong_number !== newCong.cong_number);
+		}
+
+		for (const newCong of congregations.filter((cong) => !cong.is_deleted)) {
+			const findCong = finalCongs.find((oldCong) => oldCong.cong_number === newCong.cong_number);
+
+			// add new congs
+			if (!findCong) {
+				finalCongs.push(newCong);
+			}
+
+			// handle modified congs
+			if (findCong) {
+				// append cong changes
+				const oldChanges = findCong.changes;
+				let newChanges = newCong.changes;
+
+				if (newChanges && newChanges.length > 0) {
+					for (const newChange of newChanges) {
+						let isChanged = false;
+
+						const oldChange = oldChanges?.find((old) => old.field === newChange.field);
+						const originalDate = oldChange?.date || undefined;
+
+						if (!oldChange) {
+							isChanged = true;
+						}
+
+						if (originalDate) {
+							const dateA = new Date(originalDate);
+							const dateB = new Date(newChange.date);
+
+							if (dateB > dateA) {
+								isChanged = true;
+							}
+						}
+
+						if (isChanged) {
+							findCong[newChange.field] = newChange.value;
+
+							if (!findCong.changes) {
+								findCong.changes = [];
+							}
+
+							findCong.changes = findCong.changes.filter((item) => item.field !== newChange.field);
+							findCong.changes.push(newChange);
+						}
+					}
+				}
+
+				// changes from remote cong
+				if (newCong.is_local === false) {
+					findCong.cong_speakers = newCong.cong_speakers;
+				}
+
+				// changes from local cong
+				if (newCong.is_local === true) {
+					// remove deleted speakers
+					for (const deletedSpeaker of newCong.cong_speakers.filter((speaker) => speaker.is_deleted)) {
+						findCong.cong_speakers = findCong.cong_speakers.filter((speaker) => speaker.person_uid !== deletedSpeaker.person_uid);
+					}
+
+					for (const newSpeaker of newCong.cong_speakers.filter((speaker) => !speaker.is_deleted)) {
+						const findSpeaker = findCong.cong_speakers.find((speaker) => speaker.person_uid === newSpeaker.person_uid);
+
+						// add new speaker
+						if (!findSpeaker) {
+							findCong.cong_speakers.push(newSpeaker);
+						}
+
+						// handle modified speaker
+						if (findSpeaker) {
+							const oldChanges = findSpeaker.changes;
+							let newChanges = newSpeaker.changes;
+
+							if (newChanges && newChanges.length > 0) {
+								for (const newChange of newChanges) {
+									let isChanged = false;
+
+									const oldChange = oldChanges?.find((old) => old.field === newChange.field);
+									const originalDate = oldChange?.date || undefined;
+
+									if (!oldChange) {
+										isChanged = true;
+									}
+
+									if (originalDate) {
+										const dateA = new Date(originalDate);
+										const dateB = new Date(newChange.date);
+
+										if (dateB > dateA) {
+											isChanged = true;
+										}
+									}
+
+									if (isChanged) {
+										findSpeaker[newChange.field] = newChange.value;
+
+										if (!findSpeaker.changes) {
+											findSpeaker.changes = [];
+										}
+
+										findSpeaker.changes = findSpeaker.changes.filter((item) => item.field !== newChange.field);
+										findSpeaker.changes.push(newChange);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return finalCongs;
+};
+
 Congregation.prototype.saveBackup = async function (payload) {
 	const cong_persons = payload.cong_persons;
 	const cong_deleted = payload.cong_deleted;
 	const cong_schedule = payload.cong_schedule;
 	const cong_sourceMaterial = payload.cong_sourceMaterial;
-	const cong_swsPocket = payload.cong_swsPocket;
 	const cong_settings = payload.cong_settings;
 	const cong_branchReports = payload.cong_branchReports;
 	const cong_fieldServiceGroup = payload.cong_fieldServiceGroup;
@@ -884,12 +1021,22 @@ Congregation.prototype.saveBackup = async function (payload) {
 	const cong_meetingAttendance = payload.cong_meetingAttendance;
 	const cong_minutesReports = payload.cong_minutesReports;
 	const cong_serviceYear = payload.cong_serviceYear;
+	const cong_publicTalks = payload.cong_publicTalks;
+	const cong_visitingSpeakers = payload.cong_visitingSpeakers;
 	const uid = payload.uid;
 
 	// update and encrypt cong_persons data
 	let finalPersons = this.mergePersonsFromBackup(cong_persons, cong_deleted);
 	let encryptedPersons = encryptData(finalPersons);
 	finalPersons = null;
+
+	// update and encrypt cong_visitingSpeakers data
+	let encryptedSpeakers;
+	if (cong_visitingSpeakers) {
+		let finalSpeakers = this.mergeVisitingSpeakersFromBackup(cong_visitingSpeakers);
+		encryptedSpeakers = encryptData(finalSpeakers);
+		finalSpeakers = null;
+	}
 
 	// update cong_schedule data
 	let finalSchedule = [];
@@ -964,10 +1111,6 @@ Congregation.prototype.saveBackup = async function (payload) {
 	if (cong_lateReports) data.cong_lateReports = this.cong_lateReports;
 	if (cong_minutesReports) data.cong_minutesReports = this.cong_minutesReports;
 
-	if (cong_swsPocket) {
-		data.cong_swsPocket = cong_swsPocket;
-	}
-
 	await db.collection('congregations').doc(this.id).set(data, { merge: true });
 
 	// update user setting
@@ -982,6 +1125,10 @@ Congregation.prototype.saveBackup = async function (payload) {
 	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
 
 	await uploadFileToStorage(this.id, encryptedPersons, 'persons.txt');
+
+	if (encryptedSpeakers) {
+		await uploadFileToStorage(this.id, encryptedSpeakers, 'visiting_speakers.txt');
+	}
 
 	if (cong_schedule) {
 		await uploadFileToStorage(this.id, JSON.stringify(finalSchedule), 'schedules.txt');
@@ -1007,6 +1154,10 @@ Congregation.prototype.saveBackup = async function (payload) {
 		await uploadFileToStorage(this.id, JSON.stringify(finalFieldServiceGroup), 'field-service-group.txt');
 	}
 
+	if (cong_publicTalks) {
+		await uploadFileToStorage(this.id, JSON.stringify(cong_publicTalks), 'public_talks.txt');
+	}
+
 	// update class values
 	this.cong_persons = encryptedPersons;
 	this.cong_settings = [settingItem];
@@ -1015,10 +1166,11 @@ Congregation.prototype.saveBackup = async function (payload) {
 		date: data.last_backup.date,
 	};
 	if (cong_schedule) this.cong_schedule_draft = finalSchedule;
-	if (cong_swsPocket) this.cong_swsPocket = cong_swsPocket;
 	if (cong_branchReports) this.cong_branchReports = finalBranchReports;
 	if (cong_fieldServiceReports) this.cong_fieldServiceReports = finalFieldServiceReports;
 	if (cong_fieldServiceGroup) this.cong_fieldServiceGroup = finalFieldServiceGroup;
+	if (cong_publicTalks) this.cong_publicTalks = cong_publicTalks;
+	if (encryptedSpeakers) this.cong_visiting_speakers = encryptedSpeakers;
 
 	await this.updateMemberFieldServiceReports();
 
@@ -1029,14 +1181,15 @@ Congregation.prototype.saveBackup = async function (payload) {
 };
 
 Congregation.prototype.retrieveBackup = function () {
-	// decrypt cong_persons data
+	// decrypt persons data
 	const decryptedPersons = this.cong_persons === '' ? [] : JSON.parse(decryptData(this.cong_persons));
+	const decryptedVisitingSpeakers =
+		this.cong_visiting_speakers === '' ? [] : JSON.parse(decryptData(this.cong_visiting_speakers));
 
 	return {
 		cong_persons: decryptedPersons,
 		cong_schedule: this.cong_schedule_draft,
 		cong_sourceMaterial: this.cong_sourceMaterial_draft,
-		cong_swsPocket: this.cong_swsPocket,
 		cong_settings: this.cong_settings,
 		cong_branchReports: this.cong_branchReports,
 		cong_fieldServiceGroup: this.cong_fieldServiceGroup,
@@ -1045,6 +1198,8 @@ Congregation.prototype.retrieveBackup = function () {
 		cong_meetingAttendance: this.cong_meetingAttendance,
 		cong_minutesReports: this.cong_minutesReports,
 		cong_serviceYear: this.cong_serviceYear,
+		cong_visitingSpeakers: decryptedVisitingSpeakers,
+		cong_publicTalks: this.cong_publicTalks,
 	};
 };
 
@@ -1131,78 +1286,39 @@ Congregation.prototype.deletePocketUser = async function (userId) {
 };
 
 Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong_settings) {
-	const currentSchedule = this.cong_schedule;
-	const currentSource = this.cong_sourceMaterial;
+	const currentSchedule = this.cong_schedule.midweekMeeting || this.cong_schedule || [];
+	const currentSource = this.cong_sourceMaterial.midweekMeeting || this.cong_sourceMaterial || [];
 
 	// remove expired schedule and source (> 3 months)
-	const currentDate = new Date().getTime();
-	const validSchedule = currentSchedule.midweekMeeting?.filter((schedule) => schedule.expiredDate > currentDate) || [];
-	const validSource = currentSource.midweekMeeting?.filter((source) => source.expiredDate > currentDate) || [];
+	const validSchedule = removeExpiredWeeks(currentSchedule);
+	const validSource = removeExpiredWeeks(currentSource);
 
-	let newStudentsSchedule = structuredClone(validSchedule);
-	let newStudentsSource = structuredClone(validSource);
+	// patch new schedules
+	const { schedules, sources } = cong_schedules;
 
-	for (const schedule of cong_schedules) {
-		const { id, month, year, schedules, sources } = schedule;
+	for (const schedule of schedules) {
+		const currentSchedule = validSchedule.find((record) => record.weekOf === schedule.weekOf);
 
-		const lastDate = new Date(year, month + 1, 0);
-		let expiredDate = new Date();
-		expiredDate.setDate(lastDate.getDate() + 90);
-		const expiredTime = expiredDate.getTime();
-
-		const objSchedule = {
-			expiredDate: expiredTime,
-			id,
-			modifiedDate: new Date().getTime(),
-			month,
-			schedules,
-			year,
-		};
-
-		const objSource = {
-			expiredDate: expiredTime,
-			id,
-			modifiedDate: new Date().getTime(),
-			month,
-			sources,
-			year,
-		};
-
-		// remove previous schedule
-		newStudentsSchedule = newStudentsSchedule.filter((record) => record.id !== objSchedule.id);
-
-		let tmpSchedulesDel = newStudentsSchedule.filter(
-			(record) => record.month === objSchedule.month && record.year === objSchedule.year
-		);
-
-		tmpSchedulesDel = tmpSchedulesDel.map((record) => {
-			return record.id;
-		});
-
-		for (const toDel of tmpSchedulesDel) {
-			newStudentsSchedule = newStudentsSchedule.filter((record) => record.id !== toDel);
+		if (!currentSchedule) {
+			validSchedule.push(schedule);
 		}
 
-		newStudentsSchedule.push(objSchedule);
-
-		// clean old source
-		newStudentsSource = newStudentsSource.filter((record) => record.id !== objSource.id);
-
-		let tmpSourcesDel = newStudentsSource.filter((record) => record.month === objSource.month && record.year === objSource.year);
-
-		tmpSourcesDel = tmpSourcesDel.map((record) => {
-			return record.id;
-		});
-
-		for (const toDel of tmpSourcesDel) {
-			newStudentsSource = newStudentsSource.filter((record) => record.id !== toDel);
+		if (currentSchedule) {
+			Object.assign(currentSchedule, schedule);
 		}
-
-		newStudentsSource.push(objSource);
 	}
 
-	const newSchedule = { midweekMeeting: newStudentsSchedule };
-	const newSource = { midweekMeeting: newStudentsSource };
+	for (const src of sources) {
+		const currentSrc = validSource.find((record) => record.weekOf === src.weekOf);
+
+		if (!currentSrc) {
+			validSource.push(src);
+		}
+
+		if (currentSrc) {
+			Object.assign(currentSrc, src);
+		}
+	}
 
 	await db.collection('congregations').doc(this.id).update({
 		cong_settings,
@@ -1211,13 +1327,13 @@ Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong
 	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
 	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
 
-	await uploadFileToStorage(this.id, JSON.stringify(newSchedule), 'pocket-schedules.txt');
-	await uploadFileToStorage(this.id, JSON.stringify(newSource), 'pocket-sources.txt');
+	await uploadFileToStorage(this.id, JSON.stringify(validSchedule), 'pocket-schedules.txt');
+	await uploadFileToStorage(this.id, JSON.stringify(validSource), 'pocket-sources.txt');
 
 	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
 
-	this.cong_schedule = newSchedule;
-	this.cong_sourceMaterial = newSource;
+	this.cong_schedule = validSchedule;
+	this.cong_sourceMaterial = validSource;
 	this.cong_settings = cong_settings;
 };
 
@@ -1480,17 +1596,43 @@ Congregation.prototype.updateMemberFieldServiceReports = async function () {
 };
 
 Congregation.prototype.updateVisitingSpeakersList = async function (speakers) {
+	// get cong_persons data
+	const congPersons = this.cong_persons === '' ? [] : JSON.parse(decryptData(this.cong_persons));
+
+	const finalCongSpeakers = this.mergeVisitingSpeakersFromBackup(speakers);
+	this.cong_visiting_speakers = encryptData(finalCongSpeakers);
+
+	// get speakers data
+	const congSpeakers = this.cong_visiting_speakers === '' ? [] : JSON.parse(decryptData(this.cong_visiting_speakers));
+
+	const tmpSpeakers = congSpeakers.find((cong) => cong.cong_number === +this.cong_number).cong_speakers;
+	const outgoingSpeakers = tmpSpeakers.map((speaker) => {
+		const person = congPersons.find((person) => person.person_uid === speaker.person_uid);
+		return {
+			speaker_uid: speaker.person_uid,
+			speaker_name: person.person_name,
+			speaker_displayName: person.person_displayName,
+			speaker_isElder: this.isElder(speaker.person_uid),
+			speaker_isMS: this.isMS(speaker.person_uid),
+			speaker_talks: speaker.talks,
+			speaker_email: person.email,
+			speaker_phone: person.phone,
+		};
+	});
+
 	// prepare data to be saved to storage
 	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
 	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
 
-	let encryptedSpeakers = encryptData(speakers);
-	await uploadFileToStorage(this.id, encryptedSpeakers, 'speakers_outgoing.txt');
+	await uploadFileToStorage(this.id, this.cong_visiting_speakers, 'visiting_speakers.txt');
 
-	this.cong_outgoing_speakers.speakers = encryptedSpeakers;
+	let encryptedOutgoingSpeakers = encryptData(outgoingSpeakers);
+	await uploadFileToStorage(this.id, encryptedOutgoingSpeakers, 'speakers_outgoing.txt');
+
+	this.cong_outgoing_speakers = encryptedOutgoingSpeakers;
 
 	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
-	encryptedSpeakers = null;
+	encryptedOutgoingSpeakers = null;
 };
 
 Congregation.prototype.findVisitingSpeakersCongregations = function (name) {
@@ -1502,8 +1644,8 @@ Congregation.prototype.findVisitingSpeakersCongregations = function (name) {
 	);
 
 	for (const cong of data) {
-		if (cong.cong_outgoing_speakers && cong.cong_outgoing_speakers.speakers.length > 0) {
-			const isPending = cong.cong_outgoing_speakers.access.find(
+		if (cong.cong_outgoing_speakers && cong.cong_outgoing_speakers.length > 0) {
+			const isPending = cong.cong_outgoing_speakers_access.find(
 				(record) => record.cong_id === this.id && record.status === 'pending'
 			);
 
@@ -1518,17 +1660,17 @@ Congregation.prototype.findVisitingSpeakersCongregations = function (name) {
 
 Congregation.prototype.requestAccessCongregationSpeakers = async function (cong_id) {
 	const requestedCong = congregations.findCongregationById(cong_id);
-	const request = requestedCong.cong_outgoing_speakers.access.find((record) => record.cong_id === this.id);
+	const request = requestedCong.cong_outgoing_speakers_access.find((record) => record.cong_id === this.id);
 
 	if (!request) {
-		requestedCong.cong_outgoing_speakers.access.push({ cong_id: this.id, status: 'pending' });
+		requestedCong.cong_outgoing_speakers_access.push({ cong_id: this.id, status: 'pending' });
 	}
 
 	if (request) {
 		request.status = 'pending';
 	}
 
-	const data = { cong_outgoing_speakers: requestedCong.cong_outgoing_speakers.access };
+	const data = { cong_outgoing_speakers: requestedCong.cong_outgoing_speakers_access };
 
 	await db.collection('congregations').doc(cong_id).set(data, { merge: true });
 };
@@ -1536,7 +1678,7 @@ Congregation.prototype.requestAccessCongregationSpeakers = async function (cong_
 Congregation.prototype.speakersRequests = function () {
 	const result = [];
 
-	for (const request of this.cong_outgoing_speakers.access) {
+	for (const request of this.cong_outgoing_speakers_access) {
 		if (request.status === 'pending') {
 			const currentCong = congregations.findCongregationById(request.cong_id);
 			result.push({ cong_id: request.cong_id, cong_name: currentCong.cong_name, cong_number: currentCong.cong_number });
@@ -1554,7 +1696,7 @@ Congregation.prototype.speakersRequestsStatus = function (congs) {
 	for (const cong of congs) {
 		const currentCong = congregations.findCongregationById(cong);
 		if (currentCong) {
-			const request = currentCong.cong_outgoing_speakers.access.find((record) => record.cong_id === this.id);
+			const request = currentCong.cong_outgoing_speakers_access.find((record) => record.cong_id === this.id);
 
 			if (request) {
 				result.push({
@@ -1580,18 +1722,18 @@ Congregation.prototype.speakersRequestsStatus = function (congs) {
 };
 
 Congregation.prototype.speakersRequestApprove = async function (cong_id) {
-	const request = this.cong_outgoing_speakers.access.find((record) => record.cong_id === cong_id);
+	const request = this.cong_outgoing_speakers_access.find((record) => record.cong_id === cong_id);
 	if (request) request.status = 'approved';
 
-	const data = { cong_outgoing_speakers: this.cong_outgoing_speakers.access };
+	const data = { cong_outgoing_speakers: this.cong_outgoing_speakers_access };
 	await db.collection('congregations').doc(this.id).set(data, { merge: true });
 };
 
 Congregation.prototype.speakersRequestDisapprove = async function (cong_id) {
-	const request = this.cong_outgoing_speakers.access.find((record) => record.cong_id === cong_id);
+	const request = this.cong_outgoing_speakers_access.find((record) => record.cong_id === cong_id);
 	if (request) request.status = 'disapproved';
 
-	const data = { cong_outgoing_speakers: this.cong_outgoing_speakers.access };
+	const data = { cong_outgoing_speakers: this.cong_outgoing_speakers_access };
 	await db.collection('congregations').doc(this.id).set(data, { merge: true });
 };
 
@@ -1603,9 +1745,9 @@ Congregation.prototype.visitingSpeakers = function (congs) {
 	for (const cong of congs) {
 		const currentCong = congregations.findCongregationById(cong);
 		if (currentCong) {
-			const request = currentCong.cong_outgoing_speakers.access.find((record) => record.cong_id === this.id);
+			const request = currentCong.cong_outgoing_speakers_access.find((record) => record.cong_id === this.id);
 			if (request.status === 'approved') {
-				const decryptedSpeakers = JSON.parse(decryptData(currentCong.cong_outgoing_speakers.speakers));
+				const decryptedSpeakers = JSON.parse(decryptData(currentCong.cong_outgoing_speakers));
 				result.push({ cong_id: cong, speakers: decryptedSpeakers });
 			}
 		}
@@ -1617,7 +1759,7 @@ Congregation.prototype.visitingSpeakers = function (congs) {
 Congregation.prototype.speakersAccess = function () {
 	const result = [];
 
-	const approvedAccess = this.cong_outgoing_speakers.access.filter((record) => record.status === 'approved');
+	const approvedAccess = this.cong_outgoing_speakers_access.filter((record) => record.status === 'approved');
 
 	for (const access of approvedAccess) {
 		const cong = congregations.findCongregationById(access.cong_id);
@@ -1631,19 +1773,19 @@ Congregation.prototype.speakersAccess = function () {
 
 Congregation.prototype.updateSpeakersAccess = async function (congs) {
 	if (congs.length === 0) {
-		this.cong_outgoing_speakers.access = [];
+		this.cong_outgoing_speakers_access = [];
 	}
 
 	if (congs.length > 0) {
 		for (const cong of congs) {
-			this.cong_outgoing_speakers.access = this.cong_outgoing_speakers.access.filter((record) => record.cong_id !== cong.cong_id);
+			this.cong_outgoing_speakers_access = this.cong_outgoing_speakers_access.filter((record) => record.cong_id !== cong.cong_id);
 		}
 	}
 
-	const data = { cong_outgoing_speakers: this.cong_outgoing_speakers.access };
+	const data = { cong_outgoing_speakers: this.cong_outgoing_speakers_access };
 	await db.collection('congregations').doc(this.id).set(data, { merge: true });
 
-	const result = this.cong_outgoing_speakers.access.map((access) => {
+	const result = this.cong_outgoing_speakers_access.map((access) => {
 		const cong = congregations.findCongregationById(access.cong_id);
 
 		return { cong_id: access.cong_id, cong_name: cong.cong_name, cong_number: cong.cong_number };
