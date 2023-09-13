@@ -50,14 +50,14 @@ We use Firebase to be our backend. Therefore, during development, Firebase Emula
 
 Environment variables are required in order to locally run this API. Please find below the necessary instructions on how to create them.
 
-- FINGERPRINT_API_SERVER_KEY: Fingerprint Pro Secret API Key. To create this value, create a free account on [Fingerprint Pro](https://dashboard.fingerprint.com/). In the left side navigation, click on API Keys > Create Key > Secret API Key.
+- USER_PARSER_API_KEY: create an account at [https://www.userparser.com/](https://www.userparser.com/) and get your API KEY from the dashboard page.
 - GMAIL_ADDRESS: the email address you want to use for testing.
 - GMAIL_APP_PASSWORD: your gmail address app password. To create this value, follow [this guide](https://support.google.com/mail/answer/185833).
 - GMAIL_SENDER_NAME: sender name for your email address.
 - JW_CDN: set the value to be `https://app.jw-cdn.org/apis/pub-media/GETPUBMEDIALINKS?`
 - JW_FINDER: set the value to be `https://www.jw.org/finder?`
-- JW_COUNTRY_API: set the value to be `https://apps.jw.org/api/donations.v1/countries?`
-- JW_CONGREGATION_API: set the value to be `https://apps.jw.org/api/conventions/convention-congregation-list`
+- APP_COUNTRY_API: set the value to be `https://collect-api.sws2apps.com/countries?`
+- APP_CONGREGATION_API: set the value to be `https://collect-api.sws2apps.com/congregations?`
 - FIREBASE_APP_NAME: your Firebase Project ID defined in the Firebase Console.
 - FIRESTORE_EMULATOR_HOST: the `Host:Port` for Firestore Emulator.
 

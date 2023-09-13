@@ -301,23 +301,6 @@ export const fetchIssueData = async (epubURL) => {
 	}
 };
 
-export const extractScheduleDocsId = async (htmlText, issue) => {
-	const parser = new window.DOMParser();
-	const htmlItem = parser.parseFromString(htmlText, 'text/html');
-
-	const docIds = [];
-	const accordionItems = htmlItem.getElementsByClassName(`docClass-106 iss-${issue}`);
-	for (const weekLink of accordionItems) {
-		weekLink.classList.forEach((item) => {
-			if (item.indexOf('docId-') !== -1) {
-				docIds.push(item.split('-')[1]);
-			}
-		});
-	}
-
-	return docIds;
-};
-
 export const fetchData = async (language, issue) => {
 	const hasEPUB = ALL_LANGUAGES.find((lang) => lang.code.toUpperCase() === language).hasEPUB;
 	let data = [];

@@ -1309,11 +1309,7 @@ export const getCountries = async (req, res, next) => {
 			return;
 		}
 
-		const url =
-			process.env.JW_COUNTRY_API +
-			new URLSearchParams({
-				languageCode: language,
-			});
+		const url = process.env.APP_COUNTRY_API + new URLSearchParams({ language });
 
 		const response = await fetch(url);
 
@@ -1370,13 +1366,7 @@ export const getCongregations = async (req, res, next) => {
 			return;
 		}
 
-		const url =
-			process.env.JW_CONGREGATION_API +
-			`/${country}?` +
-			new URLSearchParams({
-				languageCode: language,
-				name: name,
-			});
+		const url = process.env.APP_CONGREGATION_API + new URLSearchParams({ country, language, name });
 
 		const response = await fetch(url);
 
