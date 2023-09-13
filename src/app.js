@@ -69,8 +69,6 @@ const corsOptionsDelegate = function (req, callback) {
 
 const app = express();
 
-app.enable('trust proxy');
-
 app.use(helmet());
 
 const __dirname = path.resolve();
