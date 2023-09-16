@@ -13,6 +13,9 @@ import { congregations } from './src/classes/Congregations.js';
 import { initializeAPI } from './src/config/cpe.db-config.js';
 import { publicTalks } from './src/classes/PublicTalk.js';
 
+// load dev scripts
+import { importPublicTalks } from './src/dev/setup.js';
+
 const PORT = process.env.PORT || 8000;
 const APP_VERSION = process.env.npm_package_version;
 
@@ -25,6 +28,11 @@ logger('info', JSON.stringify({ details: `API: minimum CPE client version set to
 await users.loadAll();
 await congregations.loadAll();
 await publicTalks.loadAll();
+
+// dev initialize
+if (process.env.NODE_ENV === 'development') {
+	await importPublicTalks();
+}
 
 app.listen(PORT, async () => {
 	logger('info', JSON.stringify({ details: `server up and running (v${APP_VERSION})` }));
