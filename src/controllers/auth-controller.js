@@ -1,10 +1,10 @@
 // import dependencies
-import * as OTPAuth from 'otpauth';
 import { getAuth } from 'firebase-admin/auth';
 import { validationResult } from 'express-validator';
 import { users } from '../classes/Users.js';
-import { decryptData } from '../utils/encryption-utils.js';
 import { retrieveVisitorDetails } from '../utils/auth-utils.js';
+import { generateTokenDev } from '../dev/setup.js';
+import { congregations } from '../classes/Congregations.js';
 
 export const loginUser = async (req, res, next) => {
 	try {
@@ -49,53 +49,87 @@ export const loginUser = async (req, res, next) => {
 			authUser = await users.create(displayName, uid);
 		}
 
-		newSessions.push({
+		const newSession = {
 			visitorid: visitorid,
 			visitor_details: await retrieveVisitorDetails(userIP, userAgent),
 			expires: expiryDate,
-			mfaVerified: false,
-		});
+		};
+
+		if (authUser.mfaEnabled) newSession.mfaVerified = false;
+
+		newSessions.push(newSession);
 
 		await authUser.updateSessions(newSessions);
-
-		const generateTokenDev = () => {
-			const { secret } = JSON.parse(decryptData(authUser.secret));
-			const totp = new OTPAuth.TOTP({
-				issuer: 'sws2apps-test',
-				label: authUser.user_uid,
-				algorithm: 'SHA1',
-				digits: 6,
-				period: 30,
-				secret: OTPAuth.Secret.fromBase32(secret),
-			});
-
-			return totp.generate();
-		};
 
 		if (authUser.mfaEnabled) {
 			res.locals.type = 'info';
 			res.locals.message = 'user required to verify mfa';
 
 			if (isDev) {
-				console.log(`Please use this OTP code to complete your login: ${generateTokenDev()}`);
+				const tokenDev = generateTokenDev(authUser.user_uid, authUser.secret);
+				console.log(`Please use this OTP code to complete your login: ${tokenDev}`);
 			}
 
 			res.status(200).json({ message: 'MFA_VERIFY' });
 		} else {
-			const secret = await authUser.generateSecret();
+			// mfa not enabled
+			const newSessions = authUser.sessions.map((session) => {
+				if (session.visitorid === visitorid) {
+					return {
+						...session,
+						sws_last_seen: new Date().getTime(),
+					};
+				} else {
+					return session;
+				}
+			});
 
-			res.locals.type = 'warn';
-			res.locals.message = 'user authentication rejected because account mfa is not yet setup';
+			await authUser.updateSessions(newSessions);
 
-			if (isDev) {
-				console.log(`Please use this OTP code to complete your login: ${generateTokenDev()}`);
+			const userInfo = {
+				id: authUser.id,
+				username: authUser.username,
+				cong_name: authUser.cong_name,
+				cong_number: authUser.cong_number,
+				cong_role: authUser.cong_role,
+				cong_id: authUser.cong_id,
+				global_role: authUser.global_role,
+				user_local_uid: authUser.user_local_uid,
+				user_members_delegate: authUser.user_members_delegate,
+				mfa: 'not_enabled',
+			};
+
+			const cong = congregations.findCongregationById(authUser.cong_id);
+			if (cong) {
+				const isPublisher = cong.isPublisher(authUser.user_local_uid);
+				const isMS = cong.isMS(authUser.user_local_uid);
+				const isElder = cong.isElder(authUser.user_local_uid);
+
+				if (isElder) userInfo.cong_role.push('elder');
+				if (isMS) userInfo.cong_role.push('ms');
+				if (isPublisher) userInfo.cong_role.push('publisher');
+				const lmmoRole = authUser.cong_role.includes('lmmo') || authUser.cong_role.includes('lmmo-backup');
+				const secretaryRole = authUser.cong_role.includes('secretary');
+				const coordinatorRole = authUser.cong_role.includes('coordinator');
+				const publicTalkCoordinatorRole = authUser.cong_role.includes('public_talk_coordinator');
+
+				// retrieve congregation persons records if elder
+				if (isElder && !lmmoRole && !secretaryRole && !coordinatorRole && !publicTalkCoordinatorRole) {
+					const backupData = cong.retrieveBackup();
+					userInfo.cong_persons = backupData.cong_persons;
+				}
+
+				// retrieve latest field service reports if publisher
+				const publisherRole = isElder || isMS || isPublisher;
+				if (publisherRole) {
+					const backupData = authUser.retrieveBackup();
+					userInfo.user_fieldServiceReports = backupData.user_fieldServiceReports;
+				}
 			}
 
-			res.status(403).json({
-				secret: secret.secret,
-				qrCode: secret.uri,
-				version: secret.version,
-			});
+			res.locals.type = 'info';
+			res.locals.message = 'user successfully logged in without MFA';
+			res.status(200).json(userInfo);
 		}
 	} catch (err) {
 		next(err);
@@ -174,173 +208,89 @@ export const verifyPasswordlessInfo = async (req, res, next) => {
 			authUser = await users.createPasswordless(email, uid, fullname);
 		}
 
-		newSessions.push({
+		const newSession = {
 			visitorid: visitorid,
 			visitor_details: await retrieveVisitorDetails(userIP, userAgent),
 			expires: expiryDate,
-			mfaVerified: false,
-		});
-		await authUser.updateSessions(newSessions);
-
-		const generateTokenDev = () => {
-			const { secret } = JSON.parse(decryptData(authUser.secret));
-			const totp = new OTPAuth.TOTP({
-				issuer: 'sws2apps-test',
-				label: authUser.user_uid,
-				algorithm: 'SHA1',
-				digits: 6,
-				period: 30,
-				secret: OTPAuth.Secret.fromBase32(secret),
-			});
-
-			return totp.generate();
 		};
+
+		if (authUser.mfaEnabled) newSession.mfaVerified = false;
+
+		newSessions.push(newSession);
+
+		await authUser.updateSessions(newSessions);
 
 		if (authUser.mfaEnabled) {
 			res.locals.type = 'info';
 			res.locals.message = 'user required to verify mfa';
 
 			if (isDev) {
-				console.log(`Please use this OTP code to complete your login: ${generateTokenDev()}`);
+				const tokenDev = generateTokenDev(authUser.user_uid, authUser.secret);
+				console.log(`Please use this OTP code to complete your login: ${tokenDev}`);
 			}
 
 			res.status(200).json({ message: 'MFA_VERIFY' });
 		} else {
-			const secret = await authUser.generateSecret();
+			// mfa not enabled
+			const newSessions = authUser.sessions.map((session) => {
+				if (session.visitorid === visitorid) {
+					return {
+						...session,
+						sws_last_seen: new Date().getTime(),
+					};
+				} else {
+					return session;
+				}
+			});
 
-			res.locals.type = 'warn';
-			res.locals.message = 'user authentication rejected because account mfa is not yet setup';
+			await authUser.updateSessions(newSessions);
 
-			if (isDev) {
-				console.log(`Please use this OTP code to complete your login: ${generateTokenDev()}`);
+			const userInfo = {
+				id: authUser.id,
+				username: authUser.username,
+				cong_name: authUser.cong_name,
+				cong_number: authUser.cong_number,
+				cong_role: authUser.cong_role,
+				cong_id: authUser.cong_id,
+				global_role: authUser.global_role,
+				user_local_uid: authUser.user_local_uid,
+				user_members_delegate: authUser.user_members_delegate,
+				mfa: 'not_enabled',
+			};
+
+			const cong = congregations.findCongregationById(authUser.cong_id);
+			if (cong) {
+				const isPublisher = cong.isPublisher(authUser.user_local_uid);
+				const isMS = cong.isMS(authUser.user_local_uid);
+				const isElder = cong.isElder(authUser.user_local_uid);
+
+				if (isElder) userInfo.cong_role.push('elder');
+				if (isMS) userInfo.cong_role.push('ms');
+				if (isPublisher) userInfo.cong_role.push('publisher');
+
+				const lmmoRole = authUser.cong_role.includes('lmmo') || authUser.cong_role.includes('lmmo-backup');
+				const secretaryRole = authUser.cong_role.includes('secretary');
+				const coordinatorRole = authUser.cong_role.includes('coordinator');
+				const publicTalkCoordinatorRole = authUser.cong_role.includes('public_talk_coordinator');
+
+				// retrieve congregation persons records if elder
+				if (isElder && !lmmoRole && !secretaryRole && !coordinatorRole && !publicTalkCoordinatorRole) {
+					const backupData = cong.retrieveBackup();
+					userInfo.cong_persons = backupData.cong_persons;
+				}
+
+				// retrieve latest field service reports if publisher
+				const publisherRole = isElder || isMS || isPublisher;
+				if (publisherRole) {
+					const backupData = authUser.retrieveBackup();
+					userInfo.user_fieldServiceReports = backupData.user_fieldServiceReports;
+				}
 			}
-
-			res.status(403).json({
-				secret: secret.secret,
-				qrCode: secret.uri,
-				version: secret.version,
-			});
-		}
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const createUserTempOTPCode = async (req, res, next) => {
-	try {
-		const errors = validationResult(req);
-
-		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
-			});
-
-			res.locals.type = 'warn';
-			res.locals.message = `invalid input: ${msg}`;
-
-			res.status(400).json({
-				message: 'Bad request: provided inputs are invalid.',
-			});
-
-			return;
-		}
-
-		const { uid } = req.headers;
-		const language = req.headers.applanguage || 'e';
-		const user = await users.findUserByAuthUid(uid);
-
-		if (user) {
-			await user.createTempOTPCode(language);
 
 			res.locals.type = 'info';
-			res.locals.message = `temporary code for signin has been queued for sending`;
-
-			res.status(200).json({ message: 'CHECK_EMAIL' });
-			return;
+			res.locals.message = 'user successfully logged in without MFA';
+			res.status(200).json(userInfo);
 		}
-
-		res.locals.type = 'warn';
-		res.locals.message = `user record could not be found`;
-		res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const verifyUserTempOTPCode = async (req, res, next) => {
-	try {
-		const errors = validationResult(req);
-
-		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
-			});
-
-			res.locals.type = 'warn';
-			res.locals.message = `invalid input: ${msg}`;
-
-			res.status(400).json({
-				message: 'Bad request: provided inputs are invalid.',
-			});
-
-			return;
-		}
-
-		const { uid, visitorid } = req.headers;
-		const { code } = req.body;
-		const user = await users.findUserByAuthUid(uid);
-
-		if (!user) {
-			res.locals.type = 'warn';
-			res.locals.message = `user record could not be found`;
-			res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
-			return;
-		}
-
-		const result = await user.verifyTempOTPCode(code);
-
-		if (!result) {
-			res.locals.type = 'warn';
-			res.locals.message = 'Email OTP token invalid';
-			res.status(403).json({ message: 'EMAIL_OTP_INVALID' });
-			return;
-		}
-
-		const { id, sessions, username, cong_name, cong_number, cong_role, cong_id, user_local_uid, user_members_delegate } = user;
-
-		let newSessions = sessions.map((session) => {
-			if (session.visitorid === visitorid) {
-				return {
-					...session,
-					mfaVerified: true,
-					sws_last_seen: new Date().getTime(),
-				};
-			} else {
-				return session;
-			}
-		});
-
-		await user.updateSessions(newSessions);
-
-		// init response object
-		const obj = {
-			message: 'TOKEN_VALID',
-			id,
-			username,
-			cong_name,
-			cong_number,
-			cong_role,
-			cong_id,
-			global_role: user.global_role,
-			user_local_uid,
-			user_members_delegate,
-		};
-
-		res.locals.type = 'info';
-		res.locals.message = 'OTP token verification success';
-		res.status(200).json(obj);
 	} catch (err) {
 		next(err);
 	}

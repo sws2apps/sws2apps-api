@@ -49,23 +49,26 @@ export const visitorChecker = () => {
 						// assign local vars for current user in next route
 						res.locals.currentUser = user;
 
-						const { mfaVerified } = findSession;
-						if (mfaVerified) {
-							// update last seen
-
-							await user.updateSessionsInfo(visitorid);
-
-							next();
-						} else {
-							// allow verify token to pass this middleware
-							if (req.path === '/verify-token') {
+						if (user.mfaEnabled) {
+							const { mfaVerified } = findSession;
+							if (mfaVerified) {
+								// update last seen
+								await user.updateSessionsInfo(visitorid);
 								next();
 							} else {
-								res.locals.type = 'warn';
-								res.locals.message = 'two factor authentication required';
-
-								res.status(403).json({ message: 'LOGIN_FIRST' });
+								// allow verify token to pass this middleware
+								if (req.path === '/verify-token') {
+									next();
+								} else {
+									res.locals.type = 'warn';
+									res.locals.message = 'two factor authentication required';
+									res.status(403).json({ message: 'LOGIN_FIRST' });
+								}
 							}
+						} else {
+							// update last seen
+							await user.updateSessionsInfo(visitorid);
+							next();
 						}
 					} else {
 						res.locals.type = 'warn';

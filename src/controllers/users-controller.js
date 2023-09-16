@@ -2,6 +2,9 @@ import { validationResult } from 'express-validator';
 import { users } from '../classes/Users.js';
 import { fetchCrowdinAnnouncements } from '../utils/announcement-utils.js';
 import { congregations } from '../classes/Congregations.js';
+import { generateTokenDev } from '../dev/setup.js';
+
+const isDev = process.env.NODE_ENV === 'development';
 
 export const createAccount = async (req, res, next) => {
 	try {
@@ -230,11 +233,17 @@ export const getUserSecretToken = async (req, res, next) => {
 			const user = users.findUserById(id);
 			const { secret, uri } = user.decryptSecret();
 
+			if (!user.mfaEnabled && isDev) {
+				const tokenDev = generateTokenDev(user.user_uid, user.secret);
+				console.log(`Please use this OTP code if you want to enable MFA: ${tokenDev}`);
+			}
+
 			res.locals.type = 'info';
 			res.locals.message = `the user has fetched 2fa successfully`;
 			res.status(200).json({
 				secret: secret,
 				qrCode: uri,
+				mfaEnabled: user.mfaEnabled,
 			});
 		} else {
 			res.locals.type = 'warn';
