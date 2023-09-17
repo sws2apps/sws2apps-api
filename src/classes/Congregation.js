@@ -1605,7 +1605,7 @@ Congregation.prototype.updateVisitingSpeakersList = async function (speakers) {
 	// get speakers data
 	const congSpeakers = this.cong_visiting_speakers === '' ? [] : JSON.parse(decryptData(this.cong_visiting_speakers));
 
-	const tmpSpeakers = congSpeakers.find((cong) => cong.cong_number === +this.cong_number).cong_speakers;
+	const tmpSpeakers = congSpeakers.find((cong) => cong.cong_number === +this.cong_number)?.cong_speakers || [];
 	const outgoingSpeakers = tmpSpeakers.map((speaker) => {
 		const person = congPersons.find((person) => person.person_uid === speaker.person_uid);
 		return {
