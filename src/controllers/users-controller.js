@@ -231,6 +231,7 @@ export const getUserSecretToken = async (req, res, next) => {
 
 		if (id) {
 			const user = users.findUserById(id);
+			await user.generateSecret();
 			const { secret, uri } = user.decryptSecret();
 
 			if (!user.mfaEnabled && isDev) {
