@@ -1,13 +1,5 @@
 {
-	"emailPasswordlessSubject": "Rohy Hidirana Amin’ny Programa CPE",
-	"greetingsNoName": "Salama,",
-	"passwordLessIntro": "Naharay fangatahana avy amin’ity adiresy email ity izahay mba hidirana amin’ny Congregation Program for Everyone. Raha maniry hiditra amin’ny kaontinao {{ email }} ianao, dia sokafy ity rohy manaraka ity.",
-	"signIn": "Hiditra",
-	"passwordLessIgnore": "Aza raharahaina fotsiny ity hafatra ity raha tsy nangataka an’ity rohy ity ianao.",
-	"passwordLessLinkFull": "Raha misy olana ka tsy mandeha ny rohy eo ambony, dia ampiasao indray ity rohy manaraka ity. Ataovy azo antoka tsara hoe tsy misy tapaka ny soratra rehetra amin’ilay rohy.",
-	"thankYou": "Misaotra betsaka",
-	"sws2appsTeam": "Ny Ekipa Scheduling Workbox System",
-	"emailOTPCodeSubject": "Kaody Fanamarinana Hidirana Amin’ny CPE",
-	"emailOTPCodeTemplate": "<p>Salama,</p>\n<p>Ampiasao ity kaody fanamarinana ity mba hidiranao amin’ny Congregation Program for Everyone:</p>\n<p class='otp-code'>{{ emailOTPCode }}</p>\n<p>Aza zaraina amin’iza n’iza mihitsy io kaody io.\n<br><strong>Tsara ho fantatra:</strong> Tsy ho azo ampiasaina intsony io kaody io afaka 5 minitra.</p>",
-	"emailFooter": "<p>Misaotra betsaka\n<br>Ny Ekipa Scheduling Workbox System Team</p>"
+	"emailFooter": "<p>Misaotra betsaka\n<br>Ny Ekipa Scheduling Workbox System Team</p>",
+	"passwordLessSubject": "Rohy Hidirana Amin’ny Programa CPE",
+	"passwordLessTemplate": "<p>Salama,</p>\n<p>Naharay fangatahana avy amin’ity adiresy email ity izahay mba hidirana amin’ny Congregation Program for Everyone. Raha maniry hiditra amin’ny kaontinao {{ email }} ianao, dia sokafy ity rohy manaraka ity:</p>\n<p><a href='{{ linkPasswordLess }}'>Hiditra</a></p>\n<p>Aza raharahaina fotsiny ity hafatra ity raha tsy nangataka an’ity rohy ity ianao.</p>\n<p>Raha misy olana ka tsy mandeha ny rohy eo ambony, dia ampiasao indray ity rohy manaraka ity. Ataovy azo antoka tsara hoe tsy misy tapaka ny soratra rehetra amin’ilay rohy:</p>\n<p>{{ linkPasswordLess }}</p>"
 }
