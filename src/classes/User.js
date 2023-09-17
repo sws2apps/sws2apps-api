@@ -6,7 +6,6 @@ import * as OTPAuth from 'otpauth';
 import dayjs from 'dayjs';
 import randomstring from 'randomstring';
 import { decryptData, encryptData } from '../utils/encryption-utils.js';
-import { sendEmailOTPCode, sendUserResetPassword, sendVerificationEmail } from '../utils/sendEmail.js';
 import { congregations } from './Congregations.js';
 import { getFileFromStorage } from '../utils/storage-utils.js';
 import { uploadFileToStorage } from '../utils/storage-utils.js';
@@ -404,11 +403,6 @@ User.prototype.disable = async function () {
 	this.disabled = true;
 };
 
-User.prototype.resetPassword = async function () {
-	const resetLink = await getAuth().generatePasswordResetLink(this.user_uid);
-	sendUserResetPassword(this.user_uid, this.username, resetLink);
-};
-
 User.prototype.revokeToken = async function () {
 	// generate new secret and encrypt
 	const tempSecret = new OTPAuth.Secret().base32;
@@ -446,11 +440,6 @@ User.prototype.revokeToken = async function () {
 User.prototype.makeAdmin = async function () {
 	await db.collection('users').doc(this.id).update({ 'about.role': 'admin' });
 	this.global_role = 'admin';
-};
-
-User.prototype.resendVerificationEmail = async function () {
-	const link = await getAuth().generateEmailVerificationLink(this.user_uid);
-	sendVerificationEmail(this.user_uid, this.username, link);
 };
 
 User.prototype.updatePocketDevicesInfo = async function (visitorid) {
@@ -495,24 +484,6 @@ User.prototype.updateSessionsInfo = async function (visitorid) {
 		const cong = congregations.findCongregationById(this.cong_id);
 		cong.reloadMembers();
 	}
-};
-
-User.prototype.createTempOTPCode = async function (language) {
-	const codeValue = randomstring.generate({
-		length: 6,
-		charset: 'numeric',
-	});
-	const codeEncrypted = encryptData(codeValue);
-
-	const data = {
-		code: codeEncrypted,
-		expired: new Date().getTime() + 5 * 60000, // expired after 5 min
-	};
-
-	await db.collection('users').doc(this.id).update({ 'about.emailOTP': data });
-	this.emailOTP = data;
-
-	sendEmailOTPCode(this.user_uid, codeValue, language);
 };
 
 User.prototype.verifyTempOTPCode = async function (code) {

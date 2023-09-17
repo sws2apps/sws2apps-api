@@ -101,48 +101,6 @@ export const validateUser = async (req, res, next) => {
 	}
 };
 
-export const resendVerificationEmail = async (req, res, next) => {
-	try {
-		const errors = validationResult(req);
-
-		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
-			});
-
-			res.locals.type = 'warn';
-			res.locals.message = `invalid input: ${msg}`;
-
-			res.status(400).json({
-				message: 'Bad request: provided inputs are invalid.',
-			});
-
-			return;
-		}
-
-		const { uid } = req.headers;
-		const user = await users.findUserByAuthUid(uid);
-
-		if (user) {
-			await user.resendVerificationEmail();
-
-			res.locals.type = 'info';
-			res.locals.message = `new verification email queued for sending`;
-
-			res.status(200).json({ message: 'CHECK_EMAIL' });
-			return;
-		}
-
-		res.locals.type = 'warn';
-		res.locals.message = `user record could not be found`;
-
-		res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
-	} catch (err) {
-		next(err);
-	}
-};
-
 export const updateUserFullname = async (req, res, next) => {
 	try {
 		const { id } = req.params;

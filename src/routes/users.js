@@ -1,5 +1,5 @@
 import express from 'express';
-import { body, header } from 'express-validator';
+import { body } from 'express-validator';
 import { visitorChecker } from '../middleware/visitor-checker.js';
 import {
 	createAccount,
@@ -7,7 +7,6 @@ import {
 	getAnnouncementsV2,
 	getUserSecretToken,
 	getUserSessions,
-	resendVerificationEmail,
 	updateUserFullname,
 	updateUserPassword,
 	userLogout,
@@ -27,9 +26,6 @@ router.post(
 
 // get announcements
 router.get('/announcement-v2', getAnnouncementsV2);
-
-// resend verification email
-router.get('/resend-verification', header('email').isEmail(), resendVerificationEmail);
 
 // activate middleware at this point
 router.use(visitorChecker());
