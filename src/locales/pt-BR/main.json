@@ -1,13 +1,5 @@
 {
-	"emailPasswordlessSubject": "Link sem senha para entrar no aplicativo CPE",
-	"greetingsNoName": "Olá,",
-	"passwordLessIntro": "Você deseja entrar no Programa Congregação para Todos utilizando este email {{ email }}? Se desejar, clique neste link.",
-	"signIn": "Entrar",
-	"passwordLessIgnore": "Se você não fez o cadastro no CPE, ignore este email.",
-	"passwordLessLinkFull": "Se você não conseguir abrir o link acima, use o link abaixo. Certifique-se de que o link está completo ao você abrir.",
-	"thankYou": "Obrigado",
-	"sws2appsTeam": "Sistema de Agendamento Workbox",
-	"emailOTPCodeSubject": "Código de verificação para entrar no aplicativo CPE",
-	"emailOTPCodeTemplate": "<p>Olá</p>\n<p>Aqui está seu código de verificação para entrar no Programa de Congregação para Todos:</p>\n<p class='otp-code'>{{ emailOTPCode }}</p>\n<p>Nunca compartilhe este código com ninguém.\n<br><strong>Observação:</strong> Esse código vai expirar em 5 minutos.</p>",
-	"emailFooter": "<p>Obrigado\n<br>Sistema de Agendamento Workbox</p>"
+	"emailFooter": "<p>Obrigado\n<br>Sistema de Agendamento Workbox</p>",
+	"passwordLessSubject": "Link sem senha para entrar no aplicativo CPE",
+	"passwordLessTemplate": "<p>Olá</p>\n<p>Recebemos uma solicitação para entrar no Cpe usando este endereço de e-mail. Se você quiser fazer login com seu {{ email }}, use o link abaixo:</p>\n<p><a href='{{ linkPasswordLess }}'>Entrar</a></p>\n<p>Se você não solicitou esse link, pode ignorar este email.</p>\n<p>Se você estiver tendo problemas para abrir o link acima, use o link a seguir. Certifique-se de que o link não esteja incompleto ao abri-lo:</p>\n<p>{{ linkPasswordLess }}</p>"
 }
