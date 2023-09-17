@@ -53,23 +53,17 @@ const sendEmail = async (options, successText) => {
 	return !retry;
 };
 
-export const sendPasswordlessLinkSignUp = async (recipient, link, templateLang) => {
+export const sendPasswordlessLinkSignIn = async (recipient, link, templateLang) => {
 	const t = i18n(templateLang.toLowerCase());
 
 	const options = {
 		from: gmailConfig.sender,
 		to: recipient,
-		subject: t('emailPasswordlessSubject'),
+		subject: t('passwordLessSubject'),
 		template: 'passwordlessLinkSignIn',
 		context: {
-			greetings: t('greetingsNoName'),
-			passwordLessIntro: t('passwordLessIntro', { email: recipient }),
-			passwordLessIgnore: t('passwordLessIgnore'),
-			signIn: t('signIn'),
-			passwordLessLinkFull: t('passwordLessLinkFull'),
-			link: link,
-			thankYou: t('thankYou'),
-			sws2appsTeam: t('sws2appsTeam'),
+			passwordLessTemplate: t('passwordLessTemplate', { email: recipient, linkPasswordLess: link }),
+			emailFooter: t('emailFooter'),
 		},
 	};
 

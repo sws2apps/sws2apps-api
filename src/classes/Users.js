@@ -2,7 +2,7 @@ import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import jwt from 'jsonwebtoken';
 import randomstring from 'randomstring';
-import { sendPasswordlessLinkSignUp } from '../utils/sendEmail.js';
+import { sendPasswordlessLinkSignIn } from '../utils/sendEmail.js';
 import { dbFetchUsers } from '../utils/user-utils.js';
 import { congregations } from './Congregations.js';
 import { User } from './User.js';
@@ -174,7 +174,7 @@ Users.prototype.createPasswordlessLink = async function (email, uid, language, o
 		return;
 	}
 
-	sendPasswordlessLinkSignUp(email, link, language);
+	sendPasswordlessLinkSignIn(email, link, language);
 };
 
 Users.prototype.verifyPasswordlessLink = async function (code, fullname) {
