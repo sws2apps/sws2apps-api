@@ -5,6 +5,7 @@ import { users } from '../classes/Users.js';
 import { congregations } from '../classes/Congregations.js';
 import { allowedRoles, createCongregationAllowedRoles } from '../constant/constant.js';
 import { LANGUAGE_LIST } from '../locales/langList.js';
+import { sendWelcomeCPE } from '../utils/sendEmail.js';
 
 export const getLastCongregationBackup = async (req, res, next) => {
 	try {
@@ -1429,12 +1430,38 @@ export const createCongregation = async (req, res, next) => {
 			return;
 		}
 
+		// is congregation authentic
+		const language = req.headers.applanguage || 'e';
+		const url = process.env.APP_CONGREGATION_API + new URLSearchParams({ country: country_code, language, name: cong_number });
+
+		const response = await fetch(url);
+		if (response.status !== 200) {
+			res.locals.type = 'warn';
+			res.locals.message = 'an error occured while verifying the congregation data';
+			res.status(response.status).json({ message: 'REQUEST_NOT_VALIDATED' });
+
+			return;
+		}
+
+		const congsList = await response.json();
+		const tmpCong = congsList[0];
+
+		if (tmpCong.congName !== cong_name || tmpCong.congNumber !== cong_number) {
+			res.locals.type = 'warn';
+			res.locals.message = 'this request does not match any valid congregation';
+			res.status(400).json({ message: 'BAD_REQUEST' });
+
+			return;
+		}
+
 		// create congregation
 		const newCong = await congregations.create({ country_code, cong_name, cong_number });
 
 		// add user to congregation
 		const tmpUser = users.findUserByAuthUid(uid);
 		const user = await newCong.addUser(tmpUser.id, ['admin', app_requestor], fullname);
+
+		sendWelcomeCPE(user.user_uid, fullname, `${cong_name} (${cong_number})`, language);
 
 		res.locals.type = 'info';
 		res.locals.message = 'congregation created successfully';
