@@ -69,3 +69,20 @@ export const sendPasswordlessLinkSignIn = async (recipient, link, templateLang) 
 
 	sendEmail(options, 'Passwordless link sent to user');
 };
+
+export const sendWelcomeCPE = async (recipient, name, congregation, templateLang) => {
+	const t = i18n(templateLang.toLowerCase());
+
+	const options = {
+		from: gmailConfig.sender,
+		to: recipient,
+		subject: t('welcomeCPESubject'),
+		template: 'welcomeCPE',
+		context: {
+			welcomeCPETemplate: t('welcomeCPETemplate', { name, congregation }),
+			emailFooter: t('emailFooter'),
+		},
+	};
+
+	sendEmail(options, 'Welcome message sent to user');
+};
