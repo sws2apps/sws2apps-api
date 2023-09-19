@@ -7,6 +7,8 @@ import { allowedRoles, createCongregationAllowedRoles } from '../constant/consta
 import { LANGUAGE_LIST } from '../locales/langList.js';
 import { sendWelcomeCPE } from '../utils/sendEmail.js';
 
+const isDev = process.env.NODE_ENV === 'development';
+
 export const getLastCongregationBackup = async (req, res, next) => {
 	try {
 		const { id } = req.params;
@@ -1461,7 +1463,9 @@ export const createCongregation = async (req, res, next) => {
 		const tmpUser = users.findUserByAuthUid(uid);
 		const user = await newCong.addUser(tmpUser.id, ['admin', app_requestor], fullname);
 
-		sendWelcomeCPE(user.user_uid, fullname, `${cong_name} (${cong_number})`, language);
+		if (!isDev) {
+			sendWelcomeCPE(user.user_uid, fullname, `${cong_name} (${cong_number})`, language);
+		}
 
 		res.locals.type = 'info';
 		res.locals.message = 'congregation created successfully';
