@@ -1,5 +1,7 @@
 {
 	"emailFooter": "<p>Obrigado\n<br>Sistema de Agendamento Workbox</p>",
 	"passwordLessSubject": "Link sem senha para entrar no aplicativo CPE",
-	"passwordLessTemplate": "<p>Olá</p>\n<p>Recebemos uma solicitação para entrar no Cpe usando este endereço de e-mail. Se você quiser fazer login com seu {{ email }}, use o link abaixo:</p>\n<p><a href='{{ linkPasswordLess }}'>Entrar</a></p>\n<p>Se você não solicitou esse link, pode ignorar este email.</p>\n<p>Se você estiver tendo problemas para abrir o link acima, use o link a seguir. Certifique-se de que o link não esteja incompleto ao abri-lo:</p>\n<p>{{ linkPasswordLess }}</p>"
+	"passwordLessTemplate": "<p>Olá</p>\n<p>Recebemos uma solicitação para entrar no Cpe usando este endereço de e-mail. Se você quiser fazer login com seu {{ email }}, use o link abaixo:</p>\n<p><a href='{{ linkPasswordLess }}'>Entrar</a></p>\n<p>Se você não solicitou esse link, pode ignorar este email.</p>\n<p>Se você estiver tendo problemas para abrir o link acima, use o link a seguir. Certifique-se de que o link não esteja incompleto ao abri-lo:</p>\n<p>{{ linkPasswordLess }}</p>",
+	"welcomeCPESubject": "Bem-vindo ao CPE",
+	"welcomeCPETemplate": "<p>Olá {{ name }},</p>\n<p>Você criou recentemente uma conta sws2apps para ser usada com o <strong>Programa Congregação para Todos (CPE)</strong> . Sua conta agora está pronta para ser usada com a seguinte congregação: <strong>{{ congregation }}.</strong></p>\n<p>Para começar, sugerimos que você faça um tour em nosso <a href='https://sws2apps.com/docs/category/congregation-program-for-everyone'>site de documentação</a> para saber mais sobre todos os recursos do aplicativo CPE.</p>\n<p>É bom tê-lo conosco e damos-lhe as boas-vindas. 🎉🎉🎉</p>"
 }
