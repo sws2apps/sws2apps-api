@@ -25,6 +25,7 @@ cong_backup
 .env.production.local
 jwt.js
 sample.json
+storage.rules
 
 npm-debug.log*
 yarn-debug.log*

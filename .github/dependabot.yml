@@ -3,7 +3,7 @@ updates:
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: 'github-actions'
     directory: '/'
-    target-branch: prod
+    target-branch: main
     schedule:
       interval: 'daily'
     commit-message:
@@ -12,7 +12,7 @@ updates:
   # Maintain dependencies for npm
   - package-ecosystem: 'npm'
     directory: '/'
-    target-branch: prod
+    target-branch: main
     schedule:
       interval: 'daily'
     allow:
