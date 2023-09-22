@@ -50,9 +50,7 @@ export const verifyToken = async (req, res, next) => {
 			window: 1,
 		});
 
-		console.log(delta);
-
-		if ((delta < -1 && delta > 1) || delta === null || !delta) {
+		if ((delta < -1 && delta > 1) || delta === null || delta === undefined) {
 			res.locals.type = 'warn';
 			res.locals.message = 'OTP token invalid';
 			res.status(403).json({ message: 'TOKEN_INVALID' });
