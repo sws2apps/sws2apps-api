@@ -1,3 +1,27 @@
+# [2.70.0](https://github.com/sws2apps/sws2apps-api/compare/v2.69.0...v2.70.0) (2023-09-22)
+
+
+### Bug Fixes
+
+* **classes:** fix error when sharing congregations speakers list ([af22bf9](https://github.com/sws2apps/sws2apps-api/commit/af22bf92586a495ee5f5e2562094db7f80c440e8))
+
+
+### Features
+
+* **api:** disable mfa requirements on signup ([45fd489](https://github.com/sws2apps/sws2apps-api/commit/45fd489d6902eb4a22f90ec88cca12d5c74dc392))
+* **api:** handle coordinator and public talk coordinator roles ([d1802fb](https://github.com/sws2apps/sws2apps-api/commit/d1802fb473b93ac4b7f109de898aa5f035ddcbeb))
+* **api:** send welcome message after creating congregation account ([dfca13e](https://github.com/sws2apps/sws2apps-api/commit/dfca13e2d80e45d11a0c18a7eea2ef35a18654d9))
+* **api:** set express trust proxy ([c891097](https://github.com/sws2apps/sws2apps-api/commit/c891097a0a8548234bf6953fe1ab12d4e3746894))
+* **api:** update template used when sending passwordless link ([57e6b67](https://github.com/sws2apps/sws2apps-api/commit/57e6b67dbf6fe5d6218dbfb8fa45226d4b3788b4))
+* **controllers:** generate user secret when visiting 2fa route ([d329c8f](https://github.com/sws2apps/sws2apps-api/commit/d329c8f52f6ed64c13d2c106bd6495432f38a1e1))
+* **deps:** bump @logtail/node from 0.4.10 to 0.4.12 ([3f72524](https://github.com/sws2apps/sws2apps-api/commit/3f725247342570c2a00849f4dc3d689be5652ba7))
+* **deps:** bump @logtail/node from 0.4.9 to 0.4.10 ([58792a4](https://github.com/sws2apps/sws2apps-api/commit/58792a4d9731bcbb1a109b9a1071daa6dd6bc3e7))
+* **deps:** bump dayjs from 1.11.9 to 1.11.10 ([b907495](https://github.com/sws2apps/sws2apps-api/commit/b907495bd6e48a20d0db8cb140e6cf46575ab3d9))
+* **deps:** bump express-rate-limit from 6.11.2 to 7.0.0 ([a264d0b](https://github.com/sws2apps/sws2apps-api/commit/a264d0b89e514f371c63359c64ded3cb5d4f8480))
+* **deps:** bump express-rate-limit from 7.0.0 to 7.0.1 ([7a878b8](https://github.com/sws2apps/sws2apps-api/commit/7a878b8c51c23484daa617e958b62b9579e4e52f))
+* **deps:** bump node-html-parser from 6.1.6 to 6.1.9 ([4dba98e](https://github.com/sws2apps/sws2apps-api/commit/4dba98e64f64766407324344c34cb4a1edad6825))
+* **deps:** bump node-html-parser from 6.1.9 to 6.1.10 ([b895781](https://github.com/sws2apps/sws2apps-api/commit/b8957812a1c856bf0e6c04bad4882a752ffeac23))
+
 # [2.69.0](https://github.com/sws2apps/sws2apps-api/compare/v2.68.0...v2.69.0) (2023-09-12)
 
 
