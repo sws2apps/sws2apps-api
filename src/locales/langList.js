@@ -14,7 +14,7 @@ export const ALL_LANGUAGES = [
 		code: 'ttm',
 		locale: 'mg-TTM',
 		name: 'Tenin’ny Tanana Malagasy',
-		isUI: false,
+		isUI: true,
 		hasEPUB: false,
 		WOL_DT: 'https://wol.jw.org/wol/dt/r416/lp-ttm',
 	},
