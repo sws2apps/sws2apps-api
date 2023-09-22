@@ -83,6 +83,7 @@ export const bulkUpdatePublicTalks = async (req, res, next) => {
 		}
 
 		const language = req.body.language.toUpperCase();
+		console.log(language);
 
 		const isLangValid = LANGUAGE_LIST.find((lang) => lang.code.toUpperCase() === language);
 
