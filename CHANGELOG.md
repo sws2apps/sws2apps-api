@@ -1,3 +1,10 @@
+## [2.70.2](https://github.com/sws2apps/sws2apps-api/compare/v2.70.1...v2.70.2) (2023-09-22)
+
+
+### Bug Fixes
+
+* **locales:** update mg-TTM to be UI language ([c7708af](https://github.com/sws2apps/sws2apps-api/commit/c7708afbcdb33d6593e964412ddce144d5b9cfe9))
+
 ## [2.70.1](https://github.com/sws2apps/sws2apps-api/compare/v2.70.0...v2.70.1) (2023-09-22)
 
 
