@@ -1,3 +1,10 @@
+## [2.71.2](https://github.com/sws2apps/sws2apps-api/compare/v2.71.1...v2.71.2) (2023-09-24)
+
+
+### Bug Fixes
+
+* **routes:** update router order for congregations ([af8c460](https://github.com/sws2apps/sws2apps-api/commit/af8c46035f2b63853f599afd5374aede2bd9326e))
+
 ## [2.71.1](https://github.com/sws2apps/sws2apps-api/compare/v2.71.0...v2.71.1) (2023-09-24)
 
 
