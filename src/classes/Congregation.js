@@ -1501,95 +1501,97 @@ Congregation.prototype.updateMemberFieldServiceReports = async function () {
 				await mkdir(`./cong_backup/${this.id}/usersData`);
 			}
 
-			const memberReports = await getUserReport(this.id, member.person_uid);
-			if (memberReports && memberReports.length > 0) {
-				for await (const S1 of submttedS1s) {
-					const month = S1.month;
-					for (const report of memberReports) {
-						// mark individual record as deleted
-						if (report.month === month && report.isS21 === false && report.isDeleted === false) {
-							report.isDeleted = true;
+			const user = users.findUserByLocalUid(member.person_uid);
+			if (user) {
+				const memberReports = await getUserReport(this.id, member.person_uid);
+				if (memberReports && memberReports.length > 0) {
+					for await (const S1 of submttedS1s) {
+						const month = S1.month;
+						for (const report of memberReports) {
+							// mark individual record as deleted
+							if (report.month === month && report.isS21 === false && report.isDeleted === false) {
+								report.isDeleted = true;
+							}
+						}
+
+						// add S4 record from S21
+						const currentSY = serviceYearFromMonth(month);
+						const service_year = this.cong_serviceYear.find((record) => record.value === currentSY).uid;
+						const memberS21 = this.cong_fieldServiceReports.find(
+							(item) => item.service_year === service_year && item.person_uid === member.person_uid
+						);
+
+						if (memberS21) {
+							const memberS4 = memberS21.months.find((record) => record.month_value === month);
+
+							if (memberS4) {
+								let currentReportS21;
+								currentReportS21 = memberReports.find((record) => record.isS21 === true && record.month === month);
+
+								let update = false;
+								let newRecord = false;
+
+								if (currentReportS21) {
+									const oldDate = new Date(currentReportS21.changes[0].date);
+									const newDate = new Date(S1.updatedAt);
+
+									if (oldDate < newDate) update = true;
+								}
+
+								if (!currentReportS21) {
+									newRecord = true;
+									currentReportS21 = {};
+									currentReportS21.report_uid = randomUUID();
+								}
+
+								if (newRecord || update) {
+									currentReportS21.bibleStudies = memberS4.bibleStudies;
+									currentReportS21.changes = [{ date: new Date(S1.updatedAt).toISOString() }];
+									currentReportS21.comments = memberS4.comments;
+
+									let duration;
+
+									if (memberS4.hours === '') {
+										duration = '00';
+									}
+
+									if (memberS4.hours !== '') {
+										duration = String(memberS4.hours).padStart(2, '0');
+									}
+
+									duration += ':';
+
+									if (memberS4.minutes === '') {
+										duration += '00';
+									}
+
+									if (memberS4.minutes !== '') {
+										duration += String(memberS4.minutes).padStart(2, '0');
+									}
+
+									currentReportS21.duration = duration;
+									currentReportS21.duration_start = '';
+									currentReportS21.isDeleted = false;
+									currentReportS21.isPending = true;
+									currentReportS21.isS4 = false;
+									currentReportS21.isS21 = true;
+									currentReportS21.month = month;
+									currentReportS21.month_date = '';
+									currentReportS21.placements = memberS4.placements;
+									currentReportS21.returnVisits = memberS4.returnVisits;
+									currentReportS21.videos = memberS4.videos;
+								}
+
+								if (newRecord) {
+									memberReports.push(currentReportS21);
+								}
+							}
 						}
 					}
 
-					// add S4 record from S21
-					const currentSY = serviceYearFromMonth(month);
-					const service_year = this.cong_serviceYear.find((record) => record.value === currentSY).uid;
-					const memberS21 = this.cong_fieldServiceReports.find(
-						(item) => item.service_year === service_year && item.person_uid === member.person_uid
-					);
-
-					if (memberS21) {
-						const memberS4 = memberS21.months.find((record) => record.month_value === month);
-
-						if (memberS4) {
-							let currentReportS21;
-							currentReportS21 = memberReports.find((record) => record.isS21 === true && record.month === month);
-
-							let update = false;
-							let newRecord = false;
-
-							if (currentReportS21) {
-								const oldDate = new Date(currentReportS21.changes[0].date);
-								const newDate = new Date(S1.updatedAt);
-
-								if (oldDate < newDate) update = true;
-							}
-
-							if (!currentReportS21) {
-								newRecord = true;
-								currentReportS21 = {};
-								currentReportS21.report_uid = randomUUID();
-							}
-
-							if (newRecord || update) {
-								currentReportS21.bibleStudies = memberS4.bibleStudies;
-								currentReportS21.changes = [{ date: new Date(S1.updatedAt).toISOString() }];
-								currentReportS21.comments = memberS4.comments;
-
-								let duration;
-
-								if (memberS4.hours === '') {
-									duration = '00';
-								}
-
-								if (memberS4.hours !== '') {
-									duration = String(memberS4.hours).padStart(2, '0');
-								}
-
-								duration += ':';
-
-								if (memberS4.minutes === '') {
-									duration += '00';
-								}
-
-								if (memberS4.minutes !== '') {
-									duration += String(memberS4.minutes).padStart(2, '0');
-								}
-
-								currentReportS21.duration = duration;
-								currentReportS21.duration_start = '';
-								currentReportS21.isDeleted = false;
-								currentReportS21.isPending = true;
-								currentReportS21.isS4 = false;
-								currentReportS21.isS21 = true;
-								currentReportS21.month = month;
-								currentReportS21.month_date = '';
-								currentReportS21.placements = memberS4.placements;
-								currentReportS21.returnVisits = memberS4.returnVisits;
-								currentReportS21.videos = memberS4.videos;
-							}
-
-							if (newRecord) {
-								memberReports.push(currentReportS21);
-							}
-						}
-					}
+					user.fieldServiceReports = memberReports;
+					await user.quickSaveFieldServiceReports();
 				}
-
-				const user = users.findUserByLocalUid(member.person_uid);
-				user.fieldServiceReports = memberReports;
-				await user.quickSaveFieldServiceReports();
 			}
 		}
 	}
