@@ -13,7 +13,7 @@ export const congregationRoleChecker = () => {
 				next();
 			} else {
 				res.locals.type = 'warn';
-				res.locals.message = 'user do not have the appropriate role';
+				res.locals.message = `user do not have the appropriate role: ${JSON.stringify(cong_role)}`;
 				res.locals.failedLoginAttempt = true;
 				res.status(403).json({ message: 'UNAUTHORIZED_ACCESS' });
 			}
@@ -32,7 +32,7 @@ export const congregationLMMOChecker = () => {
 				next();
 			} else {
 				res.locals.type = 'warn';
-				res.locals.message = 'user do not have the appropriate role';
+				res.locals.message = `user do not have the appropriate role: ${JSON.stringify(cong_role)}`;
 				res.locals.failedLoginAttempt = true;
 				res.status(403).json({ message: 'UNAUTHORIZED_ACCESS' });
 			}
@@ -51,7 +51,7 @@ export const congregationSecretaryChecker = () => {
 				next();
 			} else {
 				res.locals.type = 'warn';
-				res.locals.message = 'user do not have the appropriate role';
+				res.locals.message = `user do not have the appropriate role: ${JSON.stringify(cong_role)}`;
 				res.locals.failedLoginAttempt = true;
 				res.status(403).json({ message: 'UNAUTHORIZED_ACCESS' });
 			}
@@ -70,7 +70,7 @@ export const congregationWeekendEditorChecker = () => {
 				next();
 			} else {
 				res.locals.type = 'warn';
-				res.locals.message = 'user do not have the appropriate role';
+				res.locals.message = `user do not have the appropriate role: ${JSON.stringify(cong_role)}`;
 				res.locals.failedLoginAttempt = true;
 				res.status(403).json({ message: 'UNAUTHORIZED_ACCESS' });
 			}
