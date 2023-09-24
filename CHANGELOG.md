@@ -1,3 +1,10 @@
+## [2.71.1](https://github.com/sws2apps/sws2apps-api/compare/v2.71.0...v2.71.1) (2023-09-24)
+
+
+### Bug Fixes
+
+* **classes:** check if user exists before updating field service reports ([64b1660](https://github.com/sws2apps/sws2apps-api/commit/64b1660a0f0293e8ffe3f6419f86a0aaf867cfe7))
+
 # [2.71.0](https://github.com/sws2apps/sws2apps-api/compare/v2.70.2...v2.71.0) (2023-09-22)
 
 
