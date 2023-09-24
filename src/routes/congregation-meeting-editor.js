@@ -1,7 +1,10 @@
 import express from 'express';
 import { body, header } from 'express-validator';
+import {
+	congregationMeetingEditorChecker,
+	congregationPublicTalkCoordinatorChecker,
+} from '../middleware/congregation-role-checker.js';
 import { visitorChecker } from '../middleware/visitor-checker.js';
-import { congregationRoleChecker, congregationWeekendEditorChecker } from '../middleware/congregation-role-checker.js';
 import {
 	approveCongregationSpeakersRequest,
 	disapproveCongregationSpeakersRequest,
@@ -12,27 +15,23 @@ import {
 	getPublicTalks,
 	getVisitingSpeakers,
 	requestAccessSpeakersCongregation,
+	sendPocketSchedule,
 	updateVisitingSpeakers,
 	updateVisitingSpeakersAccess,
-	userBulkUpdatePublicTalks,
-} from '../controllers/congregation-weekend-editor-controller.js';
+} from '../controllers/congregation-meeting-editor-controller.js';
 
 const router = express.Router();
 
 router.use(visitorChecker());
-router.use(congregationRoleChecker());
-router.use(congregationWeekendEditorChecker());
+router.use(congregationMeetingEditorChecker());
+
+// post new sws pocket schedule
+router.post('/:id/schedule', body('schedules').isObject().notEmpty(), body('cong_settings').isArray(), sendPocketSchedule);
+
+router.use(congregationPublicTalkCoordinatorChecker());
 
 // get public talks
 router.get('/:id/public-talks', getPublicTalks);
-
-// update public talks
-router.post(
-	'/:id/public-talks',
-	body('language').isString().notEmpty(),
-	body('talks').isArray().notEmpty(),
-	userBulkUpdatePublicTalks
-);
 
 // update visiting speakers
 router.post('/:id/visiting-speakers', body('speakers').isArray().notEmpty(), updateVisitingSpeakers);

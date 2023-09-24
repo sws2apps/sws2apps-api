@@ -18,7 +18,7 @@ import {
 	updatePocketDetails,
 	updateMembersDelegate,
 	updatePocketUsername,
-} from '../controllers/congregation-controller.js';
+} from '../controllers/congregation-admin-controller.js';
 
 const router = express.Router();
 

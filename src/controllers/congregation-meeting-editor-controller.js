@@ -711,3 +711,62 @@ export const updateVisitingSpeakersAccess = async (req, res, next) => {
 		next(err);
 	}
 };
+
+export const sendPocketSchedule = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const { uid } = req.headers;
+
+		if (id) {
+			const cong = congregations.findCongregationById(id);
+			if (cong) {
+				const isValid = await cong.isMember(uid);
+
+				if (isValid) {
+					const errors = validationResult(req);
+
+					if (!errors.isEmpty()) {
+						let msg = '';
+						errors.array().forEach((error) => {
+							msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
+						});
+
+						res.locals.type = 'warn';
+						res.locals.message = `invalid input: ${msg}`;
+
+						res.status(400).json({
+							message: 'Bad request: provided inputs are invalid.',
+						});
+
+						return;
+					}
+
+					const { schedules, cong_settings } = req.body;
+
+					await cong.sendPocketSchedule(schedules, cong_settings);
+
+					res.locals.type = 'info';
+					res.locals.message = 'schedule save for sws pocket application';
+					res.status(200).json({ message: 'SCHEDULE_SENT' });
+					return;
+				}
+
+				res.locals.type = 'warn';
+				res.locals.message = 'user not authorized to access the provided congregation';
+				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+				return;
+			}
+
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation id params is undefined';
+		res.status(400).json({ message: 'CONG_ID_INVALID' });
+	} catch (err) {
+		next(err);
+	}
+};
