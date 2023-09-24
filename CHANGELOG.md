@@ -1,3 +1,10 @@
+## [2.71.3](https://github.com/sws2apps/sws2apps-api/compare/v2.71.2...v2.71.3) (2023-09-24)
+
+
+### Bug Fixes
+
+* **api:** update congregations routes name ([566e2c4](https://github.com/sws2apps/sws2apps-api/commit/566e2c4f61366737a79e8d519e90c50352f2ad26))
+
 ## [2.71.2](https://github.com/sws2apps/sws2apps-api/compare/v2.71.1...v2.71.2) (2023-09-24)
 
 
