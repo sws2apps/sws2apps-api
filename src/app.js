@@ -13,7 +13,8 @@ import './config/i18n-config.js';
 import authRoute from './routes/auth.js';
 import congregationRoute from './routes/congregation.js';
 import congregationAdminRoute from './routes/congregation-admin.js';
-import congregationWeekendEditorRoute from './routes/congregation-weekend-editor.js';
+import congregationMeetingEditorRoute from './routes/congregation-meeting-editor.js';
+import congregationSecretaryRoute from './routes/congregation-secretary.js';
 import userRoute from './routes/users.js';
 import adminRoute from './routes/admin.js';
 import mfaRoute from './routes/mfa.js';
@@ -106,8 +107,9 @@ app.use('/api/sws-pocket', swsPocketRoute);
 app.use('/api/mfa', mfaRoute);
 app.use('/api/users', userRoute);
 app.use('/api/congregations', congregationRoute);
-app.use('/api/congregations', congregationWeekendEditorRoute);
-app.use('/api/congregations', congregationAdminRoute);
+app.use('/api/congregations/meeting', congregationMeetingEditorRoute);
+app.use('/api/congregations/secretary', congregationSecretaryRoute);
+app.use('/api/congregations/admin', congregationAdminRoute);
 app.use('/api/admin', adminRoute);
 
 // Handling invalid routes
