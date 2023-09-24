@@ -20,7 +20,7 @@
 	},
 	"engines": {
 		"node": ">=18 <19",
-		"npm": ">=9"
+		"npm": ">=10"
 	},
 	"dependencies": {
 		"@crowdin/crowdin-api-client": "^1.24.0",

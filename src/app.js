@@ -102,13 +102,13 @@ app.get('/', getRoot);
 
 app.use(appVersionChecker());
 app.use('/', authRoute);
-app.use('/api/congregations', congregationRoute);
-app.use('/api/congregations', congregationAdminRoute);
-app.use('/api/congregations', congregationWeekendEditorRoute);
+app.use('/api/sws-pocket', swsPocketRoute);
 app.use('/api/mfa', mfaRoute);
 app.use('/api/users', userRoute);
+app.use('/api/congregations', congregationRoute);
+app.use('/api/congregations', congregationWeekendEditorRoute);
+app.use('/api/congregations', congregationAdminRoute);
 app.use('/api/admin', adminRoute);
-app.use('/api/sws-pocket', swsPocketRoute);
 
 // Handling invalid routes
 app.use(invalidEndpointHandler);
