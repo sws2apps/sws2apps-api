@@ -205,7 +205,7 @@ export const getCongregationBackup = async (req, res, next) => {
 
 		const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
 		const secretaryRole = user.cong_role.includes('secretary');
-		const weekendEditorRole = user.cong_role.includes('coordinator') || user.cong_role.includes('public_talk)coordinator');
+		const weekendEditorRole = user.cong_role.includes('coordinator') || user.cong_role.includes('public_talk_coordinator');
 		const publisherRole = isPublisher || isMS || isElder;
 
 		if (!lmmoRole && !secretaryRole && !publisherRole && !weekendEditorRole) {
@@ -226,6 +226,7 @@ export const getCongregationBackup = async (req, res, next) => {
 			if (lmmoRole || weekendEditorRole) {
 				obj.cong_schedule = backupData.cong_schedule;
 				obj.cong_sourceMaterial = backupData.cong_sourceMaterial;
+				obj.cong_publicTalks = backupData.cong_publicTalks;
 			}
 
 			if (secretaryRole) {
@@ -240,7 +241,6 @@ export const getCongregationBackup = async (req, res, next) => {
 
 			if (weekendEditorRole) {
 				obj.cong_visitingSpeakers = backupData.cong_visitingSpeakers;
-				obj.cong_publicTalks = backupData.cong_publicTalks;
 			}
 		}
 

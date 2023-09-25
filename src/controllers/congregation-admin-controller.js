@@ -57,63 +57,66 @@ export const findUserByCongregation = async (req, res, next) => {
 
 		const search = req.query.search;
 
-		if (id) {
-			const cong = congregations.findCongregationById(id);
-			if (cong) {
-				const isValid = await cong.isMember(uid);
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation id params is undefined';
+			res.status(400).json({ message: 'CONG_ID_INVALID' });
 
-				if (isValid) {
-					if (search && search.length > 0) {
-						const userData = await users.findUserByEmail(search);
+			return;
+		}
 
-						if (userData && !userData.disabled && userData.mfaEnabled) {
-							if (userData.cong_id === id) {
-								res.locals.type = 'info';
-								res.locals.message = 'user is already member of the congregation';
-								res.status(200).json({ message: 'ALREADY_MEMBER' });
-								return;
-							}
+		const cong = congregations.findCongregationById(id);
 
-							if (userData.cong_id !== '') {
-								res.locals.type = 'warn';
-								res.locals.message = 'user could not be found';
-								res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
-								return;
-							}
-
-							res.locals.type = 'info';
-							res.locals.message = 'user details fetched successfully';
-							res.status(200).json(userData);
-							return;
-						}
-
-						res.locals.type = 'warn';
-						res.locals.message = 'user could not be found';
-						res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
-						return;
-					}
-
-					res.locals.type = 'warn';
-					res.locals.message = 'the search parameter is not correct';
-					res.status(400).json({ message: 'SEARCH_INVALID' });
-					return;
-				}
-
-				res.locals.type = 'warn';
-				res.locals.message = 'user not authorized to access the provided congregation';
-				res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-				return;
-			}
-
+		if (!cong) {
 			res.locals.type = 'warn';
 			res.locals.message = 'no congregation could not be found with the provided id';
 			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
 			return;
 		}
 
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
+		const isValid = await cong.isMember(uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		if (!search || search?.length === 0) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the search parameter is not correct';
+			res.status(400).json({ message: 'SEARCH_INVALID' });
+			return;
+		}
+
+		const userData = await users.findUserByEmail(search);
+
+		if (!userData) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user could not be found';
+			res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+			return;
+		}
+
+		if (userData.cong_id === id) {
+			res.locals.type = 'info';
+			res.locals.message = 'user is already member of the congregation';
+			res.status(200).json({ message: 'ALREADY_MEMBER' });
+			return;
+		}
+
+		if (userData.cong_id !== '') {
+			res.locals.type = 'warn';
+			res.locals.message = 'user could not be found';
+			res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+			return;
+		}
+
+		res.locals.type = 'info';
+		res.locals.message = 'user details fetched successfully';
+		res.status(200).json(userData);
+		return;
 	} catch (err) {
 		next(err);
 	}
