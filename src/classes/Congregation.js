@@ -1008,6 +1008,32 @@ Congregation.prototype.mergeVisitingSpeakersFromBackup = function (congregations
 	return finalCongs;
 };
 
+Congregation.prototype.mergePublicTalksFromBackup = function (cong_publicTalks) {
+	// new record
+	if (this.cong_publicTalks.length === 0) {
+		this.cong_publicTalks = cong_publicTalks;
+		return;
+	}
+
+	// update record
+	for (const incomingTalk of cong_publicTalks) {
+		const currentTalk = this.cong_publicTalks.find((talk) => talk.talk_number === incomingTalk.talk_number);
+
+		for (const talkLanguage of Object.entries(incomingTalk.talk_title)) {
+			const incomingModified = talkLanguage.modified;
+			const currentModified = incomingTalk.talk_title[talkLanguage]?.modified;
+
+			if (!currentModified) {
+				currentTalk.talk_title[talkLanguage] = incomingTalk.talk_title[talkLanguage];
+			}
+
+			if (currentModified && incomingModified > currentModified) {
+				currentTalk.talk_title[talkLanguage] = incomingTalk.talk_title[talkLanguage];
+			}
+		}
+	}
+};
+
 Congregation.prototype.saveBackup = async function (payload) {
 	const cong_persons = payload.cong_persons;
 	const cong_deleted = payload.cong_deleted;
@@ -1085,6 +1111,11 @@ Congregation.prototype.saveBackup = async function (payload) {
 	let finalFieldServiceGroup = [];
 	if (cong_fieldServiceGroup) {
 		finalFieldServiceGroup = this.mergeFieldServiceGroupFromBackup(cong_fieldServiceGroup, cong_deleted);
+	}
+
+	// update cong_publicTalks data
+	if (cong_publicTalks) {
+		this.mergePublicTalksFromBackup(cong_publicTalks);
 	}
 
 	const userInfo = users.findUserByAuthUid(uid);
