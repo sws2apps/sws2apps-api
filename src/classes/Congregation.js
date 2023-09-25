@@ -1019,8 +1019,8 @@ Congregation.prototype.mergePublicTalksFromBackup = function (cong_publicTalks) 
 	for (const incomingTalk of cong_publicTalks) {
 		const currentTalk = this.cong_publicTalks.find((talk) => talk.talk_number === incomingTalk.talk_number);
 
-		for (const talkLanguage of Object.entries(incomingTalk.talk_title)) {
-			const incomingModified = talkLanguage.modified;
+		for (const [talkLanguage] of Object.entries(incomingTalk.talk_title)) {
+			const incomingModified = incomingTalk.talk_title[talkLanguage].modified;
 			const currentModified = incomingTalk.talk_title[talkLanguage]?.modified;
 
 			if (!currentModified) {
