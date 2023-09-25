@@ -1021,7 +1021,7 @@ Congregation.prototype.mergePublicTalksFromBackup = function (cong_publicTalks) 
 
 		for (const [talkLanguage] of Object.entries(incomingTalk.talk_title)) {
 			const incomingModified = incomingTalk.talk_title[talkLanguage].modified;
-			const currentModified = incomingTalk.talk_title[talkLanguage]?.modified;
+			const currentModified = currentTalk.talk_title[talkLanguage]?.modified;
 
 			if (!currentModified) {
 				currentTalk.talk_title[talkLanguage] = incomingTalk.talk_title[talkLanguage];
