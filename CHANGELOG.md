@@ -1,3 +1,13 @@
+## [2.71.4](https://github.com/sws2apps/sws2apps-api/compare/v2.71.3...v2.71.4) (2023-09-25)
+
+
+### Bug Fixes
+
+* **classes:** getting correct language code of public talk when backup ([95637ab](https://github.com/sws2apps/sws2apps-api/commit/95637ababa97cf1f57c29c746949caf0e0c7d0c1))
+* **classes:** getting correct modified date of current public talk ([a4a0fa2](https://github.com/sws2apps/sws2apps-api/commit/a4a0fa2eb35ca52038ffcd00e4acb267d25b3c5a))
+* **classes:** keep user changes to public talks during backup ([b2d8080](https://github.com/sws2apps/sws2apps-api/commit/b2d808051532b50c74ce6dd22a5a0f2ec51fd6b7))
+* **controller:** ignore mfa status when finding user ([1393e5e](https://github.com/sws2apps/sws2apps-api/commit/1393e5ee9d3332e0450b7fb42883a0c43f1c8713))
+
 ## [2.71.3](https://github.com/sws2apps/sws2apps-api/compare/v2.71.2...v2.71.3) (2023-09-24)
 
 
