@@ -562,11 +562,18 @@ export const unpostPocketFieldServiceReports = async (req, res, next) => {
 		}
 
 		const month = req.body.month;
-		await user.unpostFieldServiceReports(month);
-		cong.removePendingFieldServiceReports(user.user_local_uid, month);
+		const result = await user.unpostFieldServiceReports(month);
 
+		if (!result) {
+			res.locals.type = 'info';
+			res.locals.message = 'requested report to unpost no longer available';
+			res.status(404).json({ message: 'REPORT_NOT_FOUND' });
+			return;
+		}
+
+		cong.removePendingFieldServiceReports(user.user_local_uid, month);
 		res.locals.type = 'info';
-		res.locals.message = 'user unposted field service reports';
+		res.locals.message = 'requested report uposted';
 		res.status(200).json({ message: 'OK' });
 	} catch (err) {
 		next(err);
