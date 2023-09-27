@@ -1,3 +1,16 @@
+# [2.72.0](https://github.com/sws2apps/sws2apps-api/compare/v2.71.4...v2.72.0) (2023-09-27)
+
+
+### Bug Fixes
+
+* **classes:** check if report exists before unpost ([095666d](https://github.com/sws2apps/sws2apps-api/commit/095666d86b2c0a07ce7ef36b4b6cd7e9c97169e2))
+
+
+### Features
+
+* **deps:** bump express-rate-limit from 7.0.1 to 7.0.2 ([80dc0f0](https://github.com/sws2apps/sws2apps-api/commit/80dc0f0913538564027c7daffc78ee4ec92299e8))
+* **deps:** bump jw-epub-parser from 2.0.0 to 3.0.0 ([976f5ca](https://github.com/sws2apps/sws2apps-api/commit/976f5cac5248e1b2991c46cc31485e6c9eb70940))
+
 ## [2.71.4](https://github.com/sws2apps/sws2apps-api/compare/v2.71.3...v2.71.4) (2023-09-25)
 
 
