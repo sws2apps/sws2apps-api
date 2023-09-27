@@ -708,9 +708,13 @@ User.prototype.updatePendingFieldServiceReports = async function (report) {
 
 User.prototype.unpostFieldServiceReports = async function (month) {
 	const currentS4 = this.fieldServiceReports.find((oldReport) => oldReport.isS4 && oldReport.month === month);
-	currentS4.isSubmitted = false;
+	if (!currentS4.isPending) {
+		return false;
+	}
 
+	currentS4.isSubmitted = false;
 	await this.quickSaveFieldServiceReports();
+	return true;
 };
 
 User.prototype.approveFieldServiceReports = async function (month) {
