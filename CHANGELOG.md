@@ -1,3 +1,10 @@
+## [2.72.1](https://github.com/sws2apps/sws2apps-api/compare/v2.72.0...v2.72.1) (2023-09-28)
+
+
+### Bug Fixes
+
+* **api:** update to use new date format ([5304ae1](https://github.com/sws2apps/sws2apps-api/commit/5304ae1cceb337177dcfcb317d0c5602be9565dd))
+
 # [2.72.0](https://github.com/sws2apps/sws2apps-api/compare/v2.71.4...v2.72.0) (2023-09-27)
 
 
