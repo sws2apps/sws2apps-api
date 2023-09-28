@@ -60,7 +60,7 @@ export const removeExpiredWeeks = (data) => {
 		// check for new record type
 		if (data.weekOf) {
 			const weekOf = data.weekOf;
-			const month = weekOf.split('/')[0];
+			const month = weekOf.split('/')[1];
 			const year = weekOf.split('/')[2];
 
 			const weekDate = new Date(year, month - 1, 1);
