@@ -299,7 +299,8 @@ export const getMeetingSchedules = async (req, res, next) => {
 							source_lang: cong_settings[0]?.source_lang || 'e',
 							co_name: cong_settings[0]?.co_name || '',
 							co_displayName: cong_settings[0]?.co_displayName || '',
-							opening_prayer_autoAssign: cong_settings[0]?.opening_prayer_autoAssign || false,
+							opening_prayer_MM_autoAssign: cong_settings[0]?.opening_prayer_MM_autoAssign || false,
+							opening_prayer_WM_autoAssign: cong_settings[0]?.opening_prayer_WM_autoAssign || false,
 						},
 					});
 					return;
