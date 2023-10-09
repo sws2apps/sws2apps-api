@@ -4,11 +4,10 @@ import { fetchData } from '../utils/public-utils.js';
 export const getSchedules = async (req, res, next) => {
 	try {
 		let { language } = req.params;
-		const issue = req.headers.issuedate || '';
 
 		language = language.toUpperCase();
 
-		const mergedSources = await fetchData(language, issue);
+		const mergedSources = await fetchData(language);
 
 		if (mergedSources.length > 0) {
 			res.locals.type = 'info';

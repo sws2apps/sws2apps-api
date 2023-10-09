@@ -2,31 +2,32 @@ import fetch from 'node-fetch';
 import { loadEPUB, parseMWB, parseW } from 'jw-epub-parser/dist/node/index.js';
 import { ALL_LANGUAGES } from '../locales/langList.js';
 
-const fetchDataFromEPUB = async (language, issue) => {
+const fetchDataFromEPUB = async (language) => {
 	const mergedSources = [];
 
-	if (issue === '') {
-		for await (const pub of ['mwb', 'w']) {
-			const issues = [];
+	for await (const pub of ['mwb', 'w']) {
+		const issues = [];
 
-			if (pub === 'mwb') {
-				let notFound = false;
+		if (pub === 'mwb') {
+			let notFound = false;
 
-				// get current issue
-				const today = new Date();
-				const day = today.getDay();
-				const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-				const weekDate = new Date(today.setDate(diff));
-				const validDate = weekDate.setMonth(weekDate.getMonth());
+			// get current issue
+			const today = new Date();
+			const day = today.getDay();
+			const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+			const weekDate = new Date(today.setDate(diff));
+			const validDate = weekDate.setMonth(weekDate.getMonth());
 
-				const startDate = new Date(validDate);
-				const currentMonth = startDate.getMonth() + 1;
-				const monthOdd = currentMonth % 2 === 0 ? false : true;
-				let monthMwb = monthOdd ? currentMonth : currentMonth - 1;
-				let currentYear = startDate.getFullYear();
+			const startDate = new Date(validDate);
+			const currentMonth = startDate.getMonth() + 1;
+			const monthOdd = currentMonth % 2 === 0 ? false : true;
+			let monthMwb = monthOdd ? currentMonth : currentMonth - 1;
+			let currentYear = startDate.getFullYear();
 
-				do {
-					const issueDate = currentYear + String(monthMwb).padStart(2, '0');
+			do {
+				const issueDate = currentYear + String(monthMwb).padStart(2, '0');
+
+				if (+issueDate < 202401) {
 					const url =
 						process.env.JW_CDN +
 						new URLSearchParams({
@@ -55,152 +56,121 @@ const fetchDataFromEPUB = async (language, issue) => {
 						monthMwb = 1;
 						currentYear++;
 					}
-				} while (notFound === false);
-			}
+				} else {
+					notFound = true;
+				}
+			} while (notFound === false);
+		}
 
-			if (pub === 'w') {
-				let notFound = false;
+		if (pub === 'w') {
+			let notFound = false;
 
-				// get w current issue
-				const today = new Date();
-				const url = `${process.env.WOL_E}/${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+			// get w current issue
+			const today = new Date();
+			const url = `${process.env.WOL_E}/${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+
+			const res = await fetch(url);
+			const data = await res.json();
+
+			const wData = data.items.find((item) => item.classification === 68);
+			const publicationTitle = wData.publicationTitle;
+
+			const findYear = /\b\d{4}\b/;
+			const array = findYear.exec(publicationTitle);
+			let currentYear = +array[0];
+
+			const months = [
+				'January',
+				'February',
+				'March',
+				'April',
+				'May',
+				'June',
+				'July',
+				'August',
+				'September',
+				'October',
+				'November',
+				'December',
+			];
+
+			const monthsRegex = `(${months.join('|')})`;
+
+			const regex = new RegExp(monthsRegex);
+			const array2 = regex.exec(publicationTitle);
+
+			let monthW = months.findIndex((month) => month === array2[0]) + 1;
+
+			do {
+				const issueDate = currentYear + String(monthW).padStart(2, '0');
+				const url =
+					process.env.JW_CDN +
+					new URLSearchParams({
+						langwritten: language,
+						pub,
+						fileformat: 'epub',
+						output: 'json',
+						issue: issueDate,
+					});
 
 				const res = await fetch(url);
-				const data = await res.json();
 
-				const wData = data.items.find((item) => item.classification === 68);
-				const publicationTitle = wData.publicationTitle;
+				if (res.status === 200) {
+					const result = await res.json();
+					const epubURL = result.files[language].EPUB[0].file.url;
 
-				const findYear = /\b\d{4}\b/;
-				const array = findYear.exec(publicationTitle);
-				let currentYear = +array[0];
-
-				const months = [
-					'January',
-					'February',
-					'March',
-					'April',
-					'May',
-					'June',
-					'July',
-					'August',
-					'September',
-					'October',
-					'November',
-					'December',
-				];
-
-				const monthsRegex = `(${months.join('|')})`;
-
-				const regex = new RegExp(monthsRegex);
-				const array2 = regex.exec(publicationTitle);
-
-				let monthW = months.findIndex((month) => month === array2[0]) + 1;
-
-				do {
-					const issueDate = currentYear + String(monthW).padStart(2, '0');
-					const url =
-						process.env.JW_CDN +
-						new URLSearchParams({
-							langwritten: language,
-							pub,
-							fileformat: 'epub',
-							output: 'json',
-							issue: issueDate,
-						});
-
-					const res = await fetch(url);
-
-					if (res.status === 200) {
-						const result = await res.json();
-						const epubURL = result.files[language].EPUB[0].file.url;
-
-						issues.push({ issueDate, currentYear, language, epubURL });
-					}
-
-					if (res.status === 404) {
-						notFound = true;
-					}
-
-					// assigning next issue
-					monthW = monthW + 1;
-					if (monthW === 13) {
-						monthW = 1;
-						currentYear++;
-					}
-				} while (notFound === false);
-			}
-
-			if (issues.length > 0) {
-				const fetchSource1 = fetchIssueData(issues[0].epubURL);
-				const fetchSource2 = issues.length > 1 ? fetchIssueData(issues[1].epubURL) : Promise.resolve([]);
-				const fetchSource3 = issues.length > 2 ? fetchIssueData(issues[2].epubURL) : Promise.resolve([]);
-				const fetchSource4 = issues.length > 3 ? fetchIssueData(issues[3].epubURL) : Promise.resolve([]);
-				const fetchSource5 = issues.length > 4 ? fetchIssueData(issues[4].epubURL) : Promise.resolve([]);
-				const fetchSource6 = issues.length > 5 ? fetchIssueData(issues[5].epubURL) : Promise.resolve([]);
-				const fetchSource7 = issues.length > 6 ? fetchIssueData(issues[6].epubURL) : Promise.resolve([]);
-
-				const allData = await Promise.all([
-					fetchSource1,
-					fetchSource2,
-					fetchSource3,
-					fetchSource4,
-					fetchSource5,
-					fetchSource6,
-					fetchSource7,
-				]);
-
-				for (let z = 0; z < allData.length; z++) {
-					const tempObj = allData[z];
-					if (tempObj.length > 0) {
-						for (const src of tempObj) {
-							const date = src.mwb_week_date || src.w_study_date;
-
-							const prevSrc = mergedSources.find((item) => item.mwb_week_date === date || item.w_study_date === date);
-
-							if (prevSrc) {
-								Object.assign(prevSrc, src);
-							}
-
-							if (!prevSrc) {
-								mergedSources.push(src);
-							}
-						}
-					}
+					issues.push({ issueDate, currentYear, language, epubURL });
 				}
-			}
-		}
-	}
 
-	if (issue !== '') {
-		const issues = [];
+				if (res.status === 404) {
+					notFound = true;
+				}
 
-		const pub = issue.split('-')[1].split('_')[0];
-		const pubIssue = issue.split('-')[1].split('_')[1];
-
-		const url =
-			process.env.JW_CDN +
-			new URLSearchParams({
-				langwritten: language,
-				pub,
-				fileformat: 'epub',
-				output: 'json',
-				issue: pubIssue,
-			});
-
-		const res = await fetch(url);
-
-		if (res.status === 200) {
-			const result = await res.json();
-			const hasEPUB = result.files[language].EPUB;
-			const currentYear = issue.substring(0, 4);
-			issues.push({ issueDate: issue, currentYear, language, hasEPUB: hasEPUB });
+				// assigning next issue
+				monthW = monthW + 1;
+				if (monthW === 13) {
+					monthW = 1;
+					currentYear++;
+				}
+			} while (notFound === false);
 		}
 
 		if (issues.length > 0) {
-			const data = await fetchIssueData(issues[0]);
-			for (const src of data) {
-				mergedSources.push(src);
+			const fetchSource1 = fetchIssueData(issues[0].epubURL);
+			const fetchSource2 = issues.length > 1 ? fetchIssueData(issues[1].epubURL) : Promise.resolve([]);
+			const fetchSource3 = issues.length > 2 ? fetchIssueData(issues[2].epubURL) : Promise.resolve([]);
+			const fetchSource4 = issues.length > 3 ? fetchIssueData(issues[3].epubURL) : Promise.resolve([]);
+			const fetchSource5 = issues.length > 4 ? fetchIssueData(issues[4].epubURL) : Promise.resolve([]);
+			const fetchSource6 = issues.length > 5 ? fetchIssueData(issues[5].epubURL) : Promise.resolve([]);
+			const fetchSource7 = issues.length > 6 ? fetchIssueData(issues[6].epubURL) : Promise.resolve([]);
+
+			const allData = await Promise.all([
+				fetchSource1,
+				fetchSource2,
+				fetchSource3,
+				fetchSource4,
+				fetchSource5,
+				fetchSource6,
+				fetchSource7,
+			]);
+
+			for (let z = 0; z < allData.length; z++) {
+				const tempObj = allData[z];
+				if (tempObj.length > 0) {
+					for (const src of tempObj) {
+						const date = src.mwb_week_date || src.w_study_date;
+
+						const prevSrc = mergedSources.find((item) => item.mwb_week_date === date || item.w_study_date === date);
+
+						if (prevSrc) {
+							Object.assign(prevSrc, src);
+						}
+
+						if (!prevSrc) {
+							mergedSources.push(src);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -301,12 +271,12 @@ export const fetchIssueData = async (epubURL) => {
 	}
 };
 
-export const fetchData = async (language, issue) => {
+export const fetchData = async (language) => {
 	const hasEPUB = ALL_LANGUAGES.find((lang) => lang.code.toUpperCase() === language).hasEPUB;
 	let data = [];
 
 	if (hasEPUB) {
-		data = await fetchDataFromEPUB(language, issue);
+		data = await fetchDataFromEPUB(language);
 	}
 
 	if (!hasEPUB) {
