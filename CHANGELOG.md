@@ -1,3 +1,17 @@
+# [2.74.0](https://github.com/sws2apps/sws2apps-api/compare/v2.73.0...v2.74.0) (2023-10-09)
+
+
+### Bug Fixes
+
+* **api:** temporarily block parsing mwb starting issue 202401 ([831e439](https://github.com/sws2apps/sws2apps-api/commit/831e4397a2258bc4a945fcc2a17da7f6eb40ceeb))
+
+
+### Features
+
+* **deps:** bump express-rate-limit from 7.0.2 to 7.1.0 ([a37c03d](https://github.com/sws2apps/sws2apps-api/commit/a37c03d4f6772c1699a50972dad1006c01d1516c))
+* **deps:** bump jw-epub-parser from 3.0.0 to 3.0.1 ([dbf848e](https://github.com/sws2apps/sws2apps-api/commit/dbf848ef05a284275546e83668882ee2e6bbd675))
+* **deps:** bump otpauth from 9.1.4 to 9.1.5 ([9b3e563](https://github.com/sws2apps/sws2apps-api/commit/9b3e563a8221902e1804717c53b1514ada1a7352))
+
 # [2.73.0](https://github.com/sws2apps/sws2apps-api/compare/v2.72.1...v2.73.0) (2023-10-01)
 
 
