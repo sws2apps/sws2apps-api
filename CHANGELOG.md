@@ -1,3 +1,10 @@
+## [2.75.1](https://github.com/sws2apps/sws2apps-api/compare/v2.75.0...v2.75.1) (2023-10-11)
+
+
+### Bug Fixes
+
+* **middleware:** update variable name in app version checker ([3320a46](https://github.com/sws2apps/sws2apps-api/commit/3320a46b5407aec6bf3108577077b9a09de737e8))
+
 # [2.75.0](https://github.com/sws2apps/sws2apps-api/compare/v2.74.0...v2.75.0) (2023-10-11)
 
 
