@@ -1,3 +1,17 @@
+# [2.75.0](https://github.com/sws2apps/sws2apps-api/compare/v2.74.0...v2.75.0) (2023-10-11)
+
+
+### Bug Fixes
+
+* **middleware:** update app version checker ([957733b](https://github.com/sws2apps/sws2apps-api/commit/957733b1426abc3e4d6d2964c9e37168ddca9e35))
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.24.0 to 1.25.0 ([2339173](https://github.com/sws2apps/sws2apps-api/commit/23391738f174f99398c8d591ce1bc04b36d60bc6))
+* **deps:** bump express-rate-limit from 7.1.0 to 7.1.1 ([3e4293c](https://github.com/sws2apps/sws2apps-api/commit/3e4293c145603a74b4171c5e4b1ea48538b9b58b))
+* **deps:** bump nodemailer from 6.9.5 to 6.9.6 ([4d71825](https://github.com/sws2apps/sws2apps-api/commit/4d7182541c25ca7da33acab362112652068c2671))
+
 # [2.74.0](https://github.com/sws2apps/sws2apps-api/compare/v2.73.0...v2.74.0) (2023-10-09)
 
 
