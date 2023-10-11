@@ -32,7 +32,11 @@ export const appVersionChecker = () => {
 
 			const cpeMinimum = global.minimumVersionCPE;
 
-			if (appVersion >= cpeMinimum) {
+			const majorOK = +appVersion.split('.')[0] > +cpeMinimum.split('.')[0];
+			const minorOK = +appVersion.split('.')[1] > +cpeMinimum.split('.')[1];
+			const patchOK = +appVersion.split('.')[2] > +cpeMinimum.split('.')[2];
+
+			if (cpeMinimum === appversion || majorOK || (!majorOK && minorOK) || (!minorOK && patchOK)) {
 				next();
 				return;
 			}
