@@ -36,7 +36,7 @@ export const appVersionChecker = () => {
 			const minorOK = +appVersion.split('.')[1] > +cpeMinimum.split('.')[1];
 			const patchOK = +appVersion.split('.')[2] > +cpeMinimum.split('.')[2];
 
-			if (cpeMinimum === appversion || majorOK || (!majorOK && minorOK) || (!minorOK && patchOK)) {
+			if (cpeMinimum === appVersion || majorOK || (!majorOK && minorOK) || (!minorOK && patchOK)) {
 				next();
 				return;
 			}
