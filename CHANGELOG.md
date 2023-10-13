@@ -1,3 +1,10 @@
+# [2.76.0](https://github.com/sws2apps/sws2apps-api/compare/v2.75.1...v2.76.0) (2023-10-13)
+
+
+### Features
+
+* **deps:** bump jw-epub-parser from 3.0.1 to 3.1.0 ([7ac9954](https://github.com/sws2apps/sws2apps-api/commit/7ac9954355783c58dac4fab67eca460e50915700))
+
 ## [2.75.1](https://github.com/sws2apps/sws2apps-api/compare/v2.75.0...v2.75.1) (2023-10-11)
 
 
