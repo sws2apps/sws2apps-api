@@ -1,3 +1,13 @@
+# [2.78.0](https://github.com/sws2apps/sws2apps-api/compare/v2.77.0...v2.78.0) (2023-10-23)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.25.0 to 1.25.1 ([b435a06](https://github.com/sws2apps/sws2apps-api/commit/b435a06ba16a729639abf55135f4f52357d2d616))
+* **deps:** bump i18next from 23.5.1 to 23.6.0 ([2da9030](https://github.com/sws2apps/sws2apps-api/commit/2da9030aa746a39aab5d127ad9e2a2553f27015c))
+* **deps:** bump jw-epub-parser from 3.2.0 to 3.3.0 ([6a6083b](https://github.com/sws2apps/sws2apps-api/commit/6a6083b35b749feef8be9da5c2e35373c99a35b3))
+* **deps:** bump nodemailer from 6.9.6 to 6.9.7 ([071da76](https://github.com/sws2apps/sws2apps-api/commit/071da763893d73b252ded3bbd0816545d549a9f2))
+
 # [2.77.0](https://github.com/sws2apps/sws2apps-api/compare/v2.76.0...v2.77.0) (2023-10-16)
 
 
