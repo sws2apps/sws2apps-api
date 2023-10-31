@@ -1,3 +1,13 @@
+# [2.80.0](https://github.com/sws2apps/sws2apps-api/compare/v2.79.0...v2.80.0) (2023-10-31)
+
+
+### Features
+
+* **deps:** bump express-rate-limit from 7.1.2 to 7.1.3 ([2a8c445](https://github.com/sws2apps/sws2apps-api/commit/2a8c44547aacb1bbbfb3c5941beefdfc60b797ba))
+* **deps:** bump geoip-lite from 1.4.7 to 1.4.8 ([dc7def3](https://github.com/sws2apps/sws2apps-api/commit/dc7def3953577c815a68e9e9b28cfa14bce3d418))
+* **deps:** bump jw-epub-parser from 3.3.0 to 3.4.0 ([4233d6c](https://github.com/sws2apps/sws2apps-api/commit/4233d6c010fdd6641b9d0940b7d484f8b74b3890))
+* **deps:** bump node-html-parser from 6.1.10 to 6.1.11 ([aca9e4e](https://github.com/sws2apps/sws2apps-api/commit/aca9e4e09099ddffeff521f71be1aeca2ca2f289))
+
 # [2.79.0](https://github.com/sws2apps/sws2apps-api/compare/v2.78.0...v2.79.0) (2023-10-25)
 
 
