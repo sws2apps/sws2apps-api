@@ -70,6 +70,7 @@ You can just copy the `.env.example` file to `.env` and fill in the remaining en
 - APP_COUNTRY_API: set the value to be `https://collect-api.sws2apps.com/countries?`
 - APP_CONGREGATION_API: set the value to be `https://collect-api.sws2apps.com/congregations?`
 - FIREBASE_APP_NAME: your Firebase Project ID defined in the Firebase Console.
+- FIREBASE_STORAGE_EMULATOR_HOST: the `Host:Port` for Firestore Storage.
 - FIRESTORE_EMULATOR_HOST: the `Host:Port` for Firestore Emulator.
 - GOOGLE_CONFIG_BASE64: base64 string of the firebase account service key (See intructions [above](#get-google-config-base64))
 
