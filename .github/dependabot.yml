@@ -15,6 +15,8 @@ updates:
     target-branch: main
     schedule:
       interval: 'daily'
+    ignore:
+      - dependency-name: 'jw-epub-parser'
     allow:
       - dependency-type: 'production'
       - dependency-type: 'development'
