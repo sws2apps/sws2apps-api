@@ -24,7 +24,7 @@
 	},
 	"dependencies": {
 		"@crowdin/crowdin-api-client": "^1.26.0",
-		"@logtail/node": "^0.4.15",
+		"@logtail/node": "^0.4.16",
 		"bcrypt": "^5.1.1",
 		"cors": "^2.8.5",
 		"cross-env": "^7.0.3",
