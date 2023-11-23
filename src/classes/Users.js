@@ -170,8 +170,8 @@ Users.prototype.createPasswordlessLink = async function (email, uid, language, o
 	const link = `${origin}/#/?code=${token}&user=${user ? 'edit' : 'create'}`;
 
 	if (isDev) {
-		console.log(`Please use this link to complete your sign in: ${link}`);
-		return;
+		console.log(`Please use this link to complete your sign: ${link}`);
+		return link;
 	}
 
 	sendPasswordlessLinkSignIn(email, link, language);

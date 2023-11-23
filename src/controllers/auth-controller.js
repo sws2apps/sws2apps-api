@@ -161,11 +161,11 @@ export const createSignInLink = async (req, res, next) => {
 		const { email, uid } = req.body;
 		const language = req.headers.applanguage || 'e';
 
-		await users.createPasswordlessLink(email, uid, language, req.headers.origin);
+		const devLink = await users.createPasswordlessLink(email, uid, language, req.headers.origin);
 
 		res.locals.type = 'info';
 		res.locals.message = 'passwordless link will be sent to user';
-		res.status(200).json({ message: 'SIGNIN_LINK_SEND' });
+		res.status(200).json(devLink ? { link: devLink } : { message: 'SIGNIN_LINK_SEND' });
 	} catch (err) {
 		next(err);
 	}
