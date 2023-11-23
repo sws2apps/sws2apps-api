@@ -6,6 +6,7 @@ export const allowedRoles = [
 	'secretary',
 	'public_talk_coordinator',
 	'coordinator',
+	'admin',
 ];
 
-export const createCongregationAllowedRoles = ['lmmo', 'secretary', 'public_talk_coordinator', 'coordinator'];
+export const createCongregationAllowedRoles = ['lmmo', 'secretary', 'public_talk_coordinator', 'coordinator', 'admin'];
