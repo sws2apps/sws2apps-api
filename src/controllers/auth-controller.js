@@ -37,6 +37,7 @@ export const loginUser = async (req, res, next) => {
 
 		const expiryDate = new Date().getTime() + 24 * 60 * 60000; // expired after 1 day
 		let newSessions = [];
+		let isNewUser = false;
 
 		if (authUser) {
 			await authUser.removeExpiredSession();
@@ -47,6 +48,7 @@ export const loginUser = async (req, res, next) => {
 			const userRecord = await getAuth().getUser(uid);
 			const displayName = userRecord.displayName || userRecord.providerData[0].displayName;
 			authUser = await users.create(displayName, uid);
+			isNewUser = true;
 		}
 
 		const newSession = {
@@ -97,6 +99,7 @@ export const loginUser = async (req, res, next) => {
 				user_local_uid: authUser.user_local_uid,
 				user_members_delegate: authUser.user_members_delegate,
 				mfa: 'not_enabled',
+				is_new_user: isNewUser,
 			};
 
 			const cong = congregations.findCongregationById(authUser.cong_id);
