@@ -73,6 +73,8 @@ You can just copy the `.env.example` file to `.env` and fill in the remaining en
 - FIREBASE_STORAGE_EMULATOR_HOST: the `Host:Port` for Firestore Storage.
 - FIRESTORE_EMULATOR_HOST: the `Host:Port` for Firestore Emulator.
 - GOOGLE_CONFIG_BASE64: base64 string of the firebase account service key (See intructions [above](#get-google-config-base64))
+- CROWDIN_PROJECT_NAME: set the name created project on https://crowdin.com/
+- CROWDIN_API_KEY: set the value from created project on https://crowdin.com/
 
 ### Starting the Development Server
 
