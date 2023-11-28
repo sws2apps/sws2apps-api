@@ -27,37 +27,33 @@ const fetchDataFromEPUB = async (language) => {
 			do {
 				const issueDate = currentYear + String(monthMwb).padStart(2, '0');
 
-				if (+issueDate < 202401) {
-					const url =
-						process.env.JW_CDN +
-						new URLSearchParams({
-							langwritten: language,
-							pub: 'mwb',
-							fileformat: 'epub',
-							output: 'json',
-							issue: issueDate,
-						});
+				const url =
+					process.env.JW_CDN +
+					new URLSearchParams({
+						langwritten: language,
+						pub: 'mwb',
+						fileformat: 'epub',
+						output: 'json',
+						issue: issueDate,
+					});
 
-					const res = await fetch(url);
+				const res = await fetch(url);
 
-					if (res.status === 200) {
-						const result = await res.json();
-						const epubURL = result.files[language].EPUB[0].file.url;
-						issues.push({ issueDate, currentYear, language, epubURL });
-					}
+				if (res.status === 200) {
+					const result = await res.json();
+					const epubURL = result.files[language].EPUB[0].file.url;
+					issues.push({ issueDate, currentYear, language, epubURL });
+				}
 
-					if (res.status === 404) {
-						notFound = true;
-					}
-
-					// assigning next issue
-					monthMwb = monthMwb + 2;
-					if (monthMwb === 13) {
-						monthMwb = 1;
-						currentYear++;
-					}
-				} else {
+				if (res.status === 404) {
 					notFound = true;
+				}
+
+				// assigning next issue
+				monthMwb = monthMwb + 2;
+				if (monthMwb === 13) {
+					monthMwb = 1;
+					currentYear++;
 				}
 			} while (notFound === false);
 		}
