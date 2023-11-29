@@ -1,3 +1,30 @@
+# [2.81.0](https://github.com/sws2apps/sws2apps-api/compare/v2.80.0...v2.81.0) (2023-11-29)
+
+
+### Features
+
+* **api:** allow congregation admin role to create an account ([44039b2](https://github.com/sws2apps/sws2apps-api/commit/44039b26e1800178ceac35038079e632acd47086))
+* **api:** do not use node above 20 ([db6e9f4](https://github.com/sws2apps/sws2apps-api/commit/db6e9f4d7a756da55c6eae08f225931979285c95))
+* **api:** send email auth link to frontend during dev ([93cb7eb](https://github.com/sws2apps/sws2apps-api/commit/93cb7eb2ca71fbc8c2c5cbc05272a05a9a7ea06a))
+* **api:** support new meeting 2024 format ([08d4ab5](https://github.com/sws2apps/sws2apps-api/commit/08d4ab5202fc0fe7f30429f2c63ba82cf8544499))
+* **deps:** bump @crowdin/crowdin-api-client from 1.25.1 to 1.26.0 ([a3eba97](https://github.com/sws2apps/sws2apps-api/commit/a3eba970ca77f33080a0b04ef9d3c26a5a39d832))
+* **deps:** bump @crowdin/crowdin-api-client from 1.26.0 to 1.28.0 ([59c5d66](https://github.com/sws2apps/sws2apps-api/commit/59c5d66330e38ffc63a5457f66bc2e00b08d53f0))
+* **deps:** bump @logtail/node from 0.4.12 to 0.4.13 ([9aaf48f](https://github.com/sws2apps/sws2apps-api/commit/9aaf48f5167d35b0484121d9b5e4625bcb29e630))
+* **deps:** bump @logtail/node from 0.4.13 to 0.4.15 ([9ff3674](https://github.com/sws2apps/sws2apps-api/commit/9ff3674712f205a26c22c19f5067269574e16741))
+* **deps:** bump @logtail/node from 0.4.15 to 0.4.16 ([169f0ed](https://github.com/sws2apps/sws2apps-api/commit/169f0edc0691d574513674f9a965a7773cf416c4))
+* **deps:** bump @logtail/node from 0.4.16 to 0.4.17 ([d94bc8c](https://github.com/sws2apps/sws2apps-api/commit/d94bc8ca7280ff9cba6677daa23b6cb82969bede))
+* **deps:** bump express-rate-limit from 7.1.3 to 7.1.4 ([8536309](https://github.com/sws2apps/sws2apps-api/commit/8536309ba1449860a88ab49fd205cae23e2e765f))
+* **deps:** bump express-rate-limit from 7.1.4 to 7.1.5 ([30d87b5](https://github.com/sws2apps/sws2apps-api/commit/30d87b57924964e32fb24cac41b1dd2faf4b4359))
+* **deps:** bump firebase-admin from 11.11.0 to 11.11.1 ([51eead7](https://github.com/sws2apps/sws2apps-api/commit/51eead773d3a8dede6e4c0eb0b0be1c5c2580ffa))
+* **deps:** bump geoip-lite from 1.4.8 to 1.4.9 ([2503b31](https://github.com/sws2apps/sws2apps-api/commit/2503b3167e63d0e5ddec498c44945ec0a96ae4d3))
+* **deps:** bump helmet from 7.0.0 to 7.1.0 ([e20b5dc](https://github.com/sws2apps/sws2apps-api/commit/e20b5dc6b9b68b1aa4014aeff99b869a70dd5535))
+* **deps:** bump i18next from 23.6.0 to 23.7.3 ([03aec31](https://github.com/sws2apps/sws2apps-api/commit/03aec310974602f6869aaf8dd23d90d33b80cf5f))
+* **deps:** bump i18next from 23.7.3 to 23.7.6 ([6eac9d0](https://github.com/sws2apps/sws2apps-api/commit/6eac9d01bb0945ec0187fc1152b1be64c027d69b))
+* **deps:** bump i18next from 23.7.6 to 23.7.7 ([9ea5558](https://github.com/sws2apps/sws2apps-api/commit/9ea55586118b7ab19e9c1875c58a0278b1757404))
+* **deps:** bump jw-epub-parser from 3.4.0 to 3.6.0 ([c61e07c](https://github.com/sws2apps/sws2apps-api/commit/c61e07c9d0ffbf072b4af693239f47856445f0fe))
+* **deps:** bump otpauth from 9.1.5 to 9.2.0 ([18f6aea](https://github.com/sws2apps/sws2apps-api/commit/18f6aea508cc82d418415a6f3ce8315c6badcc00))
+* **deps:** freeze jw-epub-parser to 3.4.0 ([a68ffb6](https://github.com/sws2apps/sws2apps-api/commit/a68ffb63d99a54f9f8d4919dc411ddc8f9747f5a))
+
 # [2.80.0](https://github.com/sws2apps/sws2apps-api/compare/v2.79.0...v2.80.0) (2023-10-31)
 
 
