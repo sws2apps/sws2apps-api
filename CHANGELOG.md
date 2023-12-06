@@ -1,3 +1,10 @@
+# [2.82.0](https://github.com/sws2apps/sws2apps-api/compare/v2.81.0...v2.82.0) (2023-12-06)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.28.0 to 1.28.1 ([ce4ada9](https://github.com/sws2apps/sws2apps-api/commit/ce4ada9a28d6f102c48926a5b8cb46d22d0a62d4))
+
 # [2.81.0](https://github.com/sws2apps/sws2apps-api/compare/v2.80.0...v2.81.0) (2023-11-29)
 
 
