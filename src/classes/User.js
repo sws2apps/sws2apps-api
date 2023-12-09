@@ -26,7 +26,8 @@ export class User {
 		this.cong_number = '';
 		this.cong_role = [];
 		this.mfaEnabled = false;
-		this.username = '';
+		this.firstname = '';
+		this.lastname = '';
 		this.global_role = '';
 		this.sessions = [];
 		this.last_seen = '';
@@ -47,7 +48,8 @@ User.prototype.loadDetails = async function () {
 	const userRef = db.collection('users').doc(this.id);
 	const userSnap = await userRef.get();
 
-	this.username = userSnap.data().about.name;
+	this.firstname = userSnap.data().about.firstname;
+	this.lastname = userSnap.data().about.lastname;
 	this.isTest = userSnap.data().about.isTest || false;
 	this.auth_uid = userSnap.data().about?.auth_uid || '';
 	this.secret = userSnap.data().about?.secret || '';

@@ -47,7 +47,14 @@ export const loginUser = async (req, res, next) => {
 		if (!authUser) {
 			const userRecord = await getAuth().getUser(uid);
 			const displayName = userRecord.displayName || userRecord.providerData[0].displayName;
-			authUser = await users.create(displayName, uid);
+			let firstName = '';
+			let lastName = '';
+			if (displayName.length > 0) {
+				const names = displayName.split(' ');
+				lastName = names.pop();
+				firstName = names.join(' ');
+			}
+			authUser = await users.create(uid, firstName, lastName);
 			isNewUser = true;
 		}
 
@@ -104,6 +111,8 @@ export const loginUser = async (req, res, next) => {
 
 			const cong = congregations.findCongregationById(authUser.cong_id);
 			if (cong) {
+				userInfo.cong_encryption = cong.cong_encryption;
+
 				const isPublisher = cong.isPublisher(authUser.user_local_uid);
 				const isMS = cong.isMS(authUser.user_local_uid);
 				const isElder = cong.isElder(authUser.user_local_uid);

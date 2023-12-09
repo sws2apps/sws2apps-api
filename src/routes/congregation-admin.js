@@ -1,7 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
 import { congregationAdminChecker } from '../middleware/congregation-admin-checker.js';
-import { congregationRoleChecker } from '../middleware/congregation-role-checker.js';
 import { visitorChecker } from '../middleware/visitor-checker.js';
 import {
 	addCongregationUser,
@@ -18,12 +17,12 @@ import {
 	updatePocketDetails,
 	updateMembersDelegate,
 	updatePocketUsername,
+	setCongregationEncryptionKey,
 } from '../controllers/congregation-admin-controller.js';
 
 const router = express.Router();
 
 router.use(visitorChecker());
-router.use(congregationRoleChecker());
 router.use(congregationAdminChecker());
 
 // get congregation users with roles
@@ -83,5 +82,8 @@ router.delete('/:id/pockets/:user/code', deletePocketOTPCode);
 
 // delete pocket device
 router.delete('/:id/pockets/:user', body('pocket_visitorid').notEmpty(), deletePocketDevice);
+
+// set congregation encryption code
+router.post('/:id/encryption', body('encryption_code').isString().notEmpty(), setCongregationEncryptionKey);
 
 export default router;

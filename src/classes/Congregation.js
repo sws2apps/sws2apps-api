@@ -39,6 +39,7 @@ export class Congregation {
 		this.cong_outgoing_speakers = '';
 		this.cong_visiting_speakers = '';
 		this.cong_publicTalks = [];
+		this.cong_encryption = '';
 	}
 }
 
@@ -86,6 +87,7 @@ Congregation.prototype.loadDetails = async function () {
 	this.cong_visiting_speakers = await getFileFromStorage(this.id, 'visiting_speakers.txt', true);
 	this.cong_publicTalks = await getFileFromStorage(this.id, 'public_talks.txt');
 	this.cong_outgoing_speakers = await getFileFromStorage(this.id, 'speakers_outgoing.txt', true);
+	this.cong_encryption = await getFileFromStorage(this.id, 'cong_key.txt', true);
 
 	const usersReportsAll = await getUserReportsAll(this.id);
 	for (const usersReports of usersReportsAll) {
@@ -1248,14 +1250,15 @@ Congregation.prototype.removeUser = async function (userId) {
 	this.reloadMembers();
 };
 
-Congregation.prototype.addUser = async function (userId, role, fullname) {
+Congregation.prototype.addUser = async function (userId, role, firstname, lastname) {
 	const newRole = role || [];
 	const data = { congregation: { id: this.id, role: newRole } };
 	await db.collection('users').doc(userId).set(data, { merge: true });
 
-	if (fullname) {
+	if (firstname) {
 		await db.collection('users').doc(userId).update({
-			'about.name': fullname,
+			'about.firstname': firstname,
+			'about.lastname': lastname,
 		});
 	}
 
@@ -1266,7 +1269,10 @@ Congregation.prototype.addUser = async function (userId, role, fullname) {
 	user.cong_number = this.cong_number;
 	user.cong_role = newRole;
 	user.cong_country = this.country_code;
-	if (fullname) user.username = fullname;
+	if (firstname) {
+		user.firstname = firstname;
+		user.lastname = lastname;
+	}
 
 	// update congregation members
 	this.reloadMembers();
@@ -1825,4 +1831,10 @@ Congregation.prototype.updateSpeakersAccess = async function (congs) {
 	});
 
 	return result;
+};
+
+Congregation.prototype.saveEncryptionKey = async function (key) {
+	await uploadFileToStorage(this.id, key, 'cong_key.txt');
+
+	this.cong_encryption = key;
 };

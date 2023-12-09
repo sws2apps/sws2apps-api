@@ -32,8 +32,8 @@ router.put(
 	body('country_code').isString().notEmpty(),
 	body('cong_name').isString().notEmpty(),
 	body('cong_number').isNumeric(),
-	body('app_requestor').isString().notEmpty(),
-	body('fullname').isString().notEmpty(),
+	body('firstname').isString().notEmpty(),
+	body('lastname').isString(),
 	createCongregation
 );
 

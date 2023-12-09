@@ -98,10 +98,11 @@ Users.prototype.findPocketByVisitorId = async function (visitorid) {
 	return user;
 };
 
-Users.prototype.create = async function (fullname, uid) {
+Users.prototype.create = async function (uid, firstname, lastname) {
 	const data = {
 		about: {
-			name: fullname,
+			firstname,
+			lastname,
 			role: 'vip',
 			auth_uid: uid,
 		},

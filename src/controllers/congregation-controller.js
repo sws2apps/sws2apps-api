@@ -2,7 +2,6 @@ import fetch from 'node-fetch';
 import { validationResult } from 'express-validator';
 import { users } from '../classes/Users.js';
 import { congregations } from '../classes/Congregations.js';
-import { createCongregationAllowedRoles } from '../constant/constant.js';
 import { LANGUAGE_LIST } from '../locales/langList.js';
 import { sendWelcomeCPE } from '../utils/sendEmail.js';
 
@@ -440,7 +439,7 @@ export const getCongregations = async (req, res, next) => {
 
 export const createCongregation = async (req, res, next) => {
 	try {
-		const { country_code, cong_name, cong_number, app_requestor, fullname } = req.body;
+		const { country_code, cong_name, cong_number, firstname, lastname } = req.body;
 		const { uid } = req.headers;
 
 		const errors = validationResult(req);
@@ -453,17 +452,6 @@ export const createCongregation = async (req, res, next) => {
 
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: ${msg}`;
-
-			res.status(400).json({
-				message: 'Bad request: provided inputs are invalid.',
-			});
-
-			return;
-		}
-
-		if (!createCongregationAllowedRoles.includes(app_requestor)) {
-			res.locals.type = 'warn';
-			res.locals.message = `invalid input: ${app_requestor}`;
 
 			res.status(400).json({
 				message: 'Bad request: provided inputs are invalid.',
@@ -511,10 +499,10 @@ export const createCongregation = async (req, res, next) => {
 
 		// add user to congregation
 		const tmpUser = users.findUserByAuthUid(uid);
-		const user = await newCong.addUser(tmpUser.id, ['admin', app_requestor], fullname);
+		const user = await newCong.addUser(tmpUser.id, ['admin'], firstname, lastname);
 
 		if (!isDev) {
-			sendWelcomeCPE(user.user_uid, fullname, `${cong_name} (${cong_number})`, language);
+			sendWelcomeCPE(user.user_uid, firstname, `${cong_name} (${cong_number})`, language);
 		}
 
 		res.locals.type = 'info';

@@ -34,8 +34,11 @@ export const uploadFileToStorage = async (cong_id, data, filename, userId) => {
 	}
 
 	if (!userId) {
-		await writeFile(`./cong_backup/${cong_id}/${filename}`, data);
-		await storageBucket.upload(`./cong_backup/${cong_id}/${filename}`, { destination: `${cong_id}/${filename}` });
+		const file = storageBucket.file(`${cong_id}/${filename}`);
+
+		const stream = file.createWriteStream({ metadata: { contentType: 'text/plain' } });
+		stream.write(data);
+		stream.end();
 	}
 };
 

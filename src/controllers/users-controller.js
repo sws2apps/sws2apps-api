@@ -59,7 +59,9 @@ export const validateUser = async (req, res, next) => {
 				cong_role: userInfo.cong_role,
 				user_local_uid: userInfo.user_local_uid,
 				user_members_delegate: userInfo.user_members_delegate,
-				username: userInfo.username,
+				firstname: userInfo.firstname,
+				lastname: userInfo.lastname,
+				cong_encryption: cong.cong_encryption,
 			};
 
 			if (isElder) obj.cong_role.push('elder');
