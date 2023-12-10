@@ -1,3 +1,14 @@
+# [2.83.0](https://github.com/sws2apps/sws2apps-api/compare/v2.82.0...v2.83.0) (2023-12-10)
+
+
+### Features
+
+* **api:** transfer source materials in another project ([74b01bb](https://github.com/sws2apps/sws2apps-api/commit/74b01bb65900de6f6ec731f6cb146c18603e0097))
+* **deps:** bump @crowdin/crowdin-api-client from 1.28.1 to 1.28.2 ([268394f](https://github.com/sws2apps/sws2apps-api/commit/268394fc3a4b6b20d8c2a35a5388753e156a27d9))
+* **deps:** bump firebase-admin from 11.11.1 to 12.0.0 ([dafd2bc](https://github.com/sws2apps/sws2apps-api/commit/dafd2bc86b870a43f95921dd744977d26d780a47))
+* **deps:** bump i18next from 23.7.7 to 23.7.8 ([0271882](https://github.com/sws2apps/sws2apps-api/commit/027188290ed9451e1e37b29898ac46ac715932a4))
+* **deps:** bump otpauth from 9.2.0 to 9.2.1 ([c023d30](https://github.com/sws2apps/sws2apps-api/commit/c023d3017c261ea9609f303904d959a234a21767))
+
 # [2.82.0](https://github.com/sws2apps/sws2apps-api/compare/v2.81.0...v2.82.0) (2023-12-06)
 
 
