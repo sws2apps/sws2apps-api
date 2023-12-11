@@ -43,12 +43,13 @@ export const getLastCongregationBackup = async (req, res, next) => {
 		const isMS = cong.isMS(user.user_local_uid);
 		const isElder = cong.isElder(user.user_local_uid);
 
+		const adminRole = user.cong_role.includes('admin');
 		const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
 		const secretaryRole = user.cong_role.includes('secretary');
 		const weekendEditorRole = user.cong_role.includes('coordinator') || user.cong_role.includes('public_talk_coordinator');
 		const publisherRole = isPublisher || isMS || isElder;
 
-		if (!lmmoRole && !secretaryRole && !publisherRole && !weekendEditorRole) {
+		if (!adminRole && !lmmoRole && !secretaryRole && !publisherRole && !weekendEditorRole) {
 			res.locals.type = 'warn';
 			res.locals.message = 'user not authorized to get congregation backup info';
 			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
@@ -56,8 +57,8 @@ export const getLastCongregationBackup = async (req, res, next) => {
 		}
 
 		const obj = { user_last_backup: user.last_backup ? { date: user.last_backup } : 'NO_BACKUP' };
-		if (lmmoRole || secretaryRole || weekendEditorRole) {
-			obj.cong_last_backup = cong.last_backup ? cong.last_backup : 'NO_BACKUP';
+		if (adminRole || lmmoRole || secretaryRole || weekendEditorRole) {
+			obj.cong_last_backup = cong.last_backup ? cong.last_backup.date : 'NO_BACKUP';
 		}
 
 		res.locals.type = 'info';
@@ -104,12 +105,13 @@ export const saveCongregationBackup = async (req, res, next) => {
 		const isMS = cong.isMS(user.user_local_uid);
 		const isElder = cong.isElder(user.user_local_uid);
 
+		const adminRole = user.cong_role.includes('admin');
 		const lmmoRole = user.cong_role.includes('lmmo') || user.cong_role.includes('lmmo-backup');
 		const secretaryRole = user.cong_role.includes('secretary');
 		const weekendEditorRole = user.cong_role.includes('coordinator') || user.cong_role.includes('public_talk_coordinator');
 		const publisherRole = isPublisher || isMS || isElder;
 
-		if (!lmmoRole && !secretaryRole && !publisherRole && !weekendEditorRole) {
+		if (!adminRole && !lmmoRole && !secretaryRole && !publisherRole && !weekendEditorRole) {
 			res.locals.type = 'warn';
 			res.locals.message = 'user not authorized to send congregation backup';
 			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
@@ -131,10 +133,9 @@ export const saveCongregationBackup = async (req, res, next) => {
 
 		const payload = req.body;
 
-		if (lmmoRole || secretaryRole || weekendEditorRole) {
+		if (adminRole || lmmoRole || secretaryRole || weekendEditorRole) {
 			await cong.saveBackup({
 				cong_persons: payload.cong_persons,
-				cong_deleted: payload.cong_deleted,
 				cong_schedule: payload.cong_schedule,
 				cong_sourceMaterial: payload.cong_sourceMaterial,
 				cong_swsPocket: payload.cong_swsPocket,

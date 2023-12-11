@@ -1,7 +1,6 @@
 import { mkdir, rm } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
-import dayjs from 'dayjs';
 import randomstring from 'randomstring';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { decryptData, encryptData } from '../utils/encryption-utils.js';
@@ -127,11 +126,7 @@ Congregation.prototype.loadDetails = async function () {
 	});
 
 	if (congSnap.data().last_backup) {
-		const fDate = dayjs.unix(congSnap.data().last_backup.date._seconds).$d;
-		this.last_backup.date = fDate;
-
-		const user = users.findUserById(congSnap.data().last_backup.by);
-		this.last_backup.by = user?.username || '';
+		this.last_backup.date = congSnap.data().last_backup.date;
 	}
 
 	this.cong_outgoing_speakers_access = congSnap.data().cong_outgoing_speakers || [];
@@ -1037,180 +1032,191 @@ Congregation.prototype.mergePublicTalksFromBackup = function (cong_publicTalks) 
 };
 
 Congregation.prototype.saveBackup = async function (payload) {
-	const cong_persons = payload.cong_persons;
-	const cong_deleted = payload.cong_deleted;
-	const cong_schedule = payload.cong_schedule;
-	const cong_sourceMaterial = payload.cong_sourceMaterial;
-	const cong_settings = payload.cong_settings;
-	const cong_branchReports = payload.cong_branchReports;
-	const cong_fieldServiceGroup = payload.cong_fieldServiceGroup;
-	const cong_fieldServiceReports = payload.cong_fieldServiceReports;
-	const cong_lateReports = payload.cong_lateReports;
-	const cong_meetingAttendance = payload.cong_meetingAttendance;
-	const cong_minutesReports = payload.cong_minutesReports;
-	const cong_serviceYear = payload.cong_serviceYear;
-	const cong_publicTalks = payload.cong_publicTalks;
-	const cong_visitingSpeakers = payload.cong_visitingSpeakers;
-	const uid = payload.uid;
-
-	// update and encrypt cong_persons data
-	let finalPersons = this.mergePersonsFromBackup(cong_persons, cong_deleted);
-	let encryptedPersons = encryptData(finalPersons);
-	finalPersons = null;
-
-	// update and encrypt cong_visitingSpeakers data
-	let encryptedSpeakers;
-	if (cong_visitingSpeakers) {
-		let finalSpeakers = this.mergeVisitingSpeakersFromBackup(cong_visitingSpeakers);
-		encryptedSpeakers = encryptData(finalSpeakers);
-		finalSpeakers = null;
-	}
-
-	// update cong_schedule data
-	let finalSchedule = [];
-	if (cong_schedule) {
-		finalSchedule = this.mergeSchedulesFromBackup(cong_schedule);
-	}
-
-	// update cong_sourceMaterial data
-	if (cong_sourceMaterial) {
-		this.mergeSourceMaterialsFromBackup(cong_sourceMaterial);
-	}
-
-	// update cong_serviceYear data
-	if (cong_serviceYear) {
-		this.mergeServiceYearFromBackup(cong_serviceYear);
-	}
-
-	// update cong_lateReports data
-	if (cong_lateReports) {
-		this.mergeLateReportsFromBackup(cong_lateReports);
-	}
-
-	// update cong_minutesReports data
-	if (cong_minutesReports) {
-		this.mergeMinutesReportsFromBackup(cong_minutesReports);
-	}
-
-	// update cong_meetingAttendance data
-	if (cong_meetingAttendance) {
-		this.mergeMeetingAttendanceFromBackup(cong_meetingAttendance);
-	}
-
-	// update cong_branchReports data
-	let finalBranchReports = [];
-	if (cong_branchReports) {
-		finalBranchReports = this.mergeBranchReportsFromBackup(cong_branchReports);
-	}
-
-	// update cong_branchReports data
-	let finalFieldServiceReports = [];
-	if (cong_fieldServiceReports) {
-		finalFieldServiceReports = this.mergeFieldServiceReportsFromBackup(cong_fieldServiceReports, cong_deleted);
-	}
-
-	// update cong_branchReports data
-	let finalFieldServiceGroup = [];
-	if (cong_fieldServiceGroup) {
-		finalFieldServiceGroup = this.mergeFieldServiceGroupFromBackup(cong_fieldServiceGroup, cong_deleted);
-	}
-
-	// update cong_publicTalks data
-	if (cong_publicTalks) {
-		this.mergePublicTalksFromBackup(cong_publicTalks);
-	}
-
-	const userInfo = users.findUserByAuthUid(uid);
-
-	// remove user settings from settings
-	const settingItem = { ...cong_settings[0] };
-
-	delete settingItem.user_local_uid;
-	delete settingItem.user_members_delegate;
-	delete settingItem.pocket_local_id;
-	delete settingItem.pocket_members;
-	delete settingItem.local_uid;
-
 	// prepare data to be stored to firestore
 	const data = {
-		cong_settings: [settingItem],
-		last_backup: {
-			by: userInfo.id,
-			date: new Date(),
-		},
+		last_backup: { date: new Date().toISOString() },
 	};
-
-	if (cong_serviceYear) data.cong_serviceYear = this.cong_serviceYear;
-	if (cong_lateReports) data.cong_lateReports = this.cong_lateReports;
-	if (cong_minutesReports) data.cong_minutesReports = this.cong_minutesReports;
 
 	await db.collection('congregations').doc(this.id).set(data, { merge: true });
 
-	// update user setting
-	const userLocalUID = cong_settings[0].user_local_uid || '';
-	const userMembersDelegate = cong_settings[0].user_members_delegate || [];
-
-	await userInfo.updateLocalUID(userLocalUID);
-	await userInfo.updateMembersDelegate(userMembersDelegate);
-
-	// prepare data to be saved to storage
-	if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
-	if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
-
-	await uploadFileToStorage(this.id, encryptedPersons, 'persons.txt');
-
-	if (encryptedSpeakers) {
-		await uploadFileToStorage(this.id, encryptedSpeakers, 'visiting_speakers.txt');
-	}
-
-	if (cong_schedule) {
-		await uploadFileToStorage(this.id, JSON.stringify(finalSchedule), 'schedules.txt');
-	}
-
-	if (cong_sourceMaterial) {
-		await uploadFileToStorage(this.id, JSON.stringify(this.cong_sourceMaterial_draft), 'sources.txt');
-	}
-
-	if (cong_meetingAttendance) {
-		await uploadFileToStorage(this.id, JSON.stringify(this.cong_meetingAttendance), 'meeting-attendance.txt');
-	}
-
-	if (cong_branchReports) {
-		await uploadFileToStorage(this.id, JSON.stringify(finalBranchReports), 'branch-reports.txt');
-	}
-
-	if (cong_fieldServiceReports) {
-		await uploadFileToStorage(this.id, JSON.stringify(finalFieldServiceReports), 'field-service-reports.txt');
-	}
-
-	if (cong_fieldServiceGroup) {
-		await uploadFileToStorage(this.id, JSON.stringify(finalFieldServiceGroup), 'field-service-group.txt');
-	}
-
-	if (cong_publicTalks) {
-		await uploadFileToStorage(this.id, JSON.stringify(cong_publicTalks), 'public_talks.txt');
-	}
-
-	// update class values
-	this.cong_persons = encryptedPersons;
-	this.cong_settings = [settingItem];
 	this.last_backup = {
-		by: userInfo.username,
 		date: data.last_backup.date,
 	};
-	if (cong_schedule) this.cong_schedule_draft = finalSchedule;
-	if (cong_branchReports) this.cong_branchReports = finalBranchReports;
-	if (cong_fieldServiceReports) this.cong_fieldServiceReports = finalFieldServiceReports;
-	if (cong_fieldServiceGroup) this.cong_fieldServiceGroup = finalFieldServiceGroup;
-	if (cong_publicTalks) this.cong_publicTalks = cong_publicTalks;
-	if (encryptedSpeakers) this.cong_visiting_speakers = encryptedSpeakers;
 
-	await this.updateMemberFieldServiceReports();
+	// const cong_persons = payload.cong_persons;
+	// const cong_deleted = payload.cong_deleted;
+	// const cong_schedule = payload.cong_schedule;
+	// const cong_sourceMaterial = payload.cong_sourceMaterial;
+	// const cong_settings = payload.cong_settings;
+	// const cong_branchReports = payload.cong_branchReports;
+	// const cong_fieldServiceGroup = payload.cong_fieldServiceGroup;
+	// const cong_fieldServiceReports = payload.cong_fieldServiceReports;
+	// const cong_lateReports = payload.cong_lateReports;
+	// const cong_meetingAttendance = payload.cong_meetingAttendance;
+	// const cong_minutesReports = payload.cong_minutesReports;
+	// const cong_serviceYear = payload.cong_serviceYear;
+	// const cong_publicTalks = payload.cong_publicTalks;
+	// const cong_visitingSpeakers = payload.cong_visitingSpeakers;
+	// const uid = payload.uid;
 
-	await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
+	// // update and encrypt cong_persons data
+	// let finalPersons = this.mergePersonsFromBackup(cong_persons, cong_deleted);
+	// let encryptedPersons = encryptData(finalPersons);
+	// finalPersons = null;
 
-	encryptedPersons = null;
-	finalSchedule = null;
+	// // update and encrypt cong_visitingSpeakers data
+	// let encryptedSpeakers;
+	// if (cong_visitingSpeakers) {
+	// 	let finalSpeakers = this.mergeVisitingSpeakersFromBackup(cong_visitingSpeakers);
+	// 	encryptedSpeakers = encryptData(finalSpeakers);
+	// 	finalSpeakers = null;
+	// }
+
+	// // update cong_schedule data
+	// let finalSchedule = [];
+	// if (cong_schedule) {
+	// 	finalSchedule = this.mergeSchedulesFromBackup(cong_schedule);
+	// }
+
+	// // update cong_sourceMaterial data
+	// if (cong_sourceMaterial) {
+	// 	this.mergeSourceMaterialsFromBackup(cong_sourceMaterial);
+	// }
+
+	// // update cong_serviceYear data
+	// if (cong_serviceYear) {
+	// 	this.mergeServiceYearFromBackup(cong_serviceYear);
+	// }
+
+	// // update cong_lateReports data
+	// if (cong_lateReports) {
+	// 	this.mergeLateReportsFromBackup(cong_lateReports);
+	// }
+
+	// // update cong_minutesReports data
+	// if (cong_minutesReports) {
+	// 	this.mergeMinutesReportsFromBackup(cong_minutesReports);
+	// }
+
+	// // update cong_meetingAttendance data
+	// if (cong_meetingAttendance) {
+	// 	this.mergeMeetingAttendanceFromBackup(cong_meetingAttendance);
+	// }
+
+	// // update cong_branchReports data
+	// let finalBranchReports = [];
+	// if (cong_branchReports) {
+	// 	finalBranchReports = this.mergeBranchReportsFromBackup(cong_branchReports);
+	// }
+
+	// // update cong_branchReports data
+	// let finalFieldServiceReports = [];
+	// if (cong_fieldServiceReports) {
+	// 	finalFieldServiceReports = this.mergeFieldServiceReportsFromBackup(cong_fieldServiceReports, cong_deleted);
+	// }
+
+	// // update cong_branchReports data
+	// let finalFieldServiceGroup = [];
+	// if (cong_fieldServiceGroup) {
+	// 	finalFieldServiceGroup = this.mergeFieldServiceGroupFromBackup(cong_fieldServiceGroup, cong_deleted);
+	// }
+
+	// // update cong_publicTalks data
+	// if (cong_publicTalks) {
+	// 	this.mergePublicTalksFromBackup(cong_publicTalks);
+	// }
+
+	// const userInfo = users.findUserByAuthUid(uid);
+
+	// // remove user settings from settings
+	// const settingItem = { ...cong_settings[0] };
+
+	// delete settingItem.user_local_uid;
+	// delete settingItem.user_members_delegate;
+	// delete settingItem.pocket_local_id;
+	// delete settingItem.pocket_members;
+	// delete settingItem.local_uid;
+
+	// // prepare data to be stored to firestore
+	// const data = {
+	// 	cong_settings: [settingItem],
+	// 	last_backup: {
+	// 		by: userInfo.id,
+	// 		date: new Date(),
+	// 	},
+	// };
+
+	// if (cong_serviceYear) data.cong_serviceYear = this.cong_serviceYear;
+	// if (cong_lateReports) data.cong_lateReports = this.cong_lateReports;
+	// if (cong_minutesReports) data.cong_minutesReports = this.cong_minutesReports;
+
+	// await db.collection('congregations').doc(this.id).set(data, { merge: true });
+
+	// // update user setting
+	// const userLocalUID = cong_settings[0].user_local_uid || '';
+	// const userMembersDelegate = cong_settings[0].user_members_delegate || [];
+
+	// await userInfo.updateLocalUID(userLocalUID);
+	// await userInfo.updateMembersDelegate(userMembersDelegate);
+
+	// // prepare data to be saved to storage
+	// if (!existsSync(`./cong_backup`)) await mkdir(`./cong_backup`);
+	// if (!existsSync(`./cong_backup/${this.id}`)) await mkdir(`./cong_backup/${this.id}`);
+
+	// await uploadFileToStorage(this.id, encryptedPersons, 'persons.txt');
+
+	// if (encryptedSpeakers) {
+	// 	await uploadFileToStorage(this.id, encryptedSpeakers, 'visiting_speakers.txt');
+	// }
+
+	// if (cong_schedule) {
+	// 	await uploadFileToStorage(this.id, JSON.stringify(finalSchedule), 'schedules.txt');
+	// }
+
+	// if (cong_sourceMaterial) {
+	// 	await uploadFileToStorage(this.id, JSON.stringify(this.cong_sourceMaterial_draft), 'sources.txt');
+	// }
+
+	// if (cong_meetingAttendance) {
+	// 	await uploadFileToStorage(this.id, JSON.stringify(this.cong_meetingAttendance), 'meeting-attendance.txt');
+	// }
+
+	// if (cong_branchReports) {
+	// 	await uploadFileToStorage(this.id, JSON.stringify(finalBranchReports), 'branch-reports.txt');
+	// }
+
+	// if (cong_fieldServiceReports) {
+	// 	await uploadFileToStorage(this.id, JSON.stringify(finalFieldServiceReports), 'field-service-reports.txt');
+	// }
+
+	// if (cong_fieldServiceGroup) {
+	// 	await uploadFileToStorage(this.id, JSON.stringify(finalFieldServiceGroup), 'field-service-group.txt');
+	// }
+
+	// if (cong_publicTalks) {
+	// 	await uploadFileToStorage(this.id, JSON.stringify(cong_publicTalks), 'public_talks.txt');
+	// }
+
+	// // update class values
+	// this.cong_persons = encryptedPersons;
+	// this.cong_settings = [settingItem];
+	// this.last_backup = {
+	// 	by: userInfo.username,
+	// 	date: data.last_backup.date,
+	// };
+	// if (cong_schedule) this.cong_schedule_draft = finalSchedule;
+	// if (cong_branchReports) this.cong_branchReports = finalBranchReports;
+	// if (cong_fieldServiceReports) this.cong_fieldServiceReports = finalFieldServiceReports;
+	// if (cong_fieldServiceGroup) this.cong_fieldServiceGroup = finalFieldServiceGroup;
+	// if (cong_publicTalks) this.cong_publicTalks = cong_publicTalks;
+	// if (encryptedSpeakers) this.cong_visiting_speakers = encryptedSpeakers;
+
+	// await this.updateMemberFieldServiceReports();
+
+	// await rm(`./cong_backup/${this.id}`, { recursive: true, force: true });
+
+	// encryptedPersons = null;
+	// finalSchedule = null;
 };
 
 Congregation.prototype.retrieveBackup = function () {
