@@ -1,18 +1,20 @@
 import fetch from 'node-fetch';
-import { fetchData } from '../utils/public-utils.js';
 
 export const getSchedules = async (req, res, next) => {
 	try {
 		let { language } = req.params;
 
-		language = language.toUpperCase();
+		language = language?.toUpperCase() || 'E';
 
-		const mergedSources = await fetchData(language);
+		const url = `${process.env.SOURCE_MATERIALS_API}/${language}`;
+		const resSrc = await fetch(url);
 
-		if (mergedSources.length > 0) {
+		const result = await resSrc.json();
+
+		if (result.length > 0) {
 			res.locals.type = 'info';
 			res.locals.message = 'updated schedules fetched from jw.org';
-			res.status(200).json(mergedSources);
+			res.status(200).json(result);
 		} else {
 			res.locals.type = 'warn';
 			res.locals.message = 'schedules could not be fetched because language is invalid or not available yet';
