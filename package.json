@@ -38,10 +38,10 @@
 		"geoip-lite": "^1.4.9",
 		"global-jsdom": "^9.2.0",
 		"helmet": "^7.1.0",
-		"i18next": "^23.7.9",
+		"i18next": "^23.7.11",
 		"is-online": "^10.0.0",
 		"jsdom": "^23.0.1",
-		"jw-epub-parser": "^3.7.0",
+		"jw-epub-parser": "^3.9.0",
 		"node-2fa": "^2.0.3",
 		"node-fetch": "^3.3.2",
 		"node-html-parser": "^6.1.11",
@@ -61,11 +61,11 @@
 		"@semantic-release/git": "^10.0.1",
 		"chai": "^4.3.10",
 		"chai-http": "^4.4.0",
-		"eslint": "^8.55.0",
+		"eslint": "^8.56.0",
 		"eslint-config-react-app": "^7.0.1",
 		"find-unused-exports": "^5.0.0",
 		"mocha": "^10.2.0",
 		"nodemon": "^3.0.2",
-		"puppeteer": "^21.6.0"
+		"puppeteer": "^21.6.1"
 	}
 }
