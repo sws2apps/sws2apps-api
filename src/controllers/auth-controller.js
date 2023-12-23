@@ -35,12 +35,10 @@ export const loginUser = async (req, res, next) => {
 
 		let authUser = users.findUserByAuthUid(uid);
 
-		const expiryDate = new Date().getTime() + 24 * 60 * 60000; // expired after 1 day
 		let newSessions = [];
 		let isNewUser = false;
 
 		if (authUser) {
-			await authUser.removeExpiredSession();
 			newSessions = authUser.sessions.filter((session) => session.visitorid !== visitorid);
 		}
 
@@ -54,7 +52,6 @@ export const loginUser = async (req, res, next) => {
 		const newSession = {
 			visitorid: visitorid,
 			visitor_details: await retrieveVisitorDetails(userIP, userAgent),
-			expires: expiryDate,
 		};
 
 		if (authUser.mfaEnabled) newSession.mfaVerified = false;
@@ -199,11 +196,9 @@ export const verifyPasswordlessInfo = async (req, res, next) => {
 
 		let authUser = users.findUserByAuthUid(uid);
 
-		const expiryDate = new Date().getTime() + 24 * 60 * 60000; // expired after 1 day
 		let newSessions = [];
 
 		if (authUser) {
-			await authUser.removeExpiredSession();
 			newSessions = authUser.sessions.filter((session) => session.visitorid !== visitorid);
 		}
 
@@ -214,7 +209,6 @@ export const verifyPasswordlessInfo = async (req, res, next) => {
 		const newSession = {
 			visitorid: visitorid,
 			visitor_details: await retrieveVisitorDetails(userIP, userAgent),
-			expires: expiryDate,
 		};
 
 		if (authUser.mfaEnabled) newSession.mfaVerified = false;
