@@ -23,11 +23,9 @@ jobs:
 
       - name: Semantic Release
         id: semantic
-        uses: cycjimmy/semantic-release-action@61680d0e9b02ff86f5648ade99e01be17f0260a4
-        with:
-          semantic_version: 19.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: npx semantic-release
 
       - name: Deploy API to Heroku
         if: ${{ steps.semantic.outputs.new_release_published == 'true' }}
