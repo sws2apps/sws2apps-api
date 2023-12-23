@@ -1,3 +1,16 @@
+# [2.84.0](https://github.com/sws2apps/sws2apps-api/compare/v2.83.0...v2.84.0) (2023-12-23)
+
+
+### Features
+
+* **api:** remove session expiration handling ([fac0a6d](https://github.com/sws2apps/sws2apps-api/commit/fac0a6d7fe78749e9f2f152c81543d0cd9fb8148))
+* **deps:** bump i18next from 23.7.8 to 23.7.9 ([c967238](https://github.com/sws2apps/sws2apps-api/commit/c9672384dbc26459c3470fb99c2214df3e89b570))
+* **deps:** bump i18next from 23.7.9 to 23.7.11 ([9320f0e](https://github.com/sws2apps/sws2apps-api/commit/9320f0ef91821b04504599d376c087230c281021))
+* **deps:** bump jsdom and global-jsdom ([fcf3a5a](https://github.com/sws2apps/sws2apps-api/commit/fcf3a5afbab83c99237318669c53804b5d8eff9c))
+* **deps:** bump jw-epub-parser from 3.6.0 to 3.7.0 ([b1b10bc](https://github.com/sws2apps/sws2apps-api/commit/b1b10bcc93c8ba2ec37918ee8dd7340dddcd5eec))
+* **deps:** bump jw-epub-parser from 3.7.0 to 3.8.0 ([292cecf](https://github.com/sws2apps/sws2apps-api/commit/292cecf690201bf6bc3ef343cb8ebbeb4c375e9e))
+* **deps:** bump jw-epub-parser from 3.8.0 to 3.9.0 ([99f9d86](https://github.com/sws2apps/sws2apps-api/commit/99f9d86e931e45f01ffd841032a9ba7439bf0255))
+
 # [2.83.0](https://github.com/sws2apps/sws2apps-api/compare/v2.82.0...v2.83.0) (2023-12-10)
 
 
