@@ -30,9 +30,6 @@ export const visitorChecker = () => {
 			if (user) {
 				const { disabled } = user;
 
-				// remove expired sessions
-				await user.removeExpiredSession();
-
 				if (disabled) {
 					res.locals.type = 'warn';
 					res.locals.message = 'this user account is currently disabled';

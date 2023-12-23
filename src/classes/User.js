@@ -224,19 +224,6 @@ User.prototype.revokeSession = async function (visitorID) {
 	}
 };
 
-User.prototype.removeExpiredSession = async function () {
-	try {
-		const currentDate = new Date().getTime();
-		let validSessions = this.sessions.filter((session) => session.expires > currentDate);
-
-		await db.collection('users').doc(this.id).update({ 'about.sessions': validSessions });
-
-		this.sessions = validSessions;
-	} catch (error) {
-		throw new Error(error.message);
-	}
-};
-
 User.prototype.updateSessions = async function (sessions) {
 	try {
 		await db.collection('users').doc(this.id).update({ 'about.sessions': sessions });

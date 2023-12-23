@@ -24,7 +24,7 @@ export const verifyToken = async (req, res, next) => {
 		return;
 	}
 
-	const { token, trusted } = req.body;
+	const { token } = req.body;
 
 	const { id, sessions, username, cong_name, cong_number, cong_role, cong_id, user_local_uid, user_members_delegate } =
 		res.locals.currentUser;
@@ -61,13 +61,8 @@ export const verifyToken = async (req, res, next) => {
 
 		const newSessions = sessions.map((session) => {
 			if (session.visitorid === visitorid) {
-				let sessionExpired = session.expires;
-				if (trusted) {
-					sessionExpired = new Date().getTime() + 30 * 24 * 60 * 60000; // expired after 30 days if trusted
-				}
 				return {
 					...session,
-					expires: sessionExpired,
 					mfaVerified: true,
 					sws_last_seen: new Date().getTime(),
 				};
