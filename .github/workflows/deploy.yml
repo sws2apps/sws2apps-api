@@ -31,7 +31,6 @@ jobs:
         run: npx semantic-release
 
       - name: Deploy API to Heroku
-        if: ${{ steps.semantic.outputs.new_release_published == 'true' }}
         uses: akhileshns/heroku-deploy@9fd0f9faae4aa93a38d6f5e25b9128589f1371b0
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
