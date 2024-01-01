@@ -9,7 +9,17 @@ export const dbFetchTalks = async () => {
 	const finalResult = [];
 
 	snapshot.forEach((doc) => {
-		finalResult.push({ id: doc.id, ...doc.data() });
+		const obj = {
+			id: doc.id,
+			talk_number: doc.data().talk_number,
+			talk_title: {
+				...doc.data(),
+			},
+		};
+
+		delete obj.talk_title.talk_number;
+
+		finalResult.push(obj);
 	});
 
 	return finalResult;
