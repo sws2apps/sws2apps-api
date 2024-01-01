@@ -1,3 +1,14 @@
+# [2.85.0](https://github.com/sws2apps/sws2apps-api/compare/v2.84.0...v2.85.0) (2024-01-01)
+
+
+### Features
+
+* **deps:** bump i18next from 23.7.11 to 23.7.12 ([267fb58](https://github.com/sws2apps/sws2apps-api/commit/267fb582492fa7a081eea785a1d31a6b058ac5cf))
+* **deps:** bump i18next from 23.7.12 to 23.7.13 ([75a1f25](https://github.com/sws2apps/sws2apps-api/commit/75a1f256df327752003863f6f010583564bb956b))
+* **deps:** bump jw-epub-parser from 3.9.0 to 3.11.0 ([f019573](https://github.com/sws2apps/sws2apps-api/commit/f01957345d162190cc64c1afd9e1826b42ec745e))
+* **deps:** bump node-html-parser from 6.1.11 to 6.1.12 ([a167a19](https://github.com/sws2apps/sws2apps-api/commit/a167a193bc7e36734599d7f00d4ab0e433804158))
+* **deps:** bump nodemailer from 6.9.7 to 6.9.8 ([685ed5d](https://github.com/sws2apps/sws2apps-api/commit/685ed5d6423c157a2a90570781b05eb2cca54a5e))
+
 # [2.84.0](https://github.com/sws2apps/sws2apps-api/compare/v2.83.0...v2.84.0) (2023-12-23)
 
 
