@@ -17,8 +17,8 @@
 		"extends": ["react-app"]
 	},
 	"engines": {
-		"node": ">=18 <20",
-		"npm": ">=10"
+		"node": ">=18 <19",
+		"npm": ">=9"
 	},
 	"dependencies": {
 		"@crowdin/crowdin-api-client": "^1.28.2",
