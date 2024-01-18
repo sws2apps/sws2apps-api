@@ -14,12 +14,10 @@
 	"license": "MIT",
 	"type": "module",
 	"eslintConfig": {
-		"extends": [
-			"react-app"
-		]
+		"extends": ["react-app"]
 	},
 	"engines": {
-		"node": ">=18 <21",
+		"node": ">=20 <21",
 		"npm": ">=10"
 	},
 	"dependencies": {
