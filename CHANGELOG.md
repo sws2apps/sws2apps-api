@@ -1,3 +1,20 @@
+# [2.86.0](https://github.com/sws2apps/sws2apps-api/compare/v2.85.0...v2.86.0) (2024-01-18)
+
+
+### Bug Fixes
+
+* **api:** move firebase data loading location ([12d37d4](https://github.com/sws2apps/sws2apps-api/commit/12d37d4f992641da2809ea8e4496190a086c1aa8))
+* **api:** update node engine ([7aded2d](https://github.com/sws2apps/sws2apps-api/commit/7aded2d3434f769263270c2d2665027c1746b3da))
+
+
+### Features
+
+* **deps:** bump @logtail/node from 0.4.17 to 0.4.19 ([7e346e7](https://github.com/sws2apps/sws2apps-api/commit/7e346e7aeba399a0d8cde2693b31daef026cc064))
+* **deps:** bump i18next from 23.7.13 to 23.7.14 ([0f2f700](https://github.com/sws2apps/sws2apps-api/commit/0f2f700f3c8cd41130261ade7ecb86a8844c27f8))
+* **deps:** bump i18next from 23.7.14 to 23.7.15 ([d542177](https://github.com/sws2apps/sws2apps-api/commit/d542177d37aabcd5a95c91ad2127138414dd0741))
+* **deps:** bump i18next from 23.7.15 to 23.7.16 ([8068788](https://github.com/sws2apps/sws2apps-api/commit/8068788019f98f3c6ea670669567702bd398602a))
+* **deps:** bump jsdom from 23.0.1 to 23.2.0 ([f184bbb](https://github.com/sws2apps/sws2apps-api/commit/f184bbbbc9917bdeccedb6ef31c10678f9749054))
+
 # [2.85.0](https://github.com/sws2apps/sws2apps-api/compare/v2.84.0...v2.85.0) (2024-01-01)
 
 
