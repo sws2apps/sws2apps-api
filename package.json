@@ -17,7 +17,7 @@
 		"extends": ["react-app"]
 	},
 	"engines": {
-		"node": ">=18 <21",
+		"node": ">=18 <20",
 		"npm": ">=10"
 	},
 	"dependencies": {
