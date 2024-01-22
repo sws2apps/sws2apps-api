@@ -25,17 +25,21 @@ global.requestTracker = [];
 await initializeAPI();
 logger('info', JSON.stringify({ details: `API: minimum CPE client version set to ${global.minimumVersionCPE}` }));
 
-await users.loadAll();
-await congregations.loadAll();
-await publicTalks.loadAll();
-
-// dev initialize
-if (process.env.NODE_ENV === 'development') {
-	await importPublicTalks();
-}
-
 app.listen(PORT, async () => {
 	logger('info', JSON.stringify({ details: `server up and running (v${APP_VERSION})` }));
+
+	logger('info', JSON.stringify({ details: `loading Firebase data ...` }));
+
+	await users.loadAll();
+	await congregations.loadAll();
+	await publicTalks.loadAll();
+
+	// dev initialize
+	if (process.env.NODE_ENV === 'development') {
+		await importPublicTalks();
+	}
+
+	logger('info', JSON.stringify({ details: `loading completed.` }));
 });
 
 export { app as api };

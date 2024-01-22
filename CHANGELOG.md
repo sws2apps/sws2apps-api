@@ -1,3 +1,31 @@
+# [2.86.0](https://github.com/sws2apps/sws2apps-api/compare/v2.85.0...v2.86.0) (2024-01-18)
+
+
+### Bug Fixes
+
+* **api:** move firebase data loading location ([12d37d4](https://github.com/sws2apps/sws2apps-api/commit/12d37d4f992641da2809ea8e4496190a086c1aa8))
+* **api:** update node engine ([7aded2d](https://github.com/sws2apps/sws2apps-api/commit/7aded2d3434f769263270c2d2665027c1746b3da))
+
+
+### Features
+
+* **deps:** bump @logtail/node from 0.4.17 to 0.4.19 ([7e346e7](https://github.com/sws2apps/sws2apps-api/commit/7e346e7aeba399a0d8cde2693b31daef026cc064))
+* **deps:** bump i18next from 23.7.13 to 23.7.14 ([0f2f700](https://github.com/sws2apps/sws2apps-api/commit/0f2f700f3c8cd41130261ade7ecb86a8844c27f8))
+* **deps:** bump i18next from 23.7.14 to 23.7.15 ([d542177](https://github.com/sws2apps/sws2apps-api/commit/d542177d37aabcd5a95c91ad2127138414dd0741))
+* **deps:** bump i18next from 23.7.15 to 23.7.16 ([8068788](https://github.com/sws2apps/sws2apps-api/commit/8068788019f98f3c6ea670669567702bd398602a))
+* **deps:** bump jsdom from 23.0.1 to 23.2.0 ([f184bbb](https://github.com/sws2apps/sws2apps-api/commit/f184bbbbc9917bdeccedb6ef31c10678f9749054))
+
+# [2.85.0](https://github.com/sws2apps/sws2apps-api/compare/v2.84.0...v2.85.0) (2024-01-01)
+
+
+### Features
+
+* **deps:** bump i18next from 23.7.11 to 23.7.12 ([267fb58](https://github.com/sws2apps/sws2apps-api/commit/267fb582492fa7a081eea785a1d31a6b058ac5cf))
+* **deps:** bump i18next from 23.7.12 to 23.7.13 ([75a1f25](https://github.com/sws2apps/sws2apps-api/commit/75a1f256df327752003863f6f010583564bb956b))
+* **deps:** bump jw-epub-parser from 3.9.0 to 3.11.0 ([f019573](https://github.com/sws2apps/sws2apps-api/commit/f01957345d162190cc64c1afd9e1826b42ec745e))
+* **deps:** bump node-html-parser from 6.1.11 to 6.1.12 ([a167a19](https://github.com/sws2apps/sws2apps-api/commit/a167a193bc7e36734599d7f00d4ab0e433804158))
+* **deps:** bump nodemailer from 6.9.7 to 6.9.8 ([685ed5d](https://github.com/sws2apps/sws2apps-api/commit/685ed5d6423c157a2a90570781b05eb2cca54a5e))
+
 # [2.84.0](https://github.com/sws2apps/sws2apps-api/compare/v2.83.0...v2.84.0) (2023-12-23)
 
 
