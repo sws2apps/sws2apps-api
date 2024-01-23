@@ -1,3 +1,13 @@
+# [2.87.0](https://github.com/sws2apps/sws2apps-api/compare/v2.86.0...v2.87.0) (2024-01-23)
+
+
+### Features
+
+* **deps:** bump dotenv from 16.3.1 to 16.3.2 ([0f592b6](https://github.com/sws2apps/sws2apps-api/commit/0f592b6f661991d34d08885df1b81cca3ba48775))
+* **deps:** bump i18next from 23.7.16 to 23.7.18 ([707db7c](https://github.com/sws2apps/sws2apps-api/commit/707db7c9de939bdd48f3a2201e83efe7fe6055c2))
+* **deps:** bump otpauth from 9.2.1 to 9.2.2 ([bf889e0](https://github.com/sws2apps/sws2apps-api/commit/bf889e0cd7fc53d30252cc06845cba96e135c22e))
+* **locales:** add support for Polish language ([1dd1bd8](https://github.com/sws2apps/sws2apps-api/commit/1dd1bd8b8ebc49504c8bc35b748de2880ed0a2d0))
+
 # [2.86.0](https://github.com/sws2apps/sws2apps-api/compare/v2.85.0...v2.86.0) (2024-01-18)
 
 
