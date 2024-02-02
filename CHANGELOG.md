@@ -1,3 +1,15 @@
+# [2.88.0](https://github.com/sws2apps/sws2apps-api/compare/v2.87.0...v2.88.0) (2024-02-02)
+
+
+### Features
+
+* **deps:** bump dotenv from 16.3.2 to 16.4.1 ([8eeb6a4](https://github.com/sws2apps/sws2apps-api/commit/8eeb6a4fd6dae3b745131d400cd4f8b6dc25f90c))
+* **deps:** bump i18next from 23.7.18 to 23.8.0 ([8c10116](https://github.com/sws2apps/sws2apps-api/commit/8c1011656529c556749d139d5284ed1b532f925b))
+* **deps:** bump i18next from 23.7.18 to 23.8.1 ([b413d0c](https://github.com/sws2apps/sws2apps-api/commit/b413d0c59f129550181916232890d9f97a6073c1))
+* **deps:** bump i18next from 23.8.1 to 23.8.2 ([890e2cb](https://github.com/sws2apps/sws2apps-api/commit/890e2cb2e26e400af35ca76ae20664d3faa4faae))
+* **deps:** bump jsdom and global-jsdom ([a1312ff](https://github.com/sws2apps/sws2apps-api/commit/a1312ff608bb5e27f690119a3620a9f8e23bf97e))
+* **deps:** bump nodemailer from 6.9.8 to 6.9.9 ([0a91401](https://github.com/sws2apps/sws2apps-api/commit/0a91401bf392dcb9f301469098dacf5fb824681f))
+
 # [2.87.0](https://github.com/sws2apps/sws2apps-api/compare/v2.86.0...v2.87.0) (2024-01-23)
 
 
