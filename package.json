@@ -62,6 +62,6 @@
 		"eslint": "^8.56.0",
 		"eslint-config-react-app": "^7.0.1",
 		"nodemon": "^3.0.3",
-		"semantic-release": "^23.0.0"
+		"semantic-release": "^23.0.2"
 	}
 }
