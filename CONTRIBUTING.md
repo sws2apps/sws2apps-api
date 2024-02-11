@@ -67,8 +67,8 @@ You can just copy the `.env.example` file to `.env` and fill in the remaining en
 - GMAIL_SENDER_NAME: sender name for your email address.
 - JW_CDN: set the value to be `https://app.jw-cdn.org/apis/pub-media/GETPUBMEDIALINKS?`
 - JW_FINDER: set the value to be `https://www.jw.org/finder?`
-- APP_COUNTRY_API: set the value to be `https://collect-api.sws2apps.com/countries?`
-- APP_CONGREGATION_API: set the value to be `https://collect-api.sws2apps.com/congregations?`
+- APP_COUNTRY_API: set the value to be `https://collect-api.sws2apps.com/api/countries?`
+- APP_CONGREGATION_API: set the value to be `https://collect-api.sws2apps.com/api/congregations?`
 - FIREBASE_APP_NAME: your Firebase Project ID defined in the Firebase Console.
 - FIREBASE_STORAGE_EMULATOR_HOST: the `Host:Port` for Firestore Storage.
 - FIRESTORE_EMULATOR_HOST: the `Host:Port` for Firestore Emulator.
