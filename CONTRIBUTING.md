@@ -30,7 +30,7 @@ If you’re only fixing a bug, it’s fine to submit a pull request right away b
 
 ## Contribution Prerequisites
 
-- You have the latest version of [Node](https://nodejs.org), [Git](https://git-scm.com), [Java](https://www.java.com/en/) _(to be used for Firebase emulators)_ and [Firebase CLI](https://firebase.google.com/docs/cli) installed
+- You have the latest version of [Node](https://nodejs.org), [Git](https://git-scm.com), [OpenJDK](https://www.oracle.com/java/technologies/downloads/) _(to be used for Firebase emulators)_ and [Firebase CLI](https://firebase.google.com/docs/cli) installed
 - You have a dedicated project on Firebase for your local testing.
 - You will be working on one item at a time.
 - If you do not have it yet, fork the repository. Clone it if you will work locally.
