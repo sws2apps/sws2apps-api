@@ -18,6 +18,7 @@ export const ALL_LANGUAGES = [
 		hasEPUB: false,
 		WOL_DT: 'https://wol.jw.org/wol/dt/r5/lp-t',
 	},
+	{ code: 'u', locale: 'ru-RU', name: 'русский', isUI: true, hasEPUB: true, WOL_DT: 'https://wol.jw.org/wol/dt/r2/lp-u' },
 	{
 		code: 'ttm',
 		locale: 'mg-TTM',
