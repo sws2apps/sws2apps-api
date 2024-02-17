@@ -1,3 +1,12 @@
+# [2.89.0](https://github.com/sws2apps/sws2apps-api/compare/v2.88.0...v2.89.0) (2024-02-15)
+
+
+### Features
+
+* **deps:** bump dotenv from 16.4.1 to 16.4.4 ([c94b0d4](https://github.com/sws2apps/sws2apps-api/commit/c94b0d4cf507be92657c0663f0e1daa614df4406))
+* **deps:** bump nodemailer-express-handlebars from 6.1.0 to 6.1.2 ([290532e](https://github.com/sws2apps/sws2apps-api/commit/290532ee9fae8484c0218a4a1d1bb863743dd29d))
+* **localize:** add support for Russian language ([e064112](https://github.com/sws2apps/sws2apps-api/commit/e064112a0caad4f234f1678a72f153859ef29bc0))
+
 # [2.88.0](https://github.com/sws2apps/sws2apps-api/compare/v2.87.0...v2.88.0) (2024-02-02)
 
 

@@ -10,7 +10,7 @@ Please make sure that you have read the [code of conduct](https://github.com/sws
 
 ## Branch Organization
 
-We only use the `main` branch. Feature flags are used for new features and major changes.
+We use the `main` branch for the current version (CPE), but for the new Organized version it's important to use `main-e2e` branch. Feature flags are used for new features and major changes.
 
 ## Bugs
 
@@ -30,7 +30,7 @@ If you’re only fixing a bug, it’s fine to submit a pull request right away b
 
 ## Contribution Prerequisites
 
-- You have the latest version of [Node](https://nodejs.org), [Git](https://git-scm.com) and [Firebase CLI](https://firebase.google.com/docs/cli) installed
+- You have the latest version of [Node](https://nodejs.org), [Git](https://git-scm.com), [OpenJDK](https://www.oracle.com/java/technologies/downloads/) _(to be used for Firebase emulators)_ and [Firebase CLI](https://firebase.google.com/docs/cli) installed
 - You have a dedicated project on Firebase for your local testing.
 - You will be working on one item at a time.
 - If you do not have it yet, fork the repository. Clone it if you will work locally.
@@ -67,8 +67,8 @@ You can just copy the `.env.example` file to `.env` and fill in the remaining en
 - GMAIL_SENDER_NAME: sender name for your email address.
 - JW_CDN: set the value to be `https://app.jw-cdn.org/apis/pub-media/GETPUBMEDIALINKS?`
 - JW_FINDER: set the value to be `https://www.jw.org/finder?`
-- APP_COUNTRY_API: set the value to be `https://collect-api.sws2apps.com/countries?`
-- APP_CONGREGATION_API: set the value to be `https://collect-api.sws2apps.com/congregations?`
+- APP_COUNTRY_API: set the value to be `https://collect-api.sws2apps.com/api/countries?`
+- APP_CONGREGATION_API: set the value to be `https://collect-api.sws2apps.com/api/congregations?`
 - FIREBASE_APP_NAME: your Firebase Project ID defined in the Firebase Console.
 - FIREBASE_STORAGE_EMULATOR_HOST: the `Host:Port` for Firestore Storage.
 - FIRESTORE_EMULATOR_HOST: the `Host:Port` for Firestore Emulator.
