@@ -26,8 +26,8 @@ export class User {
 		this.cong_number = '';
 		this.cong_role = [];
 		this.mfaEnabled = false;
-		this.firstname = '';
-		this.lastname = '';
+		this.firstname = { value: '', updatedAt: null };
+		this.lastname = { value: '', updatedAt: null };
 		this.global_role = '';
 		this.sessions = [];
 		this.last_seen = '';

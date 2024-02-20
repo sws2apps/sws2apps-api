@@ -1262,10 +1262,13 @@ Congregation.prototype.addUser = async function (userId, role, firstname, lastna
 	await db.collection('users').doc(userId).set(data, { merge: true });
 
 	if (firstname) {
-		await db.collection('users').doc(userId).update({
-			'about.firstname': firstname,
-			'about.lastname': lastname,
-		});
+		await db
+			.collection('users')
+			.doc(userId)
+			.update({
+				'about.firstname': { value: firstname, updatedAt: new Date().toISOString() },
+				'about.lastname': { value: lastname, updatedAt: new Date().toISOString() },
+			});
 	}
 
 	// update users list
@@ -1276,8 +1279,8 @@ Congregation.prototype.addUser = async function (userId, role, firstname, lastna
 	user.cong_role = newRole;
 	user.cong_country = this.country_code;
 	if (firstname) {
-		user.firstname = firstname;
-		user.lastname = lastname;
+		user.firstname = { value: firstname, updatedAt: new Date().toISOString() };
+		user.lastname = { value: lastname, updatedAt: new Date().toISOString() };
 	}
 
 	// update congregation members
