@@ -23,7 +23,7 @@
 		"npm": ">=9"
 	},
 	"dependencies": {
-		"@crowdin/crowdin-api-client": "^1.28.2",
+		"@crowdin/crowdin-api-client": "^1.29.5",
 		"@logtail/node": "^0.4.19",
 		"bcrypt": "^5.1.1",
 		"cors": "^2.8.5",
