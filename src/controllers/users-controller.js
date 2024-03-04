@@ -62,6 +62,7 @@ export const validateUser = async (req, res, next) => {
 				firstname: userInfo.firstname,
 				lastname: userInfo.lastname,
 				cong_encryption: cong.cong_encryption,
+				mfaEnabled: userInfo.mfaEnabled,
 			};
 
 			if (isElder) obj.cong_role.push('elder');

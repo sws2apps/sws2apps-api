@@ -205,6 +205,7 @@ User.prototype.getActiveSessions = function () {
 			device: {
 				browserName: session.visitor_details.browser,
 				os: session.visitor_details.os,
+				isMobile: session.visitor_details.isMobile,
 			},
 			last_seen: session.sws_last_seen,
 		};

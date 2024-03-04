@@ -27,6 +27,7 @@ export const retrieveVisitorDetails = async (visitorIP, visitorAgent) => {
 				city: dataIP.city || '',
 				timezone: dataIP.timezone || '',
 			},
+			isMobile: dataAgent.device.isMobile,
 		};
 
 		return visitorDetails;
