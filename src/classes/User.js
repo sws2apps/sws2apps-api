@@ -725,3 +725,22 @@ User.prototype.disapproveFieldServiceReports = async function (month) {
 
 	await this.quickSaveFieldServiceReports();
 };
+
+User.prototype.disable2FA = async function () {
+	try {
+		// remove secret
+		await db.collection('users').doc(this.id).update({ 'about.secret': FieldValue.delete(), 'about.mfaEnabled': false });
+		this.secret = '';
+		this.mfaEnabled = false;
+
+		// remove mfaVerified prop in sessions
+		this.sessions = this.sessions.map((session) => {
+			const obj = structuredClone(session);
+			delete obj.mfaVerified;
+
+			return obj;
+		});
+	} catch (error) {
+		throw new Error(error.message);
+	}
+};

@@ -4,6 +4,7 @@ import { visitorChecker } from '../middleware/visitor-checker.js';
 import {
 	createAccount,
 	deleteUserSession,
+	disableUser2FA,
 	getAnnouncementsV2,
 	getUserSecretToken,
 	getUserSessions,
@@ -41,6 +42,9 @@ router.patch('/:id/password', body('password').isLength({ min: 10 }), updateUser
 
 // get user 2fa token
 router.get('/:id/2fa', getUserSecretToken);
+
+// disable user 2fa
+router.get('/:id/2fa/disable', disableUser2FA);
 
 // get user sessions
 router.get('/:id/sessions', getUserSessions);

@@ -309,3 +309,24 @@ export const getAnnouncementsV2 = async (req, res, next) => {
 		next(err);
 	}
 };
+
+export const disableUser2FA = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+
+		if (id) {
+			const user = users.findUserById(id);
+			await user.disable2FA();
+
+			res.locals.type = 'info';
+			res.locals.message = `the user disabled 2fa successfully`;
+			res.status(200).json({ message: 'MFA_DISABLED' });
+		} else {
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: user id is required`;
+			res.status(400).json({ message: 'USER_ID_INVALID' });
+		}
+	} catch (err) {
+		next(err);
+	}
+};
