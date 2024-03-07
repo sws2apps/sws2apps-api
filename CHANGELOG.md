@@ -1,3 +1,18 @@
+# [2.90.0](https://github.com/sws2apps/sws2apps-api/compare/v2.89.0...v2.90.0) (2024-03-07)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.28.2 to 1.30.0 ([6a8fe21](https://github.com/sws2apps/sws2apps-api/commit/6a8fe2105d8847bbfdef5a30291d20c1cf3abc01))
+* **deps:** bump dotenv from 16.4.4 to 16.4.5 ([b33259f](https://github.com/sws2apps/sws2apps-api/commit/b33259f9033fd6cfea6a1fbfd6daf04ec55c9066))
+* **deps:** bump express from 4.18.2 to 4.18.3 ([570b266](https://github.com/sws2apps/sws2apps-api/commit/570b2663940fbc0fc737bd1232b2d8188c409803))
+* **deps:** bump express-rate-limit from 7.1.5 to 7.2.0 ([dcacbc5](https://github.com/sws2apps/sws2apps-api/commit/dcacbc5162db1e2346c39bea8b1081da534810e5))
+* **deps:** bump geoip-lite from 1.4.9 to 1.4.10 ([0dad915](https://github.com/sws2apps/sws2apps-api/commit/0dad915d13c01a83a058d989bf674323ec4ec9ca))
+* **deps:** bump i18next from 23.8.2 to 23.9.0 ([e314a3f](https://github.com/sws2apps/sws2apps-api/commit/e314a3f5865ce2375527601fbfab02cc680e0712))
+* **deps:** bump i18next from 23.9.0 to 23.10.0 ([9cc9351](https://github.com/sws2apps/sws2apps-api/commit/9cc93517374e065cb1d1da6027f9234e0902c4a5))
+* **deps:** bump nodemailer from 6.9.10 to 6.9.11 ([e8140ae](https://github.com/sws2apps/sws2apps-api/commit/e8140ae798b7a6c35ad625a64d51a32c1ae9d8ff))
+* **deps:** bump nodemailer from 6.9.9 to 6.9.10 ([92a44f0](https://github.com/sws2apps/sws2apps-api/commit/92a44f035e362cf1e88fa687720f123038c9d3c6))
+
 # [2.89.0](https://github.com/sws2apps/sws2apps-api/compare/v2.88.0...v2.89.0) (2024-02-15)
 
 
