@@ -1,3 +1,10 @@
+# [2.91.0](https://github.com/sws2apps/sws2apps-api/compare/v2.90.0...v2.91.0) (2024-03-08)
+
+
+### Features
+
+* **api:** block any requests if firebase data is not yet ready ([60672e8](https://github.com/sws2apps/sws2apps-api/commit/60672e8259a94164496c5c83f69a1b81811d4c84))
+
 # [2.90.0](https://github.com/sws2apps/sws2apps-api/compare/v2.89.0...v2.90.0) (2024-03-07)
 
 
