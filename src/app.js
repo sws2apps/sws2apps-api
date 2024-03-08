@@ -25,6 +25,7 @@ import { internetChecker } from './middleware/internet-checker.js';
 import { requestChecker } from './middleware/request-checker.js';
 import { updateTracker } from './middleware/update-tracker.js';
 import { appVersionChecker } from './middleware/app-version-checker.js';
+import { serverReadyChecker } from './middleware/server-ready-checker.js';
 
 import { errorHandler, getAppVersion, getRoot, invalidEndpointHandler } from './controllers/app-controller.js';
 
@@ -86,6 +87,7 @@ app.use(requestIp.mw()); // get IP address middleware
 app.use(internetChecker());
 app.use(requestChecker());
 app.use(updateTracker());
+app.use(serverReadyChecker());
 
 app.use(
 	rateLimit({
