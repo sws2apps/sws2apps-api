@@ -21,6 +21,7 @@ const APP_VERSION = process.env.npm_package_version;
 
 // define global variables
 global.requestTracker = [];
+global.isServerReady = false;
 
 await initializeAPI();
 logger('info', JSON.stringify({ details: `API: minimum CPE client version set to ${global.minimumVersionCPE}` }));
@@ -40,6 +41,7 @@ app.listen(PORT, async () => {
 	}
 
 	logger('info', JSON.stringify({ details: `loading completed.` }));
+	global.isServerReady = true;
 });
 
 export { app as api };
