@@ -4,6 +4,7 @@ export const congregationRoleChecker = () => {
 			// check if session is authenticated for an approved role
 			const { cong_role } = res.locals.currentUser;
 			if (
+				cong_role.includes('admin') ||
 				cong_role.includes('lmmo') ||
 				cong_role.includes('lmmo-backup') ||
 				cong_role.includes('secretary') ||
@@ -29,6 +30,7 @@ export const congregationMeetingEditorChecker = () => {
 			// check if session is authenticated for an approved role
 			const { cong_role } = res.locals.currentUser;
 			if (
+				cong_role.includes('admin') ||
 				cong_role.includes('lmmo') ||
 				cong_role.includes('lmmo-backup') ||
 				cong_role.includes('public_talk_coordinator') ||
@@ -52,7 +54,7 @@ export const congregationLMMOChecker = () => {
 		try {
 			// check if session is authenticated for an approved role
 			const { cong_role } = res.locals.currentUser;
-			if (cong_role.includes('lmmo') || cong_role.includes('lmmo-backup')) {
+			if (cong_role.includes('admin') || cong_role.includes('lmmo') || cong_role.includes('lmmo-backup')) {
 				next();
 			} else {
 				res.locals.type = 'warn';
@@ -71,7 +73,7 @@ export const congregationSecretaryChecker = () => {
 		try {
 			// check if session is authenticated for an approved role
 			const { cong_role } = res.locals.currentUser;
-			if (cong_role.includes('secretary')) {
+			if (cong_role.includes('admin') || cong_role.includes('secretary')) {
 				next();
 			} else {
 				res.locals.type = 'warn';
@@ -90,7 +92,7 @@ export const congregationPublicTalkCoordinatorChecker = () => {
 		try {
 			// check if session is authenticated for an approved role
 			const { cong_role } = res.locals.currentUser;
-			if (cong_role.includes('public_talk_coordinator')) {
+			if (cong_role.includes('admin') || cong_role.includes('public_talk_coordinator')) {
 				next();
 			} else {
 				res.locals.type = 'warn';
