@@ -37,6 +37,7 @@ const whitelist = [
 	'https://cpe-sws.firebaseapp.com',
 	'https://sws2apps-tools.web.app',
 	'https://sws2apps-tools.firebaseapp.com',
+	'https://organized-app.com',
 ];
 
 const allowedUri = ['/app-version', '/api/public/source-material'];
