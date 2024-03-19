@@ -1,3 +1,14 @@
+# [2.92.0](https://github.com/sws2apps/sws2apps-api/compare/v2.91.0...v2.92.0) (2024-03-19)
+
+
+### Features
+
+* **api:** add organized-app to list of allowed urls ([03d8ae7](https://github.com/sws2apps/sws2apps-api/commit/03d8ae76f1385d72bcaf80fcf7b182625201369b))
+* **deps:** bump @logtail/node from 0.4.19 to 0.4.20 ([1291083](https://github.com/sws2apps/sws2apps-api/commit/1291083abb8117db5aab65192fc80792b540b981))
+* **deps:** bump @logtail/node from 0.4.20 to 0.4.21 ([a8e74b5](https://github.com/sws2apps/sws2apps-api/commit/a8e74b598367ed06bb5880fc88c4cbe61961fe16))
+* **deps:** bump i18next from 23.10.0 to 23.10.1 ([06ac417](https://github.com/sws2apps/sws2apps-api/commit/06ac417cc78fbb0507253110b2aaef6e0c32a975))
+* **deps:** bump nodemailer from 6.9.11 to 6.9.12 ([f5c8a8e](https://github.com/sws2apps/sws2apps-api/commit/f5c8a8e5f300a38110de3eb6117e2e2fd79e4920))
+
 # [2.91.0](https://github.com/sws2apps/sws2apps-api/compare/v2.90.0...v2.91.0) (2024-03-08)
 
 
