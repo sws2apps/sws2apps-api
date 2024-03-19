@@ -42,7 +42,7 @@ PublicTalks.prototype.update = async function (language, value) {
 		};
 
 		const ref = await db.collection('public_talks').add(data);
-		this.list.push({ id: ref.id, ...data });
+		this.list.push({ id: ref.id, talk_number: data.talk_number, talk_title: { [language]: data[language] } });
 		this.sort();
 	}
 
@@ -57,7 +57,7 @@ PublicTalks.prototype.update = async function (language, value) {
 		const currentTalk = this.find(value.talk_number);
 		await db.collection('public_talks').doc(currentTalk.id).set(data, { merge: true });
 
-		currentTalk[language] = { title: value.title, modified: value.modified };
+		currentTalk.talk_title[language] = { title: value.title, modified: value.modified };
 	}
 };
 
