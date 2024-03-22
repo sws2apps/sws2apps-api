@@ -1,3 +1,11 @@
+# [2.93.0](https://github.com/sws2apps/sws2apps-api/compare/v2.92.0...v2.93.0) (2024-03-22)
+
+
+### Features
+
+* **deps:** bump express from 4.18.3 to 4.19.1 ([f949fdc](https://github.com/sws2apps/sws2apps-api/commit/f949fdcba14732aa1472206cccbead48d57cf510))
+* **deps:** bump nodemailer from 6.9.12 to 6.9.13 ([6ba4960](https://github.com/sws2apps/sws2apps-api/commit/6ba4960ae7808af48aae6546e01103fa88da9a3a))
+
 # [2.92.0](https://github.com/sws2apps/sws2apps-api/compare/v2.91.0...v2.92.0) (2024-03-19)
 
 
