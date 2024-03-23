@@ -25,7 +25,7 @@ export const appVersionChecker = () => {
 			const appClient = req.headers.appclient;
 			const appVersion = req.headers.appversion;
 
-			if (appClient !== 'cpe') {
+			if (appClient !== 'organized') {
 				next();
 				return;
 			}
