@@ -1,3 +1,11 @@
+# [2.94.0](https://github.com/sws2apps/sws2apps-api/compare/v2.93.0...v2.94.0) (2024-03-26)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.30.0 to 1.31.0 ([9acc357](https://github.com/sws2apps/sws2apps-api/commit/9acc3579c81a5ee040f284b63616df873554fe05))
+* **deps:** bump express from 4.19.1 to 4.19.2 ([2ae0d47](https://github.com/sws2apps/sws2apps-api/commit/2ae0d47e8cd27fbb8783b24192e2e239b4986bd3))
+
 # [2.93.0](https://github.com/sws2apps/sws2apps-api/compare/v2.92.0...v2.93.0) (2024-03-22)
 
 
