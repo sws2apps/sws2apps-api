@@ -1,3 +1,11 @@
+# [2.95.0](https://github.com/sws2apps/sws2apps-api/compare/v2.94.0...v2.95.0) (2024-04-01)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.31.0 to 1.32.0 ([2f5ca91](https://github.com/sws2apps/sws2apps-api/commit/2f5ca91bcbea8520259eca52477f2795e1a7957e))
+* **deps:** bump node-html-parser from 6.1.12 to 6.1.13 ([86c286f](https://github.com/sws2apps/sws2apps-api/commit/86c286f8a13d6e288d8487060d1f8d6ff8ad026d))
+
 # [2.94.0](https://github.com/sws2apps/sws2apps-api/compare/v2.93.0...v2.94.0) (2024-03-26)
 
 
