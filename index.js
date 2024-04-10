@@ -27,7 +27,7 @@ await initializeAPI();
 logger('info', JSON.stringify({ details: `API: minimum CPE client version set to ${global.minimumVersionCPE}` }));
 
 app.listen(PORT, async () => {
-	logger('info', JSON.stringify({ details: `server up and running (v${APP_VERSION})` }));
+	logger('info', JSON.stringify({ details: `server up and running on port ${PORT} (v${APP_VERSION})` }));
 
 	logger('info', JSON.stringify({ details: `loading Firebase data ...` }));
 
