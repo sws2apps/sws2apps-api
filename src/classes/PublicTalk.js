@@ -37,7 +37,7 @@ PublicTalks.prototype.update = async function (language, value) {
 			talk_number: value.talk_number,
 			[language]: {
 				title: value.title,
-				modified: value.modified,
+				updatedAt: value.updatedAt,
 			},
 		};
 
@@ -50,14 +50,14 @@ PublicTalks.prototype.update = async function (language, value) {
 		const data = {
 			[language]: {
 				title: value.title,
-				modified: value.modified,
+				updatedAt: value.updatedAt,
 			},
 		};
 
 		const currentTalk = this.find(value.talk_number);
 		await db.collection('public_talks').doc(currentTalk.id).set(data, { merge: true });
 
-		currentTalk.talk_title[language] = { title: value.title, modified: value.modified };
+		currentTalk.talk_title[language] = { title: value.title, updatedAt: value.updatedAt };
 	}
 };
 

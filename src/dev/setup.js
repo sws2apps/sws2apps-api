@@ -34,7 +34,7 @@ export const importPublicTalks = async () => {
 			}
 
 			for await (const talk of talksToUpdate) {
-				const payload = { talk_number: talk.talk_number, title: talk.title, modified: new Date().toISOString() };
+				const payload = { talk_number: talk.talk_number, title: talk.title, updatedAt: new Date().toISOString() };
 				await publicTalks.update(language, payload);
 			}
 		}
