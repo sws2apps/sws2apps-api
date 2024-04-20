@@ -1,24 +1,22 @@
 import fetch from 'node-fetch';
+import WhichBrowser from 'which-browser';
 
-const USER_PARSER_API_KEY = process.env.USER_PARSER_API_KEY;
-
-export const retrieveVisitorDetails = async (visitorIP, visitorAgent) => {
+export const retrieveVisitorDetails = async (visitorIP, req) => {
 	try {
-		const resAgent = await fetch(
-			`https://api.userparser.com/1.1/detect?ua=${visitorAgent}&ip=${visitorIP}&api_key=${USER_PARSER_API_KEY}`
-		);
 		const resIP = await fetch(`https://ipapi.co/${visitorIP}/json`);
 
-		if (resAgent.status !== 200 || resIP.status !== 200) {
+		if (resIP.status !== 200) {
 			throw new Error('THIRDY_PARTY_ERROR');
 		}
 
-		const dataAgent = await resAgent.json();
 		const dataIP = await resIP.json();
 
+		const result = new WhichBrowser(req.headers);
+		console.log(result.browser.toString());
+
 		const visitorDetails = {
-			browser: `${dataAgent.browser.name} (${dataAgent.browser.fullVersion})`,
-			os: `${dataAgent.operatingSystem.name} ${dataAgent.operatingSystem.version}`,
+			browser: result.browser.toString(),
+			os: result.os.toString(),
 			ip: visitorIP,
 			ipLocation: {
 				continent_code: dataIP.continent_code || '',
@@ -27,7 +25,7 @@ export const retrieveVisitorDetails = async (visitorIP, visitorAgent) => {
 				city: dataIP.city || '',
 				timezone: dataIP.timezone || '',
 			},
-			isMobile: dataAgent.device.isMobile,
+			isMobile: result.getType() !== 'desktop',
 		};
 
 		return visitorDetails;

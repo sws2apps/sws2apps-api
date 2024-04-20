@@ -28,7 +28,6 @@ export const validatePocket = async (req, res, next) => {
 export const pocketSignUp = async (req, res, next) => {
 	try {
 		const userIP = req.clientIp;
-		const userAgent = req.headers['user-agent'];
 		const errors = validationResult(req);
 
 		if (!errors.isEmpty()) {
@@ -63,7 +62,7 @@ export const pocketSignUp = async (req, res, next) => {
 		let devices = user.pocket_devices || [];
 		const obj = {
 			visitorid: visitorid,
-			visitor_details: await retrieveVisitorDetails(userIP, userAgent),
+			visitor_details: await retrieveVisitorDetails(userIP, req),
 			sws_last_seen: new Date().getTime(),
 		};
 

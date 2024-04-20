@@ -9,7 +9,6 @@ import { congregations } from '../classes/Congregations.js';
 export const loginUser = async (req, res, next) => {
 	try {
 		const userIP = req.clientIp;
-		const userAgent = req.headers['user-agent'];
 		const isDev = process.env.NODE_ENV === 'development';
 
 		// validate through express middleware
@@ -58,7 +57,7 @@ export const loginUser = async (req, res, next) => {
 
 		const newSession = {
 			visitorid: visitorid,
-			visitor_details: await retrieveVisitorDetails(userIP, userAgent),
+			visitor_details: await retrieveVisitorDetails(userIP, req),
 		};
 
 		if (authUser.mfaEnabled) newSession.mfaVerified = false;
@@ -179,7 +178,6 @@ export const createSignInLink = async (req, res, next) => {
 
 export const verifyPasswordlessInfo = async (req, res, next) => {
 	const userIP = req.clientIp;
-	const userAgent = req.headers['user-agent'];
 	const isDev = process.env.NODE_ENV === 'development';
 
 	try {
@@ -217,7 +215,7 @@ export const verifyPasswordlessInfo = async (req, res, next) => {
 
 		const newSession = {
 			visitorid: visitorid,
-			visitor_details: await retrieveVisitorDetails(userIP, userAgent),
+			visitor_details: await retrieveVisitorDetails(userIP, req),
 		};
 
 		if (authUser.mfaEnabled) newSession.mfaVerified = false;
