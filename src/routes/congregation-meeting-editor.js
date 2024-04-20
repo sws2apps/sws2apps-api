@@ -12,7 +12,6 @@ import {
 	getApprovedVisitingSpeakersAccess,
 	getCongregationSpeakersRequests,
 	getCongregationSpeakersRequestsStatus,
-	getPublicTalks,
 	getVisitingSpeakers,
 	requestAccessSpeakersCongregation,
 	sendPocketSchedule,
@@ -29,9 +28,6 @@ router.use(congregationMeetingEditorChecker());
 router.post('/:id/schedule', body('schedules').isObject().notEmpty(), body('cong_settings').isArray(), sendPocketSchedule);
 
 router.use(congregationPublicTalkCoordinatorChecker());
-
-// get public talks
-router.get('/:id/public-talks', getPublicTalks);
 
 // update visiting speakers
 router.post('/:id/visiting-speakers', body('speakers').isArray().notEmpty(), updateVisitingSpeakers);

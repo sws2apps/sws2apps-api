@@ -2,7 +2,6 @@ import express from 'express';
 import { body } from 'express-validator';
 import usersRoute from './admin-users.js';
 import congregationsRoute from './admin-congregation.js';
-import publicTalksRoute from './admin-public-talks.js';
 import { visitorChecker } from '../middleware/visitor-checker.js';
 import { adminAuthChecker } from '../middleware/admin-auth-checker.js';
 import {
@@ -22,7 +21,6 @@ router.use(adminAuthChecker());
 // import sub-routes for admin
 router.use('/congregations', congregationsRoute);
 router.use('/users', usersRoute);
-router.use('/public-talks', publicTalksRoute);
 
 // validate user admin => passed middleware
 router.get('/', validateAdmin);

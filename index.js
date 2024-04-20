@@ -11,10 +11,6 @@ import { logger } from './src/utils/logger.js';
 import { users } from './src/classes/Users.js';
 import { congregations } from './src/classes/Congregations.js';
 import { initializeAPI } from './src/config/cpe.db-config.js';
-import { publicTalks } from './src/classes/PublicTalk.js';
-
-// load dev scripts
-import { importPublicTalks } from './src/dev/setup.js';
 
 const PORT = process.env.PORT || 8000;
 const APP_VERSION = process.env.npm_package_version;
@@ -33,12 +29,6 @@ app.listen(PORT, async () => {
 
 	await users.loadAll();
 	await congregations.loadAll();
-	await publicTalks.loadAll();
-
-	// dev initialize
-	if (process.env.NODE_ENV === 'development') {
-		await importPublicTalks();
-	}
 
 	logger('info', JSON.stringify({ details: `loading completed.` }));
 	global.isServerReady = true;
