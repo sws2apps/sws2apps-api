@@ -264,6 +264,7 @@ export const verifyPasswordlessInfo = async (req, res, next) => {
 
 			const cong = congregations.findCongregationById(authUser.cong_id);
 			if (cong) {
+				userInfo.cong_encryption = cong.cong_encryption;
 				const isPublisher = cong.isPublisher(authUser.user_local_uid);
 				const isMS = cong.isMS(authUser.user_local_uid);
 				const isElder = cong.isElder(authUser.user_local_uid);
