@@ -48,7 +48,7 @@ export const visitorChecker = () => {
 			const sessions = user.sessions;
 
 			// find if visitor id has valid session
-			const findSession = sessions.find((session) => session.visitorid.toString() === visitorid.toString());
+			const findSession = sessions!.find((session) => session.visitorid.toString() === visitorid.toString());
 
 			if (!findSession) {
 				res.locals.type = 'warn';
