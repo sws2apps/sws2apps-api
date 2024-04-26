@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "cross-env NODE_ENV=development nodemon src/index.ts",
 		"dev:inspect": "cross-env NODE_ENV=development nodemon --inspect src/index.ts",
-		"build": "rimraf dist && tsc && npx cpy-cli src/locales/** dist/locales",
+		"build": "rimraf dist && tsc && copyfiles -u 1 src/locales/** dist",
 		"start": "cross-env NODE_ENV=production node dist/index.js",
 		"start:dev": "cross-env NODE_ENV=development node dist/index.js",
 		"setup:emulators": "firebase init emulators",
@@ -63,7 +63,7 @@
 		"@types/serve-favicon": "^2.5.7",
 		"@typescript-eslint/eslint-plugin": "^7.7.1",
 		"@typescript-eslint/parser": "^7.7.1",
-		"cpy-cli": "^5.0.0",
+		"copyfiles": "^2.4.1",
 		"eslint": "^8.57.0",
 		"nodemon": "^3.1.0",
 		"rimraf": "^5.0.5",
