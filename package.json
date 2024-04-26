@@ -4,20 +4,19 @@
 	"description": "Node apps to handle backend operations for all sws2apps services",
 	"main": "index.js",
 	"scripts": {
-		"dev": "cross-env NODE_ENV=development nodemon --inspect index.js",
-		"start": "cross-env NODE_ENV=production node index.js",
+		"dev": "cross-env NODE_ENV=development nodemon src/index.ts",
+		"dev:inspect": "cross-env NODE_ENV=development nodemon --inspect src/index.ts",
+		"build": "rimraf dist && tsc && npx cpy-cli src/locales/** dist/locales",
+		"start": "cross-env NODE_ENV=production node dist/index.js",
+		"start:dev": "cross-env NODE_ENV=development nodemon dist/index.js",
 		"setup:emulators": "firebase init emulators",
-		"start:emulators": "firebase emulators:start"
+		"start:emulators": "firebase emulators:start",
+		"lint": "eslint src"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "MIT",
 	"type": "module",
-	"eslintConfig": {
-		"extends": [
-			"react-app"
-		]
-	},
 	"engines": {
 		"node": ">=20",
 		"npm": ">=9"
@@ -25,29 +24,22 @@
 	"dependencies": {
 		"@crowdin/crowdin-api-client": "^1.33.1",
 		"@logtail/node": "^0.4.21",
-		"bcrypt": "^5.1.1",
 		"cors": "^2.8.5",
 		"cross-env": "^7.0.3",
 		"cryptr": "^6.3.0",
-		"dayjs": "^1.11.10",
 		"dotenv": "^16.4.5",
 		"express": "^4.19.2",
 		"express-rate-limit": "^7.2.0",
 		"express-validator": "^7.0.1",
 		"firebase-admin": "^12.1.0",
 		"geoip-lite": "^1.4.10",
-		"global-jsdom": "^24.0.0",
 		"helmet": "^7.1.0",
 		"i18next": "^23.11.2",
 		"is-online": "^10.0.0",
-		"jsdom": "^24.0.0",
-		"node-2fa": "^2.0.3",
 		"node-fetch": "^3.3.2",
-		"node-html-parser": "^6.1.13",
 		"nodemailer": "^6.9.13",
 		"nodemailer-express-handlebars": "^6.1.2",
 		"otpauth": "^9.2.3",
-		"randomstring": "^1.3.0",
 		"request-ip": "^3.3.0",
 		"serve-favicon": "^2.5.0",
 		"which-browser": "^0.7.1"
@@ -60,9 +52,23 @@
 		"@semantic-release/changelog": "^6.0.3",
 		"@semantic-release/exec": "^6.0.3",
 		"@semantic-release/git": "^10.0.1",
+		"@types/cors": "^2.8.17",
+		"@types/express": "^4.17.21",
+		"@types/geoip-lite": "^1.4.4",
+		"@types/node": "^20.12.7",
+		"@types/nodemailer": "^6.4.14",
+		"@types/nodemailer-express-handlebars": "^4.0.5",
+		"@types/randomstring": "^1.3.0",
+		"@types/request-ip": "^0.0.41",
+		"@types/serve-favicon": "^2.5.7",
+		"@typescript-eslint/eslint-plugin": "^7.7.1",
+		"@typescript-eslint/parser": "^7.7.1",
+		"cpy-cli": "^5.0.0",
 		"eslint": "^8.57.0",
-		"eslint-config-react-app": "^7.0.1",
 		"nodemon": "^3.1.0",
-		"semantic-release": "^23.0.8"
+		"rimraf": "^5.0.5",
+		"semantic-release": "^23.0.8",
+		"tsx": "^4.7.3",
+		"typescript": "^5.4.5"
 	}
 }

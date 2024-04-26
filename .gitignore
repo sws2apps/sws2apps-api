@@ -14,7 +14,7 @@ cong_backup
 .nyc_output/
 
 # production
-/build
+/dist
 
 # misc
 .DS_Store
