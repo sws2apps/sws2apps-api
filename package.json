@@ -8,7 +8,7 @@
 		"dev:inspect": "cross-env NODE_ENV=development nodemon --inspect src/index.ts",
 		"build": "rimraf dist && tsc && npx cpy-cli src/locales/** dist/locales",
 		"start": "cross-env NODE_ENV=production node dist/index.js",
-		"start:dev": "cross-env NODE_ENV=development nodemon dist/index.js",
+		"start:dev": "cross-env NODE_ENV=development node dist/index.js",
 		"setup:emulators": "firebase init emulators",
 		"start:emulators": "firebase emulators:start",
 		"lint": "eslint src"
