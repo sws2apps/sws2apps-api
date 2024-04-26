@@ -8,7 +8,7 @@ const systemLocale = Intl.DateTimeFormat().resolvedOptions().locale;
 const resources: Resource = {};
 
 for await (const language of ALL_LANGUAGES) {
-	const translations = await fs.promises.readFile(new URL(`../locales/${language.locale}/main.json`, import.meta.url));
+	const translations = await fs.promises.readFile(new URL(`../../locales/${language.locale}/main.json`, import.meta.url));
 
 	resources[language.locale] = {};
 	resources[language.locale].translation = JSON.parse(translations.toString());
