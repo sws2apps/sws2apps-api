@@ -201,5 +201,7 @@ export class User {
 
 		const cong = CongregationsList.findById(congId)!;
 		await cong.reloadMembers();
+
+		return cong;
 	}
 }

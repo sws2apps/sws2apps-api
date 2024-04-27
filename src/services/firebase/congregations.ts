@@ -26,7 +26,17 @@ export const dbCongregationSaveEncryptionKey = async (congId: string, key: strin
 };
 
 export const dbCongregationCreate = async (data: CongregationCreateInfoType) => {
-	const cong = await db.collection('congregations').add(data);
+	const dataSave = {
+		country_code: data.country_code,
+		cong_number: data.cong_number,
+		cong_name: data.cong_name,
+		cong_location: data.cong_location,
+		cong_circuit: [{ type: 'main', name: data.cong_circuit }],
+		midweek_meeting: [{ type: 'main', ...data.midweek_meeting }],
+		weekend_meeting: [{ type: 'main', ...data.weekend_meeting }],
+	};
+
+	const cong = await db.collection('congregations').add(dataSave);
 	return cong.id;
 };
 

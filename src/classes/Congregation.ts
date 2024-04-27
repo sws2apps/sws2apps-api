@@ -1,3 +1,4 @@
+import { CircuitRecordType, MeetingRecordType } from '../denifition/congregation.js';
 import {
 	dbCongregationLoadDetails,
 	dbCongregationSaveBackup,
@@ -11,8 +12,11 @@ export class Congregation {
 	country_code: string;
 	cong_name: string;
 	cong_number: string;
+	cong_location: { address: string; lat: number | null; lng: number | null };
+	cong_circuit: CircuitRecordType[];
+	midweek_meeting: MeetingRecordType[];
+	weekend_meeting: MeetingRecordType[];
 	cong_members: User[];
-	cong_settings: [];
 	cong_encryption: string;
 	last_backup: string | undefined;
 
@@ -21,10 +25,13 @@ export class Congregation {
 		this.country_code = '';
 		this.cong_name = '';
 		this.cong_number = '';
+		this.cong_location = { lat: null, lng: null, address: '' };
+		this.cong_circuit = [{ type: 'main', name: '' }];
 		this.cong_members = [];
-		this.cong_settings = [];
 		this.last_backup = undefined;
 		this.cong_encryption = '';
+		this.midweek_meeting = [{ type: 'main', weekday: null, time: '' }];
+		this.weekend_meeting = [{ type: 'main', weekday: null, time: '' }];
 	}
 
 	async loadDetails() {
@@ -35,6 +42,10 @@ export class Congregation {
 		this.cong_number = data.cong_number;
 		this.country_code = data.country_code;
 		this.last_backup = data.last_backup;
+		this.cong_location = data.cong_location;
+		this.cong_circuit = data.cong_circuit;
+		this.midweek_meeting = data.midweek_meeting;
+		this.weekend_meeting = data.weekend_meeting;
 
 		this.reloadMembers();
 	}

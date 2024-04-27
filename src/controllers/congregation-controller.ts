@@ -277,18 +277,41 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 		await user.updateLastname(lastname);
 
 		// create congregation
-		const congId = await CongregationsList.create({ cong_name, cong_number, country_code });
+		const congRequest = congsList.at(0)! as ApiCongregationSearchResponse;
+
+		const congId = await CongregationsList.create({
+			cong_name,
+			cong_number,
+			country_code,
+			cong_circuit: congRequest.circuit,
+			cong_location: { address: congRequest.address, lat: congRequest.location.lat, lng: congRequest.location.lng },
+			midweek_meeting: { time: congRequest.midweekMeetingTime.time, weekday: congRequest.midweekMeetingTime.weekday },
+			weekend_meeting: { time: congRequest.weekendMeetingTime.time, weekday: congRequest.weekendMeetingTime.weekday },
+		});
 
 		// add user to congregation
-		await user.assignCongregation({ congId: congId, role: ['admin'] });
+		const userCong = await user.assignCongregation({ congId: congId, role: ['admin'] });
 
 		if (!isDev) {
 			sendWelcomeMessage(user.user_email!, `${lastname} ${firstname}`, `${cong_name} (${cong_number})`, JWLang);
 		}
 
+		const finalResult = {
+			cong_id: user.cong_id,
+			firstname: user.firstname,
+			lastname: user.lastname,
+			cong_name: user.cong_name,
+			cong_number: user.cong_number,
+			cong_role: user.cong_role,
+			cong_circuit: userCong.cong_circuit.find((record) => record.type === 'main')!.name,
+			cong_location: userCong.cong_location,
+			midweek_meeting: userCong.midweek_meeting.find((record) => record.type === 'main'),
+			weekend_meeting: userCong.weekend_meeting.find((record) => record.type === 'main'),
+		};
+
 		res.locals.type = 'info';
 		res.locals.message = 'congregation created successfully';
-		res.status(200).json(user);
+		res.status(200).json(finalResult);
 	} catch (err) {
 		next(err);
 	}

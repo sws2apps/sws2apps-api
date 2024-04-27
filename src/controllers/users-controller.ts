@@ -12,31 +12,35 @@ export const validateUser = async (req: Request, res: Response, next: NextFuncti
 		const uid = req.headers.uid as string;
 		const user = await UsersList.findByAuthUid(uid)!;
 
-		if (user.cong_id) {
-			const cong = CongregationsList.findById(user.cong_id);
-
-			const obj = {
-				id: user.id,
-				cong_id: user.cong_id,
-				cong_name: user.cong_name,
-				cong_number: user.cong_number,
-				cong_role: user.cong_role,
-				user_local_uid: user.user_local_uid,
-				firstname: user.firstname,
-				lastname: user.lastname,
-				cong_encryption: cong?.cong_encryption,
-				mfaEnabled: user.mfaEnabled,
-			};
-
-			res.locals.type = 'info';
-			res.locals.message = 'visitor id has been validated';
-			res.status(200).json(obj);
-		} else {
+		if (!user.cong_id) {
 			res.locals.type = 'warn';
 			res.locals.message = 'email address not associated with a congregation';
-
 			res.status(404).json({ message: 'CONG_NOT_FOUND' });
+			return;
 		}
+
+		const cong = CongregationsList.findById(user.cong_id)!;
+
+		const obj = {
+			id: user.id,
+			cong_id: user.cong_id,
+			cong_name: user.cong_name,
+			cong_number: user.cong_number,
+			cong_role: user.cong_role,
+			user_local_uid: user.user_local_uid,
+			firstname: user.firstname,
+			lastname: user.lastname,
+			cong_encryption: cong.cong_encryption,
+			mfaEnabled: user.mfaEnabled,
+			cong_circuit: cong.cong_circuit,
+			cong_location: cong.cong_location,
+			midweek_meeting: cong.midweek_meeting,
+			weekend_meeting: cong.weekend_meeting,
+		};
+
+		res.locals.type = 'info';
+		res.locals.message = 'visitor id has been validated';
+		res.status(200).json(obj);
 	} catch (err) {
 		next(err);
 	}
