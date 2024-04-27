@@ -17,6 +17,7 @@ cong_backup
 /dist
 
 # misc
+.firebaserc
 .DS_Store
 .env
 .env.local
