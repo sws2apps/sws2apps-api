@@ -1,8 +1,44 @@
 import { getFirestore } from 'firebase-admin/firestore';
-import { getFileFromStorage, uploadFileToStorage } from './storage-utils.js';
-import { CongregationCreateInfoType, CongregationRecordType } from '../../denifition/congregation.js';
+import { getFileFromStorage, uploadFileToStorage } from './storage_utils.js';
+import {
+	CongregationCreateInfoType,
+	CongregationRecordType,
+	OutgoingSpeakersAccessType,
+	OutgoingSpeakersRecordType,
+	OutgoingSpeakersStorageType,
+} from '../../denifition/congregation.js';
+import { CongregationsList } from '../../classes/Congregations.js';
 
 const db = getFirestore(); //get default database
+
+const dbGetOutgoingSpeakersAccessList = async (congId: string) => {
+	const outgoingSpeakers = await getFileFromStorage({ congId: congId, filename: 'outgoing_speakers.txt' });
+	const outgoingSpeakersData: OutgoingSpeakersStorageType =
+		outgoingSpeakers.length === 0 ? { list: '', access: [] } : JSON.parse(outgoingSpeakers);
+
+	const outgoingSpeakersCongDetails: OutgoingSpeakersAccessType[] = [];
+
+	for (const record of outgoingSpeakersData.access) {
+		const cong = CongregationsList.findById(record.cong_id);
+
+		if (cong) {
+			const obj: OutgoingSpeakersAccessType = {
+				...record,
+				cong_name: cong.cong_name,
+				cong_number: cong.cong_number,
+			};
+
+			outgoingSpeakersCongDetails.push(obj);
+		}
+	}
+
+	const outgoingSpeakersCongResult: OutgoingSpeakersRecordType = {
+		list: outgoingSpeakersData.list,
+		access: outgoingSpeakersCongDetails,
+	};
+
+	return outgoingSpeakersCongResult;
+};
 
 export const dbCongregationLoadDetails = async (congId: string) => {
 	const congRef = db.collection('congregations').doc(congId);
@@ -10,8 +46,9 @@ export const dbCongregationLoadDetails = async (congId: string) => {
 	const congRecord = congSnapshot.data() as CongregationRecordType;
 
 	const cong_encryption = await getFileFromStorage({ congId: congId, filename: 'cong_key.txt' });
+	const cong_outgoing_speakers = await dbGetOutgoingSpeakersAccessList(congId);
 
-	return { ...congRecord, cong_encryption };
+	return { ...congRecord, cong_encryption, cong_outgoing_speakers };
 };
 
 export const dbCongregationSaveBackup = async (congId: string) => {

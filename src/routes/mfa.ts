@@ -1,7 +1,7 @@
 import express from 'express';
 import { check } from 'express-validator';
 import { visitorChecker } from '../middleware/visitor-checker.js';
-import { verifyToken } from '../controllers/mfa-controller.js';
+import { verifyToken } from '../controllers/mfa_controller.js';
 
 const router = express.Router();
 

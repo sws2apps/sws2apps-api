@@ -39,3 +39,25 @@ export type MeetingRecordType = {
 	weekday: number | null;
 	time: string;
 };
+
+export type OutgoingSpeakersAccessStorageType = {
+	cong_id: string;
+	status: 'pending' | 'approved' | 'disapproved';
+	key: string;
+	list: string;
+};
+
+export type OutgoingSpeakersAccessType = OutgoingSpeakersAccessStorageType & {
+	cong_name: string;
+	cong_number: string;
+};
+
+export type OutgoingSpeakersRecordType = {
+	list: string | null;
+	access: OutgoingSpeakersAccessType[];
+};
+
+export type OutgoingSpeakersStorageType = {
+	list: string;
+	access: OutgoingSpeakersAccessStorageType[];
+};

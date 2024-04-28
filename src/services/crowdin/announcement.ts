@@ -1,4 +1,4 @@
-import { crowdinProject, sourceStringsApi, stringTranslationsApi } from '../../config/crowdin-config.js';
+import { crowdinProject, sourceStringsApi, stringTranslationsApi } from '../../config/crowdin_config.js';
 
 type Message = { language: string; text: string; modifiedAt: string };
 type Announcement = { id: number; appTarget: string; title: Message[]; body: Message[] };

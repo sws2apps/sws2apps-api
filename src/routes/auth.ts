@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, check } from 'express-validator';
-import { createSignInLink, loginUser, verifyPasswordlessInfo } from '../controllers/auth-controller.js';
+import { createSignInLink, loginUser, verifyPasswordlessInfo } from '../controllers/auth_controller.js';
 
 const router = express.Router();
 

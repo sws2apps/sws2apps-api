@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import isOnline from 'is-online';
 import { logger } from '../services/logger/logger.js';
-import { formatLog } from '../utils/format-log.js';
+import { formatLog } from '../utils/format_log.js';
 
 export const internetChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {

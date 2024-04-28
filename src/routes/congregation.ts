@@ -7,7 +7,7 @@ import {
 	getCountries,
 	getLastCongregationBackup,
 	saveCongregationBackup,
-} from '../controllers/congregation-controller.js';
+} from '../controllers/congregation_controller.js';
 
 const router = express.Router();
 

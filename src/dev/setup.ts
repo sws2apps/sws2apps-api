@@ -1,7 +1,7 @@
 // all db initialization for dev
 import * as OTPAuth from 'otpauth';
 
-import { decryptData } from '../services/encryption/encryption-utils.js';
+import { decryptData } from '../services/encryption/encryption_utils.js';
 
 export const generateTokenDev = (userUID: string, userSecret: string) => {
 	const { secret } = JSON.parse(decryptData(userSecret));

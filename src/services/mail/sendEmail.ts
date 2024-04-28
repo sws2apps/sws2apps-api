@@ -2,8 +2,8 @@ import nodemailer from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer/index.js';
 import hbs, { NodemailerExpressHandlebarsOptions } from 'nodemailer-express-handlebars';
 import path from 'path';
-import { gmailConfig } from '../../config/gmail-config.js';
-import { i18n } from '../../config/i18n-config.js';
+import { gmailConfig } from '../../config/gmail_config.js';
+import { i18n } from '../../config/i18n_config.js';
 import { logger } from '../logger/logger.js';
 
 const handlebarsOptions: NodemailerExpressHandlebarsOptions = {

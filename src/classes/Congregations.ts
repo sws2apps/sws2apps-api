@@ -1,4 +1,4 @@
-import { dbFetchCongregations } from '../utils/congregation-utils.js';
+import { dbFetchCongregations } from '../utils/congregation_utils.js';
 import { Congregation } from './Congregation.js';
 import { CongregationCreateInfoType } from '../denifition/congregation.js';
 import { dbCongregationCreate, dbCongregationDelete } from '../services/firebase/congregations.js';

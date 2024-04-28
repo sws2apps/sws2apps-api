@@ -6,7 +6,7 @@ import { logger } from './services/logger/logger.js';
 import { ServerTempVariableType } from './denifition/server.js';
 import { UsersList } from './classes/Users.js';
 import { CongregationsList } from './classes/Congregations.js';
-import { initializeAPI } from './config/app.db-config.js';
+import { initializeAPI } from './config/app.db_config.js';
 
 const PORT = process.env.PORT || 8000;
 const APP_VERSION = process.env.npm_package_version;

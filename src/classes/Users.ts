@@ -1,4 +1,4 @@
-import { dbFetchUsers } from '../utils/user-utils.js';
+import { dbFetchUsers } from '../utils/user_utils.js';
 import { dbUserCreate, dbUserGeneratePasswordLessLink } from '../services/firebase/users.js';
 import { RequestPasswordLessLinkParams, UserNewParams } from '../denifition/user.js';
 import { User } from './User.js';

@@ -6,11 +6,12 @@ import path from 'node:path';
 import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
 
-import './config/firebase-config.js';
+import './config/firebase_config.js';
 
 import authRoute from './routes/auth.js';
-import congregationAdminRoute from './routes/congregation-admin.js';
 import congregationRoute from './routes/congregation.js';
+import congregationMeetingEditorRoute from './routes/congregation_meeting_editor.js';
+import congregationAdminRoute from './routes/congregation_admin.js';
 import userRoute from './routes/users.js';
 import mfaRoute from './routes/mfa.js';
 import publicRoute from './routes/public.js';
@@ -21,7 +22,7 @@ import { updateTracker } from './middleware/update-tracker.js';
 import { appVersionChecker } from './middleware/app-version-checker.js';
 import { serverReadyChecker } from './middleware/server-ready-checker.js';
 
-import { errorHandler, getRoot, invalidEndpointHandler } from './controllers/app-controller.js';
+import { errorHandler, getRoot, invalidEndpointHandler } from './controllers/app_controller.js';
 
 // allowed apps url
 const whitelist = [
@@ -93,6 +94,7 @@ app.use('/', authRoute);
 app.use('/api/mfa', mfaRoute);
 app.use('/api/users', userRoute);
 app.use('/api/congregations', congregationRoute);
+app.use('/api/congregations/meeting', congregationMeetingEditorRoute);
 app.use('/api/congregations/admin', congregationAdminRoute);
 
 // Handling invalid routes

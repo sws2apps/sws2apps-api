@@ -2,7 +2,7 @@ import express from 'express';
 import { body } from 'express-validator';
 import { congregationAdminChecker } from '../middleware/congregation-admin-checker.js';
 import { visitorChecker } from '../middleware/visitor-checker.js';
-import { setCongregationEncryptionKey } from '../controllers/congregation-admin-controller.js';
+import { setCongregationEncryptionKey } from '../controllers/congregation_admin_controller.js';
 
 const router = express.Router();
 

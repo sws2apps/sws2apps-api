@@ -13,7 +13,7 @@ import {
 	dbUserUpdateSessions,
 } from '../services/firebase/users.js';
 import { dbCongregationLoadDetails } from '../services/firebase/congregations.js';
-import { decryptData } from '../services/encryption/encryption-utils.js';
+import { decryptData } from '../services/encryption/encryption_utils.js';
 import { CongregationsList } from './Congregations.js';
 
 export class User {

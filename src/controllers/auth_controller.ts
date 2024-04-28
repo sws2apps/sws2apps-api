@@ -4,7 +4,7 @@ import { validationResult } from 'express-validator';
 import { generateTokenDev } from '../dev/setup.js';
 import { UsersList } from '../classes/Users.js';
 import { UserSession } from '../denifition/user.js';
-import { retrieveVisitorDetails } from '../services/ip_details/auth-utils.js';
+import { retrieveVisitorDetails } from '../services/ip_details/auth_utils.js';
 import { CongregationsList } from '../classes/Congregations.js';
 
 export const loginUser = async (req: Request, res: Response, next: NextFunction) => {

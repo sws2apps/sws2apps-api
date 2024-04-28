@@ -1,4 +1,4 @@
-import { CircuitRecordType, MeetingRecordType } from '../denifition/congregation.js';
+import { CircuitRecordType, MeetingRecordType, OutgoingSpeakersRecordType } from '../denifition/congregation.js';
 import {
 	dbCongregationLoadDetails,
 	dbCongregationSaveBackup,
@@ -19,6 +19,7 @@ export class Congregation {
 	cong_members: User[];
 	cong_encryption: string;
 	last_backup: string | undefined;
+	cong_outgoing_speakers: OutgoingSpeakersRecordType;
 
 	constructor(id: string) {
 		this.id = id;
@@ -32,6 +33,7 @@ export class Congregation {
 		this.cong_encryption = '';
 		this.midweek_meeting = [{ type: 'main', weekday: null, time: '' }];
 		this.weekend_meeting = [{ type: 'main', weekday: null, time: '' }];
+		this.cong_outgoing_speakers = { list: null, access: [] };
 	}
 
 	async loadDetails() {
@@ -46,6 +48,7 @@ export class Congregation {
 		this.cong_circuit = data.cong_circuit;
 		this.midweek_meeting = data.midweek_meeting;
 		this.weekend_meeting = data.weekend_meeting;
+		this.cong_outgoing_speakers = data.cong_outgoing_speakers;
 
 		this.reloadMembers();
 	}
@@ -74,5 +77,15 @@ export class Congregation {
 		}
 
 		this.cong_members = cong_members;
+	}
+
+	getVisitingSpeakersAccessList() {
+		const approvedCong = this.cong_outgoing_speakers.access.filter((record) => record.status === 'approved');
+
+		const result = approvedCong.map((cong) => {
+			return { cong_id: cong.cong_id, cong_number: cong.cong_number, cong_name: cong.cong_name };
+		});
+
+		return result;
 	}
 }

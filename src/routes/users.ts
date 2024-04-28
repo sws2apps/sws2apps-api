@@ -9,7 +9,7 @@ import {
 	getUserSessions,
 	userLogout,
 	validateUser,
-} from '../controllers/users-controller.js';
+} from '../controllers/users_controller.js';
 
 const router = express.Router();
 
