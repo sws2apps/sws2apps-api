@@ -16,11 +16,11 @@ import userRoute from './routes/users.js';
 import mfaRoute from './routes/mfa.js';
 import publicRoute from './routes/public.js';
 
-import { internetChecker } from './middleware/internet-checker.js';
-import { requestChecker } from './middleware/request-checker.js';
-import { updateTracker } from './middleware/update-tracker.js';
-import { appVersionChecker } from './middleware/app-version-checker.js';
-import { serverReadyChecker } from './middleware/server-ready-checker.js';
+import { internetChecker } from './middleware/internet_checker.js';
+import { requestChecker } from './middleware/request_checker.js';
+import { updateTracker } from './middleware/update_tracker.js';
+import { appVersionChecker } from './middleware/app_version_checker.js';
+import { serverReadyChecker } from './middleware/server_ready_checker.js';
 
 import { errorHandler, getRoot, invalidEndpointHandler } from './controllers/app_controller.js';
 

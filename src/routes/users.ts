@@ -1,6 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
-import { visitorChecker } from '../middleware/visitor-checker.js';
+import { visitorChecker } from '../middleware/visitor_checker.js';
 import {
 	deleteUserSession,
 	disableUser2FA,
