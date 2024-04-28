@@ -190,6 +190,7 @@ export const getCongregations = async (req: Request, res: Response, next: NextFu
 		}
 
 		const congsList = await response.json();
+
 		res.locals.type = 'info';
 		res.locals.message = 'user fetched congregations';
 		res.status(200).json(congsList);
@@ -303,6 +304,7 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 			cong_name: user.cong_name,
 			cong_number: user.cong_number,
 			cong_role: user.cong_role,
+			country_code: userCong.country_code,
 			cong_circuit: userCong.cong_circuit.find((record) => record.type === 'main')!.name,
 			cong_location: userCong.cong_location,
 			midweek_meeting: userCong.midweek_meeting.find((record) => record.type === 'main'),

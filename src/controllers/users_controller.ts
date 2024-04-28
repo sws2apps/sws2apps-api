@@ -24,6 +24,7 @@ export const validateUser = async (req: Request, res: Response, next: NextFuncti
 		const obj = {
 			id: user.id,
 			cong_id: user.cong_id,
+			country_code: cong.country_code,
 			cong_name: user.cong_name,
 			cong_number: user.cong_number,
 			cong_role: user.cong_role,

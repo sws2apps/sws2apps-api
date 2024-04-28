@@ -211,6 +211,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 			cong_number: authUser.cong_number,
 			cong_role: authUser.cong_role,
 			cong_id: authUser.cong_id,
+			country_code: '',
 			global_role: authUser.global_role,
 			user_local_uid: authUser.user_local_uid,
 			mfa: 'not_enabled',
@@ -218,8 +219,9 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 		};
 
 		if (authUser.cong_id) {
-			const cong = CongregationsList.findById(authUser.cong_id);
-			userInfo.cong_encryption = cong!.cong_encryption;
+			const cong = CongregationsList.findById(authUser.cong_id)!;
+			userInfo.cong_encryption = cong.cong_encryption;
+			userInfo.country_code = cong.country_code;
 		}
 
 		res.locals.type = 'info';

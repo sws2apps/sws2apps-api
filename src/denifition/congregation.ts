@@ -17,6 +17,7 @@ export type CongregationRecordType = {
 	cong_location: { address: string; lat: number; lng: number };
 	midweek_meeting: MeetingRecordType[];
 	weekend_meeting: MeetingRecordType[];
+	cong_discoverable: { value: boolean; updatedAt: string };
 };
 
 export type ApiCongregationSearchResponse = {

@@ -51,6 +51,32 @@ class Congregations {
 
 		this.list = this.list.filter((cong) => cong.id !== id);
 	}
+
+	findVisitingSpeakersCongregations(country_code: string, congId: string, name: string) {
+		const congs = this.list.filter(
+			(record) =>
+				record.id !== congId &&
+				record.cong_discoverable.value &&
+				record.country_code === country_code &&
+				(record.cong_name.toLowerCase().includes(name.toLowerCase()) ||
+					record.cong_number.toLowerCase().includes(name.toLowerCase()))
+		);
+
+		const result = congs.map((cong) => {
+			return {
+				cong_id: cong.id,
+				cong_name: cong.cong_name,
+				cong_number: cong.cong_number,
+				country_code: cong.country_code,
+				cong_location: cong.cong_location,
+				cong_circuit: cong.cong_circuit.find((record) => record.type === 'main')!.name,
+				midweek_meeting: cong.midweek_meeting.find((record) => record.type === 'main'),
+				weekend_meeting: cong.weekend_meeting.find((record) => record.type === 'main'),
+			};
+		});
+
+		return result;
+	}
 }
 
 export const CongregationsList = new Congregations();

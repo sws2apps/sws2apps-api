@@ -20,6 +20,7 @@ export class Congregation {
 	cong_encryption: string;
 	last_backup: string | undefined;
 	cong_outgoing_speakers: OutgoingSpeakersRecordType;
+	cong_discoverable: { value: boolean; updatedAt: string };
 
 	constructor(id: string) {
 		this.id = id;
@@ -34,6 +35,7 @@ export class Congregation {
 		this.midweek_meeting = [{ type: 'main', weekday: null, time: '' }];
 		this.weekend_meeting = [{ type: 'main', weekday: null, time: '' }];
 		this.cong_outgoing_speakers = { list: null, access: [] };
+		this.cong_discoverable = { value: false, updatedAt: '' };
 	}
 
 	async loadDetails() {
@@ -48,6 +50,7 @@ export class Congregation {
 		this.cong_circuit = data.cong_circuit;
 		this.midweek_meeting = data.midweek_meeting;
 		this.weekend_meeting = data.weekend_meeting;
+		this.cong_discoverable = data.cong_discoverable;
 		this.cong_outgoing_speakers = data.cong_outgoing_speakers;
 
 		this.reloadMembers();

@@ -74,6 +74,7 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
 			cong_name,
 			cong_number,
 			cong_role,
+			country_code: '',
 			cong_id,
 			global_role: user.global_role,
 			user_local_uid,
@@ -83,6 +84,7 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
 		const cong = CongregationsList.findById(cong_id!);
 		if (cong) {
 			userInfo.cong_encryption = cong.cong_encryption;
+			userInfo.country_code = cong.country_code;
 		}
 
 		res.locals.type = 'info';
