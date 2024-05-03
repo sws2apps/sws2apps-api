@@ -6,6 +6,7 @@ import { UsersList } from '../classes/Users.js';
 import { ALL_LANGUAGES } from '../constant/langList.js';
 import { ApiCongregationSearchResponse } from '../denifition/congregation.js';
 import { sendWelcomeMessage } from '../services/mail/sendEmail.js';
+import { formatError } from '../utils/format_log.js';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -114,10 +115,7 @@ export const getCountries = async (req: Request, res: Response, next: NextFuncti
 	try {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}: ${error.msg}`;
-			});
+			const msg = formatError(errors);
 
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: ${msg}`;
@@ -156,10 +154,7 @@ export const getCongregations = async (req: Request, res: Response, next: NextFu
 	try {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}: ${error.msg}`;
-			});
+			const msg = formatError(errors);
 
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: ${msg}`;
@@ -203,10 +198,7 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 	try {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}: ${error.msg}`;
-			});
+			const msg = formatError(errors);
 
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: ${msg}`;

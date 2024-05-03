@@ -1,16 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { CongregationsList } from '../classes/Congregations.js';
+import { formatError } from '../utils/format_log.js';
 
 export const setCongregationEncryptionKey = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const errors = validationResult(req);
 
 		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}: ${error.msg}`;
-			});
+			const msg = formatError(errors);
 
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: ${msg}`;

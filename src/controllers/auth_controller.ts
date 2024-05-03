@@ -6,6 +6,7 @@ import { UsersList } from '../classes/Users.js';
 import { UserSession } from '../denifition/user.js';
 import { retrieveVisitorDetails } from '../services/ip_details/auth_utils.js';
 import { CongregationsList } from '../classes/Congregations.js';
+import { formatError } from '../utils/format_log.js';
 
 export const loginUser = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -15,10 +16,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 		// validate through express middleware
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}: ${error.msg}`;
-			});
+			const msg = formatError(errors);
 
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: ${msg}`;
@@ -112,10 +110,7 @@ export const createSignInLink = async (req: Request, res: Response, next: NextFu
 	try {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}: ${error.msg}`;
-			});
+			const msg = formatError(errors);
 
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: ${msg}`;
@@ -147,10 +142,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 	try {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}: ${error.msg}`;
-			});
+			const msg = formatError(errors);
 
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: ${msg}`;

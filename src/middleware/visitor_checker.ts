@@ -1,20 +1,18 @@
 import { NextFunction, Request, Response } from 'express';
 import { check, validationResult } from 'express-validator';
 import { UsersList } from '../classes/Users.js';
+import { formatError } from '../utils/format_log.js';
 
 export const visitorChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			await check('visitorid').isString().notEmpty().run(req);
-			await check('uid').isString().notEmpty().run(req);
+			await check('uid').isString().not().equals('undefined').isLength({ min: 8 }).run(req);
 
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
-				let msg = '';
-				errors.array().forEach((error) => {
-					msg += `${msg === '' ? '' : ', '}: ${error.msg}`;
-				});
+				const msg = formatError(errors);
 
 				res.locals.type = 'warn';
 				res.locals.message = `invalid input: ${msg}`;
@@ -25,6 +23,7 @@ export const visitorChecker = () => {
 			}
 
 			const uid = req.headers.uid as string;
+			console.log(uid);
 			const visitorid = req.headers.visitorid as string;
 			const user = UsersList.findByAuthUid(uid);
 

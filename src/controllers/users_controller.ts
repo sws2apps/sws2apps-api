@@ -4,6 +4,7 @@ import { UsersList } from '../classes/Users.js';
 import { CongregationsList } from '../classes/Congregations.js';
 import { generateTokenDev } from '../dev/setup.js';
 import { fetchCrowdinAnnouncements } from '../services/crowdin/announcement.js';
+import { formatError } from '../utils/format_log.js';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -114,10 +115,7 @@ export const deleteUserSession = async (req: Request, res: Response, next: NextF
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}: ${error.msg}`;
-			});
+			const msg = formatError(errors);
 
 			res.locals.type = 'warn';
 			res.locals.message = `invalid input: ${msg}`;

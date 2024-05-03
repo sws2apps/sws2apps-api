@@ -3,6 +3,7 @@ import * as OTPAuth from 'otpauth';
 import { validationResult } from 'express-validator';
 import { UsersList } from '../classes/Users.js';
 import { CongregationsList } from '../classes/Congregations.js';
+import { formatError } from '../utils/format_log.js';
 
 export const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
 	const isProd = process.env.NODE_ENV === 'production';
@@ -10,10 +11,7 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
 	const errors = validationResult(req);
 
 	if (!errors.isEmpty()) {
-		let msg = '';
-		errors.array().forEach((error) => {
-			msg += `${msg === '' ? '' : ', '}: ${error.msg}`;
-		});
+		const msg = formatError(errors);
 
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: ${msg}`;

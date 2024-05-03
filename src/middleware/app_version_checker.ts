@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { check, validationResult } from 'express-validator';
 import { API_VAR } from '../index.js';
+import { formatError } from '../utils/format_log.js';
 
 export const appVersionChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
@@ -11,10 +12,7 @@ export const appVersionChecker = () => {
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
-				let msg = '';
-				errors.array().forEach((error) => {
-					msg += `${msg === '' ? '' : ', '}${error.msg}`;
-				});
+				const msg = formatError(errors);
 
 				res.locals.type = 'warn';
 				res.locals.message = `invalid input: ${msg}`;
