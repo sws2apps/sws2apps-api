@@ -1,6 +1,6 @@
 import fs from 'fs';
 import i18next from 'i18next';
-import { LANGUAGE_LIST } from '../locales/langList.js';
+import { LANGUAGE_LIST } from '../../locales/langList.js';
 
 // if no language parameter is passed, let's try to use the node.js system's locale
 const systemLocale = Intl.DateTimeFormat().resolvedOptions().locale;
