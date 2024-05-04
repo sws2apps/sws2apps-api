@@ -1,3 +1,10 @@
+## [2.96.4](https://github.com/sws2apps/sws2apps-api/compare/v2.96.3...v2.96.4) (2024-05-04)
+
+
+### Bug Fixes
+
+* **build:** update nodejs version ([ecf1b17](https://github.com/sws2apps/sws2apps-api/commit/ecf1b173e523424b852a7f0a937dfd8d6ef03e54))
+
 ## [2.96.3](https://github.com/sws2apps/sws2apps-api/compare/v2.96.2...v2.96.3) (2024-05-04)
 
 
