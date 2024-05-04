@@ -1,7 +1,7 @@
 import { validationResult } from 'express-validator';
 import { congregations } from '../classes/Congregations.js';
 import { publicTalks } from '../classes/PublicTalk.js';
-import { LANGUAGE_LIST } from '../locales/langList.js';
+import { LANGUAGE_LIST } from '../../locales/langList.js';
 
 export const getPublicTalks = async (req, res, next) => {
 	try {

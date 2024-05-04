@@ -3,7 +3,7 @@ import { validationResult } from 'express-validator';
 import { users } from '../classes/Users.js';
 import { congregations } from '../classes/Congregations.js';
 import { createCongregationAllowedRoles } from '../constant/constant.js';
-import { LANGUAGE_LIST } from '../locales/langList.js';
+import { LANGUAGE_LIST } from '../../locales/langList.js';
 import { sendWelcomeCPE } from '../utils/sendEmail.js';
 
 const isDev = process.env.NODE_ENV === 'development';

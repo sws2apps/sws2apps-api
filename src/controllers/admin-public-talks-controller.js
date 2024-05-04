@@ -1,6 +1,6 @@
 import { validationResult } from 'express-validator';
 import { publicTalks } from '../classes/PublicTalk.js';
-import { LANGUAGE_LIST } from '../locales/langList.js';
+import { LANGUAGE_LIST } from '../../locales/langList.js';
 
 export const getAllPublicTalks = async (req, res, next) => {
 	try {
