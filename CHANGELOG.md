@@ -1,3 +1,10 @@
+## [2.96.3](https://github.com/sws2apps/sws2apps-api/compare/v2.96.2...v2.96.3) (2024-05-04)
+
+
+### Bug Fixes
+
+* **locales:** update individual json files path ([1d82515](https://github.com/sws2apps/sws2apps-api/commit/1d8251596c1f48639f82633fae9b6cd55386e7dd))
+
 ## [2.96.2](https://github.com/sws2apps/sws2apps-api/compare/v2.96.1...v2.96.2) (2024-05-04)
 
 
