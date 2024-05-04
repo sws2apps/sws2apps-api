@@ -1,3 +1,10 @@
+## [2.96.1](https://github.com/sws2apps/sws2apps-api/compare/v2.96.0...v2.96.1) (2024-05-04)
+
+
+### Bug Fixes
+
+* **locales:** update locales path ([37351fe](https://github.com/sws2apps/sws2apps-api/commit/37351fe045754c3818f596360f6f175dfe2ec311))
+
 # [2.96.0](https://github.com/sws2apps/sws2apps-api/compare/v2.95.0...v2.96.0) (2024-05-04)
 
 
