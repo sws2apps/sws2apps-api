@@ -1,3 +1,18 @@
+# [2.96.0](https://github.com/sws2apps/sws2apps-api/compare/v2.95.0...v2.96.0) (2024-05-04)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.32.0 to 1.33.0 ([6714b91](https://github.com/sws2apps/sws2apps-api/commit/6714b91a880f22a8d815bca635440d337d6a50ca))
+* **deps:** bump @crowdin/crowdin-api-client from 1.33.0 to 1.33.1 ([f789f03](https://github.com/sws2apps/sws2apps-api/commit/f789f033b5ca9992bbf275f78e985b934315a7ea))
+* **deps:** bump dayjs from 1.11.10 to 1.11.11 ([45d2f01](https://github.com/sws2apps/sws2apps-api/commit/45d2f01461f90fd3dfbb7399cc9bda930409c639))
+* **deps:** bump firebase-admin from 12.0.0 to 12.1.0 ([709f867](https://github.com/sws2apps/sws2apps-api/commit/709f867813ffd865dceee53a1e54b7e9686cd89c))
+* **deps:** bump i18next from 23.10.1 to 23.11.0 ([8d1236b](https://github.com/sws2apps/sws2apps-api/commit/8d1236b82a17b105224997de021b005ade7775b0))
+* **deps:** bump i18next from 23.11.0 to 23.11.1 ([818b844](https://github.com/sws2apps/sws2apps-api/commit/818b844e2ac4fc371b22dad00943dcc100037554))
+* **deps:** bump i18next from 23.11.1 to 23.11.2 ([485f059](https://github.com/sws2apps/sws2apps-api/commit/485f0592a4e76895b46313b23af20722b2bbb954))
+* **deps:** bump i18next from 23.11.2 to 23.11.3 ([9dcaa00](https://github.com/sws2apps/sws2apps-api/commit/9dcaa00081aaf482803cf000f0c3729b34093b6c))
+* **deps:** bump otpauth from 9.2.2 to 9.2.3 ([5e3016a](https://github.com/sws2apps/sws2apps-api/commit/5e3016aa163b27015664bd34b6c738d0c05e83a7))
+
 # [2.95.0](https://github.com/sws2apps/sws2apps-api/compare/v2.94.0...v2.95.0) (2024-04-01)
 
 
