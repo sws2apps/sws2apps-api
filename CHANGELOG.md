@@ -1,3 +1,10 @@
+## [2.96.5](https://github.com/sws2apps/sws2apps-api/compare/v2.96.4...v2.96.5) (2024-05-04)
+
+
+### Bug Fixes
+
+* **api:** add override for stream-shift ([5b58846](https://github.com/sws2apps/sws2apps-api/commit/5b58846746a9bd6820e92d10976a3fefe580fdb2))
+
 ## [2.96.4](https://github.com/sws2apps/sws2apps-api/compare/v2.96.3...v2.96.4) (2024-05-04)
 
 
