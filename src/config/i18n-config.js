@@ -10,7 +10,7 @@ const resources = {};
 for await (const language of LANGUAGE_LIST) {
 	resources[language.code] = {};
 	resources[language.code].translation = JSON.parse(
-		await fs.promises.readFile(new URL(`../locales/${language.locale}/main.json`, import.meta.url))
+		await fs.promises.readFile(new URL(`../../locales/${language.locale}/main.json`, import.meta.url))
 	);
 }
 
