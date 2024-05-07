@@ -105,7 +105,7 @@ export const findVisitingSpeakersCongregations = async (req: Request, res: Respo
 
 		const name = req.headers.name as string;
 
-		const result = CongregationsList.findVisitingSpeakersCongregations(cong.country_code, cong.id, name);
+		const result = CongregationsList.findVisitingSpeakersCongregations(cong.id, name);
 
 		res.locals.type = 'info';
 		res.locals.message = `user fetched congregations visiting speakers list`;

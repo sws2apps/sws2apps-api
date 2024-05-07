@@ -52,12 +52,11 @@ class Congregations {
 		this.list = this.list.filter((cong) => cong.id !== id);
 	}
 
-	findVisitingSpeakersCongregations(country_code: string, congId: string, name: string) {
+	findVisitingSpeakersCongregations(congId: string, name: string) {
 		const congs = this.list.filter(
 			(record) =>
 				record.id !== congId &&
 				record.cong_discoverable.value &&
-				record.country_code === country_code &&
 				(record.cong_name.toLowerCase().includes(name.toLowerCase()) ||
 					record.cong_number.toLowerCase().includes(name.toLowerCase()))
 		);
