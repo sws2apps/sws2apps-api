@@ -23,7 +23,6 @@ export const visitorChecker = () => {
 			}
 
 			const uid = req.headers.uid as string;
-			console.log(uid);
 			const visitorid = req.headers.visitorid as string;
 			const user = UsersList.findByAuthUid(uid);
 

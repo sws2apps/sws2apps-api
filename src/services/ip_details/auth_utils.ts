@@ -22,7 +22,6 @@ export const retrieveVisitorDetails = async (visitorIP: string, req: Request) =>
 		const dataIP = (await resIP.json()) as IPAPIResponse;
 
 		const result = new WhichBrowser(req.headers);
-		console.log(result.browser.toString());
 
 		const visitorDetails = {
 			browser: result.browser.toString(),
