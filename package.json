@@ -62,7 +62,7 @@
 		"eslint": "^8.57.0",
 		"eslint-config-react-app": "^7.0.1",
 		"nodemon": "^3.1.0",
-		"semantic-release": "^23.0.8"
+		"semantic-release": "^23.1.1"
 	},
 	"overrides": {
 		"stream-shift": "1.0.3"
