@@ -2,7 +2,8 @@ import { CircuitRecordType, MeetingRecordType, OutgoingSpeakersRecordType } from
 import {
 	dbCongregationLoadDetails,
 	dbCongregationSaveBackup,
-	dbCongregationSaveEncryptionKey,
+	dbCongregationSaveMasterKey,
+	dbCongregationSavePassword,
 } from '../services/firebase/congregations.js';
 import { User } from './User.js';
 import { UsersList } from './Users.js';
@@ -17,7 +18,8 @@ export class Congregation {
 	midweek_meeting: MeetingRecordType[];
 	weekend_meeting: MeetingRecordType[];
 	cong_members: User[];
-	cong_encryption: string;
+	cong_master_key: string;
+	cong_password: string;
 	last_backup: string | undefined;
 	cong_outgoing_speakers: OutgoingSpeakersRecordType;
 	cong_discoverable: { value: boolean; updatedAt: string };
@@ -31,7 +33,8 @@ export class Congregation {
 		this.cong_circuit = [{ type: 'main', name: '' }];
 		this.cong_members = [];
 		this.last_backup = undefined;
-		this.cong_encryption = '';
+		this.cong_master_key = '';
+		this.cong_password = '';
 		this.midweek_meeting = [{ type: 'main', weekday: null, time: '' }];
 		this.weekend_meeting = [{ type: 'main', weekday: null, time: '' }];
 		this.cong_outgoing_speakers = { list: null, access: [] };
@@ -41,7 +44,8 @@ export class Congregation {
 	async loadDetails() {
 		const data = await dbCongregationLoadDetails(this.id);
 
-		this.cong_encryption = data.cong_encryption;
+		this.cong_master_key = data.cong_master_key;
+		this.cong_password = data.cong_password;
 		this.cong_name = data.cong_name;
 		this.cong_number = data.cong_number;
 		this.country_code = data.country_code;
@@ -60,9 +64,14 @@ export class Congregation {
 		this.last_backup = await dbCongregationSaveBackup(this.id);
 	}
 
-	async saveEncryptionKey(key: string) {
-		await dbCongregationSaveEncryptionKey(this.id, key);
-		this.cong_encryption = key;
+	async saveMasterKey(key: string) {
+		await dbCongregationSaveMasterKey(this.id, key);
+		this.cong_master_key = key;
+	}
+
+	async savePassword(password: string) {
+		await dbCongregationSavePassword(this.id, password);
+		this.cong_password = password;
 	}
 
 	hasMember(auth_uid: string) {

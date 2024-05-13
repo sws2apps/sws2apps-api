@@ -45,10 +45,11 @@ export const dbCongregationLoadDetails = async (congId: string) => {
 	const congSnapshot = await congRef.get();
 	const congRecord = congSnapshot.data() as CongregationRecordType;
 
-	const cong_encryption = await getFileFromStorage({ congId: congId, filename: 'cong_key.txt' });
+	const cong_master_key = await getFileFromStorage({ congId: congId, filename: 'cong_master_key.txt' });
+	const cong_password = await getFileFromStorage({ congId: congId, filename: 'cong_password.txt' });
 	const cong_outgoing_speakers = await dbGetOutgoingSpeakersAccessList(congId);
 
-	return { ...congRecord, cong_encryption, cong_outgoing_speakers };
+	return { ...congRecord, cong_master_key, cong_password, cong_outgoing_speakers };
 };
 
 export const dbCongregationSaveBackup = async (congId: string) => {
@@ -58,8 +59,12 @@ export const dbCongregationSaveBackup = async (congId: string) => {
 	return data.last_backup;
 };
 
-export const dbCongregationSaveEncryptionKey = async (congId: string, key: string) => {
-	await uploadFileToStorage(key, { congId, filename: 'cong_key.txt' });
+export const dbCongregationSaveMasterKey = async (congId: string, key: string) => {
+	await uploadFileToStorage(key, { congId, filename: 'cong_master_key.txt' });
+};
+
+export const dbCongregationSavePassword = async (congId: string, password: string) => {
+	await uploadFileToStorage(password, { congId, filename: 'cong_password.txt' });
 };
 
 export const dbCongregationCreate = async (data: CongregationCreateInfoType) => {

@@ -90,12 +90,14 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 			global_role: authUser.global_role,
 			user_local_uid: authUser.user_local_uid,
 			mfa: 'not_enabled',
-			cong_encryption: '',
+			cong_master_key: '',
+			cong_password: '',
 		};
 
 		if (authUser.cong_id) {
 			const userCong = CongregationsList.findById(authUser.cong_id);
-			userInfo.cong_encryption = userCong!.cong_encryption;
+			userInfo.cong_master_key = userCong!.cong_master_key;
+			userInfo.cong_password = userCong!.cong_password;
 		}
 
 		res.locals.type = 'info';
@@ -207,12 +209,12 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 			global_role: authUser.global_role,
 			user_local_uid: authUser.user_local_uid,
 			mfa: 'not_enabled',
-			cong_encryption: '',
+			cong_master_key: '',
 		};
 
 		if (authUser.cong_id) {
 			const cong = CongregationsList.findById(authUser.cong_id)!;
-			userInfo.cong_encryption = cong.cong_encryption;
+			userInfo.cong_master_key = cong.cong_master_key;
 			userInfo.country_code = cong.country_code;
 		}
 
