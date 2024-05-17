@@ -33,12 +33,13 @@ export const validateUser = async (req: Request, res: Response, next: NextFuncti
 			firstname: user.firstname,
 			lastname: user.lastname,
 			cong_master_key: cong.cong_master_key,
-			cong_password: cong.cong_password,
+			cong_access_code: cong.cong_access_code,
 			mfaEnabled: user.mfaEnabled,
 			cong_circuit: cong.cong_circuit,
 			cong_location: cong.cong_location,
 			midweek_meeting: cong.midweek_meeting,
 			weekend_meeting: cong.weekend_meeting,
+			cong_last_backup: cong.last_backup,
 		};
 
 		res.locals.type = 'info';

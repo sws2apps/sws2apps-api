@@ -26,6 +26,7 @@
 		"@logtail/node": "^0.4.21",
 		"cors": "^2.8.5",
 		"cross-env": "^7.0.3",
+		"crypto-es": "^2.1.0",
 		"cryptr": "^6.3.0",
 		"dotenv": "^16.4.5",
 		"express": "^4.19.2",

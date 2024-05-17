@@ -110,7 +110,7 @@ export const setCongregationPassword = async (req: Request, res: Response, next:
 		}
 
 		const password: string = req.body.cong_password;
-		await cong.savePassword(password);
+		await cong.saveAccessCode(password);
 
 		res.locals.type = 'warn';
 		res.locals.message = 'congregation admin set password';

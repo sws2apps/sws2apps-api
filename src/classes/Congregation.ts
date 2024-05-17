@@ -1,10 +1,19 @@
-import { CircuitRecordType, MeetingRecordType, OutgoingSpeakersRecordType } from '../denifition/congregation.js';
+import {
+	CircuitRecordType,
+	CongregationBackupType,
+	CongregationPersonType,
+	MeetingRecordType,
+	OutgoingSpeakersRecordType,
+	SpeakersCongregationType,
+	VisitingSpeakerType,
+} from '../denifition/congregation.js';
 import {
 	dbCongregationLoadDetails,
 	dbCongregationSaveBackup,
 	dbCongregationSaveMasterKey,
-	dbCongregationSavePassword,
+	dbCongregationSaveAccessCode,
 } from '../services/firebase/congregations.js';
+import { CongregationsList } from './Congregations.js';
 import { User } from './User.js';
 import { UsersList } from './Users.js';
 
@@ -19,10 +28,13 @@ export class Congregation {
 	weekend_meeting: MeetingRecordType[];
 	cong_members: User[];
 	cong_master_key: string;
-	cong_password: string;
-	last_backup: string | undefined;
+	cong_access_code: string;
 	cong_outgoing_speakers: OutgoingSpeakersRecordType;
 	cong_discoverable: { value: boolean; updatedAt: string };
+	last_backup: string;
+	cong_persons: CongregationPersonType[];
+	speakers_congregations: SpeakersCongregationType[];
+	visiting_speakers: VisitingSpeakerType[];
 
 	constructor(id: string) {
 		this.id = id;
@@ -32,36 +44,88 @@ export class Congregation {
 		this.cong_location = { lat: null, lng: null, address: '' };
 		this.cong_circuit = [{ type: 'main', name: '' }];
 		this.cong_members = [];
-		this.last_backup = undefined;
 		this.cong_master_key = '';
-		this.cong_password = '';
+		this.cong_access_code = '';
 		this.midweek_meeting = [{ type: 'main', weekday: null, time: '' }];
 		this.weekend_meeting = [{ type: 'main', weekday: null, time: '' }];
-		this.cong_outgoing_speakers = { list: null, access: [] };
+		this.cong_outgoing_speakers = { list: [], speakers_key: '', access: [] };
 		this.cong_discoverable = { value: false, updatedAt: '' };
+		this.last_backup = '';
+		this.cong_persons = [];
+		this.speakers_congregations = [];
+		this.visiting_speakers = [];
 	}
 
 	async loadDetails() {
 		const data = await dbCongregationLoadDetails(this.id);
 
 		this.cong_master_key = data.cong_master_key;
-		this.cong_password = data.cong_password;
+		this.cong_access_code = data.cong_access_code;
 		this.cong_name = data.cong_name;
 		this.cong_number = data.cong_number;
 		this.country_code = data.country_code;
-		this.last_backup = data.last_backup;
 		this.cong_location = data.cong_location;
 		this.cong_circuit = data.cong_circuit;
 		this.midweek_meeting = data.midweek_meeting;
 		this.weekend_meeting = data.weekend_meeting;
 		this.cong_discoverable = data.cong_discoverable;
+		this.cong_persons = data.cong_persons;
 		this.cong_outgoing_speakers = data.cong_outgoing_speakers;
+		this.speakers_congregations = data.speakers_congregations;
+		this.visiting_speakers = data.visiting_speakers;
+		this.last_backup = data.last_backup || '';
 
 		this.reloadMembers();
 	}
 
-	async saveBackup() {
-		this.last_backup = await dbCongregationSaveBackup(this.id);
+	async saveBackup(cong_backup: CongregationBackupType) {
+		const data: CongregationBackupType = {};
+
+		if (cong_backup.cong_settings) {
+			data.cong_settings = {};
+
+			if (cong_backup.cong_settings.cong_discoverable) {
+				if (cong_backup.cong_settings.cong_discoverable.updatedAt > this.cong_discoverable.updatedAt) {
+					data.cong_settings.cong_discoverable = cong_backup.cong_settings.cong_discoverable;
+				}
+			}
+		}
+
+		data.cong_persons = cong_backup.cong_persons;
+		data.speakers_key = cong_backup.speakers_key;
+		data.outgoing_speakers = cong_backup.outgoing_speakers;
+		data.speakers_congregations = cong_backup.speakers_congregations;
+		data.visiting_speakers = cong_backup.visiting_speakers;
+
+		const lastBackup = await dbCongregationSaveBackup(this.id, data);
+
+		if (data.cong_persons) {
+			this.cong_persons = data.cong_persons;
+		}
+
+		if (data.speakers_key) {
+			this.cong_outgoing_speakers.speakers_key = data.speakers_key;
+		}
+
+		if (data.speakers_congregations) {
+			this.speakers_congregations = data.speakers_congregations;
+		}
+
+		if (data.visiting_speakers) {
+			this.visiting_speakers = data.visiting_speakers;
+		}
+
+		if (data.outgoing_speakers) {
+			this.cong_outgoing_speakers.list = data.outgoing_speakers;
+		}
+
+		if (data.cong_settings) {
+			if (data.cong_settings.cong_discoverable) {
+				this.cong_discoverable = data.cong_settings.cong_discoverable;
+			}
+		}
+
+		this.last_backup = lastBackup;
 	}
 
 	async saveMasterKey(key: string) {
@@ -69,9 +133,9 @@ export class Congregation {
 		this.cong_master_key = key;
 	}
 
-	async savePassword(password: string) {
-		await dbCongregationSavePassword(this.id, password);
-		this.cong_password = password;
+	async saveAccessCode(code: string) {
+		await dbCongregationSaveAccessCode(this.id, code);
+		this.cong_access_code = code;
 	}
 
 	hasMember(auth_uid: string) {
@@ -95,7 +159,9 @@ export class Congregation {
 		const approvedCong = this.cong_outgoing_speakers.access.filter((record) => record.status === 'approved');
 
 		const result = approvedCong.map((cong) => {
-			return { cong_id: cong.cong_id, cong_number: cong.cong_number, cong_name: cong.cong_name };
+			const foundCong = CongregationsList.findById(cong.cong_id);
+
+			return { cong_id: cong.cong_id, cong_number: foundCong?.cong_number, cong_name: foundCong?.cong_name };
 		});
 
 		return result;

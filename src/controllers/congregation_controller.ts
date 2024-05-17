@@ -1,70 +1,32 @@
-import { NextFunction, Request, Response } from 'express';
 import fetch from 'node-fetch';
+import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { CongregationsList } from '../classes/Congregations.js';
 import { UsersList } from '../classes/Users.js';
 import { ALL_LANGUAGES } from '../constant/langList.js';
-import { ApiCongregationSearchResponse } from '../denifition/congregation.js';
+import { ApiCongregationSearchResponse, CongregationBackupType } from '../denifition/congregation.js';
 import { sendWelcomeMessage } from '../services/mail/sendEmail.js';
 import { formatError } from '../utils/format_log.js';
+import { ROLE_MASTER_KEY } from '../constant/base.js';
 
 const isDev = process.env.NODE_ENV === 'development';
 
-export const getLastCongregationBackup = async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const { id } = req.params;
-		const uid = req.headers.uid as string;
-
-		if (!id) {
-			res.locals.type = 'warn';
-			res.locals.message = 'the congregation request id params is undefined';
-			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
-			return;
-		}
-
-		const cong = CongregationsList.findById(id);
-
-		if (!cong) {
-			res.locals.type = 'warn';
-			res.locals.message = 'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
-
-		const isValid = cong.hasMember(uid);
-
-		if (!isValid) {
-			res.locals.type = 'warn';
-			res.locals.message = 'user not authorized to access the provided congregation';
-			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			return;
-		}
-
-		const user = UsersList.findByAuthUid(uid)!;
-		const adminRole = user.cong_role.includes('admin');
-
-		if (!adminRole) {
-			res.locals.type = 'warn';
-			res.locals.message = 'user not authorized to get congregation backup info';
-			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			return;
-		}
-
-		const obj = {
-			cong_last_backup: adminRole ? cong.last_backup || 'NO_BACKUP' : undefined,
-			user_last_backup: user.last_backup || 'NO_BACKUP',
-		};
-
-		res.locals.type = 'info';
-		res.locals.message = 'user get the latest backup info for the congregation';
-		res.status(200).json(obj);
-	} catch (err) {
-		next(err);
-	}
-};
-
 export const saveCongregationBackup = async (req: Request, res: Response, next: NextFunction) => {
 	try {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			const msg = formatError(errors);
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
 		const { id } = req.params;
 		const uid = req.headers.uid as string;
 
@@ -90,6 +52,15 @@ export const saveCongregationBackup = async (req: Request, res: Response, next: 
 			res.locals.type = 'warn';
 			res.locals.message = 'user not authorized to access the provided congregation';
 			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const last_backup = req.headers.lastbackup as string;
+
+		if (last_backup !== cong.last_backup) {
+			res.locals.type = 'info';
+			res.locals.message = 'backup action rejected since it was changed recently';
+			res.status(400).json({ message: 'BACKUP_OUTDATED' });
 			return;
 		}
 
@@ -102,6 +73,10 @@ export const saveCongregationBackup = async (req: Request, res: Response, next: 
 			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
 			return;
 		}
+
+		const cong_backup = req.body.cong_backup as CongregationBackupType;
+
+		await cong.saveBackup(cong_backup);
 
 		res.locals.type = 'info';
 		res.locals.message = 'user send backup for congregation successfully';
@@ -306,6 +281,78 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 		res.locals.type = 'info';
 		res.locals.message = 'congregation created successfully';
 		res.status(200).json(finalResult);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const retrieveCongregationBackup = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const { id } = req.params;
+		const uid = req.headers.uid as string;
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation request id params is undefined';
+			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+			return;
+		}
+
+		const cong = CongregationsList.findById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = cong.hasMember(uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const user = UsersList.findByAuthUid(uid)!;
+		const masterKeyNeed = user.cong_role.some((role) => ROLE_MASTER_KEY.includes(role));
+
+		const adminRole = user.cong_role.includes('admin');
+
+		const settingsEditor = adminRole;
+		const personEditor = adminRole;
+		const publicTalkEditor = adminRole;
+
+		const result: CongregationBackupType = {
+			cong_access_code: cong.cong_access_code,
+			last_backup: cong.last_backup,
+		};
+
+		if (masterKeyNeed) {
+			result.cong_master_key = cong.cong_master_key;
+		}
+
+		if (settingsEditor) {
+			result.cong_settings = {
+				cong_discoverable: cong.cong_discoverable,
+			};
+		}
+
+		if (personEditor) {
+			result.cong_persons = cong.cong_persons;
+		}
+
+		if (publicTalkEditor) {
+			result.speakers_key = cong.cong_outgoing_speakers.speakers_key || '';
+			result.speakers_congregations = cong.speakers_congregations;
+			result.visiting_speakers = cong.visiting_speakers;
+		}
+
+		res.locals.type = 'info';
+		res.locals.message = 'user retrieve backup successfully';
+		res.status(200).json(result);
 	} catch (err) {
 		next(err);
 	}

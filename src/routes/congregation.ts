@@ -5,7 +5,7 @@ import {
 	createCongregation,
 	getCongregations,
 	getCountries,
-	getLastCongregationBackup,
+	retrieveCongregationBackup,
 	saveCongregationBackup,
 } from '../controllers/congregation_controller.js';
 
@@ -33,10 +33,10 @@ router.put(
 	createCongregation
 );
 
-// get last backup information
-router.get('/:id/backup/last', getLastCongregationBackup);
-
 // save congregation backup
-router.post('/:id/backup', saveCongregationBackup);
+router.post('/:id/backup', check('lastbackup').isString(), body('cong_backup').isObject(), saveCongregationBackup);
+
+// retrieve congregation backup
+router.get('/:id/backup', retrieveCongregationBackup);
 
 export default router;

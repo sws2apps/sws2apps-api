@@ -12,8 +12,8 @@ import {
 	dbUserUpdateLastname,
 	dbUserUpdateSessions,
 } from '../services/firebase/users.js';
-import { dbCongregationLoadDetails } from '../services/firebase/congregations.js';
-import { decryptData } from '../services/encryption/encryption_utils.js';
+import { dbCongregationDetails } from '../services/firebase/congregations.js';
+import { decryptData } from '../services/encryption/encryption.js';
 import { CongregationsList } from './Congregations.js';
 
 export class User {
@@ -86,7 +86,7 @@ export class User {
 		}
 
 		if (this.cong_id) {
-			const data = await dbCongregationLoadDetails(this.cong_id);
+			const data = await dbCongregationDetails(this.cong_id);
 			this.cong_country = data.country_code;
 			this.cong_name = data.cong_name;
 			this.cong_number = data.cong_number;

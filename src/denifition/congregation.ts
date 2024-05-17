@@ -44,21 +44,91 @@ export type MeetingRecordType = {
 export type OutgoingSpeakersAccessStorageType = {
 	cong_id: string;
 	status: 'pending' | 'approved' | 'disapproved';
+	updateAt: string;
 	key: string;
-	list: string;
-};
-
-export type OutgoingSpeakersAccessType = OutgoingSpeakersAccessStorageType & {
-	cong_name: string;
-	cong_number: string;
+	cong_name?: string;
+	cong_number?: string;
+	country_code?: string;
 };
 
 export type OutgoingSpeakersRecordType = {
-	list: string | null;
-	access: OutgoingSpeakersAccessType[];
+	list: VisitingSpeakerType[];
+	speakers_key?: string;
+	access: OutgoingSpeakersAccessStorageType[];
 };
 
-export type OutgoingSpeakersStorageType = {
-	list: string;
-	access: OutgoingSpeakersAccessStorageType[];
+export type CongregationBackupType = {
+	last_backup?: string;
+	cong_master_key?: string;
+	cong_access_code?: string;
+	speakers_key?: string;
+	cong_settings?: {
+		cong_discoverable?: { value: boolean; updatedAt: string };
+	};
+	cong_persons?: CongregationPersonType[];
+	speakers_congregations?: SpeakersCongregationType[];
+	visiting_speakers?: VisitingSpeakerType[];
+	outgoing_speakers?: VisitingSpeakerType[];
+};
+
+export type CongregationPersonType = {
+	_deleted: string;
+	person_uid: string;
+	person_data: {
+		person_firstname: string;
+		person_lastname: string;
+		person_display_name: string;
+		male: string;
+		female: string;
+		birth_date: string;
+		assignments: string;
+		timeAway: string;
+		archived: string;
+		disqualified: string;
+		email: string;
+		address: string;
+		phone: string;
+		first_month_report: string;
+		publisher_baptized: string;
+		publisher_unbaptized: string;
+		midweek_meeting_student: string;
+		privileges: string;
+		enrollments: string;
+		emergency_contacts: string;
+	};
+};
+
+export type SpeakersCongregationType = {
+	_deleted: string;
+	id: string;
+	cong_data: {
+		cong_id: string;
+		cong_number: string;
+		cong_name: string;
+		cong_circuit: string;
+		cong_location: string;
+		midweek_meeting: string;
+		weekend_meeting: string;
+		public_talk_coordinator: string;
+		coordinator: string;
+		request_status: string;
+		notification_dismissed: string;
+	};
+};
+
+export type VisitingSpeakerType = {
+	person_uid: string;
+	_deleted: string;
+	speaker_data: {
+		cong_id: string;
+		person_firstname: string;
+		person_lastname: string;
+		person_display_name: string;
+		person_notes: string;
+		person_email: string;
+		person_phone: string;
+		elder: string;
+		ministerial_servant: string;
+		talks: string;
+	};
 };

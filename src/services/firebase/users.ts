@@ -8,7 +8,7 @@ import {
 	UserRecordType,
 	UserSession,
 } from '../../denifition/user.js';
-import { encryptData } from '../encryption/encryption_utils.js';
+import { encryptData } from '../encryption/encryption.js';
 import { sendPasswordlessLinkSignIn } from '../mail/sendEmail.js';
 import { OTPSecretType } from '../../denifition/app.js';
 import { UsersList } from '../../classes/Users.js';
