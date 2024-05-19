@@ -28,7 +28,6 @@ export const saveCongregationBackup = async (req: Request, res: Response, next: 
 		}
 
 		const { id } = req.params;
-		const uid = req.headers.uid as string;
 
 		if (!id) {
 			res.locals.type = 'warn';
@@ -46,7 +45,7 @@ export const saveCongregationBackup = async (req: Request, res: Response, next: 
 			return;
 		}
 
-		const isValid = cong.hasMember(uid);
+		const isValid = cong.hasMember(res.locals.currentUser.auth_uid);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -64,7 +63,7 @@ export const saveCongregationBackup = async (req: Request, res: Response, next: 
 			return;
 		}
 
-		const user = UsersList.findByAuthUid(uid)!;
+		const user = UsersList.findByAuthUid(res.locals.currentUser.auth_uid)!;
 		const adminRole = user.cong_role.includes('admin');
 
 		if (!adminRole) {
@@ -185,7 +184,6 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 			return;
 		}
 
-		const uid = req.headers.uid as string;
 		const country_code = req.body.country_code as string;
 		const cong_name = req.body.cong_name as string;
 		const cong_number = req.body.cong_number as string;
@@ -240,7 +238,7 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 		}
 
 		// update user details
-		const user = UsersList.findByAuthUid(uid)!;
+		const user = UsersList.findByAuthUid(res.locals.currentUser.auth_uid)!;
 		await user.updateFirstname(firstname);
 		await user.updateLastname(lastname);
 
@@ -289,7 +287,6 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 export const retrieveCongregationBackup = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { id } = req.params;
-		const uid = req.headers.uid as string;
 
 		if (!id) {
 			res.locals.type = 'warn';
@@ -307,7 +304,7 @@ export const retrieveCongregationBackup = async (req: Request, res: Response, ne
 			return;
 		}
 
-		const isValid = cong.hasMember(uid);
+		const isValid = cong.hasMember(res.locals.currentUser.auth_uid);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -316,7 +313,7 @@ export const retrieveCongregationBackup = async (req: Request, res: Response, ne
 			return;
 		}
 
-		const user = UsersList.findByAuthUid(uid)!;
+		const user = UsersList.findByAuthUid(res.locals.currentUser.auth_uid)!;
 		const masterKeyNeed = user.cong_role.some((role) => ROLE_MASTER_KEY.includes(role));
 
 		const adminRole = user.cong_role.includes('admin');

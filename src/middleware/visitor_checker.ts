@@ -2,12 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 import { check, validationResult } from 'express-validator';
 import { UsersList } from '../classes/Users.js';
 import { formatError } from '../utils/format_log.js';
+import { dbUserDecodeIdToken } from '../services/firebase/users.js';
+import { authBearerCheck } from '../services/validator/auth.js';
 
 export const visitorChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			await check('visitorid').isString().notEmpty().run(req);
-			await check('uid').isString().not().equals('undefined').isLength({ min: 8 }).run(req);
+			await check('visitorid').exists().notEmpty().isString().run(req);
+			await check('Authorization').exists().notEmpty().isString().custom(authBearerCheck).run(req);
 
 			const errors = validationResult(req);
 
@@ -22,14 +24,22 @@ export const visitorChecker = () => {
 				return;
 			}
 
-			const uid = req.headers.uid as string;
-			const visitorid = req.headers.visitorid as string;
+			// decode authorization
+			const idToken = req.headers.authorization!.split('Bearer ')[1];
+			const uid = await dbUserDecodeIdToken(idToken);
+
+			if (!uid) {
+				res.locals.type = 'warn';
+				res.locals.message = 'this user is not yet authenticated';
+				res.status(403).json({ message: 'LOGIN_FIRST' });
+				return;
+			}
+
 			const user = UsersList.findByAuthUid(uid);
 
 			if (!user) {
 				res.locals.type = 'warn';
 				res.locals.message = 'this user account no longer exists';
-
 				res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
 				return;
 			}
@@ -37,7 +47,6 @@ export const visitorChecker = () => {
 			if (user.disabled) {
 				res.locals.type = 'warn';
 				res.locals.message = 'this user account is currently disabled';
-
 				res.status(403).json({ message: 'ACCOUNT_DISABLED' });
 				return;
 			}
@@ -46,12 +55,15 @@ export const visitorChecker = () => {
 			const sessions = user.sessions;
 
 			// find if visitor id has valid session
-			const findSession = sessions!.find((session) => session.visitorid.toString() === visitorid.toString());
+			const visitorid = req.cookies.visitorid;
+			const findSession = sessions!.find((session) => session.visitorid === visitorid);
 
 			if (!findSession) {
 				res.locals.type = 'warn';
 				res.locals.message = 'the visitor id is invalid or does not have an active session';
-				res.status(403).json({ message: 'LOGIN_FIRST' });
+
+				res.clearCookie('visitorid');
+				res.status(404).json({ message: 'SESSION_REVOKED' });
 				return;
 			}
 

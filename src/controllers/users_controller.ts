@@ -10,8 +10,7 @@ const isDev = process.env.NODE_ENV === 'development';
 
 export const validateUser = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const uid = req.headers.uid as string;
-		const user = await UsersList.findByAuthUid(uid)!;
+		const user = await UsersList.findByAuthUid(res.locals.currentUser.auth_uid)!;
 
 		if (!user.cong_id) {
 			res.locals.type = 'warn';
@@ -144,10 +143,9 @@ export const deleteUserSession = async (req: Request, res: Response, next: NextF
 
 export const userLogout = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const uid = req.headers.uid as string;
 		const visitorid = req.headers.visitorid as string;
 
-		const user = UsersList.findByAuthUid(uid);
+		const user = UsersList.findByAuthUid(res.locals.currentUser.auth_uid);
 
 		if (user) {
 			await user.revokeSession(visitorid);

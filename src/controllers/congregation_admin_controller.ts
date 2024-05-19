@@ -21,7 +21,6 @@ export const setCongregationMasterKey = async (req: Request, res: Response, next
 		}
 
 		const { id } = req.params;
-		const uid = req.headers.uid as string;
 
 		if (!id) {
 			res.locals.type = 'warn';
@@ -41,7 +40,7 @@ export const setCongregationMasterKey = async (req: Request, res: Response, next
 			return;
 		}
 
-		const isValid = await cong.hasMember(uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -62,7 +61,7 @@ export const setCongregationMasterKey = async (req: Request, res: Response, next
 	}
 };
 
-export const setCongregationPassword = async (req: Request, res: Response, next: NextFunction) => {
+export const setCongregationAccessCode = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const errors = validationResult(req);
 
@@ -80,7 +79,6 @@ export const setCongregationPassword = async (req: Request, res: Response, next:
 		}
 
 		const { id } = req.params;
-		const uid = req.headers.uid as string;
 
 		if (!id) {
 			res.locals.type = 'warn';
@@ -100,7 +98,7 @@ export const setCongregationPassword = async (req: Request, res: Response, next:
 			return;
 		}
 
-		const isValid = await cong.hasMember(uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -109,8 +107,8 @@ export const setCongregationPassword = async (req: Request, res: Response, next:
 			return;
 		}
 
-		const password: string = req.body.cong_password;
-		await cong.saveAccessCode(password);
+		const accesCode: string = req.body.cong_access_code;
+		await cong.saveAccessCode(accesCode);
 
 		res.locals.type = 'warn';
 		res.locals.message = 'congregation admin set password';

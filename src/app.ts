@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import path from 'node:path';
 import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
+import cookieParser from 'cookie-parser';
 
 import './config/firebase_config.js';
 
@@ -37,7 +38,7 @@ const whitelist = [
 const allowedUri = ['/app-version', '/api/public/source-material'];
 
 const corsOptionsDelegate = function (req: Request, callback: (_: null, options: CorsOptions) => void) {
-	const corsOptions: CorsOptions = { origin: true };
+	const corsOptions: CorsOptions = { origin: true, credentials: true };
 
 	if (process.env.NODE_ENV === 'production') {
 		const reqOrigin = req.header('Origin');
@@ -71,6 +72,16 @@ app.use(cors(corsOptionsDelegate));
 
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: true }));
+
+app.use((req, res, next) => {
+	res.header('Access-Control-Allow-Origin', req.headers.origin);
+	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE');
+	res.header('Access-Control-Allow-Headers', 'Content-Type');
+	res.header('Access-Control-Allow-Credentials', 'true');
+	next();
+});
+
+app.use(cookieParser());
 
 app.use(requestIp.mw()); // get IP address middleware
 app.use(internetChecker());

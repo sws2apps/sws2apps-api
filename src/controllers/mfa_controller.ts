@@ -77,13 +77,13 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
 			global_role: user.global_role,
 			user_local_uid,
 			cong_master_key: '',
-			cong_password: '',
+			cong_access_code: '',
 		};
 
 		const cong = CongregationsList.findById(cong_id!);
 		if (cong) {
 			userInfo.cong_master_key = cong.cong_master_key;
-			userInfo.cong_password = cong.cong_password;
+			userInfo.cong_access_code = cong.cong_access_code;
 			userInfo.country_code = cong.country_code;
 		}
 

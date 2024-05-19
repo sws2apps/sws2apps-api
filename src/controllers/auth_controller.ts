@@ -7,6 +7,8 @@ import { UserSession } from '../denifition/user.js';
 import { retrieveVisitorDetails } from '../services/ip_details/auth_utils.js';
 import { CongregationsList } from '../classes/Congregations.js';
 import { formatError } from '../utils/format_log.js';
+import { dbUserDecodeIdToken } from '../services/firebase/users.js';
+import { cookieOptions } from '../utils/app.js';
 
 export const loginUser = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -28,15 +30,23 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 			return;
 		}
 
-		const visitorid = isNaN(req.body.visitorid) ? req.body.visitorid : +req.body.visitorid;
-		const uid = req.headers.uid as string;
+		// decode authorization
+		const idToken = req.headers.authorization!.split('Bearer ')[1];
+		const uid = await dbUserDecodeIdToken(idToken);
 
+		if (!uid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the idToken received is invalid';
+			res.status(404).json({ message: 'INVALID_BEARER' });
+			return;
+		}
+
+		const visitorid = req.cookies.visitorid || crypto.randomUUID();
 		let authUser = UsersList.findByAuthUid(uid);
-
 		let newSessions: UserSession[] = [];
 
 		if (authUser) {
-			newSessions = authUser.sessions?.filter((session) => session.visitorid !== visitorid) || [];
+			newSessions = authUser.sessions?.filter((record) => record.visitorid !== visitorid) || [];
 		}
 
 		if (!authUser) {
@@ -69,6 +79,8 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 			res.locals.type = 'info';
 			res.locals.message = 'user required to verify mfa';
 
+			res.cookie('visitorid', visitorid, cookieOptions);
+
 			if (isDev) {
 				const tokenDev = generateTokenDev(authUser.user_email!, authUser.secret!);
 				res.status(200).json({ message: 'MFA_VERIFY', code: tokenDev });
@@ -91,17 +103,19 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 			user_local_uid: authUser.user_local_uid,
 			mfa: 'not_enabled',
 			cong_master_key: '',
-			cong_password: '',
+			cong_access_code: '',
 		};
 
 		if (authUser.cong_id) {
-			const userCong = CongregationsList.findById(authUser.cong_id);
-			userInfo.cong_master_key = userCong!.cong_master_key;
-			userInfo.cong_password = userCong!.cong_password;
+			const userCong = CongregationsList.findById(authUser.cong_id)!;
+			userInfo.cong_master_key = userCong.cong_master_key;
+			userInfo.cong_access_code = userCong.cong_access_code;
 		}
 
 		res.locals.type = 'info';
 		res.locals.message = 'user successfully logged in without MFA';
+
+		res.cookie('visitorid', visitorid, cookieOptions);
 		res.status(200).json(userInfo);
 	} catch (err) {
 		next(err);
@@ -156,8 +170,18 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 			return;
 		}
 
-		const uid = req.headers.uid as string;
-		const visitorid = req.body.visitorid as string;
+		// decode authorization
+		const idToken = req.headers.authorization!.split('Bearer ')[1];
+		const uid = await dbUserDecodeIdToken(idToken);
+
+		if (!uid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the idToken received is invalid';
+			res.status(404).json({ message: 'INVALID_BEARER' });
+			return;
+		}
+
+		const visitorid = req.cookies.visitorid || crypto.randomUUID();
 		const email = req.body.email as string;
 
 		let authUser = UsersList.findByAuthUid(uid);
@@ -187,6 +211,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 			res.locals.type = 'info';
 			res.locals.message = 'user required to verify mfa';
 
+			res.cookie('visitorid', visitorid, cookieOptions);
 			if (isDev) {
 				const tokenDev = generateTokenDev(authUser.user_email!, authUser.secret!);
 				res.status(200).json({ message: 'MFA_VERIFY', code: tokenDev });
@@ -210,16 +235,20 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 			user_local_uid: authUser.user_local_uid,
 			mfa: 'not_enabled',
 			cong_master_key: '',
+			cong_access_code: '',
 		};
 
 		if (authUser.cong_id) {
 			const cong = CongregationsList.findById(authUser.cong_id)!;
 			userInfo.cong_master_key = cong.cong_master_key;
+			userInfo.cong_access_code = cong.cong_access_code;
 			userInfo.country_code = cong.country_code;
 		}
 
 		res.locals.type = 'info';
 		res.locals.message = 'user successfully logged in without MFA';
+
+		res.cookie('visitorid', visitorid, cookieOptions);
 		res.status(200).json(userInfo);
 	} catch (err) {
 		next(err);

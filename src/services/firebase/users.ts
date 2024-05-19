@@ -160,3 +160,12 @@ export const dbUserCongregationAssign = async (params: UserCongregationAssignDbP
 	const data = { congregation: { id: congId, role } };
 	await db.collection('users').doc(userId).set(data, { merge: true });
 };
+
+export const dbUserDecodeIdToken = async (idToken: string) => {
+	try {
+		const decodedToken = await getAuth().verifyIdToken(idToken);
+		return decodedToken.uid;
+	} catch (err) {
+		console.error('Failed to decode idToken');
+	}
+};

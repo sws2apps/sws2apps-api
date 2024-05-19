@@ -1,5 +1,5 @@
 import express from 'express';
-import { header } from 'express-validator';
+import { body, header } from 'express-validator';
 import { visitorChecker } from '../middleware/visitor_checker.js';
 import {
 	congregationMeetingEditorChecker,
@@ -8,6 +8,7 @@ import {
 import {
 	findVisitingSpeakersCongregations,
 	getApprovedVisitingSpeakersAccess,
+	requestAccessSpeakersCongregation,
 } from '../controllers/congregation_meeting_editor_controller.js';
 
 const router = express.Router();
@@ -23,5 +24,8 @@ router.get('/:id/visiting-speakers-congregations', header('name').isString().not
 
 // get visiting speakers list
 router.get('/:id/visiting-speakers-access', getApprovedVisitingSpeakersAccess);
+
+// request access to congregation speakers
+router.post('/:id/request-speakers', body('cong_id').isString().notEmpty(), requestAccessSpeakersCongregation);
 
 export default router;
