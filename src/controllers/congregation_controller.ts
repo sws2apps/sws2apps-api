@@ -75,7 +75,7 @@ export const saveCongregationBackup = async (req: Request, res: Response, next: 
 
 		const cong_backup = req.body.cong_backup as CongregationBackupType;
 
-		await cong.saveBackup(cong_backup);
+		cong.saveBackup(cong_backup);
 
 		res.locals.type = 'info';
 		res.locals.message = 'user send backup for congregation successfully';
