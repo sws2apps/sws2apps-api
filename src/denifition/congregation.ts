@@ -44,16 +44,21 @@ export type MeetingRecordType = {
 export type OutgoingSpeakersAccessStorageType = {
 	cong_id: string;
 	status: 'pending' | 'approved' | 'disapproved';
-	updateAt: string;
-	key: string;
+	updatedAt: string;
+	key?: string;
 	cong_name?: string;
 	cong_number?: string;
 	country_code?: string;
+	temp_key?: string;
+	request_id: string;
 };
 
-export type OutgoingSpeakersRecordType = {
-	list: VisitingSpeakerType[];
+export type IncomingSpeakersType = {
+	list?: VisitingSpeakerType[];
 	speakers_key?: string;
+};
+
+export type OutgoingSpeakersRecordType = IncomingSpeakersType & {
 	access: OutgoingSpeakersAccessStorageType[];
 };
 
@@ -112,7 +117,7 @@ export type SpeakersCongregationType = {
 		public_talk_coordinator: string;
 		coordinator: string;
 		request_status: string;
-		notification_dismissed: string;
+		request_id: string;
 	};
 };
 
@@ -131,4 +136,22 @@ export type VisitingSpeakerType = {
 		ministerial_servant: string;
 		talks: string;
 	};
+};
+
+export type CongregationRequestPendingType = {
+	cong_id: string;
+	updatedAt: string;
+	cong_number: string;
+	cong_name: string;
+	country_code: string;
+	request_id: string;
+};
+
+export type CongregationUpdatesType = {
+	cong_master_key?: string;
+	cong_access_code?: string;
+	speakers_key?: string;
+	pending_speakers_requests?: CongregationRequestPendingType[];
+	remote_congregations?: (OutgoingSpeakersAccessStorageType & IncomingSpeakersType)[];
+	rejected_requests?: (OutgoingSpeakersAccessStorageType & IncomingSpeakersType)[];
 };

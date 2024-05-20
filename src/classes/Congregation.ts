@@ -2,7 +2,10 @@ import {
 	CircuitRecordType,
 	CongregationBackupType,
 	CongregationPersonType,
+	CongregationRequestPendingType,
+	IncomingSpeakersType,
 	MeetingRecordType,
+	OutgoingSpeakersAccessStorageType,
 	OutgoingSpeakersRecordType,
 	SpeakersCongregationType,
 	VisitingSpeakerType,
@@ -12,6 +15,9 @@ import {
 	dbCongregationSaveBackup,
 	dbCongregationSaveMasterKey,
 	dbCongregationSaveAccessCode,
+	dbCongregationRequestAccess,
+	dbCongregationApproveAccessRequest,
+	dbCongregationRejectAccessRequest,
 } from '../services/firebase/congregations.js';
 import { CongregationsList } from './Congregations.js';
 import { User } from './User.js';
@@ -165,5 +171,90 @@ export class Congregation {
 		});
 
 		return result;
+	}
+
+	async requestAccessCongregation(cong_id: string, key: string, request_id: string) {
+		await dbCongregationRequestAccess(this.id, cong_id, key, request_id);
+	}
+
+	getPendingVisitingSpeakersAccessList() {
+		const pendingCong = this.cong_outgoing_speakers.access.filter((record) => record.status === 'pending');
+
+		const result: CongregationRequestPendingType[] = pendingCong.map((cong) => {
+			const foundCong = CongregationsList.findById(cong.cong_id)!;
+
+			return {
+				cong_id: cong.cong_id,
+				updatedAt: cong.updatedAt,
+				cong_number: foundCong.cong_number,
+				cong_name: foundCong.cong_name,
+				country_code: foundCong.country_code,
+				request_id: cong.request_id,
+			};
+		});
+
+		return result;
+	}
+
+	async approveCongregationRequest(request_id: string, key: string) {
+		await dbCongregationApproveAccessRequest(this.id, request_id, key);
+	}
+
+	async rejectCongregationRequest(request_id: string) {
+		await dbCongregationRejectAccessRequest(this.id, request_id);
+	}
+
+	getRemoteCongregationsList() {
+		const congs: (OutgoingSpeakersAccessStorageType & IncomingSpeakersType)[] = [];
+
+		const approvedRequests = CongregationsList.list.filter((record) =>
+			record.cong_outgoing_speakers.access.find((access) => access.cong_id === this.id && access.status === 'approved')
+		);
+
+		for (const cong of approvedRequests) {
+			const requestDetails = cong.cong_outgoing_speakers.access.find(
+				(access) => access.cong_id === this.id && access.status === 'approved'
+			)!;
+
+			congs.push({
+				list: cong.cong_outgoing_speakers.list,
+				cong_id: cong.id,
+				key: requestDetails.key,
+				status: 'approved',
+				updatedAt: requestDetails.updatedAt,
+				cong_name: cong.cong_name,
+				cong_number: cong.cong_number,
+				country_code: cong.country_code,
+				request_id: requestDetails.request_id,
+			});
+		}
+
+		return congs;
+	}
+
+	getRejectedRequests() {
+		const congs: (OutgoingSpeakersAccessStorageType & IncomingSpeakersType)[] = [];
+
+		const disapprovedRequests = CongregationsList.list.filter((record) =>
+			record.cong_outgoing_speakers.access.find((access) => access.cong_id === this.id && access.status === 'disapproved')
+		);
+
+		for (const cong of disapprovedRequests) {
+			const requestDetails = cong.cong_outgoing_speakers.access.find(
+				(access) => access.cong_id === this.id && access.status === 'disapproved'
+			)!;
+
+			congs.push({
+				cong_id: cong.id,
+				status: 'disapproved',
+				updatedAt: requestDetails.updatedAt,
+				cong_name: cong.cong_name,
+				cong_number: cong.cong_number,
+				country_code: cong.country_code,
+				request_id: requestDetails.request_id,
+			});
+		}
+
+		return congs;
 	}
 }

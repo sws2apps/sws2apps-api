@@ -4,7 +4,7 @@ import { validationResult } from 'express-validator';
 import { CongregationsList } from '../classes/Congregations.js';
 import { UsersList } from '../classes/Users.js';
 import { ALL_LANGUAGES } from '../constant/langList.js';
-import { ApiCongregationSearchResponse, CongregationBackupType } from '../denifition/congregation.js';
+import { ApiCongregationSearchResponse, CongregationBackupType, CongregationUpdatesType } from '../denifition/congregation.js';
 import { sendWelcomeMessage } from '../services/mail/sendEmail.js';
 import { formatError } from '../utils/format_log.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';
@@ -345,6 +345,64 @@ export const retrieveCongregationBackup = async (req: Request, res: Response, ne
 			result.speakers_key = cong.cong_outgoing_speakers.speakers_key || '';
 			result.speakers_congregations = cong.speakers_congregations;
 			result.visiting_speakers = cong.visiting_speakers;
+		}
+
+		res.locals.type = 'info';
+		res.locals.message = 'user retrieve backup successfully';
+		res.status(200).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const getCongregationUpdates = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const { id } = req.params;
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation request id params is undefined';
+			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+			return;
+		}
+
+		const cong = CongregationsList.findById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = cong.hasMember(res.locals.currentUser.auth_uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const user = UsersList.findByAuthUid(res.locals.currentUser.auth_uid)!;
+		const masterKeyNeed = user.cong_role.some((role) => ROLE_MASTER_KEY.includes(role));
+
+		const adminRole = user.cong_role.includes('admin');
+		const publicTalkEditor = adminRole;
+
+		const result: CongregationUpdatesType = {
+			cong_access_code: cong.cong_access_code,
+		};
+
+		if (masterKeyNeed) {
+			result.cong_master_key = cong.cong_master_key;
+		}
+
+		if (publicTalkEditor) {
+			result.speakers_key = cong.cong_outgoing_speakers.speakers_key;
+			result.pending_speakers_requests = cong.getPendingVisitingSpeakersAccessList();
+			result.remote_congregations = cong.getRemoteCongregationsList();
+			result.rejected_requests = cong.getRejectedRequests();
 		}
 
 		res.locals.type = 'info';

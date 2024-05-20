@@ -3,6 +3,7 @@ import { body, check } from 'express-validator';
 import { visitorChecker } from '../middleware/visitor_checker.js';
 import {
 	createCongregation,
+	getCongregationUpdates,
 	getCongregations,
 	getCountries,
 	retrieveCongregationBackup,
@@ -38,5 +39,8 @@ router.post('/:id/backup', check('lastbackup').isString(), body('cong_backup').i
 
 // retrieve congregation backup
 router.get('/:id/backup', retrieveCongregationBackup);
+
+// get congregation updates
+router.get('/:id/updates-routine', getCongregationUpdates);
 
 export default router;

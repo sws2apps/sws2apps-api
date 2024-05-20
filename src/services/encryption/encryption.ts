@@ -2,8 +2,10 @@ import CryptoES from 'crypto-es';
 
 const SERVER_KEY = `&sws2apps_${process.env.SEC_ENCRYPT_KEY ?? 'server_key_dev'}`;
 
-export const encryptData = (data: string) => {
-	const encryptedData = CryptoES.AES.encrypt(data, SERVER_KEY).toString();
+export const encryptData = (data: string, passphrase?: string) => {
+	const key = passphrase || SERVER_KEY;
+
+	const encryptedData = CryptoES.AES.encrypt(data, key).toString();
 	return encryptedData;
 };
 

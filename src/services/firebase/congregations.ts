@@ -15,6 +15,7 @@ import {
 } from '../../denifition/congregation.js';
 import { CongregationsList } from '../../classes/Congregations.js';
 import { StorageCongregation } from '../../denifition/firebase.js';
+import { encryptData } from '../encryption/encryption.js';
 
 const db = getFirestore(); //get default database
 
@@ -34,8 +35,8 @@ const dbGetOutgoingSpeakersAccessList = async (congId: string) => {
 
 	const outgoingSpeakersCongDetails: OutgoingSpeakersAccessStorageType[] = [];
 
-	for (const record of outgoingSpeakersData.access) {
-		const cong = CongregationsList.findById(record.cong_id);
+	for await (const record of outgoingSpeakersData.access) {
+		const cong = await dbCongregationDetails(record.cong_id);
 
 		if (cong) {
 			const obj: OutgoingSpeakersAccessStorageType = {
@@ -108,7 +109,6 @@ export const dbCongregationSaveBackup = async (congId: string, cong_backup: Cong
 		const outgoingData: OutgoingSpeakersRecordType = {
 			list: cong_backup.outgoing_speakers,
 			access: cong.cong_outgoing_speakers.access,
-			speakers_key: cong_backup.speakers_key ?? cong.cong_outgoing_speakers.speakers_key,
 		};
 
 		const data = JSON.stringify(outgoingData);
@@ -155,4 +155,65 @@ export const dbCongregationCreate = async (data: CongregationCreateInfoType) => 
 
 export const dbCongregationDelete = async (id: string) => {
 	await db.collection('congregations').doc(id).delete();
+};
+
+export const dbCongregationRequestAccess = async (congId: string, requestCongId: string, key: string, requestId: string) => {
+	const requestCong = CongregationsList.findById(requestCongId)!;
+
+	requestCong.cong_outgoing_speakers.access = requestCong.cong_outgoing_speakers.access.filter(
+		(record) => record.cong_id !== congId
+	);
+
+	requestCong.cong_outgoing_speakers.access.push({
+		cong_id: congId,
+		key: '',
+		status: 'pending',
+		updatedAt: new Date().toISOString(),
+		temp_key: key,
+		request_id: requestId,
+	});
+
+	const data = JSON.stringify({
+		list: requestCong.cong_outgoing_speakers.list,
+		access: requestCong.cong_outgoing_speakers.access,
+	});
+
+	await uploadFileToStorage(data, { congId: requestCongId, filename: `cong_outgoing_speakers.txt` });
+};
+
+export const dbCongregationApproveAccessRequest = async (congId: string, request_id: string, speakers_key: string) => {
+	const cong = CongregationsList.findById(congId)!;
+
+	const request = cong.cong_outgoing_speakers.access.find((record) => record.request_id === request_id)!;
+
+	request.key = encryptData(JSON.stringify(speakers_key), request.temp_key);
+	request.status = 'approved';
+	request.updatedAt = new Date().toISOString();
+
+	delete request.temp_key;
+
+	const data = JSON.stringify({
+		list: cong.cong_outgoing_speakers.list,
+		access: cong.cong_outgoing_speakers.access,
+	});
+
+	await uploadFileToStorage(data, { congId, filename: `cong_outgoing_speakers.txt` });
+};
+
+export const dbCongregationRejectAccessRequest = async (congId: string, requestId: string) => {
+	const cong = CongregationsList.findById(congId)!;
+
+	const request = cong.cong_outgoing_speakers.access.find((record) => record.request_id === requestId)!;
+
+	request.status = 'disapproved';
+	request.updatedAt = new Date().toISOString();
+
+	delete request.temp_key;
+
+	const data = JSON.stringify({
+		list: cong.cong_outgoing_speakers.list,
+		access: cong.cong_outgoing_speakers.access,
+	});
+
+	await uploadFileToStorage(data, { congId, filename: `cong_outgoing_speakers.txt` });
 };
