@@ -51,7 +51,7 @@ export const getApprovedVisitingSpeakersAccess = async (req: Request, res: Respo
 
 		res.locals.type = 'info';
 		res.locals.message = `user fetched congregation speakers access`;
-		res.status(200).json(access);
+		res.status(200).json({ congregations: access });
 	} catch (err) {
 		next(err);
 	}

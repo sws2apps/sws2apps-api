@@ -208,7 +208,7 @@ export const dbCongregationRejectAccessRequest = async (congId: string, requestI
 	request.status = 'disapproved';
 	request.updatedAt = new Date().toISOString();
 
-	delete request.temp_key;
+	if (request.temp_key) delete request.temp_key;
 
 	const data = JSON.stringify({
 		list: cong.cong_outgoing_speakers.list,

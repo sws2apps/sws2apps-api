@@ -406,7 +406,7 @@ export const getCongregationUpdates = async (req: Request, res: Response, next: 
 		}
 
 		res.locals.type = 'info';
-		res.locals.message = 'user retrieve backup successfully';
+		res.locals.message = 'user retrieve updates successfully';
 		res.status(200).json(result);
 	} catch (err) {
 		next(err);

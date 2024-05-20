@@ -165,9 +165,14 @@ export class Congregation {
 		const approvedCong = this.cong_outgoing_speakers.access.filter((record) => record.status === 'approved');
 
 		const result = approvedCong.map((cong) => {
-			const foundCong = CongregationsList.findById(cong.cong_id);
+			const foundCong = CongregationsList.findById(cong.cong_id)!;
 
-			return { cong_id: cong.cong_id, cong_number: foundCong?.cong_number, cong_name: foundCong?.cong_name };
+			return {
+				cong_id: cong.cong_id,
+				request_id: cong.request_id,
+				cong_number: foundCong.cong_number,
+				cong_name: foundCong.cong_name,
+			};
 		});
 
 		return result;
