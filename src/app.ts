@@ -81,7 +81,7 @@ app.use((req, res, next) => {
 	next();
 });
 
-app.use(cookieParser());
+app.use(cookieParser(process.env.SEC_ENCRYPT_KEY || 'DON’T_FORGET_TO_SET_KEY_IN_PROD'));
 
 app.use(requestIp.mw()); // get IP address middleware
 app.use(internetChecker());

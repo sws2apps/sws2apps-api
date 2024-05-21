@@ -32,7 +32,7 @@ router.get('/:id/2fa/disable', disableUser2FA);
 router.get('/:id/sessions', getUserSessions);
 
 // delete user session
-router.delete('/:id/sessions', body('session').notEmpty(), deleteUserSession);
+router.delete('/:id/sessions', body('identifier').notEmpty(), deleteUserSession);
 
 // logout current user session
 router.get('/logout', userLogout);

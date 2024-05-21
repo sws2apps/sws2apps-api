@@ -19,6 +19,7 @@ export type UserSession = {
 		os: string;
 	};
 	visitorid: string;
+	identifier: string;
 };
 
 export type UserRecordType = {

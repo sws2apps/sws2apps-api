@@ -41,7 +41,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 			return;
 		}
 
-		const visitorid = req.cookies.visitorid || crypto.randomUUID();
+		const visitorid = req.signedCookies.visitorid || crypto.randomUUID();
 		let authUser = UsersList.findByAuthUid(uid);
 		let newSessions: UserSession[] = [];
 
@@ -69,6 +69,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 			sws_last_seen: new Date().toISOString(),
 			visitorid: visitorid,
 			visitor_details: await retrieveVisitorDetails(userIP, req),
+			identifier: crypto.randomUUID(),
 		};
 
 		newSessions.push(newSession);
@@ -181,7 +182,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 			return;
 		}
 
-		const visitorid = req.cookies.visitorid || crypto.randomUUID();
+		const visitorid = req.signedCookies.visitorid || crypto.randomUUID();
 		const email = req.body.email as string;
 
 		let authUser = UsersList.findByAuthUid(uid);
@@ -201,6 +202,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 			sws_last_seen: new Date().toISOString(),
 			visitorid: visitorid,
 			visitor_details: await retrieveVisitorDetails(userIP, req),
+			identifier: crypto.randomUUID(),
 		};
 
 		newSessions.push(newSession);

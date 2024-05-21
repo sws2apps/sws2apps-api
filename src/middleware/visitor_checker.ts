@@ -8,7 +8,6 @@ import { authBearerCheck } from '../services/validator/auth.js';
 export const visitorChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			await check('visitorid').exists().notEmpty().isString().run(req);
 			await check('Authorization').exists().notEmpty().isString().custom(authBearerCheck).run(req);
 
 			const errors = validationResult(req);
@@ -35,6 +34,15 @@ export const visitorChecker = () => {
 				return;
 			}
 
+			// get visitorid signed
+			const visitorid = req.signedCookies.visitorid;
+			if (!visitorid) {
+				res.locals.type = 'warn';
+				res.locals.message = 'the device the user is using was revoked';
+				res.status(404).json({ message: 'DEVICE_REVOKED' });
+				return;
+			}
+
 			const user = UsersList.findByAuthUid(uid);
 
 			if (!user) {
@@ -47,7 +55,7 @@ export const visitorChecker = () => {
 			if (user.disabled) {
 				res.locals.type = 'warn';
 				res.locals.message = 'this user account is currently disabled';
-				res.status(403).json({ message: 'ACCOUNT_DISABLED' });
+				res.status(404).json({ message: 'ACCOUNT_DISABLED' });
 				return;
 			}
 
@@ -55,7 +63,6 @@ export const visitorChecker = () => {
 			const sessions = user.sessions;
 
 			// find if visitor id has valid session
-			const visitorid = req.cookies.visitorid;
 			const findSession = sessions!.find((session) => session.visitorid === visitorid);
 
 			if (!findSession) {

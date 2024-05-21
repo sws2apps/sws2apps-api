@@ -107,10 +107,11 @@ export class User {
 		this.lastname = { value: data.lastname, updatedAt: data.updatedAt };
 	}
 
-	getActiveSessions() {
+	getActiveSessions(visitorid: string) {
 		const result = this.sessions?.map((session) => {
 			return {
-				visitorid: session.visitorid,
+				identifier: session.identifier,
+				isSelf: session.visitorid === visitorid,
 				ip: session.visitor_details.ip,
 				country_name: session.visitor_details.ipLocation.country_name,
 				device: {
@@ -125,14 +126,16 @@ export class User {
 		return result;
 	}
 
-	async revokeSession(visitorId: string) {
-		const newSessions = this.sessions!.filter((session) => session.visitorid !== visitorId);
+	async revokeSession(identifier: string) {
+		const revokedSession = this.sessions!.find((record) => record.identifier === identifier)!;
+
+		const newSessions = this.sessions!.filter((session) => session.identifier !== identifier);
 
 		await dbUserUpdateSessions(this.id, newSessions);
 
 		this.sessions = newSessions;
 
-		return this.getActiveSessions();
+		return this.getActiveSessions(revokedSession.visitorid);
 	}
 
 	async updateSessions(sessions: UserSession[]) {
@@ -148,7 +151,11 @@ export class User {
 	}
 
 	async logout(visitorId: string) {
-		await this.revokeSession(visitorId);
+		const session = this.sessions?.find((record) => record.visitorid === visitorId);
+
+		if (session) {
+			await this.revokeSession(session.identifier);
+		}
 	}
 
 	async adminLogout() {

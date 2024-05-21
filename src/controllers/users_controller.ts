@@ -94,7 +94,7 @@ export const getUserSessions = async (req: Request, res: Response, next: NextFun
 		}
 
 		const user = UsersList.findById(id)!;
-		const sessions = user.getActiveSessions();
+		const sessions = user.getActiveSessions(req.signedCookies.visitorid);
 
 		res.locals.type = 'info';
 		res.locals.message = `the user has fetched sessions successfully`;
@@ -128,10 +128,10 @@ export const deleteUserSession = async (req: Request, res: Response, next: NextF
 			return;
 		}
 
-		const visitorid = req.body.session as string;
+		const identifier = req.body.identifier as string;
 
 		const user = UsersList.findById(id)!;
-		const sessions = user.revokeSession(visitorid);
+		const sessions = user.revokeSession(identifier);
 
 		res.locals.type = 'info';
 		res.locals.message = `the user has revoked session successfully`;
