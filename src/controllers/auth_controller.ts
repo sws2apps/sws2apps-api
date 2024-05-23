@@ -80,7 +80,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 			res.locals.type = 'info';
 			res.locals.message = 'user required to verify mfa';
 
-			res.cookie('visitorid', visitorid, cookieOptions);
+			res.cookie('visitorid', visitorid, cookieOptions(req));
 
 			if (isDev) {
 				const tokenDev = generateTokenDev(authUser.user_email!, authUser.secret!);
@@ -116,7 +116,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 		res.locals.type = 'info';
 		res.locals.message = 'user successfully logged in without MFA';
 
-		res.cookie('visitorid', visitorid, cookieOptions);
+		res.cookie('visitorid', visitorid, cookieOptions(req));
 		res.status(200).json(userInfo);
 	} catch (err) {
 		next(err);
@@ -213,7 +213,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 			res.locals.type = 'info';
 			res.locals.message = 'user required to verify mfa';
 
-			res.cookie('visitorid', visitorid, cookieOptions);
+			res.cookie('visitorid', visitorid, cookieOptions(req));
 			if (isDev) {
 				const tokenDev = generateTokenDev(authUser.user_email!, authUser.secret!);
 				res.status(200).json({ message: 'MFA_VERIFY', code: tokenDev });
@@ -250,7 +250,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 		res.locals.type = 'info';
 		res.locals.message = 'user successfully logged in without MFA';
 
-		res.cookie('visitorid', visitorid, cookieOptions);
+		res.cookie('visitorid', visitorid, cookieOptions(req));
 		res.status(200).json(userInfo);
 	} catch (err) {
 		next(err);
