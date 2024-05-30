@@ -1,3 +1,13 @@
+# [2.97.0](https://github.com/sws2apps/sws2apps-api/compare/v2.96.5...v2.97.0) (2024-05-30)
+
+
+### Features
+
+* **deps:** bump express-validator from 7.0.1 to 7.1.0 ([f418018](https://github.com/sws2apps/sws2apps-api/commit/f41801899c0c9aef358ab424d43fd2e26eed21a6))
+* **deps:** bump i18next from 23.11.3 to 23.11.4 ([852bc0d](https://github.com/sws2apps/sws2apps-api/commit/852bc0d7be5fcef53a57ddc111f20487e35f41fe))
+* **deps:** bump jsdom from 24.0.0 to 24.1.0 ([51fd2a4](https://github.com/sws2apps/sws2apps-api/commit/51fd2a4608f982189c66ce3fe2d553ea30a7f946))
+* **deps:** bump otpauth from 9.2.3 to 9.2.4 ([f86d20a](https://github.com/sws2apps/sws2apps-api/commit/f86d20ae7dd5782b436d6121825a3b5f183ace0f))
+
 ## [2.96.5](https://github.com/sws2apps/sws2apps-api/compare/v2.96.4...v2.96.5) (2024-05-04)
 
 
