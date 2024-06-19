@@ -1,3 +1,13 @@
+# [2.98.0](https://github.com/sws2apps/sws2apps-api/compare/v2.97.0...v2.98.0) (2024-06-19)
+
+
+### Features
+
+* **deps:** bump express-rate-limit from 7.2.0 to 7.3.0 ([5ac4e35](https://github.com/sws2apps/sws2apps-api/commit/5ac4e3562e935325824c94a2fa729f465a88df0b))
+* **deps:** bump express-rate-limit from 7.3.0 to 7.3.1 ([72f2f32](https://github.com/sws2apps/sws2apps-api/commit/72f2f326702118246fd1104d365ea3645b6c0989))
+* **deps:** bump otpauth from 9.2.4 to 9.3.0 ([95901d0](https://github.com/sws2apps/sws2apps-api/commit/95901d0b90cba7d64bcb6e22ead7945217da39dd))
+* **deps:** bump otpauth from 9.3.0 to 9.3.1 ([f3fe0ef](https://github.com/sws2apps/sws2apps-api/commit/f3fe0efbaf36ff5cb686856567b1099e4d79840f))
+
 # [2.97.0](https://github.com/sws2apps/sws2apps-api/compare/v2.96.5...v2.97.0) (2024-05-30)
 
 
