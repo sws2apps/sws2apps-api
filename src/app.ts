@@ -5,25 +5,19 @@ import helmet from 'helmet';
 import path from 'node:path';
 import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
-import cookieParser from 'cookie-parser';
 
-import './config/firebase_config.js';
+import './v2/config/i18n-config.js';
+import './v3/config/firebase_config.js';
 
-import authRoute from './routes/auth.js';
-import congregationRoute from './routes/congregation.js';
-import congregationMeetingEditorRoute from './routes/congregation_meeting_editor.js';
-import congregationAdminRoute from './routes/congregation_admin.js';
-import userRoute from './routes/users.js';
-import mfaRoute from './routes/mfa.js';
-import publicRoute from './routes/public.js';
+import { internetChecker } from './v3/middleware/internet_checker.js';
+import { requestChecker } from './v3/middleware/request_checker.js';
+import { updateTracker } from './v3/middleware/update_tracker.js';
+import { serverReadyChecker } from './v3/middleware/server_ready_checker.js';
 
-import { internetChecker } from './middleware/internet_checker.js';
-import { requestChecker } from './middleware/request_checker.js';
-import { updateTracker } from './middleware/update_tracker.js';
-import { appVersionChecker } from './middleware/app_version_checker.js';
-import { serverReadyChecker } from './middleware/server_ready_checker.js';
+import routesV2 from './v2/routes/index.js';
+import routesV3 from './v3/routes/index.js';
 
-import { errorHandler, getRoot, invalidEndpointHandler } from './controllers/app_controller.js';
+import { errorHandler, getRoot, invalidEndpointHandler } from './v3/controllers/app_controller.js';
 
 // allowed apps url
 const whitelist = [
@@ -81,32 +75,21 @@ app.use((req, res, next) => {
 	next();
 });
 
-app.use(cookieParser(process.env.SEC_ENCRYPT_KEY || 'DON’T_FORGET_TO_SET_KEY_IN_PROD'));
-
 app.use(requestIp.mw()); // get IP address middleware
 app.use(internetChecker());
 app.use(requestChecker());
 app.use(updateTracker());
 app.use(serverReadyChecker());
 
-app.use(
-	rateLimit({
-		windowMs: 1000,
-		max: 20,
-		message: JSON.stringify({ message: 'TOO_MANY_REQUESTS' }),
-	})
-);
+app.use(rateLimit({ windowMs: 1000, max: 20, message: JSON.stringify({ message: 'TOO_MANY_REQUESTS' }) }));
 
 app.get('/', getRoot);
-app.use('/api/public', publicRoute);
 
-app.use(appVersionChecker());
-app.use('/', authRoute);
-app.use('/api/mfa', mfaRoute);
-app.use('/api/users', userRoute);
-app.use('/api/congregations', congregationRoute);
-app.use('/api/congregations/meeting', congregationMeetingEditorRoute);
-app.use('/api/congregations/admin', congregationAdminRoute);
+// load v2 routes
+app.use('/api/v2', routesV2);
+
+// load v3 routes
+app.use('/api/v3', routesV3);
 
 // Handling invalid routes
 app.use(invalidEndpointHandler);

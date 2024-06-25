@@ -8,8 +8,10 @@
 		"sourceMap": false,
 		"outDir": "./dist",
 		"strict": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"allowJs": true,
+		"checkJs": false
 	},
-	"include": ["src/**/*.ts"],
+	"include": ["src/**/*.ts", "src/**/*.js"],
 	"exclude": ["node_modules", "dist"]
 }
