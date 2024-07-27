@@ -251,8 +251,14 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 			country_code,
 			cong_circuit: congRequest.circuit,
 			cong_location: { address: congRequest.address, lat: congRequest.location.lat, lng: congRequest.location.lng },
-			midweek_meeting: { time: congRequest.midweekMeetingTime.time, weekday: congRequest.midweekMeetingTime.weekday },
-			weekend_meeting: { time: congRequest.weekendMeetingTime.time, weekday: congRequest.weekendMeetingTime.weekday },
+			midweek_meeting: {
+				time: congRequest.midweekMeetingTime.time.slice(0, -3),
+				weekday: congRequest.midweekMeetingTime.weekday,
+			},
+			weekend_meeting: {
+				time: congRequest.weekendMeetingTime.time.slice(0, -3),
+				weekday: congRequest.weekendMeetingTime.weekday,
+			},
 		});
 
 		// add user to congregation
