@@ -1,3 +1,12 @@
+# [2.100.0](https://github.com/sws2apps/sws2apps-api/compare/v2.99.0...v2.100.0) (2024-07-29)
+
+
+### Features
+
+* **deps:** bump express-rate-limit from 7.3.1 to 7.4.0 ([6c11b67](https://github.com/sws2apps/sws2apps-api/commit/6c11b671b3a758f21d26ca6df48230709191198d))
+* **deps:** bump firebase-admin from 12.2.0 to 12.3.0 ([5129dcd](https://github.com/sws2apps/sws2apps-api/commit/5129dcddc6fb765d5d6b943e6141d7942aaf69f4))
+* **deps:** bump is-online from 10.0.0 to 11.0.0 ([79fb008](https://github.com/sws2apps/sws2apps-api/commit/79fb008b333d60053a055961747a11f250b2b247))
+
 # [2.99.0](https://github.com/sws2apps/sws2apps-api/compare/v2.98.0...v2.99.0) (2024-07-23)
 
 
