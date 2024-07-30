@@ -15,8 +15,8 @@ for await (const language of ALL_LANGUAGES) {
 }
 
 i18next.init({
-	lng: 'en',
-	fallbackLng: 'en',
+	lng: 'E',
+	fallbackLng: 'E',
 	resources,
 });
 
