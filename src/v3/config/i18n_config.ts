@@ -10,8 +10,8 @@ const resources: Resource = {};
 for await (const language of ALL_LANGUAGES) {
 	const translations = await fs.promises.readFile(new URL(`../../../locales/${language.locale}/main.json`, import.meta.url));
 
-	resources[language.locale] = {};
-	resources[language.locale].translation = JSON.parse(translations.toString());
+	resources[language.code] = {};
+	resources[language.code].translation = JSON.parse(translations.toString());
 }
 
 i18next.init({

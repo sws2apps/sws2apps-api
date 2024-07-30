@@ -3,7 +3,6 @@ import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { CongregationsList } from '../classes/Congregations.js';
 import { UsersList } from '../classes/Users.js';
-import { ALL_LANGUAGES } from '../constant/langList.js';
 import { ApiCongregationSearchResponse, CongregationBackupType, CongregationUpdatesType } from '../denifition/congregation.js';
 import { sendWelcomeMessage } from '../services/mail/sendEmail.js';
 import { formatError } from '../utils/format_log.js';
@@ -101,10 +100,9 @@ export const getCountries = async (req: Request, res: Response, next: NextFuncti
 			return;
 		}
 
-		const language = (req.headers?.language as string) || 'en';
-		const JWLang = ALL_LANGUAGES.find((record) => record.locale === language)?.code || 'E';
+		const language = (req.headers?.language as string) || 'E';
 
-		const url = process.env.APP_COUNTRY_API! + new URLSearchParams({ language: JWLang });
+		const url = process.env.APP_COUNTRY_API! + new URLSearchParams({ language });
 
 		const response = await fetch(url);
 
@@ -140,14 +138,13 @@ export const getCongregations = async (req: Request, res: Response, next: NextFu
 			return;
 		}
 
-		const language = (req.headers.language as string) || 'en';
+		const language = (req.headers.language as string) || 'E';
 		const name = req.headers.name as string;
 		let country = req.headers.country as string;
 
 		country = country.toUpperCase();
-		const JWLang = ALL_LANGUAGES.find((record) => record.locale === language)?.code || 'E';
 
-		const url = process.env.APP_CONGREGATION_API! + new URLSearchParams({ country, language: JWLang, name });
+		const url = process.env.APP_CONGREGATION_API! + new URLSearchParams({ country, language, name });
 
 		const response = await fetch(url);
 
@@ -201,10 +198,8 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 		}
 
 		// is congregation authentic
-		const language = req.headers.applanguage || 'en';
-		const JWLang = ALL_LANGUAGES.find((record) => record.locale === language)?.code || 'E';
-		const url =
-			process.env.APP_CONGREGATION_API! + new URLSearchParams({ country: country_code, language: JWLang, name: cong_number });
+		const language = (req.headers.language as string) || 'E';
+		const url = process.env.APP_CONGREGATION_API! + new URLSearchParams({ country: country_code, language, name: cong_number });
 
 		const response = await fetch(url);
 		if (response.status !== 200) {
@@ -265,7 +260,7 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 		const userCong = await user.assignCongregation({ congId: congId, role: ['admin'] });
 
 		if (!isDev) {
-			sendWelcomeMessage(user.user_email!, `${lastname} ${firstname}`, `${cong_name} (${cong_number})`, JWLang);
+			sendWelcomeMessage(user.user_email!, `${lastname} ${firstname}`, `${cong_name} (${cong_number})`, language);
 		}
 
 		const finalResult = {
