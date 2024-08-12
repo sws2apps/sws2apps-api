@@ -16,12 +16,7 @@ router.use(visitorChecker());
 
 router.get('/countries', getCountries);
 
-router.get(
-	'/list-by-country',
-	check('country').isString().notEmpty(),
-	check('name').isString().isLength({ min: 2 }),
-	getCongregations
-);
+router.get('/search', getCongregations);
 
 // create a new congregation
 router.put(

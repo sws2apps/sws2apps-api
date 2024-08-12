@@ -87,6 +87,7 @@ export const saveCongregationBackup = async (req: Request, res: Response, next: 
 export const getCountries = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const errors = validationResult(req);
+
 		if (!errors.isEmpty()) {
 			const msg = formatError(errors);
 
@@ -100,7 +101,7 @@ export const getCountries = async (req: Request, res: Response, next: NextFuncti
 			return;
 		}
 
-		const language = (req.headers?.language as string) || 'E';
+		const language = (req.query.language as string) || 'E';
 
 		const url = process.env.APP_COUNTRY_API! + new URLSearchParams({ language });
 
@@ -138,9 +139,20 @@ export const getCongregations = async (req: Request, res: Response, next: NextFu
 			return;
 		}
 
-		const language = (req.headers.language as string) || 'E';
-		const name = req.headers.name as string;
-		let country = req.headers.country as string;
+		const language = (req.query.language as string) || 'E';
+		const name = req.query.name as string;
+		let country = req.query.country as string;
+
+		if (name.length < 2 || country?.length === 0) {
+			res.locals.type = 'warn';
+			res.locals.message = `country or name is invalid`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
 
 		country = country.toUpperCase();
 
