@@ -68,7 +68,7 @@ class Congregations {
 				cong_number: cong.cong_number,
 				country_code: cong.country_code,
 				cong_location: cong.cong_location,
-				cong_circuit: cong.cong_circuit.find((record) => record.type === 'main')!.name,
+				cong_circuit: cong.cong_circuit.find((record) => record.type === 'main')!.value,
 				midweek_meeting: cong.midweek_meeting.find((record) => record.type === 'main'),
 				weekend_meeting: cong.weekend_meeting.find((record) => record.type === 'main'),
 			};

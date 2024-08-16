@@ -144,7 +144,7 @@ export const dbCongregationCreate = async (data: CongregationCreateInfoType) => 
 		cong_name: data.cong_name,
 		cong_discoverable: { value: false, updatedAt: new Date().toISOString() },
 		cong_location: { ...data.cong_location, updatedAt: new Date().toISOString() },
-		cong_circuit: [{ type: 'main', name: data.cong_circuit, updatedAt: new Date().toISOString() }],
+		cong_circuit: [{ type: 'main', value: data.cong_circuit, updatedAt: new Date().toISOString() }],
 		midweek_meeting: [
 			{
 				type: 'main',
