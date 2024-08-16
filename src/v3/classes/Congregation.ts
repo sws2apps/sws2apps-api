@@ -48,12 +48,12 @@ export class Congregation {
 		this.cong_name = '';
 		this.cong_number = '';
 		this.cong_location = { lat: null, lng: null, address: '' };
-		this.cong_circuit = [{ type: 'main', name: '' }];
+		this.cong_circuit = [{ type: 'main', name: '', updatedAt: '' }];
 		this.cong_members = [];
 		this.cong_master_key = '';
 		this.cong_access_code = '';
-		this.midweek_meeting = [{ type: 'main', weekday: null, time: '' }];
-		this.weekend_meeting = [{ type: 'main', weekday: null, time: '' }];
+		this.midweek_meeting = [{ type: 'main', weekday: { value: null, updatedAt: '' }, time: { value: '', updatedAt: '' } }];
+		this.weekend_meeting = [{ type: 'main', weekday: { value: null, updatedAt: '' }, time: { value: '', updatedAt: '' } }];
 		this.cong_outgoing_speakers = { list: [], speakers_key: '', access: [] };
 		this.cong_discoverable = { value: false, updatedAt: '' };
 		this.last_backup = '';

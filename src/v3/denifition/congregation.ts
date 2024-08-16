@@ -14,7 +14,7 @@ export type CongregationRecordType = {
 	country_code: string;
 	last_backup?: string;
 	cong_circuit: CircuitRecordType[];
-	cong_location: { address: string; lat: number; lng: number };
+	cong_location: { address: string; lat: number; lng: number; updatedAt: string };
 	midweek_meeting: MeetingRecordType[];
 	weekend_meeting: MeetingRecordType[];
 	cong_discoverable: { value: boolean; updatedAt: string };
@@ -33,12 +33,13 @@ export type ApiCongregationSearchResponse = {
 export type CircuitRecordType = {
 	type: string;
 	name: string;
+	updatedAt: string;
 };
 
 export type MeetingRecordType = {
 	type: string;
-	weekday: number | null;
-	time: string;
+	weekday: { value: null; updatedAt: string };
+	time: { value: string; updatedAt: string };
 };
 
 export type OutgoingSpeakersAccessStorageType = {

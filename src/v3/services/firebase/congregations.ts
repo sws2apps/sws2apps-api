@@ -143,10 +143,34 @@ export const dbCongregationCreate = async (data: CongregationCreateInfoType) => 
 		cong_number: data.cong_number,
 		cong_name: data.cong_name,
 		cong_discoverable: { value: false, updatedAt: new Date().toISOString() },
-		cong_location: data.cong_location,
-		cong_circuit: [{ type: 'main', name: data.cong_circuit }],
-		midweek_meeting: [{ type: 'main', ...data.midweek_meeting }],
-		weekend_meeting: [{ type: 'main', ...data.weekend_meeting }],
+		cong_location: { ...data.cong_location, updatedAt: new Date().toISOString() },
+		cong_circuit: [{ type: 'main', name: data.cong_circuit, updatedAt: new Date().toISOString() }],
+		midweek_meeting: [
+			{
+				type: 'main',
+				weekday: {
+					value: data.midweek_meeting.weekday,
+					updatedAt: new Date().toISOString(),
+				},
+				time: {
+					value: data.midweek_meeting.time,
+					updatedAt: new Date().toISOString(),
+				},
+			},
+		],
+		weekend_meeting: [
+			{
+				type: 'main',
+				weekday: {
+					value: data.weekend_meeting.weekday,
+					updatedAt: new Date().toISOString(),
+				},
+				time: {
+					value: data.weekend_meeting.time,
+					updatedAt: new Date().toISOString(),
+				},
+			},
+		],
 	};
 
 	const cong = await db.collection('congregations_v3').add(dataSave);
