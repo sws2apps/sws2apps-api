@@ -48,7 +48,7 @@ export class Congregation {
 		this.cong_name = '';
 		this.cong_number = '';
 		this.cong_location = { lat: null, lng: null, address: '' };
-		this.cong_circuit = [{ type: 'main', name: '', updatedAt: '' }];
+		this.cong_circuit = [{ type: 'main', value: '', updatedAt: '' }];
 		this.cong_members = [];
 		this.cong_master_key = '';
 		this.cong_access_code = '';

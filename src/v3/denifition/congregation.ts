@@ -32,7 +32,7 @@ export type ApiCongregationSearchResponse = {
 
 export type CircuitRecordType = {
 	type: string;
-	name: string;
+	value: string;
 	updatedAt: string;
 };
 

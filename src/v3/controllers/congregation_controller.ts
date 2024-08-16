@@ -283,10 +283,10 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 			cong_number: user.cong_number,
 			cong_role: user.cong_role,
 			country_code: userCong.country_code,
-			cong_circuit: userCong.cong_circuit.find((record) => record.type === 'main')!.name,
+			cong_circuit: userCong.cong_circuit,
 			cong_location: userCong.cong_location,
-			midweek_meeting: userCong.midweek_meeting.find((record) => record.type === 'main'),
-			weekend_meeting: userCong.weekend_meeting.find((record) => record.type === 'main'),
+			midweek_meeting: userCong.midweek_meeting,
+			weekend_meeting: userCong.weekend_meeting,
 		};
 
 		res.locals.type = 'info';
