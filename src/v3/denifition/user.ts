@@ -36,8 +36,9 @@ export type UserRecordType = {
 		id: string;
 		role: AppRoleType[];
 		last_backup?: string;
-		pocket_oCode?: string;
+		pocket_invitation_code?: string;
 		user_local_uid?: string;
+		user_delegates: string[];
 	};
 };
 
@@ -46,6 +47,24 @@ export type UserNewParams = {
 	firstname: string;
 	lastname: string;
 	email?: string;
+};
+
+export type PocketNewParams = {
+	user_firstname: string;
+	user_lastname: string;
+	user_secret_code: string;
+	cong_id: string;
+	cong_role: string[];
+	cong_person_uid: string;
+};
+
+export type CongregationUserParams = {
+	user_firstname: string;
+	user_lastname: string;
+	user_id: string;
+	cong_id: string;
+	cong_role: string[];
+	cong_person_uid: string;
 };
 
 export type RequestPasswordLessLinkParams = {
@@ -57,8 +76,19 @@ export type RequestPasswordLessLinkParams = {
 export type UserCongregationAssignParams = {
 	congId: string;
 	role: AppRoleType[];
+	firstname?: string;
+	lastname?: string;
+	person_uid?: string;
 };
 
 export type UserCongregationAssignDbParams = UserCongregationAssignParams & {
 	userId: string;
+};
+
+export type UserCongregationDetailsType = {
+	userId: string;
+	cong_role: AppRoleType[];
+	cong_person_uid: string;
+	cong_person_delegates: string[];
+	cong_pocket?: string;
 };

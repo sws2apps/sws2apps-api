@@ -2,8 +2,11 @@ import * as OTPAuth from 'otpauth';
 import { getAuth } from 'firebase-admin/auth';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import {
+	CongregationUserParams,
+	PocketNewParams,
 	RequestPasswordLessLinkParams,
 	UserCongregationAssignDbParams,
+	UserCongregationDetailsType,
 	UserNewParams,
 	UserRecordType,
 	UserSession,
@@ -155,9 +158,26 @@ export const dbUserGeneratePasswordLessLink = async (params: RequestPasswordLess
 };
 
 export const dbUserCongregationAssign = async (params: UserCongregationAssignDbParams) => {
-	const { congId, role, userId } = params;
+	const { congId, role, userId, firstname, lastname, person_uid } = params;
 
-	const data = { congregation: { id: congId, role } };
+	const data = <UserRecordType>{ congregation: { id: congId, role } };
+
+	if (firstname || lastname) {
+		data.about = <UserRecordType['about']>{};
+	}
+
+	if (firstname) {
+		data.about.firstname = { value: firstname, updatedAt: new Date().toISOString() };
+	}
+
+	if (lastname) {
+		data.about.lastname = { value: lastname, updatedAt: new Date().toISOString() };
+	}
+
+	if (person_uid) {
+		data.congregation!.user_local_uid = person_uid;
+	}
+
 	await db.collection('users_v3').doc(userId).set(data, { merge: true });
 };
 
@@ -168,4 +188,96 @@ export const dbUserDecodeIdToken = async (idToken: string) => {
 	} catch (err) {
 		console.error('Failed to decode idToken');
 	}
+};
+
+export const dbPocketCreate = async ({
+	cong_id,
+	cong_person_uid,
+	cong_role,
+	user_firstname,
+	user_lastname,
+	user_secret_code,
+}: PocketNewParams) => {
+	const data = {
+		about: {
+			firstname: { value: user_firstname, updatedAt: new Date().toISOString() },
+			lastname: { value: user_lastname, updatedAt: new Date().toISOString() },
+			role: 'pocket',
+		},
+		congregation: {
+			id: cong_id,
+			role: cong_role,
+			user_local_uid: cong_person_uid,
+			user_delegates: [],
+			pocket_invitation_code: encryptData(user_secret_code),
+		},
+	};
+
+	const { id } = await db.collection('users_v3').add(data);
+
+	return id;
+};
+
+export const dbUserUpdateCongregationDetails = async ({
+	cong_person_delegates,
+	cong_person_uid,
+	cong_role,
+	userId,
+	cong_pocket,
+}: UserCongregationDetailsType) => {
+	await db.collection('users_v3').doc(userId).update({
+		'congregation.role': cong_role,
+		'congregation.user_local_uid': cong_person_uid,
+		'congregation.user_delegates': cong_person_delegates,
+	});
+
+	if (cong_pocket) {
+		await db.collection('users_v3').doc(userId).update({
+			'congregation.pocket_invitation_code': cong_pocket,
+		});
+	}
+};
+
+export const dbPocketDeleteCode = async (userId: string) => {
+	await db.collection('users_v3').doc(userId).update({ 'congregation.pocket_invitation_code': FieldValue.delete() });
+
+	return false;
+};
+
+export const dbCongregationUserCreate = async ({
+	cong_id,
+	cong_person_uid,
+	cong_role,
+	user_firstname,
+	user_lastname,
+	user_id,
+}: CongregationUserParams) => {
+	const data = {
+		about: {
+			firstname: { value: user_firstname, updatedAt: new Date().toISOString() },
+			lastname: { value: user_lastname, updatedAt: new Date().toISOString() },
+			role: 'vip',
+		},
+		congregation: {
+			id: cong_id,
+			role: cong_role,
+			user_local_uid: cong_person_uid,
+			user_delegates: [],
+		},
+	};
+
+	await db.collection('users_v3').doc(user_id).set(data, { merge: true });
+};
+
+export const dbUserDelete = async (userId: string) => {
+	await db.collection('users_v3').doc(userId).delete();
+};
+
+export const dbUserCongregationRemove = async (userId: string) => {
+	await db.collection('users_v3').doc(userId).update({
+		'congregation.id': '',
+		'congregation.role': [],
+		'congregation.user_delegates': [],
+		'congregation.user_local_uid': FieldValue.delete(),
+	});
 };

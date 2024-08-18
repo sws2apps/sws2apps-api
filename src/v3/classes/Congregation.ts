@@ -10,6 +10,7 @@ import {
 	SpeakersCongregationType,
 	VisitingSpeakerType,
 } from '../denifition/congregation.js';
+import { decryptData } from '../services/encryption/encryption.js';
 import {
 	dbCongregationLoadDetails,
 	dbCongregationSaveBackup,
@@ -261,5 +262,32 @@ export class Congregation {
 		}
 
 		return congs;
+	}
+
+	getMembers(visitorid: string) {
+		const members = this.cong_members.map((member) => {
+			return {
+				...member,
+				pocket_invitation_code:
+					typeof member.pocket_invitation_code === 'string' ? decryptData(member.pocket_invitation_code) : undefined,
+				sessions:
+					member.sessions?.map((session) => {
+						return {
+							identifier: session.identifier,
+							isSelf: session.visitorid === visitorid,
+							ip: session.visitor_details.ip,
+							country_name: session.visitor_details.ipLocation.country_name,
+							device: {
+								browserName: session.visitor_details.browser,
+								os: session.visitor_details.os,
+								isMobile: session.visitor_details.isMobile,
+							},
+							last_seen: session.sws_last_seen,
+						};
+					}) || [],
+			};
+		});
+
+		return members;
 	}
 }

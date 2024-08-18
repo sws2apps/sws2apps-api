@@ -1,26 +1,29 @@
 import { AppRoleType, OTPSecretType } from '../denifition/app.js';
 import { UserCongregationAssignParams, UserGlobalRoleType, UserSession } from '../denifition/user.js';
 import {
+	dbPocketDeleteCode,
 	dbUserAuthDetails,
 	dbUserCongregationAssign,
+	dbUserCongregationRemove,
 	dbUserDisableMFA,
 	dbUserEnableMFA,
 	dbUserGenerateSecret,
 	dbUserLoadDetails,
+	dbUserUpdateCongregationDetails,
 	dbUserUpdateEmail,
 	dbUserUpdateFirstname,
 	dbUserUpdateLastname,
 	dbUserUpdateSessions,
 } from '../services/firebase/users.js';
 import { dbCongregationDetails } from '../services/firebase/congregations.js';
-import { decryptData } from '../services/encryption/encryption.js';
+import { decryptData, encryptData } from '../services/encryption/encryption.js';
 import { CongregationsList } from './Congregations.js';
 
 export class User {
 	id: string;
 	user_email: string | undefined;
 	user_local_uid: string | undefined;
-	pocket_oCode: string | undefined;
+	pocket_invitation_code: string | undefined;
 	cong_id: string | undefined;
 	cong_country: string;
 	cong_name: string;
@@ -37,12 +40,13 @@ export class User {
 	secret: string | undefined;
 	auth_provider: string;
 	last_backup: string | undefined;
+	user_delegates: string[];
 
 	constructor(id: string) {
 		this.id = id;
 		this.user_email = '';
 		this.user_local_uid = '';
-		this.pocket_oCode = '';
+		this.pocket_invitation_code = '';
 		this.cong_id = '';
 		this.cong_country = '';
 		this.cong_name = '';
@@ -59,6 +63,7 @@ export class User {
 		this.secret = '';
 		this.auth_provider = '';
 		this.last_backup = undefined;
+		this.user_delegates = [];
 	}
 
 	async loadDetails() {
@@ -72,11 +77,12 @@ export class User {
 		this.last_seen = data.last_seen;
 		this.lastname = data.about.lastname;
 		this.mfaEnabled = data.about.mfaEnabled ?? false;
-		this.pocket_oCode = data.congregation?.pocket_oCode;
+		this.pocket_invitation_code = data.congregation?.pocket_invitation_code;
 		this.secret = data.about.secret;
 		this.sessions = data.about.sessions;
 		this.user_local_uid = data.congregation?.user_local_uid;
 		this.auth_uid = data.about.auth_uid;
+		this.user_delegates = data.congregation?.user_delegates || [];
 
 		if (this.global_role !== 'pocket') {
 			const data = await dbUserAuthDetails(this.auth_uid);
@@ -201,14 +207,56 @@ export class User {
 	}
 
 	async assignCongregation(params: UserCongregationAssignParams) {
-		const { congId, role } = params;
-
-		await dbUserCongregationAssign({ congId, role, userId: this.id });
+		await dbUserCongregationAssign({ userId: this.id, ...params });
 		await this.loadDetails();
 
-		const cong = CongregationsList.findById(congId)!;
+		const cong = CongregationsList.findById(params.congId)!;
 		await cong.reloadMembers();
 
 		return cong;
+	}
+
+	async updateCongregationDetails(
+		cong_role: AppRoleType[],
+		cong_person_uid: string,
+		cong_person_delegates: string[],
+		cong_pocket?: string
+	) {
+		const data = {
+			userId: this.id,
+			cong_role,
+			cong_person_uid,
+			cong_person_delegates,
+			cong_pocket: cong_pocket ? encryptData(cong_pocket) : this.pocket_invitation_code,
+		};
+
+		await dbUserUpdateCongregationDetails(data);
+
+		this.user_local_uid = cong_person_uid;
+		this.cong_role = cong_role;
+		this.user_delegates = cong_person_delegates;
+		this.pocket_invitation_code = data.cong_pocket;
+	}
+
+	async deletePocketCode() {
+		await dbPocketDeleteCode(this.id);
+
+		this.pocket_invitation_code = undefined;
+
+		const cong = CongregationsList.findById(this.cong_id!)!;
+		await cong.reloadMembers();
+
+		return cong;
+	}
+
+	async removeCongregation() {
+		const cong = CongregationsList.findById(this.cong_id!);
+
+		await dbUserCongregationRemove(this.id);
+		await this.loadDetails();
+
+		if (cong) {
+			await cong.reloadMembers();
+		}
 	}
 }

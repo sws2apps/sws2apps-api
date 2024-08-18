@@ -131,7 +131,14 @@ export const deleteUserSession = async (req: Request, res: Response, next: NextF
 		const identifier = req.body.identifier as string;
 
 		const user = UsersList.findById(id)!;
-		const sessions = user.revokeSession(identifier);
+		const sessions = await user.revokeSession(identifier);
+
+		if (user.cong_id?.length! > 0) {
+			const cong = CongregationsList.findById(user.cong_id!);
+			if (cong) {
+				cong.reloadMembers();
+			}
+		}
 
 		res.locals.type = 'info';
 		res.locals.message = `the user has revoked session successfully`;

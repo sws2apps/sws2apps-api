@@ -1,7 +1,8 @@
 import { dbFetchUsers } from '../utils/user_utils.js';
-import { dbUserCreate, dbUserGeneratePasswordLessLink } from '../services/firebase/users.js';
-import { RequestPasswordLessLinkParams, UserNewParams } from '../denifition/user.js';
+import { dbPocketCreate, dbUserCreate, dbUserDelete, dbUserGeneratePasswordLessLink } from '../services/firebase/users.js';
+import { PocketNewParams, RequestPasswordLessLinkParams, UserNewParams } from '../denifition/user.js';
 import { User } from './User.js';
+import { CongregationsList } from './Congregations.js';
 
 class Users {
 	list: User[];
@@ -65,6 +66,32 @@ class Users {
 		const link = await dbUserGeneratePasswordLessLink(params);
 
 		return link;
+	}
+
+	async createPocket(params: PocketNewParams) {
+		const id = await dbPocketCreate(params);
+
+		const NewUser = await this.#add(id);
+		return NewUser;
+	}
+
+	async delete(id: string) {
+		const user = this.findById(id);
+		const cong = CongregationsList.findById(user?.cong_id!);
+
+		if (user?.global_role === 'pocket') {
+			await dbUserDelete(id);
+
+			this.list = this.list.filter((record) => record.id !== id);
+		}
+
+		if (user?.global_role === 'vip') {
+			await user.removeCongregation();
+		}
+
+		if (cong) {
+			cong.reloadMembers();
+		}
 	}
 }
 
