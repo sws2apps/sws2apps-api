@@ -11,6 +11,7 @@ export const congregationRoleChecker = () => {
 				cong_role.includes('coordinator') ||
 				cong_role.includes('field_service_group_overseer') ||
 				cong_role.includes('midweek_schedule') ||
+				cong_role.includes('weekend_schedule') ||
 				cong_role.includes('public_talk_schedule')
 			) {
 				next();
@@ -35,6 +36,7 @@ export const congregationMeetingEditorChecker = () => {
 				cong_role.includes('admin') ||
 				cong_role.includes('coordinator') ||
 				cong_role.includes('midweek_schedule') ||
+				cong_role.includes('weekend_schedule') ||
 				cong_role.includes('public_talk_schedule')
 			) {
 				next();
