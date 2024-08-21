@@ -29,6 +29,7 @@ export const validateUser = async (req: Request, res: Response, next: NextFuncti
 			cong_number: user.cong_number,
 			cong_role: user.cong_role,
 			user_local_uid: user.user_local_uid,
+			user_delegates: user.user_delegates,
 			firstname: user.firstname,
 			lastname: user.lastname,
 			cong_master_key: cong.cong_master_key,
