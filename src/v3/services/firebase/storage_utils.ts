@@ -14,6 +14,8 @@ export const uploadFileToStorage = async (data: string, options: StorageBaseType
 	const encryptedData = encryptData(data);
 
 	await file.save(encryptedData, { metadata: { contentType: 'text/plain' } });
+
+	return encryptedData;
 };
 
 export const getFileFromStorage = async (params: StorageBaseType) => {
@@ -70,4 +72,14 @@ export const getVisitingSpeakers = async (cong_id: string) => {
 
 	const visiting_speakers: VisitingSpeakerType[] = tmpData.length === 0 ? [] : JSON.parse(tmpData);
 	return visiting_speakers;
+};
+
+export const getPublicMeetingSources = async (cong_id: string) => {
+	const tmpData = await getFileFromStorage({ congId: cong_id, filename: 'public_meeting_sources.txt' });
+	return tmpData;
+};
+
+export const getPublicMeetingSchedules = async (cong_id: string) => {
+	const tmpData = await getFileFromStorage({ congId: cong_id, filename: 'public_meeting_schedules.txt' });
+	return tmpData;
 };

@@ -1,5 +1,5 @@
 import express from 'express';
-import { body, header } from 'express-validator';
+import { body } from 'express-validator';
 import { visitorChecker } from '../middleware/visitor_checker.js';
 import {
 	congregationMeetingEditorChecker,
@@ -10,6 +10,8 @@ import {
 	findVisitingSpeakersCongregations,
 	getApprovedVisitingSpeakersAccess,
 	getPendingVisitingSpeakersAccess,
+	publicSchedulesGet,
+	publishSchedules,
 	rejectVisitingSpeakersAccess,
 	requestAccessSpeakersCongregation,
 } from '../controllers/congregation_meeting_editor_controller.js';
@@ -19,11 +21,15 @@ const router = express.Router();
 router.use(visitorChecker());
 router.use(congregationMeetingEditorChecker());
 
+router.post('/:id/schedules', body('sources').isArray().notEmpty(), body('schedules').isArray().notEmpty(), publishSchedules);
+
+router.get('/:id/schedules', publicSchedulesGet);
+
 // activate public talk coordinator role
 router.use(congregationPublicTalkCoordinatorChecker());
 
 // find visiting speakears congregations
-router.get('/:id/visiting-speakers/congregations', header('name').isString().notEmpty(), findVisitingSpeakersCongregations);
+router.get('/:id/visiting-speakers/congregations', findVisitingSpeakersCongregations);
 
 // get visiting speakers list
 router.get('/:id/visiting-speakers/access', getApprovedVisitingSpeakersAccess);

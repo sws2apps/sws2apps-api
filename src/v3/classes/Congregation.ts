@@ -19,6 +19,7 @@ import {
 	dbCongregationRequestAccess,
 	dbCongregationApproveAccessRequest,
 	dbCongregationRejectAccessRequest,
+	dbCongregationPublishSchedules,
 } from '../services/firebase/congregations.js';
 import { CongregationsList } from './Congregations.js';
 import { User } from './User.js';
@@ -42,6 +43,10 @@ export class Congregation {
 	cong_persons: CongregationPersonType[];
 	speakers_congregations: SpeakersCongregationType[];
 	visiting_speakers: VisitingSpeakerType[];
+	public_schedules: {
+		meeting_sources: string;
+		meeting_schedules: string;
+	};
 
 	constructor(id: string) {
 		this.id = id;
@@ -61,6 +66,10 @@ export class Congregation {
 		this.cong_persons = [];
 		this.speakers_congregations = [];
 		this.visiting_speakers = [];
+		this.public_schedules = {
+			meeting_schedules: '',
+			meeting_sources: '',
+		};
 	}
 
 	async loadDetails() {
@@ -81,6 +90,8 @@ export class Congregation {
 		this.speakers_congregations = data.speakers_congregations;
 		this.visiting_speakers = data.visiting_speakers;
 		this.last_backup = data.last_backup || '';
+		this.public_schedules.meeting_schedules = data.public_meeting_schedules;
+		this.public_schedules.meeting_sources = data.public_meeting_sources;
 
 		this.reloadMembers();
 	}
@@ -289,5 +300,12 @@ export class Congregation {
 		});
 
 		return members;
+	}
+
+	async publishSchedules(sources: string, schedules: string) {
+		await dbCongregationPublishSchedules(this.id, sources, schedules);
+
+		this.public_schedules.meeting_sources = sources;
+		this.public_schedules.meeting_schedules = schedules;
 	}
 }

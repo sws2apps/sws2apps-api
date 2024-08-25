@@ -101,7 +101,7 @@ export const findVisitingSpeakersCongregations = async (req: Request, res: Respo
 			return;
 		}
 
-		const name = req.headers.name as string;
+		const name = req.query.name as string;
 
 		const result = CongregationsList.findVisitingSpeakersCongregations(cong.id, name);
 
@@ -337,6 +337,119 @@ export const rejectVisitingSpeakersAccess = async (req: Request, res: Response, 
 		res.locals.type = 'info';
 		res.locals.message = `user rejected congregation speakers access`;
 		res.status(200).json({ congregations });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const publishSchedules = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			const msg = formatError(errors);
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const { id } = req.params;
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation id params is undefined';
+			res.status(400).json({ message: 'CONG_ID_INVALID' });
+			return;
+		}
+
+		const cong = CongregationsList.findById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const { sources, schedules } = req.body;
+
+		await cong.publishSchedules(JSON.stringify(sources), JSON.stringify(schedules));
+
+		res.locals.type = 'info';
+		res.locals.message = `user fetched congregations visiting speakers list`;
+		res.status(200).json({ message: 'SCHEDULES_PUBLISHED' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const publicSchedulesGet = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			const msg = formatError(errors);
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const { id } = req.params;
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation id params is undefined';
+			res.status(400).json({ message: 'CONG_ID_INVALID' });
+			return;
+		}
+
+		const cong = CongregationsList.findById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const sources = cong.public_schedules.meeting_sources.length === 0 ? [] : JSON.parse(cong.public_schedules.meeting_sources);
+
+		const schedules =
+			cong.public_schedules.meeting_schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.meeting_schedules);
+
+		res.locals.type = 'info';
+		res.locals.message = `user fetched congregations visiting speakers list`;
+		res.status(200).json({ sources, schedules });
 	} catch (err) {
 		next(err);
 	}

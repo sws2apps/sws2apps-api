@@ -2,6 +2,8 @@ import { getFirestore } from 'firebase-admin/firestore';
 import {
 	getCongregationPersons,
 	getFileFromStorage,
+	getPublicMeetingSchedules,
+	getPublicMeetingSources,
 	getSpeakersCongregations,
 	getVisitingSpeakers,
 	uploadFileToStorage,
@@ -71,6 +73,10 @@ export const dbCongregationLoadDetails = async (congId: string) => {
 
 	const visiting_speakers = await getVisitingSpeakers(congId);
 
+	const public_meeting_sources = await getPublicMeetingSources(congId);
+
+	const public_meeting_schedules = await getPublicMeetingSchedules(congId);
+
 	return {
 		...congRecord,
 		cong_master_key,
@@ -79,6 +85,8 @@ export const dbCongregationLoadDetails = async (congId: string) => {
 		cong_persons,
 		speakers_congregations,
 		visiting_speakers,
+		public_meeting_sources,
+		public_meeting_schedules,
 	};
 };
 
@@ -240,4 +248,9 @@ export const dbCongregationRejectAccessRequest = async (congId: string, requestI
 	});
 
 	await uploadFileToStorage(data, { congId, filename: `cong_outgoing_speakers.txt` });
+};
+
+export const dbCongregationPublishSchedules = async (congId: string, sources: string, schedules: string) => {
+	await uploadFileToStorage(sources, { congId, filename: 'public_meeting_sources.txt' });
+	await uploadFileToStorage(schedules, { congId, filename: 'public_meeting_schedules.txt' });
 };
