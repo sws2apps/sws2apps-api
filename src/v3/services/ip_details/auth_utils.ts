@@ -3,17 +3,16 @@ import fetch from 'node-fetch';
 import WhichBrowser from 'which-browser';
 
 type IPAPIResponse = {
-	continent_code: string | undefined;
-	country_name: string | undefined;
-	country_code_iso3: string | undefined;
-	country_code: string | undefined;
-	city: string | undefined;
-	timezone: string | undefined;
+	continentCode: string | undefined;
+	countryName: string | undefined;
+	countryCode: string | undefined;
+	cityName: string | undefined;
+	timeZones: string[] | undefined;
 };
 
 export const retrieveVisitorDetails = async (visitorIP: string, req: Request) => {
 	try {
-		const resIP = await fetch(`https://ipapi.co/${visitorIP}/json`);
+		const resIP = await fetch(`https://freeipapi.com/api/json/${visitorIP}`);
 
 		if (resIP.status !== 200) {
 			throw new Error('THIRDY_PARTY_ERROR');
@@ -28,11 +27,11 @@ export const retrieveVisitorDetails = async (visitorIP: string, req: Request) =>
 			os: result.os.toString(),
 			ip: visitorIP,
 			ipLocation: {
-				continent_code: dataIP.continent_code || '',
-				country_name: dataIP.country_name || '',
-				country_code: dataIP.country_code_iso3 || dataIP.country_code || '',
-				city: dataIP.city || '',
-				timezone: dataIP.timezone || '',
+				continent_code: dataIP.continentCode || '',
+				country_name: dataIP.countryName || '',
+				country_code: dataIP.countryCode || '',
+				city: dataIP.cityName || '',
+				timezone: dataIP.timeZones || '',
 			},
 			isMobile: result.getType() !== 'desktop',
 		};

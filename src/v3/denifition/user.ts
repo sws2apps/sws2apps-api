@@ -13,7 +13,7 @@ export type UserSession = {
 			continent_code: string;
 			country_code: string;
 			country_name: string;
-			timezone: string;
+			timezone: string | string[];
 		};
 		isMobile: boolean;
 		os: string;
