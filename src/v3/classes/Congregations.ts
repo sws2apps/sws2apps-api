@@ -1,4 +1,4 @@
-import { dbFetchCongregations } from '../utils/congregation_utils.js';
+import { dbFetchCongregations, loadIncomingTalks } from '../utils/congregation_utils.js';
 import { Congregation } from './Congregation.js';
 import { CongregationCreateInfoType } from '../denifition/congregation.js';
 import { dbCongregationCreate, dbCongregationDelete } from '../services/firebase/congregations.js';
@@ -18,6 +18,9 @@ class Congregations {
 
 	async load() {
 		this.list = await dbFetchCongregations();
+
+		loadIncomingTalks();
+
 		this.#sort();
 		return this.list;
 	}

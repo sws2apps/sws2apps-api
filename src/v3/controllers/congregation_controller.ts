@@ -358,6 +358,7 @@ export const retrieveCongregationBackup = async (req: Request, res: Response, ne
 			result.speakers_key = cong.cong_outgoing_speakers.speakers_key || '';
 			result.speakers_congregations = cong.speakers_congregations;
 			result.visiting_speakers = cong.visiting_speakers;
+			result.outgoing_talks = cong.public_schedules.incoming_talks === '' ? [] : JSON.parse(cong.public_schedules.incoming_talks);
 		}
 
 		res.locals.type = 'info';

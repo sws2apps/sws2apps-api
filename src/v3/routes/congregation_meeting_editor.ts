@@ -21,7 +21,13 @@ const router = express.Router();
 router.use(visitorChecker());
 router.use(congregationMeetingEditorChecker());
 
-router.post('/:id/schedules', body('sources').isArray().notEmpty(), body('schedules').isArray().notEmpty(), publishSchedules);
+router.post(
+	'/:id/schedules',
+	body('sources').isArray().notEmpty(),
+	body('schedules').isArray().notEmpty(),
+	body('talks').isArray(),
+	publishSchedules
+);
 
 router.get('/:id/schedules', publicSchedulesGet);
 

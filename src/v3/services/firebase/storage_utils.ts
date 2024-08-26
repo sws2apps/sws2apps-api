@@ -83,3 +83,8 @@ export const getPublicMeetingSchedules = async (cong_id: string) => {
 	const tmpData = await getFileFromStorage({ congId: cong_id, filename: 'public_meeting_schedules.txt' });
 	return tmpData;
 };
+
+export const getPublicOutgoingTalks = async (cong_id: string) => {
+	const tmpData = await getFileFromStorage({ congId: cong_id, filename: 'public_outgoing_talks.txt' });
+	return tmpData;
+};

@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { CongregationsList } from '../classes/Congregations.js';
 import { formatError } from '../utils/format_log.js';
+import { OutgoingTalkScheduleType } from '../denifition/congregation.js';
 
 export const getApprovedVisitingSpeakersAccess = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -388,10 +389,14 @@ export const publishSchedules = async (req: Request, res: Response, next: NextFu
 
 		const { sources, schedules } = req.body;
 
-		await cong.publishSchedules(JSON.stringify(sources), JSON.stringify(schedules));
+		const talks = req.body.talks as OutgoingTalkScheduleType[];
+
+		await cong.publishSchedules(JSON.stringify(sources), JSON.stringify(schedules), JSON.stringify(talks));
+
+		cong.copyOutgoingTalkSchedule(talks);
 
 		res.locals.type = 'info';
-		res.locals.message = `user fetched congregations visiting speakers list`;
+		res.locals.message = `user published the schedules`;
 		res.status(200).json({ message: 'SCHEDULES_PUBLISHED' });
 	} catch (err) {
 		next(err);
@@ -448,7 +453,7 @@ export const publicSchedulesGet = async (req: Request, res: Response, next: Next
 			cong.public_schedules.meeting_schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.meeting_schedules);
 
 		res.locals.type = 'info';
-		res.locals.message = `user fetched congregations visiting speakers list`;
+		res.locals.message = `user fetched congregations public schedules`;
 		res.status(200).json({ sources, schedules });
 	} catch (err) {
 		next(err);

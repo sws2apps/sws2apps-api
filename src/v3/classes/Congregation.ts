@@ -7,6 +7,7 @@ import {
 	MeetingRecordType,
 	OutgoingSpeakersAccessStorageType,
 	OutgoingSpeakersRecordType,
+	OutgoingTalkScheduleType,
 	SpeakersCongregationType,
 	VisitingSpeakerType,
 } from '../denifition/congregation.js';
@@ -46,6 +47,8 @@ export class Congregation {
 	public_schedules: {
 		meeting_sources: string;
 		meeting_schedules: string;
+		outgoing_talks: string;
+		incoming_talks: string;
 	};
 
 	constructor(id: string) {
@@ -66,10 +69,7 @@ export class Congregation {
 		this.cong_persons = [];
 		this.speakers_congregations = [];
 		this.visiting_speakers = [];
-		this.public_schedules = {
-			meeting_schedules: '',
-			meeting_sources: '',
-		};
+		this.public_schedules = { meeting_schedules: '', meeting_sources: '', outgoing_talks: '', incoming_talks: '' };
 	}
 
 	async loadDetails() {
@@ -92,6 +92,7 @@ export class Congregation {
 		this.last_backup = data.last_backup || '';
 		this.public_schedules.meeting_schedules = data.public_meeting_schedules;
 		this.public_schedules.meeting_sources = data.public_meeting_sources;
+		this.public_schedules.outgoing_talks = data.public_outgoing_talks;
 
 		this.reloadMembers();
 	}
@@ -302,10 +303,32 @@ export class Congregation {
 		return members;
 	}
 
-	async publishSchedules(sources: string, schedules: string) {
-		await dbCongregationPublishSchedules(this.id, sources, schedules);
+	async publishSchedules(sources: string, schedules: string, talks: string) {
+		await dbCongregationPublishSchedules(this.id, sources, schedules, talks);
 
 		this.public_schedules.meeting_sources = sources;
 		this.public_schedules.meeting_schedules = schedules;
+		this.public_schedules.outgoing_talks = talks;
+	}
+
+	copyOutgoingTalkSchedule(talks: OutgoingTalkScheduleType[]) {
+		if (talks.length > 0) {
+			const congregations = CongregationsList.list.filter((record) =>
+				record.cong_outgoing_speakers.access.find((cong) => cong.cong_id === this.id && cong.status === 'approved')
+			);
+
+			for (const congregation of congregations) {
+				let schedules: OutgoingTalkScheduleType[] =
+					congregation.public_schedules.incoming_talks === '' ? [] : JSON.parse(congregation.public_schedules.incoming_talks);
+
+				schedules = schedules.filter((record) => record.sender !== this.id);
+
+				const newSchedule = talks.filter((record) => record.recipient === congregation.id);
+
+				schedules.push(...newSchedule);
+
+				congregation.public_schedules.incoming_talks = schedules.length === 0 ? '' : JSON.stringify(schedules);
+			}
+		}
 	}
 }

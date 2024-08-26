@@ -75,6 +75,7 @@ export type CongregationBackupType = {
 	speakers_congregations?: SpeakersCongregationType[];
 	visiting_speakers?: VisitingSpeakerType[];
 	outgoing_speakers?: VisitingSpeakerType[];
+	outgoing_talks?: OutgoingTalkScheduleType[];
 };
 
 export type CongregationPersonType = {
@@ -155,4 +156,25 @@ export type CongregationUpdatesType = {
 	pending_speakers_requests?: CongregationRequestPendingType[];
 	remote_congregations?: (OutgoingSpeakersAccessStorageType & IncomingSpeakersType)[];
 	rejected_requests?: (OutgoingSpeakersAccessStorageType & IncomingSpeakersType)[];
+};
+
+export type OutgoingTalkScheduleType = {
+	_deleted: boolean;
+	updatedAt: string;
+	id: string;
+	recipient: string;
+	sender: string;
+	weekOf: string;
+	synced: boolean;
+	opening_song: string;
+	public_talk: number;
+	speaker: string;
+	congregation: {
+		name: string;
+		number: string;
+		country: string;
+		address: string;
+		weekday: number;
+		time: string;
+	};
 };

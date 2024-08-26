@@ -4,6 +4,7 @@ import {
 	getFileFromStorage,
 	getPublicMeetingSchedules,
 	getPublicMeetingSources,
+	getPublicOutgoingTalks,
 	getSpeakersCongregations,
 	getVisitingSpeakers,
 	uploadFileToStorage,
@@ -77,6 +78,8 @@ export const dbCongregationLoadDetails = async (congId: string) => {
 
 	const public_meeting_schedules = await getPublicMeetingSchedules(congId);
 
+	const public_outgoing_talks = await getPublicOutgoingTalks(congId);
+
 	return {
 		...congRecord,
 		cong_master_key,
@@ -87,6 +90,7 @@ export const dbCongregationLoadDetails = async (congId: string) => {
 		visiting_speakers,
 		public_meeting_sources,
 		public_meeting_schedules,
+		public_outgoing_talks,
 	};
 };
 
@@ -250,7 +254,8 @@ export const dbCongregationRejectAccessRequest = async (congId: string, requestI
 	await uploadFileToStorage(data, { congId, filename: `cong_outgoing_speakers.txt` });
 };
 
-export const dbCongregationPublishSchedules = async (congId: string, sources: string, schedules: string) => {
+export const dbCongregationPublishSchedules = async (congId: string, sources: string, schedules: string, talks: string) => {
 	await uploadFileToStorage(sources, { congId, filename: 'public_meeting_sources.txt' });
 	await uploadFileToStorage(schedules, { congId, filename: 'public_meeting_schedules.txt' });
+	await uploadFileToStorage(talks, { congId, filename: 'public_outgoing_talks.txt' });
 };
