@@ -18,8 +18,10 @@ export const invalidEndpointHandler = async (req: Request, res: Response) => {
 	res.status(404).json({ message: 'INVALID_ENDPOINT' });
 };
 
+type CustomError = string & { stack: string } & { errorInfo: { code: string } };
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const errorHandler = (error: any, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (error: CustomError, req: Request, res: Response, next: NextFunction) => {
 	res.locals.type = 'warn';
 	res.locals.message = `an error occured: ${error.stack || error}`;
 	console.log(`an error occured: ${error.stack || error}`);

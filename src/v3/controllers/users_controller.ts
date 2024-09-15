@@ -3,7 +3,6 @@ import { validationResult } from 'express-validator';
 import { UsersList } from '../classes/Users.js';
 import { CongregationsList } from '../classes/Congregations.js';
 import { generateTokenDev } from '../dev/setup.js';
-import { fetchCrowdinAnnouncements } from '../services/crowdin/announcement.js';
 import { formatError } from '../utils/format_log.js';
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -134,7 +133,7 @@ export const deleteUserSession = async (req: Request, res: Response, next: NextF
 		const user = UsersList.findById(id)!;
 		const sessions = await user.revokeSession(identifier);
 
-		if (user.cong_id?.length! > 0) {
+		if (user.cong_id && user.cong_id.length > 0) {
 			const cong = CongregationsList.findById(user.cong_id!);
 			if (cong) {
 				cong.reloadMembers();
@@ -185,20 +184,6 @@ export const disableUser2FA = async (req: Request, res: Response, next: NextFunc
 		res.locals.type = 'info';
 		res.locals.message = `the user disabled 2fa successfully`;
 		res.status(200).json({ message: 'MFA_DISABLED' });
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const getAnnouncementsV2 = async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const cong_role = req.headers.cong_role as string;
-
-		const list = await fetchCrowdinAnnouncements(cong_role);
-
-		res.locals.type = 'info';
-		res.locals.message = `client fetched announcements`;
-		res.status(200).json(list);
 	} catch (err) {
 		next(err);
 	}

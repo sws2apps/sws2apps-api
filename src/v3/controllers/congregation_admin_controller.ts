@@ -3,7 +3,6 @@ import { validationResult } from 'express-validator';
 import { CongregationsList } from '../classes/Congregations.js';
 import { formatError } from '../utils/format_log.js';
 import { UsersList } from '../classes/Users.js';
-import { decryptData } from '../services/encryption/encryption.js';
 
 export const setCongregationMasterKey = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -637,7 +636,7 @@ export const globalSearchUser = async (req: Request, res: Response, next: NextFu
 		const email = req.query.email as string;
 		const foundUser = UsersList.findByEmail(email);
 
-		if (!foundUser || foundUser?.cong_id?.length! > 0) {
+		if (!foundUser || (foundUser?.cong_id && foundUser?.cong_id.length > 0)) {
 			res.locals.type = 'warn';
 			res.locals.message = 'user not found with the provided email';
 			res.status(404).json({ message: 'USER_NOT_FOUND' });

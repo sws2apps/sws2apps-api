@@ -4,7 +4,6 @@ import { visitorChecker } from '../middleware/visitor_checker.js';
 import {
 	deleteUserSession,
 	disableUser2FA,
-	getAnnouncementsV2,
 	getUserSecretToken,
 	getUserSessions,
 	userLogout,
@@ -12,9 +11,6 @@ import {
 } from '../controllers/users_controller.js';
 
 const router = express.Router();
-
-// get announcements
-router.get('/announcement-v2', getAnnouncementsV2);
 
 // activate middleware at this point
 router.use(visitorChecker());

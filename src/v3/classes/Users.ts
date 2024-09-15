@@ -77,7 +77,6 @@ class Users {
 
 	async delete(id: string) {
 		const user = this.findById(id);
-		const cong = CongregationsList.findById(user?.cong_id!);
 
 		if (user?.global_role === 'pocket') {
 			await dbUserDelete(id);
@@ -89,8 +88,11 @@ class Users {
 			await user.removeCongregation();
 		}
 
-		if (cong) {
-			cong.reloadMembers();
+		if (user) {
+			const cong = CongregationsList.findById(user.cong_id!);
+			if (cong) {
+				cong.reloadMembers();
+			}
 		}
 	}
 }

@@ -186,7 +186,7 @@ export const dbUserDecodeIdToken = async (idToken: string) => {
 		const decodedToken = await getAuth().verifyIdToken(idToken);
 		return decodedToken.uid;
 	} catch (err) {
-		console.error('Failed to decode idToken');
+		console.error('Failed to decode idToken', err);
 	}
 };
 
