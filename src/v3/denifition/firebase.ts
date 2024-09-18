@@ -1,6 +1,6 @@
 export type StorageBaseType = {
-	congId: string;
-	filename: string;
+	type: 'congregation' | 'user';
+	path: string;
 };
 
 export type StorageCongregation = {

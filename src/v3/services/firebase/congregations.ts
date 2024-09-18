@@ -1,18 +1,7 @@
 import { getFirestore } from 'firebase-admin/firestore';
+import { getCongregationData, getCongSettings, getFileFromStorage, uploadFileToStorage } from './storage_utils.js';
 import {
-	getCongregationPersons,
-	getFileFromStorage,
-	getPublicMeetingSchedules,
-	getPublicMeetingSources,
-	getPublicOutgoingTalks,
-	getSpeakersCongregations,
-	getVisitingSpeakers,
-	uploadFileToStorage,
-} from './storage_utils.js';
-import {
-	CongregationBackupType,
 	CongregationCreateInfoType,
-	CongregationRecordType,
 	OutgoingSpeakersAccessStorageType,
 	OutgoingSpeakersRecordType,
 } from '../../denifition/congregation.js';
@@ -22,24 +11,17 @@ import { encryptData } from '../encryption/encryption.js';
 
 const db = getFirestore(); //get default database
 
-export const dbCongregationDetails = async (congId: string) => {
-	const congRef = db.collection('congregations_v3').doc(congId);
-	const congSnapshot = await congRef.get();
-	const congRecord = congSnapshot.data() as CongregationRecordType;
-
-	return congRecord;
-};
-
 const dbGetOutgoingSpeakersAccessList = async (congId: string) => {
-	const outgoingSpeakers = await getFileFromStorage({ congId: congId, filename: 'cong_outgoing_speakers.txt' });
+	const outgoingSpeakers = await getFileFromStorage({ type: 'congregation', path: `${congId}/visiting_speakers/outgoing.txt` });
 
-	const outgoingSpeakersData: OutgoingSpeakersRecordType =
-		outgoingSpeakers.length === 0 ? { list: [], access: [] } : JSON.parse(outgoingSpeakers);
+	const outgoingSpeakersData: OutgoingSpeakersRecordType = outgoingSpeakers
+		? JSON.parse(outgoingSpeakers)
+		: { list: [], access: [] };
 
 	const outgoingSpeakersCongDetails: OutgoingSpeakersAccessStorageType[] = [];
 
 	for await (const record of outgoingSpeakersData.access) {
-		const cong = await dbCongregationDetails(record.cong_id);
+		const cong = await getCongSettings(record.cong_id);
 
 		if (cong) {
 			const obj: OutgoingSpeakersAccessStorageType = {
@@ -54,43 +36,22 @@ const dbGetOutgoingSpeakersAccessList = async (congId: string) => {
 	}
 
 	outgoingSpeakersData.access = outgoingSpeakersCongDetails;
-	outgoingSpeakersData.speakers_key = await getFileFromStorage({ congId: congId, filename: 'cong_speakers_key.txt' });
+	outgoingSpeakersData.speakers_key = await getFileFromStorage({
+		type: 'congregation',
+		path: `${congId}/visiting_speakers/key.txt`,
+	});
 
 	return outgoingSpeakersData;
 };
 
 export const dbCongregationLoadDetails = async (congId: string) => {
-	const congRecord = await dbCongregationDetails(congId);
+	const congRecord = await getCongregationData(congId);
 
 	const cong_outgoing_speakers = await dbGetOutgoingSpeakersAccessList(congId);
 
-	const cong_master_key = await getFileFromStorage({ congId: congId, filename: 'cong_master_key.txt' });
-
-	const cong_access_code = await getFileFromStorage({ congId: congId, filename: 'cong_access_code.txt' });
-
-	const cong_persons = await getCongregationPersons(congId);
-
-	const speakers_congregations = await getSpeakersCongregations(congId);
-
-	const visiting_speakers = await getVisitingSpeakers(congId);
-
-	const public_meeting_sources = await getPublicMeetingSources(congId);
-
-	const public_meeting_schedules = await getPublicMeetingSchedules(congId);
-
-	const public_outgoing_talks = await getPublicOutgoingTalks(congId);
-
 	return {
 		...congRecord,
-		cong_master_key,
-		cong_access_code,
 		cong_outgoing_speakers,
-		cong_persons,
-		speakers_congregations,
-		visiting_speakers,
-		public_meeting_sources,
-		public_meeting_schedules,
-		public_outgoing_talks,
 	};
 };
 

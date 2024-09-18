@@ -1,15 +1,24 @@
 import { getStorage } from 'firebase-admin/storage';
 import { StorageBaseType } from '../../denifition/firebase.js';
-import { CongregationPersonType, SpeakersCongregationType, VisitingSpeakerType } from '../../denifition/congregation.js';
+import { CongSettingsType } from '../../denifition/congregation.js';
 import { decryptData, encryptData } from '../encryption/encryption.js';
+import { StandardRecord } from '../../denifition/app.js';
 
 export const uploadFileToStorage = async (data: string, options: StorageBaseType) => {
-	const { congId, filename } = options;
+	const { path, type } = options;
 
-	const destinationFilename = `v3/${congId}/${filename}`;
+	let destPath = 'v3/';
+
+	if (type === 'congregation') {
+		destPath += `congregations/${path}`;
+	}
+
+	if (type === 'user') {
+		destPath += `users/${path}`;
+	}
 
 	const storageBucket = getStorage().bucket();
-	const file = storageBucket.file(destinationFilename);
+	const file = storageBucket.file(destPath);
 
 	const encryptedData = encryptData(data);
 
@@ -18,73 +27,78 @@ export const uploadFileToStorage = async (data: string, options: StorageBaseType
 	return encryptedData;
 };
 
-export const getFileFromStorage = async (params: StorageBaseType) => {
-	let data = '';
+export const getFileFromStorage = async ({ path, type }: StorageBaseType) => {
+	let destPath = 'v3/';
 
-	const { congId, filename } = params;
+	if (type === 'congregation') {
+		destPath += `congregations/${path}`;
+	}
 
-	const destinationFilename = `v3/${congId}/${filename}`;
+	if (type === 'user') {
+		destPath += `users/${path}`;
+	}
 
 	const storageBucket = getStorage().bucket();
-	const file = await storageBucket.file(destinationFilename);
+	const file = await storageBucket.file(destPath);
 	const [fileExist] = await file.exists();
 
 	if (fileExist) {
 		const contents = await file.download();
 		const encryptedData = contents.toString();
 
-		data = decryptData(encryptedData);
+		return decryptData(encryptedData);
 	}
-
-	return data;
 };
 
-export const getCongregationPersons = async (cong_id: string) => {
+export const getCongPersons = async (cong_id: string) => {
 	const storageBucket = getStorage().bucket();
-	const tmpData = await storageBucket.getFiles({ prefix: `v3/${cong_id}/cong_persons` });
+	const tmpData = await storageBucket.getFiles({ prefix: `v3/congregations/${cong_id}/persons` });
 	const userData = tmpData[0];
 
-	const cong_persons: CongregationPersonType[] = [];
+	const cong_persons: StandardRecord[] = [];
 
 	for await (const file of userData) {
-		const isPersonData = file.name.indexOf('/person_data.txt') !== -1;
+		const contents = await file.download();
+		const person = decryptData(contents.toString());
 
-		if (isPersonData) {
-			const contents = await file.download();
-			const person = decryptData(contents.toString());
-
-			cong_persons.push(JSON.parse(person));
-		}
+		cong_persons.push(JSON.parse(person));
 	}
 
 	return cong_persons;
 };
 
-export const getSpeakersCongregations = async (cong_id: string) => {
-	const tmpData = await getFileFromStorage({ congId: cong_id, filename: 'speakers_congregations.txt' });
+export const getCongSettings = async (cong_id: string) => {
+	const data = await getFileFromStorage({ type: 'congregation', path: `${cong_id}/settings/main.txt` });
 
-	const spkears_congregations: SpeakersCongregationType[] = tmpData.length === 0 ? [] : JSON.parse(tmpData);
-	return spkears_congregations;
+	if (data) {
+		const result: CongSettingsType = JSON.parse(data);
+		return result;
+	}
 };
 
-export const getVisitingSpeakers = async (cong_id: string) => {
-	const tmpData = await getFileFromStorage({ congId: cong_id, filename: 'visiting_speakers.txt' });
-
-	const visiting_speakers: VisitingSpeakerType[] = tmpData.length === 0 ? [] : JSON.parse(tmpData);
-	return visiting_speakers;
-};
-
-export const getPublicMeetingSources = async (cong_id: string) => {
-	const tmpData = await getFileFromStorage({ congId: cong_id, filename: 'public_meeting_sources.txt' });
-	return tmpData;
-};
-
-export const getPublicMeetingSchedules = async (cong_id: string) => {
-	const tmpData = await getFileFromStorage({ congId: cong_id, filename: 'public_meeting_schedules.txt' });
-	return tmpData;
-};
-
-export const getPublicOutgoingTalks = async (cong_id: string) => {
-	const tmpData = await getFileFromStorage({ congId: cong_id, filename: 'public_outgoing_talks.txt' });
-	return tmpData;
+export const getCongregationData = async (cong_id: string) => {
+	return {
+		public: {
+			meeting_source: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/public/sources.txt` }),
+			meeting_schedules: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/public/schedules.txt` }),
+			outgoing_talks: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/public/outgoing_talks.txt` }),
+		},
+		branch_cong_analysis: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/branch_cong_analysis/main.txt` }),
+		branch_field_service_reports: await getFileFromStorage({
+			type: 'congregation',
+			path: `${cong_id}/branch_field_service_reports/main.txt`,
+		}),
+		field_service_groups: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/field_service_groups/main.txt` }),
+		field_service_reports: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/field_service_reports/main.txt` }),
+		meeting_attendance: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/meeting_attendance/main.txt` }),
+		cong_persons: await getCongPersons(cong_id),
+		schedules: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/schedules/main.txt` }),
+		settings: await getCongSettings(cong_id),
+		sources: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/sources/main.txt` }),
+		speakers_congregations: await getFileFromStorage({
+			type: 'congregation',
+			path: `${cong_id}/speakers_congregations/main.txt`,
+		}),
+		visiting_speakers: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/visiting_speakers/main.txt` }),
+	};
 };

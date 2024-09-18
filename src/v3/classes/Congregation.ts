@@ -1,10 +1,9 @@
 import {
-	CircuitRecordType,
 	CongregationBackupType,
 	CongregationPersonType,
 	CongregationRequestPendingType,
+	CongregationSettingsType,
 	IncomingSpeakersType,
-	MeetingRecordType,
 	OutgoingSpeakersAccessStorageType,
 	OutgoingSpeakersRecordType,
 	OutgoingTalkScheduleType,
@@ -28,22 +27,13 @@ import { UsersList } from './Users.js';
 
 export class Congregation {
 	id: string;
-	country_code: string;
-	cong_name: string;
-	cong_number: string;
-	cong_location: { address: string; lat: number | null; lng: number | null };
-	cong_circuit: CircuitRecordType[];
-	midweek_meeting: MeetingRecordType[];
-	weekend_meeting: MeetingRecordType[];
-	cong_members: User[];
-	cong_master_key: string;
-	cong_access_code: string;
-	cong_outgoing_speakers: OutgoingSpeakersRecordType;
-	cong_discoverable: { value: boolean; updatedAt: string };
-	last_backup: string;
+	cong_settings: CongregationSettingsType;
 	cong_persons: CongregationPersonType[];
+	cong_members: User[];
+	cong_outgoing_speakers: OutgoingSpeakersRecordType;
 	speakers_congregations: SpeakersCongregationType[];
 	visiting_speakers: VisitingSpeakerType[];
+	last_backup: string;
 	public_schedules: {
 		meeting_sources: string;
 		meeting_schedules: string;
@@ -53,18 +43,56 @@ export class Congregation {
 
 	constructor(id: string) {
 		this.id = id;
-		this.country_code = '';
-		this.cong_name = '';
-		this.cong_number = '';
-		this.cong_location = { lat: null, lng: null, address: '' };
-		this.cong_circuit = [{ type: 'main', value: '', updatedAt: '' }];
+		this.cong_settings = {
+			attendance_online_record: '',
+			circuit_overseer: '',
+			cong_access_code: '',
+			cong_circuit: [{ type: 'main', value: '', updatedAt: '' }],
+			cong_discoverable: { value: false, updatedAt: '' },
+			cong_location: { lat: undefined, lng: undefined, address: '', updatedAt: '' },
+			cong_master_key: '',
+			cong_name: '',
+			cong_new: true,
+			cong_number: '',
+			country_code: '',
+			display_name_enabled: '',
+			format_24h_enabled: '',
+			fullname_option: '',
+			language_groups: '',
+			midweek_meeting: [
+				{
+					type: 'main',
+					weekday: { value: undefined, updatedAt: '' },
+					time: { value: '', updatedAt: '' },
+					aux_class_counselor_default: '',
+					class_count: '',
+					closing_prayer_auto_assigned: '',
+					opening_prayer_auto_assigned: '',
+				},
+			],
+			responsabilities: '',
+			schedule_exact_date_enabled: '',
+			short_date_format: '',
+			source_material_auto_import: '',
+			special_months: '',
+			time_away_public: '',
+			week_start_sunday: '',
+			weekend_meeting: [
+				{
+					type: 'main',
+					weekday: { value: undefined, updatedAt: '' },
+					time: { value: '', updatedAt: '' },
+					consecutive_monthly_parts_notice_shown: '',
+					opening_prayer_auto_assigned: '',
+					outgoing_talks_schedule_public: '',
+					substitute_speaker_enabled: '',
+					substitute_w_study_conductor_displayed: '',
+					w_study_conductor_default: '',
+				},
+			],
+		};
 		this.cong_members = [];
-		this.cong_master_key = '';
-		this.cong_access_code = '';
-		this.midweek_meeting = [{ type: 'main', weekday: { value: null, updatedAt: '' }, time: { value: '', updatedAt: '' } }];
-		this.weekend_meeting = [{ type: 'main', weekday: { value: null, updatedAt: '' }, time: { value: '', updatedAt: '' } }];
 		this.cong_outgoing_speakers = { list: [], speakers_key: '', access: [] };
-		this.cong_discoverable = { value: false, updatedAt: '' };
 		this.last_backup = '';
 		this.cong_persons = [];
 		this.speakers_congregations = [];

@@ -92,3 +92,19 @@ export type UserCongregationDetailsType = {
 	cong_person_delegates: string[];
 	cong_pocket?: string;
 };
+
+export type UserSettingsType = {
+	id: string;
+	user_settings: {
+		cong_role: string;
+		account_type: string;
+		user_local_uid: string;
+		user_members_delegate: string;
+		firstname: { value: string; updatedAt: string };
+		lastname: { value: string; updatedAt: string };
+		backup_automatic: string;
+		theme_follow_os_enabled: string;
+		hour_credits_enabled: string;
+		data_view: string;
+	};
+};

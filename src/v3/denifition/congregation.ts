@@ -55,54 +55,12 @@ export type OutgoingSpeakersAccessStorageType = {
 };
 
 export type IncomingSpeakersType = {
-	list?: VisitingSpeakerType[];
+	list: VisitingSpeakerType[];
 	speakers_key?: string;
 };
 
 export type OutgoingSpeakersRecordType = IncomingSpeakersType & {
 	access: OutgoingSpeakersAccessStorageType[];
-};
-
-export type CongregationBackupType = {
-	last_backup?: string;
-	cong_master_key?: string;
-	cong_access_code?: string;
-	speakers_key?: string;
-	cong_settings?: {
-		cong_discoverable?: { value: boolean; updatedAt: string };
-	};
-	cong_persons?: CongregationPersonType[];
-	speakers_congregations?: SpeakersCongregationType[];
-	visiting_speakers?: VisitingSpeakerType[];
-	outgoing_speakers?: VisitingSpeakerType[];
-	outgoing_talks?: OutgoingTalkScheduleType[];
-};
-
-export type CongregationPersonType = {
-	_deleted: string;
-	person_uid: string;
-	person_data: {
-		person_firstname: string;
-		person_lastname: string;
-		person_display_name: string;
-		male: string;
-		female: string;
-		birth_date: string;
-		assignments: string;
-		timeAway: string;
-		archived: string;
-		disqualified: string;
-		email: string;
-		address: string;
-		phone: string;
-		first_month_report: string;
-		publisher_baptized: string;
-		publisher_unbaptized: string;
-		midweek_meeting_student: string;
-		privileges: string;
-		enrollments: string;
-		emergency_contacts: string;
-	};
 };
 
 export type SpeakersCongregationType = {
@@ -177,4 +135,49 @@ export type OutgoingTalkScheduleType = {
 		weekday: number;
 		time: string;
 	};
+};
+
+export type CongSettingsType = {
+	country_code: string;
+	cong_number: string;
+	cong_name: string;
+	cong_master_key: string;
+	cong_access_code: string;
+	cong_location: { address: string; lat: number | undefined; lng: number | undefined; updatedAt: string };
+	cong_new: boolean;
+	cong_circuit: { type: string; value: string; updatedAt: string }[];
+	cong_discoverable: { value: boolean; updatedAt: string };
+	fullname_option: string;
+	short_date_format: string;
+	display_name_enabled: string;
+	schedule_exact_date_enabled: string;
+	time_away_public: string;
+	source_material_auto_import: string;
+	special_months: string;
+	midweek_meeting: {
+		type: string;
+		weekday: { value: number | undefined; updatedAt: string };
+		time: { value: string; updatedAt: string };
+		class_count: string;
+		opening_prayer_auto_assigned: string;
+		closing_prayer_auto_assigned: string;
+		aux_class_counselor_default: string;
+	}[];
+	weekend_meeting: {
+		type: string;
+		weekday: { value: number | undefined; updatedAt: string };
+		time: { value: string; updatedAt: string };
+		opening_prayer_auto_assigned: string;
+		substitute_speaker_enabled: string;
+		w_study_conductor_default: string;
+		substitute_w_study_conductor_displayed: string;
+		consecutive_monthly_parts_notice_shown: string;
+		outgoing_talks_schedule_public: string;
+	}[];
+	circuit_overseer: string;
+	language_groups: string;
+	format_24h_enabled: string;
+	week_start_sunday: string;
+	attendance_online_record: string;
+	responsabilities: string;
 };
