@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { CongregationsList } from '../classes/Congregations.js';
 import { UsersList } from '../classes/Users.js';
-import { ApiCongregationSearchResponse, CongregationBackupType, CongregationUpdatesType } from '../denifition/congregation.js';
+import { ApiCongregationSearchResponse, CongregationBackupType, CongregationUpdatesType } from '../definition/congregation.js';
 import { sendWelcomeMessage } from '../services/mail/sendEmail.js';
 import { formatError } from '../utils/format_log.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';

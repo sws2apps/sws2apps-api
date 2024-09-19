@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { CongregationsList } from '../classes/Congregations.js';
 import { formatError } from '../utils/format_log.js';
-import { OutgoingTalkScheduleType } from '../denifition/congregation.js';
+import { OutgoingTalkScheduleType } from '../definition/congregation.js';
 
 export const getApprovedVisitingSpeakersAccess = async (req: Request, res: Response, next: NextFunction) => {
 	try {

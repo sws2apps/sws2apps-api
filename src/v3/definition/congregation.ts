@@ -1,3 +1,5 @@
+import { StandardRecord } from './app.js';
+
 export type CongregationCreateInfoType = {
 	country_code: string;
 	cong_name: string;
@@ -47,15 +49,12 @@ export type OutgoingSpeakersAccessStorageType = {
 	status: 'pending' | 'approved' | 'disapproved';
 	updatedAt: string;
 	key?: string;
-	cong_name?: string;
-	cong_number?: string;
-	country_code?: string;
 	temp_key?: string;
 	request_id: string;
 };
 
 export type IncomingSpeakersType = {
-	list: VisitingSpeakerType[];
+	list: StandardRecord[];
 	speakers_key?: string;
 };
 
@@ -63,42 +62,7 @@ export type OutgoingSpeakersRecordType = IncomingSpeakersType & {
 	access: OutgoingSpeakersAccessStorageType[];
 };
 
-export type SpeakersCongregationType = {
-	_deleted: string;
-	id: string;
-	cong_data: {
-		cong_id: string;
-		cong_number: string;
-		cong_name: string;
-		cong_circuit: string;
-		cong_location: string;
-		midweek_meeting: string;
-		weekend_meeting: string;
-		public_talk_coordinator: string;
-		coordinator: string;
-		request_status: string;
-		request_id: string;
-	};
-};
-
-export type VisitingSpeakerType = {
-	person_uid: string;
-	_deleted: string;
-	speaker_data: {
-		cong_id: string;
-		person_firstname: string;
-		person_lastname: string;
-		person_display_name: string;
-		person_notes: string;
-		person_email: string;
-		person_phone: string;
-		elder: string;
-		ministerial_servant: string;
-		talks: string;
-	};
-};
-
-export type CongregationRequestPendingType = {
+export type CongRequestPendingType = {
 	cong_id: string;
 	updatedAt: string;
 	cong_number: string;
@@ -111,7 +75,7 @@ export type CongregationUpdatesType = {
 	cong_master_key?: string;
 	cong_access_code?: string;
 	speakers_key?: string;
-	pending_speakers_requests?: CongregationRequestPendingType[];
+	pending_speakers_requests?: CongRequestPendingType[];
 	remote_congregations?: (OutgoingSpeakersAccessStorageType & IncomingSpeakersType)[];
 	rejected_requests?: (OutgoingSpeakersAccessStorageType & IncomingSpeakersType)[];
 };
@@ -180,4 +144,5 @@ export type CongSettingsType = {
 	week_start_sunday: string;
 	attendance_online_record: string;
 	responsabilities: string;
+	last_backup: string;
 };

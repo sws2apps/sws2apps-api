@@ -3,17 +3,18 @@ import { getAuth } from 'firebase-admin/auth';
 import { validationResult } from 'express-validator';
 import { generateTokenDev } from '../dev/setup.js';
 import { UsersList } from '../classes/Users.js';
-import { UserSession } from '../denifition/user.js';
+import { UserSession } from '../definition/user.js';
 import { retrieveVisitorDetails } from '../services/ip_details/auth_utils.js';
 import { CongregationsList } from '../classes/Congregations.js';
 import { formatError } from '../utils/format_log.js';
 import { dbUserDecodeIdToken } from '../services/firebase/users.js';
 import { cookieOptions } from '../utils/app.js';
 
+const isDev = process.env.NODE_ENV === 'development';
+
 export const loginUser = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const userIP = req.clientIp!;
-		const isDev = process.env.NODE_ENV === 'development';
 
 		// validate through express middleware
 		const errors = validationResult(req);

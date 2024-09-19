@@ -1,25 +1,19 @@
+import { StandardRecord } from '../definition/app.js';
 import {
-	CongregationBackupType,
-	CongregationPersonType,
-	CongregationRequestPendingType,
-	CongregationSettingsType,
-	IncomingSpeakersType,
-	OutgoingSpeakersAccessStorageType,
+	CongRequestPendingType,
+	CongSettingsType,
 	OutgoingSpeakersRecordType,
 	OutgoingTalkScheduleType,
-	SpeakersCongregationType,
-	VisitingSpeakerType,
-} from '../denifition/congregation.js';
+} from '../definition/congregation.js';
 import { decryptData } from '../services/encryption/encryption.js';
 import {
-	dbCongregationLoadDetails,
-	dbCongregationSaveBackup,
-	dbCongregationSaveMasterKey,
-	dbCongregationSaveAccessCode,
-	dbCongregationRequestAccess,
-	dbCongregationApproveAccessRequest,
-	dbCongregationRejectAccessRequest,
-	dbCongregationPublishSchedules,
+	approveCongAccess,
+	getCongDetails,
+	publishCongSchedules,
+	rejectCongAccess,
+	requestCongAccess,
+	saveCongBackup,
+	setCongSettings,
 } from '../services/firebase/congregations.js';
 import { CongregationsList } from './Congregations.js';
 import { User } from './User.js';
@@ -27,23 +21,29 @@ import { UsersList } from './Users.js';
 
 export class Congregation {
 	id: string;
-	cong_settings: CongregationSettingsType;
-	cong_persons: CongregationPersonType[];
-	cong_members: User[];
-	cong_outgoing_speakers: OutgoingSpeakersRecordType;
-	speakers_congregations: SpeakersCongregationType[];
-	visiting_speakers: VisitingSpeakerType[];
-	last_backup: string;
 	public_schedules: {
-		meeting_sources: string;
-		meeting_schedules: string;
+		sources: string;
+		schedules: string;
 		outgoing_talks: string;
 		incoming_talks: string;
 	};
+	members: User[];
+	persons: StandardRecord[];
+	settings: CongSettingsType;
+	sources: StandardRecord[];
+	schedules: StandardRecord[];
+	field_service_groups: StandardRecord[];
+	visiting_speakers: StandardRecord[];
+	outgoing_speakers: OutgoingSpeakersRecordType;
+	branch_field_service_reports: StandardRecord[];
+	branch_cong_analysis: StandardRecord[];
+	meeting_attendance: StandardRecord[];
+	speakers_congregations: StandardRecord[];
 
 	constructor(id: string) {
 		this.id = id;
-		this.cong_settings = {
+		this.public_schedules = { schedules: '', sources: '', outgoing_talks: '', incoming_talks: '' };
+		this.settings = {
 			attendance_online_record: '',
 			circuit_overseer: '',
 			cong_access_code: '',
@@ -59,6 +59,7 @@ export class Congregation {
 			format_24h_enabled: '',
 			fullname_option: '',
 			language_groups: '',
+			last_backup: '',
 			midweek_meeting: [
 				{
 					type: 'main',
@@ -91,119 +92,152 @@ export class Congregation {
 				},
 			],
 		};
-		this.cong_members = [];
-		this.cong_outgoing_speakers = { list: [], speakers_key: '', access: [] };
-		this.last_backup = '';
-		this.cong_persons = [];
+		this.outgoing_speakers = { list: [], speakers_key: '', access: [] };
+		this.branch_cong_analysis = [];
+		this.branch_field_service_reports = [];
+		this.field_service_groups = [];
+		this.meeting_attendance = [];
+		this.members = [];
+		this.persons = [];
+		this.schedules = [];
+		this.sources = [];
 		this.speakers_congregations = [];
 		this.visiting_speakers = [];
-		this.public_schedules = { meeting_schedules: '', meeting_sources: '', outgoing_talks: '', incoming_talks: '' };
 	}
 
 	async loadDetails() {
-		const data = await dbCongregationLoadDetails(this.id);
+		const data = await getCongDetails(this.id);
 
-		this.cong_master_key = data.cong_master_key;
-		this.cong_access_code = data.cong_access_code;
-		this.cong_name = data.cong_name;
-		this.cong_number = data.cong_number;
-		this.country_code = data.country_code;
-		this.cong_location = data.cong_location;
-		this.cong_circuit = data.cong_circuit;
-		this.midweek_meeting = data.midweek_meeting;
-		this.weekend_meeting = data.weekend_meeting;
-		this.cong_discoverable = data.cong_discoverable;
-		this.cong_persons = data.cong_persons;
-		this.cong_outgoing_speakers = data.cong_outgoing_speakers;
-		this.speakers_congregations = data.speakers_congregations;
-		this.visiting_speakers = data.visiting_speakers;
-		this.last_backup = data.last_backup || '';
-		this.public_schedules.meeting_schedules = data.public_meeting_schedules;
-		this.public_schedules.meeting_sources = data.public_meeting_sources;
-		this.public_schedules.outgoing_talks = data.public_outgoing_talks;
+		this.public_schedules.outgoing_talks = data.public.outgoing_talks || '';
+		this.public_schedules.schedules = data.public.meeting_schedules || '';
+		this.public_schedules.sources = data.public.meeting_source || '';
+		this.settings = data.settings;
+		this.persons = data.cong_persons;
+		this.outgoing_speakers = data.outgoing_speakers;
+		this.settings = data.settings;
+
+		if (data.branch_cong_analysis) {
+			this.branch_cong_analysis = JSON.parse(data.branch_cong_analysis);
+		}
+
+		if (data.branch_field_service_reports) {
+			this.branch_field_service_reports = JSON.parse(data.branch_field_service_reports);
+		}
+
+		if (data.field_service_groups) {
+			this.field_service_groups = JSON.parse(data.field_service_groups);
+		}
+
+		if (data.meeting_attendance) {
+			this.meeting_attendance = JSON.parse(data.meeting_attendance);
+		}
+
+		if (data.schedules) {
+			this.schedules = JSON.parse(data.schedules);
+		}
+
+		if (data.sources) {
+			this.sources = JSON.parse(data.sources);
+		}
+
+		if (data.speakers_congregations) {
+			this.speakers_congregations = JSON.parse(data.speakers_congregations);
+		}
+
+		if (data.visiting_speakers) {
+			this.visiting_speakers = JSON.parse(data.visiting_speakers);
+		}
 
 		this.reloadMembers();
 	}
 
-	async saveBackup(cong_backup: CongregationBackupType) {
-		const data: CongregationBackupType = {};
+	async saveBackup(cong_backup: StandardRecord) {
+		const lastBackup = await saveCongBackup(this.id, cong_backup);
+
+		if (cong_backup.cong_persons) {
+			this.persons = cong_backup.cong_persons as StandardRecord[];
+		}
+
+		if (cong_backup.outgoing_speakers) {
+			this.outgoing_speakers.list = cong_backup.outgoing_speakers as StandardRecord[];
+		}
+
+		if (cong_backup.speakers_congregations) {
+			this.speakers_congregations = cong_backup.speakers_congregations as StandardRecord[];
+		}
+
+		if (cong_backup.visiting_speakers) {
+			this.visiting_speakers = cong_backup.visiting_speakers as StandardRecord[];
+		}
+
+		if (cong_backup.branch_cong_analysis) {
+			this.branch_cong_analysis = cong_backup.branch_cong_analysis as StandardRecord[];
+		}
+
+		if (cong_backup.branch_field_service_reports) {
+			this.branch_field_service_reports = cong_backup.branch_field_service_reports as StandardRecord[];
+		}
+
+		if (cong_backup.field_service_groups) {
+			this.field_service_groups = cong_backup.field_service_groups as StandardRecord[];
+		}
+
+		if (cong_backup.meeting_attendance) {
+			this.meeting_attendance = cong_backup.meeting_attendance as StandardRecord[];
+		}
+
+		if (cong_backup.schedules) {
+			this.schedules = cong_backup.schedules as StandardRecord[];
+		}
+
+		if (cong_backup.sources) {
+			this.sources = cong_backup.sources as StandardRecord[];
+		}
 
 		if (cong_backup.cong_settings) {
-			data.cong_settings = {};
-
-			if (cong_backup.cong_settings.cong_discoverable) {
-				if (cong_backup.cong_settings.cong_discoverable.updatedAt > this.cong_discoverable.updatedAt) {
-					data.cong_settings.cong_discoverable = cong_backup.cong_settings.cong_discoverable;
-				}
-			}
+			const settings = structuredClone(cong_backup.cong_settings) as CongSettingsType;
+			settings.last_backup = lastBackup;
+			this.settings = settings;
 		}
-
-		data.cong_persons = cong_backup.cong_persons;
-		data.speakers_key = cong_backup.speakers_key;
-		data.outgoing_speakers = cong_backup.outgoing_speakers;
-		data.speakers_congregations = cong_backup.speakers_congregations;
-		data.visiting_speakers = cong_backup.visiting_speakers;
-
-		const lastBackup = await dbCongregationSaveBackup(this.id, data);
-
-		if (data.cong_persons) {
-			this.cong_persons = data.cong_persons;
-		}
-
-		if (data.speakers_key) {
-			this.cong_outgoing_speakers.speakers_key = data.speakers_key;
-		}
-
-		if (data.speakers_congregations) {
-			this.speakers_congregations = data.speakers_congregations;
-		}
-
-		if (data.visiting_speakers) {
-			this.visiting_speakers = data.visiting_speakers;
-		}
-
-		if (data.outgoing_speakers) {
-			this.cong_outgoing_speakers.list = data.outgoing_speakers;
-		}
-
-		if (data.cong_settings) {
-			if (data.cong_settings.cong_discoverable) {
-				this.cong_discoverable = data.cong_settings.cong_discoverable;
-			}
-		}
-
-		this.last_backup = lastBackup;
 	}
 
 	async saveMasterKey(key: string) {
-		await dbCongregationSaveMasterKey(this.id, key);
-		this.cong_master_key = key;
+		const settings = structuredClone(this.settings);
+		settings.cong_master_key = key;
+
+		await setCongSettings(this.id, settings);
+
+		this.settings = settings;
 	}
 
 	async saveAccessCode(code: string) {
-		await dbCongregationSaveAccessCode(this.id, code);
-		this.cong_access_code = code;
+		const settings = structuredClone(this.settings);
+		settings.cong_access_code = code;
+
+		await setCongSettings(this.id, settings);
+
+		this.settings = settings;
 	}
 
 	hasMember(auth_uid: string) {
 		const user = UsersList.findByAuthUid(auth_uid);
-		return user!.cong_id === this.id;
+		return user!.profile.congregation?.id === this.id;
 	}
 
 	reloadMembers() {
 		const cong_members: User[] = [];
 
 		for (const user of UsersList.list) {
-			if (user.cong_id === this.id) {
+			if (user.profile.congregation?.id === this.id) {
 				cong_members.push(user);
 			}
 		}
 
-		this.cong_members = cong_members;
+		this.members = cong_members;
 	}
 
 	getVisitingSpeakersAccessList() {
-		const approvedCong = this.cong_outgoing_speakers.access.filter((record) => record.status === 'approved');
+		const approvedCong = this.outgoing_speakers.access.filter((record) => record.status === 'approved');
 
 		const result = approvedCong.map((cong) => {
 			const foundCong = CongregationsList.findById(cong.cong_id)!;
@@ -211,8 +245,8 @@ export class Congregation {
 			return {
 				cong_id: cong.cong_id,
 				request_id: cong.request_id,
-				cong_number: foundCong.cong_number,
-				cong_name: foundCong.cong_name,
+				cong_number: foundCong.settings.cong_number,
+				cong_name: foundCong.settings.cong_name,
 			};
 		});
 
@@ -220,21 +254,21 @@ export class Congregation {
 	}
 
 	async requestAccessCongregation(cong_id: string, key: string, request_id: string) {
-		await dbCongregationRequestAccess(this.id, cong_id, key, request_id);
+		await requestCongAccess(this.id, cong_id, key, request_id);
 	}
 
 	getPendingVisitingSpeakersAccessList() {
-		const pendingCong = this.cong_outgoing_speakers.access.filter((record) => record.status === 'pending');
+		const pendingCong = this.outgoing_speakers.access.filter((record) => record.status === 'pending');
 
-		const result: CongregationRequestPendingType[] = pendingCong.map((cong) => {
+		const result: CongRequestPendingType[] = pendingCong.map((cong) => {
 			const foundCong = CongregationsList.findById(cong.cong_id)!;
 
 			return {
 				cong_id: cong.cong_id,
 				updatedAt: cong.updatedAt,
-				cong_number: foundCong.cong_number,
-				cong_name: foundCong.cong_name,
-				country_code: foundCong.country_code,
+				cong_number: foundCong.settings.cong_number,
+				cong_name: foundCong.settings.cong_name,
+				country_code: foundCong.settings.country_code,
 				request_id: cong.request_id,
 			};
 		});
@@ -243,73 +277,71 @@ export class Congregation {
 	}
 
 	async approveCongregationRequest(request_id: string, key: string) {
-		await dbCongregationApproveAccessRequest(this.id, request_id, key);
+		await approveCongAccess(this.id, request_id, key);
 	}
 
 	async rejectCongregationRequest(request_id: string) {
-		await dbCongregationRejectAccessRequest(this.id, request_id);
+		await rejectCongAccess(this.id, request_id);
 	}
 
 	getRemoteCongregationsList() {
-		const congs: (OutgoingSpeakersAccessStorageType & IncomingSpeakersType)[] = [];
-
 		const approvedRequests = CongregationsList.list.filter((record) =>
-			record.cong_outgoing_speakers.access.find((access) => access.cong_id === this.id && access.status === 'approved')
+			record.outgoing_speakers.access.find((access) => access.cong_id === this.id && access.status === 'approved')
 		);
 
-		for (const cong of approvedRequests) {
-			const requestDetails = cong.cong_outgoing_speakers.access.find(
+		const congs = approvedRequests.map((cong) => {
+			const requestDetails = cong.outgoing_speakers.access.find(
 				(access) => access.cong_id === this.id && access.status === 'approved'
 			)!;
 
-			congs.push({
-				list: cong.cong_outgoing_speakers.list,
+			return {
+				list: cong.outgoing_speakers.list,
 				cong_id: cong.id,
 				key: requestDetails.key,
 				status: 'approved',
 				updatedAt: requestDetails.updatedAt,
-				cong_name: cong.cong_name,
-				cong_number: cong.cong_number,
-				country_code: cong.country_code,
+				cong_name: cong.settings.cong_name,
+				cong_number: cong.settings.cong_number,
+				country_code: cong.settings.country_code,
 				request_id: requestDetails.request_id,
-			});
-		}
+			};
+		});
 
 		return congs;
 	}
 
 	getRejectedRequests() {
-		const congs: (OutgoingSpeakersAccessStorageType & IncomingSpeakersType)[] = [];
-
 		const disapprovedRequests = CongregationsList.list.filter((record) =>
-			record.cong_outgoing_speakers.access.find((access) => access.cong_id === this.id && access.status === 'disapproved')
+			record.outgoing_speakers.access.find((access) => access.cong_id === this.id && access.status === 'disapproved')
 		);
 
-		for (const cong of disapprovedRequests) {
-			const requestDetails = cong.cong_outgoing_speakers.access.find(
+		const congs = disapprovedRequests.map((cong) => {
+			const requestDetails = cong.outgoing_speakers.access.find(
 				(access) => access.cong_id === this.id && access.status === 'disapproved'
 			)!;
 
-			congs.push({
+			return {
 				cong_id: cong.id,
 				status: 'disapproved',
 				updatedAt: requestDetails.updatedAt,
-				cong_name: cong.cong_name,
-				cong_number: cong.cong_number,
-				country_code: cong.country_code,
+				cong_name: cong.settings.cong_name,
+				cong_number: cong.settings.cong_number,
+				country_code: cong.settings.country_code,
 				request_id: requestDetails.request_id,
-			});
-		}
+			};
+		});
 
 		return congs;
 	}
 
 	getMembers(visitorid: string) {
-		const members = this.cong_members.map((member) => {
+		const members = this.members.map((member) => {
 			return {
 				...member,
 				pocket_invitation_code:
-					typeof member.pocket_invitation_code === 'string' ? decryptData(member.pocket_invitation_code) : undefined,
+					typeof member.profile.congregation?.pocket_invitation_code === 'string'
+						? decryptData(member.profile.congregation.pocket_invitation_code)
+						: undefined,
 				sessions:
 					member.sessions?.map((session) => {
 						return {
@@ -322,7 +354,7 @@ export class Congregation {
 								os: session.visitor_details.os,
 								isMobile: session.visitor_details.isMobile,
 							},
-							last_seen: session.sws_last_seen,
+							last_seen: session.last_seen,
 						};
 					}) || [],
 			};
@@ -332,17 +364,17 @@ export class Congregation {
 	}
 
 	async publishSchedules(sources: string, schedules: string, talks: string) {
-		await dbCongregationPublishSchedules(this.id, sources, schedules, talks);
+		await publishCongSchedules(this.id, sources, schedules, talks);
 
-		this.public_schedules.meeting_sources = sources;
-		this.public_schedules.meeting_schedules = schedules;
+		this.public_schedules.sources = sources;
+		this.public_schedules.schedules = schedules;
 		this.public_schedules.outgoing_talks = talks;
 	}
 
 	copyOutgoingTalkSchedule(talks: OutgoingTalkScheduleType[]) {
 		if (talks.length > 0) {
 			const congregations = CongregationsList.list.filter((record) =>
-				record.cong_outgoing_speakers.access.find((cong) => cong.cong_id === this.id && cong.status === 'approved')
+				record.outgoing_speakers.access.find((cong) => cong.cong_id === this.id && cong.status === 'approved')
 			);
 
 			for (const congregation of congregations) {

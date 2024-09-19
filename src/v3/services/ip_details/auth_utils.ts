@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import fetch from 'node-fetch';
 import WhichBrowser from 'which-browser';
-import { IPAPIResponse } from '../../denifition/ip.js';
+import { IPAPIResponse } from '../../definition/ip.js';
 
 const APIs = [
 	{

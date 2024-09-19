@@ -13,4 +13,4 @@ export type AppRoleType =
 
 export type OTPSecretType = { secret: string; uri: string; version: number };
 
-export type StandardRecord = Record<string, string | unknown>;
+export type StandardRecord = Record<string, unknown>;

@@ -11,7 +11,7 @@ import { initializeAPI as initializeDbCPE } from './v2/config/cpe.db-config.js';
 // import v3 files
 
 import { logger } from './v3/services/logger/logger.js';
-import { ServerTempVariableType } from './v3/denifition/server.js';
+import { ServerTempVariableType } from './v3/definition/server.js';
 import { UsersList } from './v3/classes/Users.js';
 import { CongregationsList } from './v3/classes/Congregations.js';
 import { initializeAPI } from './v3/config/app.db_config.js';

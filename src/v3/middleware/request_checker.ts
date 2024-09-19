@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import geoip from 'geoip-lite';
 import { API_VAR } from '../../index.js';
-import { RequestTrackerType } from '../denifition/server.js';
+import { RequestTrackerType } from '../definition/server.js';
 
 export const requestChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {

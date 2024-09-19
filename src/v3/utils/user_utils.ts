@@ -1,32 +1,20 @@
-import { getFirestore } from 'firebase-admin/firestore';
-import { User } from '../classes/User.js';
+import * as OTPAuth from 'otpauth';
+import { OTPSecretType } from '../definition/app.js';
 
-const db = getFirestore();
+export const generateUserSecret = (email: string) => {
+	const isProd = process.env.NODE_ENV === 'production';
 
-export const dbFetchUsers = async () => {
-	const userRef = db.collection('users_v3');
-	const snapshot = await userRef.get();
+	const tempSecret = new OTPAuth.Secret().base32;
 
-	const items: string[] = [];
-
-	snapshot.forEach((doc) => {
-		items.push(doc.id);
+	const totp = new OTPAuth.TOTP({
+		issuer: isProd ? 'sws2apps' : 'sws2apps-test',
+		label: email,
+		algorithm: 'SHA1',
+		digits: 6,
+		period: 30,
+		secret: OTPAuth.Secret.fromBase32(tempSecret),
 	});
 
-	const finalResult: User[] = [];
-
-	for (let i = 0; i < items.length; i++) {
-		const UserNew = new User(items[i]);
-		await UserNew.loadDetails();
-		finalResult.push(UserNew);
-	}
-
-	return finalResult;
+	const secret: OTPSecretType = { secret: tempSecret, uri: totp.toString(), version: 2 };
+	return secret;
 };
-
-// export const userAccountChecker = async (id) => {
-// 	const user = await users.findUserById(id);
-// 	const userFound = user ? true : false;
-
-// 	return { isParamsValid: id !== undefined, userFound, user };
-// };
