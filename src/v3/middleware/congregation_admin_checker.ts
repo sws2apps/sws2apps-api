@@ -4,8 +4,8 @@ export const congregationAdminChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			// check if session is authenticated for congregation administrator
-			const { cong_role } = res.locals.currentUser;
-			if (cong_role.includes('admin')) {
+			const { profile } = res.locals.currentUser;
+			if (profile.congregation?.cong_role.includes('admin')) {
 				next();
 			} else {
 				res.locals.type = 'warn';

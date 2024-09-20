@@ -24,11 +24,23 @@ export const getUserAuthDetails = async (auth_uid: string) => {
 };
 
 export const getUsersID = async () => {
-	const pattern = /^v3\/users\/(.+?)\/$/g;
+	const pattern = '^v3\\/users\\/(.+?)\\/';
 
-	const [files] = await getStorage().bucket().getFiles({ delimiter: 'v3/users' });
+	const [files] = await getStorage().bucket().getFiles({ prefix: 'v3/users' });
 
-	const users = files.filter((file) => file.name.match(pattern)).map((file) => file.name.match(pattern)![1]);
+	const draftUsers = files.filter((file) => {
+		const rgExp = new RegExp(pattern, 'g');
+		return rgExp.test(file.name);
+	});
+
+	const formatted = draftUsers.map((file) => {
+		const rgExp = new RegExp(pattern, 'g');
+
+		return rgExp.exec(file.name)![1];
+	});
+
+	const users = Array.from(new Set(formatted));
+
 	return users;
 };
 
@@ -202,4 +214,13 @@ export const createPocketUser = async ({
 	await setUserProfile(id, profile);
 
 	return id;
+};
+
+export const decodeUserIdToken = async (token: string) => {
+	try {
+		const decodedToken = await getAuth().verifyIdToken(token);
+		return decodedToken.uid;
+	} catch (err) {
+		console.error('Failed to decode idToken', err);
+	}
 };

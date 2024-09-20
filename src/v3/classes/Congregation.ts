@@ -1,5 +1,6 @@
 import { StandardRecord } from '../definition/app.js';
 import {
+	CongregationUpdatesType,
 	CongRequestPendingType,
 	CongSettingsType,
 	OutgoingSpeakersRecordType,
@@ -60,6 +61,14 @@ export class Congregation {
 			fullname_option: '',
 			language_groups: '',
 			last_backup: '',
+			responsabilities: '',
+			schedule_exact_date_enabled: '',
+			short_date_format: '',
+			source_material_auto_import: '',
+			special_months: '',
+			time_away_public: '',
+			week_start_sunday: '',
+			data_sync: { value: false, updatedAt: '' },
 			midweek_meeting: [
 				{
 					type: 'main',
@@ -71,13 +80,6 @@ export class Congregation {
 					opening_prayer_auto_assigned: '',
 				},
 			],
-			responsabilities: '',
-			schedule_exact_date_enabled: '',
-			short_date_format: '',
-			source_material_auto_import: '',
-			special_months: '',
-			time_away_public: '',
-			week_start_sunday: '',
 			weekend_meeting: [
 				{
 					type: 'main',
@@ -307,7 +309,7 @@ export class Congregation {
 			};
 		});
 
-		return congs;
+		return congs as CongregationUpdatesType['remote_congregations'];
 	}
 
 	getRejectedRequests() {
@@ -331,7 +333,7 @@ export class Congregation {
 			};
 		});
 
-		return congs;
+		return congs as CongregationUpdatesType['rejected_requests'];
 	}
 
 	getMembers(visitorid: string) {

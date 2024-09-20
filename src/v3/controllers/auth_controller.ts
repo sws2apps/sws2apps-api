@@ -3,11 +3,11 @@ import { getAuth } from 'firebase-admin/auth';
 import { validationResult } from 'express-validator';
 import { generateTokenDev } from '../dev/setup.js';
 import { UsersList } from '../classes/Users.js';
-import { UserSession } from '../definition/user.js';
+import { UserAuthResponse, UserSession } from '../definition/user.js';
 import { retrieveVisitorDetails } from '../services/ip_details/auth_utils.js';
 import { CongregationsList } from '../classes/Congregations.js';
 import { formatError } from '../utils/format_log.js';
-import { dbUserDecodeIdToken } from '../services/firebase/users.js';
+import { decodeUserIdToken } from '../services/firebase/users.js';
 import { cookieOptions } from '../utils/app.js';
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -33,7 +33,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 
 		// decode authorization
 		const idToken = req.headers.authorization!.split('Bearer ')[1];
-		const uid = await dbUserDecodeIdToken(idToken);
+		const uid = await decodeUserIdToken(idToken);
 
 		if (!uid) {
 			res.locals.type = 'warn';
@@ -42,7 +42,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 			return;
 		}
 
-		const visitorid = req.signedCookies.visitorid || crypto.randomUUID();
+		const visitorid: string = req.signedCookies.visitorid || crypto.randomUUID();
 		let authUser = UsersList.findByAuthUid(uid);
 		let newSessions: UserSession[] = [];
 
@@ -67,7 +67,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 
 		const newSession: UserSession = {
 			mfaVerified: false,
-			sws_last_seen: new Date().toISOString(),
+			last_seen: new Date().toISOString(),
 			visitorid: visitorid,
 			visitor_details: await retrieveVisitorDetails(userIP, req),
 			identifier: crypto.randomUUID(),
@@ -77,14 +77,14 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 
 		await authUser.updateSessions(newSessions);
 
-		if (authUser.mfaEnabled) {
+		if (authUser.profile.mfa_enabled) {
 			res.locals.type = 'info';
 			res.locals.message = 'user required to verify mfa';
 
 			res.cookie('visitorid', visitorid, cookieOptions(req));
 
 			if (isDev) {
-				const tokenDev = generateTokenDev(authUser.user_email!, authUser.secret!);
+				const tokenDev = generateTokenDev(authUser.profile.email!, authUser.profile.secret!);
 				res.status(200).json({ message: 'MFA_VERIFY', code: tokenDev });
 			} else {
 				res.status(200).json({ message: 'MFA_VERIFY' });
@@ -93,25 +93,28 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 			return;
 		}
 
-		const userInfo = {
+		const userInfo: UserAuthResponse = {
 			id: authUser.id,
-			firstname: authUser.firstname,
-			lastname: authUser.lastname,
-			cong_name: authUser.cong_name,
-			cong_number: authUser.cong_number,
-			cong_role: authUser.cong_role,
-			cong_id: authUser.cong_id,
-			global_role: authUser.global_role,
-			user_local_uid: authUser.user_local_uid,
+			firstname: authUser.profile.firstname,
+			lastname: authUser.profile.lastname,
+			global_role: authUser.profile.role,
 			mfa: 'not_enabled',
-			cong_master_key: '',
-			cong_access_code: '',
 		};
 
-		if (authUser.cong_id) {
-			const userCong = CongregationsList.findById(authUser.cong_id)!;
-			userInfo.cong_master_key = userCong.cong_master_key;
-			userInfo.cong_access_code = userCong.cong_access_code;
+		console.log(authUser.profile.congregation);
+
+		if (authUser.profile.congregation?.id) {
+			const userCong = CongregationsList.findById(authUser.profile.congregation.id);
+			if (userCong) {
+				userInfo.cong_id = authUser.profile.congregation.id;
+				userInfo.country_code = userCong.settings.country_code;
+				userInfo.cong_name = userCong.settings.cong_name;
+				userInfo.cong_number = userCong.settings.cong_number;
+				userInfo.cong_role = authUser.profile.congregation.cong_role;
+				userInfo.user_local_uid = authUser.profile.congregation.user_local_uid;
+				userInfo.cong_master_key = userCong.settings.cong_master_key;
+				userInfo.cong_access_code = userCong.settings.cong_access_code;
+			}
 		}
 
 		res.locals.type = 'info';
@@ -174,7 +177,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 
 		// decode authorization
 		const idToken = req.headers.authorization!.split('Bearer ')[1];
-		const uid = await dbUserDecodeIdToken(idToken);
+		const uid = await decodeUserIdToken(idToken);
 
 		if (!uid) {
 			res.locals.type = 'warn';
@@ -200,7 +203,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 
 		const newSession: UserSession = {
 			mfaVerified: false,
-			sws_last_seen: new Date().toISOString(),
+			last_seen: new Date().toISOString(),
 			visitorid: visitorid,
 			visitor_details: await retrieveVisitorDetails(userIP, req),
 			identifier: crypto.randomUUID(),
@@ -210,13 +213,13 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 
 		await authUser.updateSessions(newSessions);
 
-		if (authUser.mfaEnabled) {
+		if (authUser.profile.mfa_enabled) {
 			res.locals.type = 'info';
 			res.locals.message = 'user required to verify mfa';
 
 			res.cookie('visitorid', visitorid, cookieOptions(req));
 			if (isDev) {
-				const tokenDev = generateTokenDev(authUser.user_email!, authUser.secret!);
+				const tokenDev = generateTokenDev(authUser.profile.email!, authUser.profile.secret!);
 				res.status(200).json({ message: 'MFA_VERIFY', code: tokenDev });
 			} else {
 				res.status(200).json({ message: 'MFA_VERIFY' });
@@ -225,27 +228,26 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 			return;
 		}
 
-		const userInfo = {
+		const userInfo: UserAuthResponse = {
 			id: authUser.id,
-			firstname: authUser.firstname,
-			lastname: authUser.lastname,
-			cong_name: authUser.cong_name,
-			cong_number: authUser.cong_number,
-			cong_role: authUser.cong_role,
-			cong_id: authUser.cong_id,
-			country_code: '',
-			global_role: authUser.global_role,
-			user_local_uid: authUser.user_local_uid,
+			firstname: authUser.profile.firstname,
+			lastname: authUser.profile.lastname,
+			global_role: authUser.profile.role,
 			mfa: 'not_enabled',
-			cong_master_key: '',
-			cong_access_code: '',
 		};
 
-		if (authUser.cong_id) {
-			const cong = CongregationsList.findById(authUser.cong_id)!;
-			userInfo.cong_master_key = cong.cong_master_key;
-			userInfo.cong_access_code = cong.cong_access_code;
-			userInfo.country_code = cong.country_code;
+		if (authUser.profile.congregation?.id) {
+			const userCong = CongregationsList.findById(authUser.profile.congregation.id);
+			if (userCong) {
+				userInfo.cong_id = authUser.profile.congregation.id;
+				userInfo.country_code = userCong.settings.country_code;
+				userInfo.cong_name = userCong.settings.cong_name;
+				userInfo.cong_number = userCong.settings.cong_number;
+				userInfo.cong_role = authUser.profile.congregation.cong_role;
+				userInfo.user_local_uid = authUser.profile.congregation.user_local_uid;
+				userInfo.cong_master_key = userCong.settings.cong_master_key;
+				userInfo.cong_access_code = userCong.settings.cong_access_code;
+			}
 		}
 
 		res.locals.type = 'info';

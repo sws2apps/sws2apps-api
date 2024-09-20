@@ -39,7 +39,7 @@ export const getApprovedVisitingSpeakersAccess = async (req: Request, res: Respo
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -93,7 +93,7 @@ export const findVisitingSpeakersCongregations = async (req: Request, res: Respo
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -149,7 +149,7 @@ export const requestAccessSpeakersCongregation = async (req: Request, res: Respo
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -207,7 +207,7 @@ export const getPendingVisitingSpeakersAccess = async (req: Request, res: Respon
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -222,7 +222,7 @@ export const getPendingVisitingSpeakersAccess = async (req: Request, res: Respon
 		res.locals.message = `user fetched congregation speakers pending access`;
 		res
 			.status(200)
-			.json({ congregations, speakers_key: cong.cong_outgoing_speakers.speakers_key, cong_master_key: cong.cong_master_key });
+			.json({ congregations, speakers_key: cong.outgoing_speakers.speakers_key, cong_master_key: cong.settings.cong_master_key });
 	} catch (err) {
 		next(err);
 	}
@@ -263,7 +263,7 @@ export const approveVisitingSpeakersAccess = async (req: Request, res: Response,
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -321,7 +321,7 @@ export const rejectVisitingSpeakersAccess = async (req: Request, res: Response, 
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -378,7 +378,7 @@ export const publishSchedules = async (req: Request, res: Response, next: NextFu
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -438,7 +438,7 @@ export const publicSchedulesGet = async (req: Request, res: Response, next: Next
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -447,10 +447,9 @@ export const publicSchedulesGet = async (req: Request, res: Response, next: Next
 			return;
 		}
 
-		const sources = cong.public_schedules.meeting_sources.length === 0 ? [] : JSON.parse(cong.public_schedules.meeting_sources);
+		const sources = cong.public_schedules.sources.length === 0 ? [] : JSON.parse(cong.public_schedules.sources);
 
-		const schedules =
-			cong.public_schedules.meeting_schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.meeting_schedules);
+		const schedules = cong.public_schedules.schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.schedules);
 
 		res.locals.type = 'info';
 		res.locals.message = `user fetched congregations public schedules`;

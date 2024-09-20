@@ -98,3 +98,20 @@ export type UserSession = {
 	visitorid: string;
 	identifier: string;
 };
+
+export type UserAuthResponse = {
+	id: string;
+	firstname: { value: string; updatedAt: string };
+	lastname: { value: string; updatedAt: string };
+	global_role: string;
+	mfa: string;
+	country_code?: string;
+	cong_name?: string;
+	cong_number?: string;
+	cong_role?: AppRoleType[];
+	cong_id?: string;
+	user_local_uid?: string;
+	cong_master_key?: string;
+	cong_access_code?: string;
+	message?: string;
+};

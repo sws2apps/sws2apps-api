@@ -7,11 +7,23 @@ import { decryptData, encryptData } from '../encryption/encryption.js';
 import { Congregation } from '../../classes/Congregation.js';
 
 export const getCongsID = async () => {
-	const pattern = /^v3\/congregations\/(.+?)\//g;
+	const pattern = '^v3\\/congregations\\/(.+?)\\/';
 
-	const [files] = await getStorage().bucket().getFiles({ delimiter: 'v3/congregations' });
+	const [files] = await getStorage().bucket().getFiles({ prefix: 'v3/congregations' });
 
-	const congs = files.filter((file) => file.name.match(pattern)).map((file) => file.name.match(pattern)![1]);
+	const draftCongs = files.filter((file) => {
+		const rgExp = new RegExp(pattern, 'g');
+		return rgExp.test(file.name);
+	});
+
+	const formatted = draftCongs.map((file) => {
+		const rgExp = new RegExp(pattern, 'g');
+
+		return rgExp.exec(file.name)![1];
+	});
+
+	const congs = Array.from(new Set(formatted));
+
 	return congs;
 };
 
@@ -232,6 +244,7 @@ export const createCongregation = async (data: CongregationCreateInfoType) => {
 		cong_number: data.cong_number,
 		cong_name: data.cong_name,
 		cong_discoverable: { value: false, updatedAt: new Date().toISOString() },
+		data_sync: { value: false, updatedAt: new Date().toISOString() },
 		cong_location: { ...data.cong_location, updatedAt: new Date().toISOString() },
 		cong_circuit: [{ type: 'main', value: data.cong_circuit, updatedAt: new Date().toISOString() }],
 		midweek_meeting: [

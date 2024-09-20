@@ -77,7 +77,15 @@ export type CongregationUpdatesType = {
 	speakers_key?: string;
 	pending_speakers_requests?: CongRequestPendingType[];
 	remote_congregations?: (OutgoingSpeakersAccessStorageType & IncomingSpeakersType)[];
-	rejected_requests?: (OutgoingSpeakersAccessStorageType & IncomingSpeakersType)[];
+	rejected_requests?: {
+		cong_id: string;
+		status: 'disapproved';
+		updatedAt: string;
+		cong_name: string;
+		cong_number: string;
+		country_code: string;
+		request_id: string;
+	}[];
 };
 
 export type OutgoingTalkScheduleType = {
@@ -111,6 +119,7 @@ export type CongSettingsType = {
 	cong_new: boolean;
 	cong_circuit: { type: string; value: string; updatedAt: string }[];
 	cong_discoverable: { value: boolean; updatedAt: string };
+	data_sync: { value: boolean; updatedAt: string };
 	fullname_option: string;
 	short_date_format: string;
 	display_name_enabled: string;

@@ -9,36 +9,28 @@ const isDev = process.env.NODE_ENV === 'development';
 
 export const validateUser = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const user = await UsersList.findByAuthUid(res.locals.currentUser.auth_uid)!;
+		const user = res.locals.currentUser;
 
-		if (!user.cong_id) {
+		if (!user.profile.congregation) {
 			res.locals.type = 'warn';
 			res.locals.message = 'email address not associated with a congregation';
 			res.status(404).json({ message: 'CONG_NOT_FOUND' });
 			return;
 		}
 
-		const cong = CongregationsList.findById(user.cong_id)!;
+		const cong = CongregationsList.findById(user.profile.congregation.id)!;
 
 		const obj = {
 			id: user.id,
-			cong_id: user.cong_id,
-			country_code: cong.country_code,
-			cong_name: user.cong_name,
-			cong_number: user.cong_number,
-			cong_role: user.cong_role,
-			user_local_uid: user.user_local_uid,
-			user_delegates: user.user_delegates,
-			firstname: user.firstname,
-			lastname: user.lastname,
-			cong_master_key: cong.cong_master_key,
-			cong_access_code: cong.cong_access_code,
-			mfaEnabled: user.mfaEnabled,
-			cong_circuit: cong.cong_circuit,
-			cong_location: cong.cong_location,
-			midweek_meeting: cong.midweek_meeting,
-			weekend_meeting: cong.weekend_meeting,
-			cong_last_backup: cong.last_backup,
+			cong_id: cong.id,
+			country_code: cong.settings.country_code,
+			cong_name: cong.settings.cong_name,
+			cong_number: cong.settings.cong_number,
+			cong_role: user.profile.congregation.cong_role,
+			user_local_uid: user.profile.congregation.user_local_uid,
+			user_delegates: user.profile.congregation.user_members_delegate,
+			cong_master_key: cong.settings.cong_master_key,
+			cong_access_code: cong.settings.cong_access_code,
 		};
 
 		res.locals.type = 'info';
@@ -68,14 +60,14 @@ export const getUserSecretToken = async (req: Request, res: Response, next: Next
 		res.locals.type = 'info';
 		res.locals.message = `the user has fetched 2fa successfully`;
 
-		if (!user.mfaEnabled && isDev) {
-			const tokenDev = generateTokenDev(user.user_email!, user.secret!);
-			res.status(200).json({ secret: secret, qrCode: uri, mfaEnabled: user.mfaEnabled, MFA_CODE: tokenDev });
+		if (!user.profile.mfa_enabled && isDev) {
+			const tokenDev = generateTokenDev(user.profile.email!, user.profile.secret!);
+			res.status(200).json({ secret: secret, qrCode: uri, mfaEnabled: user.profile.mfa_enabled, MFA_CODE: tokenDev });
 		} else {
 			res.status(200).json({
 				secret: secret,
 				qrCode: uri,
-				mfaEnabled: user.mfaEnabled,
+				mfaEnabled: user.profile.mfa_enabled,
 			});
 		}
 	} catch (err) {
@@ -133,8 +125,9 @@ export const deleteUserSession = async (req: Request, res: Response, next: NextF
 		const user = UsersList.findById(id)!;
 		const sessions = await user.revokeSession(identifier);
 
-		if (user.cong_id && user.cong_id.length > 0) {
-			const cong = CongregationsList.findById(user.cong_id!);
+		if (user.profile.congregation && user.profile.congregation.id.length > 0) {
+			const cong = CongregationsList.findById(user.profile.congregation.id);
+
 			if (cong) {
 				cong.reloadMembers();
 			}
@@ -152,7 +145,7 @@ export const userLogout = async (req: Request, res: Response, next: NextFunction
 	try {
 		const visitorid = req.headers.visitorid as string;
 
-		const user = UsersList.findByAuthUid(res.locals.currentUser.auth_uid);
+		const user = res.locals.currentUser;
 
 		if (user) {
 			await user.revokeSession(visitorid);
