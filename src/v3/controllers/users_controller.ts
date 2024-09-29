@@ -4,6 +4,7 @@ import { UsersList } from '../classes/Users.js';
 import { CongregationsList } from '../classes/Congregations.js';
 import { generateTokenDev } from '../dev/setup.js';
 import { formatError } from '../utils/format_log.js';
+import { StandardRecord } from '../definition/app.js';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -177,6 +178,132 @@ export const disableUser2FA = async (req: Request, res: Response, next: NextFunc
 		res.locals.type = 'info';
 		res.locals.message = `the user disabled 2fa successfully`;
 		res.status(200).json({ message: 'MFA_DISABLED' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const getAuxiliaryApplications = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			const msg = formatError(errors);
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const { id } = req.params;
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: user id is required`;
+			res.status(400).json({ message: 'USER_ID_INVALID' });
+
+			return;
+		}
+
+		const user = UsersList.findById(id)!;
+
+		if (!user.profile.congregation) {
+			res.locals.type = 'warn';
+			res.locals.message = `user does not have an assigned congregation`;
+			res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
+
+			return;
+		}
+
+		const cong = CongregationsList.findById(user.profile.congregation?.id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user congregation is invalid';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+
+			return;
+		}
+
+		const results = user.getApplications();
+
+		res.locals.type = 'info';
+		res.locals.message = `user get submitted auxiliary pioneer application list`;
+		res.status(200).json(results);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const submitAuxiliaryApplication = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			const msg = formatError(errors);
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const { id } = req.params;
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: user id is required`;
+			res.status(400).json({ message: 'USER_ID_INVALID' });
+
+			return;
+		}
+
+		const user = UsersList.findById(id)!;
+
+		if (!user.profile.congregation) {
+			res.locals.type = 'warn';
+			res.locals.message = `user does not have an assigned congregation`;
+			res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
+
+			return;
+		}
+
+		const cong = CongregationsList.findById(user.profile.congregation?.id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user congregation is invalid';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+
+			return;
+		}
+
+		const form = req.body.application as StandardRecord;
+
+		const application = {
+			request_id: crypto.randomUUID().toUpperCase(),
+			person_uid: user.profile.congregation.user_local_uid,
+			months: form.months,
+			continuous: form.continuous,
+			submitted: form.submitted,
+			updatedAt: new Date().toISOString(),
+			expired: null,
+		};
+
+		const requestId = crypto.randomUUID().toUpperCase();
+
+		cong.saveApplication(requestId, application);
+
+		res.locals.type = 'info';
+		res.locals.message = `user submitted auxiliary pioneer application`;
+		res.status(200).json({ message: 'APPLICATION_SENT' });
 	} catch (err) {
 		next(err);
 	}

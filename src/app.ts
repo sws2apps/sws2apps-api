@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import path from 'node:path';
 import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
+import compression from 'compression';
 
 import './v2/config/i18n-config.js';
 import './v3/config/firebase_config.js';
@@ -64,6 +65,7 @@ app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 app.use(cors(corsOptionsDelegate));
 
+app.use(compression());
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: true }));
 

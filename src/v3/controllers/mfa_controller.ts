@@ -66,23 +66,42 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
 		const userInfo: UserAuthResponse = {
 			message: 'TOKEN_VALID',
 			id: user.id,
-			firstname: user.profile.firstname,
-			lastname: user.profile.lastname,
-			global_role: user.profile.role,
-			mfa: 'not_enabled',
+			app_settings: {
+				user_settings: {
+					firstname: user.profile.firstname,
+					lastname: user.profile.lastname,
+					role: user.profile.role,
+					mfa: 'enabled',
+				},
+			},
 		};
 
 		if (user.profile.congregation?.id) {
 			const userCong = CongregationsList.findById(user.profile.congregation.id);
 			if (userCong) {
-				userInfo.cong_id = user.profile.congregation.id;
-				userInfo.country_code = userCong.settings.country_code;
-				userInfo.cong_name = userCong.settings.cong_name;
-				userInfo.cong_number = userCong.settings.cong_number;
-				userInfo.cong_role = user.profile.congregation.cong_role;
-				userInfo.user_local_uid = user.profile.congregation.user_local_uid;
-				userInfo.cong_master_key = userCong.settings.cong_master_key;
-				userInfo.cong_access_code = userCong.settings.cong_access_code;
+				userInfo.app_settings.user_settings.user_local_uid = user.profile.congregation.user_local_uid;
+				userInfo.app_settings.user_settings.cong_role = user.profile.congregation.cong_role;
+
+				const midweek = userCong.settings.midweek_meeting.map((record) => {
+					return { type: record.type, time: record.time, weekday: record.weekday };
+				});
+
+				const weekend = userCong.settings.weekend_meeting.map((record) => {
+					return { type: record.type, time: record.time, weekday: record.weekday };
+				});
+
+				userInfo.app_settings.cong_settings = {
+					id: user.profile.congregation.id,
+					cong_circuit: userCong.settings.cong_circuit,
+					cong_name: userCong.settings.cong_name,
+					cong_number: userCong.settings.cong_number,
+					country_code: userCong.settings.country_code,
+					cong_access_code: userCong.settings.cong_access_code,
+					cong_master_key: userCong.settings.cong_master_key,
+					cong_location: userCong.settings.cong_location,
+					midweek_meeting: midweek,
+					weekend_meeting: weekend,
+				};
 			}
 		}
 

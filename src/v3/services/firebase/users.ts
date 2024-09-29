@@ -137,6 +137,13 @@ export const setUserProfile = async (id: string, profile: UserProfile) => {
 	await uploadFileToStorage(data, { type: 'user', path });
 };
 
+export const setUserSettings = async (id: string, settings: UserSettings) => {
+	const data = JSON.stringify(settings);
+	const path = `${id}/settings.txt`;
+
+	await uploadFileToStorage(data, { type: 'user', path });
+};
+
 export const setUserSessions = async (id: string, sessions: UserSession[]) => {
 	const data = JSON.stringify(sessions);
 	const path = `${id}/sessions.txt`;

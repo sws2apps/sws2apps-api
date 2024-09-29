@@ -1,7 +1,12 @@
 import { getStorage } from 'firebase-admin/storage';
 import { StandardRecord } from '../../definition/app.js';
-import { CongregationCreateInfoType, CongSettingsType, OutgoingSpeakersRecordType } from '../../definition/congregation.js';
-import { getFileFromStorage, uploadFileToStorage } from './storage_utils.js';
+import {
+	BackupData,
+	CongregationCreateInfoType,
+	CongSettingsType,
+	OutgoingSpeakersRecordType,
+} from '../../definition/congregation.js';
+import { deleteFileFromStorage, getFileFromStorage, uploadFileToStorage } from './storage_utils.js';
 import { CongregationsList } from '../../classes/Congregations.js';
 import { decryptData, encryptData } from '../encryption/encryption.js';
 import { Congregation } from '../../classes/Congregation.js';
@@ -65,7 +70,24 @@ export const getOutgoingSpeakersAccessList = async (congId: string) => {
 	return outgoingSpeakersData;
 };
 
-export const getCongData = async (cong_id: string) => {
+export const getApplications = async (cong_id: string) => {
+	const storageBucket = getStorage().bucket();
+	const [files] = await storageBucket.getFiles({ prefix: `v3/congregations/${cong_id}/auxiliary_applications` });
+
+	const applications: StandardRecord[] = [];
+
+	for await (const file of files) {
+		if (file.name.includes('.txt')) {
+			const contents = await file.download();
+			const application = decryptData(contents.toString());
+			applications.push(JSON.parse(application));
+		}
+	}
+
+	return applications;
+};
+
+export const getCongDetails = async (cong_id: string) => {
 	return {
 		public: {
 			meeting_source: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/public/sources.txt` }),
@@ -90,12 +112,8 @@ export const getCongData = async (cong_id: string) => {
 		}),
 		visiting_speakers: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/visiting_speakers/incoming.txt` }),
 		outgoing_speakers: await getOutgoingSpeakersAccessList(cong_id),
+		applications: await getApplications(cong_id),
 	};
-};
-
-export const getCongDetails = async (congId: string) => {
-	const congRecord = await getCongData(congId);
-	return congRecord;
 };
 
 export const loadAllCongs = async () => {
@@ -196,24 +214,24 @@ export const setCongPublicOutgoingTalks = async (id: string, speakers: string) =
 	await uploadFileToStorage(speakers, { type: 'congregation', path });
 };
 
-export const saveCongBackup = async (id: string, cong_backup: StandardRecord) => {
+export const saveCongBackup = async (id: string, cong_backup: BackupData) => {
 	if (cong_backup.persons) {
 		const persons = cong_backup.persons as Record<string, string>[];
 		await setCongPersons(id, persons);
 	}
 
 	if (cong_backup.speakers_congregations) {
-		const speakers = cong_backup.speakers_congregations as Record<string, string>[];
+		const speakers = cong_backup.speakers_congregations;
 		await setSpeakersCongregations(id, speakers);
 	}
 
 	if (cong_backup.visiting_speakers) {
-		const speakers = cong_backup.visiting_speakers as Record<string, string>[];
+		const speakers = cong_backup.visiting_speakers;
 		await setCongVisitingSpeakers(id, speakers);
 	}
 
 	if (cong_backup.outgoing_speakers) {
-		const speakers = cong_backup.outgoing_speakers as StandardRecord[];
+		const speakers = cong_backup.outgoing_speakers;
 		const cong = CongregationsList.findById(id)!;
 
 		const outgoingData = {
@@ -226,8 +244,8 @@ export const saveCongBackup = async (id: string, cong_backup: StandardRecord) =>
 
 	let lastBackup = '';
 
-	if (cong_backup.cong_settings) {
-		const settings = cong_backup.cong_settings as CongSettingsType;
+	if (cong_backup.app_settings) {
+		const settings = cong_backup.app_settings.cong_settings;
 
 		lastBackup = new Date().toISOString();
 		settings.last_backup = lastBackup;
@@ -367,4 +385,16 @@ export const publishCongSchedules = async (congId: string, sources?: string, sch
 	if (talks) {
 		await setCongPublicOutgoingTalks(congId, talks);
 	}
+};
+
+export const saveAPApplication = async (congId: string, requestId: string, application: StandardRecord) => {
+	const data = JSON.stringify(application);
+
+	const path = `${congId}/auxiliary_applications/${requestId}.txt`;
+	await uploadFileToStorage(data, { type: 'congregation', path });
+};
+
+export const deleteAPApplication = async (congId: string, requestId: string) => {
+	const path = `${congId}/auxiliary_applications/${requestId}.txt`;
+	await deleteFileFromStorage({ type: 'congregation', path });
 };

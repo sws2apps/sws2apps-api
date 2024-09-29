@@ -1,5 +1,6 @@
 import { StandardRecord } from '../definition/app.js';
 import {
+	BackupData,
 	CongregationUpdatesType,
 	CongRequestPendingType,
 	CongSettingsType,
@@ -9,10 +10,12 @@ import {
 import { decryptData } from '../services/encryption/encryption.js';
 import {
 	approveCongAccess,
+	deleteAPApplication,
 	getCongDetails,
 	publishCongSchedules,
 	rejectCongAccess,
 	requestCongAccess,
+	saveAPApplication,
 	saveCongBackup,
 	setCongSettings,
 } from '../services/firebase/congregations.js';
@@ -40,6 +43,7 @@ export class Congregation {
 	branch_cong_analysis: StandardRecord[];
 	meeting_attendance: StandardRecord[];
 	speakers_congregations: StandardRecord[];
+	ap_applications: StandardRecord[];
 
 	constructor(id: string) {
 		this.id = id;
@@ -105,6 +109,7 @@ export class Congregation {
 		this.sources = [];
 		this.speakers_congregations = [];
 		this.visiting_speakers = [];
+		this.ap_applications = [];
 	}
 
 	async loadDetails() {
@@ -117,6 +122,7 @@ export class Congregation {
 		this.persons = data.cong_persons;
 		this.outgoing_speakers = data.outgoing_speakers;
 		this.settings = data.settings;
+		this.ap_applications = data.applications;
 
 		if (data.branch_cong_analysis) {
 			this.branch_cong_analysis = JSON.parse(data.branch_cong_analysis);
@@ -153,51 +159,57 @@ export class Congregation {
 		this.reloadMembers();
 	}
 
-	async saveBackup(cong_backup: StandardRecord) {
+	async saveBackup(cong_backup: BackupData) {
+		const accessCode = this.settings.cong_access_code;
+		const masterKey = this.settings.cong_master_key;
+
+		cong_backup.app_settings.cong_settings.cong_access_code = accessCode;
+		cong_backup.app_settings.cong_settings.cong_master_key = masterKey;
+
 		const lastBackup = await saveCongBackup(this.id, cong_backup);
 
-		if (cong_backup.cong_persons) {
-			this.persons = cong_backup.cong_persons as StandardRecord[];
+		if (cong_backup.persons) {
+			this.persons = cong_backup.persons;
 		}
 
 		if (cong_backup.outgoing_speakers) {
-			this.outgoing_speakers.list = cong_backup.outgoing_speakers as StandardRecord[];
+			this.outgoing_speakers.list = cong_backup.outgoing_speakers;
 		}
 
 		if (cong_backup.speakers_congregations) {
-			this.speakers_congregations = cong_backup.speakers_congregations as StandardRecord[];
+			this.speakers_congregations = cong_backup.speakers_congregations;
 		}
 
 		if (cong_backup.visiting_speakers) {
-			this.visiting_speakers = cong_backup.visiting_speakers as StandardRecord[];
+			this.visiting_speakers = cong_backup.visiting_speakers;
 		}
 
 		if (cong_backup.branch_cong_analysis) {
-			this.branch_cong_analysis = cong_backup.branch_cong_analysis as StandardRecord[];
+			this.branch_cong_analysis = cong_backup.branch_cong_analysis;
 		}
 
 		if (cong_backup.branch_field_service_reports) {
-			this.branch_field_service_reports = cong_backup.branch_field_service_reports as StandardRecord[];
+			this.branch_field_service_reports = cong_backup.branch_field_service_reports;
 		}
 
 		if (cong_backup.field_service_groups) {
-			this.field_service_groups = cong_backup.field_service_groups as StandardRecord[];
+			this.field_service_groups = cong_backup.field_service_groups;
 		}
 
 		if (cong_backup.meeting_attendance) {
-			this.meeting_attendance = cong_backup.meeting_attendance as StandardRecord[];
+			this.meeting_attendance = cong_backup.meeting_attendance;
 		}
 
 		if (cong_backup.schedules) {
-			this.schedules = cong_backup.schedules as StandardRecord[];
+			this.schedules = cong_backup.schedules;
 		}
 
 		if (cong_backup.sources) {
-			this.sources = cong_backup.sources as StandardRecord[];
+			this.sources = cong_backup.sources;
 		}
 
-		if (cong_backup.cong_settings) {
-			const settings = structuredClone(cong_backup.cong_settings) as CongSettingsType;
+		if (cong_backup.app_settings) {
+			const settings = structuredClone(cong_backup.app_settings.cong_settings);
 			settings.last_backup = lastBackup;
 			this.settings = settings;
 		}
@@ -339,11 +351,19 @@ export class Congregation {
 	getMembers(visitorid: string) {
 		const members = this.members.map((member) => {
 			return {
-				...member,
-				pocket_invitation_code:
-					typeof member.profile.congregation?.pocket_invitation_code === 'string'
-						? decryptData(member.profile.congregation.pocket_invitation_code)
-						: undefined,
+				id: member.id,
+				profile: {
+					global_role: member.profile.role,
+					firstname: member.profile.firstname,
+					lastname: member.profile.lastname,
+					cong_role: member.profile.congregation?.cong_role,
+					user_local_uid: member.profile.congregation?.user_local_uid,
+					user_members_delegate: member.profile.congregation?.user_members_delegate || [],
+					pocket_invitation_code:
+						typeof member.profile.congregation?.pocket_invitation_code === 'string'
+							? decryptData(member.profile.congregation.pocket_invitation_code)
+							: undefined,
+				},
 				sessions:
 					member.sessions?.map((session) => {
 						return {
@@ -391,6 +411,46 @@ export class Congregation {
 
 				congregation.public_schedules.incoming_talks = schedules.length === 0 ? '' : JSON.stringify(schedules);
 			}
+		}
+	}
+
+	async saveApplication(request_id: string, application: StandardRecord) {
+		await saveAPApplication(this.id, request_id, application);
+
+		let current = this.ap_applications.find((record) => record.request_id === request_id);
+
+		if (!current) {
+			this.ap_applications.push({ request_id });
+		}
+
+		current = this.ap_applications.find((record) => record.request_id === request_id)!;
+
+		current.person_uid = application.person_uid;
+		current.months = application.months;
+		current.continuous = application.continuous;
+		current.submitted = application.submitted;
+		current.status = application.status;
+		current.coordinator = application.coordinator;
+		current.secretary = application.secretary;
+		current.service = application.service;
+		current.notified = application.notified;
+		current.expired = application.expired;
+		current.updatedAt = application.updatedAt;
+
+		// remove expired records
+		const expiredAPs = this.ap_applications.filter((record) => {
+			if (!record.expired) return false;
+
+			const expired = record.expired as string;
+			const now = new Date().toISOString();
+
+			return expired < now;
+		});
+
+		for await (const form of expiredAPs) {
+			await deleteAPApplication(this.id, form.request_id as string);
+
+			this.ap_applications = this.ap_applications.filter((record) => record.request_id !== form.request_id);
 		}
 	}
 }

@@ -2,11 +2,10 @@ import fetch from 'node-fetch';
 import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { CongregationsList } from '../classes/Congregations.js';
-import { ApiCongregationSearchResponse, CongregationUpdatesType, CongSettingsType } from '../definition/congregation.js';
+import { ApiCongregationSearchResponse, BackupData, CongregationUpdatesType } from '../definition/congregation.js';
 import { sendWelcomeMessage } from '../services/mail/sendEmail.js';
 import { formatError } from '../utils/format_log.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';
-import { StandardRecord } from '../definition/app.js';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -72,9 +71,14 @@ export const saveCongregationBackup = async (req: Request, res: Response, next: 
 			return;
 		}
 
-		const cong_backup = req.body.cong_backup;
+		const cong_backup = req.body.cong_backup as BackupData;
 
 		cong.saveBackup(cong_backup);
+
+		const userSettings = cong_backup.app_settings.user_settings;
+		if (userSettings) {
+			user.saveBackup(userSettings);
+		}
 
 		res.locals.type = 'info';
 		res.locals.message = 'user send backup for congregation successfully';
@@ -325,31 +329,83 @@ export const retrieveCongregationBackup = async (req: Request, res: Response, ne
 		}
 
 		const user = res.locals.currentUser;
-		const masterKeyNeed = user.profile.congregation!.cong_role.some((role) => ROLE_MASTER_KEY.includes(role));
+		const result = {} as BackupData;
 
-		const adminRole = user.profile.congregation!.cong_role.includes('admin');
+		if (cong.settings.data_sync.value) {
+			const masterKeyNeed = user.profile.congregation!.cong_role.some((role) => ROLE_MASTER_KEY.includes(role));
 
-		const personEditor = adminRole;
-		const publicTalkEditor = adminRole;
+			const adminRole = user.profile.congregation!.cong_role.includes('admin');
 
-		const result: StandardRecord = {
-			app_settings: structuredClone(cong.settings),
-		};
+			const personEditor = adminRole;
+			const publicTalkEditor = adminRole;
 
-		if (!masterKeyNeed) {
-			const settings = result.app_settings as CongSettingsType;
-			settings.cong_master_key = '';
+			result.app_settings = {
+				cong_settings: structuredClone(cong.settings),
+				user_settings: {
+					cong_role: user.profile.congregation?.cong_role,
+					firstname: user.profile.firstname,
+					lastname: user.profile.lastname,
+					user_local_uid: user.profile.congregation?.user_local_uid,
+					user_members_delegate: user.profile.congregation?.user_members_delegate,
+					backup_automatic: user.settings.backup_automatic.length > 0 ? user.settings.backup_automatic : undefined,
+					theme_follow_os_enabled:
+						user.settings.theme_follow_os_enabled.length > 0 ? user.settings.theme_follow_os_enabled : undefined,
+					hour_credits_enabled: user.settings.hour_credits_enabled.length > 0 ? user.settings.hour_credits_enabled : undefined,
+					data_view: user.settings.data_view.length > 0 ? user.settings.data_view : undefined,
+				},
+			};
+
+			if (!masterKeyNeed) {
+				result.app_settings.cong_settings.cong_master_key = '';
+			}
+
+			if (personEditor) {
+				result.persons = cong.persons;
+			}
+
+			if (publicTalkEditor) {
+				result.speakers_key = cong.outgoing_speakers.speakers_key;
+				result.speakers_congregations = cong.speakers_congregations;
+				result.visiting_speakers = cong.visiting_speakers;
+				result.outgoing_talks =
+					cong.public_schedules.incoming_talks === '' ? [] : JSON.parse(cong.public_schedules.incoming_talks);
+			}
 		}
 
-		if (personEditor) {
-			result.cong_persons = cong.persons;
-		}
+		if (!cong.settings.data_sync.value) {
+			const masterKeyNeed = user.profile.congregation!.cong_role.some((role) => ROLE_MASTER_KEY.includes(role));
 
-		if (publicTalkEditor) {
-			result.speakers_key = cong.outgoing_speakers.speakers_key;
-			result.speakers_congregations = cong.speakers_congregations;
-			result.visiting_speakers = cong.visiting_speakers;
-			result.outgoing_talks = cong.public_schedules.incoming_talks === '' ? [] : JSON.parse(cong.public_schedules.incoming_talks);
+			const midweek = cong.settings.midweek_meeting.map((record) => {
+				return { type: record.type, time: record.time, weekday: record.weekday };
+			});
+
+			const weekend = cong.settings.weekend_meeting.map((record) => {
+				return { type: record.type, time: record.time, weekday: record.weekday };
+			});
+
+			result.app_settings = {
+				cong_settings: {
+					cong_access_code: cong.settings.cong_access_code,
+					cong_master_key: masterKeyNeed ? cong.settings.cong_master_key : undefined,
+					cong_circuit: cong.settings.cong_circuit,
+					cong_discoverable: cong.settings.cong_discoverable,
+					cong_location: cong.settings.cong_location,
+					data_sync: cong.settings.data_sync,
+					midweek_meeting: midweek,
+					weekend_meeting: weekend,
+					cong_name: cong.settings.cong_name,
+					cong_number: cong.settings.cong_number,
+					country_code: cong.settings.country_code,
+					last_backup: cong.settings.last_backup,
+				},
+				user_settings: {
+					cong_role: user.profile.congregation?.cong_role,
+					firstname: user.profile.firstname,
+					lastname: user.profile.lastname,
+					user_local_uid: user.profile.congregation?.user_local_uid,
+					user_members_delegate: user.profile.congregation?.user_members_delegate,
+				},
+			};
 		}
 
 		res.locals.type = 'info';
@@ -390,9 +446,17 @@ export const getCongregationUpdates = async (req: Request, res: Response, next: 
 		}
 
 		const user = res.locals.currentUser;
-		const masterKeyNeed = user.profile.congregation!.cong_role.some((role) => ROLE_MASTER_KEY.includes(role));
 
-		const adminRole = user.profile.congregation!.cong_role.includes('admin');
+		const roles = user.profile.congregation!.cong_role;
+		const masterKeyNeed = roles.some((role) => ROLE_MASTER_KEY.includes(role));
+
+		const adminRole = roles.includes('admin');
+		const coordinatorRole = roles.includes('coordinator');
+		const secretaryRole = roles.includes('secretary');
+		const serviceRole = roles.includes('service_overseer');
+
+		const committeeRole = adminRole || coordinatorRole || secretaryRole || serviceRole;
+
 		const publicTalkEditor = adminRole;
 
 		const result: CongregationUpdatesType = {
@@ -401,6 +465,10 @@ export const getCongregationUpdates = async (req: Request, res: Response, next: 
 
 		if (masterKeyNeed) {
 			result.cong_master_key = cong.settings.cong_master_key;
+		}
+
+		if (committeeRole) {
+			result.applications = cong.ap_applications;
 		}
 
 		if (publicTalkEditor) {

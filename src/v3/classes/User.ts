@@ -1,6 +1,13 @@
 import { AppRoleType, OTPSecretType, StandardRecord } from '../definition/app.js';
 import { UserCongregationAssignParams, UserProfile, UserSession, UserSettings } from '../definition/user.js';
-import { getUserAuthDetails, getUserDetails, setUserEmail, setUserProfile, setUserSessions } from '../services/firebase/users.js';
+import {
+	getUserAuthDetails,
+	getUserDetails,
+	setUserEmail,
+	setUserProfile,
+	setUserSessions,
+	setUserSettings,
+} from '../services/firebase/users.js';
 import { decryptData, encryptData } from '../services/encryption/encryption.js';
 import { generateUserSecret } from '../utils/user_utils.js';
 import { CongregationsList } from './Congregations.js';
@@ -61,6 +68,12 @@ export class User {
 		await setUserProfile(this.id, profile);
 
 		this.profile = profile;
+	}
+
+	async updateSettings(settings: UserSettings) {
+		await setUserSettings(this.id, settings);
+
+		this.settings = settings;
 	}
 
 	getActiveSessions(visitorid: string) {
@@ -258,5 +271,30 @@ export class User {
 		if (cong) {
 			await cong.reloadMembers();
 		}
+	}
+
+	saveBackup(backup: object) {
+		const data = backup as Record<string, object | string>;
+
+		const profile = structuredClone(this.profile);
+		profile.firstname = data['firstname'] as UserProfile['firstname'];
+		profile.lastname = data['lastname'] as UserProfile['lastname'];
+
+		this.updateProfile(profile);
+
+		const settings = structuredClone(this.settings);
+		settings.backup_automatic = data['backup_automatic'] as string;
+		settings.data_view = data['data_view'] as string;
+		settings.hour_credits_enabled = data['hour_credits_enabled'] as string;
+		settings.theme_follow_os_enabled = data['theme_follow_os_enabled'] as string;
+
+		this.updateSettings(settings);
+	}
+
+	getApplications() {
+		const cong = CongregationsList.findById(this.profile.congregation!.id)!;
+		const person_uid = this.profile.congregation!.user_local_uid;
+
+		return cong.ap_applications.filter((record) => record.person_uid === person_uid);
 	}
 }

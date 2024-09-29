@@ -1,4 +1,5 @@
 import { AppRoleType } from './app.js';
+import { CircuitRecordType } from './congregation.js';
 
 export type UserGlobalRoleType = 'vip' | 'pocket' | 'admin';
 
@@ -100,18 +101,36 @@ export type UserSession = {
 };
 
 export type UserAuthResponse = {
-	id: string;
-	firstname: { value: string; updatedAt: string };
-	lastname: { value: string; updatedAt: string };
-	global_role: string;
-	mfa: string;
-	country_code?: string;
-	cong_name?: string;
-	cong_number?: string;
-	cong_role?: AppRoleType[];
-	cong_id?: string;
-	user_local_uid?: string;
-	cong_master_key?: string;
-	cong_access_code?: string;
 	message?: string;
+	id: string;
+	app_settings: {
+		user_settings: {
+			firstname: { value: string; updatedAt: string };
+			lastname: { value: string; updatedAt: string };
+			role: UserGlobalRoleType;
+			mfa: string;
+			user_local_uid?: string;
+			cong_role?: AppRoleType[];
+		};
+		cong_settings?: {
+			id: string;
+			country_code: string;
+			cong_circuit: CircuitRecordType[];
+			cong_name: string;
+			cong_number: string;
+			cong_master_key: string;
+			cong_access_code: string;
+			cong_location: { address: string; lat?: number; lng?: number; updatedAt: string };
+			midweek_meeting: {
+				type: string;
+				weekday: { value?: number; updatedAt: string };
+				time: { value: string; updatedAt: string };
+			}[];
+			weekend_meeting: {
+				type: string;
+				weekday: { value?: number; updatedAt: string };
+				time: { value: string; updatedAt: string };
+			}[];
+		};
+	};
 };
