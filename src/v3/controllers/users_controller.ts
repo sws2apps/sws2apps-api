@@ -154,6 +154,8 @@ export const userLogout = async (req: Request, res: Response, next: NextFunction
 
 		res.locals.type = 'info';
 		res.locals.message = `the current user has logged out`;
+
+		res.clearCookie('visitorid', { path: '/' });
 		res.status(200).json({ message: 'OK' });
 	} catch (err) {
 		next(err);
@@ -297,9 +299,7 @@ export const submitAuxiliaryApplication = async (req: Request, res: Response, ne
 			expired: null,
 		};
 
-		const requestId = crypto.randomUUID().toUpperCase();
-
-		cong.saveApplication(requestId, application);
+		cong.saveApplication(application);
 
 		res.locals.type = 'info';
 		res.locals.message = `user submitted auxiliary pioneer application`;

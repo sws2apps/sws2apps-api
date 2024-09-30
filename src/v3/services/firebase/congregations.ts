@@ -387,10 +387,10 @@ export const publishCongSchedules = async (congId: string, sources?: string, sch
 	}
 };
 
-export const saveAPApplication = async (congId: string, requestId: string, application: StandardRecord) => {
+export const saveAPApplication = async (congId: string, application: StandardRecord) => {
 	const data = JSON.stringify(application);
 
-	const path = `${congId}/auxiliary_applications/${requestId}.txt`;
+	const path = `${congId}/auxiliary_applications/${application.request_id}.txt`;
 	await uploadFileToStorage(data, { type: 'congregation', path });
 };
 

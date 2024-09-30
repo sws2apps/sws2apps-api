@@ -414,16 +414,16 @@ export class Congregation {
 		}
 	}
 
-	async saveApplication(request_id: string, application: StandardRecord) {
-		await saveAPApplication(this.id, request_id, application);
+	async saveApplication(application: StandardRecord) {
+		await saveAPApplication(this.id, application);
 
-		let current = this.ap_applications.find((record) => record.request_id === request_id);
+		let current = this.ap_applications.find((record) => record.request_id === application.request_id);
 
 		if (!current) {
-			this.ap_applications.push({ request_id });
+			this.ap_applications.push({ request_id: application.request_id });
 		}
 
-		current = this.ap_applications.find((record) => record.request_id === request_id)!;
+		current = this.ap_applications.find((record) => record.request_id === application.request_id)!;
 
 		current.person_uid = application.person_uid;
 		current.months = application.months;
@@ -452,5 +452,12 @@ export class Congregation {
 
 			this.ap_applications = this.ap_applications.filter((record) => record.request_id !== form.request_id);
 		}
+	}
+
+	async deleteApplication(request_id: string) {
+		await deleteAPApplication(this.id, request_id);
+
+		this.ap_applications = this.ap_applications.filter((record) => record.request_id !== request_id);
+		return this.ap_applications;
 	}
 }

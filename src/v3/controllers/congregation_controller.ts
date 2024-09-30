@@ -6,6 +6,7 @@ import { ApiCongregationSearchResponse, BackupData, CongregationUpdatesType } fr
 import { sendWelcomeMessage } from '../services/mail/sendEmail.js';
 import { formatError } from '../utils/format_log.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';
+import { StandardRecord } from '../definition/app.js';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -480,6 +481,138 @@ export const getCongregationUpdates = async (req: Request, res: Response, next: 
 
 		res.locals.type = 'info';
 		res.locals.message = 'user retrieve updates successfully';
+		res.status(200).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const updateApplicationApproval = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const { id, request } = req.params;
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation request id params is undefined';
+			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+			return;
+		}
+
+		if (!request) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the application request id params is undefined';
+			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+			return;
+		}
+
+		const cong = CongregationsList.findById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const user = res.locals.currentUser;
+
+		const roles = user.profile.congregation!.cong_role;
+
+		const adminRole = roles.includes('admin');
+		const coordinatorRole = roles.includes('coordinator');
+		const secretaryRole = roles.includes('secretary');
+		const serviceRole = roles.includes('service_overseer');
+
+		const committeeRole = adminRole || coordinatorRole || secretaryRole || serviceRole;
+
+		if (!committeeRole) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to process this application';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const application = req.body.application as StandardRecord;
+
+		await cong.saveApplication(application);
+
+		const result = cong.ap_applications;
+
+		res.locals.type = 'info';
+		res.locals.message = 'user updated application approval';
+		res.status(200).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const deleteApplication = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const { id, request } = req.params;
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation request id params is undefined';
+			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+			return;
+		}
+
+		if (!request) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the application request id params is undefined';
+			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+			return;
+		}
+
+		const cong = CongregationsList.findById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const user = res.locals.currentUser;
+
+		const roles = user.profile.congregation!.cong_role;
+
+		const adminRole = roles.includes('admin');
+		const coordinatorRole = roles.includes('coordinator');
+		const secretaryRole = roles.includes('secretary');
+		const serviceRole = roles.includes('service_overseer');
+
+		const committeeRole = adminRole || coordinatorRole || secretaryRole || serviceRole;
+
+		if (!committeeRole) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to process this application';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const result = await cong.deleteApplication(request);
+
+		res.locals.type = 'info';
+		res.locals.message = 'user deleted application';
 		res.status(200).json(result);
 	} catch (err) {
 		next(err);

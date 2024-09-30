@@ -118,7 +118,7 @@ export type UserAuthResponse = {
 			cong_circuit: CircuitRecordType[];
 			cong_name: string;
 			cong_number: string;
-			cong_master_key: string;
+			cong_master_key?: string;
 			cong_access_code: string;
 			cong_location: { address: string; lat?: number; lng?: number; updatedAt: string };
 			midweek_meeting: {

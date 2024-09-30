@@ -87,6 +87,7 @@ export type CongregationUpdatesType = {
 		request_id: string;
 	}[];
 	applications?: StandardRecord[];
+	my_applications?: StandardRecord[];
 };
 
 export type OutgoingTalkScheduleType = {
