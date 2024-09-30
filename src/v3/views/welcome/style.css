@@ -22,7 +22,7 @@ h2 {
 }
 
 img {
-  display: inline-block;
+  display: block;
 }
 
 .header img {
@@ -170,4 +170,8 @@ a {
   margin-left: auto;
   float: right;
   margin-top: 2px;
+}
+.footer .icons > * {
+  margin-left: 12px;
+  float: left;
 }/*# sourceMappingURL=style.css.map */

@@ -24,7 +24,7 @@ h2 {
 }
 
 img {
-	display: inline-block;
+	display: block;
 }
 
 .header {
@@ -175,5 +175,9 @@ a {
 		margin-left: auto;
 		float: right;
 		margin-top: 2px;
+		> * {
+			margin-left: 12px;
+			float: left;
+		}
 	}
 }
