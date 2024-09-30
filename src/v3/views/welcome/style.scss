@@ -65,7 +65,7 @@ a {
 	margin: 0 auto;
 	//radius xl
 	border-radius: 16px;
-	background: linear-gradient(140deg, #3e3cac, #6774e5);
+	background: linear-gradient(140deg, #6774e5, #3e3cac);
 	&-content {
 		padding: 12px;
 		border-radius: 8px;
@@ -75,7 +75,7 @@ a {
 		}
 		a {
 			margin-top: 8px;
-			background: linear-gradient(140deg, #3e3cac, #6774e5);
+			background: linear-gradient(140deg, #6774e5, #3e3cac);
 			box-shadow: 0px 2.71px 13.53px 0px #5360d066;
 
 			display: inline-block;
