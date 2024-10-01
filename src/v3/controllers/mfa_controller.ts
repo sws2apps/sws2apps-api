@@ -53,7 +53,7 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
 			return;
 		}
 
-		const visitorid = req.headers.visitorid as string;
+		const visitorid = req.signedCookies.visitorid;
 
 		const newSessions = structuredClone(sessions);
 		const findSession = newSessions.find((session) => session.visitorid === visitorid)!;
