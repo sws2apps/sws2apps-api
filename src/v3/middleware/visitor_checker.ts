@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { check, validationResult } from 'express-validator';
 import { UsersList } from '../classes/Users.js';
 import { formatError } from '../utils/format_log.js';
-import { dbUserDecodeIdToken } from '../services/firebase/users.js';
+import { decodeUserIdToken } from '../services/firebase/users.js';
 import { authBearerCheck } from '../services/validator/auth.js';
 
 export const visitorChecker = () => {
@@ -25,7 +25,7 @@ export const visitorChecker = () => {
 
 			// decode authorization
 			const idToken = req.headers.authorization!.split('Bearer ')[1];
-			const uid = await dbUserDecodeIdToken(idToken);
+			const uid = await decodeUserIdToken(idToken);
 
 			if (!uid) {
 				res.locals.type = 'warn';
@@ -52,13 +52,6 @@ export const visitorChecker = () => {
 				return;
 			}
 
-			if (user.disabled) {
-				res.locals.type = 'warn';
-				res.locals.message = 'this user account is currently disabled';
-				res.status(404).json({ message: 'ACCOUNT_DISABLED' });
-				return;
-			}
-
 			// get user session
 			const sessions = user.sessions;
 
@@ -77,7 +70,7 @@ export const visitorChecker = () => {
 			// assign local vars for current user in next route
 			res.locals.currentUser = user;
 
-			if (user.mfaEnabled) {
+			if (user.profile.mfa_enabled) {
 				const { mfaVerified } = findSession;
 
 				if (mfaVerified) {

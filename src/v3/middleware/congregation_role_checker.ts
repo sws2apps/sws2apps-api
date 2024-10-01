@@ -4,7 +4,9 @@ export const congregationRoleChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			// check if session is authenticated for an approved role
-			const { cong_role } = res.locals.currentUser;
+			const { profile } = res.locals.currentUser;
+			const cong_role = profile.congregation!.cong_role;
+
 			if (
 				cong_role.includes('admin') ||
 				cong_role.includes('secretary') ||
@@ -31,7 +33,9 @@ export const congregationMeetingEditorChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			// check if session is authenticated for an approved role
-			const { cong_role } = res.locals.currentUser;
+			const { profile } = res.locals.currentUser;
+			const cong_role = profile.congregation!.cong_role;
+
 			if (
 				cong_role.includes('admin') ||
 				cong_role.includes('coordinator') ||
@@ -56,7 +60,9 @@ export const congregationLMMOChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			// check if session is authenticated for an approved role
-			const { cong_role } = res.locals.currentUser;
+			const { profile } = res.locals.currentUser;
+			const cong_role = profile.congregation!.cong_role;
+
 			if (cong_role.includes('admin') || cong_role.includes('coordinator') || cong_role.includes('midweek_schedule')) {
 				next();
 			} else {
@@ -75,7 +81,9 @@ export const congregationSecretaryChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			// check if session is authenticated for an approved role
-			const { cong_role } = res.locals.currentUser;
+			const { profile } = res.locals.currentUser;
+			const cong_role = profile.congregation!.cong_role;
+
 			if (cong_role.includes('admin') || cong_role.includes('secretary')) {
 				next();
 			} else {
@@ -94,7 +102,9 @@ export const congregationPublicTalkCoordinatorChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			// check if session is authenticated for an approved role
-			const { cong_role } = res.locals.currentUser;
+			const { profile } = res.locals.currentUser;
+			const cong_role = profile.congregation!.cong_role;
+
 			if (cong_role.includes('admin') || cong_role.includes('public_talk_schedule')) {
 				next();
 			} else {

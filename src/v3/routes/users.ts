@@ -4,8 +4,10 @@ import { visitorChecker } from '../middleware/visitor_checker.js';
 import {
 	deleteUserSession,
 	disableUser2FA,
+	getAuxiliaryApplications,
 	getUserSecretToken,
 	getUserSessions,
+	submitAuxiliaryApplication,
 	userLogout,
 	validateUser,
 } from '../controllers/users_controller.js';
@@ -17,6 +19,9 @@ router.use(visitorChecker());
 
 // validate user for active session
 router.get('/validate-me', validateUser);
+
+// logout current user session
+router.get('/logout', userLogout);
 
 // get user 2fa token
 router.get('/:id/2fa', getUserSecretToken);
@@ -30,7 +35,10 @@ router.get('/:id/sessions', getUserSessions);
 // delete user session
 router.delete('/:id/sessions', body('identifier').notEmpty(), deleteUserSession);
 
-// logout current user session
-router.get('/logout', userLogout);
+// get auxiliary pioneer applications
+router.get('/:id/applications', getAuxiliaryApplications);
+
+// submit auxiliary pioneer application
+router.post('/:id/applications', body('application').isObject().notEmpty(), submitAuxiliaryApplication);
 
 export default router;

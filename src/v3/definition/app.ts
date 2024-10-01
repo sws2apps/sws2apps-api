@@ -12,3 +12,5 @@ export type AppRoleType =
 	| 'view_schedules';
 
 export type OTPSecretType = { secret: string; uri: string; version: number };
+
+export type StandardRecord = Record<string, unknown>;

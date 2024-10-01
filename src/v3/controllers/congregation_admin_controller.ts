@@ -41,7 +41,7 @@ export const setCongregationMasterKey = async (req: Request, res: Response, next
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -99,7 +99,7 @@ export const setCongregationAccessCode = async (req: Request, res: Response, nex
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -157,7 +157,7 @@ export const congregationMasterKeyGet = async (req: Request, res: Response, next
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -166,7 +166,7 @@ export const congregationMasterKeyGet = async (req: Request, res: Response, next
 			return;
 		}
 
-		const master_key = cong.cong_master_key;
+		const master_key = cong.settings.cong_master_key;
 
 		res.locals.type = 'warn';
 		res.locals.message = 'congregation admin get master key';
@@ -214,7 +214,7 @@ export const congregationAccessCodeGet = async (req: Request, res: Response, nex
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -223,7 +223,7 @@ export const congregationAccessCodeGet = async (req: Request, res: Response, nex
 			return;
 		}
 
-		const access_code = cong.cong_access_code;
+		const access_code = cong.settings.cong_access_code;
 
 		res.locals.type = 'warn';
 		res.locals.message = 'congregation admin get access code';
@@ -271,7 +271,7 @@ export const pocketUserAdd = async (req: Request, res: Response, next: NextFunct
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -339,7 +339,7 @@ export const congregationGetUsers = async (req: Request, res: Response, next: Ne
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -396,7 +396,7 @@ export const userDetailsUpdate = async (req: Request, res: Response, next: NextF
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -473,7 +473,7 @@ export const userSessionDelete = async (req: Request, res: Response, next: NextF
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -549,7 +549,7 @@ export const pocketCodeDelete = async (req: Request, res: Response, next: NextFu
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -624,7 +624,7 @@ export const globalSearchUser = async (req: Request, res: Response, next: NextFu
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -636,7 +636,7 @@ export const globalSearchUser = async (req: Request, res: Response, next: NextFu
 		const email = req.query.email as string;
 		const foundUser = UsersList.findByEmail(email);
 
-		if (!foundUser || (foundUser?.cong_id && foundUser?.cong_id.length > 0)) {
+		if (!foundUser || (foundUser.profile.congregation && foundUser.profile.congregation.id.length > 0)) {
 			res.locals.type = 'warn';
 			res.locals.message = 'user not found with the provided email';
 			res.status(404).json({ message: 'USER_NOT_FOUND' });
@@ -690,7 +690,7 @@ export const congregationUserAdd = async (req: Request, res: Response, next: Nex
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';
@@ -757,7 +757,7 @@ export const congregationDeleteUser = async (req: Request, res: Response, next: 
 			return;
 		}
 
-		const isValid = await cong.hasMember(res.locals.currentUser.auth_uid);
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
 
 		if (!isValid) {
 			res.locals.type = 'warn';

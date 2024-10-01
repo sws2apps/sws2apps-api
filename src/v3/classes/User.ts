@@ -1,116 +1,79 @@
-import { AppRoleType, OTPSecretType } from '../denifition/app.js';
-import { UserCongregationAssignParams, UserGlobalRoleType, UserSession } from '../denifition/user.js';
+import { AppRoleType, OTPSecretType, StandardRecord } from '../definition/app.js';
+import { UserCongregationAssignParams, UserProfile, UserSession, UserSettings } from '../definition/user.js';
 import {
-	dbPocketDeleteCode,
-	dbUserAuthDetails,
-	dbUserCongregationAssign,
-	dbUserCongregationRemove,
-	dbUserDisableMFA,
-	dbUserEnableMFA,
-	dbUserGenerateSecret,
-	dbUserLoadDetails,
-	dbUserUpdateCongregationDetails,
-	dbUserUpdateEmail,
-	dbUserUpdateFirstname,
-	dbUserUpdateLastname,
-	dbUserUpdateSessions,
+	getUserAuthDetails,
+	getUserDetails,
+	setUserEmail,
+	setUserProfile,
+	setUserSessions,
+	setUserSettings,
 } from '../services/firebase/users.js';
-import { dbCongregationDetails } from '../services/firebase/congregations.js';
 import { decryptData, encryptData } from '../services/encryption/encryption.js';
+import { generateUserSecret } from '../utils/user_utils.js';
 import { CongregationsList } from './Congregations.js';
 
 export class User {
 	id: string;
-	user_email: string | undefined;
-	user_local_uid: string | undefined;
-	pocket_invitation_code: string | undefined;
-	cong_id: string | undefined;
-	cong_country: string;
-	cong_name: string;
-	cong_number: string;
-	cong_role: AppRoleType[];
-	mfaEnabled: boolean;
-	firstname: { value: string; updatedAt: string | null };
-	lastname: { value: string; updatedAt: string | null };
-	global_role: UserGlobalRoleType | '';
-	sessions?: UserSession[];
-	last_seen: string | undefined;
-	auth_uid: string;
-	disabled: boolean;
-	secret: string | undefined;
-	auth_provider: string;
-	last_backup: string | undefined;
-	user_delegates: string[];
+	profile: UserProfile;
+	sessions: UserSession[];
+	settings: UserSettings;
+	bible_studies: StandardRecord[];
+	field_service_reports: StandardRecord[];
 
 	constructor(id: string) {
 		this.id = id;
-		this.user_email = '';
-		this.user_local_uid = '';
-		this.pocket_invitation_code = '';
-		this.cong_id = '';
-		this.cong_country = '';
-		this.cong_name = '';
-		this.cong_number = '';
-		this.cong_role = [];
-		this.mfaEnabled = false;
-		this.firstname = { value: '', updatedAt: null };
-		this.lastname = { value: '', updatedAt: null };
-		this.global_role = '';
+		this.profile = {
+			firstname: { value: '', updatedAt: '' },
+			lastname: { value: '', updatedAt: '' },
+			role: 'pocket',
+		};
 		this.sessions = [];
-		this.last_seen = '';
-		this.auth_uid = '';
-		this.disabled = true;
-		this.secret = '';
-		this.auth_provider = '';
-		this.last_backup = undefined;
-		this.user_delegates = [];
+		this.settings = {
+			backup_automatic: '',
+			data_view: '',
+			hour_credits_enabled: '',
+			theme_follow_os_enabled: '',
+		};
+		this.bible_studies = [];
+		this.field_service_reports = [];
 	}
 
 	async loadDetails() {
-		const data = await dbUserLoadDetails(this.id);
+		const data = await getUserDetails(this.id);
 
-		this.cong_id = data.congregation?.id;
-		this.cong_role = data.congregation?.role || [];
-		this.firstname = data.about.firstname;
-		this.global_role = data.about.role;
-		this.last_backup = data.congregation?.last_backup;
-		this.last_seen = data.last_seen;
-		this.lastname = data.about.lastname;
-		this.mfaEnabled = data.about.mfaEnabled ?? false;
-		this.pocket_invitation_code = data.congregation?.pocket_invitation_code;
-		this.secret = data.about.secret;
-		this.sessions = data.about.sessions;
-		this.user_local_uid = data.congregation?.user_local_uid;
-		this.auth_uid = data.about.auth_uid;
-		this.user_delegates = data.congregation?.user_delegates || [];
-
-		if (this.global_role !== 'pocket') {
-			const data = await dbUserAuthDetails(this.auth_uid);
-			this.auth_provider = data.auth_provider;
-			this.user_email = data.email;
-			this.disabled = data.disabled;
+		if (data.settings) {
+			this.settings = data.settings;
 		}
 
-		if (this.cong_id) {
-			const data = await dbCongregationDetails(this.cong_id);
-			this.cong_country = data.country_code;
-			this.cong_name = data.cong_name;
-			this.cong_number = data.cong_number;
+		this.sessions = data.sessions;
+		this.profile = data.profile;
+
+		if (this.profile.role !== 'pocket') {
+			const data = await getUserAuthDetails(this.profile.auth_uid!);
+			this.profile.email = data.email;
+			this.profile.auth_provider = data.auth_provider;
 		}
+
+		this.bible_studies = data.bible_studies;
+		this.field_service_reports = data.field_service_reports;
 	}
 
 	async updateEmailAuth(auth_uid: string, email: string) {
-		await dbUserUpdateEmail(auth_uid, email);
+		await setUserEmail(auth_uid, email);
+
+		this.profile.email = email;
 	}
 
-	async updateFirstname(firstname: string) {
-		const data = await dbUserUpdateFirstname(this.id, firstname);
-		this.firstname = { value: data.firstname, updatedAt: data.updatedAt };
+	async updateProfile(profile: UserProfile) {
+		await setUserProfile(this.id, profile);
+
+		this.profile = profile;
 	}
 
-	async updateLastname(lastname: string) {
-		const data = await dbUserUpdateLastname(this.id, lastname);
-		this.lastname = { value: data.lastname, updatedAt: data.updatedAt };
+	async updateSettings(settings: UserSettings) {
+		await setUserSettings(this.id, settings);
+
+		this.settings = settings;
 	}
 
 	getActiveSessions(visitorid: string) {
@@ -125,7 +88,7 @@ export class User {
 					os: session.visitor_details.os,
 					isMobile: session.visitor_details.isMobile,
 				},
-				last_seen: session.sws_last_seen,
+				last_seen: session.last_seen,
 			};
 		});
 
@@ -133,31 +96,34 @@ export class User {
 	}
 
 	async revokeSession(identifier: string) {
-		const revokedSession = this.sessions!.find((record) => record.identifier === identifier)!;
+		const revokedSession = this.sessions.find((record) => record.identifier === identifier)!;
 
-		const newSessions = this.sessions!.filter((session) => session.identifier !== identifier);
+		const sessions = this.sessions.filter((record) => record.identifier !== identifier);
 
-		await dbUserUpdateSessions(this.id, newSessions);
+		await setUserSessions(this.id, sessions);
 
-		this.sessions = newSessions;
+		this.sessions = sessions;
 
 		return this.getActiveSessions(revokedSession.visitorid);
 	}
 
 	async updateSessions(sessions: UserSession[]) {
-		await dbUserUpdateSessions(this.id, sessions);
+		await setUserSessions(this.id, sessions);
 
 		this.sessions = sessions;
 	}
 
 	async enableMFA() {
-		await dbUserEnableMFA(this.id);
+		const data = structuredClone(this.profile);
+		data.mfa_enabled = true;
 
-		this.mfaEnabled = true;
+		await setUserProfile(this.id, data);
+
+		this.profile.mfa_enabled = true;
 	}
 
 	async logout(visitorId: string) {
-		const session = this.sessions?.find((record) => record.visitorid === visitorId);
+		const session = this.sessions.find((record) => record.visitorid === visitorId);
 
 		if (session) {
 			await this.revokeSession(session.identifier);
@@ -169,17 +135,32 @@ export class User {
 	}
 
 	async generateSecret() {
-		if (!this.secret) {
-			this.secret = await dbUserGenerateSecret(this.id, this.user_email!);
+		if (!this.profile.secret) {
+			const secret = generateUserSecret(this.profile.email!);
+			const encryptedData = encryptData(JSON.stringify(secret));
+
+			const profile = structuredClone(this.profile);
+			profile.secret = encryptedData;
+
+			await setUserProfile(this.id, profile);
+
+			this.profile = profile;
+
+			return secret;
 		}
 
-		const decryptedData: OTPSecretType = JSON.parse(decryptData(this.secret!));
+		const decryptedData: OTPSecretType = JSON.parse(decryptData(this.profile.secret));
 		return decryptedData;
 	}
 
 	async revokeToken() {
-		this.secret = await dbUserGenerateSecret(this.id, this.user_email!);
-		this.mfaEnabled = await dbUserDisableMFA(this.id);
+		const profile = structuredClone(this.profile);
+		profile.secret = undefined;
+		profile.mfa_enabled = false;
+
+		await setUserProfile(this.id, profile);
+
+		this.profile = profile;
 
 		await this.updateSessions([]);
 	}
@@ -188,27 +169,52 @@ export class User {
 		const last_seen = new Date().toISOString();
 
 		const newSessions = structuredClone(this.sessions!);
-		const findSession = newSessions.find((session) => session.visitorid === visitorId);
-		findSession!['sws_last_seen'] = last_seen;
+		const findSession = newSessions.find((session) => session.visitorid === visitorId)!;
+		findSession.last_seen = last_seen;
 
 		await this.updateSessions(newSessions);
-		this.last_seen = last_seen;
 	}
 
 	async disableMFA() {
-		this.mfaEnabled = await dbUserEnableMFA(this.id);
-		this.secret = undefined;
+		const data = structuredClone(this.profile);
+		data.mfa_enabled = false;
+		data.secret = undefined;
+
+		await setUserProfile(this.id, data);
+
+		this.profile = data;
 	}
 
 	decryptSecret() {
-		const decryptedData = decryptData(this.secret!);
+		const decryptedData = decryptData(this.profile.secret!);
 		const secret: OTPSecretType = JSON.parse(decryptedData);
 		return secret;
 	}
 
 	async assignCongregation(params: UserCongregationAssignParams) {
-		await dbUserCongregationAssign({ userId: this.id, ...params });
-		await this.loadDetails();
+		const profile = structuredClone(this.profile);
+
+		profile.congregation = {
+			id: params.congId,
+			cong_role: params.role,
+			account_type: 'vip',
+		};
+
+		if (params.firstname) {
+			profile.firstname = { value: params.firstname, updatedAt: new Date().toISOString() };
+		}
+
+		if (params.lastname) {
+			profile.lastname = { value: params.lastname, updatedAt: new Date().toISOString() };
+		}
+
+		if (params.person_uid) {
+			profile.congregation.user_local_uid = params.person_uid;
+		}
+
+		await setUserProfile(this.id, profile);
+
+		this.profile = profile;
 
 		const cong = CongregationsList.findById(params.congId)!;
 		await cong.reloadMembers();
@@ -222,41 +228,73 @@ export class User {
 		cong_person_delegates: string[],
 		cong_pocket?: string
 	) {
-		const data = {
-			userId: this.id,
-			cong_role,
-			cong_person_uid,
-			cong_person_delegates,
-			cong_pocket: cong_pocket ? encryptData(cong_pocket) : this.pocket_invitation_code,
-		};
+		const profile = structuredClone(this.profile);
 
-		await dbUserUpdateCongregationDetails(data);
+		profile.congregation!.cong_role = cong_role;
+		profile.congregation!.user_local_uid = cong_person_uid;
+		profile.congregation!.user_members_delegate = cong_person_delegates;
 
-		this.user_local_uid = cong_person_uid;
-		this.cong_role = cong_role;
-		this.user_delegates = cong_person_delegates;
-		this.pocket_invitation_code = data.cong_pocket;
+		if (cong_pocket) {
+			profile.congregation!.pocket_invitation_code = cong_pocket;
+		}
+
+		await setUserProfile(this.id, profile);
+
+		this.profile = profile;
 	}
 
 	async deletePocketCode() {
-		await dbPocketDeleteCode(this.id);
+		const profile = structuredClone(this.profile);
 
-		this.pocket_invitation_code = undefined;
+		profile.congregation!.pocket_invitation_code = undefined;
 
-		const cong = CongregationsList.findById(this.cong_id!)!;
+		await setUserProfile(this.id, profile);
+
+		this.profile = profile;
+
+		const cong = CongregationsList.findById(profile.congregation!.id)!;
 		await cong.reloadMembers();
 
 		return cong;
 	}
 
 	async removeCongregation() {
-		const cong = CongregationsList.findById(this.cong_id!);
+		const cong = CongregationsList.findById(this.profile.congregation!.id);
 
-		await dbUserCongregationRemove(this.id);
-		await this.loadDetails();
+		const profile = structuredClone(this.profile);
+		profile.congregation = undefined;
+
+		await setUserProfile(this.id, profile);
+
+		this.profile = profile;
 
 		if (cong) {
 			await cong.reloadMembers();
 		}
+	}
+
+	saveBackup(backup: object) {
+		const data = backup as Record<string, object | string>;
+
+		const profile = structuredClone(this.profile);
+		profile.firstname = data['firstname'] as UserProfile['firstname'];
+		profile.lastname = data['lastname'] as UserProfile['lastname'];
+
+		this.updateProfile(profile);
+
+		const settings = structuredClone(this.settings);
+		settings.backup_automatic = data['backup_automatic'] as string;
+		settings.data_view = data['data_view'] as string;
+		settings.hour_credits_enabled = data['hour_credits_enabled'] as string;
+		settings.theme_follow_os_enabled = data['theme_follow_os_enabled'] as string;
+
+		this.updateSettings(settings);
+	}
+
+	getApplications() {
+		const cong = CongregationsList.findById(this.profile.congregation!.id)!;
+		const person_uid = this.profile.congregation!.user_local_uid;
+
+		return cong.ap_applications.filter((record) => record.person_uid === person_uid);
 	}
 }
