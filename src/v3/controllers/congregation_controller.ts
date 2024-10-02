@@ -348,11 +348,11 @@ export const retrieveCongregationBackup = async (req: Request, res: Response, ne
 					lastname: user.profile.lastname,
 					user_local_uid: user.profile.congregation?.user_local_uid,
 					user_members_delegate: user.profile.congregation?.user_members_delegate,
-					backup_automatic: user.settings.backup_automatic.length > 0 ? user.settings.backup_automatic : undefined,
+					backup_automatic: user.settings.backup_automatic?.length > 0 ? user.settings.backup_automatic : undefined,
 					theme_follow_os_enabled:
-						user.settings.theme_follow_os_enabled.length > 0 ? user.settings.theme_follow_os_enabled : undefined,
-					hour_credits_enabled: user.settings.hour_credits_enabled.length > 0 ? user.settings.hour_credits_enabled : undefined,
-					data_view: user.settings.data_view.length > 0 ? user.settings.data_view : undefined,
+						user.settings.theme_follow_os_enabled?.length > 0 ? user.settings.theme_follow_os_enabled : undefined,
+					hour_credits_enabled: user.settings.hour_credits_enabled?.length > 0 ? user.settings.hour_credits_enabled : undefined,
+					data_view: user.settings.data_view?.length > 0 ? user.settings.data_view : undefined,
 				},
 			};
 
