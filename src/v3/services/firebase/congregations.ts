@@ -40,7 +40,7 @@ export const getCongPersons = async (cong_id: string) => {
 
 	for await (const file of files) {
 		const contents = await file.download();
-		const person = decryptData(contents.toString());
+		const person = decryptData(contents.toString())!;
 
 		cong_persons.push(JSON.parse(person));
 	}
@@ -79,7 +79,7 @@ export const getApplications = async (cong_id: string) => {
 	for await (const file of files) {
 		if (file.name.includes('.txt')) {
 			const contents = await file.download();
-			const application = decryptData(contents.toString());
+			const application = decryptData(contents.toString())!;
 			applications.push(JSON.parse(application));
 		}
 	}

@@ -460,4 +460,21 @@ export class Congregation {
 		this.ap_applications = this.ap_applications.filter((record) => record.request_id !== request_id);
 		return this.ap_applications;
 	}
+
+	findPocketUser(token: string, accessCode: string) {
+		for (const user of this.members) {
+			const userToken = user.profile.congregation?.pocket_invitation_code;
+
+			if (!userToken) continue;
+
+			const decryptedToken1 = decryptData(userToken)!;
+			const decryptedToken2 = decryptData(decryptedToken1, accessCode);
+
+			if (!decryptedToken2) continue;
+
+			if (token === JSON.parse(decryptedToken2)) {
+				return user;
+			}
+		}
+	}
 }

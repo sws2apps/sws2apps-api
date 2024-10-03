@@ -149,7 +149,7 @@ export class User {
 			return secret;
 		}
 
-		const decryptedData: OTPSecretType = JSON.parse(decryptData(this.profile.secret));
+		const decryptedData: OTPSecretType = JSON.parse(decryptData(this.profile.secret)!);
 		return decryptedData;
 	}
 
@@ -186,7 +186,7 @@ export class User {
 	}
 
 	decryptSecret() {
-		const decryptedData = decryptData(this.profile.secret!);
+		const decryptedData = decryptData(this.profile.secret!)!;
 		const secret: OTPSecretType = JSON.parse(decryptedData);
 		return secret;
 	}
@@ -235,12 +235,16 @@ export class User {
 		profile.congregation!.user_members_delegate = cong_person_delegates;
 
 		if (cong_pocket) {
-			profile.congregation!.pocket_invitation_code = cong_pocket;
+			profile.congregation!.pocket_invitation_code = encryptData(cong_pocket);
 		}
 
 		await setUserProfile(this.id, profile);
 
 		this.profile = profile;
+
+		const cong = CongregationsList.findById(profile.congregation!.id)!;
+
+		cong.reloadMembers();
 	}
 
 	async deletePocketCode() {
@@ -253,7 +257,8 @@ export class User {
 		this.profile = profile;
 
 		const cong = CongregationsList.findById(profile.congregation!.id)!;
-		await cong.reloadMembers();
+
+		cong.reloadMembers();
 
 		return cong;
 	}

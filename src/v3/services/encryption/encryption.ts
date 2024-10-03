@@ -9,8 +9,14 @@ export const encryptData = (data: string, passphrase?: string) => {
 	return encryptedData;
 };
 
-export const decryptData = (data: string) => {
-	const decryptedData = CryptoES.AES.decrypt(data, SERVER_KEY);
-	const str = decryptedData.toString(CryptoES.enc.Utf8);
-	return str;
+export const decryptData = (data: string, passphrase?: string) => {
+	try {
+		const key = passphrase || SERVER_KEY;
+
+		const decryptedData = CryptoES.AES.decrypt(data, key);
+		const str = decryptedData.toString(CryptoES.enc.Utf8);
+		return str;
+	} catch {
+		return;
+	}
 };

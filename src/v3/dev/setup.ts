@@ -4,7 +4,7 @@ import * as OTPAuth from 'otpauth';
 import { decryptData } from '../services/encryption/encryption.js';
 
 export const generateTokenDev = (userUID: string, userSecret: string) => {
-	const { secret } = JSON.parse(decryptData(userSecret));
+	const { secret } = JSON.parse(decryptData(userSecret)!);
 	const totp = new OTPAuth.TOTP({
 		issuer: 'sws2apps-test',
 		label: userUID,

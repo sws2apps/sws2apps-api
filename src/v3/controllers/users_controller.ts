@@ -21,6 +21,8 @@ export const validateUser = async (req: Request, res: Response, next: NextFuncti
 
 		const cong = CongregationsList.findById(user.profile.congregation.id)!;
 
+		const masterKeyNeeded = user.profile.congregation.cong_role.includes('admin');
+
 		const obj = {
 			id: user.id,
 			mfa: user.profile.mfa_enabled,
@@ -31,7 +33,7 @@ export const validateUser = async (req: Request, res: Response, next: NextFuncti
 			cong_role: user.profile.congregation.cong_role,
 			user_local_uid: user.profile.congregation.user_local_uid,
 			user_delegates: user.profile.congregation.user_members_delegate,
-			cong_master_key: cong.settings.cong_master_key,
+			cong_master_key: masterKeyNeeded ? cong.settings.cong_master_key : undefined,
 			cong_access_code: cong.settings.cong_access_code,
 		};
 

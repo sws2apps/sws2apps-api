@@ -48,7 +48,7 @@ class Users {
 		return found;
 	}
 
-	findVisitorId(visitorId: string) {
+	findByVisitorId(visitorId: string) {
 		const user = this.list.find((record) => record.sessions.find((session) => session.visitorid === visitorId));
 		return user;
 	}

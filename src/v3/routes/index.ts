@@ -8,6 +8,7 @@ import congregationAdminRoute from './congregation_admin.js';
 import userRoute from './users.js';
 import mfaRoute from './mfa.js';
 import publicRoute from './public.js';
+import pocketRoute from './pockets.js';
 
 import { appVersionChecker } from '../middleware/app_version_checker.js';
 
@@ -20,6 +21,7 @@ router.use('/public', publicRoute);
 router.use(appVersionChecker());
 
 router.use('/', authRoute);
+router.use('/pocket', pocketRoute);
 router.use('/mfa', mfaRoute);
 router.use('/users', userRoute);
 router.use('/congregations', congregationRoute);
