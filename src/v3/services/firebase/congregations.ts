@@ -263,6 +263,7 @@ export const createCongregation = async (data: CongregationCreateInfoType) => {
 		cong_name: data.cong_name,
 		cong_discoverable: { value: false, updatedAt: new Date().toISOString() },
 		data_sync: { value: false, updatedAt: new Date().toISOString() },
+		time_away_public: { value: false, updatedAt: new Date().toISOString() },
 		cong_location: { ...data.cong_location, updatedAt: new Date().toISOString() },
 		cong_circuit: [{ type: 'main', value: data.cong_circuit, updatedAt: new Date().toISOString() }],
 		midweek_meeting: [
@@ -304,7 +305,6 @@ export const createCongregation = async (data: CongregationCreateInfoType) => {
 		short_date_format: '',
 		source_material_auto_import: '',
 		special_months: '',
-		time_away_public: '',
 		week_start_sunday: '',
 	};
 

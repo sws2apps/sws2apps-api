@@ -392,6 +392,7 @@ export const retrieveCongregationBackup = async (req: Request, res: Response, ne
 					cong_discoverable: cong.settings.cong_discoverable,
 					cong_location: cong.settings.cong_location,
 					data_sync: cong.settings.data_sync,
+					time_away_public: cong.settings.time_away_public,
 					midweek_meeting: midweek,
 					weekend_meeting: weekend,
 					cong_name: cong.settings.cong_name,

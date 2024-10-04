@@ -70,7 +70,7 @@ export class Congregation {
 			short_date_format: '',
 			source_material_auto_import: '',
 			special_months: '',
-			time_away_public: '',
+			time_away_public: { value: false, updatedAt: '' },
 			week_start_sunday: '',
 			data_sync: { value: false, updatedAt: '' },
 			midweek_meeting: [
