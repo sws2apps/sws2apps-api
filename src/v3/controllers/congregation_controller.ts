@@ -332,14 +332,25 @@ export const retrieveCongregationBackup = async (req: Request, res: Response, ne
 		const user = res.locals.currentUser;
 		const result = {} as BackupData;
 
+		const userRole = user.profile.congregation!.cong_role;
+
+		const masterKeyNeed = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
+
+		const adminRole = userRole.includes('admin');
+
+		const personEditor =
+			adminRole ||
+			userRole.some((role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule');
+
+		const publicTalkEditor = adminRole || userRole.some((role) => role === 'public_talk_schedule');
+
+		const isPublisher = userRole.includes('publisher');
+
+		const accountType = user.profile.role;
+		const isSelfPerson = accountType === 'pocket' || (!personEditor && isPublisher);
+		const userUid = user.profile.congregation!.user_local_uid;
+
 		if (cong.settings.data_sync.value) {
-			const masterKeyNeed = user.profile.congregation!.cong_role.some((role) => ROLE_MASTER_KEY.includes(role));
-
-			const adminRole = user.profile.congregation!.cong_role.includes('admin');
-
-			const personEditor = adminRole;
-			const publicTalkEditor = adminRole;
-
 			result.app_settings = {
 				cong_settings: structuredClone(cong.settings),
 				user_settings: {
@@ -357,7 +368,7 @@ export const retrieveCongregationBackup = async (req: Request, res: Response, ne
 			};
 
 			if (!masterKeyNeed) {
-				result.app_settings.cong_settings.cong_master_key = '';
+				result.app_settings.cong_settings.cong_master_key = undefined;
 			}
 
 			if (personEditor) {
@@ -371,11 +382,42 @@ export const retrieveCongregationBackup = async (req: Request, res: Response, ne
 				result.outgoing_talks =
 					cong.public_schedules.incoming_talks === '' ? [] : JSON.parse(cong.public_schedules.incoming_talks);
 			}
+
+			if (isPublisher) {
+				result.user_bible_studies = user.bible_studies;
+				result.user_field_service_reports = user.field_service_reports;
+			}
+
+			if (isSelfPerson) {
+				const minimalPersons = cong.persons.map((record) => {
+					const includeTimeAway = cong.settings.time_away_public.value;
+
+					const personData = record.person_data as StandardRecord;
+
+					return {
+						_deleted: record._deleted,
+						person_uid: record.person_uid,
+						person_data: {
+							person_firstname: personData.person_firstname,
+							person_lastname: personData.person_lastname,
+							person_display_name: personData.person_display_name,
+							male: personData.male,
+							female: personData.female,
+							privileges: personData.privileges,
+							enrollments: personData.privileges,
+							timeAway: includeTimeAway || userUid === record.person_uid ? personData.timeAway : undefined,
+							publisher_unbaptized: userUid === record.person_uid ? personData.publisher_unbaptized : undefined,
+							publisher_baptized: userUid === record.person_uid ? personData.publisher_baptized : undefined,
+							emergency_contacts: userUid === record.person_uid ? personData.emergency_contacts : undefined,
+						},
+					};
+				});
+
+				result.persons = minimalPersons;
+			}
 		}
 
 		if (!cong.settings.data_sync.value) {
-			const masterKeyNeed = user.profile.congregation!.cong_role.some((role) => ROLE_MASTER_KEY.includes(role));
-
 			const midweek = cong.settings.midweek_meeting.map((record) => {
 				return { type: record.type, time: record.time, weekday: record.weekday };
 			});

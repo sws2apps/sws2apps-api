@@ -11,6 +11,8 @@ import {
 import { decryptData, encryptData } from '../services/encryption/encryption.js';
 import { generateUserSecret } from '../utils/user_utils.js';
 import { CongregationsList } from './Congregations.js';
+import { saveCongBackup } from '../services/firebase/congregations.js';
+import { BackupData } from '../definition/congregation.js';
 
 export class User {
 	id: string;
@@ -278,14 +280,14 @@ export class User {
 		}
 	}
 
-	saveBackup(backup: object) {
+	async saveBackup(backup: object) {
 		const data = backup as Record<string, object | string>;
 
 		const profile = structuredClone(this.profile);
 		profile.firstname = data['firstname'] as UserProfile['firstname'];
 		profile.lastname = data['lastname'] as UserProfile['lastname'];
 
-		this.updateProfile(profile);
+		await this.updateProfile(profile);
 
 		const settings = structuredClone(this.settings);
 		settings.backup_automatic = data['backup_automatic'] as string;
@@ -293,7 +295,7 @@ export class User {
 		settings.hour_credits_enabled = data['hour_credits_enabled'] as string;
 		settings.theme_follow_os_enabled = data['theme_follow_os_enabled'] as string;
 
-		this.updateSettings(settings);
+		await this.updateSettings(settings);
 	}
 
 	getApplications() {
@@ -301,5 +303,37 @@ export class User {
 		const person_uid = this.profile.congregation!.user_local_uid;
 
 		return cong.ap_applications.filter((record) => record.person_uid === person_uid);
+	}
+
+	async updatePersonData(timeAway: string, emergency: string) {
+		const cong = CongregationsList.findById(this.profile.congregation!.id);
+
+		if (!cong) return;
+
+		const persons = structuredClone(cong.persons);
+		const person = persons.find((record) => record.person_uid === this.profile.congregation!.user_local_uid);
+
+		if (!person) return;
+
+		const personData = person.person_data as StandardRecord;
+		personData.timeAway = timeAway;
+		personData.emergency_contacts = emergency;
+
+		const settings = structuredClone(cong.settings);
+
+		const cong_backup = {
+			persons,
+			app_settings: {
+				cong_settings: settings,
+			},
+		} as BackupData;
+
+		const lastBackup = await saveCongBackup(this.id, cong_backup);
+
+		cong.persons = cong_backup.persons;
+
+		const newSettings = cong_backup.app_settings.cong_settings;
+		newSettings.last_backup = lastBackup;
+		cong.settings = settings;
 	}
 }

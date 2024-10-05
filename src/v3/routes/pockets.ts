@@ -1,7 +1,14 @@
 import express from 'express';
-import { body } from 'express-validator';
+import { body, check } from 'express-validator';
 import { pocketVisitorChecker } from '../middleware/visitor_checker.js';
-import { retrieveUserBackup, validateInvitation, validatePocket } from '../controllers/pockets_controller.js';
+import {
+	deletePocketSession,
+	getPocketSessions,
+	retrieveUserBackup,
+	saveUserBackup,
+	validateInvitation,
+	validatePocket,
+} from '../controllers/pockets_controller.js';
 
 const router = express.Router();
 
@@ -16,5 +23,14 @@ router.get('/validate-me', validatePocket);
 
 // retrieve user backup
 router.get('/backup', retrieveUserBackup);
+
+// send user backup
+router.post('/backup', check('lastbackup').isString(), body('cong_backup').isObject(), saveUserBackup);
+
+// get user sessions
+router.get('/sessions', getPocketSessions);
+
+// delete user session
+router.delete('/sessions', body('identifier').notEmpty(), deletePocketSession);
 
 export default router;

@@ -216,7 +216,7 @@ export const setCongPublicOutgoingTalks = async (id: string, speakers: string) =
 
 export const saveCongBackup = async (id: string, cong_backup: BackupData) => {
 	if (cong_backup.persons) {
-		const persons = cong_backup.persons as Record<string, string>[];
+		const persons = cong_backup.persons;
 		await setCongPersons(id, persons);
 	}
 

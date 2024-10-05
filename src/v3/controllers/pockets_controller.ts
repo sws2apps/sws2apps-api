@@ -247,6 +247,8 @@ export const retrieveUserBackup = async (req: Request, res: Response, next: Next
 
 		const result = {} as BackupData;
 
+		const userUid = user.profile.congregation!.user_local_uid;
+
 		if (cong.settings.data_sync.value) {
 			result.app_settings = {
 				cong_settings: structuredClone(cong.settings),
@@ -280,9 +282,13 @@ export const retrieveUserBackup = async (req: Request, res: Response, next: Next
 						person_display_name: personData.person_display_name,
 						male: personData.male,
 						female: personData.female,
-						privileges: personData.privileges,
-						enrollments: personData.privileges,
-						timeAway: includeTimeAway ? personData.timeAway : undefined,
+						publisher_unbaptized: userUid === record.person_uid ? personData.publisher_unbaptized : undefined,
+						publisher_baptized: userUid === record.person_uid ? personData.publisher_baptized : undefined,
+						emergency_contacts: userUid === record.person_uid ? personData.emergency_contacts : undefined,
+						assignments: userUid === record.person_uid ? personData.assignments : undefined,
+						privileges: userUid === record.person_uid ? personData.privileges : undefined,
+						enrollments: userUid === record.person_uid ? personData.enrollments : undefined,
+						timeAway: includeTimeAway || userUid === record.person_uid ? personData.timeAway : undefined,
 					},
 				};
 			});
@@ -334,6 +340,124 @@ export const retrieveUserBackup = async (req: Request, res: Response, next: Next
 		res.locals.type = 'info';
 		res.locals.message = 'user retrieve backup successfully';
 		res.status(200).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const saveUserBackup = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			const msg = formatError(errors);
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const user = res.locals.currentUser;
+		const congId = user.profile.congregation?.id;
+		const cong = CongregationsList.findById(congId!);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not associated to any congregation';
+
+			res.clearCookie('visitorid');
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = cong.hasMember(user.profile.auth_uid!);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const last_backup = req.headers.lastbackup as string;
+
+		if (last_backup !== cong.settings.last_backup) {
+			res.locals.type = 'info';
+			res.locals.message = 'backup action rejected since it was changed recently';
+			res.status(400).json({ message: 'BACKUP_OUTDATED' });
+			return;
+		}
+
+		const cong_backup = req.body.cong_backup as BackupData;
+		const userSettings = cong_backup.app_settings.user_settings;
+		const userPerson = cong_backup.persons?.at(0);
+
+		if (userSettings) {
+			user.saveBackup(userSettings);
+		}
+
+		if (userPerson) {
+			const personData = userPerson.person_data as StandardRecord;
+			user.updatePersonData(personData.timeAway as string, personData.emergency_contacts as string);
+		}
+
+		res.locals.type = 'info';
+		res.locals.message = 'user send backup successfully';
+		res.status(200).json({ message: 'BACKUP_SENT' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const getPocketSessions = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const user = res.locals.currentUser;
+		const sessions = user.getActiveSessions(req.signedCookies.visitorid);
+
+		res.locals.type = 'info';
+		res.locals.message = `user has fetched sessions successfully`;
+		res.status(200).json(sessions);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const deletePocketSession = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			const msg = formatError(errors);
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const identifier = req.body.identifier as string;
+
+		const user = res.locals.currentUser;
+		const sessions = await user.revokeSession(identifier);
+
+		if (user.profile.congregation && user.profile.congregation.id.length > 0) {
+			const cong = CongregationsList.findById(user.profile.congregation.id);
+
+			if (cong) {
+				cong.reloadMembers();
+			}
+		}
+
+		res.locals.type = 'info';
+		res.locals.message = `user has revoked session successfully`;
+		res.status(200).json(sessions);
 	} catch (err) {
 		next(err);
 	}
