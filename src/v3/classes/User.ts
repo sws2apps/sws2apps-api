@@ -328,7 +328,7 @@ export class User {
 			},
 		} as BackupData;
 
-		const lastBackup = await saveCongBackup(this.id, cong_backup);
+		const lastBackup = await saveCongBackup(cong.id, cong_backup);
 
 		cong.persons = cong_backup.persons;
 

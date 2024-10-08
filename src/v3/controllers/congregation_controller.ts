@@ -63,18 +63,26 @@ export const saveCongregationBackup = async (req: Request, res: Response, next: 
 		}
 
 		const user = res.locals.currentUser;
-		const adminRole = user.profile.congregation!.cong_role.includes('admin');
+		const userRole = user.profile.congregation!.cong_role;
 
-		if (!adminRole) {
-			res.locals.type = 'warn';
-			res.locals.message = 'user not authorized to send congregation backup';
-			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			return;
-		}
+		const adminRole = userRole.some((role) => role === 'admin' || role === 'coordinator' || role === 'secretary');
+
+		const scheduleEditor =
+			adminRole ||
+			userRole.some((role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule');
 
 		const cong_backup = req.body.cong_backup as BackupData;
 
-		cong.saveBackup(cong_backup);
+		if (scheduleEditor) {
+			cong.saveBackup(cong_backup);
+		}
+
+		const userPerson = cong_backup.persons?.at(0);
+
+		if (!scheduleEditor && userPerson) {
+			const personData = userPerson.person_data as StandardRecord;
+			user.updatePersonData(personData.timeAway as string, personData.emergency_contacts as string);
+		}
 
 		const userSettings = cong_backup.app_settings.user_settings;
 		if (userSettings) {
@@ -336,18 +344,19 @@ export const retrieveCongregationBackup = async (req: Request, res: Response, ne
 
 		const masterKeyNeed = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
 
-		const adminRole = userRole.includes('admin');
+		const adminRole = userRole.some((role) => role === 'admin' || role === 'coordinator' || role === 'secretary');
 
-		const personEditor =
+		const scheduleEditor =
 			adminRole ||
 			userRole.some((role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule');
+
+		const personViewer = scheduleEditor || userRole.some((role) => role === 'elder');
 
 		const publicTalkEditor = adminRole || userRole.some((role) => role === 'public_talk_schedule');
 
 		const isPublisher = userRole.includes('publisher');
 
-		const accountType = user.profile.role;
-		const isSelfPerson = accountType === 'pocket' || (!personEditor && isPublisher);
+		const personMinimal = !personViewer;
 		const userUid = user.profile.congregation!.user_local_uid;
 
 		if (cong.settings.data_sync.value) {
@@ -371,7 +380,7 @@ export const retrieveCongregationBackup = async (req: Request, res: Response, ne
 				result.app_settings.cong_settings.cong_master_key = undefined;
 			}
 
-			if (personEditor) {
+			if (scheduleEditor) {
 				result.persons = cong.persons;
 			}
 
@@ -388,7 +397,7 @@ export const retrieveCongregationBackup = async (req: Request, res: Response, ne
 				result.user_field_service_reports = user.field_service_reports;
 			}
 
-			if (isSelfPerson) {
+			if (personMinimal) {
 				const minimalPersons = cong.persons.map((record) => {
 					const includeTimeAway = cong.settings.time_away_public.value;
 
@@ -414,6 +423,10 @@ export const retrieveCongregationBackup = async (req: Request, res: Response, ne
 				});
 
 				result.persons = minimalPersons;
+
+				result.public_sources = cong.public_schedules.sources.length === 0 ? [] : JSON.parse(cong.public_schedules.sources);
+
+				result.public_schedules = cong.public_schedules.schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.schedules);
 			}
 		}
 

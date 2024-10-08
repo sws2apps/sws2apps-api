@@ -337,6 +337,10 @@ export const retrieveUserBackup = async (req: Request, res: Response, next: Next
 			};
 		}
 
+		result.public_sources = cong.public_schedules.sources.length === 0 ? [] : JSON.parse(cong.public_schedules.sources);
+
+		result.public_schedules = cong.public_schedules.schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.schedules);
+
 		res.locals.type = 'info';
 		res.locals.message = 'user retrieve backup successfully';
 		res.status(200).json(result);
