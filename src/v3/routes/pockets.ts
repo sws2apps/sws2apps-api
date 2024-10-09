@@ -4,6 +4,7 @@ import { pocketVisitorChecker } from '../middleware/visitor_checker.js';
 import {
 	deletePocketSession,
 	getPocketSessions,
+	postPocketReport,
 	retrieveUserBackup,
 	saveUserBackup,
 	validateInvitation,
@@ -32,5 +33,8 @@ router.get('/sessions', getPocketSessions);
 
 // delete user session
 router.delete('/sessions', body('identifier').notEmpty(), deletePocketSession);
+
+// post field service report
+router.post('/field-service-reports', body('report').isObject().notEmpty(), postPocketReport);
 
 export default router;

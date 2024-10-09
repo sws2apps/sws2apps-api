@@ -11,7 +11,7 @@ import {
 import { decryptData, encryptData } from '../services/encryption/encryption.js';
 import { generateUserSecret } from '../utils/user_utils.js';
 import { CongregationsList } from './Congregations.js';
-import { saveCongBackup } from '../services/firebase/congregations.js';
+import { saveCongBackup, saveIncomingReports } from '../services/firebase/congregations.js';
 import { BackupData } from '../definition/congregation.js';
 
 export class User {
@@ -335,5 +335,35 @@ export class User {
 		const newSettings = cong_backup.app_settings.cong_settings;
 		newSettings.last_backup = lastBackup;
 		cong.settings = settings;
+	}
+
+	postReport(report: StandardRecord) {
+		const cong = CongregationsList.findById(this.profile.congregation!.id);
+
+		if (!cong) return;
+
+		const incoming_reports = structuredClone(cong.incoming_reports);
+
+		const findReport = incoming_reports.find(
+			(record) => record.report_month === report.report_month && record.person_uid === report.person_uid
+		);
+
+		if (!findReport) {
+			incoming_reports.push({ ...report, report_id: crypto.randomUUID() });
+		}
+
+		if (findReport) {
+			findReport._deleted = report._deleted;
+			findReport.updatedAt = report.updatedAt;
+			findReport.shared_ministry = report.shared_ministry;
+			findReport.hours = report.hours;
+			findReport.hours_credits = report.hours;
+			findReport.bible_studies = report.bible_studies;
+			findReport.comments = report.comments;
+		}
+
+		cong.incoming_reports = incoming_reports;
+
+		saveIncomingReports(cong.id, incoming_reports);
 	}
 }

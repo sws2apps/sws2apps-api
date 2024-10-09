@@ -21,7 +21,7 @@ router.use('/public', publicRoute);
 router.use(appVersionChecker());
 
 router.use('/', authRoute);
-router.use('/pocket', pocketRoute);
+router.use('/pockets', pocketRoute);
 router.use('/mfa', mfaRoute);
 router.use('/users', userRoute);
 router.use('/congregations', congregationRoute);

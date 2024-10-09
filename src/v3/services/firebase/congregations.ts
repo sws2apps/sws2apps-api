@@ -101,6 +101,7 @@ export const getCongDetails = async (cong_id: string) => {
 		}),
 		field_service_groups: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/field_service_groups/main.txt` }),
 		field_service_reports: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/field_service_reports/main.txt` }),
+		incoming_reports: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/field_service_reports/incoming.txt` }),
 		meeting_attendance: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/meeting_attendance/main.txt` }),
 		cong_persons: await getCongPersons(cong_id),
 		schedules: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/schedules/main.txt` }),
@@ -240,6 +241,16 @@ export const saveCongBackup = async (id: string, cong_backup: BackupData) => {
 		};
 
 		await setCongOutgoingSpeakers(id, JSON.stringify(outgoingData));
+	}
+
+	if (cong_backup.incoming_reports) {
+		const reports = cong_backup.incoming_reports;
+		await saveIncomingReports(id, reports);
+	}
+
+	if (cong_backup.field_service_groups) {
+		const data = cong_backup.field_service_groups;
+		await setCongFieldServiceGroups(id, data);
 	}
 
 	let lastBackup = '';
@@ -397,4 +408,10 @@ export const saveAPApplication = async (congId: string, application: StandardRec
 export const deleteAPApplication = async (congId: string, requestId: string) => {
 	const path = `${congId}/auxiliary_applications/${requestId}.txt`;
 	await deleteFileFromStorage({ type: 'congregation', path });
+};
+
+export const saveIncomingReports = async (id: string, reports: StandardRecord[]) => {
+	const data = JSON.stringify(reports);
+	const path = `${id}/field_service_reports/incoming.txt`;
+	await uploadFileToStorage(data, { type: 'congregation', path });
 };

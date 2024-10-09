@@ -1,5 +1,5 @@
 import express from 'express';
-import { body, check } from 'express-validator';
+import { body } from 'express-validator';
 import { visitorChecker } from '../middleware/visitor_checker.js';
 import {
 	createCongregation,
@@ -7,8 +7,6 @@ import {
 	getCongregationUpdates,
 	getCongregations,
 	getCountries,
-	retrieveCongregationBackup,
-	saveCongregationBackup,
 	updateApplicationApproval,
 } from '../controllers/congregation_controller.js';
 
@@ -30,12 +28,6 @@ router.put(
 	body('lastname').isString(),
 	createCongregation
 );
-
-// save congregation backup
-router.post('/:id/backup', check('lastbackup').isString(), body('cong_backup').isObject(), saveCongregationBackup);
-
-// retrieve congregation backup
-router.get('/:id/backup', retrieveCongregationBackup);
 
 // get congregation updates
 router.get('/:id/updates-routine', getCongregationUpdates);

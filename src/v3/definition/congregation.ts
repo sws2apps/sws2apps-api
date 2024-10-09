@@ -88,6 +88,7 @@ export type CongregationUpdatesType = {
 	}[];
 	applications?: StandardRecord[];
 	my_applications?: StandardRecord[];
+	incoming_reports?: StandardRecord[];
 };
 
 export type OutgoingTalkScheduleType = {
@@ -176,4 +177,5 @@ export type BackupData = {
 	user_field_service_reports?: StandardRecord[];
 	public_schedules?: StandardRecord[];
 	public_sources?: StandardRecord[];
+	incoming_reports?: StandardRecord[];
 };

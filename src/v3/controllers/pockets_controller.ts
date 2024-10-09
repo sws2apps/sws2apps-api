@@ -300,6 +300,7 @@ export const retrieveUserBackup = async (req: Request, res: Response, next: Next
 			if (isPublisher) {
 				result.user_bible_studies = user.bible_studies;
 				result.user_field_service_reports = user.field_service_reports;
+				result.field_service_groups = cong.field_service_groups;
 			}
 		}
 
@@ -462,6 +463,55 @@ export const deletePocketSession = async (req: Request, res: Response, next: Nex
 		res.locals.type = 'info';
 		res.locals.message = `user has revoked session successfully`;
 		res.status(200).json(sessions);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const postPocketReport = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			const msg = formatError(errors);
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const user = res.locals.currentUser;
+		const congId = user.profile.congregation?.id;
+		const cong = CongregationsList.findById(congId!);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not associated to any congregation';
+
+			res.clearCookie('visitorid');
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			return;
+		}
+
+		const isValid = cong.hasMember(user.profile.auth_uid!);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const report = req.body.report as StandardRecord;
+		user.postReport(report);
+
+		res.locals.type = 'info';
+		res.locals.message = `user sent report successfully`;
+		res.status(200).json({ message: 'REPORT_SENT' });
 	} catch (err) {
 		next(err);
 	}

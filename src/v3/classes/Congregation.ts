@@ -44,6 +44,7 @@ export class Congregation {
 	meeting_attendance: StandardRecord[];
 	speakers_congregations: StandardRecord[];
 	ap_applications: StandardRecord[];
+	incoming_reports: StandardRecord[];
 
 	constructor(id: string) {
 		this.id = id;
@@ -110,6 +111,7 @@ export class Congregation {
 		this.speakers_congregations = [];
 		this.visiting_speakers = [];
 		this.ap_applications = [];
+		this.incoming_reports = [];
 	}
 
 	async loadDetails() {
@@ -154,6 +156,10 @@ export class Congregation {
 
 		if (data.visiting_speakers) {
 			this.visiting_speakers = JSON.parse(data.visiting_speakers);
+		}
+
+		if (data.incoming_reports) {
+			this.incoming_reports = JSON.parse(data.incoming_reports);
 		}
 
 		this.reloadMembers();
@@ -206,6 +212,10 @@ export class Congregation {
 
 		if (cong_backup.sources) {
 			this.sources = cong_backup.sources;
+		}
+
+		if (cong_backup.incoming_reports) {
+			this.incoming_reports = cong_backup.incoming_reports;
 		}
 
 		if (cong_backup.app_settings) {
