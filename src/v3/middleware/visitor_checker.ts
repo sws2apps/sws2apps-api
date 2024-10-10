@@ -97,3 +97,37 @@ export const visitorChecker = () => {
 		}
 	};
 };
+
+export const pocketVisitorChecker = () => {
+	return async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			// get visitorid signed
+			const visitorid = req.signedCookies.visitorid;
+			if (!visitorid) {
+				res.locals.type = 'warn';
+				res.locals.message = 'the device the user is using was revoked';
+				res.status(403).json({ message: 'DEVICE_REVOKED' });
+				return;
+			}
+
+			const user = UsersList.findByVisitorId(visitorid);
+
+			if (!user) {
+				res.locals.type = 'warn';
+				res.locals.message = 'this user account no longer exists';
+
+				res.clearCookie('visitorid');
+				res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+				return;
+			}
+
+			// assign local vars for current user in next route
+			res.locals.currentUser = user;
+
+			await user.updateSessionLastSeen(visitorid);
+			next();
+		} catch (err) {
+			next(err);
+		}
+	};
+};

@@ -1,5 +1,5 @@
 import express from 'express';
-import { body } from 'express-validator';
+import { body, check } from 'express-validator';
 import { visitorChecker } from '../middleware/visitor_checker.js';
 import {
 	deleteUserSession,
@@ -7,6 +7,9 @@ import {
 	getAuxiliaryApplications,
 	getUserSecretToken,
 	getUserSessions,
+	postUserReport,
+	retrieveUserBackup,
+	saveUserBackup,
 	submitAuxiliaryApplication,
 	userLogout,
 	validateUser,
@@ -40,5 +43,14 @@ router.get('/:id/applications', getAuxiliaryApplications);
 
 // submit auxiliary pioneer application
 router.post('/:id/applications', body('application').isObject().notEmpty(), submitAuxiliaryApplication);
+
+// post field service report
+router.post('/:idfield-service-reports', body('report').isObject().notEmpty(), postUserReport);
+
+// retrieve congregation backup
+router.get('/:id/backup', retrieveUserBackup);
+
+// save congregation backup
+router.post('/:id/backup', check('lastbackup').isString(), body('cong_backup').isObject(), saveUserBackup);
 
 export default router;

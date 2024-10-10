@@ -88,6 +88,7 @@ export type CongregationUpdatesType = {
 	}[];
 	applications?: StandardRecord[];
 	my_applications?: StandardRecord[];
+	incoming_reports?: StandardRecord[];
 };
 
 export type OutgoingTalkScheduleType = {
@@ -126,7 +127,7 @@ export type CongSettingsType = {
 	short_date_format?: string;
 	display_name_enabled?: string;
 	schedule_exact_date_enabled?: string;
-	time_away_public?: string;
+	time_away_public: { value: boolean; updatedAt: string };
 	source_material_auto_import?: string;
 	special_months?: string;
 	midweek_meeting: {
@@ -172,4 +173,9 @@ export type BackupData = {
 	meeting_attendance: StandardRecord[];
 	schedules: StandardRecord[];
 	sources: StandardRecord[];
+	user_bible_studies?: StandardRecord[];
+	user_field_service_reports?: StandardRecord[];
+	public_schedules?: StandardRecord[];
+	public_sources?: StandardRecord[];
+	incoming_reports?: StandardRecord[];
 };

@@ -44,6 +44,7 @@ export class Congregation {
 	meeting_attendance: StandardRecord[];
 	speakers_congregations: StandardRecord[];
 	ap_applications: StandardRecord[];
+	incoming_reports: StandardRecord[];
 
 	constructor(id: string) {
 		this.id = id;
@@ -70,7 +71,7 @@ export class Congregation {
 			short_date_format: '',
 			source_material_auto_import: '',
 			special_months: '',
-			time_away_public: '',
+			time_away_public: { value: false, updatedAt: '' },
 			week_start_sunday: '',
 			data_sync: { value: false, updatedAt: '' },
 			midweek_meeting: [
@@ -110,6 +111,7 @@ export class Congregation {
 		this.speakers_congregations = [];
 		this.visiting_speakers = [];
 		this.ap_applications = [];
+		this.incoming_reports = [];
 	}
 
 	async loadDetails() {
@@ -154,6 +156,10 @@ export class Congregation {
 
 		if (data.visiting_speakers) {
 			this.visiting_speakers = JSON.parse(data.visiting_speakers);
+		}
+
+		if (data.incoming_reports) {
+			this.incoming_reports = JSON.parse(data.incoming_reports);
 		}
 
 		this.reloadMembers();
@@ -206,6 +212,10 @@ export class Congregation {
 
 		if (cong_backup.sources) {
 			this.sources = cong_backup.sources;
+		}
+
+		if (cong_backup.incoming_reports) {
+			this.incoming_reports = cong_backup.incoming_reports;
 		}
 
 		if (cong_backup.app_settings) {
@@ -459,5 +469,22 @@ export class Congregation {
 
 		this.ap_applications = this.ap_applications.filter((record) => record.request_id !== request_id);
 		return this.ap_applications;
+	}
+
+	findPocketUser(token: string, accessCode: string) {
+		for (const user of this.members) {
+			const userToken = user.profile.congregation?.pocket_invitation_code;
+
+			if (!userToken) continue;
+
+			const decryptedToken1 = decryptData(userToken)!;
+			const decryptedToken2 = decryptData(decryptedToken1, accessCode);
+
+			if (!decryptedToken2) continue;
+
+			if (token === JSON.parse(decryptedToken2)) {
+				return user;
+			}
+		}
 	}
 }

@@ -9,7 +9,8 @@ export type AppRoleType =
 	| 'public_talk_schedule'
 	| 'attendance_tracking'
 	| 'publisher'
-	| 'view_schedules';
+	| 'view_schedules'
+	| 'elder';
 
 export type OTPSecretType = { secret: string; uri: string; version: number };
 

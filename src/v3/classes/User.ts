@@ -11,6 +11,8 @@ import {
 import { decryptData, encryptData } from '../services/encryption/encryption.js';
 import { generateUserSecret } from '../utils/user_utils.js';
 import { CongregationsList } from './Congregations.js';
+import { saveCongBackup, saveIncomingReports } from '../services/firebase/congregations.js';
+import { BackupData } from '../definition/congregation.js';
 
 export class User {
 	id: string;
@@ -149,7 +151,7 @@ export class User {
 			return secret;
 		}
 
-		const decryptedData: OTPSecretType = JSON.parse(decryptData(this.profile.secret));
+		const decryptedData: OTPSecretType = JSON.parse(decryptData(this.profile.secret)!);
 		return decryptedData;
 	}
 
@@ -186,7 +188,7 @@ export class User {
 	}
 
 	decryptSecret() {
-		const decryptedData = decryptData(this.profile.secret!);
+		const decryptedData = decryptData(this.profile.secret!)!;
 		const secret: OTPSecretType = JSON.parse(decryptedData);
 		return secret;
 	}
@@ -235,12 +237,16 @@ export class User {
 		profile.congregation!.user_members_delegate = cong_person_delegates;
 
 		if (cong_pocket) {
-			profile.congregation!.pocket_invitation_code = cong_pocket;
+			profile.congregation!.pocket_invitation_code = encryptData(cong_pocket);
 		}
 
 		await setUserProfile(this.id, profile);
 
 		this.profile = profile;
+
+		const cong = CongregationsList.findById(profile.congregation!.id)!;
+
+		cong.reloadMembers();
 	}
 
 	async deletePocketCode() {
@@ -253,7 +259,8 @@ export class User {
 		this.profile = profile;
 
 		const cong = CongregationsList.findById(profile.congregation!.id)!;
-		await cong.reloadMembers();
+
+		cong.reloadMembers();
 
 		return cong;
 	}
@@ -273,14 +280,14 @@ export class User {
 		}
 	}
 
-	saveBackup(backup: object) {
+	async saveBackup(backup: object) {
 		const data = backup as Record<string, object | string>;
 
 		const profile = structuredClone(this.profile);
 		profile.firstname = data['firstname'] as UserProfile['firstname'];
 		profile.lastname = data['lastname'] as UserProfile['lastname'];
 
-		this.updateProfile(profile);
+		await this.updateProfile(profile);
 
 		const settings = structuredClone(this.settings);
 		settings.backup_automatic = data['backup_automatic'] as string;
@@ -288,7 +295,7 @@ export class User {
 		settings.hour_credits_enabled = data['hour_credits_enabled'] as string;
 		settings.theme_follow_os_enabled = data['theme_follow_os_enabled'] as string;
 
-		this.updateSettings(settings);
+		await this.updateSettings(settings);
 	}
 
 	getApplications() {
@@ -296,5 +303,67 @@ export class User {
 		const person_uid = this.profile.congregation!.user_local_uid;
 
 		return cong.ap_applications.filter((record) => record.person_uid === person_uid);
+	}
+
+	async updatePersonData(timeAway: string, emergency: string) {
+		const cong = CongregationsList.findById(this.profile.congregation!.id);
+
+		if (!cong) return;
+
+		const persons = structuredClone(cong.persons);
+		const person = persons.find((record) => record.person_uid === this.profile.congregation!.user_local_uid);
+
+		if (!person) return;
+
+		const personData = person.person_data as StandardRecord;
+		personData.timeAway = timeAway;
+		personData.emergency_contacts = emergency;
+
+		const settings = structuredClone(cong.settings);
+
+		const cong_backup = {
+			persons,
+			app_settings: {
+				cong_settings: settings,
+			},
+		} as BackupData;
+
+		const lastBackup = await saveCongBackup(cong.id, cong_backup);
+
+		cong.persons = cong_backup.persons;
+
+		const newSettings = cong_backup.app_settings.cong_settings;
+		newSettings.last_backup = lastBackup;
+		cong.settings = settings;
+	}
+
+	postReport(report: StandardRecord) {
+		const cong = CongregationsList.findById(this.profile.congregation!.id);
+
+		if (!cong) return;
+
+		const incoming_reports = structuredClone(cong.incoming_reports);
+
+		const findReport = incoming_reports.find(
+			(record) => record.report_month === report.report_month && record.person_uid === report.person_uid
+		);
+
+		if (!findReport) {
+			incoming_reports.push({ ...report, report_id: crypto.randomUUID() });
+		}
+
+		if (findReport) {
+			findReport._deleted = report._deleted;
+			findReport.updatedAt = report.updatedAt;
+			findReport.shared_ministry = report.shared_ministry;
+			findReport.hours = report.hours;
+			findReport.hours_credits = report.hours;
+			findReport.bible_studies = report.bible_studies;
+			findReport.comments = report.comments;
+		}
+
+		cong.incoming_reports = incoming_reports;
+
+		saveIncomingReports(cong.id, incoming_reports);
 	}
 }

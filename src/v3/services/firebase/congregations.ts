@@ -40,7 +40,7 @@ export const getCongPersons = async (cong_id: string) => {
 
 	for await (const file of files) {
 		const contents = await file.download();
-		const person = decryptData(contents.toString());
+		const person = decryptData(contents.toString())!;
 
 		cong_persons.push(JSON.parse(person));
 	}
@@ -79,7 +79,7 @@ export const getApplications = async (cong_id: string) => {
 	for await (const file of files) {
 		if (file.name.includes('.txt')) {
 			const contents = await file.download();
-			const application = decryptData(contents.toString());
+			const application = decryptData(contents.toString())!;
 			applications.push(JSON.parse(application));
 		}
 	}
@@ -101,6 +101,7 @@ export const getCongDetails = async (cong_id: string) => {
 		}),
 		field_service_groups: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/field_service_groups/main.txt` }),
 		field_service_reports: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/field_service_reports/main.txt` }),
+		incoming_reports: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/field_service_reports/incoming.txt` }),
 		meeting_attendance: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/meeting_attendance/main.txt` }),
 		cong_persons: await getCongPersons(cong_id),
 		schedules: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/schedules/main.txt` }),
@@ -216,7 +217,7 @@ export const setCongPublicOutgoingTalks = async (id: string, speakers: string) =
 
 export const saveCongBackup = async (id: string, cong_backup: BackupData) => {
 	if (cong_backup.persons) {
-		const persons = cong_backup.persons as Record<string, string>[];
+		const persons = cong_backup.persons;
 		await setCongPersons(id, persons);
 	}
 
@@ -242,6 +243,16 @@ export const saveCongBackup = async (id: string, cong_backup: BackupData) => {
 		await setCongOutgoingSpeakers(id, JSON.stringify(outgoingData));
 	}
 
+	if (cong_backup.incoming_reports) {
+		const reports = cong_backup.incoming_reports;
+		await saveIncomingReports(id, reports);
+	}
+
+	if (cong_backup.field_service_groups) {
+		const data = cong_backup.field_service_groups;
+		await setCongFieldServiceGroups(id, data);
+	}
+
 	let lastBackup = '';
 
 	if (cong_backup.app_settings) {
@@ -263,6 +274,7 @@ export const createCongregation = async (data: CongregationCreateInfoType) => {
 		cong_name: data.cong_name,
 		cong_discoverable: { value: false, updatedAt: new Date().toISOString() },
 		data_sync: { value: false, updatedAt: new Date().toISOString() },
+		time_away_public: { value: false, updatedAt: new Date().toISOString() },
 		cong_location: { ...data.cong_location, updatedAt: new Date().toISOString() },
 		cong_circuit: [{ type: 'main', value: data.cong_circuit, updatedAt: new Date().toISOString() }],
 		midweek_meeting: [
@@ -304,7 +316,6 @@ export const createCongregation = async (data: CongregationCreateInfoType) => {
 		short_date_format: '',
 		source_material_auto_import: '',
 		special_months: '',
-		time_away_public: '',
 		week_start_sunday: '',
 	};
 
@@ -397,4 +408,10 @@ export const saveAPApplication = async (congId: string, application: StandardRec
 export const deleteAPApplication = async (congId: string, requestId: string) => {
 	const path = `${congId}/auxiliary_applications/${requestId}.txt`;
 	await deleteFileFromStorage({ type: 'congregation', path });
+};
+
+export const saveIncomingReports = async (id: string, reports: StandardRecord[]) => {
+	const data = JSON.stringify(reports);
+	const path = `${id}/field_service_reports/incoming.txt`;
+	await uploadFileToStorage(data, { type: 'congregation', path });
 };

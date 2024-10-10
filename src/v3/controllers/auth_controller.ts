@@ -108,6 +108,8 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 
 		if (authUser.profile.congregation?.id) {
 			const userCong = CongregationsList.findById(authUser.profile.congregation.id);
+			const masterKeyNeeded = authUser.profile.congregation.cong_role.includes('admin');
+
 			if (userCong) {
 				userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation.user_local_uid;
 				userInfo.app_settings.user_settings.cong_role = authUser.profile.congregation.cong_role;
@@ -127,7 +129,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 					cong_number: userCong.settings.cong_number,
 					country_code: userCong.settings.country_code,
 					cong_access_code: userCong.settings.cong_access_code,
-					cong_master_key: userCong.settings.cong_master_key,
+					cong_master_key: masterKeyNeeded ? userCong.settings.cong_master_key : undefined,
 					cong_location: userCong.settings.cong_location,
 					midweek_meeting: midweek,
 					weekend_meeting: weekend,
@@ -261,6 +263,8 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 
 		if (authUser.profile.congregation?.id) {
 			const userCong = CongregationsList.findById(authUser.profile.congregation.id);
+			const masterKeyNeeded = authUser.profile.congregation.cong_role.includes('admin');
+
 			if (userCong) {
 				userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation.user_local_uid;
 				userInfo.app_settings.user_settings.cong_role = authUser.profile.congregation.cong_role;
@@ -280,7 +284,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 					cong_number: userCong.settings.cong_number,
 					country_code: userCong.settings.country_code,
 					cong_access_code: userCong.settings.cong_access_code,
-					cong_master_key: userCong.settings.cong_master_key,
+					cong_master_key: masterKeyNeeded ? userCong.settings.cong_master_key : undefined,
 					cong_location: userCong.settings.cong_location,
 					midweek_meeting: midweek,
 					weekend_meeting: weekend,

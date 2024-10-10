@@ -108,9 +108,10 @@ export type UserAuthResponse = {
 			firstname: { value: string; updatedAt: string };
 			lastname: { value: string; updatedAt: string };
 			role: UserGlobalRoleType;
-			mfa: string;
+			mfa?: string;
 			user_local_uid?: string;
 			cong_role?: AppRoleType[];
+			user_members_delegate?: string[];
 		};
 		cong_settings?: {
 			id: string;
