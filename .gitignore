@@ -3,6 +3,7 @@
 # misc
 cong_backup
 **/S-34/*.json
+.idx
 
 # dependencies
 /node_modules
