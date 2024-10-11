@@ -60,9 +60,6 @@
 
 		.branding {
 			padding: 24px 32px 32px 32px;
-			display: flex;
-			align-items: center;
-			gap: 12px
 		}
 
 		.logo {
@@ -133,27 +130,37 @@
 
 <body>
 	<div class='mail-content'>
-		<table>
-			<tbody>
-				<tr style="vertical-align: middle; padding: 24px 32px 32px 32px;border: 1px solid red;">
-					<td style="width: 45px;"><img class="logo" alt="logo"
-							src='https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/logo.png?alt=media&token=9a1d658c-6c70-4caf-9cd0-36c328011e4e' />
-					</td>
-					<td style="border: 1px solid red;">
-						<h2>Organized</h2>
-					</td>
-				</tr>
-				<tr>
-					<td colspan="2">
-						<h2 class="welcome-title">{{welcomeTitle}}</h2>
-					</td>
-				</tr>
-				<tr colspan="2">
-					<td>
-						<p class="welcome-desc">{{welcomeDesc}}</p>
-					</td>
-				</tr>
-			</tbody>
+		<table style="width:100%">
+			<tr>
+				<th style="width: 100%" />
+			</tr>
+			<tr style="padding: 24px 32px 32px 32px;">
+				<td>
+					<div class="branding">
+						<table>
+							<tr>
+								<td>
+									<img class="logo" alt="logo"
+										src='https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/logo.png?alt=media&token=9a1d658c-6c70-4caf-9cd0-36c328011e4e' />
+								</td>
+								<td style="vertical-align: middle;">
+									<h2 style="margin-left: 8px;">Organized</h2>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<h2 class="welcome-title">{{welcomeTitle}}</h2>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p class="welcome-desc">{{welcomeDesc}}</p>
+				</td>
+			</tr>
 		</table>
 	</div>
 	{{!-- <div class='mail-content'>
