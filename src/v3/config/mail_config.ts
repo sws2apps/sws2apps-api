@@ -1,13 +1,12 @@
 import path from 'path';
 import nodemailer from 'nodemailer';
+import inlineCss from 'nodemailer-juice';
 import Mail from 'nodemailer/lib/mailer/index.js';
-import SMTPConnection from 'nodemailer/lib/smtp-connection/index.js';
+import SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
 import hbs, { NodemailerExpressHandlebarsOptions } from 'nodemailer-express-handlebars';
 import { logger } from '../services/logger/logger.js';
 
 const MAIL_ADDRESS = process.env.MAIL_ADDRESS!;
-const MAIL_SMTP = process.env.MAIL_SMTP!;
-const MAIL_PORT = +process.env.MAIL_PORT!;
 const MAIL_SENDER_NAME = process.env.MAIL_SENDER_NAME! + ' <' + MAIL_ADDRESS + '>';
 const MAIL_PASSWORD = process.env.MAIL_PASSWORD!;
 
@@ -19,10 +18,10 @@ const handlebarsOptions: NodemailerExpressHandlebarsOptions = {
 	viewPath: path.resolve('./src/v3/views/'),
 };
 
-const transportOptions: SMTPConnection.Options = {
-	host: MAIL_SMTP,
-	port: MAIL_PORT,
+const transportOptions: SMTPTransport.Options = {
+	service: 'gmail',
 	secure: true,
+	tls: { rejectUnauthorized: false },
 	auth: {
 		user: MAIL_ADDRESS,
 		pass: MAIL_PASSWORD,
@@ -32,6 +31,7 @@ const transportOptions: SMTPConnection.Options = {
 const transporter = nodemailer.createTransport(transportOptions, { from: MAIL_SENDER_NAME });
 
 transporter.use('compile', hbs(handlebarsOptions));
+transporter.use('compile', inlineCss());
 
 export const MailClient = {
 	sendEmail: async (options: Mail.Options, successText: string) => {

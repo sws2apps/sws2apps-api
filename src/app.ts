@@ -60,7 +60,10 @@ app.set('trust proxy', 1);
 
 app.use(helmet());
 
+app.use(express.static('public'));
+
 const __dirname = path.resolve();
+
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 app.use(cors(corsOptionsDelegate));

@@ -1,364 +1,231 @@
 <html lang='en'>
-	<head>
-		<meta charset='UTF-8' />
-		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
-		<title>Document</title>
-	</head>
 
-	<body style='background-color: #dddddd;'>
-		<div
-			id='content'
-			style='overflow: hidden;background-color: #fff;max-width: 600px;margin: 0 auto;border-radius: 16px;padding-top: 24px;'
-		>
-			<div class='header' style='padding-left: 32px;padding-right: 32px;'>
-				<img src='cid:img:logo' style='width: 40px; height: 40px;' />
+<head>
+	<meta charset='UTF-8' />
+	<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+	<title>Document</title>
 
-				<h2 style='font-weight: 550;font-size: 20px;margin: 8px 12px;display: inline-block;'>Organized</h2>
+	<style>
+		body {
+			color: black;
+		}
+
+		h2 {
+			margin: 0;
+			padding: 0;
+			font-weight: 550;
+			font-size: 20px;
+		}
+
+		h3 {
+			margin: 0;
+			padding: 0;
+			font-weight: 570;
+			font-size: 18px;
+		}
+
+		h4,
+		.h4 {
+			margin: 0;
+			padding: 0;
+			font-weight: 550;
+			font-size: 16px;
+		}
+
+		p {
+			margin: 0;
+			padding: 0;
+			font-weight: 420;
+			font-size: 16px;
+		}
+
+		a {
+			margin: 0;
+			padding: 0;
+			font-weight: 520;
+			font-size: 14px;
+			color: #3b4ca3;
+			text-decoration: none;
+		}
+
+		.mail-content {
+			background-color: #fefefe;
+			border: 1px solid #dadada;
+			max-width: 600px;
+			width: 100%;
+			margin: 0 auto;
+			border-radius: 12px;
+			color: inherit;
+		}
+
+		.branding {
+			padding: 24px 32px 32px 32px;
+			display: flex;
+			align-items: center;
+			gap: 12px
+		}
+
+		.logo {
+			width: 40px;
+			height: 40px;
+		}
+
+		.welcome-title {
+			padding: 0px 32px 8px 32px;
+		}
+
+		.welcome-desc {
+			padding: 0px 32px 24px 32px;
+			color: #505050;
+		}
+
+		.video-container {
+			padding: 0 32px;
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.video-thumbnail {
+			max-height: 215px;
+			height: max-content;
+			width: fit-content;
+		}
+
+		.info-container {
+			padding: 24px 32px;
+			padding-top: 24px;
+			padding-bottom: 32px;
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
+
+		.info-row {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.footer-container {
+			padding: 24px 32px;
+			background-color: #f5f5f5;
+			height: 24px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 24px;
+		}
+
+		.copyright {
+			color: #505050;
+		}
+
+		.footer-icons {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class='mail-content'>
+		<table>
+			<tbody>
+				<tr style="vertical-align: middle; padding: 24px 32px 32px 32px;border: 1px solid red;">
+					<td style="width: 45px;"><img class="logo" alt="logo"
+							src='https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/logo.png?alt=media&token=9a1d658c-6c70-4caf-9cd0-36c328011e4e' />
+					</td>
+					<td style="border: 1px solid red;">
+						<h2>Organized</h2>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<h2 class="welcome-title">{{welcomeTitle}}</h2>
+					</td>
+				</tr>
+				<tr colspan="2">
+					<td>
+						<p class="welcome-desc">{{welcomeDesc}}</p>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	{{!-- <div class='mail-content'>
+		<div class="header-container">
+			<div class='branding'>
+				<img class="logo" alt="logo"
+					src='https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/logo.png?alt=media&token=9a1d658c-6c70-4caf-9cd0-36c328011e4e' />
+
+				<h2>Organized</h2>
 			</div>
-			<div class='content' style='padding: 32px 0 24px 0;padding-left: 32px;padding-right: 32px;'>
-				<h2 style='font-weight: 550;font-size: 20px;display: inline-block;margin: 0 0 8px 0;'>
-					{{welcomeOrgzApp}}
-				</h2>
-				<p style='margin: 0;'>
-					{{welcomeOrgzAppDesc}}
+
+			<div class='welcome-container'>
+				<h2>{{welcomeTitle}}</h2>
+				<p class="welcome-desc">
+					{{welcomeDesc}}
 				</p>
 			</div>
-			<div style='padding-left: 32px;padding-right: 32px;'>
-				<div
-					class='card'
-					style='padding: 10px;width: 350px;margin: 0 auto;border-radius: 16px;background: linear-gradient(140deg, #6774e5, #3e3cac);'
-				>
-					<div class='card-content' style='padding: 12px;border-radius: 8px;background-color: #fff;'>
-						<h3 style='margin: 0;font-weight: 600;font-size: 18px;margin-top: 2px;'>{{welcomeGettingStarted}}</h3>
-						<a
-							href='#'
-							style='color: white;text-decoration: none;margin-top: 8px;background: linear-gradient(140deg, #6774e5, #3e3cac);-webkit-box-shadow: 0px 2.71px 13.53px 0px rgba(83, 96, 208, 0.4);box-shadow: 0px 2.71px 13.53px 0px rgba(83, 96, 208, 0.4);display: inline-block;padding: 9px;padding-right: 16px;border-radius: 6px;font-size: 21px;font-weight: 425;letter-spacing: -0.01em;position: relative;z-index: 2;'
-						>
-							<svg
-								style='display: block;float: left;margin-right: 6px;margin-left: 2px;margin-top: 1px;'
-								width='23'
-								height='23'
-								viewBox='0 0 25 25'
-								fill='none'
-								xmlns='http://www.w3.org/2000/svg'
-							>
-								<mask
-									id='mask0_14374_294942'
-									style='mask-type:alpha'
-									maskUnits='userSpaceOnUse'
-									x='0'
-									y='0'
-									width='25'
-									height='24'
-								>
-									<rect x='0.333313' y='0.16153' width='23.6769' height='23.6769' fill='#D9D9D9' />
-								</mask>
-								<g mask='url(#mask0_14374_294942)'>
-									<path
-										d='M11.4319 16.686H12.9116V11.0134H11.4319V16.686ZM12.1718 9.32496C12.3975 9.32496 12.5868 9.24861 12.7395 9.09589C12.8922 8.94317 12.9686 8.75393 12.9686 8.52816C12.9686 8.30241 12.8922 8.11317 12.7395 7.96043C12.5868 7.80772 12.3975 7.73136 12.1718 7.73136C11.946 7.73136 11.7568 7.80772 11.604 7.96043C11.4513 8.11317 11.375 8.30241 11.375 8.52816C11.375 8.75393 11.4513 8.94317 11.604 9.09589C11.7568 9.24861 11.946 9.32496 12.1718 9.32496ZM12.1734 21.3721C10.8772 21.3721 9.65877 21.1261 8.5182 20.6341C7.37761 20.1422 6.38547 19.4746 5.54177 18.6312C4.69804 17.7879 4.0301 16.7962 3.53793 15.6561C3.04577 14.516 2.79968 13.2979 2.79968 12.0016C2.79968 10.7054 3.04566 9.48699 3.53761 8.34642C4.02957 7.20583 4.69721 6.21369 5.54053 5.36998C6.38387 4.52626 7.37558 3.85832 8.51566 3.36615C9.65572 2.87398 10.8739 2.6279 12.1701 2.6279C13.4664 2.6279 14.6848 2.87388 15.8253 3.36583C16.9659 3.85778 17.9581 4.52542 18.8018 5.36875C19.6455 6.21209 20.3134 7.2038 20.8056 8.34388C21.2978 9.48394 21.5439 10.7021 21.5439 11.9983C21.5439 13.2946 21.2979 14.513 20.8059 15.6536C20.314 16.7941 19.6463 17.7863 18.803 18.63C17.9597 19.4737 16.968 20.1417 15.8279 20.6338C14.6878 21.126 13.4697 21.3721 12.1734 21.3721ZM12.1718 19.8923C14.375 19.8923 16.2412 19.1277 17.7704 17.5986C19.2995 16.0695 20.0641 14.2033 20.0641 12C20.0641 9.79672 19.2995 7.93052 17.7704 6.40138C16.2412 4.87225 14.375 4.10768 12.1718 4.10768C9.9685 4.10768 8.1023 4.87225 6.57317 6.40138C5.04403 7.93052 4.27947 9.79672 4.27947 12C4.27947 14.2033 5.04403 16.0695 6.57317 17.5986C8.1023 19.1277 9.9685 19.8923 12.1718 19.8923Z'
-										fill='#FEFEFE'
-									/>
-								</g>
-							</svg>
-							<span>{{welcomeMeetOrgz}}</span>
-						</a>
-						<p
-							class='big-text'
-							style='margin: 0;font-size: 146px;font-weight: 600;color: #ecedf3;line-height: 177.08px;letter-spacing: -0.05em;text-align: right;height: 145px;margin-top: -45px;z-index: 1;position: relative;'
-						>
-							01</p>
-						<div class='logo' style='margin-top: -19.5px;'>
-							<svg
-								style='display: block;width: 20px;float: left;'
-								width='40'
-								height='40'
-								viewBox='0 0 40 40'
-								fill='none'
-								xmlns='http://www.w3.org/2000/svg'
-							>
-								<g clip-path='url(#clip0_5253_21275)'>
-									<rect x='5.60532' y='5.57851' width='28.7894' height='28.843' fill='#FEFEFE' />
-									<path
-										fill-rule='evenodd'
-										clip-rule='evenodd'
-										d='M33.5182 13.456L20.2325 13.456C16.5167 13.456 13.5045 10.4438 13.5045 6.728C13.5045 3.01223 16.5167 -8.70228e-06 20.2325 -8.34465e-06L29.6332 -7.51019e-06V-1.09258C31.5127 -1.09258 33.1173 -0.682939 34.4627 -7.15256e-06L40 -6.67572e-06L40 8.74678C40.0117 8.9396 40.0176 9.12992 40.0176 9.31713V20.3322C40.0176 16.6587 37.1415 13.657 33.5182 13.456Z'
-										fill='url(#paint0_linear_5253_21275)'
-									/>
-									<path
-										fill-rule='evenodd'
-										clip-rule='evenodd'
-										d='M12.7693 -0.826111H-0.833359V10.626H-0.00693822L-0.00693858 19.7378C-0.00693876 23.4768 3.02413 26.5079 6.76315 26.5079C10.5022 26.5079 13.5332 23.4768 13.5332 19.7378V6.81303C13.5502 3.02399 16.6271 -0.0423723 20.4201 -0.0423725L12.7693 -0.0423721V-0.826111Z'
-										fill='url(#paint1_linear_5253_21275)'
-									/>
-									<path
-										fill-rule='evenodd'
-										clip-rule='evenodd'
-										d='M6.49382 26.457L19.74 26.457C23.4797 26.457 26.5114 29.4887 26.5114 33.2285C26.5114 36.9683 23.4797 40 19.7399 40L-1.52356e-05 40L-1.35206e-05 30.0473C-0.00462847 29.9292 -0.00692743 29.8122 -0.00692742 29.6964L-0.00692749 19.5823C-0.0061052 23.2556 2.87044 26.2568 6.49382 26.457Z'
-										fill='url(#paint2_linear_5253_21275)'
-									/>
-									<path
-										fill-rule='evenodd'
-										clip-rule='evenodd'
-										d='M30.9301 40L40 40V33.9733C40.5259 32.753 40.8334 31.3362 40.8334 29.7125H40V20.1944C40 16.4574 36.9706 13.4279 33.2335 13.4279C29.4965 13.4279 26.467 16.4574 26.467 20.1944L26.467 29.7125H26.4669V33.1212C26.4669 36.9248 23.3835 40.0081 19.58 40.0081H30.5464C30.673 40.0081 30.8009 40.0054 30.9301 40Z'
-										fill='url(#paint3_linear_5253_21275)'
-									/>
-								</g>
-								<defs>
-									<linearGradient
-										id='paint0_linear_5253_21275'
-										x1='15.4574'
-										y1='4.97717'
-										x2='33.1713'
-										y2='20.1906'
-										gradientUnits='userSpaceOnUse'
-									>
-										<stop stop-color='#EEAF35' />
-										<stop offset='1' stop-color='#FBC93C' />
-									</linearGradient>
-									<linearGradient
-										id='paint1_linear_5253_21275'
-										x1='13.0556'
-										y1='1.01875'
-										x2='7.08012'
-										y2='26.8568'
-										gradientUnits='userSpaceOnUse'
-									>
-										<stop stop-color='#AC6CBB' />
-										<stop offset='1' stop-color='#7D5FBD' />
-									</linearGradient>
-									<linearGradient
-										id='paint2_linear_5253_21275'
-										x1='-0.833319'
-										y1='18.9038'
-										x2='22.0099'
-										y2='41.671'
-										gradientUnits='userSpaceOnUse'
-									>
-										<stop stop-color='#0ABBE5' />
-										<stop offset='1' stop-color='#3B98CC' />
-									</linearGradient>
-									<linearGradient
-										id='paint3_linear_5253_21275'
-										x1='33.8888'
-										y1='13.0069'
-										x2='25.6092'
-										y2='40.7032'
-										gradientUnits='userSpaceOnUse'
-									>
-										<stop stop-color='#5C9B1C' />
-										<stop offset='1' stop-color='#50B600' />
-									</linearGradient>
-									<clipPath id='clip0_5253_21275'>
-										<rect width='40' height='40' rx='11.25' fill='white' />
-									</clipPath>
-								</defs>
-							</svg>
+		</div>
 
-							<p style='display: inline-block;margin: 0;font-size: 13px;font-weight: 425;margin-left: 8px;'>Organized</p>
-						</div>
-					</div>
-				</div>
-			</div>
-			<a
-				href='#'
-				class='yt-link'
-				style='color: #3e3cac;text-decoration: none;font-weight: 520;font-size: 14px;text-align: center;margin-top: 12px;display: block;padding-left: 32px;padding-right: 32px;'
-			>
-				{{welcomeWatchVideo}}
+		<div class="video-container">
+			<img class="video-thumbnail" alt="video"
+				src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/video-01-getting-started.png?alt=media&token=06a78ab0-fc25-4555-8173-71966c002316" />
+
+			<a href='https://www.youtube.com/watch?v=2czQB-LEfqg&t=14s' target="_blank" rel="noreferrer">
+				{{watchVideoLabel}}
 			</a>
-			<div class='links' style='padding: 24px 0;padding-left: 32px;padding-right: 32px;'>
-				<h3 style='margin: 0;font-weight: 600;font-size: 18px;margin-bottom: 12px;'>{{welcomeMoreInfo}}</h3>
-				<div class='link' style='margin-bottom: 12px;'>
-					<svg
-						style='display: block;float: left;margin-right: 8px;'
-						width='24'
-						height='24'
-						viewBox='0 0 24 24'
-						fill='none'
-						xmlns='http://www.w3.org/2000/svg'
-					>
-						<path
-							d='M11.9896 17.3198C12.2601 17.3198 12.4886 17.2264 12.675 17.0397C12.8614 16.8529 12.9546 16.6242 12.9546 16.3537C12.9546 16.0832 12.8613 15.8548 12.6745 15.6683C12.4877 15.4819 12.2591 15.3887 11.9886 15.3887C11.7181 15.3887 11.4896 15.4821 11.3032 15.6688C11.1167 15.8556 11.0235 16.0843 11.0235 16.3548C11.0235 16.6253 11.1169 16.8537 11.3037 17.0402C11.4904 17.2266 11.7191 17.3198 11.9896 17.3198ZM11.3186 13.9275H12.6522C12.6644 13.4611 12.7327 13.0886 12.8572 12.8098C12.9817 12.5311 13.2838 12.1616 13.7636 11.7012C14.1801 11.2846 14.4993 10.8999 14.7209 10.5471C14.9426 10.1942 15.0534 9.77755 15.0534 9.29703C15.0534 8.48162 14.7604 7.84465 14.1744 7.38614C13.5884 6.92764 12.8952 6.6984 12.0947 6.6984C11.3041 6.6984 10.6497 6.90943 10.1317 7.3315C9.61368 7.75355 9.24415 8.25061 9.0231 8.82266L10.2401 9.31091C10.3555 8.99634 10.5528 8.68997 10.8322 8.3918C11.1115 8.09361 11.5263 7.94452 12.0765 7.94452C12.6365 7.94452 13.0503 8.09787 13.3181 8.40456C13.5859 8.71124 13.7199 9.04859 13.7199 9.41662C13.7199 9.73847 13.6282 10.033 13.4447 10.3002C13.2613 10.5674 13.0275 10.8255 12.7433 11.0745C12.1215 11.6356 11.7286 12.0832 11.5646 12.4172C11.4006 12.7512 11.3186 13.2547 11.3186 13.9275ZM12.0016 21C10.7568 21 9.58677 20.7638 8.49148 20.2914C7.39618 19.8189 6.44342 19.1778 5.63322 18.368C4.82299 17.5581 4.18157 16.6058 3.70894 15.511C3.23631 14.4162 3 13.2464 3 12.0016C3 10.7568 3.23621 9.58677 3.70863 8.49148C4.18106 7.39618 4.82219 6.44343 5.63203 5.63322C6.44189 4.823 7.39423 4.18157 8.48904 3.70894C9.58384 3.23631 10.7536 3 11.9984 3C13.2432 3 14.4132 3.23621 15.5085 3.70863C16.6038 4.18106 17.5566 4.82219 18.3668 5.63203C19.177 6.44189 19.8184 7.39423 20.2911 8.48904C20.7637 9.58384 21 10.7536 21 11.9984C21 13.2432 20.7638 14.4132 20.2914 15.5085C19.8189 16.6038 19.1778 17.5566 18.368 18.3668C17.5581 19.177 16.6058 19.8184 15.511 20.2911C14.4162 20.7637 13.2464 21 12.0016 21ZM12 19.579C14.1158 19.579 15.9079 18.8448 17.3763 17.3763C18.8448 15.9079 19.579 14.1158 19.579 12C19.579 9.88421 18.8448 8.0921 17.3763 6.62367C15.9079 5.15525 14.1158 4.42103 12 4.42103C9.8842 4.42103 8.09209 5.15525 6.62367 6.62367C5.15525 8.0921 4.42103 9.88421 4.42103 12C4.42103 14.1158 5.15525 15.9079 6.62367 17.3763C8.09209 18.8448 9.8842 19.579 12 19.579Z'
-							fill='#222222'
-						/>
-					</svg>
+		</div>
 
-					<p style='margin: 0;display: inline-block;margin-top: 2px;'>
-						<a href='#' style='color: #3e3cac;text-decoration: none;font-weight: 520;'>
-							{{welcomeUserGuideLink}}
-						</a>
-						{{welcomeUserGuideText}}
-					</p>
-				</div>
-				<div class='link' style='margin-bottom: 12px;'>
-					<svg
-						style='display: block;float: left;margin-right: 8px;'
-						width='24'
-						height='24'
-						viewBox='0 0 24 24'
-						fill='none'
-						xmlns='http://www.w3.org/2000/svg'
-					>
-						<mask id='mask0_5694_15945' style='mask-type:alpha' maskUnits='userSpaceOnUse' x='0' y='0' width='24' height='24'>
-							<rect width='24' height='24' fill='#D9D9D9' />
-						</mask>
-						<g mask='url(#mask0_5694_15945)'>
-							<path
-								d='M4.30773 20.5C3.8026 20.5 3.37503 20.325 3.02503 19.975C2.67503 19.625 2.50003 19.1974 2.50003 18.6923V5.3077C2.50003 4.80257 2.67503 4.375 3.02503 4.025C3.37503 3.675 3.8026 3.5 4.30773 3.5H19.6923C20.1974 3.5 20.625 3.675 20.975 4.025C21.325 4.375 21.5 4.80257 21.5 5.3077V18.6923C21.5 19.1974 21.325 19.625 20.975 19.975C20.625 20.325 20.1974 20.5 19.6923 20.5H4.30773ZM4.30773 19H19.6923C19.7692 19 19.8397 18.9679 19.9039 18.9038C19.968 18.8397 20 18.7692 20 18.6923V5.3077C20 5.23077 19.968 5.16024 19.9039 5.09613C19.8397 5.03203 19.7692 4.99998 19.6923 4.99998H4.30773C4.2308 4.99998 4.16027 5.03203 4.09616 5.09613C4.03206 5.16024 4.00001 5.23077 4.00001 5.3077V18.6923C4.00001 18.7692 4.03206 18.8397 4.09616 18.9038C4.16027 18.9679 4.2308 19 4.30773 19ZM6.38466 16.6153H17.6154V15.1154H6.38466V16.6153ZM6.38466 12.75H10.0769V7.38463H6.38466V12.75ZM12.2693 12.75H17.6154V11.25H12.2693V12.75ZM12.2693 8.88458H17.6154V7.38463H12.2693V8.88458Z'
-								fill='#222222'
-							/>
-						</g>
-					</svg>
+		<div class="info-container">
+			<h3>{{moreInfoTitle}}</h3>
 
-					<p style='margin: 0;display: inline-block;margin-top: 2px;'>
-						<a href='#' style='color: #3e3cac;text-decoration: none;font-weight: 520;'>
-							{{welcomeOurBlogLink}}
-						</a>
-						{{welcomeOurBlogText}}
-					</p>
-				</div>
-				<div class='link' style='margin-bottom: 12px;'>
-					<svg
-						style='display: block;float: left;margin-right: 8px;'
-						width='24'
-						height='24'
-						viewBox='0 0 24 24'
-						fill='none'
-						xmlns='http://www.w3.org/2000/svg'
-					>
-						<mask id='mask0_14293_231656' style='mask-type:alpha' maskUnits='userSpaceOnUse' x='0' y='0' width='24' height='24'>
-							<rect width='24' height='24' fill='#D9D9D9' />
-						</mask>
-						<g mask='url(#mask0_14293_231656)'>
-							<path
-								d='M15.8462 12.6923L11.8885 8.86343C11.4103 8.40189 11.008 7.88814 10.6818 7.32218C10.3555 6.75619 10.1923 6.13983 10.1923 5.47308C10.1923 4.64723 10.4814 3.94525 11.0595 3.36715C11.6376 2.78905 12.3395 2.5 13.1654 2.5C13.7051 2.5 14.2035 2.63013 14.6606 2.8904C15.1176 3.15067 15.5128 3.48208 15.8462 3.88463C16.1795 3.48208 16.5747 3.15067 17.0317 2.8904C17.4888 2.63013 17.9872 2.5 18.5269 2.5C19.3528 2.5 20.0547 2.78905 20.6328 3.36715C21.2109 3.94525 21.5 4.64723 21.5 5.47308C21.5 6.13983 21.3394 6.75619 21.0182 7.32218C20.6971 7.88814 20.2974 8.40189 19.8192 8.86343L15.8462 12.6923ZM15.8462 10.6039L18.7058 7.8327C19.0417 7.5032 19.3414 7.14486 19.6048 6.75768C19.8683 6.37051 20 5.94231 20 5.47308C20 5.06153 19.8574 4.71313 19.5721 4.42788C19.2869 4.14261 18.9385 3.99998 18.5269 3.99998C18.2102 3.99998 17.9205 4.08267 17.6577 4.24805C17.3948 4.41345 17.1628 4.62308 16.9615 4.87693L15.8462 6.23458L14.7308 4.87693C14.5295 4.62308 14.2974 4.41345 14.0346 4.24805C13.7718 4.08267 13.482 3.99998 13.1654 3.99998C12.7538 3.99998 12.4054 4.14261 12.1202 4.42788C11.8349 4.71313 11.6923 5.06153 11.6923 5.47308C11.6923 5.94231 11.824 6.37051 12.0875 6.75768C12.3509 7.14486 12.6506 7.5032 12.9865 7.8327L15.8462 10.6039ZM6.70191 18.5769L13.9596 20.6308L19.9289 18.7808C19.8776 18.5538 19.7718 18.3798 19.6115 18.2586C19.4512 18.1375 19.2698 18.0769 19.0673 18.0769H14.17C13.7336 18.0769 13.3628 18.0602 13.0577 18.0269C12.7526 17.9936 12.4391 17.9205 12.1173 17.8077L9.85963 17.0615L10.3039 15.5923L12.3289 16.2962C12.6314 16.3987 12.9808 16.4686 13.3769 16.5058C13.7731 16.543 14.3365 16.5667 15.0673 16.577C15.0673 16.3295 15.0116 16.116 14.9 15.9366C14.7885 15.7571 14.6417 15.6359 14.4596 15.5731L8.65771 13.4423C8.63847 13.4359 8.62084 13.4311 8.60481 13.4279C8.58879 13.4247 8.57116 13.4231 8.55193 13.4231H6.70191V18.5769ZM1.70198 21.5V11.9231H8.54061C8.64559 11.9231 8.75192 11.9347 8.85961 11.9577C8.96731 11.9808 9.06731 12.0077 9.15961 12.0385L14.9865 14.1847C15.4404 14.3526 15.8173 14.6497 16.1173 15.076C16.4173 15.5023 16.5673 16.0026 16.5673 16.577H19.0673C19.7853 16.577 20.3702 16.8087 20.8221 17.2721C21.274 17.7356 21.5 18.3372 21.5 19.0769V19.8846L14.0096 22.2115L6.70191 20.1269V21.5H1.70198ZM3.20196 20H5.20196V13.4231H3.20196V20Z'
-								fill='#222222'
-							/>
-						</g>
-					</svg>
-
-					<p style='margin: 0;display: inline-block;margin-top: 2px;'>
-						<a href='#' style='color: #3e3cac;text-decoration: none;font-weight: 520;'>
-							{{welcomeSupportLink}}
-						</a>
-						{{welcomeSupportText}}
-					</p>
-				</div>
+			<div class="info-row">
+				<img alt="guide"
+					src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-question.png?alt=media&token=4978e941-f76d-4bb2-8d2f-69ec428a2894" />
+				<p>{{{ moreInfoGuideLabel }}}</p>
 			</div>
-			<div
-				class='footer'
-				style='padding: 24px 32px;background-color: #f5f5f5;height: 28px;padding-left: 32px;padding-right: 32px;'
-			>
-				<p style='margin-top: 5px;font-weight: 500;font-size: 16px;float: left;color: #505050;'>© 2025 Organized app</p>
 
-				<div class='icons' style='margin-left: auto;float: right;margin-top: 2px;'>
-					<a href='#' style='color: unset;text-decoration: none;margin-left: 12px;float: left;'>
-						<svg
-							style='display: block;'
-							width='24'
-							height='24'
-							viewBox='0 0 24 24'
-							fill='none'
-							xmlns='http://www.w3.org/2000/svg'
-						>
-							<mask id='mask0_12327_260007' style='mask-type:alpha' maskUnits='userSpaceOnUse' x='0' y='0' width='24' height='24'>
-								<rect width='24' height='24' fill='#D9D9D9' />
-							</mask>
-							<g mask='url(#mask0_12327_260007)'>
-								<path
-									d='M13.9423 9.74621V8.43071C14.4859 8.17821 15.0548 7.9888 15.649 7.86246C16.2433 7.73613 16.8603 7.67296 17.5 7.67296C17.9013 7.67296 18.2911 7.70155 18.6693 7.75871C19.0474 7.81571 19.4269 7.89105 19.8078 7.98471V9.23846C19.4334 9.10763 19.0613 9.01271 18.6913 8.95371C18.3214 8.89471 17.9243 8.86521 17.5 8.86521C16.8603 8.86521 16.2408 8.94121 15.6413 9.09321C15.0419 9.24521 14.4756 9.46288 13.9423 9.74621ZM13.9423 15.227V13.8922C14.4731 13.6397 15.0404 13.4503 15.6443 13.324C16.2481 13.1978 16.8667 13.1347 17.5 13.1347C17.9013 13.1347 18.2911 13.1632 18.6693 13.2202C19.0474 13.2772 19.4269 13.3525 19.8078 13.4462V14.7C19.4334 14.5691 19.0613 14.4742 18.6913 14.4152C18.3214 14.3564 17.9243 14.327 17.5 14.327C16.8603 14.327 16.2408 14.4035 15.6413 14.5567C15.0419 14.7099 14.4756 14.9333 13.9423 15.227ZM13.9423 12.4962V11.1615C14.4859 10.909 15.0548 10.7195 15.649 10.5932C16.2433 10.4669 16.8603 10.4037 17.5 10.4037C17.9013 10.4037 18.2911 10.4323 18.6693 10.4895C19.0474 10.5465 19.4269 10.6218 19.8078 10.7155V11.9692C19.4334 11.8384 19.0613 11.7435 18.6913 11.6845C18.3214 11.6256 17.9243 11.5962 17.5 11.5962C16.8603 11.5962 16.2408 11.6754 15.6413 11.8337C15.0419 11.992 14.4756 12.2129 13.9423 12.4962ZM6.5 16.0192C7.32817 16.0192 8.13392 16.1131 8.91725 16.301C9.70058 16.4888 10.4782 16.7834 11.25 17.1847V7.35371C10.5475 6.89605 9.78725 6.5528 8.96925 6.32396C8.15125 6.09513 7.32817 5.98071 6.5 5.98071C5.9 5.98071 5.33942 6.0278 4.81825 6.12196C4.29708 6.2163 3.7615 6.37046 3.2115 6.58446C3.13467 6.61013 3.08017 6.64705 3.048 6.69521C3.016 6.74321 3 6.79605 3 6.85371V16.3115C3 16.4013 3.03208 16.467 3.09625 16.5087C3.16025 16.5504 3.23075 16.5551 3.30775 16.523C3.78208 16.3615 4.28267 16.2371 4.8095 16.15C5.3365 16.0628 5.9 16.0192 6.5 16.0192ZM12.75 17.1847C13.5218 16.7834 14.2994 16.4888 15.0828 16.301C15.8661 16.1131 16.6718 16.0192 17.5 16.0192C18.1 16.0192 18.6635 16.0628 19.1905 16.15C19.7173 16.2371 20.2179 16.3615 20.6923 16.523C20.7693 16.5551 20.8398 16.5504 20.9038 16.5087C20.9679 16.467 21 16.4013 21 16.3115V6.85371C21 6.79605 20.984 6.7448 20.952 6.69996C20.9198 6.65513 20.8653 6.61663 20.7885 6.58446C20.2385 6.37046 19.7029 6.2163 19.1818 6.12196C18.6606 6.0278 18.1 5.98071 17.5 5.98071C16.6718 5.98071 15.8487 6.09513 15.0307 6.32396C14.2127 6.5528 13.4525 6.89605 12.75 7.35371V17.1847ZM12 19.3845C11.1937 18.7896 10.3238 18.33 9.3905 18.0057C8.45717 17.6814 7.49367 17.5192 6.5 17.5192C5.88983 17.5192 5.2905 17.5868 4.702 17.722C4.1135 17.8573 3.54617 18.0564 3 18.3192C2.64367 18.4832 2.30458 18.4572 1.98275 18.2412C1.66092 18.0252 1.5 17.7191 1.5 17.323V6.46546C1.5 6.24996 1.5555 6.04771 1.6665 5.85871C1.77733 5.66955 1.93725 5.5333 2.14625 5.44996C2.82308 5.12046 3.5285 4.87655 4.2625 4.71821C4.9965 4.55988 5.74233 4.48071 6.5 4.48071C7.473 4.48071 8.42367 4.61371 9.352 4.87971C10.2802 5.14588 11.1628 5.53855 12 6.05771C12.8372 5.53855 13.7198 5.14588 14.648 4.87971C15.5763 4.61371 16.527 4.48071 17.5 4.48071C18.2577 4.48071 19.0035 4.55988 19.7375 4.71821C20.4715 4.87655 21.1769 5.12046 21.8538 5.44996C22.0627 5.5333 22.2227 5.66955 22.3335 5.85871C22.4445 6.04771 22.5 6.24996 22.5 6.46546V17.323C22.5 17.7191 22.3327 18.022 21.998 18.2317C21.6633 18.4412 21.3114 18.464 20.9423 18.3C20.4026 18.0435 19.8433 17.8492 19.2645 17.7172C18.6857 17.5852 18.0975 17.5192 17.5 17.5192C16.5063 17.5192 15.5428 17.6814 14.6095 18.0057C13.6762 18.33 12.8063 18.7896 12 19.3845Z'
-									fill='#757575'
-								/>
-							</g>
-						</svg>
+			<div class="info-row">
+				<img alt="guide"
+					src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-blog.png?alt=media&token=4ba06832-3f92-4e29-9079-b1ae17a6cdec" />
+				<p>{{{ moreInfoBlogLabel }}}</p>
+			</div>
 
-					</a>
-					<a href='#' style='color: unset;text-decoration: none;margin-left: 12px;float: left;'>
-						<svg
-							style='display: block;'
-							width='24'
-							height='24'
-							viewBox='0 0 24 24'
-							fill='none'
-							xmlns='http://www.w3.org/2000/svg'
-						>
-							<mask id='mask0_14293_231671' style='mask-type:alpha' maskUnits='userSpaceOnUse' x='0' y='0' width='24' height='24'>
-								<rect width='24' height='24' fill='#D9D9D9' />
-							</mask>
-							<g mask='url(#mask0_14293_231671)'>
-								<path
-									d='M11.9193 21.2307L16.1231 10.1539H18.05L22.2538 21.2307H20.3269L19.3538 18.4115H14.8693L13.8654 21.2307H11.9193ZM15.4308 16.7961H18.7423L17.1269 12.2308H17.0462L15.4308 16.7961ZM4.63468 18.4615L3.33085 17.1577L7.9962 12.4923C7.41415 11.85 6.90486 11.1827 6.46833 10.4904C6.0318 9.79811 5.65135 9.07055 5.327 8.30774H7.2539C7.53467 8.86285 7.83146 9.36125 8.14428 9.80291C8.4571 10.2446 8.83594 10.7128 9.2808 11.2077C9.96285 10.4654 10.5279 9.70708 10.976 8.93271C11.4241 8.15836 11.7987 7.33465 12.1 6.46159H1.86548V4.61544H8.32698V2.76929H10.1731V4.61544H16.6346V6.46159H13.9462C13.6218 7.54875 13.1837 8.6074 12.6318 9.63754C12.0798 10.6677 11.3975 11.6359 10.5847 12.5423L12.7923 14.8L12.1 16.6961L9.25005 13.8462L4.63468 18.4615Z'
-									fill='#757575'
-								/>
-							</g>
-						</svg>
-
-					</a>
-					<a href='#' style='color: unset;text-decoration: none;margin-left: 12px;float: left;'>
-						<svg
-							style='display: block;'
-							width='24'
-							height='24'
-							viewBox='0 0 24 24'
-							fill='none'
-							xmlns='http://www.w3.org/2000/svg'
-						>
-							<path
-								d='M12.0016 21C10.7568 21 9.58677 20.7638 8.49148 20.2914C7.39618 19.8189 6.44342 19.1778 5.63322 18.368C4.82299 17.5581 4.18157 16.6058 3.70894 15.511C3.23631 14.4162 3 13.2464 3 12.0016C3 10.7568 3.23621 9.58677 3.70863 8.49148C4.18106 7.39618 4.82219 6.44343 5.63203 5.63322C6.44189 4.823 7.39423 4.18157 8.48904 3.70894C9.58384 3.23631 10.7536 3 11.9984 3C13.2432 3 14.4132 3.23621 15.5085 3.70863C16.6038 4.18106 17.5566 4.82219 18.3668 5.63203C19.177 6.44189 19.8184 7.39423 20.2911 8.48904C20.7637 9.58384 21 10.7536 21 11.9984C21 13.2432 20.7638 14.4132 20.2914 15.5085C19.8189 16.6038 19.1778 17.5566 18.368 18.3668C17.5581 19.177 16.6058 19.8184 15.511 20.2911C14.4162 20.7637 13.2464 21 12.0016 21ZM11.0526 19.5316V17.6842C10.5316 17.6842 10.0855 17.4987 9.71447 17.1276C9.34341 16.7566 9.15789 16.3105 9.15789 15.7895V14.8421L4.61051 10.2947C4.56314 10.5789 4.51972 10.8632 4.48024 11.1474C4.44077 11.4316 4.42103 11.7158 4.42103 12C4.42103 13.9105 5.04867 15.5842 6.30393 17.0211C7.5592 18.4579 9.1421 19.2948 11.0526 19.5316ZM17.5895 17.1158C17.9053 16.7684 18.1895 16.3934 18.4421 15.9908C18.6948 15.5882 18.904 15.1697 19.0698 14.7355C19.2355 14.3013 19.3619 13.8553 19.4487 13.3974C19.5355 12.9395 19.579 12.4737 19.579 12C19.579 10.448 19.1502 9.0307 18.2927 7.74796C17.4352 6.46524 16.285 5.53967 14.8421 4.97124V5.3684C14.8421 5.88946 14.6566 6.33551 14.2855 6.70657C13.9145 7.07762 13.4684 7.26315 12.9474 7.26315H11.0526V9.15789C11.0526 9.42631 10.9618 9.65131 10.7803 9.83289C10.5987 10.0145 10.3737 10.1053 10.1053 10.1053H8.21052V12H13.8947C14.1632 12 14.3882 12.0908 14.5697 12.2724C14.7513 12.4539 14.8421 12.6789 14.8421 12.9474V15.7895H15.7895C16.2 15.7895 16.5711 15.9119 16.9026 16.1566C17.2342 16.4013 17.4632 16.7211 17.5895 17.1158Z'
-								fill='#757575'
-							/>
-						</svg>
-
-					</a>
-					<a href='#' style='color: unset;text-decoration: none;margin-left: 12px;float: left;'>
-						<svg
-							style='display: block;'
-							width='24'
-							height='24'
-							viewBox='0 0 24 24'
-							fill='none'
-							xmlns='http://www.w3.org/2000/svg'
-						>
-							<g clip-path='url(#clip0_5253_21296)'>
-								<path
-									d='M12.0001 3C6.92658 3 2.8125 7.12608 2.8125 12.2161C2.8125 16.288 5.44502 19.7426 9.09553 20.9612C9.55469 21.0465 9.72326 20.7613 9.72326 20.5178C9.72326 20.2981 9.71474 19.5721 9.71079 18.802C7.1548 19.3595 6.61545 17.7146 6.61545 17.7146C6.19752 16.6494 5.59534 16.3661 5.59534 16.3661C4.76175 15.7941 5.65817 15.8059 5.65817 15.8059C6.58076 15.8709 7.06655 16.7556 7.06655 16.7556C7.88599 18.1645 9.21587 17.7572 9.74015 17.5217C9.82261 16.9261 10.0607 16.5195 10.3235 16.2894C8.28278 16.0563 6.13757 15.2661 6.13757 11.7347C6.13757 10.7285 6.49648 9.90641 7.0842 9.261C6.98881 9.02888 6.67433 8.09152 7.17321 6.82207C7.17321 6.82207 7.94472 6.57438 9.70044 7.76676C10.4333 7.56256 11.2193 7.46015 12.0001 7.45664C12.7809 7.46015 13.5674 7.56256 14.3017 7.76676C16.0553 6.57438 16.8257 6.82207 16.8257 6.82207C17.3258 8.09152 17.0112 9.02888 16.9158 9.261C17.5049 9.90641 17.8614 10.7285 17.8614 11.7347C17.8614 15.2745 15.712 16.0539 13.6662 16.282C13.9957 16.568 14.2894 17.1289 14.2894 17.9887C14.2894 19.2218 14.2787 20.2143 14.2787 20.5178C14.2787 20.7631 14.4441 21.0505 14.9098 20.96C18.5583 19.74 21.1875 16.2866 21.1875 12.2161C21.1875 7.12608 17.074 3 12.0001 3ZM6.25355 16.1285C6.23331 16.1743 6.1615 16.188 6.09608 16.1566C6.02944 16.1265 5.99201 16.0641 6.01362 16.0182C6.0334 15.971 6.10536 15.9579 6.17185 15.9895C6.23864 16.0195 6.27667 16.0826 6.25355 16.1285ZM6.70547 16.533C6.66166 16.5737 6.576 16.5548 6.51788 16.4904C6.45778 16.4262 6.44653 16.3402 6.49095 16.2989C6.53614 16.2581 6.61921 16.2772 6.67946 16.3415C6.73955 16.4065 6.75127 16.4918 6.70547 16.533ZM7.01551 17.0505C6.95922 17.0898 6.86717 17.053 6.81027 16.971C6.75398 16.8891 6.75398 16.7908 6.81149 16.7514C6.86854 16.712 6.95922 16.7474 7.01688 16.8288C7.07302 16.9121 7.07302 17.0104 7.01551 17.0505ZM7.53985 17.6499C7.48949 17.7056 7.38223 17.6907 7.30373 17.6147C7.2234 17.5403 7.20103 17.4349 7.25154 17.3792C7.30251 17.3233 7.41038 17.339 7.48949 17.4144C7.56922 17.4886 7.59356 17.5948 7.53985 17.6499ZM8.21751 17.8523C8.1953 17.9245 8.092 17.9573 7.98793 17.9266C7.88402 17.895 7.81601 17.8105 7.83701 17.7375C7.85861 17.6649 7.96237 17.6307 8.0672 17.6635C8.17096 17.6949 8.23912 17.7789 8.21751 17.8523ZM8.98872 17.9381C8.99131 18.0141 8.90306 18.0771 8.79383 18.0785C8.68398 18.0809 8.59513 18.0194 8.59391 17.9447C8.59391 17.8679 8.68018 17.8055 8.79002 17.8036C8.89926 17.8015 8.98872 17.8626 8.98872 17.9381ZM9.74635 17.909C9.75943 17.9831 9.68351 18.0593 9.57503 18.0796C9.46838 18.0991 9.36964 18.0533 9.3561 17.9798C9.34286 17.9038 9.42015 17.8276 9.52665 17.8079C9.63528 17.789 9.7325 17.8336 9.74635 17.909Z'
-									fill='#757575'
-								/>
-							</g>
-							<defs>
-								<clipPath id='clip0_5253_21296'>
-									<rect width='18.375' height='18' fill='white' transform='translate(2.8125 3)' />
-								</clipPath>
-							</defs>
-						</svg>
-
-					</a>
-					<a href='#' style='color: unset;text-decoration: none;margin-left: 12px;float: left;'>
-						<svg
-							style='display: block;'
-							width='24'
-							height='24'
-							viewBox='0 0 24 24'
-							fill='none'
-							xmlns='http://www.w3.org/2000/svg'
-						>
-							<g clip-path='url(#clip0_14293_231662)'>
-								<path
-									d='M22.7798 6.59882C22.521 5.6307 21.7587 4.86835 20.7906 4.60962C19.036 4.1394 12 4.1394 12 4.1394C12 4.1394 4.96406 4.1394 3.20939 4.60962C2.24134 4.86835 1.47889 5.6307 1.22016 6.59882C0.75 8.35346 0.75 12.0144 0.75 12.0144C0.75 12.0144 0.75 15.6753 1.22016 17.4301C1.47889 18.3981 2.24134 19.1605 3.20939 19.4193C4.96406 19.8894 12 19.8894 12 19.8894C12 19.8894 19.036 19.8894 20.7906 19.4193C21.7587 19.1605 22.521 18.3981 22.7798 17.4301C23.25 15.6753 23.25 12.0144 23.25 12.0144C23.25 12.0144 23.25 8.35346 22.7798 6.59882Z'
-									fill='#757575'
-								/>
-								<path d='M9.69885 15.3383L15.5795 12.0146L9.69885 8.69055V15.3383Z' fill='#FEFEFE' />
-							</g>
-							<defs>
-								<clipPath id='clip0_14293_231662'>
-									<rect width='22.5' height='15.75' fill='white' transform='translate(0.75 4.13934)' />
-								</clipPath>
-							</defs>
-						</svg>
-
-					</a>
-				</div>
+			<div class="info-row">
+				<img alt="guide"
+					src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-donate.png?alt=media&token=7974713a-3c25-4fc7-a49b-ccab1847c03d" />
+				<p>{{{ moreInfoSupportLabel }}}</p>
 			</div>
 		</div>
-	</body>
+
+		<div class='footer-container'>
+			<h4 class="copyright">© 2025 Organized app</h4>
+
+			<div class='footer-icons'>
+				<a target="_blank" rel="noreferrer" href="https://guide.organized-app.com/">
+					<img alt="guide"
+						src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-guide.png?alt=media&token=42a1208f-b6a8-4d74-b8ef-f3f899d6383e" /></a>
+				<a target="_blank" rel="noreferrer" href="https://crowdin.com/project/organized">
+					<img alt="translate"
+						src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-language.png?alt=media&token=afe91537-dc9e-45ee-8323-59494d16a413" /></a>
+				<a target="_blank" rel="noreferrer" href="https://about.organized-app.com">
+					<img alt="about"
+						src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-about-site.png?alt=media&token=41ca70aa-174a-43fb-a6ca-00c2089d17d6" /></a>
+				<a target="_blank" rel="noreferrer" href="https://github.com/sws2apps/organized-app">
+					<img alt="github"
+						src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-github.png?alt=media&token=70589052-3b6b-4671-8d80-e1e5988c26ab" /></a>
+				<a target="_blank" rel="noreferrer" href="https://www.youtube.com/@organized-app">
+					<img alt="youtube"
+						src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-youtube.png?alt=media&token=34cf609c-555c-48f3-bfa0-dd4b0def8730" /></a>
+			</div>
+		</div>
+	</div> --}}
+</body>
+
 </html>

@@ -1,6 +1,4 @@
 import express, { NextFunction, Request, Response } from 'express';
-import path from 'path';
-import fs from 'fs';
 import { getSchedules } from '../controllers/public_controller.js';
 import { i18n } from '../config/i18n_config.js';
 import { MailClient } from '../config/mail_config.js';
@@ -14,22 +12,19 @@ router.get('/send-email', async (req: Request, res: Response, next: NextFunction
 	try {
 		const t = i18n('E');
 
-		const assetsPath = path.join(path.resolve(), '/src/v3/views/assets/logo.png');
-
 		const options = {
 			to: 'rhahao.vj@gmail.com',
-			subject: t('welcomeCPESubject'),
+			subject: t('tr_welcomeTitle'),
 			template: 'welcome',
 			context: {
-				welcomeCPETemplate: t('welcomeCPETemplate', { name: 'Test name', congregation: 'Test congregation' }),
-				emailFooter: t('emailFooter'),
+				welcomeTitle: t('tr_welcomeTitle'),
+				welcomeDesc: t('tr_welcomeDesc'),
+				watchVideoLabel: t('tr_watchVideoLabel'),
+				moreInfoTitle: t('tr_moreInfoTitle'),
+				moreInfoGuideLabel: t('tr_moreInfoGuideLabel'),
+				moreInfoBlogLabel: t('tr_moreInfoBlogLabel'),
+				moreInfoSupportLabel: t('tr_moreInfoSupportLabel'),
 			},
-			attachments: [
-				{
-					content: fs.readFileSync(assetsPath),
-					cid: 'img:logo', //same cid value as in the html img src
-				},
-			],
 		};
 
 		MailClient.sendEmail(options, 'Welcome message sent to user');
