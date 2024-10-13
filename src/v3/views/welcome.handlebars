@@ -20,7 +20,7 @@
 		h3 {
 			margin: 0;
 			padding: 0;
-			font-weight: 570;
+			font-weight: 550;
 			font-size: 18px;
 		}
 
@@ -42,13 +42,14 @@
 		a {
 			margin: 0;
 			padding: 0;
-			font-weight: 520;
+			font-weight: 550;
 			font-size: 14px;
 			color: #3b4ca3;
 			text-decoration: none;
 		}
 
 		.mail-content {
+			font-family: Roboto, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 			background-color: #fefefe;
 			border: 1px solid #dadada;
 			max-width: 600px;
@@ -76,54 +77,20 @@
 			color: #505050;
 		}
 
-		.video-container {
-			padding: 0 32px;
-			display: flex;
-			flex-direction: column;
-			gap: 12px;
-			align-items: center;
-			justify-content: center;
-		}
-
 		.video-thumbnail {
 			max-height: 215px;
 			height: max-content;
 			width: fit-content;
 		}
 
-		.info-container {
-			padding: 24px 32px;
-			padding-top: 24px;
-			padding-bottom: 32px;
-			display: flex;
-			flex-direction: column;
-			gap: 12px;
-		}
-
-		.info-row {
-			display: flex;
-			align-items: center;
-			gap: 8px;
-		}
-
 		.footer-container {
 			padding: 24px 32px;
 			background-color: #f5f5f5;
 			height: 24px;
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			gap: 24px;
 		}
 
 		.copyright {
 			color: #505050;
-		}
-
-		.footer-icons {
-			display: flex;
-			align-items: center;
-			gap: 12px;
 		}
 	</style>
 </head>
@@ -141,7 +108,7 @@
 							<tr>
 								<td>
 									<img class="logo" alt="logo"
-										src='https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/logo.png?alt=media&token=9a1d658c-6c70-4caf-9cd0-36c328011e4e' />
+										src='https://res.cloudinary.com/dzgxumpdu/image/upload/v1728831816/logo_dya69r.png' />
 								</td>
 								<td style="vertical-align: middle;">
 									<h2 style="margin-left: 8px;">Organized</h2>
@@ -161,78 +128,45 @@
 					<p class="welcome-desc">{{welcomeDesc}}</p>
 				</td>
 			</tr>
+			<tr>
+				<td style="padding: 0 32px; text-align: center;">
+					<a href='https://www.youtube.com/watch?v=2czQB-LEfqg' target="_blank" rel="noreferrer">
+						<img class="video-thumbnail" alt="video"
+							src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/video-01-getting-started.png?alt=media&token=06a78ab0-fc25-4555-8173-71966c002316" /></a>
+				</td>
+			</tr>
+			<tr>
+				<td style="padding: 0 32px; text-align: center;">
+					<a href='https://www.youtube.com/watch?v=2czQB-LEfqg' target="_blank" rel="noreferrer">
+						{{watchVideoLabel}}
+					</a>
+				</td>
+			</tr>
+			<tr>
+				<td style="padding: 24px 32px 12px 32px">
+					<h3>{{moreInfoTitle}}</h3>
+					<ul>
+						<li>
+							<p>{{{ moreInfoGuideLabel }}}</p>
+						</li>
+						<li>
+							<p>{{{ moreInfoBlogLabel }}}</p>
+						</li>
+						<li>
+							<p>{{{ moreInfoSupportLabel }}}</p>
+						</li>
+					</ul>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class='footer-container'>
+						<h4 class="copyright">© {{ copyright }} Organized app</h4>
+					</div>
+				</td>
+			</tr>
 		</table>
 	</div>
-	{{!-- <div class='mail-content'>
-		<div class="header-container">
-			<div class='branding'>
-				<img class="logo" alt="logo"
-					src='https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/logo.png?alt=media&token=9a1d658c-6c70-4caf-9cd0-36c328011e4e' />
-
-				<h2>Organized</h2>
-			</div>
-
-			<div class='welcome-container'>
-				<h2>{{welcomeTitle}}</h2>
-				<p class="welcome-desc">
-					{{welcomeDesc}}
-				</p>
-			</div>
-		</div>
-
-		<div class="video-container">
-			<img class="video-thumbnail" alt="video"
-				src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/video-01-getting-started.png?alt=media&token=06a78ab0-fc25-4555-8173-71966c002316" />
-
-			<a href='https://www.youtube.com/watch?v=2czQB-LEfqg&t=14s' target="_blank" rel="noreferrer">
-				{{watchVideoLabel}}
-			</a>
-		</div>
-
-		<div class="info-container">
-			<h3>{{moreInfoTitle}}</h3>
-
-			<div class="info-row">
-				<img alt="guide"
-					src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-question.png?alt=media&token=4978e941-f76d-4bb2-8d2f-69ec428a2894" />
-				<p>{{{ moreInfoGuideLabel }}}</p>
-			</div>
-
-			<div class="info-row">
-				<img alt="guide"
-					src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-blog.png?alt=media&token=4ba06832-3f92-4e29-9079-b1ae17a6cdec" />
-				<p>{{{ moreInfoBlogLabel }}}</p>
-			</div>
-
-			<div class="info-row">
-				<img alt="guide"
-					src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-donate.png?alt=media&token=7974713a-3c25-4fc7-a49b-ccab1847c03d" />
-				<p>{{{ moreInfoSupportLabel }}}</p>
-			</div>
-		</div>
-
-		<div class='footer-container'>
-			<h4 class="copyright">© 2025 Organized app</h4>
-
-			<div class='footer-icons'>
-				<a target="_blank" rel="noreferrer" href="https://guide.organized-app.com/">
-					<img alt="guide"
-						src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-guide.png?alt=media&token=42a1208f-b6a8-4d74-b8ef-f3f899d6383e" /></a>
-				<a target="_blank" rel="noreferrer" href="https://crowdin.com/project/organized">
-					<img alt="translate"
-						src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-language.png?alt=media&token=afe91537-dc9e-45ee-8323-59494d16a413" /></a>
-				<a target="_blank" rel="noreferrer" href="https://about.organized-app.com">
-					<img alt="about"
-						src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-about-site.png?alt=media&token=41ca70aa-174a-43fb-a6ca-00c2089d17d6" /></a>
-				<a target="_blank" rel="noreferrer" href="https://github.com/sws2apps/organized-app">
-					<img alt="github"
-						src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-github.png?alt=media&token=70589052-3b6b-4671-8d80-e1e5988c26ab" /></a>
-				<a target="_blank" rel="noreferrer" href="https://www.youtube.com/@organized-app">
-					<img alt="youtube"
-						src="https://firebasestorage.googleapis.com/v0/b/organized-emails.appspot.com/o/icon-youtube.png?alt=media&token=34cf609c-555c-48f3-bfa0-dd4b0def8730" /></a>
-			</div>
-		</div>
-	</div> --}}
 </body>
 
 </html>

@@ -28,7 +28,10 @@ const transportOptions: SMTPTransport.Options = {
 	},
 };
 
-const transporter = nodemailer.createTransport(transportOptions, { from: MAIL_SENDER_NAME });
+const transporter = nodemailer.createTransport(transportOptions, {
+	from: MAIL_SENDER_NAME,
+	replyTo: 'support@organized-app.com',
+});
 
 transporter.use('compile', hbs(handlebarsOptions));
 transporter.use('compile', inlineCss());

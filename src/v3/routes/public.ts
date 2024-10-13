@@ -24,6 +24,7 @@ router.get('/send-email', async (req: Request, res: Response, next: NextFunction
 				moreInfoGuideLabel: t('tr_moreInfoGuideLabel'),
 				moreInfoBlogLabel: t('tr_moreInfoBlogLabel'),
 				moreInfoSupportLabel: t('tr_moreInfoSupportLabel'),
+				copyright: new Date().getFullYear,
 			},
 		};
 

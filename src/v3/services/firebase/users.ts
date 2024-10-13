@@ -11,9 +11,10 @@ import {
 } from '../../definition/user.js';
 import { getFileFromStorage, uploadFileToStorage } from './storage_utils.js';
 import { User } from '../../classes/User.js';
-import { sendPasswordlessLinkSignIn } from '../mail/sendEmail.js';
 import { UsersList } from '../../classes/Users.js';
 import { encryptData } from '../encryption/encryption.js';
+import { i18n } from '../../config/i18n_config.js';
+import { MailClient } from '../../config/mail_config.js';
 
 export const getUserAuthDetails = async (auth_uid: string) => {
 	const userRecord = await getAuth().getUser(auth_uid);
@@ -173,7 +174,7 @@ export const createUser = async (params: UserNewParams) => {
 export const createPasswordLessLink = async (params: RequestPasswordLessLinkParams) => {
 	const { email, language, origin } = params;
 
-	const isDev = process.env.NODE_ENV === 'development';
+	const MAIL_ENABLED = process.env.MAIL_ENABLED === 'true';
 
 	const localUser = UsersList.findByEmail(email);
 
@@ -190,9 +191,26 @@ export const createPasswordLessLink = async (params: RequestPasswordLessLinkPara
 
 	const link = `${origin}/#/?code=${token}`;
 
-	if (isDev) return link;
+	if (!MAIL_ENABLED) return link;
 
-	sendPasswordlessLinkSignIn(email, link, language);
+	const t = i18n(language);
+
+	const options = {
+		to: email,
+		subject: t('tr_login'),
+		template: 'login',
+		context: {
+			loginTitle: t('tr_welcomeTitle'),
+			loginDesc: t('tr_welcomeDesc'),
+			link,
+			loginButton: t('tr_loginBtn'),
+			loginAltText: t('tr_loginAltText'),
+			loginIgnoreText: t('tr_loginIgnoreText'),
+			copyright: new Date().getFullYear(),
+		},
+	};
+
+	MailClient.sendEmail(options, 'Passwordless link sent to user');
 };
 
 export const createPocketUser = async ({

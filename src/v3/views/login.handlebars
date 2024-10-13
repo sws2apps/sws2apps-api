@@ -1,163 +1,165 @@
-<!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset='UTF-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
   <title>Document</title>
+
+  <style>
+    body {
+      color: black;
+    }
+
+    h2 {
+      margin: 0;
+      padding: 0;
+      font-weight: 550;
+      font-size: 20px;
+    }
+
+    h3 {
+      margin: 0;
+      padding: 0;
+      font-weight: 550;
+      font-size: 18px;
+    }
+
+    h4,
+    .h4 {
+      margin: 0;
+      padding: 0;
+      font-weight: 550;
+      font-size: 16px;
+    }
+
+    p {
+      margin: 0;
+      padding: 0;
+      font-weight: 420;
+      font-size: 16px;
+    }
+
+    a {
+      margin: 0;
+      padding: 0;
+      font-weight: 550;
+      font-size: 14px;
+      color: #3b4ca3;
+      text-decoration: none;
+    }
+
+    .mail-content {
+      font-family: Roboto, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #fefefe;
+      border: 1px solid #dadada;
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+      border-radius: 12px;
+      color: inherit;
+    }
+
+    .branding {
+      padding: 24px 32px 24px 32px;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+    }
+
+    .login-title {
+      padding: 0px 32px;
+    }
+
+    .login-button {
+      text-align: center;
+      background-color: #5065d0;
+      height: 44px;
+      line-height: 44px;
+      color: #fefefe !important;
+      font-size: 15px;
+      text-transform: uppercase;
+      font-weight: 500;
+      border-radius: 8px;
+    }
+
+    .footer-container {
+      padding: 24px 32px;
+      background-color: #f5f5f5;
+      height: 24px;
+    }
+
+    .copyright {
+      color: #505050;
+    }
+  </style>
 </head>
 
-<body style="font-family:'Inter';background-color: #dddddd;">
-  <div id="content"
-    style="overflow: hidden;background-color: #fff;max-width: 600px;margin: 0 auto;border-radius: 16px;padding-top: 24px;">
-    <div class="header" style="padding-left: 32px;padding-right: 32px;">
-      <svg width="40" height="40" viewBox="0 0 40 40" style="display: block;float: left;" fill="none"
-        xmlns="http://www.w3.org/2000/svg">
-        <g clip-path="url(#clip0_5253_21275)">
-          <rect x="5.60532" y="5.57851" width="28.7894" height="28.843" fill="#FEFEFE" />
-          <path fill-rule="evenodd" clip-rule="evenodd"
-            d="M33.5182 13.456L20.2325 13.456C16.5167 13.456 13.5045 10.4438 13.5045 6.728C13.5045 3.01223 16.5167 -8.70228e-06 20.2325 -8.34465e-06L29.6332 -7.51019e-06V-1.09258C31.5127 -1.09258 33.1173 -0.682939 34.4627 -7.15256e-06L40 -6.67572e-06L40 8.74678C40.0117 8.9396 40.0176 9.12992 40.0176 9.31713V20.3322C40.0176 16.6587 37.1415 13.657 33.5182 13.456Z"
-            fill="url(#paint0_linear_5253_21275)" />
-          <path fill-rule="evenodd" clip-rule="evenodd"
-            d="M12.7693 -0.826111H-0.833359V10.626H-0.00693822L-0.00693858 19.7378C-0.00693876 23.4768 3.02413 26.5079 6.76315 26.5079C10.5022 26.5079 13.5332 23.4768 13.5332 19.7378V6.81303C13.5502 3.02399 16.6271 -0.0423723 20.4201 -0.0423725L12.7693 -0.0423721V-0.826111Z"
-            fill="url(#paint1_linear_5253_21275)" />
-          <path fill-rule="evenodd" clip-rule="evenodd"
-            d="M6.49382 26.457L19.74 26.457C23.4797 26.457 26.5114 29.4887 26.5114 33.2285C26.5114 36.9683 23.4797 40 19.7399 40L-1.52356e-05 40L-1.35206e-05 30.0473C-0.00462847 29.9292 -0.00692743 29.8122 -0.00692742 29.6964L-0.00692749 19.5823C-0.0061052 23.2556 2.87044 26.2568 6.49382 26.457Z"
-            fill="url(#paint2_linear_5253_21275)" />
-          <path fill-rule="evenodd" clip-rule="evenodd"
-            d="M30.9301 40L40 40V33.9733C40.5259 32.753 40.8334 31.3362 40.8334 29.7125H40V20.1944C40 16.4574 36.9706 13.4279 33.2335 13.4279C29.4965 13.4279 26.467 16.4574 26.467 20.1944L26.467 29.7125H26.4669V33.1212C26.4669 36.9248 23.3835 40.0081 19.58 40.0081H30.5464C30.673 40.0081 30.8009 40.0054 30.9301 40Z"
-            fill="url(#paint3_linear_5253_21275)" />
-        </g>
-        <defs>
-          <linearGradient id="paint0_linear_5253_21275" x1="15.4574" y1="4.97717" x2="33.1713" y2="20.1906"
-            gradientUnits="userSpaceOnUse">
-            <stop stop-color="#EEAF35" />
-            <stop offset="1" stop-color="#FBC93C" />
-          </linearGradient>
-          <linearGradient id="paint1_linear_5253_21275" x1="13.0556" y1="1.01875" x2="7.08012" y2="26.8568"
-            gradientUnits="userSpaceOnUse">
-            <stop stop-color="#AC6CBB" />
-            <stop offset="1" stop-color="#7D5FBD" />
-          </linearGradient>
-          <linearGradient id="paint2_linear_5253_21275" x1="-0.833319" y1="18.9038" x2="22.0099" y2="41.671"
-            gradientUnits="userSpaceOnUse">
-            <stop stop-color="#0ABBE5" />
-            <stop offset="1" stop-color="#3B98CC" />
-          </linearGradient>
-          <linearGradient id="paint3_linear_5253_21275" x1="33.8888" y1="13.0069" x2="25.6092" y2="40.7032"
-            gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5C9B1C" />
-            <stop offset="1" stop-color="#50B600" />
-          </linearGradient>
-          <clipPath id="clip0_5253_21275">
-            <rect width="40" height="40" rx="11.25" fill="white" />
-          </clipPath>
-        </defs>
-      </svg>
-      <h2 style="font-weight: 550;font-size: 20px;margin: 8px 12px;display: inline-block;">Organized</h2>
-    </div>
-    <div class="content" style="padding: 32px 0 24px 0;padding-left: 32px;padding-right: 32px;">
-      <h2 style="font-weight: 550;font-size: 20px;display: inline-block;margin: 0 0 8px 0;">{{ loginTitle }}</h2>
-    </div>
-    <div class="card-container" style="margin-top: 16px;margin-bottom: 40px;padding-left: 32px;padding-right: 32px;">
-      <div class="card" style="border-radius: 16px;background-color: #f2f5ff;padding: 24px;">
-        <p style="margin: 0;margin-bottom: 16px;font-size: 16px;font-weight: 420;line-height: 20px;">
-          {{ loginCardText }}
-        </p>
-        <a href="#"
-          style="color: white;text-decoration: none;text-transform: uppercase;padding: 13px 16px;background-color: #5065d0;font-size: 15px;line-height: 18px;letter-spacing: 0.02em;display: block;text-align: center;border-radius: 8px;">{{
-          loginButton }}</a>
-      </div>
-    </div>
-    <div class="text" style="margin-top: 24px;margin-bottom: 32px;padding-left: 32px;padding-right: 32px;">
-      <p class="info" style="color: #505050;">
-        {{ loginInfo }}
-      </p>
-      <p>
-        <a href="#" style="color: #3b4ca3;text-decoration: none;word-break: break-all;font-weight: 520;">
-          https://cpe-web.sws2apps.com/#/?code=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovL2lkZW50aXR5dG9vbGtpdC5nb29nbGVhcGlzLmNvbS9nb29nbGUuaWRlbnRpdHkuaWRlbnRpdHl0b29sa2l0LnYxLklkZW50aXR5VG9vbGtpdCIsImlhdCI6MTY5Nzc5Mzg2NCwiZXhwIjoxNjk3Nzk3NDY0LCJpc3MiOiJmaXJlYmFzZS1hZG1pbnNkay1zanM3aUBjcGUtc3dzLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwic3ViIjoiZmlyZWJhc2UtYWRtaW5zZGstc2pzN2lAY3BlLXN3cy5pYW0uZ3NlcnZpY2VhY2NvdW50LmNvbSIsInVpZCI6IkVDMzdRU0VSSGxldXdoM3puOElxRWswcFhtVjIifQ.Kfe6ZpMQTsrINxufLqMJ1-p0kixIz_w5B1u7ZcvQZInYAbsTKtbQZmhriEoSR
-        </a>
-      </p>
-      <p class="ignore" style="margin-top: 24px;">{{ loginRequestInfo }}</p>
-    </div>
-    <div class="footer"
-      style="padding: 24px 32px;background-color: #f5f5f5;height: 28px;padding-left: 32px;padding-right: 32px;">
-      <p style="margin-top: 5px;font-weight: 500;font-size: 16px;float: left;color: #505050;">© 2025 Organized app</p>
-
-      <div class="icons" style="margin-left: auto;float: right;margin-top: 2px;">
-        <a href="#" style="color: unset;text-decoration: none;margin-left: 12px;float: left;">
-          <svg style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <mask id="mask0_12327_260007" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24"
-              height="24">
-              <rect width="24" height="24" fill="#D9D9D9" />
-            </mask>
-            <g mask="url(#mask0_12327_260007)">
-              <path
-                d="M13.9423 9.74621V8.43071C14.4859 8.17821 15.0548 7.9888 15.649 7.86246C16.2433 7.73613 16.8603 7.67296 17.5 7.67296C17.9013 7.67296 18.2911 7.70155 18.6693 7.75871C19.0474 7.81571 19.4269 7.89105 19.8078 7.98471V9.23846C19.4334 9.10763 19.0613 9.01271 18.6913 8.95371C18.3214 8.89471 17.9243 8.86521 17.5 8.86521C16.8603 8.86521 16.2408 8.94121 15.6413 9.09321C15.0419 9.24521 14.4756 9.46288 13.9423 9.74621ZM13.9423 15.227V13.8922C14.4731 13.6397 15.0404 13.4503 15.6443 13.324C16.2481 13.1978 16.8667 13.1347 17.5 13.1347C17.9013 13.1347 18.2911 13.1632 18.6693 13.2202C19.0474 13.2772 19.4269 13.3525 19.8078 13.4462V14.7C19.4334 14.5691 19.0613 14.4742 18.6913 14.4152C18.3214 14.3564 17.9243 14.327 17.5 14.327C16.8603 14.327 16.2408 14.4035 15.6413 14.5567C15.0419 14.7099 14.4756 14.9333 13.9423 15.227ZM13.9423 12.4962V11.1615C14.4859 10.909 15.0548 10.7195 15.649 10.5932C16.2433 10.4669 16.8603 10.4037 17.5 10.4037C17.9013 10.4037 18.2911 10.4323 18.6693 10.4895C19.0474 10.5465 19.4269 10.6218 19.8078 10.7155V11.9692C19.4334 11.8384 19.0613 11.7435 18.6913 11.6845C18.3214 11.6256 17.9243 11.5962 17.5 11.5962C16.8603 11.5962 16.2408 11.6754 15.6413 11.8337C15.0419 11.992 14.4756 12.2129 13.9423 12.4962ZM6.5 16.0192C7.32817 16.0192 8.13392 16.1131 8.91725 16.301C9.70058 16.4888 10.4782 16.7834 11.25 17.1847V7.35371C10.5475 6.89605 9.78725 6.5528 8.96925 6.32396C8.15125 6.09513 7.32817 5.98071 6.5 5.98071C5.9 5.98071 5.33942 6.0278 4.81825 6.12196C4.29708 6.2163 3.7615 6.37046 3.2115 6.58446C3.13467 6.61013 3.08017 6.64705 3.048 6.69521C3.016 6.74321 3 6.79605 3 6.85371V16.3115C3 16.4013 3.03208 16.467 3.09625 16.5087C3.16025 16.5504 3.23075 16.5551 3.30775 16.523C3.78208 16.3615 4.28267 16.2371 4.8095 16.15C5.3365 16.0628 5.9 16.0192 6.5 16.0192ZM12.75 17.1847C13.5218 16.7834 14.2994 16.4888 15.0828 16.301C15.8661 16.1131 16.6718 16.0192 17.5 16.0192C18.1 16.0192 18.6635 16.0628 19.1905 16.15C19.7173 16.2371 20.2179 16.3615 20.6923 16.523C20.7693 16.5551 20.8398 16.5504 20.9038 16.5087C20.9679 16.467 21 16.4013 21 16.3115V6.85371C21 6.79605 20.984 6.7448 20.952 6.69996C20.9198 6.65513 20.8653 6.61663 20.7885 6.58446C20.2385 6.37046 19.7029 6.2163 19.1818 6.12196C18.6606 6.0278 18.1 5.98071 17.5 5.98071C16.6718 5.98071 15.8487 6.09513 15.0307 6.32396C14.2127 6.5528 13.4525 6.89605 12.75 7.35371V17.1847ZM12 19.3845C11.1937 18.7896 10.3238 18.33 9.3905 18.0057C8.45717 17.6814 7.49367 17.5192 6.5 17.5192C5.88983 17.5192 5.2905 17.5868 4.702 17.722C4.1135 17.8573 3.54617 18.0564 3 18.3192C2.64367 18.4832 2.30458 18.4572 1.98275 18.2412C1.66092 18.0252 1.5 17.7191 1.5 17.323V6.46546C1.5 6.24996 1.5555 6.04771 1.6665 5.85871C1.77733 5.66955 1.93725 5.5333 2.14625 5.44996C2.82308 5.12046 3.5285 4.87655 4.2625 4.71821C4.9965 4.55988 5.74233 4.48071 6.5 4.48071C7.473 4.48071 8.42367 4.61371 9.352 4.87971C10.2802 5.14588 11.1628 5.53855 12 6.05771C12.8372 5.53855 13.7198 5.14588 14.648 4.87971C15.5763 4.61371 16.527 4.48071 17.5 4.48071C18.2577 4.48071 19.0035 4.55988 19.7375 4.71821C20.4715 4.87655 21.1769 5.12046 21.8538 5.44996C22.0627 5.5333 22.2227 5.66955 22.3335 5.85871C22.4445 6.04771 22.5 6.24996 22.5 6.46546V17.323C22.5 17.7191 22.3327 18.022 21.998 18.2317C21.6633 18.4412 21.3114 18.464 20.9423 18.3C20.4026 18.0435 19.8433 17.8492 19.2645 17.7172C18.6857 17.5852 18.0975 17.5192 17.5 17.5192C16.5063 17.5192 15.5428 17.6814 14.6095 18.0057C13.6762 18.33 12.8063 18.7896 12 19.3845Z"
-                fill="#757575" />
-            </g>
-          </svg>
-
-        </a>
-        <a href="#" style="color: unset;text-decoration: none;margin-left: 12px;float: left;">
-          <svg style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <mask id="mask0_14293_231671" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24"
-              height="24">
-              <rect width="24" height="24" fill="#D9D9D9" />
-            </mask>
-            <g mask="url(#mask0_14293_231671)">
-              <path
-                d="M11.9193 21.2307L16.1231 10.1539H18.05L22.2538 21.2307H20.3269L19.3538 18.4115H14.8693L13.8654 21.2307H11.9193ZM15.4308 16.7961H18.7423L17.1269 12.2308H17.0462L15.4308 16.7961ZM4.63468 18.4615L3.33085 17.1577L7.9962 12.4923C7.41415 11.85 6.90486 11.1827 6.46833 10.4904C6.0318 9.79811 5.65135 9.07055 5.327 8.30774H7.2539C7.53467 8.86285 7.83146 9.36125 8.14428 9.80291C8.4571 10.2446 8.83594 10.7128 9.2808 11.2077C9.96285 10.4654 10.5279 9.70708 10.976 8.93271C11.4241 8.15836 11.7987 7.33465 12.1 6.46159H1.86548V4.61544H8.32698V2.76929H10.1731V4.61544H16.6346V6.46159H13.9462C13.6218 7.54875 13.1837 8.6074 12.6318 9.63754C12.0798 10.6677 11.3975 11.6359 10.5847 12.5423L12.7923 14.8L12.1 16.6961L9.25005 13.8462L4.63468 18.4615Z"
-                fill="#757575" />
-            </g>
-          </svg>
-
-        </a>
-        <a href="#" style="color: unset;text-decoration: none;margin-left: 12px;float: left;">
-          <svg style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M12.0016 21C10.7568 21 9.58677 20.7638 8.49148 20.2914C7.39618 19.8189 6.44342 19.1778 5.63322 18.368C4.82299 17.5581 4.18157 16.6058 3.70894 15.511C3.23631 14.4162 3 13.2464 3 12.0016C3 10.7568 3.23621 9.58677 3.70863 8.49148C4.18106 7.39618 4.82219 6.44343 5.63203 5.63322C6.44189 4.823 7.39423 4.18157 8.48904 3.70894C9.58384 3.23631 10.7536 3 11.9984 3C13.2432 3 14.4132 3.23621 15.5085 3.70863C16.6038 4.18106 17.5566 4.82219 18.3668 5.63203C19.177 6.44189 19.8184 7.39423 20.2911 8.48904C20.7637 9.58384 21 10.7536 21 11.9984C21 13.2432 20.7638 14.4132 20.2914 15.5085C19.8189 16.6038 19.1778 17.5566 18.368 18.3668C17.5581 19.177 16.6058 19.8184 15.511 20.2911C14.4162 20.7637 13.2464 21 12.0016 21ZM11.0526 19.5316V17.6842C10.5316 17.6842 10.0855 17.4987 9.71447 17.1276C9.34341 16.7566 9.15789 16.3105 9.15789 15.7895V14.8421L4.61051 10.2947C4.56314 10.5789 4.51972 10.8632 4.48024 11.1474C4.44077 11.4316 4.42103 11.7158 4.42103 12C4.42103 13.9105 5.04867 15.5842 6.30393 17.0211C7.5592 18.4579 9.1421 19.2948 11.0526 19.5316ZM17.5895 17.1158C17.9053 16.7684 18.1895 16.3934 18.4421 15.9908C18.6948 15.5882 18.904 15.1697 19.0698 14.7355C19.2355 14.3013 19.3619 13.8553 19.4487 13.3974C19.5355 12.9395 19.579 12.4737 19.579 12C19.579 10.448 19.1502 9.0307 18.2927 7.74796C17.4352 6.46524 16.285 5.53967 14.8421 4.97124V5.3684C14.8421 5.88946 14.6566 6.33551 14.2855 6.70657C13.9145 7.07762 13.4684 7.26315 12.9474 7.26315H11.0526V9.15789C11.0526 9.42631 10.9618 9.65131 10.7803 9.83289C10.5987 10.0145 10.3737 10.1053 10.1053 10.1053H8.21052V12H13.8947C14.1632 12 14.3882 12.0908 14.5697 12.2724C14.7513 12.4539 14.8421 12.6789 14.8421 12.9474V15.7895H15.7895C16.2 15.7895 16.5711 15.9119 16.9026 16.1566C17.2342 16.4013 17.4632 16.7211 17.5895 17.1158Z"
-              fill="#757575" />
-          </svg>
-
-        </a>
-        <a href="#" style="color: unset;text-decoration: none;margin-left: 12px;float: left;">
-          <svg style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <g clip-path="url(#clip0_5253_21296)">
-              <path
-                d="M12.0001 3C6.92658 3 2.8125 7.12608 2.8125 12.2161C2.8125 16.288 5.44502 19.7426 9.09553 20.9612C9.55469 21.0465 9.72326 20.7613 9.72326 20.5178C9.72326 20.2981 9.71474 19.5721 9.71079 18.802C7.1548 19.3595 6.61545 17.7146 6.61545 17.7146C6.19752 16.6494 5.59534 16.3661 5.59534 16.3661C4.76175 15.7941 5.65817 15.8059 5.65817 15.8059C6.58076 15.8709 7.06655 16.7556 7.06655 16.7556C7.88599 18.1645 9.21587 17.7572 9.74015 17.5217C9.82261 16.9261 10.0607 16.5195 10.3235 16.2894C8.28278 16.0563 6.13757 15.2661 6.13757 11.7347C6.13757 10.7285 6.49648 9.90641 7.0842 9.261C6.98881 9.02888 6.67433 8.09152 7.17321 6.82207C7.17321 6.82207 7.94472 6.57438 9.70044 7.76676C10.4333 7.56256 11.2193 7.46015 12.0001 7.45664C12.7809 7.46015 13.5674 7.56256 14.3017 7.76676C16.0553 6.57438 16.8257 6.82207 16.8257 6.82207C17.3258 8.09152 17.0112 9.02888 16.9158 9.261C17.5049 9.90641 17.8614 10.7285 17.8614 11.7347C17.8614 15.2745 15.712 16.0539 13.6662 16.282C13.9957 16.568 14.2894 17.1289 14.2894 17.9887C14.2894 19.2218 14.2787 20.2143 14.2787 20.5178C14.2787 20.7631 14.4441 21.0505 14.9098 20.96C18.5583 19.74 21.1875 16.2866 21.1875 12.2161C21.1875 7.12608 17.074 3 12.0001 3ZM6.25355 16.1285C6.23331 16.1743 6.1615 16.188 6.09608 16.1566C6.02944 16.1265 5.99201 16.0641 6.01362 16.0182C6.0334 15.971 6.10536 15.9579 6.17185 15.9895C6.23864 16.0195 6.27667 16.0826 6.25355 16.1285ZM6.70547 16.533C6.66166 16.5737 6.576 16.5548 6.51788 16.4904C6.45778 16.4262 6.44653 16.3402 6.49095 16.2989C6.53614 16.2581 6.61921 16.2772 6.67946 16.3415C6.73955 16.4065 6.75127 16.4918 6.70547 16.533ZM7.01551 17.0505C6.95922 17.0898 6.86717 17.053 6.81027 16.971C6.75398 16.8891 6.75398 16.7908 6.81149 16.7514C6.86854 16.712 6.95922 16.7474 7.01688 16.8288C7.07302 16.9121 7.07302 17.0104 7.01551 17.0505ZM7.53985 17.6499C7.48949 17.7056 7.38223 17.6907 7.30373 17.6147C7.2234 17.5403 7.20103 17.4349 7.25154 17.3792C7.30251 17.3233 7.41038 17.339 7.48949 17.4144C7.56922 17.4886 7.59356 17.5948 7.53985 17.6499ZM8.21751 17.8523C8.1953 17.9245 8.092 17.9573 7.98793 17.9266C7.88402 17.895 7.81601 17.8105 7.83701 17.7375C7.85861 17.6649 7.96237 17.6307 8.0672 17.6635C8.17096 17.6949 8.23912 17.7789 8.21751 17.8523ZM8.98872 17.9381C8.99131 18.0141 8.90306 18.0771 8.79383 18.0785C8.68398 18.0809 8.59513 18.0194 8.59391 17.9447C8.59391 17.8679 8.68018 17.8055 8.79002 17.8036C8.89926 17.8015 8.98872 17.8626 8.98872 17.9381ZM9.74635 17.909C9.75943 17.9831 9.68351 18.0593 9.57503 18.0796C9.46838 18.0991 9.36964 18.0533 9.3561 17.9798C9.34286 17.9038 9.42015 17.8276 9.52665 17.8079C9.63528 17.789 9.7325 17.8336 9.74635 17.909Z"
-                fill="#757575" />
-            </g>
-            <defs>
-              <clipPath id="clip0_5253_21296">
-                <rect width="18.375" height="18" fill="white" transform="translate(2.8125 3)" />
-              </clipPath>
-            </defs>
-          </svg>
-
-        </a>
-        <a href="#" style="color: unset;text-decoration: none;margin-left: 12px;float: left;">
-          <svg style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <g clip-path="url(#clip0_14293_231662)">
-              <path
-                d="M22.7798 6.59882C22.521 5.6307 21.7587 4.86835 20.7906 4.60962C19.036 4.1394 12 4.1394 12 4.1394C12 4.1394 4.96406 4.1394 3.20939 4.60962C2.24134 4.86835 1.47889 5.6307 1.22016 6.59882C0.75 8.35346 0.75 12.0144 0.75 12.0144C0.75 12.0144 0.75 15.6753 1.22016 17.4301C1.47889 18.3981 2.24134 19.1605 3.20939 19.4193C4.96406 19.8894 12 19.8894 12 19.8894C12 19.8894 19.036 19.8894 20.7906 19.4193C21.7587 19.1605 22.521 18.3981 22.7798 17.4301C23.25 15.6753 23.25 12.0144 23.25 12.0144C23.25 12.0144 23.25 8.35346 22.7798 6.59882Z"
-                fill="#757575" />
-              <path d="M9.69885 15.3383L15.5795 12.0146L9.69885 8.69055V15.3383Z" fill="#FEFEFE" />
-            </g>
-            <defs>
-              <clipPath id="clip0_14293_231662">
-                <rect width="22.5" height="15.75" fill="white" transform="translate(0.75 4.13934)" />
-              </clipPath>
-            </defs>
-          </svg>
-
-        </a>
-      </div>
-    </div>
+<body>
+  <div class='mail-content'>
+    <table style="width:100%">
+      <tr>
+        <th style="width: 100%" />
+      </tr>
+      <tr>
+        <td>
+          <div class="branding">
+            <table>
+              <tr>
+                <td>
+                  <img class="logo" alt="logo"
+                    src='https://res.cloudinary.com/dzgxumpdu/image/upload/v1728831816/logo_dya69r.png' />
+                </td>
+                <td style="vertical-align: middle;">
+                  <h2 style="margin-left: 8px;">Organized</h2>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <h2 class="login-title">{{ loginTitle }}</h2>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 24px 32px">
+          <div style="padding: 24px; background-color: #f2f5ff; border-radius: 12px;">
+            <p style="margin-bottom: 16px;">{{ loginDesc }}</p>
+            <a href={{ link }} target="_blank" rel="noreferrer">
+              <p class="login-button">
+                {{loginButton}}
+              </p>
+            </a>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 0px 32px 16px 32px">
+          <p style="font-weight: 400; font-size: 14px; color: #505050;">{{ loginAltText }}</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 0px 32px 24px 32px">
+          <a href={{ link }} target="_blank" rel="noreferrer" style="word-break: break-all;">{{ link }}</a>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 0px 32px 24px 32px">
+          <p style="font-weight: 520;">{{ loginIgnoreText }}</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div class='footer-container'>
+            <h4 class="copyright">© {{ copyright }} Organized app</h4>
+          </div>
+        </td>
+      </tr>
+    </table>
   </div>
 </body>
+
 </html>

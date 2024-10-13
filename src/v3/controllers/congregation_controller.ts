@@ -3,12 +3,13 @@ import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { CongregationsList } from '../classes/Congregations.js';
 import { ApiCongregationSearchResponse, CongregationUpdatesType } from '../definition/congregation.js';
-import { sendWelcomeMessage } from '../services/mail/sendEmail.js';
 import { formatError } from '../utils/format_log.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';
 import { StandardRecord } from '../definition/app.js';
+import { i18n } from '../config/i18n_config.js';
+import { MailClient } from '../config/mail_config.js';
 
-const isDev = process.env.NODE_ENV === 'development';
+const MAIL_ENABLED = process.env.MAIL_ENABLED === 'true';
 
 export const getCountries = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -201,8 +202,26 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 		// add user to congregation
 		const userCong = await user.assignCongregation({ congId: congId, role: ['admin'] });
 
-		if (!isDev) {
-			sendWelcomeMessage(user.profile.email!, `${lastname} ${firstname}`, `${cong_name} (${cong_number})`, language);
+		if (MAIL_ENABLED) {
+			const t = i18n(language);
+
+			const options = {
+				to: 'rhahao.vj@gmail.com',
+				subject: t('tr_welcomeTitle'),
+				template: 'welcome',
+				context: {
+					welcomeTitle: t('tr_welcomeTitle'),
+					welcomeDesc: t('tr_welcomeDesc'),
+					watchVideoLabel: t('tr_watchVideoLabel'),
+					moreInfoTitle: t('tr_moreInfoTitle'),
+					moreInfoGuideLabel: t('tr_moreInfoGuideLabel'),
+					moreInfoBlogLabel: t('tr_moreInfoBlogLabel'),
+					moreInfoSupportLabel: t('tr_moreInfoSupportLabel'),
+					copyright: new Date().getFullYear(),
+				},
+			};
+
+			MailClient.sendEmail(options, 'Welcome message sent to user');
 		}
 
 		const finalResult = {
