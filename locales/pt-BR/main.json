@@ -1,7 +1,14 @@
 {
-	"emailFooter": "<p>Obrigado\n<br>Sistema de Agendamento Workbox</p>",
-	"passwordLessSubject": "Link sem senha para entrar no aplicativo CPE",
-	"passwordLessTemplate": "<p>Olá</p>\n<p>Recebemos uma solicitação para entrar no Cpe usando este endereço de e-mail. Se você quiser fazer login com seu {{ email }}, use o link abaixo:</p>\n<p><a href='{{ linkPasswordLess }}'>Entrar</a></p>\n<p>Se você não solicitou esse link, pode ignorar este email.</p>\n<p>Se você estiver tendo problemas para abrir o link acima, use o link a seguir. Certifique-se de que o link não esteja incompleto ao abri-lo:</p>\n<p>{{ linkPasswordLess }}</p>",
-	"welcomeCPESubject": "Bem-vindo ao CPE",
-	"welcomeCPETemplate": "<p>Olá {{ name }},</p>\n<p>Você criou recentemente uma conta sws2apps para ser usada com o <strong>Programa Congregação para Todos (CPE)</strong> . Sua conta agora está pronta para ser usada com a seguinte congregação: <strong>{{ congregation }}.</strong></p>\n<p>Para começar, sugerimos que você faça um tour em nosso <a href='https://sws2apps.com/docs/category/congregation-program-for-everyone'>site de documentação</a> para saber mais sobre todos os recursos do aplicativo CPE.</p>\n<p>É bom tê-lo conosco e damos-lhe as boas-vindas. 🎉🎉🎉</p>"
+	"tr_welcomeTitle": "Welcome to Organized app!",
+	"tr_welcomeDesc": "Thanks for registering! We’re excited for you to explore Organized. Watch this introductory video to start using the app and enhance the organization of your theocratic activities:",
+	"tr_watchVideoLabel": "Watch the video on YouTube",
+	"tr_moreInfoTitle": "More info about the app:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>User guide</a> that provides step-by-step instructions",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Our blog</a> with tips and useful features",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Support the app</a> with a donation to power its growth",
+	"tr_login": "Log in to your Organized account",
+	"tr_loginDesc": "We've received a request for you to log in using your email. Please confirm the login by clicking the button below.",
+	"tr_loginBtn": "Log in to Organized",
+	"tr_loginAltText": "If you can’t use the login button above, please use the following link. Make sure it is not cropped when you are copying it:",
+	"tr_loginIgnoreText": "If you did not request this link, please just ignore this email."
 }
