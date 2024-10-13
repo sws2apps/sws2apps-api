@@ -1,7 +1,14 @@
 {
-	"emailFooter": "<p>Misaotra betsaka\n<br>Ny Ekipa Scheduling Workbox System Team</p>",
-	"passwordLessSubject": "Rohy Hidirana Amin’ny Programa CPE",
-	"passwordLessTemplate": "<p>Salama,</p>\n<p>Naharay fangatahana avy amin’ity adiresy email ity izahay mba hidirana amin’ny Congregation Program for Everyone. Raha maniry hiditra amin’ny kaontinao {{ email }} ianao, dia sokafy ity rohy manaraka ity:</p>\n<p><a href='{{ linkPasswordLess }}'>Hiditra</a></p>\n<p>Aza raharahaina fotsiny ity hafatra ity raha tsy nangataka an’ity rohy ity ianao.</p>\n<p>Raha misy olana ka tsy mandeha ny rohy eo ambony, dia ampiasao indray ity rohy manaraka ity. Ataovy azo antoka tsara hoe tsy misy tapaka ny soratra rehetra amin’ilay rohy:</p>\n<p>{{ linkPasswordLess }}</p>",
-	"welcomeCPESubject": "Tongasoa eto amin’ny CPE",
-	"welcomeCPETemplate": "<p>Salama {{ name }},</p>\n<p>Namorona kaonty sws2apps mba ho ampiasaina amin’ny programa <strong>Congregation Program for Everyone na CPE</strong> ianao. Efa azo ampiasaina izao io kaontinao io, ary ity ny fiangonana nosafidianao: <strong>{{ congregation }}.</strong></p>\n<p>Manasa anao mba hijery ny tranokalanay izahay raha tianao ny hahafantatra bebe kokoa momba ny fampiasana ny programa CPE.</p>\n<p>Faly miarahaba anao tongasoa ho anisan’ny mpampiasa CPE izahay. 🎉🎉🎉</p>"
+	"tr_welcomeTitle": "Welcome to Organized app!",
+	"tr_welcomeDesc": "Thanks for registering! We’re excited for you to explore Organized. Watch this introductory video to start using the app and enhance the organization of your theocratic activities:",
+	"tr_watchVideoLabel": "Watch the video on YouTube",
+	"tr_moreInfoTitle": "More info about the app:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>User guide</a> that provides step-by-step instructions",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Our blog</a> with tips and useful features",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Support the app</a> with a donation to power its growth",
+	"tr_login": "Log in to your Organized account",
+	"tr_loginDesc": "We've received a request for you to log in using your email. Please confirm the login by clicking the button below.",
+	"tr_loginBtn": "Log in to Organized",
+	"tr_loginAltText": "If you can’t use the login button above, please use the following link. Make sure it is not cropped when you are copying it:",
+	"tr_loginIgnoreText": "If you did not request this link, please just ignore this email."
 }
