@@ -395,11 +395,12 @@ export class Congregation {
 		return members;
 	}
 
-	async publishSchedules(sources: string, schedules: string) {
-		await publishCongSchedules(this.id, sources, schedules);
+	async publishSchedules(sources: string, schedules: string, talks: string){
+		await publishCongSchedules(this.id, sources, schedules, talks);
 
 		this.public_schedules.sources = sources;
 		this.public_schedules.schedules = schedules;
+		this.public_schedules.outgoing_talks = talks;
 	}
 
 	copyOutgoingTalkSchedule(talks: OutgoingTalkScheduleType[]) {

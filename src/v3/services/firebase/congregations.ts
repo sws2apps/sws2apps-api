@@ -397,13 +397,17 @@ export const rejectCongAccess = async (congId: string, requestId: string) => {
 	await setCongOutgoingSpeakers(congId, data);
 };
 
-export const publishCongSchedules = async (congId: string, sources?: string, schedules?: string) => {
+export const publishCongSchedules = async (congId: string, sources?: string, schedules?: string, talks?: string) => {
 	if (sources) {
 		await setCongPublicSources(congId, sources);
 	}
 
 	if (schedules) {
 		await setCongPublicSchedules(congId, schedules);
+	}
+
+	if (talks) {
+		await setCongPublicOutgoingTalks(congId, talks);
 	}
 };
 
