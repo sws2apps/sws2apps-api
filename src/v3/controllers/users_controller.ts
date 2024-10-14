@@ -23,7 +23,8 @@ export const validateUser = async (req: Request, res: Response, next: NextFuncti
 
 		const cong = CongregationsList.findById(user.profile.congregation.id)!;
 
-		const masterKeyNeeded = user.profile.congregation.cong_role.includes('admin');
+		const userRole = user.profile.congregation.cong_role;
+		const masterKeyNeeded = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
 
 		const obj = {
 			id: user.id,
@@ -460,7 +461,7 @@ export const retrieveUserBackup = async (req: Request, res: Response, next: Next
 				result.app_settings.cong_settings.cong_master_key = undefined;
 			}
 
-			if (scheduleEditor) {
+			if (personViewer) {
 				result.persons = cong.persons;
 			}
 

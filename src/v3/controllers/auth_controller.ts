@@ -9,6 +9,7 @@ import { CongregationsList } from '../classes/Congregations.js';
 import { formatError } from '../utils/format_log.js';
 import { decodeUserIdToken } from '../services/firebase/users.js';
 import { cookieOptions } from '../utils/app.js';
+import { ROLE_MASTER_KEY } from '../constant/base.js';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -108,9 +109,11 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 
 		if (authUser.profile.congregation?.id) {
 			const userCong = CongregationsList.findById(authUser.profile.congregation.id);
-			const masterKeyNeeded = authUser.profile.congregation.cong_role.includes('admin');
 
 			if (userCong) {
+				const userRole = authUser.profile.congregation.cong_role;
+				const masterKeyNeeded = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
+
 				userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation.user_local_uid;
 				userInfo.app_settings.user_settings.cong_role = authUser.profile.congregation.cong_role;
 
@@ -263,7 +266,9 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 
 		if (authUser.profile.congregation?.id) {
 			const userCong = CongregationsList.findById(authUser.profile.congregation.id);
-			const masterKeyNeeded = authUser.profile.congregation.cong_role.includes('admin');
+
+			const userRole = authUser.profile.congregation.cong_role;
+			const masterKeyNeeded = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
 
 			if (userCong) {
 				userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation.user_local_uid;

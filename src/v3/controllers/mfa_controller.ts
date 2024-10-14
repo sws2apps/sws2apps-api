@@ -5,6 +5,7 @@ import { UsersList } from '../classes/Users.js';
 import { CongregationsList } from '../classes/Congregations.js';
 import { formatError } from '../utils/format_log.js';
 import { UserAuthResponse } from '../definition/user.js';
+import { ROLE_MASTER_KEY } from '../constant/base.js';
 
 export const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
 	const isProd = process.env.NODE_ENV === 'production';
@@ -78,7 +79,9 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
 
 		if (user.profile.congregation?.id) {
 			const userCong = CongregationsList.findById(user.profile.congregation.id);
-			const masterKeyNeeded = user.profile.congregation.cong_role.includes('admin');
+
+			const userRole = user.profile.congregation.cong_role;
+			const masterKeyNeeded = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
 
 			if (userCong) {
 				userInfo.app_settings.user_settings.user_local_uid = user.profile.congregation.user_local_uid;

@@ -712,7 +712,7 @@ export const congregationUserAdd = async (req: Request, res: Response, next: Nex
 		});
 
 		res.locals.type = 'warn';
-		res.locals.message = 'congregation admin added pocket user';
+		res.locals.message = 'congregation admin added vip user';
 		res.status(200).json({ message: 'POCKET_CREATED' });
 		return;
 	} catch (err) {

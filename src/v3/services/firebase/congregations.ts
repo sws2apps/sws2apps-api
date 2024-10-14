@@ -215,6 +215,12 @@ export const setCongPublicOutgoingTalks = async (id: string, speakers: string) =
 	await uploadFileToStorage(speakers, { type: 'congregation', path });
 };
 
+export const setCongSpeakersKey = async (id: string, speakers_key: string) => {
+	const path = `${id}/visiting_speakers/key.txt`;
+
+	await uploadFileToStorage(speakers_key, { type: 'congregation', path });
+};
+
 export const saveCongBackup = async (id: string, cong_backup: BackupData) => {
 	if (cong_backup.persons) {
 		const persons = cong_backup.persons;
@@ -251,6 +257,13 @@ export const saveCongBackup = async (id: string, cong_backup: BackupData) => {
 	if (cong_backup.field_service_groups) {
 		const data = cong_backup.field_service_groups;
 		await setCongFieldServiceGroups(id, data);
+	}
+
+	if (cong_backup.speakers_key) {
+		await setCongSpeakersKey(id, cong_backup.speakers_key);
+
+		const cong = CongregationsList.findById(id)!;
+		cong.outgoing_speakers.speakers_key = cong_backup.speakers_key;
 	}
 
 	let lastBackup = '';
@@ -384,17 +397,13 @@ export const rejectCongAccess = async (congId: string, requestId: string) => {
 	await setCongOutgoingSpeakers(congId, data);
 };
 
-export const publishCongSchedules = async (congId: string, sources?: string, schedules?: string, talks?: string) => {
+export const publishCongSchedules = async (congId: string, sources?: string, schedules?: string) => {
 	if (sources) {
 		await setCongPublicSources(congId, sources);
 	}
 
 	if (schedules) {
 		await setCongPublicSchedules(congId, schedules);
-	}
-
-	if (talks) {
-		await setCongPublicOutgoingTalks(congId, talks);
 	}
 };
 
