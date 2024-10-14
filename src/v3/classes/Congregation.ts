@@ -28,6 +28,7 @@ export class Congregation {
 	public_schedules: {
 		sources: string;
 		schedules: string;
+		outgoing_talks: string;
 		incoming_talks: string;
 	};
 	members: User[];
@@ -47,7 +48,7 @@ export class Congregation {
 
 	constructor(id: string) {
 		this.id = id;
-		this.public_schedules = { schedules: '', sources: '', incoming_talks: '' };
+		this.public_schedules = { schedules: '', sources: '', outgoing_talks: '', incoming_talks: '' };
 		this.settings = {
 			attendance_online_record: '',
 			circuit_overseer: '',
@@ -116,6 +117,7 @@ export class Congregation {
 	async loadDetails() {
 		const data = await getCongDetails(this.id);
 
+		this.public_schedules.outgoing_talks = data.public.outgoing_talks || '';
 		this.public_schedules.schedules = data.public.meeting_schedules || '';
 		this.public_schedules.sources = data.public.meeting_source || '';
 		this.settings = data.settings;
