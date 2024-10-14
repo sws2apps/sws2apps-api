@@ -137,7 +137,7 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 		}
 
 		// is congregation authentic
-		const language = (req.headers.language as string) || 'E';
+		const language = (req.headers.language as string) || 'en';
 		const url = process.env.APP_CONGREGATION_API! + new URLSearchParams({ country: country_code, language, name: cong_number });
 
 		const response = await fetch(url);
@@ -206,7 +206,7 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 			const t = i18n(language);
 
 			const options = {
-				to: 'rhahao.vj@gmail.com',
+				to: user.profile.email,
 				subject: t('tr_welcomeTitle'),
 				template: 'welcome',
 				context: {
