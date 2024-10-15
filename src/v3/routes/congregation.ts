@@ -4,7 +4,6 @@ import { visitorChecker } from '../middleware/visitor_checker.js';
 import {
 	createCongregation,
 	deleteApplication,
-	getCongregationUpdates,
 	getCongregations,
 	getCountries,
 	updateApplicationApproval,
@@ -28,9 +27,6 @@ router.put(
 	body('lastname').isString(),
 	createCongregation
 );
-
-// get congregation updates
-router.get('/:id/updates-routine', getCongregationUpdates);
 
 // get congregation updates
 router.patch('/:id/applications/:request', body('application').isObject().notEmpty(), updateApplicationApproval);

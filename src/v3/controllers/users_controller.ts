@@ -5,7 +5,7 @@ import { CongregationsList } from '../classes/Congregations.js';
 import { generateTokenDev } from '../dev/setup.js';
 import { formatError } from '../utils/format_log.js';
 import { StandardRecord } from '../definition/app.js';
-import { BackupData } from '../definition/congregation.js';
+import { BackupData, CongregationUpdatesType } from '../definition/congregation.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -425,13 +425,15 @@ export const retrieveUserBackup = async (req: Request, res: Response, next: Next
 		const masterKeyNeed = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
 
 		const secretaryRole = userRole.includes('secretary');
+		const elderRole = userRole.includes('elder');
+
 		const adminRole = userRole.some((role) => role === 'admin' || role === 'coordinator') || secretaryRole;
 
 		const scheduleEditor =
 			adminRole ||
 			userRole.some((role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule');
 
-		const personViewer = scheduleEditor || userRole.some((role) => role === 'elder');
+		const personViewer = scheduleEditor || elderRole;
 
 		const publicTalkEditor = adminRole || userRole.some((role) => role === 'public_talk_schedule');
 
@@ -465,10 +467,13 @@ export const retrieveUserBackup = async (req: Request, res: Response, next: Next
 				result.persons = cong.persons;
 			}
 
-			if (publicTalkEditor) {
-				result.speakers_key = cong.outgoing_speakers.speakers_key;
+			if (elderRole) {
 				result.speakers_congregations = cong.speakers_congregations;
 				result.visiting_speakers = cong.visiting_speakers;
+			}
+
+			if (publicTalkEditor) {
+				result.speakers_key = cong.outgoing_speakers.speakers_key;
 				result.outgoing_talks =
 					cong.public_schedules.incoming_talks === '' ? [] : JSON.parse(cong.public_schedules.incoming_talks);
 			}
@@ -647,6 +652,91 @@ export const saveUserBackup = async (req: Request, res: Response, next: NextFunc
 		res.locals.type = 'info';
 		res.locals.message = 'user send backup for congregation successfully';
 		res.status(200).json({ message: 'BACKUP_SENT' });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const getUserUpdates = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			const msg = formatError(errors);
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const { id } = req.params;
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: user id is required`;
+			res.status(400).json({ message: 'USER_ID_INVALID' });
+
+			return;
+		}
+
+		const user = UsersList.findById(id)!;
+
+		if (!user.profile.congregation) {
+			res.locals.type = 'warn';
+			res.locals.message = `user does not have an assigned congregation`;
+			res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
+
+			return;
+		}
+
+		const cong = CongregationsList.findById(user.profile.congregation?.id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user congregation is invalid';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+
+			return;
+		}
+
+		const roles = user.profile.congregation!.cong_role;
+		const masterKeyNeed = roles.some((role) => ROLE_MASTER_KEY.includes(role));
+
+		const adminRole = roles.includes('admin');
+		const secretaryRole = roles.includes('secretary');
+		const elderRole = roles.includes('elder');
+		const publicTalkEditor = adminRole || roles.includes('public_talk_schedule');
+
+		const result: CongregationUpdatesType = {
+			cong_access_code: cong.settings.cong_access_code,
+		};
+
+		if (masterKeyNeed) {
+			result.cong_master_key = cong.settings.cong_master_key;
+		}
+
+		if (elderRole) {
+			result.applications = cong.ap_applications;
+		}
+
+		if (publicTalkEditor) {
+			result.speakers_key = cong.outgoing_speakers.speakers_key;
+			result.pending_speakers_requests = cong.getPendingVisitingSpeakersAccessList();
+			result.remote_congregations = cong.getRemoteCongregationsList();
+			result.rejected_requests = cong.getRejectedRequests();
+		}
+
+		if (secretaryRole) {
+			result.incoming_reports = cong.incoming_reports;
+		}
+
+		res.locals.type = 'info';
+		res.locals.message = 'user retrieve updates successfully';
+		res.status(200).json(result);
 	} catch (err) {
 		next(err);
 	}

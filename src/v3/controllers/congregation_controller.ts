@@ -2,9 +2,8 @@ import fetch from 'node-fetch';
 import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { CongregationsList } from '../classes/Congregations.js';
-import { ApiCongregationSearchResponse, CongregationUpdatesType } from '../definition/congregation.js';
+import { ApiCongregationSearchResponse } from '../definition/congregation.js';
 import { formatError } from '../utils/format_log.js';
-import { ROLE_MASTER_KEY } from '../constant/base.js';
 import { StandardRecord } from '../definition/app.js';
 import { i18n } from '../config/i18n_config.js';
 import { MailClient } from '../config/mail_config.js';
@@ -235,79 +234,6 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 		res.locals.type = 'info';
 		res.locals.message = 'congregation created successfully';
 		res.status(200).json(finalResult);
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const getCongregationUpdates = async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const { id } = req.params;
-
-		if (!id) {
-			res.locals.type = 'warn';
-			res.locals.message = 'the congregation request id params is undefined';
-			res.status(400).json({ message: 'REQUEST_ID_INVALID' });
-			return;
-		}
-
-		const cong = CongregationsList.findById(id);
-
-		if (!cong) {
-			res.locals.type = 'warn';
-			res.locals.message = 'no congregation could not be found with the provided id';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-			return;
-		}
-
-		const isValid = cong.hasMember(res.locals.currentUser.profile.auth_uid!);
-
-		if (!isValid) {
-			res.locals.type = 'warn';
-			res.locals.message = 'user not authorized to access the provided congregation';
-			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
-			return;
-		}
-
-		const user = res.locals.currentUser;
-
-		const roles = user.profile.congregation!.cong_role;
-		const masterKeyNeed = roles.some((role) => ROLE_MASTER_KEY.includes(role));
-
-		const adminRole = roles.includes('admin');
-		const coordinatorRole = roles.includes('coordinator');
-		const secretaryRole = roles.includes('secretary');
-		const serviceRole = roles.includes('service_overseer');
-		const publicTalkEditor = adminRole || roles.includes('public_talk_schedule');
-
-		const committeeRole = adminRole || coordinatorRole || secretaryRole || serviceRole;
-
-		const result: CongregationUpdatesType = {
-			cong_access_code: cong.settings.cong_access_code,
-		};
-
-		if (masterKeyNeed) {
-			result.cong_master_key = cong.settings.cong_master_key;
-		}
-
-		if (committeeRole) {
-			result.applications = cong.ap_applications;
-		}
-
-		if (publicTalkEditor) {
-			result.speakers_key = cong.outgoing_speakers.speakers_key;
-			result.pending_speakers_requests = cong.getPendingVisitingSpeakersAccessList();
-			result.remote_congregations = cong.getRemoteCongregationsList();
-			result.rejected_requests = cong.getRejectedRequests();
-		}
-
-		if (secretaryRole) {
-			result.incoming_reports = cong.incoming_reports;
-		}
-
-		res.locals.type = 'info';
-		res.locals.message = 'user retrieve updates successfully';
-		res.status(200).json(result);
 	} catch (err) {
 		next(err);
 	}

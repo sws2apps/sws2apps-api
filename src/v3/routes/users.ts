@@ -7,6 +7,7 @@ import {
 	getAuxiliaryApplications,
 	getUserSecretToken,
 	getUserSessions,
+	getUserUpdates,
 	postUserReport,
 	retrieveUserBackup,
 	saveUserBackup,
@@ -52,5 +53,8 @@ router.get('/:id/backup', retrieveUserBackup);
 
 // save congregation backup
 router.post('/:id/backup', check('lastbackup').isString(), body('cong_backup').isObject(), saveUserBackup);
+
+// get user updates
+router.get('/:id/updates-routine', getUserUpdates);
 
 export default router;
