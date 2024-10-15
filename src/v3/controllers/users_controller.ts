@@ -688,7 +688,7 @@ export const getUserUpdates = async (req: Request, res: Response, next: NextFunc
 		if (!user.profile.congregation) {
 			res.locals.type = 'warn';
 			res.locals.message = `user does not have an assigned congregation`;
-			res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
+			res.status(403).json({ message: 'CONG_NOT_ASSIGNED' });
 
 			return;
 		}
@@ -698,7 +698,7 @@ export const getUserUpdates = async (req: Request, res: Response, next: NextFunc
 		if (!cong) {
 			res.locals.type = 'warn';
 			res.locals.message = 'user congregation is invalid';
-			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+			res.status(403).json({ message: 'CONGREGATION_NOT_FOUND' });
 
 			return;
 		}

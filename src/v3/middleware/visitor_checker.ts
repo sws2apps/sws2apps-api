@@ -39,7 +39,7 @@ export const visitorChecker = () => {
 			if (!visitorid) {
 				res.locals.type = 'warn';
 				res.locals.message = 'the device the user is using was revoked';
-				res.status(404).json({ message: 'DEVICE_REVOKED' });
+				res.status(403).json({ message: 'DEVICE_REVOKED' });
 				return;
 			}
 
@@ -48,7 +48,7 @@ export const visitorChecker = () => {
 			if (!user) {
 				res.locals.type = 'warn';
 				res.locals.message = 'this user account no longer exists';
-				res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+				res.status(403).json({ message: 'ACCOUNT_NOT_FOUND' });
 				return;
 			}
 
@@ -63,7 +63,7 @@ export const visitorChecker = () => {
 				res.locals.message = 'the visitor id is invalid or does not have an active session';
 
 				res.clearCookie('visitorid');
-				res.status(404).json({ message: 'SESSION_REVOKED' });
+				res.status(403).json({ message: 'SESSION_REVOKED' });
 				return;
 			}
 
@@ -84,7 +84,7 @@ export const visitorChecker = () => {
 					} else {
 						res.locals.type = 'warn';
 						res.locals.message = 'two factor authentication required';
-						res.status(403).json({ message: 'LOGIN_FIRST' });
+						res.status(401).json({ message: 'LOGIN_FIRST' });
 					}
 				}
 			} else {
@@ -117,7 +117,7 @@ export const pocketVisitorChecker = () => {
 				res.locals.message = 'this user account no longer exists';
 
 				res.clearCookie('visitorid');
-				res.status(404).json({ message: 'ACCOUNT_NOT_FOUND' });
+				res.status(403).json({ message: 'ACCOUNT_NOT_FOUND' });
 				return;
 			}
 
