@@ -16,6 +16,9 @@ import { BackupData } from '../definition/congregation.js';
 
 export class User {
 	id: string;
+	email?: string;
+	auth_provider?: string;
+	auth_uid?: string;
 	profile: UserProfile;
 	sessions: UserSession[];
 	settings: UserSettings;
@@ -52,8 +55,8 @@ export class User {
 
 		if (this.profile.role !== 'pocket') {
 			const data = await getUserAuthDetails(this.profile.auth_uid!);
-			this.profile.email = data.email;
-			this.profile.auth_provider = data.auth_provider;
+			this.email = data.email;
+			this.auth_provider = data.auth_provider;
 		}
 
 		this.bible_studies = data.bible_studies;
@@ -63,7 +66,7 @@ export class User {
 	async updateEmailAuth(auth_uid: string, email: string) {
 		await setUserEmail(auth_uid, email);
 
-		this.profile.email = email;
+		this.email = email;
 	}
 
 	async updateProfile(profile: UserProfile) {
@@ -138,7 +141,7 @@ export class User {
 
 	async generateSecret() {
 		if (!this.profile.secret) {
-			const secret = generateUserSecret(this.profile.email!);
+			const secret = generateUserSecret(this.email!);
 			const encryptedData = encryptData(JSON.stringify(secret));
 
 			const profile = structuredClone(this.profile);

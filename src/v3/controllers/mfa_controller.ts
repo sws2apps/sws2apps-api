@@ -37,7 +37,7 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
 
 		const totp = new OTPAuth.TOTP({
 			issuer: isProd ? 'Organized' : 'Organized-dev',
-			label: user.profile.email,
+			label: user.email,
 			algorithm: 'SHA1',
 			digits: 6,
 			period: 30,

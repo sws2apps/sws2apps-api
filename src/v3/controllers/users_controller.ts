@@ -68,7 +68,7 @@ export const getUserSecretToken = async (req: Request, res: Response, next: Next
 		res.locals.message = `the user has fetched 2fa successfully`;
 
 		if (!user.profile.mfa_enabled && isDev) {
-			const tokenDev = generateTokenDev(user.profile.email!, user.profile.secret!);
+			const tokenDev = generateTokenDev(user.email!, user.profile.secret!);
 			res.status(200).json({ secret: secret, qrCode: uri, mfaEnabled: user.profile.mfa_enabled, MFA_CODE: tokenDev });
 		} else {
 			res.status(200).json({

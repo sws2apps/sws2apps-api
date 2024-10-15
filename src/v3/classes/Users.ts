@@ -1,8 +1,9 @@
 import { PocketNewParams, RequestPasswordLessLinkParams, UserNewParams } from '../definition/user.js';
 import { User } from './User.js';
 import { CongregationsList } from './Congregations.js';
-import { createPasswordLessLink, createPocketUser, createUser, loadAllUsers } from '../services/firebase/users.js';
+import { createPocketUser, createUser, loadAllUsers } from '../services/firebase/users.js';
 import { deleteFileFromStorage } from '../services/firebase/storage_utils.js';
+import { getAuth } from 'firebase-admin/auth';
 
 class Users {
 	list: User[];
@@ -20,7 +21,8 @@ class Users {
 		await user.loadDetails();
 		this.list.push(user);
 		this.#sort();
-		return user;
+
+		return this.list.find((record) => record.id === id)!;
 	}
 
 	async load() {
@@ -29,7 +31,7 @@ class Users {
 	}
 
 	findByEmail(email: string) {
-		const found = this.list.find((user) => user.profile.email === email);
+		const found = this.list.find((user) => user.email === email);
 		return found;
 	}
 
@@ -60,8 +62,21 @@ class Users {
 		return user;
 	}
 
-	async generatePasswordLessLink(params: RequestPasswordLessLinkParams) {
-		const link = await createPasswordLessLink(params);
+	async generatePasswordLessLink({ email, origin }: RequestPasswordLessLinkParams) {
+		const localUser = UsersList.findByEmail(email);
+
+		if (!localUser) {
+			const results = await getAuth().getUsers([{ email }]);
+
+			if (results.users.length === 0) {
+				await getAuth().createUser({ email });
+			}
+		}
+
+		const user = await getAuth().getUserByEmail(email);
+		const token = await getAuth().createCustomToken(user.uid);
+
+		const link = `${origin}/#/?code=${token}`;
 		return link;
 	}
 

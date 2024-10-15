@@ -30,7 +30,6 @@ export type CongregationUserParams = {
 
 export type RequestPasswordLessLinkParams = {
 	email: string;
-	language: string;
 	origin: string;
 };
 
@@ -63,13 +62,11 @@ export type UserSettings = {
 
 export type UserProfile = {
 	auth_uid?: string;
-	email?: string;
 	firstname: { value: string; updatedAt: string };
 	lastname: { value: string; updatedAt: string };
 	role: UserGlobalRoleType;
 	mfa_enabled?: boolean;
 	secret?: string;
-	auth_provider?: string;
 	congregation?: {
 		id: string;
 		cong_role: AppRoleType[];

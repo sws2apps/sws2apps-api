@@ -1,20 +1,10 @@
 import { getAuth } from 'firebase-admin/auth';
 import { getStorage } from 'firebase-admin/storage';
 import { StandardRecord } from '../../definition/app.js';
-import {
-	PocketNewParams,
-	RequestPasswordLessLinkParams,
-	UserNewParams,
-	UserProfile,
-	UserSession,
-	UserSettings,
-} from '../../definition/user.js';
+import { PocketNewParams, UserNewParams, UserProfile, UserSession, UserSettings } from '../../definition/user.js';
 import { getFileFromStorage, uploadFileToStorage } from './storage_utils.js';
 import { User } from '../../classes/User.js';
-import { UsersList } from '../../classes/Users.js';
 import { encryptData } from '../encryption/encryption.js';
-import { i18n } from '../../config/i18n_config.js';
-import { MailClient } from '../../config/mail_config.js';
 
 export const getUserAuthDetails = async (auth_uid: string) => {
 	const userRecord = await getAuth().getUser(auth_uid);
@@ -129,9 +119,6 @@ export const setUserEmail = async (auth_uid: string, email: string) => {
 };
 
 export const setUserProfile = async (id: string, profile: UserProfile) => {
-	profile.auth_provider = undefined;
-	profile.email = undefined;
-
 	const data = JSON.stringify(profile);
 	const path = `${id}/profile.txt`;
 
@@ -169,48 +156,6 @@ export const createUser = async (params: UserNewParams) => {
 	await setUserProfile(id, profile);
 
 	return id;
-};
-
-export const createPasswordLessLink = async (params: RequestPasswordLessLinkParams) => {
-	const { email, language, origin } = params;
-
-	const MAIL_ENABLED = process.env.MAIL_ENABLED === 'true';
-
-	const localUser = UsersList.findByEmail(email);
-
-	if (!localUser) {
-		const users = await getAuth().getUsers([{ email }]);
-
-		if (users.users.length === 0) {
-			await getAuth().createUser({ email });
-		}
-	}
-
-	const user = await getAuth().getUserByEmail(email);
-	const token = await getAuth().createCustomToken(user.uid);
-
-	const link = `${origin}/#/?code=${token}`;
-
-	if (!MAIL_ENABLED) return link;
-
-	const t = i18n(language);
-
-	const options = {
-		to: email,
-		subject: t('tr_login'),
-		template: 'login',
-		context: {
-			loginTitle: t('tr_welcomeTitle'),
-			loginDesc: t('tr_welcomeDesc'),
-			link,
-			loginButton: t('tr_loginBtn'),
-			loginAltText: t('tr_loginAltText'),
-			loginIgnoreText: t('tr_loginIgnoreText'),
-			copyright: new Date().getFullYear(),
-		},
-	};
-
-	MailClient.sendEmail(options, 'Passwordless link sent to user');
 };
 
 export const createPocketUser = async ({

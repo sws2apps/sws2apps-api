@@ -1,11 +1,13 @@
 import cors, { CorsOptions } from 'cors';
 import express, { Request } from 'express';
+import { handle } from 'i18next-http-middleware';
 import favicon from 'serve-favicon';
 import helmet from 'helmet';
 import path from 'node:path';
 import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
 import compression from 'compression';
+import i18next from 'i18next';
 
 import './v2/config/i18n-config.js';
 import './v3/config/firebase_config.js';
@@ -19,6 +21,7 @@ import routesV2 from './v2/routes/index.js';
 import routesV3 from './v3/routes/index.js';
 
 import { errorHandler, getRoot, invalidEndpointHandler } from './v3/controllers/app_controller.js';
+import resources from './v3/config/i18n_config.js';
 
 // allowed apps url
 const whitelist = [
@@ -87,6 +90,15 @@ app.use(updateTracker());
 app.use(serverReadyChecker());
 
 app.use(rateLimit({ windowMs: 1000, max: 20, message: JSON.stringify({ message: 'TOO_MANY_REQUESTS' }) }));
+
+i18next.init({
+	preload: ['en'],
+	lng: 'en',
+	fallbackLng: 'en',
+	resources: resources,
+});
+
+app.use(handle(i18next));
 
 app.get('/', getRoot);
 

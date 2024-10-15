@@ -10,6 +10,7 @@ import { formatError } from '../utils/format_log.js';
 import { decodeUserIdToken } from '../services/firebase/users.js';
 import { cookieOptions } from '../utils/app.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';
+import { MailClient } from '../config/mail_config.js';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -85,7 +86,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 			res.cookie('visitorid', visitorid, cookieOptions(req));
 
 			if (isDev) {
-				const tokenDev = generateTokenDev(authUser.profile.email!, authUser.profile.secret!);
+				const tokenDev = generateTokenDev(authUser.email!, authUser.profile.secret!);
 				res.status(200).json({ message: 'MFA_VERIFY', code: tokenDev });
 			} else {
 				res.status(200).json({ message: 'MFA_VERIFY' });
@@ -169,11 +170,34 @@ export const createSignInLink = async (req: Request, res: Response, next: NextFu
 		const { email } = req.body;
 		const language = (req.headers?.applanguage as string) || 'en';
 
-		const devLink = await UsersList.generatePasswordLessLink({ email, language, origin: req.headers.origin! });
+		const link = await UsersList.generatePasswordLessLink({ email, origin: req.headers.origin! });
+
+		const MAIL_ENABLED = process.env.MAIL_ENABLED === 'true';
+
+		if (MAIL_ENABLED) {
+			req.i18n.changeLanguage(language);
+
+			const options = {
+				to: email,
+				subject: req.t('tr_login'),
+				template: 'login',
+				context: {
+					loginTitle: req.t('tr_login'),
+					loginDesc: req.t('tr_loginDesc'),
+					link,
+					loginButton: req.t('tr_loginBtn'),
+					loginAltText: req.t('tr_loginAltText'),
+					loginIgnoreText: req.t('tr_loginIgnoreText'),
+					copyright: new Date().getFullYear(),
+				},
+			};
+
+			MailClient.sendEmail(options, 'Passwordless link sent to user');
+		}
 
 		res.locals.type = 'info';
 		res.locals.message = 'passwordless link will be sent to user';
-		res.status(200).json(devLink ? { link: devLink } : { message: 'SIGNIN_LINK_SEND' });
+		res.status(200).json(MAIL_ENABLED ? { message: 'SIGNIN_LINK_SEND' } : { link });
 	} catch (err) {
 		next(err);
 	}
@@ -242,7 +266,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 
 			res.cookie('visitorid', visitorid, cookieOptions(req));
 			if (isDev) {
-				const tokenDev = generateTokenDev(authUser.profile.email!, authUser.profile.secret!);
+				const tokenDev = generateTokenDev(authUser.email!, authUser.profile.secret!);
 				res.status(200).json({ message: 'MFA_VERIFY', code: tokenDev });
 			} else {
 				res.status(200).json({ message: 'MFA_VERIFY' });

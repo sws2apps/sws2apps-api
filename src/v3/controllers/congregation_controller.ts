@@ -5,7 +5,6 @@ import { CongregationsList } from '../classes/Congregations.js';
 import { ApiCongregationSearchResponse } from '../definition/congregation.js';
 import { formatError } from '../utils/format_log.js';
 import { StandardRecord } from '../definition/app.js';
-import { i18n } from '../config/i18n_config.js';
 import { MailClient } from '../config/mail_config.js';
 
 const MAIL_ENABLED = process.env.MAIL_ENABLED === 'true';
@@ -202,20 +201,20 @@ export const createCongregation = async (req: Request, res: Response, next: Next
 		const userCong = await user.assignCongregation({ congId: congId, role: ['admin'] });
 
 		if (MAIL_ENABLED) {
-			const t = i18n(language);
+			req.i18n.changeLanguage(language);
 
 			const options = {
-				to: user.profile.email,
-				subject: t('tr_welcomeTitle'),
+				to: user.email,
+				subject: req.t('tr_welcomeTitle'),
 				template: 'welcome',
 				context: {
-					welcomeTitle: t('tr_welcomeTitle'),
-					welcomeDesc: t('tr_welcomeDesc'),
-					watchVideoLabel: t('tr_watchVideoLabel'),
-					moreInfoTitle: t('tr_moreInfoTitle'),
-					moreInfoGuideLabel: t('tr_moreInfoGuideLabel'),
-					moreInfoBlogLabel: t('tr_moreInfoBlogLabel'),
-					moreInfoSupportLabel: t('tr_moreInfoSupportLabel'),
+					welcomeTitle: req.t('tr_welcomeTitle'),
+					welcomeDesc: req.t('tr_welcomeDesc'),
+					watchVideoLabel: req.t('tr_watchVideoLabel'),
+					moreInfoTitle: req.t('tr_moreInfoTitle'),
+					moreInfoGuideLabel: req.t('tr_moreInfoGuideLabel'),
+					moreInfoBlogLabel: req.t('tr_moreInfoBlogLabel'),
+					moreInfoSupportLabel: req.t('tr_moreInfoSupportLabel'),
 					copyright: new Date().getFullYear(),
 				},
 			};
