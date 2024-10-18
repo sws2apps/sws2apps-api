@@ -171,11 +171,12 @@ export type BackupData = {
 	branch_field_service_reports: StandardRecord[];
 	field_service_groups: StandardRecord[];
 	meeting_attendance: StandardRecord[];
-	schedules: StandardRecord[];
+	sched: StandardRecord[];
 	sources: StandardRecord[];
 	user_bible_studies?: StandardRecord[];
 	user_field_service_reports?: StandardRecord[];
 	public_schedules?: StandardRecord[];
 	public_sources?: StandardRecord[];
 	incoming_reports?: StandardRecord[];
+	cong_field_service_reports?: StandardRecord[];
 };

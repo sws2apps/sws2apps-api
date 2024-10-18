@@ -170,6 +170,12 @@ export const setCongVisitingSpeakers = async (id: string, speakers: StandardReco
 	await uploadFileToStorage(data, { type: 'congregation', path });
 };
 
+export const setCongFieldServiceReports = async (id: string, reports: StandardRecord[]) => {
+	const data = JSON.stringify(reports);
+	const path = `${id}/field_service_reports/main.txt`;
+	await uploadFileToStorage(data, { type: 'congregation', path });
+};
+
 export const setBranchFieldServiceReports = async (id: string, reports: StandardRecord[]) => {
 	const data = JSON.stringify(reports);
 	const path = `${id}/branch_field_service_reports/main.txt`;
@@ -221,61 +227,98 @@ export const setCongSpeakersKey = async (id: string, speakers_key: string) => {
 	await uploadFileToStorage(speakers_key, { type: 'congregation', path });
 };
 
-export const saveCongBackup = async (id: string, cong_backup: BackupData) => {
-	if (cong_backup.persons) {
-		const persons = cong_backup.persons;
-		await setCongPersons(id, persons);
+export const saveCongBackup = async (id: string, cong_backup: BackupData, limited: boolean) => {
+	if (!limited) {
+		if (cong_backup.persons) {
+			const persons = cong_backup.persons;
+			await setCongPersons(id, persons);
+		}
+
+		if (cong_backup.speakers_congregations) {
+			const speakers = cong_backup.speakers_congregations;
+			await setSpeakersCongregations(id, speakers);
+		}
+
+		if (cong_backup.visiting_speakers) {
+			const speakers = cong_backup.visiting_speakers;
+			await setCongVisitingSpeakers(id, speakers);
+		}
+
+		if (cong_backup.outgoing_speakers) {
+			const speakers = cong_backup.outgoing_speakers;
+			const cong = CongregationsList.findById(id)!;
+
+			const outgoingData = {
+				list: speakers,
+				access: cong.outgoing_speakers.access,
+			};
+
+			await setCongOutgoingSpeakers(id, JSON.stringify(outgoingData));
+		}
+
+		if (cong_backup.incoming_reports) {
+			const reports = cong_backup.incoming_reports;
+			await saveIncomingReports(id, reports);
+		}
+
+		if (cong_backup.field_service_groups) {
+			const data = cong_backup.field_service_groups;
+			await setCongFieldServiceGroups(id, data);
+		}
+
+		if (cong_backup.speakers_key) {
+			await setCongSpeakersKey(id, cong_backup.speakers_key);
+
+			const cong = CongregationsList.findById(id)!;
+			cong.outgoing_speakers.speakers_key = cong_backup.speakers_key;
+		}
+
+		if (cong_backup.branch_cong_analysis) {
+			const data = cong_backup.branch_cong_analysis;
+			await setBranchCongAnalysis(id, data);
+		}
+
+		if (cong_backup.branch_field_service_reports) {
+			const data = cong_backup.branch_field_service_reports;
+			await setBranchFieldServiceReports(id, data);
+		}
+
+		if (cong_backup.sources) {
+			const data = cong_backup.sources;
+			await setCongSources(id, data);
+		}
+
+		if (cong_backup.sched) {
+			const data = cong_backup.sched;
+			await setCongSchedules(id, data);
+		}
 	}
 
-	if (cong_backup.speakers_congregations) {
-		const speakers = cong_backup.speakers_congregations;
-		await setSpeakersCongregations(id, speakers);
+	if (cong_backup.cong_field_service_reports) {
+		const data = cong_backup.cong_field_service_reports;
+		await setCongFieldServiceReports(id, data);
 	}
 
-	if (cong_backup.visiting_speakers) {
-		const speakers = cong_backup.visiting_speakers;
-		await setCongVisitingSpeakers(id, speakers);
+	if (cong_backup.meeting_attendance) {
+		const data = cong_backup.meeting_attendance;
+		await setMeetingAttendance(id, data);
 	}
 
-	if (cong_backup.outgoing_speakers) {
-		const speakers = cong_backup.outgoing_speakers;
-		const cong = CongregationsList.findById(id)!;
+	let settings: CongSettingsType;
 
-		const outgoingData = {
-			list: speakers,
-			access: cong.outgoing_speakers.access,
-		};
-
-		await setCongOutgoingSpeakers(id, JSON.stringify(outgoingData));
+	if (cong_backup.app_settings.cong_settings) {
+		settings = cong_backup.app_settings.cong_settings;
 	}
 
-	if (cong_backup.incoming_reports) {
-		const reports = cong_backup.incoming_reports;
-		await saveIncomingReports(id, reports);
+	if (!cong_backup.app_settings.cong_settings) {
+		const findCong = CongregationsList.findById(id)!;
+		settings = findCong.settings;
 	}
 
-	if (cong_backup.field_service_groups) {
-		const data = cong_backup.field_service_groups;
-		await setCongFieldServiceGroups(id, data);
-	}
+	const lastBackup = new Date().toISOString();
+	settings!.last_backup = lastBackup;
 
-	if (cong_backup.speakers_key) {
-		await setCongSpeakersKey(id, cong_backup.speakers_key);
-
-		const cong = CongregationsList.findById(id)!;
-		cong.outgoing_speakers.speakers_key = cong_backup.speakers_key;
-	}
-
-	let lastBackup = '';
-
-	if (cong_backup.app_settings) {
-		const settings = cong_backup.app_settings.cong_settings;
-
-		lastBackup = new Date().toISOString();
-		settings.last_backup = lastBackup;
-
-		await setCongSettings(id, settings);
-	}
+	await setCongSettings(id, settings!);
 
 	return lastBackup;
 };

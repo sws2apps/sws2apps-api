@@ -425,9 +425,10 @@ export const retrieveUserBackup = async (req: Request, res: Response, next: Next
 		const masterKeyNeed = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
 
 		const secretaryRole = userRole.includes('secretary');
+		const coordinatorRole = userRole.includes('coordinator');
 		const elderRole = userRole.includes('elder');
 
-		const adminRole = userRole.some((role) => role === 'admin' || role === 'coordinator') || secretaryRole;
+		const adminRole = userRole.includes('admin') || secretaryRole || coordinatorRole;
 
 		const scheduleEditor =
 			adminRole ||
@@ -436,6 +437,8 @@ export const retrieveUserBackup = async (req: Request, res: Response, next: Next
 		const personViewer = scheduleEditor || elderRole;
 
 		const publicTalkEditor = adminRole || userRole.some((role) => role === 'public_talk_schedule');
+
+		const attendanceTracker = adminRole || userRole.some((role) => role === 'attendance_tracking');
 
 		const isPublisher = userRole.includes('publisher');
 
@@ -470,6 +473,7 @@ export const retrieveUserBackup = async (req: Request, res: Response, next: Next
 			if (elderRole) {
 				result.speakers_congregations = cong.speakers_congregations;
 				result.visiting_speakers = cong.visiting_speakers;
+				result.cong_field_service_reports = cong.field_service_reports;
 			}
 
 			if (publicTalkEditor) {
@@ -517,8 +521,22 @@ export const retrieveUserBackup = async (req: Request, res: Response, next: Next
 				result.public_schedules = cong.public_schedules.schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.schedules);
 			}
 
+			if (scheduleEditor) {
+				result.sources = cong.sources;
+				result.sched = cong.schedules;
+			}
+
+			if (attendanceTracker) {
+				result.meeting_attendance = cong.meeting_attendance;
+			}
+
 			if (secretaryRole) {
 				result.incoming_reports = cong.incoming_reports;
+			}
+
+			if (adminRole) {
+				result.branch_cong_analysis = cong.branch_cong_analysis;
+				result.branch_field_service_reports = cong.branch_field_service_reports;
 			}
 		}
 
@@ -624,16 +642,20 @@ export const saveUserBackup = async (req: Request, res: Response, next: NextFunc
 
 		const adminRole = userRole.some((role) => role === 'admin' || role === 'coordinator' || role === 'secretary');
 
+		const elderRole = userRole.includes('elder');
+
 		const scheduleEditor = userRole.some(
 			(role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule'
 		);
 
-		const congBackupAllowed = adminRole || scheduleEditor;
+		const congBackupAllowed = adminRole || scheduleEditor || elderRole;
+
+		const backupLimited = !adminRole && !scheduleEditor && elderRole;
 
 		const cong_backup = req.body.cong_backup as BackupData;
 
 		if (congBackupAllowed) {
-			cong.saveBackup(cong_backup);
+			cong.saveBackup(cong_backup, backupLimited);
 		}
 
 		const userPerson = cong_backup.persons?.at(0);

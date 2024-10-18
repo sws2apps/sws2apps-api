@@ -45,6 +45,7 @@ export class Congregation {
 	speakers_congregations: StandardRecord[];
 	ap_applications: StandardRecord[];
 	incoming_reports: StandardRecord[];
+	field_service_reports: StandardRecord[];
 
 	constructor(id: string) {
 		this.id = id;
@@ -112,6 +113,7 @@ export class Congregation {
 		this.visiting_speakers = [];
 		this.ap_applications = [];
 		this.incoming_reports = [];
+		this.field_service_reports = [];
 	}
 
 	async loadDetails() {
@@ -125,6 +127,10 @@ export class Congregation {
 		this.outgoing_speakers = data.outgoing_speakers;
 		this.settings = data.settings;
 		this.ap_applications = data.applications;
+
+		if (data.field_service_reports) {
+			this.field_service_reports = JSON.parse(data.field_service_reports);
+		}
 
 		if (data.branch_cong_analysis) {
 			this.branch_cong_analysis = JSON.parse(data.branch_cong_analysis);
@@ -165,64 +171,79 @@ export class Congregation {
 		this.reloadMembers();
 	}
 
-	async saveBackup(cong_backup: BackupData) {
-		const accessCode = this.settings.cong_access_code;
-		const masterKey = this.settings.cong_master_key;
+	async saveBackup(cong_backup: BackupData, limited: boolean) {
+		if (cong_backup.app_settings.cong_settings) {
+			const accessCode = this.settings.cong_access_code;
+			const masterKey = this.settings.cong_master_key;
 
-		cong_backup.app_settings.cong_settings.cong_access_code = accessCode;
-		cong_backup.app_settings.cong_settings.cong_master_key = masterKey;
-
-		const lastBackup = await saveCongBackup(this.id, cong_backup);
-
-		if (cong_backup.persons) {
-			this.persons = cong_backup.persons;
+			cong_backup.app_settings.cong_settings.cong_access_code = accessCode;
+			cong_backup.app_settings.cong_settings.cong_master_key = masterKey;
 		}
 
-		if (cong_backup.outgoing_speakers) {
-			this.outgoing_speakers.list = cong_backup.outgoing_speakers;
+		const lastBackup = await saveCongBackup(this.id, cong_backup, limited);
+
+		if (!limited) {
+			if (cong_backup.persons) {
+				this.persons = cong_backup.persons;
+			}
+
+			if (cong_backup.outgoing_speakers) {
+				this.outgoing_speakers.list = cong_backup.outgoing_speakers;
+			}
+
+			if (cong_backup.speakers_congregations) {
+				this.speakers_congregations = cong_backup.speakers_congregations;
+			}
+
+			if (cong_backup.visiting_speakers) {
+				this.visiting_speakers = cong_backup.visiting_speakers;
+			}
+
+			if (cong_backup.branch_field_service_reports) {
+				this.branch_field_service_reports = cong_backup.branch_field_service_reports;
+			}
+
+			if (cong_backup.branch_cong_analysis) {
+				this.branch_cong_analysis = cong_backup.branch_cong_analysis;
+			}
+
+			if (cong_backup.field_service_groups) {
+				this.field_service_groups = cong_backup.field_service_groups;
+			}
+
+			if (cong_backup.sched) {
+				this.schedules = cong_backup.sched;
+			}
+
+			if (cong_backup.sources) {
+				this.sources = cong_backup.sources;
+			}
+
+			if (cong_backup.incoming_reports) {
+				this.incoming_reports = cong_backup.incoming_reports;
+			}
 		}
 
-		if (cong_backup.speakers_congregations) {
-			this.speakers_congregations = cong_backup.speakers_congregations;
-		}
-
-		if (cong_backup.visiting_speakers) {
-			this.visiting_speakers = cong_backup.visiting_speakers;
-		}
-
-		if (cong_backup.branch_cong_analysis) {
-			this.branch_cong_analysis = cong_backup.branch_cong_analysis;
-		}
-
-		if (cong_backup.branch_field_service_reports) {
-			this.branch_field_service_reports = cong_backup.branch_field_service_reports;
-		}
-
-		if (cong_backup.field_service_groups) {
-			this.field_service_groups = cong_backup.field_service_groups;
+		if (cong_backup.cong_field_service_reports) {
+			this.field_service_reports = cong_backup.cong_field_service_reports;
 		}
 
 		if (cong_backup.meeting_attendance) {
 			this.meeting_attendance = cong_backup.meeting_attendance;
 		}
 
-		if (cong_backup.schedules) {
-			this.schedules = cong_backup.schedules;
+		let settings: CongSettingsType;
+
+		if (cong_backup.app_settings.cong_settings) {
+			settings = structuredClone(cong_backup.app_settings.cong_settings);
 		}
 
-		if (cong_backup.sources) {
-			this.sources = cong_backup.sources;
+		if (!cong_backup.app_settings.cong_settings) {
+			settings = this.settings;
 		}
 
-		if (cong_backup.incoming_reports) {
-			this.incoming_reports = cong_backup.incoming_reports;
-		}
-
-		if (cong_backup.app_settings) {
-			const settings = structuredClone(cong_backup.app_settings.cong_settings);
-			settings.last_backup = lastBackup;
-			this.settings = settings;
-		}
+		settings!.last_backup = lastBackup;
+		this.settings = settings!;
 	}
 
 	async saveMasterKey(key: string) {
@@ -395,7 +416,7 @@ export class Congregation {
 		return members;
 	}
 
-	async publishSchedules(sources: string, schedules: string, talks: string){
+	async publishSchedules(sources: string, schedules: string, talks: string) {
 		await publishCongSchedules(this.id, sources, schedules, talks);
 
 		this.public_schedules.sources = sources;

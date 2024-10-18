@@ -72,8 +72,8 @@ app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(cors(corsOptionsDelegate));
 
 app.use(compression());
-app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ limit: '5mb', extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 app.use((req, res, next) => {
 	res.header('Access-Control-Allow-Origin', req.headers.origin);
