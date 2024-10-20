@@ -1,14 +1,14 @@
 {
 	"tr_welcomeTitle": "Բարի գալուստ Organized հավելված",
-	"tr_welcomeDesc": "Շնորհակալություն գրանցվելու համար! Մենք ոգևորված ենք, որ դուք սկսեք ուսումնասիրել Organized-ը։ Բացահայտեք այս ներսում տեսանյութը, որպեսզի սկսել օգտագործել հավելվածը և հեշտացնեք բոլոր ձեր թեոկրատիկ գործունեությունները։",
-	"tr_watchVideoLabel": "Նայել տեսանյութ YouTube միջոցով",
-	"tr_moreInfoTitle": "Ավելի շատ տեղեկություն",
-	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'> Օգնություն</a> Քայլ առ քայլ օգնություն",
-	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'> Մեր բլոգ</a> խորհուրդներով և օգտակար նյութերով",
-	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'> Օգնել մեզ</a> զոհաբերությունով",
-	"tr_login": "Մուտք գործել Organized",
-	"tr_loginDesc": "Մենք ստացել ենք դիմում մուտք գործելու ձեր մաիլի օգնությամբ։ Խնդրում ենք հաստատ եք սխմըլով այս ցանկին",
+	"tr_welcomeDesc": "Շնորհակալություն գրանցվելու համար! Մենք ուրախ ենք, որ դուք սկսել եք ուսումնասիրել Organized-ը։ Դիտեք այս ներածական տեսանյութը՝ հավելվածից օգտվելու և ձեր բոլոր աստվածապետական ​​միջոցառումների կազմակերպումը հեշտացնելու համար։",
+	"tr_watchVideoLabel": "Դիտել տեսանյութը YouTube-ում",
+	"tr_moreInfoTitle": "Հավելվածի մասին լրացուցիչ տեղեկություններ.",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'> Օգտագործողի ուղեցույց»</a> , որը տրամադրում է քայլ առ քայլ ցուցումներ",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'> Մեր բլոգը</a> խորհուրդներով և օգտակար առանձնահատկություններով",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'> Աջակցել ծրագրի զարգացմանը</a> նվիրատվությամբ",
+	"tr_login": "Մուտք գործել ձեր Organized-ի հաշիվ",
+	"tr_loginDesc": "Մենք ստացել ենք ձեր էլ.փոստով մուտք գործելու խնդրանք: Խնդրում ենք հաստատել մուտքը՝ սեղմելով ստորև նշված կոճակը:",
 	"tr_loginBtn": "Մուտք գործել Organized",
-	"tr_loginAltText": "Եթե չես կարողանում սխմել այս ցանկին, խնդրում ենք օգտագործի միուսը։ Հաստատվիր որ կոպի անելուց դա չի կտրվում",
-	"tr_loginIgnoreText": "Եթե այդ դիմումը դու չես արել, խնդրում եմք արհամարիր այս մաիլը"
+	"tr_loginAltText": "Եթե դուք չեք կարողանում օգտվել վերը նշված մուտք գործելու կոճակից, խնդրում ենք օգտագործել հետևյալ հղումը: Համոզվեք, որ այն չի վնասվել պատճենելու ընթացքում.",
+	"tr_loginIgnoreText": "Եթե դուք չեք դիմել հղումը ստանալու համար, խնդրում ենք անտեսել այս էլ փոստը:"
 }
