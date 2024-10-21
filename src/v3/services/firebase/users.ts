@@ -194,3 +194,7 @@ export const decodeUserIdToken = async (token: string) => {
 		console.error('Failed to decode idToken', err);
 	}
 };
+
+export const deleteAuthUser = async (uid: string) => {
+	await getAuth().deleteUser(uid);
+};

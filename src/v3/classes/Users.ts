@@ -1,7 +1,7 @@
 import { PocketNewParams, RequestPasswordLessLinkParams, UserNewParams } from '../definition/user.js';
 import { User } from './User.js';
 import { CongregationsList } from './Congregations.js';
-import { createPocketUser, createUser, loadAllUsers } from '../services/firebase/users.js';
+import { createPocketUser, createUser, deleteAuthUser, loadAllUsers } from '../services/firebase/users.js';
 import { deleteFileFromStorage } from '../services/firebase/storage_utils.js';
 import { getAuth } from 'firebase-admin/auth';
 
@@ -91,6 +91,11 @@ class Users {
 		await deleteFileFromStorage({ type: 'user', path: id });
 
 		const user = this.findById(id);
+
+		if (user?.auth_uid) {
+			await deleteAuthUser(user.auth_uid);
+		}
+
 		this.list = this.list.filter((record) => record.id !== id);
 
 		if (user?.profile.congregation?.id) {
