@@ -1,14 +1,14 @@
 {
-	"tr_welcomeTitle": "Welcome to Organized app!",
-	"tr_welcomeDesc": "Thanks for registering! We’re excited for you to explore Organized. Watch this introductory video to start using the app and enhance the organization of your theocratic activities:",
-	"tr_watchVideoLabel": "Watch the video on YouTube",
-	"tr_moreInfoTitle": "More info about the app:",
-	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>User guide</a> that provides step-by-step instructions",
-	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Our blog</a> with tips and useful features",
-	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Support the app</a> with a donation to power its growth",
-	"tr_login": "Log in to your Organized account",
-	"tr_loginDesc": "We've received a request for you to log in using your email. Please confirm the login by clicking the button below.",
-	"tr_loginBtn": "Log in to Organized",
-	"tr_loginAltText": "If you can’t use the login button above, please use the following link. Make sure it is not cropped when you are copying it:",
-	"tr_loginIgnoreText": "If you did not request this link, please just ignore this email."
+	"tr_welcomeTitle": "欢迎使用Organized应用程序！",
+	"tr_welcomeDesc": "感谢您的注册！我们很高兴您能够探索Organized。观看这个介绍视频，开始使用这个应用程序，让您更轻松地安排所有活动：",
+	"tr_watchVideoLabel": "在YouTube上观看视频",
+	"tr_moreInfoTitle": "关于应用程序的更多信息：",
+	"tr_moreInfoGuideLabel": "提供分步指南的<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>使用手册</a>",
+	"tr_moreInfoBlogLabel": "包含技巧和实用功能的<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>博客</a>",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>通过捐赠支持应用程序</a>以帮助其发展",
+	"tr_login": "登录您的Organized账户",
+	"tr_loginDesc": "我们收到了使用您的电子邮件登录的请求。请点击下面的按钮确认登录。",
+	"tr_loginBtn": "登录Organized",
+	"tr_loginAltText": "如果您无法使用上面的登录按钮，请使用以下链接。复制时请确保链接没有被截断：",
+	"tr_loginIgnoreText": "如果您没有请求此链接，请忽略此邮件。"
 }

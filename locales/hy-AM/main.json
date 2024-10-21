@@ -1,14 +1,14 @@
 {
-	"tr_welcomeTitle": "Welcome to Organized app!",
-	"tr_welcomeDesc": "Thanks for registering! We’re excited for you to explore Organized. Watch this introductory video to start using the app and enhance the organization of your theocratic activities:",
-	"tr_watchVideoLabel": "Watch the video on YouTube",
-	"tr_moreInfoTitle": "More info about the app:",
-	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>User guide</a> that provides step-by-step instructions",
-	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Our blog</a> with tips and useful features",
-	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Support the app</a> with a donation to power its growth",
-	"tr_login": "Log in to your Organized account",
-	"tr_loginDesc": "We've received a request for you to log in using your email. Please confirm the login by clicking the button below.",
-	"tr_loginBtn": "Log in to Organized",
-	"tr_loginAltText": "If you can’t use the login button above, please use the following link. Make sure it is not cropped when you are copying it:",
-	"tr_loginIgnoreText": "If you did not request this link, please just ignore this email."
+	"tr_welcomeTitle": "Բարի գալուստ Organized հավելված",
+	"tr_welcomeDesc": "Շնորհակալություն գրանցվելու համար! Մենք ուրախ ենք, որ դուք սկսել եք ուսումնասիրել Organized-ը։ Դիտեք այս ներածական տեսանյութը՝ հավելվածից օգտվելու և ձեր բոլոր աստվածապետական ​​միջոցառումների կազմակերպումը հեշտացնելու համար։",
+	"tr_watchVideoLabel": "Դիտել տեսանյութը YouTube-ում",
+	"tr_moreInfoTitle": "Հավելվածի մասին լրացուցիչ տեղեկություններ.",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'> Օգտագործողի ուղեցույց»</a> , որը տրամադրում է քայլ առ քայլ ցուցումներ",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'> Մեր բլոգը</a> խորհուրդներով և օգտակար առանձնահատկություններով",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'> Աջակցել ծրագրի զարգացմանը</a> նվիրատվությամբ",
+	"tr_login": "Մուտք գործել ձեր Organized-ի հաշիվ",
+	"tr_loginDesc": "Մենք ստացել ենք ձեր էլ.փոստով մուտք գործելու խնդրանք: Խնդրում ենք հաստատել մուտքը՝ սեղմելով ստորև նշված կոճակը:",
+	"tr_loginBtn": "Մուտք գործել Organized",
+	"tr_loginAltText": "Եթե դուք չեք կարողանում օգտվել վերը նշված մուտք գործելու կոճակից, խնդրում ենք օգտագործել հետևյալ հղումը: Համոզվեք, որ այն չի վնասվել պատճենելու ընթացքում.",
+	"tr_loginIgnoreText": "Եթե դուք չեք դիմել հղումը ստանալու համար, խնդրում ենք անտեսել այս էլ փոստը:"
 }

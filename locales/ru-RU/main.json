@@ -1,14 +1,14 @@
 {
-	"tr_welcomeTitle": "Welcome to Organized app!",
-	"tr_welcomeDesc": "Thanks for registering! We’re excited for you to explore Organized. Watch this introductory video to start using the app and enhance the organization of your theocratic activities:",
-	"tr_watchVideoLabel": "Watch the video on YouTube",
-	"tr_moreInfoTitle": "More info about the app:",
-	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>User guide</a> that provides step-by-step instructions",
-	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Our blog</a> with tips and useful features",
-	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Support the app</a> with a donation to power its growth",
-	"tr_login": "Log in to your Organized account",
-	"tr_loginDesc": "We've received a request for you to log in using your email. Please confirm the login by clicking the button below.",
-	"tr_loginBtn": "Log in to Organized",
-	"tr_loginAltText": "If you can’t use the login button above, please use the following link. Make sure it is not cropped when you are copying it:",
-	"tr_loginIgnoreText": "If you did not request this link, please just ignore this email."
+	"tr_welcomeTitle": "Добро пожаловать в приложение Organized!",
+	"tr_welcomeDesc": "Спасибо за регистрацию! Мы рады тому, что ты можешь испытать Organized. Посмотрите это вводное видео, чтобы начать использовать приложение и улучшить организацию своей теократической деятельности:",
+	"tr_watchVideoLabel": "Посмотреть видео на YouTube",
+	"tr_moreInfoTitle": "Больше информации о приложении:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>Руководство пользователя</a>, которое содержит пошаговые инструкции",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Наш блог</a> с советами и полезными функциями",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Поддержать приложение</a> пожертвованием, для его дальнейшего развития",
+	"tr_login": "Войти в свой аккаунт Organized",
+	"tr_loginDesc": "Мы получили запрос на вход с помощью твоей электронной почты. Пожалуйста, подтверди вход, нажав на кнопку ниже.",
+	"tr_loginBtn": "Войти в Organized",
+	"tr_loginAltText": "Если ты не можешь воспользоваться кнопкой входа выше, пожалуйста, используй следующую ссылку. Убедись, что она не обрезается, когда ты ґ её копируешь:",
+	"tr_loginIgnoreText": "Если ты не запрашивал ссылку, проигнорируй это письмо."
 }
