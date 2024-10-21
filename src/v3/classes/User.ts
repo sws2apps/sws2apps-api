@@ -18,7 +18,6 @@ export class User {
 	id: string;
 	email?: string;
 	auth_provider?: string;
-	auth_uid?: string;
 	profile: UserProfile;
 	sessions: UserSession[];
 	settings: UserSettings;

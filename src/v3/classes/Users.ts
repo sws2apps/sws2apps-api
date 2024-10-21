@@ -92,8 +92,8 @@ class Users {
 
 		const user = this.findById(id);
 
-		if (user?.auth_uid) {
-			await deleteAuthUser(user.auth_uid);
+		if (user?.profile.auth_uid) {
+			await deleteAuthUser(user.profile.auth_uid);
 		}
 
 		this.list = this.list.filter((record) => record.id !== id);
