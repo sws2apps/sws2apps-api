@@ -1,5 +1,5 @@
 import { getStorage } from 'firebase-admin/storage';
-import { StandardRecord } from '../../definition/app.js';
+import { AppRoleType, StandardRecord } from '../../definition/app.js';
 import {
 	BackupData,
 	CongregationCreateInfoType,
@@ -227,93 +227,121 @@ export const setCongSpeakersKey = async (id: string, speakers_key: string) => {
 	await uploadFileToStorage(speakers_key, { type: 'congregation', path });
 };
 
-export const saveCongBackup = async (id: string, cong_backup: BackupData, limited: boolean) => {
-	if (!limited) {
-		if (cong_backup.persons) {
-			const persons = cong_backup.persons;
-			await setCongPersons(id, persons);
-		}
+export const saveCongBackup = async (id: string, cong_backup: BackupData, userRole: AppRoleType[]) => {
+	const secretaryRole = userRole.includes('secretary');
 
-		if (cong_backup.speakers_congregations) {
-			const speakers = cong_backup.speakers_congregations;
-			await setSpeakersCongregations(id, speakers);
-		}
+	const adminRole = secretaryRole || userRole.some((role) => role === 'admin' || role === 'coordinator');
 
-		if (cong_backup.visiting_speakers) {
-			const speakers = cong_backup.visiting_speakers;
-			await setCongVisitingSpeakers(id, speakers);
-		}
+	const serviceCommiteeRole = adminRole || userRole.includes('service_overseer');
 
-		if (cong_backup.outgoing_speakers) {
-			const speakers = cong_backup.outgoing_speakers;
-			const cong = CongregationsList.findById(id)!;
+	const elderRole = userRole.includes('elder');
 
-			const outgoingData = {
-				list: speakers,
-				access: cong.outgoing_speakers.access,
-			};
+	const scheduleEditor =
+		adminRole ||
+		userRole.some((role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule');
 
-			await setCongOutgoingSpeakers(id, JSON.stringify(outgoingData));
-		}
+	const publicTalkEditor = adminRole || userRole.includes('public_talk_schedule');
 
-		if (cong_backup.incoming_reports) {
-			const reports = cong_backup.incoming_reports;
-			await saveIncomingReports(id, reports);
-		}
+	const attendanceEditor = adminRole || userRole.includes('attendance_tracking');
 
-		if (cong_backup.field_service_groups) {
-			const data = cong_backup.field_service_groups;
-			await setCongFieldServiceGroups(id, data);
-		}
-
-		if (cong_backup.speakers_key) {
-			await setCongSpeakersKey(id, cong_backup.speakers_key);
-
-			const cong = CongregationsList.findById(id)!;
-			cong.outgoing_speakers.speakers_key = cong_backup.speakers_key;
-		}
-
-		if (cong_backup.branch_cong_analysis) {
-			const data = cong_backup.branch_cong_analysis;
-			await setBranchCongAnalysis(id, data);
-		}
-
-		if (cong_backup.branch_field_service_reports) {
-			const data = cong_backup.branch_field_service_reports;
-			await setBranchFieldServiceReports(id, data);
-		}
-
-		if (cong_backup.sources) {
-			const data = cong_backup.sources;
-			await setCongSources(id, data);
-		}
-
-		if (cong_backup.sched) {
-			const data = cong_backup.sched;
-			await setCongSchedules(id, data);
-		}
+	if (scheduleEditor && cong_backup.persons) {
+		const persons = cong_backup.persons;
+		await setCongPersons(id, persons);
 	}
 
-	if (cong_backup.cong_field_service_reports) {
+	if (publicTalkEditor && cong_backup.speakers_congregations) {
+		const speakers = cong_backup.speakers_congregations;
+		await setSpeakersCongregations(id, speakers);
+	}
+
+	if (publicTalkEditor && cong_backup.visiting_speakers) {
+		const speakers = cong_backup.visiting_speakers;
+		await setCongVisitingSpeakers(id, speakers);
+	}
+
+	if (publicTalkEditor && cong_backup.outgoing_speakers) {
+		const speakers = cong_backup.outgoing_speakers;
+		const cong = CongregationsList.findById(id)!;
+
+		const outgoingData = {
+			list: speakers,
+			access: cong.outgoing_speakers.access,
+		};
+
+		await setCongOutgoingSpeakers(id, JSON.stringify(outgoingData));
+	}
+
+	if (secretaryRole && cong_backup.incoming_reports) {
+		const reports = cong_backup.incoming_reports;
+		await saveIncomingReports(id, reports);
+	}
+
+	if (serviceCommiteeRole && cong_backup.field_service_groups) {
+		const data = cong_backup.field_service_groups;
+		await setCongFieldServiceGroups(id, data);
+	}
+
+	if (publicTalkEditor && cong_backup.speakers_key) {
+		await setCongSpeakersKey(id, cong_backup.speakers_key);
+
+		const cong = CongregationsList.findById(id)!;
+		cong.outgoing_speakers.speakers_key = cong_backup.speakers_key;
+	}
+
+	if (adminRole && cong_backup.branch_cong_analysis) {
+		const data = cong_backup.branch_cong_analysis;
+		await setBranchCongAnalysis(id, data);
+	}
+
+	if (adminRole && cong_backup.branch_field_service_reports) {
+		const data = cong_backup.branch_field_service_reports;
+		await setBranchFieldServiceReports(id, data);
+	}
+
+	if (scheduleEditor && cong_backup.sources) {
+		const data = cong_backup.sources;
+		await setCongSources(id, data);
+	}
+
+	if (scheduleEditor && cong_backup.sched) {
+		const data = cong_backup.sched;
+		await setCongSchedules(id, data);
+	}
+
+	if (elderRole && cong_backup.cong_field_service_reports) {
 		const data = cong_backup.cong_field_service_reports;
 		await setCongFieldServiceReports(id, data);
 	}
 
-	if (cong_backup.meeting_attendance) {
+	if (attendanceEditor && cong_backup.meeting_attendance) {
 		const data = cong_backup.meeting_attendance;
 		await setMeetingAttendance(id, data);
 	}
 
 	let settings: CongSettingsType;
 
-	if (cong_backup.app_settings.cong_settings) {
+	if (scheduleEditor && cong_backup.app_settings.cong_settings) {
 		settings = cong_backup.app_settings.cong_settings;
 	}
 
-	if (!cong_backup.app_settings.cong_settings) {
+	if (!scheduleEditor) {
 		const findCong = CongregationsList.findById(id)!;
 		settings = findCong.settings;
 	}
+
+	const lastBackup = new Date().toISOString();
+	settings!.last_backup = lastBackup;
+
+	await setCongSettings(id, settings!);
+
+	return lastBackup;
+};
+
+export const saveCongPersons = async (id: string, cong_persons: StandardRecord[]) => {
+	await setCongPersons(id, cong_persons);
+
+	const findCong = CongregationsList.findById(id)!;
+	const settings = findCong.settings;
 
 	const lastBackup = new Date().toISOString();
 	settings!.last_backup = lastBackup;

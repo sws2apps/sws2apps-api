@@ -1,4 +1,4 @@
-import { StandardRecord } from '../definition/app.js';
+import { AppRoleType, StandardRecord } from '../definition/app.js';
 import {
 	BackupData,
 	CongregationUpdatesType,
@@ -171,8 +171,24 @@ export class Congregation {
 		this.reloadMembers();
 	}
 
-	async saveBackup(cong_backup: BackupData, limited: boolean) {
-		if (cong_backup.app_settings.cong_settings) {
+	async saveBackup(cong_backup: BackupData, userRole: AppRoleType[]) {
+		const secretaryRole = userRole.includes('secretary');
+
+		const adminRole = secretaryRole || userRole.some((role) => role === 'admin' || role === 'coordinator');
+
+		const serviceCommiteeRole = adminRole || userRole.includes('service_overseer');
+
+		const elderRole = userRole.includes('elder');
+
+		const scheduleEditor =
+			adminRole ||
+			userRole.some((role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule');
+
+		const publicTalkEditor = adminRole || userRole.includes('public_talk_schedule');
+
+		const attendanceEditor = adminRole || userRole.includes('attendance_tracking');
+
+		if (scheduleEditor && cong_backup.app_settings.cong_settings) {
 			const accessCode = this.settings.cong_access_code;
 			const masterKey = this.settings.cong_master_key;
 
@@ -180,65 +196,63 @@ export class Congregation {
 			cong_backup.app_settings.cong_settings.cong_master_key = masterKey;
 		}
 
-		const lastBackup = await saveCongBackup(this.id, cong_backup, limited);
+		const lastBackup = await saveCongBackup(this.id, cong_backup, userRole);
 
-		if (!limited) {
-			if (cong_backup.persons) {
-				this.persons = cong_backup.persons;
-			}
-
-			if (cong_backup.outgoing_speakers) {
-				this.outgoing_speakers.list = cong_backup.outgoing_speakers;
-			}
-
-			if (cong_backup.speakers_congregations) {
-				this.speakers_congregations = cong_backup.speakers_congregations;
-			}
-
-			if (cong_backup.visiting_speakers) {
-				this.visiting_speakers = cong_backup.visiting_speakers;
-			}
-
-			if (cong_backup.branch_field_service_reports) {
-				this.branch_field_service_reports = cong_backup.branch_field_service_reports;
-			}
-
-			if (cong_backup.branch_cong_analysis) {
-				this.branch_cong_analysis = cong_backup.branch_cong_analysis;
-			}
-
-			if (cong_backup.field_service_groups) {
-				this.field_service_groups = cong_backup.field_service_groups;
-			}
-
-			if (cong_backup.sched) {
-				this.schedules = cong_backup.sched;
-			}
-
-			if (cong_backup.sources) {
-				this.sources = cong_backup.sources;
-			}
-
-			if (cong_backup.incoming_reports) {
-				this.incoming_reports = cong_backup.incoming_reports;
-			}
+		if (scheduleEditor && cong_backup.persons) {
+			this.persons = cong_backup.persons;
 		}
 
-		if (cong_backup.cong_field_service_reports) {
+		if (publicTalkEditor && cong_backup.outgoing_speakers) {
+			this.outgoing_speakers.list = cong_backup.outgoing_speakers;
+		}
+
+		if (publicTalkEditor && cong_backup.speakers_congregations) {
+			this.speakers_congregations = cong_backup.speakers_congregations;
+		}
+
+		if (publicTalkEditor && cong_backup.visiting_speakers) {
+			this.visiting_speakers = cong_backup.visiting_speakers;
+		}
+
+		if (adminRole && cong_backup.branch_field_service_reports) {
+			this.branch_field_service_reports = cong_backup.branch_field_service_reports;
+		}
+
+		if (adminRole && cong_backup.branch_cong_analysis) {
+			this.branch_cong_analysis = cong_backup.branch_cong_analysis;
+		}
+
+		if (serviceCommiteeRole && cong_backup.field_service_groups) {
+			this.field_service_groups = cong_backup.field_service_groups;
+		}
+
+		if (scheduleEditor && cong_backup.sched) {
+			this.schedules = cong_backup.sched;
+		}
+
+		if (scheduleEditor && cong_backup.sources) {
+			this.sources = cong_backup.sources;
+		}
+
+		if (secretaryRole && cong_backup.incoming_reports) {
+			this.incoming_reports = cong_backup.incoming_reports;
+		}
+
+		if (elderRole && cong_backup.cong_field_service_reports) {
 			this.field_service_reports = cong_backup.cong_field_service_reports;
 		}
 
-		if (cong_backup.meeting_attendance) {
+		if (attendanceEditor && cong_backup.meeting_attendance) {
 			this.meeting_attendance = cong_backup.meeting_attendance;
 		}
 
 		let settings: CongSettingsType;
 
-		if (cong_backup.app_settings.cong_settings) {
+		if (scheduleEditor && cong_backup.app_settings.cong_settings) {
 			settings = structuredClone(cong_backup.app_settings.cong_settings);
 		}
 
-		if (!cong_backup.app_settings.cong_settings) {
+		if (!scheduleEditor) {
 			settings = this.settings;
 		}
 

@@ -642,21 +642,13 @@ export const saveUserBackup = async (req: Request, res: Response, next: NextFunc
 
 		const adminRole = userRole.some((role) => role === 'admin' || role === 'coordinator' || role === 'secretary');
 
-		const elderRole = userRole.includes('elder');
-
 		const scheduleEditor = userRole.some(
 			(role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule'
 		);
 
-		const congBackupAllowed = adminRole || scheduleEditor || elderRole;
-
-		const backupLimited = !adminRole && !scheduleEditor && elderRole;
-
 		const cong_backup = req.body.cong_backup as BackupData;
 
-		if (congBackupAllowed) {
-			cong.saveBackup(cong_backup, backupLimited);
-		}
+		cong.saveBackup(cong_backup, userRole);
 
 		const userPerson = cong_backup.persons?.at(0);
 

@@ -11,8 +11,7 @@ import {
 import { decryptData, encryptData } from '../services/encryption/encryption.js';
 import { generateUserSecret } from '../utils/user_utils.js';
 import { CongregationsList } from './Congregations.js';
-import { saveCongBackup, saveIncomingReports } from '../services/firebase/congregations.js';
-import { BackupData } from '../definition/congregation.js';
+import { saveCongPersons, saveIncomingReports } from '../services/firebase/congregations.js';
 
 export class User {
 	id: string;
@@ -323,18 +322,11 @@ export class User {
 
 		const settings = structuredClone(cong.settings);
 
-		const cong_backup = {
-			persons,
-			app_settings: {
-				cong_settings: settings,
-			},
-		} as BackupData;
+		const lastBackup = await saveCongPersons(cong.id, persons);
 
-		const lastBackup = await saveCongBackup(cong.id, cong_backup, true);
+		cong.persons = persons;
 
-		cong.persons = cong_backup.persons;
-
-		const newSettings = cong_backup.app_settings.cong_settings;
+		const newSettings = structuredClone(cong.settings);
 		newSettings.last_backup = lastBackup;
 		cong.settings = settings;
 	}
