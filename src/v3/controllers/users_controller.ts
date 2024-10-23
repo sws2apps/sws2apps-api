@@ -486,6 +486,16 @@ export const retrieveUserBackup = async (req: Request, res: Response, next: Next
 				result.user_bible_studies = user.bible_studies;
 				result.user_field_service_reports = user.field_service_reports;
 				result.field_service_groups = cong.field_service_groups;
+
+				if (!result.cong_field_service_reports && user.profile.congregation.user_local_uid) {
+					const congUserReports = cong.field_service_reports.filter((record) => {
+						const data = record.report_data as StandardRecord;
+
+						return data.person_uid === user.profile.congregation!.user_local_uid;
+					});
+
+					result.cong_field_service_reports = congUserReports;
+				}
 			}
 
 			if (personMinimal) {
