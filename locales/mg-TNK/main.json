@@ -1,14 +1,14 @@
 {
-	"tr_welcomeTitle": "Welcome to Organized app!",
-	"tr_welcomeDesc": "Thanks for registering! We’re excited for you to explore Organized. Watch this introductory video to start using the app and make organizing all your theocratic activities easier:",
-	"tr_watchVideoLabel": "Watch the video on YouTube",
-	"tr_moreInfoTitle": "More info about the app:",
-	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>User guide</a> that provides step-by-step instructions",
-	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Our blog</a> with tips and useful features",
-	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Support the app</a> with a donation to power its growth",
-	"tr_login": "Log in to your Organized account",
-	"tr_loginDesc": "We've received a request to log in with your email. Please confirm the login by clicking the button below.",
-	"tr_loginBtn": "Log in to Organized",
-	"tr_loginAltText": "If you can’t use the login button above, please use the following link. Make sure it is not cropped when you are copying it:",
-	"tr_loginIgnoreText": "If you did not request this link, please just ignore this email."
+	"tr_welcomeTitle": "Tongasoa eto amin’ny Organized!",
+	"tr_welcomeDesc": "Misaotra anao namorona kaonty! Tena faly izahay hoe hampiasa ny programa Organized ianao. Jereo ity video fampidirana ity dia ho hitanao fa hanamora ny asa tokony ataonao ity programa ity:",
+	"tr_watchVideoLabel": "Hijery ny video ao amin’ny YouTube",
+	"tr_moreInfoTitle": "Fanazavana fanampiny:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>Fanampiana</a>, ahitanao tsipiriany momba ny fampiasana azy",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Vaovao</a>, ahitanao soso-kevitra sy fanampiana hafa",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Hanohana an’ity programa ity</a> amin’ny alalan’ny fanomezana",
+	"tr_login": "Hiditra ao amin’ny kaontinao Organized",
+	"tr_loginDesc": "Naharay fangatahana avy aty amin’ity adiresinao ity izahay mba hidirana amin’ny programa Organized. Tsindrio ny rohy eto ambany raha hiditra.",
+	"tr_loginBtn": "Hiditra ao amin’ny Organized",
+	"tr_loginAltText": "Raha tsy mandeha ny rohy eo ambony, dia ampiasao ity eto ambany ity. Jereo tsara sao misy tapaka ilay izy rehefa mandika ilay izy ianao:",
+	"tr_loginIgnoreText": "Azonao fafana fotsiny ity hafatra ity raha tsy nangataka an’io rohy io ianao."
 }
