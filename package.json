@@ -42,7 +42,7 @@
 		"i18next-http-middleware": "^3.6.0",
 		"is-online": "^11.0.0",
 		"node-fetch": "^3.3.2",
-		"nodemailer": "^6.9.15",
+		"nodemailer": "^6.9.16",
 		"nodemailer-express-handlebars": "^7.0.0",
 		"nodemailer-juice": "^1.0.1",
 		"otpauth": "^9.3.4",
