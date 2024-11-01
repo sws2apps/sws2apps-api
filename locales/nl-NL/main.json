@@ -1,0 +1,14 @@
+{
+	"tr_welcomeTitle": "Welkom bij de Organized app!",
+	"tr_welcomeDesc": "Bedankt voor het registreren! We zijn enthousiast dat je Organized gaat verkennen. Bekijk deze introductievideo om de app te gaan gebruiken en het organiseren van al je theocratische activiteiten gemakkelijker te maken:",
+	"tr_watchVideoLabel": "Bekijk de video op YouTube",
+	"tr_moreInfoTitle": "Meer info over de app:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>Gebruikershandleiding</a> met stapsgewijze instructies",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Onze blog</a> met tips en handige functies",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Steun de app</a> met een donatie om de groei te stimuleren",
+	"tr_login": "Log in op je Organized account",
+	"tr_loginDesc": "We hebben een verzoek ontvangen om in te loggen met je e-mailadres. Bevestig de login door op de onderstaande knop te klikken.",
+	"tr_loginBtn": "Log in op Organized",
+	"tr_loginAltText": "Als je de login-knop hierboven niet kunt gebruiken, gebruik dan de volgende link. Zorg ervoor dat deze niet wordt afgebroken wanneer je hem kopieert:",
+	"tr_loginIgnoreText": "Als je dit link niet hebt aangevraagd, negeer deze e-mail dan gewoon."
+}
