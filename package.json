@@ -24,7 +24,7 @@
 	"dependencies": {
 		"@crowdin/crowdin-api-client": "^1.38.0",
 		"@logtail/node": "^0.5.2",
-		"compression": "^1.7.4",
+		"compression": "^1.7.5",
 		"cookie-parser": "^1.4.7",
 		"cors": "^2.8.5",
 		"cross-env": "^7.0.3",
