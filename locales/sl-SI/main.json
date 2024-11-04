@@ -1,14 +1,14 @@
 {
-	"tr_welcomeTitle": "Welcome to Organized app!",
-	"tr_welcomeDesc": "Thanks for registering! We’re excited for you to explore Organized. Watch this introductory video to start using the app and make organizing all your theocratic activities easier:",
-	"tr_watchVideoLabel": "Watch the video on YouTube",
-	"tr_moreInfoTitle": "More info about the app:",
-	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>User guide</a> that provides step-by-step instructions",
-	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Our blog</a> with tips and useful features",
-	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Support the app</a> with a donation to power its growth",
-	"tr_login": "Log in to your Organized account",
-	"tr_loginDesc": "We've received a request to log in with your email. Please confirm the login by clicking the button below.",
-	"tr_loginBtn": "Log in to Organized",
-	"tr_loginAltText": "If you can’t use the login button above, please use the following link. Make sure it is not cropped when you are copying it:",
-	"tr_loginIgnoreText": "If you did not request this link, please just ignore this email."
+	"tr_welcomeTitle": "Dobrodošli v aplikaciji Organized!",
+	"tr_welcomeDesc": "Hvala za registracijo! Veselimo se, da boš raziskoval Organized. Oglej si ta uvodni videoposnetek, da začneš uporabljati aplikacijo in olajšaš organizacijo vseh svojih teokratskih dejavnosti:",
+	"tr_watchVideoLabel": "Oglej si video na YouTubu",
+	"tr_moreInfoTitle": "Več informacij o aplikaciji:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>Uporabniški priročnik</a> ki ponuja navodila korak za korakom",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Naš blog</a> s nasveti in uporabnimi funkcijami",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Podpri aplikacijo</a> z donacijo za njeno rast",
+	"tr_login": "Prijavi se v svoj račun na Organized",
+	"tr_loginDesc": "Prejeli smo zahtevo za prijavo s tvojim e-poštnim naslovom. Prosimo, potrdi prijavo s klikom na spodnji gumb.",
+	"tr_loginBtn": "Prijavi se v Organized",
+	"tr_loginAltText": "Če ne moreš uporabiti zgornjega gumba za prijavo, uporabi naslednjo povezavo. Poskrbi, da se povezava ne skrajša med kopiranjem:",
+	"tr_loginIgnoreText": "Če te povezavo nisi zahteval, prosimo, da ta e-pošto prezreš."
 }
