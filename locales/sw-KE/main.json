@@ -1,14 +1,14 @@
 {
-	"tr_welcomeTitle": "Welcome to Organized app!",
-	"tr_welcomeDesc": "Thanks for registering! We’re excited for you to explore Organized. Watch this introductory video to start using the app and make organizing all your theocratic activities easier:",
-	"tr_watchVideoLabel": "Watch the video on YouTube",
-	"tr_moreInfoTitle": "More info about the app:",
-	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>User guide</a> that provides step-by-step instructions",
-	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Our blog</a> with tips and useful features",
-	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Support the app</a> with a donation to power its growth",
-	"tr_login": "Log in to your Organized account",
-	"tr_loginDesc": "We've received a request to log in with your email. Please confirm the login by clicking the button below.",
-	"tr_loginBtn": "Log in to Organized",
-	"tr_loginAltText": "If you can’t use the login button above, please use the following link. Make sure it is not cropped when you are copying it:",
-	"tr_loginIgnoreText": "If you did not request this link, please just ignore this email."
+	"tr_welcomeTitle": "Karibu kwenye mfumo wa Organized!",
+	"tr_welcomeDesc": "Asante kwa kujiandikisha! Tunafurahi sana wewe kugundua Organized. Tazama video hii ya utangulizi ili kuanza kutumia app na kufanya kupanga shughuli zako zote za kietheolojia iwe rahisi:",
+	"tr_watchVideoLabel": "Tazama video kwenye YouTube",
+	"tr_moreInfoTitle": "Maelezo zaidi kuhusu app:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>Mwongozo wa mtumiaji</a> unaotoa maelekezo kwa hatua kwa hatua",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Blogu yetu</a> yenye vidokezo na vipengele muhimu",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Saidi app</a> kwa kutoa michango kuimarisha ukuaji wake",
+	"tr_login": "Ingia kwenye akaunti yako ya Organized",
+	"tr_loginDesc": "Tumepokea ombi la kuingia kwa kutumia barua pepe yako. Tafadhali thibitisha kuingia kwa kubofya kitufe kilicho hapa chini.",
+	"tr_loginBtn": "Ingia kwenye Organized",
+	"tr_loginAltText": "Kama huwezi kutumia kitufe cha kuingia hapo juu, tafadhali tumia kiungo hiki kilicho hapa chini. Hakikisha hakikukatwa unapokikopa:",
+	"tr_loginIgnoreText": "Kama hujafanya ombi la kiungo hiki, tafadhali tupuuze tu barua pepe hii."
 }
