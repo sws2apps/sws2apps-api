@@ -1,0 +1,14 @@
+{
+	"tr_welcomeTitle": "Dobrodošli v aplikaciji Organized!",
+	"tr_welcomeDesc": "Hvala za registracijo! Veselimo se, da boš raziskoval Organized. Oglej si ta uvodni videoposnetek, da začneš uporabljati aplikacijo in olajšaš organizacijo vseh svojih teokratskih dejavnosti:",
+	"tr_watchVideoLabel": "Oglej si video na YouTubu",
+	"tr_moreInfoTitle": "Več informacij o aplikaciji:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>Uporabniški priročnik</a> ki ponuja navodila korak za korakom",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Naš blog</a> s nasveti in uporabnimi funkcijami",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Podpri aplikacijo</a> z donacijo za njeno rast",
+	"tr_login": "Prijavi se v svoj račun na Organized",
+	"tr_loginDesc": "Prejeli smo zahtevo za prijavo s tvojim e-poštnim naslovom. Prosimo, potrdi prijavo s klikom na spodnji gumb.",
+	"tr_loginBtn": "Prijavi se v Organized",
+	"tr_loginAltText": "Če ne moreš uporabiti zgornjega gumba za prijavo, uporabi naslednjo povezavo. Poskrbi, da se povezava ne skrajša med kopiranjem:",
+	"tr_loginIgnoreText": "Če te povezavo nisi zahteval, prosimo, da ta e-pošto prezreš."
+}

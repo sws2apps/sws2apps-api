@@ -1,0 +1,14 @@
+{
+	"tr_welcomeTitle": "Karibu kwenye mfumo wa Organized!",
+	"tr_welcomeDesc": "Asante kwa kujiandikisha! Tunafurahi sana wewe kugundua Organized. Tazama video hii ya utangulizi ili kuanza kutumia app na kufanya kupanga shughuli zako zote za kietheolojia iwe rahisi:",
+	"tr_watchVideoLabel": "Tazama video kwenye YouTube",
+	"tr_moreInfoTitle": "Maelezo zaidi kuhusu app:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>Mwongozo wa mtumiaji</a> unaotoa maelekezo kwa hatua kwa hatua",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Blogu yetu</a> yenye vidokezo na vipengele muhimu",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Saidi app</a> kwa kutoa michango kuimarisha ukuaji wake",
+	"tr_login": "Ingia kwenye akaunti yako ya Organized",
+	"tr_loginDesc": "Tumepokea ombi la kuingia kwa kutumia barua pepe yako. Tafadhali thibitisha kuingia kwa kubofya kitufe kilicho hapa chini.",
+	"tr_loginBtn": "Ingia kwenye Organized",
+	"tr_loginAltText": "Kama huwezi kutumia kitufe cha kuingia hapo juu, tafadhali tumia kiungo hiki kilicho hapa chini. Hakikisha hakikukatwa unapokikopa:",
+	"tr_loginIgnoreText": "Kama hujafanya ombi la kiungo hiki, tafadhali tupuuze tu barua pepe hii."
+}
