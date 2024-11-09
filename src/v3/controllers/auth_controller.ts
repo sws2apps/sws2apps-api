@@ -116,6 +116,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 				const masterKeyNeeded = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
 
 				userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation.user_local_uid;
+				userInfo.app_settings.user_settings.user_members_delegate = authUser.profile.congregation.user_members_delegate;
 				userInfo.app_settings.user_settings.cong_role = authUser.profile.congregation.cong_role;
 
 				const midweek = userCong.settings.midweek_meeting.map((record) => {
@@ -296,6 +297,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response, next: 
 
 			if (userCong) {
 				userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation.user_local_uid;
+				userInfo.app_settings.user_settings.user_members_delegate = authUser.profile.congregation.user_members_delegate;
 				userInfo.app_settings.user_settings.cong_role = authUser.profile.congregation.cong_role;
 
 				const midweek = userCong.settings.midweek_meeting.map((record) => {

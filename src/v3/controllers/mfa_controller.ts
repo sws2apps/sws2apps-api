@@ -85,6 +85,7 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
 
 			if (userCong) {
 				userInfo.app_settings.user_settings.user_local_uid = user.profile.congregation.user_local_uid;
+				userInfo.app_settings.user_settings.user_members_delegate = user.profile.congregation.user_members_delegate;
 				userInfo.app_settings.user_settings.cong_role = user.profile.congregation.cong_role;
 
 				const midweek = userCong.settings.midweek_meeting.map((record) => {
