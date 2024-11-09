@@ -61,6 +61,7 @@ export type UserSettings = {
 };
 
 export type UserProfile = {
+	createdAt?: string;
 	auth_uid?: string;
 	firstname: { value: string; updatedAt: string };
 	lastname: { value: string; updatedAt: string };

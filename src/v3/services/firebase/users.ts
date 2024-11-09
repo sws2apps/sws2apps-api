@@ -151,6 +151,7 @@ export const createUser = async (params: UserNewParams) => {
 		lastname: { value: params.lastname, updatedAt: new Date().toISOString() },
 		role: 'vip',
 		auth_uid: params.auth_uid,
+		createdAt: new Date().toISOString(),
 	};
 
 	await setUserProfile(id, profile);
@@ -167,6 +168,7 @@ export const createPocketUser = async ({
 	user_secret_code,
 }: PocketNewParams) => {
 	const profile: UserProfile = {
+		createdAt: new Date().toISOString(),
 		firstname: { value: user_firstname, updatedAt: new Date().toISOString() },
 		lastname: { value: user_lastname, updatedAt: new Date().toISOString() },
 		role: 'pocket',
