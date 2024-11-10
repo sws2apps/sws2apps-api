@@ -794,3 +794,69 @@ export const congregationDeleteUser = async (req: Request, res: Response, next: 
 		next(err);
 	}
 };
+
+export const setAdminUserUid = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			const msg = formatError(errors);
+
+			res.locals.type = 'warn';
+			res.locals.message = `invalid input: ${msg}`;
+
+			res.status(400).json({
+				message: 'Bad request: provided inputs are invalid.',
+			});
+
+			return;
+		}
+
+		const { id } = req.params;
+
+		if (!id) {
+			res.locals.type = 'warn';
+			res.locals.message = 'the congregation id params is undefined';
+			res.status(400).json({ message: 'CONG_USER_ID_INVALID' });
+
+			return;
+		}
+
+		const cong = CongregationsList.findById(id);
+
+		if (!cong) {
+			res.locals.type = 'warn';
+			res.locals.message = 'no congregation could not be found with the provided id';
+			res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+
+			return;
+		}
+
+		const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+
+		if (!isValid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'user not authorized to access the provided congregation';
+			res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+			return;
+		}
+
+		const uid: string = req.body.user_uid;
+
+		const user = res.locals.currentUser;
+
+		const profile = structuredClone(user.profile);
+		profile.congregation!.user_local_uid = uid;
+
+		await user.updateProfile(profile);
+
+		cong.reloadMembers();
+
+		res.locals.type = 'warn';
+		res.locals.message = 'congregation admin set his user uid';
+		res.status(200).json({ message: 'USER_UID_SET' });
+		return;
+	} catch (err) {
+		next(err);
+	}
+};

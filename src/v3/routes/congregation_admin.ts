@@ -15,12 +15,16 @@ import {
 	globalSearchUser,
 	congregationUserAdd,
 	congregationDeleteUser,
+	setAdminUserUid,
 } from '../controllers/congregation_admin_controller.js';
 
 const router = express.Router();
 
 router.use(visitorChecker());
 router.use(congregationAdminChecker());
+
+// set congregation master key
+router.post('/:id/local-uid', body('user_uid').isString().notEmpty(), setAdminUserUid);
 
 // set congregation master key
 router.post('/:id/master-key', body('cong_master_key').isString().notEmpty().isLength({ min: 16 }), setCongregationMasterKey);
