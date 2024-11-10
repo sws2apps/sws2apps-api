@@ -308,7 +308,7 @@ export const saveCongBackup = async (id: string, cong_backup: BackupData, userRo
 		await setCongSchedules(id, data);
 	}
 
-	if (elderRole && cong_backup.cong_field_service_reports) {
+	if ((elderRole || adminRole) && cong_backup.cong_field_service_reports) {
 		const data = cong_backup.cong_field_service_reports;
 		await setCongFieldServiceReports(id, data);
 	}

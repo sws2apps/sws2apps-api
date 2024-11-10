@@ -3,10 +3,12 @@ import { body, check } from 'express-validator';
 import { pocketVisitorChecker } from '../middleware/visitor_checker.js';
 import {
 	deletePocketSession,
+	getPocketAuxiliaryApplications,
 	getPocketSessions,
 	postPocketReport,
 	retrieveUserBackup,
 	saveUserBackup,
+	submitPocketAuxiliaryApplications,
 	validateInvitation,
 	validatePocket,
 } from '../controllers/pockets_controller.js';
@@ -36,5 +38,11 @@ router.delete('/sessions', body('identifier').notEmpty(), deletePocketSession);
 
 // post field service report
 router.post('/field-service-reports', body('report').isObject().notEmpty(), postPocketReport);
+
+// get auxiliary pioneer applications
+router.get('/applications', getPocketAuxiliaryApplications);
+
+// submit auxiliary pioneer application
+router.post('/applications', body('application').isObject().notEmpty(), submitPocketAuxiliaryApplications);
 
 export default router;

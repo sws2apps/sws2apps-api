@@ -733,6 +733,9 @@ export const getUserUpdates = async (req: Request, res: Response, next: NextFunc
 		const adminRole = roles.includes('admin');
 		const secretaryRole = roles.includes('secretary');
 		const elderRole = roles.includes('elder');
+		const coordinatorRole = roles.includes('coordinator');
+		const serviceOverseerRole = roles.includes('service_overseer');
+		const serviceCommittee = adminRole || coordinatorRole || secretaryRole || serviceOverseerRole;
 		const publicTalkEditor = adminRole || roles.includes('public_talk_schedule');
 
 		const result: CongregationUpdatesType = {
@@ -743,7 +746,7 @@ export const getUserUpdates = async (req: Request, res: Response, next: NextFunc
 			result.cong_master_key = cong.settings.cong_master_key;
 		}
 
-		if (elderRole) {
+		if (serviceCommittee || elderRole) {
 			result.applications = cong.ap_applications;
 		}
 

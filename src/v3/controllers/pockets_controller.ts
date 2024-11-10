@@ -526,3 +526,45 @@ export const postPocketReport = async (req: Request, res: Response, next: NextFu
 		next(err);
 	}
 };
+
+export const getPocketAuxiliaryApplications = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const user = res.locals.currentUser;
+
+		const results = user.getApplications();
+
+		res.locals.type = 'info';
+		res.locals.message = `user get submitted auxiliary pioneer application list`;
+		res.status(200).json(results);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const submitPocketAuxiliaryApplications = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const user = res.locals.currentUser;
+		const congId = user.profile.congregation!.id;
+		const cong = CongregationsList.findById(congId)!;
+
+		const form = req.body.application as StandardRecord;
+
+		const application = {
+			request_id: crypto.randomUUID().toUpperCase(),
+			person_uid: user.profile.congregation!.user_local_uid,
+			months: form.months,
+			continuous: form.continuous,
+			submitted: form.submitted,
+			updatedAt: new Date().toISOString(),
+			expired: null,
+		};
+
+		cong.saveApplication(application);
+
+		res.locals.type = 'info';
+		res.locals.message = `user submitted auxiliary pioneer application`;
+		res.status(200).json({ message: 'APPLICATION_SENT' });
+	} catch (err) {
+		next(err);
+	}
+};
