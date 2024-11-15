@@ -1,14 +1,14 @@
 {
-	"tr_welcomeTitle": "Welcome to Organized app!",
-	"tr_welcomeDesc": "Thanks for registering! We’re excited for you to explore Organized. Watch this introductory video to start using the app and make organizing all your theocratic activities easier:",
-	"tr_watchVideoLabel": "Watch the video on YouTube",
-	"tr_moreInfoTitle": "More info about the app:",
-	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>User guide</a> that provides step-by-step instructions",
-	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Our blog</a> with tips and useful features",
-	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Support the app</a> with a donation to power its growth",
-	"tr_login": "Log in to your Organized account",
-	"tr_loginDesc": "We've received a request to log in with your email. Please confirm the login by clicking the button below.",
-	"tr_loginBtn": "Log in to Organized",
-	"tr_loginAltText": "If you can’t use the login button above, please use the following link. Make sure it is not cropped when you are copying it:",
-	"tr_loginIgnoreText": "If you did not request this link, please just ignore this email."
+	"tr_welcomeTitle": "Tere tulemast Organized rakendusse!",
+	"tr_welcomeDesc": "Täname registreerumise eest! Meil on hea meel, et saad Organized'i avastada. Vaata seda sissejuhatavat videot, et alustada rakenduse kasutamist ja muuta kõigi su teokraatlike tegevuste organiseerimine lihtsamaks:",
+	"tr_watchVideoLabel": "Vaata videot YouTube'is",
+	"tr_moreInfoTitle": "Lisateave rakenduse kohta:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>Kasutusjuhend</a>, mis annab samm-sammult juhiseid",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Meie blogi</a> koos näpunäidetega ja kasulike funktsioonidega",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Toeta rakendust</a> annetusega selle kasvu toetamiseks",
+	"tr_login": "Logi sisse oma Organized'i kontole",
+	"tr_loginDesc": "Oleme saanud taotluse sisselogimiseks sinu e-posti aadressiga. Palun kinnita sisselogimine, klõpsates allolevat nuppu.",
+	"tr_loginBtn": "Logi sisse Organized'i",
+	"tr_loginAltText": "Kui sa ei saa kasutada ülaltoodud sisselogimise nuppu, kasuta palun järgmist linki. Veendu, et see ei oleks lõigatud, kui sa seda kopeerid:",
+	"tr_loginIgnoreText": "Kui sa ei esitanud seda linki, ignoreeri seda e-kirja palun."
 }
