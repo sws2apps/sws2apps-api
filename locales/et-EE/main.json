@@ -1,0 +1,14 @@
+{
+	"tr_welcomeTitle": "Tere tulemast Organized rakendusse!",
+	"tr_welcomeDesc": "Täname registreerumise eest! Meil on hea meel, et saad Organized'i avastada. Vaata seda sissejuhatavat videot, et alustada rakenduse kasutamist ja muuta kõigi su teokraatlike tegevuste organiseerimine lihtsamaks:",
+	"tr_watchVideoLabel": "Vaata videot YouTube'is",
+	"tr_moreInfoTitle": "Lisateave rakenduse kohta:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>Kasutusjuhend</a>, mis annab samm-sammult juhiseid",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Meie blogi</a> koos näpunäidetega ja kasulike funktsioonidega",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Toeta rakendust</a> annetusega selle kasvu toetamiseks",
+	"tr_login": "Logi sisse oma Organized'i kontole",
+	"tr_loginDesc": "Oleme saanud taotluse sisselogimiseks sinu e-posti aadressiga. Palun kinnita sisselogimine, klõpsates allolevat nuppu.",
+	"tr_loginBtn": "Logi sisse Organized'i",
+	"tr_loginAltText": "Kui sa ei saa kasutada ülaltoodud sisselogimise nuppu, kasuta palun järgmist linki. Veendu, et see ei oleks lõigatud, kui sa seda kopeerid:",
+	"tr_loginIgnoreText": "Kui sa ei esitanud seda linki, ignoreeri seda e-kirja palun."
+}
