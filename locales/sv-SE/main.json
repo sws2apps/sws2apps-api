@@ -1,0 +1,14 @@
+{
+	"tr_welcomeTitle": "Välkommen till Organized-appen!",
+	"tr_welcomeDesc": "Tack för att du registrerar dig! Vi är glada att du att utforskar Organized. Titta på den här introduktionsvideon för att börja använda appen som gör det enklare att organisera alla dina teokratiska aktiviteter:",
+	"tr_watchVideoLabel": "Se videon på YouTube",
+	"tr_moreInfoTitle": "Mer information om appen:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>Användarguide</a> som innehåller steg-för-steg-instruktioner",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Vår blogg</a> med tips och användbara funktioner",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Stöd appen</a> med en donation för att driva på dess utveckling",
+	"tr_login": "Logga in på ditt Organized konto",
+	"tr_loginDesc": "Vi har fått en begäran om att logga in med din e-post. Vänligen bekräfta inloggningen genom att klicka på knappen nedan.",
+	"tr_loginBtn": "Logga in på Organized",
+	"tr_loginAltText": "Om du inte kan använda inloggningsknappen ovan, använd följande länk. Se till att du får med hela länken när du kopierar den:",
+	"tr_loginIgnoreText": "Om du inte har begärt denna länk, vänligen ignorera detta e-postmeddelande."
+}

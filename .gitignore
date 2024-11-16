@@ -3,6 +3,7 @@
 # misc
 cong_backup
 **/S-34/*.json
+.idx
 
 # dependencies
 /node_modules
@@ -18,6 +19,7 @@ cong_backup
 /dist
 
 # misc
+.firebaserc
 .DS_Store
 .env
 .env.local

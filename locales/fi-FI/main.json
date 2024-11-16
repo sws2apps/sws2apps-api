@@ -1,0 +1,14 @@
+{
+	"tr_welcomeTitle": "Tervetuloa Organized sovellukseen!",
+	"tr_welcomeDesc": "Kiitos rekisteröitymisestä! Olemme innoissamme että haluat tutustua Orgnized-sovellukseen. Katso tämä esittelyvideo, jotta voit aloittaa sovelluksen käytön ja tehdä kaiken teokraattisen toiminnan järjestämisestä helpompaa:",
+	"tr_watchVideoLabel": "Katso video YouTubessa",
+	"tr_moreInfoTitle": "Lisätietoa sovelluksesta:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>käyttöopas</a>, joka tarjoaa vaihe vaiheelta ohjeita",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Meidän blogi</a> vinkkejä ja hyödyllisiä ominaisuuksia",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Tue sovellusta</a> lahjoittamalla sen kehityksen edistämiseksi",
+	"tr_login": "Kirjaudu sisään Organized tilillesi",
+	"tr_loginDesc": "Olemme vastaanottaneet pyynnön kirjautua sisääni. Ole hyvä ja vahvista kirjautuminen klikkaamalla alla olevaa painiketta.",
+	"tr_loginBtn": "Kirjaudu sisään Organizediin",
+	"tr_loginAltText": "Jos et voi käyttää yllä olevaa kirjautumispainiketta, käytä seuraavaa linkkiä. Varmista, että kopioit koko linkin:",
+	"tr_loginIgnoreText": "Jos et ole pyytänyt tätä linkkiä, jätä tämä sähköposti huomiotta."
+}

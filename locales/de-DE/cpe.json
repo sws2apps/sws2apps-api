@@ -1,0 +1,7 @@
+{
+	"emailFooter": "<p>Thank you\n<br>The Scheduling Workbox System Team</p>",
+	"passwordLessSubject": "Passwordless Link to Sign in to CPE app",
+	"passwordLessTemplate": "<p>Hello</p>\n<p>We received a request to sign in to Congregation Program for Everyone using this email address. If you want to sign in with your {{ email }} account, please use the link below:</p>\n<p><a href='{{ linkPasswordLess }}'>Sign in</a></p>\n<p>If you did not request this link, you can safely ignore this email.</p>\n<p>If you are having trouble opening the link above, please use the following link. Make sure the link is not cropped when you are opening it:</p>\n<p>{{ linkPasswordLess }}</p>",
+	"welcomeCPESubject": "Welcome to CPE",
+	"welcomeCPETemplate": "<p>Hello {{ name }},</p>\n<p>You recently created an sws2apps account to be used with the <strong>Congregation Program for Everyone (CPE)</strong> application. Your account is now ready to use with the following congregation: <strong>{{ congregation }}.</strong></p>\n<p>To begin with, we are suggesting you to take a tour at our <a href='https://sws2apps.com/docs/category/congregation-program-for-everyone'>documentation website</a> to learn more about all the features of CPE application.</p>\n<p>It is good to have you on board, and we warmly welcome you. 🎉🎉🎉</p>"
+}
