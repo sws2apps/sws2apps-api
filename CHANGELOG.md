@@ -1,3 +1,13 @@
+# [3.0.0](https://github.com/sws2apps/sws2apps-api/compare/v2.101.0...v3.0.0) (2024-11-18)
+
+
+* feat(api)!: force version bump ([5121978](https://github.com/sws2apps/sws2apps-api/commit/51219788cfa88dd5db6541f45473df4d04297a8a))
+
+
+### BREAKING CHANGES
+
+* this requires all CPE clients to be updated
+
 # [2.101.0](https://github.com/sws2apps/sws2apps-api/compare/v2.100.0...v2.101.0) (2024-11-18)
 
 
