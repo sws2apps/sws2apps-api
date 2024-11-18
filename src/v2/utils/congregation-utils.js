@@ -4,7 +4,7 @@ import { Congregation } from '../classes/Congregation.js';
 const db = getFirestore(); //get default database
 
 export const dbFetchCongregations = async () => {
-	const congRef = db.collection('congregations_v2');
+	const congRef = db.collection('congregations');
 	const snapshot = await congRef.get();
 
 	const items = [];

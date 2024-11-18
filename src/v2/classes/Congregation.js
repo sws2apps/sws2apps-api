@@ -41,7 +41,7 @@ export class Congregation {
 }
 
 Congregation.prototype.loadDetails = async function () {
-	const congRef = db.collection('congregations_v2').doc(this.id);
+	const congRef = db.collection('congregations').doc(this.id);
 	const congSnap = await congRef.get();
 
 	this.country_code = congSnap.data().country_code;
@@ -128,7 +128,7 @@ Congregation.prototype.loadDetails = async function () {
 
 Congregation.prototype.updateInfo = async function (congInfo) {
 	congInfo.cong_number = congInfo.cong_number.toString();
-	await db.collection('congregations_v2').doc(this.id).set(congInfo, { merge: true });
+	await db.collection('congregations').doc(this.id).set(congInfo, { merge: true });
 	this.country_code = congInfo.country_code;
 	this.cong_name = congInfo.cong_name;
 	this.cong_number = congInfo.cong_number;
@@ -1133,7 +1133,7 @@ Congregation.prototype.saveBackup = async function (payload) {
 	if (cong_lateReports) data.cong_lateReports = this.cong_lateReports;
 	if (cong_minutesReports) data.cong_minutesReports = this.cong_minutesReports;
 
-	await db.collection('congregations_v2').doc(this.id).set(data, { merge: true });
+	await db.collection('congregations').doc(this.id).set(data, { merge: true });
 
 	// update user setting
 	const userLocalUID = cong_settings[0].user_local_uid || '';
@@ -1220,7 +1220,7 @@ Congregation.prototype.retrieveBackup = function () {
 };
 
 Congregation.prototype.removeUser = async function (userId) {
-	await db.collection('users_v2').doc(userId).update({ congregation: FieldValue.delete() });
+	await db.collection('users').doc(userId).update({ congregation: FieldValue.delete() });
 
 	// update users list
 	const user = users.findUserById(userId);
@@ -1236,10 +1236,10 @@ Congregation.prototype.removeUser = async function (userId) {
 Congregation.prototype.addUser = async function (userId, role, fullname) {
 	const newRole = role || [];
 	const data = { congregation: { id: this.id, role: newRole } };
-	await db.collection('users_v2').doc(userId).set(data, { merge: true });
+	await db.collection('users').doc(userId).set(data, { merge: true });
 
 	if (fullname) {
-		await db.collection('users_v2').doc(userId).update({
+		await db.collection('users').doc(userId).update({
 			'about.name': fullname,
 		});
 	}
@@ -1261,7 +1261,7 @@ Congregation.prototype.addUser = async function (userId, role, fullname) {
 
 Congregation.prototype.updateUserRole = async function (userId, userRole) {
 	const data = { congregation: { id: this.id, role: userRole } };
-	await db.collection('users_v2').doc(userId).set(data, { merge: true });
+	await db.collection('users').doc(userId).set(data, { merge: true });
 
 	// update users list
 	const user = users.findUserById(userId);
@@ -1275,7 +1275,7 @@ Congregation.prototype.createPocketUser = async function (pocketName, pocketId) 
 	const code = randomstring.generate(10).toUpperCase();
 	const secureCode = encryptData(`${this.country_code}${this.cong_number}-${code}`);
 
-	const ref = await db.collection('users_v2').add({
+	const ref = await db.collection('users').add({
 		about: { name: pocketName, role: 'pocket' },
 		congregation: {
 			id: this.id,
@@ -1336,7 +1336,7 @@ Congregation.prototype.sendPocketSchedule = async function (cong_schedules, cong
 		}
 	}
 
-	await db.collection('congregations_v2').doc(this.id).update({
+	await db.collection('congregations').doc(this.id).update({
 		cong_settings,
 	});
 
@@ -1672,7 +1672,7 @@ Congregation.prototype.requestAccessCongregationSpeakers = async function (cong_
 
 	const data = { cong_outgoing_speakers: requestedCong.cong_outgoing_speakers_access };
 
-	await db.collection('congregations_v2').doc(cong_id).set(data, { merge: true });
+	await db.collection('congregations').doc(cong_id).set(data, { merge: true });
 };
 
 Congregation.prototype.speakersRequests = function () {
@@ -1726,7 +1726,7 @@ Congregation.prototype.speakersRequestApprove = async function (cong_id) {
 	if (request) request.status = 'approved';
 
 	const data = { cong_outgoing_speakers: this.cong_outgoing_speakers_access };
-	await db.collection('congregations_v2').doc(this.id).set(data, { merge: true });
+	await db.collection('congregations').doc(this.id).set(data, { merge: true });
 };
 
 Congregation.prototype.speakersRequestDisapprove = async function (cong_id) {
@@ -1734,7 +1734,7 @@ Congregation.prototype.speakersRequestDisapprove = async function (cong_id) {
 	if (request) request.status = 'disapproved';
 
 	const data = { cong_outgoing_speakers: this.cong_outgoing_speakers_access };
-	await db.collection('congregations_v2').doc(this.id).set(data, { merge: true });
+	await db.collection('congregations').doc(this.id).set(data, { merge: true });
 };
 
 Congregation.prototype.visitingSpeakers = function (congs) {
@@ -1783,7 +1783,7 @@ Congregation.prototype.updateSpeakersAccess = async function (congs) {
 	}
 
 	const data = { cong_outgoing_speakers: this.cong_outgoing_speakers_access };
-	await db.collection('congregations_v2').doc(this.id).set(data, { merge: true });
+	await db.collection('congregations').doc(this.id).set(data, { merge: true });
 
 	const result = this.cong_outgoing_speakers_access.map((access) => {
 		const cong = congregations.findCongregationById(access.cong_id);

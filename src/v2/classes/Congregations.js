@@ -38,7 +38,7 @@ Congregations.prototype.findByNumber = function (number) {
 
 Congregations.prototype.create = async function (congInfo) {
 	congInfo.cong_number = congInfo.cong_number.toString();
-	const cong = await db.collection('congregations_v2').add(congInfo);
+	const cong = await db.collection('congregations').add(congInfo);
 
 	const newCong = new Congregation(cong.id);
 	await newCong.loadDetails();
@@ -49,7 +49,7 @@ Congregations.prototype.create = async function (congInfo) {
 };
 
 Congregations.prototype.delete = async function (id) {
-	await db.collection('congregations_v2').doc(id).delete();
+	await db.collection('congregations').doc(id).delete();
 
 	this.list = this.list.filter((cong) => cong.id !== id);
 };

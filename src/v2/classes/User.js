@@ -42,7 +42,7 @@ export class User {
 }
 
 User.prototype.loadDetails = async function () {
-	const userRef = db.collection('users_v2').doc(this.id);
+	const userRef = db.collection('users').doc(this.id);
 	const userSnap = await userRef.get();
 
 	this.username = userSnap.data().about.name;
@@ -97,7 +97,7 @@ User.prototype.loadDetails = async function () {
 	}
 
 	if (this.cong_id.length > 0) {
-		const congRef = db.collection('congregations_v2').doc(this.cong_id);
+		const congRef = db.collection('congregations').doc(this.cong_id);
 		const docSnap = await congRef.get();
 		this.cong_name = docSnap.data().cong_name || '';
 		this.cong_number = docSnap.data().cong_number || '';
@@ -120,7 +120,7 @@ User.prototype.updateEmailAuth = async function (uid, email) {
 
 User.prototype.updateFullname = async function (value) {
 	try {
-		await db.collection('users_v2').doc(this.id).update({ 'about.name': value });
+		await db.collection('users').doc(this.id).update({ 'about.name': value });
 		this.username = value;
 	} catch (error) {
 		throw new Error(error.message);
@@ -129,7 +129,7 @@ User.prototype.updateFullname = async function (value) {
 
 User.prototype.updatePocketDetails = async function ({ user_local_uid, user_role, user_members_delegate }) {
 	try {
-		await db.collection('users_v2').doc(this.id).update({
+		await db.collection('users').doc(this.id).update({
 			'congregation.local_uid': user_local_uid,
 			'congregation.members_delegate': user_members_delegate,
 			'congregation.pocket_role': user_role,
@@ -149,7 +149,7 @@ User.prototype.updatePocketDetails = async function ({ user_local_uid, user_role
 
 User.prototype.updateMembersDelegate = async function (members) {
 	try {
-		await db.collection('users_v2').doc(this.id).update({ 'congregation.members_delegate': members });
+		await db.collection('users').doc(this.id).update({ 'congregation.members_delegate': members });
 		this.user_members_delegate = members;
 
 		// update cong members
@@ -163,9 +163,9 @@ User.prototype.updateMembersDelegate = async function (members) {
 User.prototype.updateLocalUID = async function (id) {
 	try {
 		if (id !== '') {
-			await db.collection('users_v2').doc(this.id).update({ 'congregation.local_uid': id });
+			await db.collection('users').doc(this.id).update({ 'congregation.local_uid': id });
 		} else {
-			await db.collection('users_v2').doc(this.id).update({ 'congregation.local_uid': FieldValue.delete() });
+			await db.collection('users').doc(this.id).update({ 'congregation.local_uid': FieldValue.delete() });
 		}
 
 		this.user_local_uid = id;
@@ -207,7 +207,7 @@ User.prototype.revokeSession = async function (visitorID) {
 	try {
 		const newSessions = this.sessions.filter((session) => session.visitorid !== visitorID);
 
-		await db.collection('users_v2').doc(this.id).update({ 'about.sessions': newSessions });
+		await db.collection('users').doc(this.id).update({ 'about.sessions': newSessions });
 
 		this.sessions = newSessions;
 		return this.getActiveSessions();
@@ -218,7 +218,7 @@ User.prototype.revokeSession = async function (visitorID) {
 
 User.prototype.updateSessions = async function (sessions) {
 	try {
-		await db.collection('users_v2').doc(this.id).update({ 'about.sessions': sessions });
+		await db.collection('users').doc(this.id).update({ 'about.sessions': sessions });
 
 		this.sessions = sessions;
 	} catch (error) {
@@ -228,7 +228,7 @@ User.prototype.updateSessions = async function (sessions) {
 
 User.prototype.enableMFA = async function () {
 	try {
-		await db.collection('users_v2').doc(this.id).update({ 'about.mfaEnabled': true });
+		await db.collection('users').doc(this.id).update({ 'about.mfaEnabled': true });
 
 		this.mfaEnabled = true;
 	} catch (error) {
@@ -245,7 +245,7 @@ User.prototype.logout = async function (visitorID) {
 };
 
 User.prototype.adminLogout = async function () {
-	await db.collection('users_v2').doc(this.id).update({ 'about.sessions': [] });
+	await db.collection('users').doc(this.id).update({ 'about.sessions': [] });
 	this.sessions = [];
 };
 
@@ -277,7 +277,7 @@ User.prototype.generateSecret = async function () {
 			const encryptedData = encryptData(secret);
 
 			// save secret
-			await db.collection('users_v2').doc(this.id).update({ 'about.secret': encryptedData });
+			await db.collection('users').doc(this.id).update({ 'about.secret': encryptedData });
 
 			this.secret = encryptedData;
 			return secret;
@@ -295,7 +295,7 @@ User.prototype.generatePocketCode = async function () {
 		const code = `${cong.country_code}${cong.cong_number}-${randomString}`;
 		const secureCode = encryptData(code);
 
-		await db.collection('users_v2').doc(this.id).update({
+		await db.collection('users').doc(this.id).update({
 			'congregation.oCode': secureCode,
 		});
 
@@ -311,7 +311,7 @@ User.prototype.generatePocketCode = async function () {
 
 User.prototype.removePocketCode = async function () {
 	try {
-		await db.collection('users_v2').doc(this.id).update({
+		await db.collection('users').doc(this.id).update({
 			'congregation.oCode': '',
 		});
 
@@ -336,7 +336,7 @@ User.prototype.decryptSecret = function () {
 
 User.prototype.updatePocketDevices = async function (devices) {
 	try {
-		await db.collection('users_v2').doc(this.id).update({
+		await db.collection('users').doc(this.id).update({
 			'congregation.oCode': FieldValue.delete(),
 			'congregation.devices': devices,
 		});
@@ -355,7 +355,7 @@ User.prototype.updatePocketDevices = async function (devices) {
 };
 
 User.prototype.removePocketDevice = async function (devices) {
-	await db.collection('users_v2').doc(this.id).update({
+	await db.collection('users').doc(this.id).update({
 		'congregation.devices': devices,
 	});
 
@@ -409,7 +409,7 @@ User.prototype.revokeToken = async function () {
 		'about.secret': encryptedData,
 		'about.sessions': [],
 	};
-	await db.collection('users_v2').doc(this.id).update(data);
+	await db.collection('users').doc(this.id).update(data);
 
 	this.mfaEnabled = false;
 	this.secret = encryptedData;
@@ -417,7 +417,7 @@ User.prototype.revokeToken = async function () {
 };
 
 User.prototype.makeAdmin = async function () {
-	await db.collection('users_v2').doc(this.id).update({ 'about.role': 'admin' });
+	await db.collection('users').doc(this.id).update({ 'about.role': 'admin' });
 	this.global_role = 'admin';
 };
 
@@ -435,7 +435,7 @@ User.prototype.updatePocketDevicesInfo = async function (visitorid) {
 	];
 
 	await db
-		.collection('users_v2')
+		.collection('users')
 		.doc(this.id)
 		.update({ 'congregation.devices': updatedDevices, 'congregation.oCode': FieldValue.delete() });
 
@@ -453,7 +453,7 @@ User.prototype.updateSessionsInfo = async function (visitorid) {
 		}
 	});
 
-	await db.collection('users_v2').doc(this.id).update({ 'about.sessions': newSessions });
+	await db.collection('users').doc(this.id).update({ 'about.sessions': newSessions });
 
 	this.sessions = newSessions;
 	this.last_seen = time;
@@ -473,7 +473,7 @@ User.prototype.verifyTempOTPCode = async function (code) {
 		const currentTime = new Date().getTime();
 
 		if (code === verify && currentTime <= timeExpired) {
-			await db.collection('users_v2').doc(this.id).update({ 'about.emailOTP': FieldValue.delete() });
+			await db.collection('users').doc(this.id).update({ 'about.emailOTP': FieldValue.delete() });
 			this.emailOTP = {};
 			return true;
 		}
@@ -641,7 +641,7 @@ User.prototype.saveBackup = async function (payload) {
 
 	const lastBackup = new Date();
 
-	await db.collection('users_v2').doc(this.id).update({ 'congregation.last_backup': lastBackup });
+	await db.collection('users').doc(this.id).update({ 'congregation.last_backup': lastBackup });
 
 	this.last_backup = lastBackup;
 };

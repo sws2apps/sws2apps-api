@@ -107,7 +107,7 @@ Users.prototype.create = async function (fullname, uid) {
 		},
 	};
 
-	const ref = await db.collection('users_v2').add(data);
+	const ref = await db.collection('users').add(data);
 	const user = await this.addNew(ref.id);
 	return user;
 };
@@ -123,13 +123,13 @@ Users.prototype.createPasswordless = async function (email, uid, fullname) {
 		},
 	};
 
-	const ref = await db.collection('users_v2').add(data);
+	const ref = await db.collection('users').add(data);
 	const user = await this.addNew(ref.id);
 	return user;
 };
 
 Users.prototype.delete = async function (userId, authId) {
-	await db.collection('users_v2').doc(userId).delete();
+	await db.collection('users').doc(userId).delete();
 
 	if (authId) await getAuth().deleteUser(authId);
 

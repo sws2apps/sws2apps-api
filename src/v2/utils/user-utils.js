@@ -5,7 +5,7 @@ import { users } from '../classes/Users.js';
 const db = getFirestore();
 
 export const dbFetchUsers = async () => {
-	const userRef = db.collection('users_v2');
+	const userRef = db.collection('users');
 	const snapshot = await userRef.get();
 
 	const items = [];

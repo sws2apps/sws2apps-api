@@ -5,7 +5,7 @@ const db = getFirestore();
 export const initializeAPI = async () => {
 	try {
 		let settingID;
-		const apiSettings = db.collection('api_settings_v2');
+		const apiSettings = db.collection('api_settings');
 		const snapshot = await apiSettings.get();
 		snapshot.forEach((doc) => {
 			settingID = doc.id;
@@ -17,7 +17,7 @@ export const initializeAPI = async () => {
 				minimum_version: '1.0.0',
 			};
 
-			await db.collection('api_settings_v2').add(data);
+			await db.collection('api_settings').add(data);
 			global.minimumVersionCPE = data.minimum_version;
 		}
 	} catch (err) {
