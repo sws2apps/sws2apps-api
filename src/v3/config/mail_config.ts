@@ -1,6 +1,5 @@
 import path from 'path';
 import nodemailer from 'nodemailer';
-import inlineCss from 'nodemailer-juice';
 import Mail from 'nodemailer/lib/mailer/index.js';
 import SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
 import hbs, { NodemailerExpressHandlebarsOptions } from 'nodemailer-express-handlebars';
@@ -34,7 +33,6 @@ const transporter = nodemailer.createTransport(transportOptions, {
 });
 
 transporter.use('compile', hbs(handlebarsOptions));
-transporter.use('compile', inlineCss());
 
 export const MailClient = {
 	sendEmail: async (options: Mail.Options, successText: string) => {
