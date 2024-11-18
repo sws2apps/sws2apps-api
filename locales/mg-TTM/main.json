@@ -1,7 +1,14 @@
 {
-	"emailFooter": "<p>Misaotra betsaka\n<br>Ny Ekipa Scheduling Workbox System Team</p>",
-	"passwordLessSubject": "Rohy Hidirana Amin’ny Programa CPE",
-	"passwordLessTemplate": "<p>Salama,</p>\n<p>Naharay fangatahana avy amin’ity adiresy email ity izahay mba hidirana amin’ny Congregation Program for Everyone. Raha maniry hiditra amin’ny kaontinao {{ email }} ianao, dia sokafy ity rohy manaraka ity:</p>\n<p><a href='{{ linkPasswordLess }}'>Hiditra</a></p>\n<p>Aza raharahaina fotsiny ity hafatra ity raha tsy nangataka an’ity rohy ity ianao.</p>\n<p>Raha misy olana ka tsy mandeha ny rohy eo ambony, dia ampiasao indray ity rohy manaraka ity. Ataovy azo antoka tsara hoe tsy misy tapaka ny soratra rehetra amin’ilay rohy:</p>\n<p>{{ linkPasswordLess }}</p>",
-	"welcomeCPESubject": "Tongasoa eto amin’ny CPE",
-	"welcomeCPETemplate": "<p>Salama {{ name }},</p>\n<p>Namorona kaonty sws2apps mba ho ampiasaina amin’ny programa <strong>Congregation Program for Everyone na CPE</strong> ianao. Efa azo ampiasaina izao io kaontinao io, ary ity ny fiangonana nosafidianao: <strong>{{ congregation }}.</strong></p>\n<p>Manasa anao mba hijery ny tranokalanay izahay raha tianao ny hahafantatra bebe kokoa momba ny fampiasana ny programa CPE.</p>\n<p>Faly miarahaba anao tongasoa ho anisan’ny mpampiasa CPE izahay. 🎉🎉🎉</p>"
+	"tr_welcomeTitle": "Tongasoa eto amin’ny Organized!",
+	"tr_welcomeDesc": "Misaotra anao namorona kaonty! Tena faly izahay hoe hampiasa ny programa Organized ianao. Jereo ity video fampidirana ity dia ho hitanao fa hanamora ny asa tokony ataonao ity programa ity:",
+	"tr_watchVideoLabel": "Hijery ny video ao amin’ny YouTube",
+	"tr_moreInfoTitle": "Fanazavana fanampiny:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>Fanampiana</a>, ahitanao tsipiriany momba ny fampiasana azy",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Vaovao</a>, ahitanao soso-kevitra sy fanampiana hafa",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Hanohana an’ity programa ity</a> amin’ny alalan’ny fanomezana",
+	"tr_login": "Hiditra ao amin’ny kaontinao Organized",
+	"tr_loginDesc": "Naharay fangatahana avy aty amin’ity adiresinao ity izahay mba hidirana amin’ny programa Organized. Tsindrio ny rohy eto ambany raha hiditra.",
+	"tr_loginBtn": "Hiditra ao amin’ny Organized",
+	"tr_loginAltText": "Raha tsy mandeha ny rohy eo ambony, dia ampiasao ity eto ambany ity. Jereo tsara sao misy tapaka ilay izy rehefa mandika ilay izy ianao:",
+	"tr_loginIgnoreText": "Azonao fafana fotsiny ity hafatra ity raha tsy nangataka an’io rohy io ianao."
 }

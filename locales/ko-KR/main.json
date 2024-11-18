@@ -1,0 +1,14 @@
+{
+	"tr_welcomeTitle": "Organized에 오신 것을 환영합니다!",
+	"tr_welcomeDesc": "등록해 주셔서 감사합니다! Organized를 알아보시면 유익하실 겁니다. 이 소개 영상을 보고 앱을 사용하여 신권 활동들을 훨씬 더 쉽게 계획해 보세요: ",
+	"tr_watchVideoLabel": "YouTube에서 영상 보기",
+	"tr_moreInfoTitle": "앱에 대한 더 많은 정보:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>사용자 가이드</a> 단계별 안내를 제공합니다",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>블로그</a>에서 유용한 팁과 기능을 확인하세요",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>앱 후원하기</a> 발전을 위한 후원에 동참해주세요",
+	"tr_login": "Organized 계정에 로그인하기",
+	"tr_loginDesc": "이메일로 로그인 요청이 접수되었습니다. 아래 버튼을 클릭하여 로그인을 확인해주세요.",
+	"tr_loginBtn": "Organized에 로그인",
+	"tr_loginAltText": "위의 로그인 버튼을 사용할 수 없는 경우, 아래 링크를 이용해주세요. 복사할 때 링크가 잘리지 않도록 주의하세요:",
+	"tr_loginIgnoreText": "이 링크를 요청하지 않으셨다면, 이 이메일을 무시하시기 바랍니다."
+}

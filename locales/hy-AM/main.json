@@ -1,0 +1,14 @@
+{
+	"tr_welcomeTitle": "Բարի գալուստ Organized հավելված",
+	"tr_welcomeDesc": "Շնորհակալություն գրանցվելու համար! Մենք ուրախ ենք, որ դուք սկսել եք ուսումնասիրել Organized-ը։ Դիտեք այս ներածական տեսանյութը՝ հավելվածից օգտվելու և ձեր բոլոր աստվածապետական ​​միջոցառումների կազմակերպումը հեշտացնելու համար։",
+	"tr_watchVideoLabel": "Դիտել տեսանյութը YouTube-ում",
+	"tr_moreInfoTitle": "Հավելվածի մասին լրացուցիչ տեղեկություններ.",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'> Օգտագործողի ուղեցույց»</a> , որը տրամադրում է քայլ առ քայլ ցուցումներ",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'> Մեր բլոգը</a> խորհուրդներով և օգտակար առանձնահատկություններով",
+	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'> Աջակցել ծրագրի զարգացմանը</a> նվիրատվությամբ",
+	"tr_login": "Մուտք գործել ձեր Organized-ի հաշիվ",
+	"tr_loginDesc": "Մենք ստացել ենք ձեր էլ.փոստով մուտք գործելու խնդրանք: Խնդրում ենք հաստատել մուտքը՝ սեղմելով ստորև նշված կոճակը:",
+	"tr_loginBtn": "Մուտք գործել Organized",
+	"tr_loginAltText": "Եթե դուք չեք կարողանում օգտվել վերը նշված մուտք գործելու կոճակից, խնդրում ենք օգտագործել հետևյալ հղումը: Համոզվեք, որ այն չի վնասվել պատճենելու ընթացքում.",
+	"tr_loginIgnoreText": "Եթե դուք չեք դիմել հղումը ստանալու համար, խնդրում ենք անտեսել այս էլ փոստը:"
+}

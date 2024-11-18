@@ -1,0 +1,33 @@
+name: Lint Check
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions: read-all
+
+jobs:
+  cypress-run:
+    name: Run linting
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout for linting
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js LTS version
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af
+        with:
+          node-version: lts/Iron
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Check lint
+        run: npm run lint
