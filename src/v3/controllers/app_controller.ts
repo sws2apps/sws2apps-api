@@ -2,14 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 
 const APP_VERSION = process.env.npm_package_version;
 
-export const getRoot = async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		res.locals.type = 'info';
-		res.locals.message = 'success opening main route';
-		res.status(200).json({ message: `SWS Apps API services v${APP_VERSION}` });
-	} catch (err) {
-		next(err);
-	}
+export const getRoot = async (req: Request, res: Response) => {
+	res.locals.type = 'info';
+	res.locals.message = 'success opening main route';
+	res.status(200).json({ message: `SWS Apps API services v${APP_VERSION}` });
 };
 
 export const invalidEndpointHandler = async (req: Request, res: Response) => {

@@ -2,119 +2,99 @@ import { validationResult } from 'express-validator';
 import { users } from '../classes/Users.js';
 import { congregations } from '../classes/Congregations.js';
 
-export const validateAdmin = async (req, res, next) => {
-	try {
-		res.locals.type = 'info';
-		res.locals.message = 'administrator successfully logged in';
+export const validateAdmin = async (req, res) => {
+	res.locals.type = 'info';
+	res.locals.message = 'administrator successfully logged in';
 
-		res.status(200).json({ message: 'OK' });
-	} catch (err) {
-		next(err);
-	}
+	res.status(200).json({ message: 'OK' });
 };
 
-export const logoutAdmin = async (req, res, next) => {
-	try {
-		// remove all sessions
-		const { id } = res.locals.currentUser;
-		const admin = users.findUserById(id);
+export const logoutAdmin = async (req, res) => {
+	// remove all sessions
+	const { id } = res.locals.currentUser;
+	const admin = users.findUserById(id);
 
-		await admin.adminLogout();
+	await admin.adminLogout();
 
-		res.locals.type = 'info';
-		res.locals.message = 'administrator successfully logged out';
-		res.status(200).json({ message: 'LOGGED_OUT' });
-	} catch (err) {
-		next(err);
-	}
+	res.locals.type = 'info';
+	res.locals.message = 'administrator successfully logged out';
+	res.status(200).json({ message: 'LOGGED_OUT' });
 };
 
-export const getBlockedRequests = async (req, res, next) => {
-	try {
-		let reqs = [];
+export const getBlockedRequests = async (req, res) => {
+	let reqs = [];
+	// eslint-disable-next-line no-undef
+	for (let i = 0; i < requestTracker.length; i++) {
 		// eslint-disable-next-line no-undef
-		for (let i = 0; i < requestTracker.length; i++) {
-			// eslint-disable-next-line no-undef
-			const retryOn = requestTracker[i].retryOn || 0;
-			if (retryOn > 0) {
-				const currentDate = new Date().getTime();
-				if (currentDate < retryOn) {
-					// eslint-disable-next-line no-undef
-					reqs.push(requestTracker[i]);
-				}
+		const retryOn = requestTracker[i].retryOn || 0;
+		if (retryOn > 0) {
+			const currentDate = new Date().getTime();
+			if (currentDate < retryOn) {
+				// eslint-disable-next-line no-undef
+				reqs.push(requestTracker[i]);
 			}
 		}
-
-		res.locals.type = 'info';
-		res.locals.message = 'admin fetched blocked requests';
-		res.status(200).json({ message: reqs });
-	} catch (err) {
-		next(err);
 	}
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin fetched blocked requests';
+	res.status(200).json({ message: reqs });
 };
 
-export const unblockRequest = async (req, res, next) => {
-	try {
-		const errors = validationResult(req);
+export const unblockRequest = async (req, res) => {
+	const errors = validationResult(req);
 
-		if (!errors.isEmpty()) {
-			let msg = '';
-			errors.array().forEach((error) => {
-				msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
-			});
+	if (!errors.isEmpty()) {
+		let msg = '';
+		errors.array().forEach((error) => {
+			msg += `${msg === '' ? '' : ', '}${error.path}: ${error.msg}`;
+		});
 
-			res.locals.type = 'warn';
-			res.locals.message = `invalid input: ${msg}`;
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
 
-			res.status(400).json({
-				message: 'Bad request: provided inputs are invalid.',
-			});
+		res.status(400).json({
+			message: 'Bad request: provided inputs are invalid.',
+		});
 
-			return;
-		}
+		return;
+	}
 
+	// eslint-disable-next-line no-undef
+	const ipIndex = requestTracker.findIndex((client) => client.ip === req.body.request_ip);
+
+	if (ipIndex === -1) {
+		res.locals.type = 'warn';
+		res.locals.message = 'failed to unblock request since ip is not valid';
+		res.status(400).json({ message: 'UNBLOCK_FAILED' });
+	} else {
 		// eslint-disable-next-line no-undef
-		const ipIndex = requestTracker.findIndex((client) => client.ip === req.body.request_ip);
-
-		if (ipIndex === -1) {
-			res.locals.type = 'warn';
-			res.locals.message = 'failed to unblock request since ip is not valid';
-			res.status(400).json({ message: 'UNBLOCK_FAILED' });
-		} else {
-			// eslint-disable-next-line no-undef
-			requestTracker.splice(ipIndex, 1);
-			res.locals.type = 'info';
-			res.locals.message = 'request unblocked successfully';
-			// eslint-disable-next-line no-undef
-			res.status(200).json({ message: requestTracker });
-		}
-	} catch (err) {
-		next(err);
+		requestTracker.splice(ipIndex, 1);
+		res.locals.type = 'info';
+		res.locals.message = 'request unblocked successfully';
+		// eslint-disable-next-line no-undef
+		res.status(200).json({ message: requestTracker });
 	}
 };
 
-export const getAdminDashboard = async (req, res, next) => {
-	try {
-		const congsList = congregations.list;
-		const usersList = users.list;
+export const getAdminDashboard = async (req, res) => {
+	const congsList = congregations.list;
+	const usersList = users.list;
 
-		const obj = {
-			users: {
-				total: usersList.length,
-				active: usersList.filter((user) => user.mfaEnabled === true).length,
-				mfaPending: usersList.filter((user) => user.emailVerified === true && user.mfaEnabled === false).length,
-				unverified: usersList.filter((user) => user.emailVerified === false).length,
-				pockets: usersList.filter((user) => user.global_role === 'pocket').length,
-			},
-			congregations: {
-				active: congsList.length,
-			},
-		};
+	const obj = {
+		users: {
+			total: usersList.length,
+			active: usersList.filter((user) => user.mfaEnabled === true).length,
+			mfaPending: usersList.filter((user) => user.emailVerified === true && user.mfaEnabled === false).length,
+			unverified: usersList.filter((user) => user.emailVerified === false).length,
+			pockets: usersList.filter((user) => user.global_role === 'pocket').length,
+		},
+		congregations: {
+			active: congsList.length,
+		},
+	};
 
-		res.locals.type = 'info';
-		res.locals.message = 'admin fetched dashboard';
-		res.status(200).json(obj);
-	} catch (err) {
-		next(err);
-	}
+	res.locals.type = 'info';
+	res.locals.message = 'admin fetched dashboard';
+	res.status(200).json(obj);
 };

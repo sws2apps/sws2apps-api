@@ -24,14 +24,7 @@ import { errorHandler, getRoot, invalidEndpointHandler } from './v3/controllers/
 import resources from './v3/config/i18n_config.js';
 
 // allowed apps url
-const whitelist = [
-	'https://cpe-web.sws2apps.com',
-	'https://admin.sws2apps.com',
-	'https://cpe-sws.web.app',
-	'https://cpe-sws.firebaseapp.com',
-	'https://sws2apps-tools.web.app',
-	'https://sws2apps-tools.firebaseapp.com',
-];
+const whitelist = ['https://organized-app.com', 'https://admin.sws2apps.com'];
 
 const allowedUri = ['/app-version', '/api/public/source-material'];
 

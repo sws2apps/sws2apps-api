@@ -30,7 +30,7 @@ router.use(congregationAdminChecker());
 router.get('/:id/members', getCongregationMembers);
 
 // find user by email from congregation
-router.get('/:id/members/find?:search', findUserByCongregation);
+router.get('/:id/members/find', findUserByCongregation);
 
 // get congregation user
 router.get('/:id/members/:user', getCongregationUser);

@@ -30,6 +30,6 @@ router.patch('/:id/revoke-token', revokeUserToken);
 router.patch('/:id/make-admin', makeUserAdmin);
 
 // find a user by email address
-router.get('/find?:search', findUser);
+router.get('/find', findUser);
 
 export default router;
