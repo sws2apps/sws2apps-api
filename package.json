@@ -40,7 +40,7 @@
 		"geoip-lite": "^1.4.10",
 		"global-jsdom": "^25.0.0",
 		"helmet": "^8.0.0",
-		"i18next": "^23.16.5",
+		"i18next": "^23.16.6",
 		"i18next-http-middleware": "^3.6.0",
 		"is-online": "^11.0.0",
 		"jsdom": "^25.0.1",
