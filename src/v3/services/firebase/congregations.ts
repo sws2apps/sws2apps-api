@@ -10,6 +10,8 @@ import { deleteFileFromStorage, getFileFromStorage, uploadFileToStorage } from '
 import { CongregationsList } from '../../classes/Congregations.js';
 import { decryptData, encryptData } from '../encryption/encryption.js';
 import { Congregation } from '../../classes/Congregation.js';
+import { UsersList } from '../../classes/Users.js';
+import { setUserProfile } from './users.js';
 
 export const getCongsID = async () => {
 	const pattern = '^v3\\/congregations\\/(.+?)\\/';
@@ -243,6 +245,23 @@ export const saveCongBackup = async (id: string, cong_backup: BackupData, userRo
 	const publicTalkEditor = adminRole || userRole.includes('public_talk_schedule');
 
 	const attendanceEditor = adminRole || userRole.includes('attendance_tracking');
+
+	if (adminRole && cong_backup.cong_users) {
+		for (const congUser of cong_backup.cong_users) {
+			const user = UsersList.findById(congUser.id);
+
+			if (!user) continue;
+
+			const profile = structuredClone(user.profile);
+
+			if (!profile.congregation) continue;
+
+			profile.congregation.cong_role = congUser.role!;
+
+			setUserProfile(user.id, profile);
+			user.profile = profile;
+		}
+	}
 
 	if (scheduleEditor && cong_backup.persons) {
 		const persons = cong_backup.persons;

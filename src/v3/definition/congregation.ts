@@ -1,4 +1,4 @@
-import { StandardRecord } from './app.js';
+import { AppRoleType, StandardRecord } from './app.js';
 
 export type CongregationCreateInfoType = {
 	country_code: string;
@@ -179,4 +179,9 @@ export type BackupData = {
 	public_sources?: StandardRecord[];
 	incoming_reports?: StandardRecord[];
 	cong_field_service_reports?: StandardRecord[];
+	cong_users?: {
+		id: string;
+		local_uid?: string;
+		role?: AppRoleType[];
+	}[];
 };

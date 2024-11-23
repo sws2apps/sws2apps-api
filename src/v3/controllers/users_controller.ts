@@ -512,6 +512,13 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 		if (adminRole) {
 			result.branch_cong_analysis = cong.branch_cong_analysis;
 			result.branch_field_service_reports = cong.branch_field_service_reports;
+			result.cong_users = cong.members.map((user) => {
+				return {
+					id: user.id,
+					local_uid: user.profile.congregation?.user_local_uid,
+					role: user.profile.congregation?.cong_role,
+				};
+			});
 		}
 	}
 
