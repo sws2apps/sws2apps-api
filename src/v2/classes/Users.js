@@ -171,7 +171,7 @@ Users.prototype.createPasswordlessLink = async function (email, uid, language, o
 
 	if (isDev) {
 		console.log(`Please use this link to complete your sign: ${link}`);
-		// return link;
+		return link;
 	}
 
 	sendPasswordlessLinkSignIn(email, link, language);
