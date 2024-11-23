@@ -13,6 +13,7 @@ import {
 	saveUserBackup,
 	submitAuxiliaryApplication,
 	userLogout,
+	userPostFeedback,
 	validateUser,
 } from '../controllers/users_controller.js';
 
@@ -56,5 +57,8 @@ router.post('/:id/backup', check('lastbackup').isString(), body('cong_backup').i
 
 // get user updates
 router.get('/:id/updates-routine', getUserUpdates);
+
+// get user updates
+router.post('/:id/feedback', body('subject').notEmpty().isString(), body('message').notEmpty().isString(), userPostFeedback);
 
 export default router;

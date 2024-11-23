@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
+import sanitizeHtml from 'sanitize-html';
+
 import { UsersList } from '../classes/Users.js';
 import { CongregationsList } from '../classes/Congregations.js';
 import { generateTokenDev } from '../dev/setup.js';
@@ -7,6 +9,7 @@ import { formatError } from '../utils/format_log.js';
 import { StandardRecord } from '../definition/app.js';
 import { BackupData, CongregationUpdatesType } from '../definition/congregation.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';
+import { MailClient } from '../config/mail_config.js';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -718,4 +721,71 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
 	res.locals.message = 'user retrieve updates successfully';
 	res.status(200).json(result);
+};
+
+export const userPostFeedback = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({
+			message: 'Bad request: provided inputs are invalid.',
+		});
+
+		return;
+	}
+
+	const { id } = req.params;
+
+	if (!id) {
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: user id is required`;
+		res.status(400).json({ message: 'USER_ID_INVALID' });
+
+		return;
+	}
+
+	const user = UsersList.findById(id)!;
+
+	if (!user.profile.congregation) {
+		res.locals.type = 'warn';
+		res.locals.message = `user does not have an assigned congregation`;
+		res.status(403).json({ message: 'CONG_NOT_ASSIGNED' });
+
+		return;
+	}
+
+	const cong = CongregationsList.findById(user.profile.congregation?.id);
+
+	if (!cong) {
+		res.locals.type = 'warn';
+		res.locals.message = 'user congregation is invalid';
+		res.status(403).json({ message: 'CONGREGATION_NOT_FOUND' });
+
+		return;
+	}
+
+	const { subject, message } = req.body;
+
+	const cleanSubject = sanitizeHtml(subject);
+	const cleanMessage = sanitizeHtml(message);
+
+	const options = {
+		to: 'support@organized-app.com',
+		replyTo: user.email,
+		subject: `Feedback: ${cleanSubject}`,
+		template: 'feedback',
+		context: {
+			message: cleanMessage,
+		},
+	};
+
+	MailClient.sendEmail(options, 'Feedback sent successfully to support team');
+
+	res.locals.type = 'info';
+	res.locals.message = 'user sent feedback successfully';
+	res.status(200).json({ message: 'MESSAGE_SENT' });
 };
