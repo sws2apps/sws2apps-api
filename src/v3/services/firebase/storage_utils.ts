@@ -62,5 +62,5 @@ export const deleteFileFromStorage = async ({ path, type }: StorageBaseType) => 
 	}
 
 	const storageBucket = getStorage().bucket();
-	await storageBucket.deleteFiles({ prefix: destPath });
+	await storageBucket.deleteFiles({ prefix: destPath, force: true });
 };

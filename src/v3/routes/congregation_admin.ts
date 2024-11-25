@@ -16,6 +16,7 @@ import {
 	congregationUserAdd,
 	congregationDeleteUser,
 	setAdminUserUid,
+	deleteCongregation,
 } from '../controllers/congregation_admin_controller.js';
 
 const router = express.Router();
@@ -83,5 +84,8 @@ router.delete('/:id/pocket-user/:user', pocketCodeDelete);
 
 // global search user
 router.get('/:id/users/global', globalSearchUser);
+
+// global search user
+router.delete('/:id/erase', body('key').isString().notEmpty().isLength({ min: 16 }), deleteCongregation);
 
 export default router;

@@ -5,7 +5,12 @@ export const congregationAdminChecker = () => {
 		try {
 			// check if session is authenticated for congregation administrator
 			const { profile } = res.locals.currentUser;
-			if (profile.congregation?.cong_role.includes('admin')) {
+
+			const isAdmin =
+				profile.congregation?.cong_role.some((role) => role === 'admin' || role === 'coordinator' || role === 'secretary') ??
+				false;
+
+			if (isAdmin) {
 				next();
 			} else {
 				res.locals.type = 'warn';

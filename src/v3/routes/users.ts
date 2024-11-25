@@ -2,6 +2,7 @@ import express from 'express';
 import { body, check } from 'express-validator';
 import { visitorChecker } from '../middleware/visitor_checker.js';
 import {
+	deleteUser,
 	deleteUserSession,
 	disableUser2FA,
 	getAuxiliaryApplications,
@@ -60,5 +61,8 @@ router.get('/:id/updates-routine', getUserUpdates);
 
 // get user updates
 router.post('/:id/feedback', body('subject').notEmpty().isString(), body('message').notEmpty().isString(), userPostFeedback);
+
+// delete user
+router.delete('/:id/erase', deleteUser);
 
 export default router;

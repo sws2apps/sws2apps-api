@@ -8,6 +8,7 @@ import { UserAuthResponse, UserSession } from '../definition/user.js';
 import { retrieveVisitorDetails } from '../services/ip_details/auth_utils.js';
 import { BackupData } from '../definition/congregation.js';
 import { StandardRecord } from '../definition/app.js';
+import { UsersList } from '../classes/Users.js';
 
 export const validateInvitation = async (req: Request, res: Response) => {
 	// validate through express middleware
@@ -531,4 +532,20 @@ export const submitPocketAuxiliaryApplications = async (req: Request, res: Respo
 	res.locals.type = 'info';
 	res.locals.message = `user submitted auxiliary pioneer application`;
 	res.status(200).json({ message: 'APPLICATION_SENT' });
+};
+
+export const deletePocketUser = async (req: Request, res: Response) => {
+	const user = res.locals.currentUser;
+	const congId = user.profile.congregation?.id;
+
+	await UsersList.delete(user.id);
+
+	if (congId) {
+		const cong = CongregationsList.findById(congId);
+		cong?.reloadMembers();
+	}
+
+	res.locals.type = 'info';
+	res.locals.message = 'user deleted account successfully';
+	res.status(200).json({ message: 'ACCOUNT_DELETED' });
 };

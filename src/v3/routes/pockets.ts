@@ -3,6 +3,7 @@ import { body, check } from 'express-validator';
 import { pocketVisitorChecker } from '../middleware/visitor_checker.js';
 import {
 	deletePocketSession,
+	deletePocketUser,
 	getPocketAuxiliaryApplications,
 	getPocketSessions,
 	postPocketReport,
@@ -44,5 +45,8 @@ router.get('/applications', getPocketAuxiliaryApplications);
 
 // submit auxiliary pioneer application
 router.post('/applications', body('application').isObject().notEmpty(), submitPocketAuxiliaryApplications);
+
+// delete pocket user
+router.delete('/erase', deletePocketUser);
 
 export default router;

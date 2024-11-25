@@ -796,3 +796,43 @@ export const userPostFeedback = async (req: Request, res: Response) => {
 	res.locals.message = 'user sent feedback successfully';
 	res.status(200).json({ message: 'MESSAGE_SENT' });
 };
+
+export const deleteUser = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({
+			message: 'Bad request: provided inputs are invalid.',
+		});
+
+		return;
+	}
+
+	const { id } = req.params;
+
+	if (!id) {
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: user id is required`;
+		res.status(400).json({ message: 'USER_ID_INVALID' });
+
+		return;
+	}
+
+	const user = UsersList.findById(id)!;
+	const congId = user.profile.congregation?.id;
+
+	await UsersList.delete(id);
+
+	if (congId) {
+		const cong = CongregationsList.findById(congId);
+		cong?.reloadMembers();
+	}
+
+	res.locals.type = 'info';
+	res.locals.message = 'user deleted account successfully';
+	res.status(200).json({ message: 'ACCOUNT_DELETED' });
+};
