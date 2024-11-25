@@ -849,7 +849,7 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 	if (!passed) {
 		res.locals.type = 'warn';
 		res.locals.message = 'congregation admin provided invalid master key for deletion';
-		res.status(403).json({ message: 'error.app.security.invalid-master-key' });
+		res.status(403).json({ message: 'error_app_security_invalid-master-key' });
 		return;
 	}
 
