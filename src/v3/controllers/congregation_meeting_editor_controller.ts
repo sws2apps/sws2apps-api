@@ -14,7 +14,7 @@ export const getApprovedVisitingSpeakersAccess = async (req: Request, res: Respo
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -34,7 +34,7 @@ export const getApprovedVisitingSpeakersAccess = async (req: Request, res: Respo
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 		return;
 	}
 
@@ -43,7 +43,7 @@ export const getApprovedVisitingSpeakersAccess = async (req: Request, res: Respo
 	if (!isValid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 
@@ -64,7 +64,7 @@ export const findVisitingSpeakersCongregations = async (req: Request, res: Respo
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -84,7 +84,7 @@ export const findVisitingSpeakersCongregations = async (req: Request, res: Respo
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 		return;
 	}
 
@@ -93,7 +93,7 @@ export const findVisitingSpeakersCongregations = async (req: Request, res: Respo
 	if (!isValid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 
@@ -116,7 +116,7 @@ export const requestAccessSpeakersCongregation = async (req: Request, res: Respo
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -136,7 +136,7 @@ export const requestAccessSpeakersCongregation = async (req: Request, res: Respo
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 		return;
 	}
 
@@ -145,7 +145,7 @@ export const requestAccessSpeakersCongregation = async (req: Request, res: Respo
 	if (!isValid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 
@@ -170,7 +170,7 @@ export const getPendingVisitingSpeakersAccess = async (req: Request, res: Respon
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -190,7 +190,7 @@ export const getPendingVisitingSpeakersAccess = async (req: Request, res: Respon
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 		return;
 	}
 
@@ -199,7 +199,7 @@ export const getPendingVisitingSpeakersAccess = async (req: Request, res: Respon
 	if (!isValid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 
@@ -222,7 +222,7 @@ export const approveVisitingSpeakersAccess = async (req: Request, res: Response)
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -242,7 +242,7 @@ export const approveVisitingSpeakersAccess = async (req: Request, res: Response)
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 		return;
 	}
 
@@ -251,7 +251,7 @@ export const approveVisitingSpeakersAccess = async (req: Request, res: Response)
 	if (!isValid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 
@@ -276,7 +276,7 @@ export const rejectVisitingSpeakersAccess = async (req: Request, res: Response) 
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -296,7 +296,7 @@ export const rejectVisitingSpeakersAccess = async (req: Request, res: Response) 
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 		return;
 	}
 
@@ -305,7 +305,7 @@ export const rejectVisitingSpeakersAccess = async (req: Request, res: Response) 
 	if (!isValid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 
@@ -329,7 +329,7 @@ export const publishSchedules = async (req: Request, res: Response) => {
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -349,7 +349,7 @@ export const publishSchedules = async (req: Request, res: Response) => {
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 		return;
 	}
 
@@ -358,7 +358,7 @@ export const publishSchedules = async (req: Request, res: Response) => {
 	if (!isValid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 
@@ -385,7 +385,7 @@ export const publicSchedulesGet = async (req: Request, res: Response) => {
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -405,7 +405,7 @@ export const publicSchedulesGet = async (req: Request, res: Response) => {
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 		return;
 	}
 
@@ -414,7 +414,7 @@ export const publicSchedulesGet = async (req: Request, res: Response) => {
 	if (!isValid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 

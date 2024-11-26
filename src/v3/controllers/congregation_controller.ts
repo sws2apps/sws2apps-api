@@ -18,9 +18,7 @@ export const getCountries = async (req: Request, res: Response) => {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: ${msg}`;
 
-		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
-		});
+		res.status(400).json({ message: 'error_api_bad-request' });
 
 		return;
 	}
@@ -52,9 +50,7 @@ export const getCongregations = async (req: Request, res: Response) => {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: ${msg}`;
 
-		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
-		});
+		res.status(400).json({ message: 'error_api_bad-request' });
 
 		return;
 	}
@@ -68,7 +64,7 @@ export const getCongregations = async (req: Request, res: Response) => {
 		res.locals.message = `country or name is invalid`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -102,9 +98,7 @@ export const createCongregation = async (req: Request, res: Response) => {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: ${msg}`;
 
-		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
-		});
+		res.status(400).json({ message: 'error_api_bad-request' });
 
 		return;
 	}
@@ -248,7 +242,7 @@ export const updateApplicationApproval = async (req: Request, res: Response) => 
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 		return;
 	}
 
@@ -257,7 +251,7 @@ export const updateApplicationApproval = async (req: Request, res: Response) => 
 	if (!isValid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 
@@ -275,7 +269,7 @@ export const updateApplicationApproval = async (req: Request, res: Response) => 
 	if (!committeeRole) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to process this application';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 
@@ -312,7 +306,7 @@ export const deleteApplication = async (req: Request, res: Response) => {
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 		return;
 	}
 
@@ -321,7 +315,7 @@ export const deleteApplication = async (req: Request, res: Response) => {
 	if (!isValid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 
@@ -339,7 +333,7 @@ export const deleteApplication = async (req: Request, res: Response) => {
 	if (!committeeRole) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to process this application';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 

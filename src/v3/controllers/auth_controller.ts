@@ -25,9 +25,7 @@ export const loginUser = async (req: Request, res: Response) => {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: ${msg}`;
 
-		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
-		});
+		res.status(400).json({ message: 'error_api_bad-request' });
 
 		return;
 	}
@@ -39,7 +37,7 @@ export const loginUser = async (req: Request, res: Response) => {
 	if (!uid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'the idToken received is invalid';
-		res.status(404).json({ message: 'INVALID_BEARER' });
+		res.status(404).json({ message: 'error_auth_invalid-token' });
 		return;
 	}
 
@@ -156,9 +154,7 @@ export const createSignInLink = async (req: Request, res: Response) => {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: ${msg}`;
 
-		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
-		});
+		res.status(400).json({ message: 'error_api_bad-request' });
 
 		return;
 	}
@@ -207,9 +203,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: ${msg}`;
 
-		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
-		});
+		res.status(400).json({ message: 'error_api_bad-request' });
 
 		return;
 	}
@@ -221,7 +215,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 	if (!uid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'the idToken received is invalid';
-		res.status(404).json({ message: 'INVALID_BEARER' });
+		res.status(404).json({ message: 'error_auth_invalid-token' });
 		return;
 	}
 

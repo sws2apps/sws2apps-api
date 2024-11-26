@@ -11,7 +11,7 @@ export const getRoot = async (req: Request, res: Response) => {
 export const invalidEndpointHandler = async (req: Request, res: Response) => {
 	res.locals.type = 'warn';
 	res.locals.message = 'invalid endpoint';
-	res.status(404).json({ message: 'INVALID_ENDPOINT' });
+	res.status(404).json({ message: 'error_api_invalid-endpoint' });
 };
 
 type CustomError = string & { stack: string } & { errorInfo: { code: string } };
@@ -22,15 +22,12 @@ export const errorHandler = (error: CustomError, req: Request, res: Response, ne
 	res.locals.message = `an error occured: ${error.stack || error}`;
 	console.log(`an error occured: ${error.stack || error}`);
 
-	if (error.errorInfo?.code === 'auth/email-already-exists') {
-		res.status(403).json({ message: 'USER_NOT_FOUND' });
+	if (error.errorInfo?.code) {
+		const code = error.errorInfo.code.replace('/', '_');
+
+		res.status(500).json({ message: `error_${code}` });
 		return;
 	}
 
-	if (error.errorInfo?.code === 'auth/user-not-found') {
-		res.status(403).json({ message: 'USER_NOT_FOUND' });
-		return;
-	}
-
-	res.status(500).json({ message: 'INTERNAL_ERROR' });
+	res.status(500).json({ message: 'error_api_internal-error' });
 };

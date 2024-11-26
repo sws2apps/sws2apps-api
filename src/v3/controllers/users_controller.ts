@@ -111,7 +111,7 @@ export const deleteUserSession = async (req: Request, res: Response) => {
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -179,7 +179,7 @@ export const getAuxiliaryApplications = async (req: Request, res: Response) => {
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -210,7 +210,7 @@ export const getAuxiliaryApplications = async (req: Request, res: Response) => {
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user congregation is invalid';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 
 		return;
 	}
@@ -231,7 +231,7 @@ export const submitAuxiliaryApplication = async (req: Request, res: Response) =>
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -262,7 +262,7 @@ export const submitAuxiliaryApplication = async (req: Request, res: Response) =>
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user congregation is invalid';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 
 		return;
 	}
@@ -295,7 +295,7 @@ export const postUserReport = async (req: Request, res: Response) => {
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -326,7 +326,7 @@ export const postUserReport = async (req: Request, res: Response) => {
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user congregation is invalid';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 
 		return;
 	}
@@ -348,7 +348,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -379,7 +379,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user congregation is invalid';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 
 		return;
 	}
@@ -571,7 +571,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -602,7 +602,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user congregation is invalid';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 
 		return;
 	}
@@ -655,7 +655,7 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -686,7 +686,7 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user congregation is invalid';
-		res.status(403).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(403).json({ message: 'error_app_congregation_not-found' });
 
 		return;
 	}
@@ -739,7 +739,7 @@ export const userPostFeedback = async (req: Request, res: Response) => {
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -770,7 +770,7 @@ export const userPostFeedback = async (req: Request, res: Response) => {
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user congregation is invalid';
-		res.status(403).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(403).json({ message: 'error_app_congregation_not-found' });
 
 		return;
 	}
@@ -806,7 +806,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;

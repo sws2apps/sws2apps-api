@@ -20,7 +20,7 @@ export const validateInvitation = async (req: Request, res: Response) => {
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -171,7 +171,7 @@ export const validatePocket = async (req: Request, res: Response) => {
 		res.locals.message = 'no congregation could not be found with the provided code';
 
 		res.clearCookie('visitorid');
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 		return;
 	}
 
@@ -224,7 +224,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 		res.locals.message = 'user not associated to any congregation';
 
 		res.clearCookie('visitorid');
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 		return;
 	}
 
@@ -233,7 +233,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 	if (!isValid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 
@@ -358,7 +358,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -373,7 +373,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 		res.locals.message = 'user not associated to any congregation';
 
 		res.clearCookie('visitorid');
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 		return;
 	}
 
@@ -382,7 +382,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 	if (!isValid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 
@@ -431,7 +431,7 @@ export const deletePocketSession = async (req: Request, res: Response) => {
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -464,7 +464,7 @@ export const postPocketReport = async (req: Request, res: Response) => {
 		res.locals.message = `invalid input: ${msg}`;
 
 		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
+			message: 'error_api_bad-request',
 		});
 
 		return;
@@ -479,7 +479,7 @@ export const postPocketReport = async (req: Request, res: Response) => {
 		res.locals.message = 'user not associated to any congregation';
 
 		res.clearCookie('visitorid');
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
 		return;
 	}
 
@@ -488,7 +488,7 @@ export const postPocketReport = async (req: Request, res: Response) => {
 	if (!isValid) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'UNAUTHORIZED_REQUEST' });
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
 

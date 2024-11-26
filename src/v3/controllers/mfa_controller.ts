@@ -18,9 +18,7 @@ export const verifyToken = async (req: Request, res: Response) => {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: ${msg}`;
 
-		res.status(400).json({
-			message: 'Bad request: provided inputs are invalid.',
-		});
+		res.status(400).json({ message: 'error_api_bad-request' });
 
 		return;
 	}
