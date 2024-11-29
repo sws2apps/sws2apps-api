@@ -19,9 +19,7 @@ export const validateInvitation = async (req: Request, res: Response) => {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: ${msg}`;
 
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
+		res.status(400).json({ message: 'error_api_bad-request' });
 
 		return;
 	}
@@ -41,7 +39,7 @@ export const validateInvitation = async (req: Request, res: Response) => {
 	if (groups === null) {
 		res.locals.type = 'warn';
 		res.locals.message = 'the code received is invalid';
-		res.status(400).json({ message: 'INVALID_CODE' });
+		res.status(400).json({ message: 'error_app_security_invalid-invitation-code' });
 		return;
 	}
 
@@ -57,7 +55,7 @@ export const validateInvitation = async (req: Request, res: Response) => {
 	if (groups === null) {
 		res.locals.type = 'warn';
 		res.locals.message = 'the code received is invalid';
-		res.status(400).json({ message: 'INVALID_CODE' });
+		res.status(400).json({ message: 'error_app_security_invalid-invitation-code' });
 		return;
 	}
 
@@ -71,7 +69,7 @@ export const validateInvitation = async (req: Request, res: Response) => {
 	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no congregation could not be found with the provided code';
-		res.status(400).json({ message: 'INVALID_CODE' });
+		res.status(400).json({ message: 'error_app_security_invalid-invitation-code' });
 		return;
 	}
 
@@ -82,7 +80,7 @@ export const validateInvitation = async (req: Request, res: Response) => {
 	if (!decryptedAccessCode) {
 		res.locals.type = 'warn';
 		res.locals.message = 'the code received is invalid';
-		res.status(400).json({ message: 'INVALID_CODE' });
+		res.status(400).json({ message: 'error_app_security_invalid-invitation-code' });
 		return;
 	}
 
@@ -93,7 +91,7 @@ export const validateInvitation = async (req: Request, res: Response) => {
 	if (!user) {
 		res.locals.type = 'warn';
 		res.locals.message = 'the code received is invalid';
-		res.status(400).json({ message: 'INVALID_CODE' });
+		res.status(400).json({ message: 'error_app_security_invalid-invitation-code' });
 		return;
 	}
 
