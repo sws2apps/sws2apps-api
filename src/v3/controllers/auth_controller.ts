@@ -84,6 +84,8 @@ export const loginUser = async (req: Request, res: Response) => {
 
 		if (isDev) {
 			const tokenDev = generateTokenDev(authUser.email!, authUser.profile.secret!);
+			console.log('Use this code to login:', tokenDev);
+
 			res.status(200).json({ message: 'MFA_VERIFY', code: tokenDev });
 		} else {
 			res.status(200).json({ message: 'MFA_VERIFY' });
@@ -253,6 +255,8 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 		res.cookie('visitorid', visitorid, cookieOptions(req));
 		if (isDev) {
 			const tokenDev = generateTokenDev(authUser.email!, authUser.profile.secret!);
+			console.log('Use this code to login:', tokenDev);
+
 			res.status(200).json({ message: 'MFA_VERIFY', code: tokenDev });
 		} else {
 			res.status(200).json({ message: 'MFA_VERIFY' });
