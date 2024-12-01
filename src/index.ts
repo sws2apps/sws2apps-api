@@ -2,14 +2,6 @@ import 'dotenv/config';
 
 import app from './app.js';
 
-// import v2 files
-
-import { users } from './v2/classes/Users.js';
-import { congregations } from './v2/classes/Congregations.js';
-import { initializeAPI as initializeDbCPE } from './v2/config/cpe.db-config.js';
-
-// import v3 files
-
 import { logger } from './v3/services/logger/logger.js';
 import { ServerTempVariableType } from './v3/definition/server.js';
 import { UsersList } from './v3/classes/Users.js';
@@ -25,7 +17,6 @@ export const API_VAR: ServerTempVariableType = {
 	REQUEST_TRACKER: [],
 };
 
-await initializeDbCPE();
 await initializeAPI();
 
 logger('info', JSON.stringify({ details: `API: minimum frontend client version set to ${API_VAR.MINIMUM_APP_VERSION}` }));
@@ -33,9 +24,6 @@ logger('info', JSON.stringify({ details: `API: minimum frontend client version s
 app.listen(PORT, async () => {
 	logger('info', JSON.stringify({ details: `server up and running on port ${PORT} (v${APP_VERSION})` }));
 	logger('info', JSON.stringify({ details: `loading Firebase data ...` }));
-
-	await users.loadAll();
-	await congregations.loadAll();
 
 	await UsersList.load();
 	await CongregationsList.load();

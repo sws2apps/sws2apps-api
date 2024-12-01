@@ -16,7 +16,6 @@ import { requestChecker } from './v3/middleware/request_checker.js';
 import { updateTracker } from './v3/middleware/update_tracker.js';
 import { serverReadyChecker } from './v3/middleware/server_ready_checker.js';
 
-import routesV2 from './v2/routes/index.js';
 import routesV3 from './v3/routes/index.js';
 
 import { errorHandler, getRoot, invalidEndpointHandler } from './v3/controllers/app_controller.js';
@@ -99,10 +98,7 @@ app.use(handle(i18next));
 
 app.get('/', getRoot);
 
-// load v2 routes
-app.use('/api/v2', routesV2);
-
-// load v3 routes
+// load routes
 app.use('/api/v3', routesV3);
 
 // Handling invalid routes

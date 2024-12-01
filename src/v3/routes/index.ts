@@ -9,6 +9,7 @@ import userRoute from './users.js';
 import mfaRoute from './mfa.js';
 import publicRoute from './public.js';
 import pocketRoute from './pockets.js';
+import adminRoute from './admin.js';
 
 import { appVersionChecker } from '../middleware/app_version_checker.js';
 
@@ -27,5 +28,6 @@ router.use('/users', userRoute);
 router.use('/congregations', congregationRoute);
 router.use('/congregations/meeting', congregationMeetingEditorRoute);
 router.use('/congregations/admin', congregationAdminRoute);
+router.use('/admin', adminRoute);
 
 export default router;

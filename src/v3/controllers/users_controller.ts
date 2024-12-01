@@ -392,9 +392,9 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 
 	const secretaryRole = userRole.includes('secretary');
 	const coordinatorRole = userRole.includes('coordinator');
-	const elderRole = userRole.includes('elder');
-
 	const adminRole = userRole.includes('admin') || secretaryRole || coordinatorRole;
+
+	const elderRole = userRole.includes('elder');
 
 	const scheduleEditor =
 		adminRole ||
@@ -436,7 +436,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			result.persons = cong.persons;
 		}
 
-		if (elderRole) {
+		if (adminRole || elderRole) {
 			result.speakers_congregations = cong.speakers_congregations;
 			result.visiting_speakers = cong.visiting_speakers;
 			result.cong_field_service_reports = cong.field_service_reports;
