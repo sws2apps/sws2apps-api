@@ -1,3 +1,10 @@
+## [3.1.2](https://github.com/sws2apps/sws2apps-api/compare/v3.1.1...v3.1.2) (2024-12-01)
+
+
+### Bug Fixes
+
+* **controllers:** allow admin users to get additional backup fields ([0d85251](https://github.com/sws2apps/sws2apps-api/commit/0d85251a35033b2f488b6f852695fd214f12a52e))
+
 ## [3.1.1](https://github.com/sws2apps/sws2apps-api/compare/v3.1.0...v3.1.1) (2024-12-01)
 
 
