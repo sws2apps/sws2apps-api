@@ -1,3 +1,10 @@
+## [3.1.1](https://github.com/sws2apps/sws2apps-api/compare/v3.1.0...v3.1.1) (2024-12-01)
+
+
+### Bug Fixes
+
+* **v3:** update error code for invalid invitation code ([0a82440](https://github.com/sws2apps/sws2apps-api/commit/0a8244068e661cb34427e31e5f5cb5ec96bfe865))
+
 # [3.1.0](https://github.com/sws2apps/sws2apps-api/compare/v3.0.0...v3.1.0) (2024-11-26)
 
 
