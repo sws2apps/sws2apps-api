@@ -1,3 +1,10 @@
+## [3.1.3](https://github.com/sws2apps/sws2apps-api/compare/v3.1.2...v3.1.3) (2024-12-02)
+
+
+### Bug Fixes
+
+* **api:** use user id to check valid congregation request ([ef0d88a](https://github.com/sws2apps/sws2apps-api/commit/ef0d88aa92edf6975229b358a043d9efd96e1868))
+
 ## [3.1.2](https://github.com/sws2apps/sws2apps-api/compare/v3.1.1...v3.1.2) (2024-12-01)
 
 
