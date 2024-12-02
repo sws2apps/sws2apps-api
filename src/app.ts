@@ -25,6 +25,7 @@ import resources from './v3/config/i18n_config.js';
 const whitelist = [
 	'https://organized-app.com',
 	'https://staging.organized-app.com',
+	'https://cpe-web.sws2apps.com',
 	'https://console.sws2apps.com',
 	'https://dev-console.sws2apps.com',
 ];
