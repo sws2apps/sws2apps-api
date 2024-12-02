@@ -226,7 +226,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = cong.hasMember(user.profile.auth_uid!);
+	const isValid = cong.hasMember(user.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -375,7 +375,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = cong.hasMember(user.profile.auth_uid!);
+	const isValid = cong.hasMember(user.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -481,7 +481,7 @@ export const postPocketReport = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = cong.hasMember(user.profile.auth_uid!);
+	const isValid = cong.hasMember(user.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';

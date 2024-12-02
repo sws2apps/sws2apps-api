@@ -50,7 +50,7 @@ export const validateUser = async (req: Request, res: Response) => {
 export const getUserSecretToken = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: user id is required`;
 		res.status(400).json({ message: 'USER_ID_INVALID' });
@@ -80,7 +80,7 @@ export const getUserSecretToken = async (req: Request, res: Response) => {
 export const getUserSessions = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: user id is required`;
 		res.status(400).json({ message: 'USER_ID_INVALID' });
@@ -97,7 +97,7 @@ export const getUserSessions = async (req: Request, res: Response) => {
 export const deleteUserSession = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: user and session id are required`;
 		res.status(400).json({ message: 'USER_ID_INVALID' });
@@ -154,7 +154,7 @@ export const userLogout = async (req: Request, res: Response) => {
 export const disableUser2FA = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: user id is required`;
 		res.status(400).json({ message: 'USER_ID_INVALID' });
@@ -187,7 +187,7 @@ export const getAuxiliaryApplications = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: user id is required`;
 		res.status(400).json({ message: 'USER_ID_INVALID' });
@@ -239,7 +239,7 @@ export const submitAuxiliaryApplication = async (req: Request, res: Response) =>
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: user id is required`;
 		res.status(400).json({ message: 'USER_ID_INVALID' });
@@ -303,7 +303,7 @@ export const postUserReport = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: user id is required`;
 		res.status(400).json({ message: 'USER_ID_INVALID' });
@@ -356,7 +356,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: user id is required`;
 		res.status(400).json({ message: 'USER_ID_INVALID' });
@@ -579,7 +579,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: user id is required`;
 		res.status(400).json({ message: 'USER_ID_INVALID' });
@@ -663,7 +663,7 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: user id is required`;
 		res.status(400).json({ message: 'USER_ID_INVALID' });
@@ -747,7 +747,7 @@ export const userPostFeedback = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: user id is required`;
 		res.status(400).json({ message: 'USER_ID_INVALID' });
@@ -814,7 +814,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = `invalid input: user id is required`;
 		res.status(400).json({ message: 'USER_ID_INVALID' });

@@ -21,7 +21,7 @@ export const setCongregationMasterKey = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
@@ -39,7 +39,7 @@ export const setCongregationMasterKey = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -72,7 +72,7 @@ export const setCongregationAccessCode = async (req: Request, res: Response) => 
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
@@ -90,7 +90,7 @@ export const setCongregationAccessCode = async (req: Request, res: Response) => 
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -123,7 +123,7 @@ export const congregationMasterKeyGet = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
@@ -141,7 +141,7 @@ export const congregationMasterKeyGet = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -173,7 +173,7 @@ export const congregationAccessCodeGet = async (req: Request, res: Response) => 
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
@@ -191,7 +191,7 @@ export const congregationAccessCodeGet = async (req: Request, res: Response) => 
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -223,7 +223,7 @@ export const pocketUserAdd = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
@@ -241,7 +241,7 @@ export const pocketUserAdd = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -284,7 +284,7 @@ export const congregationGetUsers = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
@@ -302,7 +302,7 @@ export const congregationGetUsers = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -334,7 +334,7 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 
 	const { id, user } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
@@ -352,7 +352,7 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -404,7 +404,7 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 
 	const { id, user } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
@@ -422,7 +422,7 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -473,7 +473,7 @@ export const pocketCodeDelete = async (req: Request, res: Response) => {
 
 	const { id, user } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
@@ -491,7 +491,7 @@ export const pocketCodeDelete = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -541,7 +541,7 @@ export const globalSearchUser = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
@@ -559,7 +559,7 @@ export const globalSearchUser = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -600,7 +600,7 @@ export const congregationUserAdd = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
@@ -618,7 +618,7 @@ export const congregationUserAdd = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -660,7 +660,7 @@ export const congregationDeleteUser = async (req: Request, res: Response) => {
 
 	const { id, user } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
@@ -678,7 +678,7 @@ export const congregationDeleteUser = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -730,7 +730,7 @@ export const setAdminUserUid = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
@@ -748,7 +748,7 @@ export const setAdminUserUid = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -791,7 +791,7 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
@@ -809,7 +809,7 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';

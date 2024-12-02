@@ -278,8 +278,11 @@ export class Congregation {
 		this.settings = settings;
 	}
 
-	hasMember(auth_uid: string) {
-		const user = UsersList.findByAuthUid(auth_uid);
+	hasMember(id: string) {
+		const user = UsersList.findById(id);
+
+		if (!user) return false;
+
 		return user!.profile.congregation?.id === this.id;
 	}
 

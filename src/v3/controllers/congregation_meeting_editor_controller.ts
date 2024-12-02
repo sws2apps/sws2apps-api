@@ -22,7 +22,7 @@ export const getApprovedVisitingSpeakersAccess = async (req: Request, res: Respo
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
@@ -38,7 +38,7 @@ export const getApprovedVisitingSpeakersAccess = async (req: Request, res: Respo
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -72,7 +72,7 @@ export const findVisitingSpeakersCongregations = async (req: Request, res: Respo
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
@@ -88,7 +88,7 @@ export const findVisitingSpeakersCongregations = async (req: Request, res: Respo
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -124,7 +124,7 @@ export const requestAccessSpeakersCongregation = async (req: Request, res: Respo
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
@@ -140,7 +140,7 @@ export const requestAccessSpeakersCongregation = async (req: Request, res: Respo
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -178,7 +178,7 @@ export const getPendingVisitingSpeakersAccess = async (req: Request, res: Respon
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
@@ -194,7 +194,7 @@ export const getPendingVisitingSpeakersAccess = async (req: Request, res: Respon
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -230,7 +230,7 @@ export const approveVisitingSpeakersAccess = async (req: Request, res: Response)
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
@@ -246,7 +246,7 @@ export const approveVisitingSpeakersAccess = async (req: Request, res: Response)
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -284,7 +284,7 @@ export const rejectVisitingSpeakersAccess = async (req: Request, res: Response) 
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
@@ -300,7 +300,7 @@ export const rejectVisitingSpeakersAccess = async (req: Request, res: Response) 
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -337,7 +337,7 @@ export const publishSchedules = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
@@ -353,7 +353,7 @@ export const publishSchedules = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -393,7 +393,7 @@ export const publicSchedulesGet = async (req: Request, res: Response) => {
 
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
@@ -409,7 +409,7 @@ export const publicSchedulesGet = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';

@@ -223,7 +223,7 @@ export const createCongregation = async (req: Request, res: Response) => {
 export const updateApplicationApproval = async (req: Request, res: Response) => {
 	const { id, request } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation request id params is undefined';
 		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
@@ -246,7 +246,7 @@ export const updateApplicationApproval = async (req: Request, res: Response) => 
 		return;
 	}
 
-	const isValid = cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
@@ -287,7 +287,7 @@ export const updateApplicationApproval = async (req: Request, res: Response) => 
 export const deleteApplication = async (req: Request, res: Response) => {
 	const { id, request } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation request id params is undefined';
 		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
@@ -310,7 +310,7 @@ export const deleteApplication = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const isValid = cong.hasMember(res.locals.currentUser.profile.auth_uid!);
+	const isValid = cong.hasMember(res.locals.currentUser.id);
 
 	if (!isValid) {
 		res.locals.type = 'warn';
