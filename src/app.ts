@@ -28,6 +28,8 @@ const whitelist = [
 	'https://cpe-web.sws2apps.com',
 	'https://console.sws2apps.com',
 	'https://dev-console.sws2apps.com',
+	'https://dev-console.sws2apps.com',
+	'https://cpe-sws.firebaseapp.com',
 ];
 
 const allowedUri = ['/app-version', '/api/public/source-material'];
