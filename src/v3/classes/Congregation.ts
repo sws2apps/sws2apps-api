@@ -178,7 +178,7 @@ export class Congregation {
 
 		const serviceCommiteeRole = adminRole || userRole.includes('service_overseer');
 
-		const elderRole = userRole.includes('elder');
+		const elderRole = adminRole || userRole.includes('elder');
 
 		const scheduleEditor =
 			adminRole ||
