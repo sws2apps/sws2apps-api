@@ -1,6 +1,6 @@
 backend:
   functions:
-    - entry: index.js
+    - entry: dist/index.js
       handler: handler
       name: function-other
       path: .
