@@ -1,18 +1,13 @@
-backend:
-  functions:
-    - entry: dist/index.js
-      handler: handler
-      name: function-other
-      path: .
-      type: ''
-  language:
-    name: js
-  path: .
-  scripts:
-    deploy:
-      - npm install && npm run build
-    local:
-      - npm install
 name: sws2apps-api
 region: us-east-1
 yamlVersion: 2
+backend:
+  path: .
+  language:
+    name: ts
+    packageManager: npm
+  scripts:
+    deploy:
+      - npm install
+    local:
+      - npm install
