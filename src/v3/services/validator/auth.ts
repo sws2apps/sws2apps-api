@@ -4,7 +4,7 @@ export const authBearerCheck = (value: string) => {
 	}
 
 	const token = value.split(' ')[1];
-	if (!token) {
+	if (!token || token === 'undefined') {
 		throw new Error('Token is missing');
 	}
 
