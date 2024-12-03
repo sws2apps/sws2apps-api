@@ -1,3 +1,15 @@
+# [3.2.0](https://github.com/sws2apps/sws2apps-api/compare/v3.1.3...v3.2.0) (2024-12-03)
+
+
+### Bug Fixes
+
+* **middleware:** update bearer checker for undefined string ([7dcb616](https://github.com/sws2apps/sws2apps-api/commit/7dcb61611b85352919a60365e43c7aacd915f375))
+
+
+### Features
+
+* **deps:** bump dotenv from 16.4.5 to 16.4.6 ([fb4ea96](https://github.com/sws2apps/sws2apps-api/commit/fb4ea96fe5fec4ff1d42c0017a29cdc64e9db0fe))
+
 ## [3.1.3](https://github.com/sws2apps/sws2apps-api/compare/v3.1.2...v3.1.3) (2024-12-02)
 
 
