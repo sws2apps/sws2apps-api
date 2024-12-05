@@ -393,18 +393,17 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong_backup = req.body.cong_backup as BackupData;
-	const userSettings = cong_backup.app_settings.user_settings;
-	const userPerson = cong_backup.persons?.at(0);
+	const userRole = user.profile.congregation!.cong_role;
 
-	if (userSettings) {
-		user.saveBackup(userSettings);
-	}
+	const cong_backup = req.body.cong_backup as BackupData;
+	const userPerson = cong_backup.persons?.at(0);
 
 	if (userPerson) {
 		const personData = userPerson.person_data as StandardRecord;
 		user.updatePersonData(personData.timeAway as string, personData.emergency_contacts as string);
 	}
+
+	user.saveBackup(cong_backup, userRole);
 
 	res.locals.type = 'info';
 	res.locals.message = 'user send backup successfully';

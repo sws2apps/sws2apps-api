@@ -77,6 +77,12 @@ export const getUserBibleStudies = async (id: string) => {
 	return [];
 };
 
+export const setUserBibleStudies = async (id: string, reports: StandardRecord[]) => {
+	const data = JSON.stringify(reports);
+	const path = `${id}/bible_studies.txt`;
+	await uploadFileToStorage(data, { type: 'user', path });
+};
+
 export const getUserFieldServiceReports = async (id: string) => {
 	const path = `${id}/field_service_reports.txt`;
 	const data = await getFileFromStorage({ type: 'user', path });
@@ -87,6 +93,12 @@ export const getUserFieldServiceReports = async (id: string) => {
 	}
 
 	return [];
+};
+
+export const setUserFieldServiceReports = async (id: string, reports: StandardRecord[]) => {
+	const data = JSON.stringify(reports);
+	const path = `${id}/field_service_reports.txt`;
+	await uploadFileToStorage(data, { type: 'user', path });
 };
 
 export const getUserDetails = async (id: string) => {

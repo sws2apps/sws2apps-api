@@ -635,11 +635,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 		user.updatePersonData(personData.timeAway as string, personData.emergency_contacts as string);
 	}
 
-	const userSettings = cong_backup.app_settings.user_settings;
-
-	if (userSettings) {
-		user.saveBackup(userSettings);
-	}
+	user.saveBackup(cong_backup, userRole);
 
 	res.locals.type = 'info';
 	res.locals.message = 'user send backup for congregation successfully';

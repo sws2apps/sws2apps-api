@@ -3,7 +3,9 @@ import { UserCongregationAssignParams, UserProfile, UserSession, UserSettings } 
 import {
 	getUserAuthDetails,
 	getUserDetails,
+	setUserBibleStudies,
 	setUserEmail,
+	setUserFieldServiceReports,
 	setUserProfile,
 	setUserSessions,
 	setUserSettings,
@@ -12,6 +14,7 @@ import { decryptData, encryptData } from '../services/encryption/encryption.js';
 import { generateUserSecret } from '../utils/user_utils.js';
 import { CongregationsList } from './Congregations.js';
 import { saveCongPersons, saveIncomingReports } from '../services/firebase/congregations.js';
+import { BackupData } from '../definition/congregation.js';
 
 export class User {
 	id: string;
@@ -281,22 +284,43 @@ export class User {
 		}
 	}
 
-	async saveBackup(backup: object) {
-		const data = backup as Record<string, object | string>;
+	async saveBackup(cong_backup: BackupData, userRole: AppRoleType[]) {
+		const userSettings = cong_backup.app_settings.user_settings;
 
-		const profile = structuredClone(this.profile);
-		profile.firstname = data['firstname'] as UserProfile['firstname'];
-		profile.lastname = data['lastname'] as UserProfile['lastname'];
+		if (userSettings) {
+			const data = userSettings as Record<string, object | string>;
 
-		await this.updateProfile(profile);
+			const profile = structuredClone(this.profile);
+			profile.firstname = data['firstname'] as UserProfile['firstname'];
+			profile.lastname = data['lastname'] as UserProfile['lastname'];
 
-		const settings = structuredClone(this.settings);
-		settings.backup_automatic = data['backup_automatic'] as string;
-		settings.data_view = data['data_view'] as string;
-		settings.hour_credits_enabled = data['hour_credits_enabled'] as string;
-		settings.theme_follow_os_enabled = data['theme_follow_os_enabled'] as string;
+			await this.updateProfile(profile);
 
-		await this.updateSettings(settings);
+			const settings = structuredClone(this.settings);
+			settings.backup_automatic = data['backup_automatic'] as string;
+			settings.data_view = data['data_view'] as string;
+			settings.hour_credits_enabled = data['hour_credits_enabled'] as string;
+			settings.theme_follow_os_enabled = data['theme_follow_os_enabled'] as string;
+
+			await this.updateSettings(settings);
+		}
+
+		const isPublisher = userRole.includes('publisher');
+
+		const userFieldServiceReports = cong_backup.user_field_service_reports;
+		const userBibleStudies = cong_backup.user_bible_studies;
+
+		if (isPublisher && userBibleStudies) {
+			await setUserBibleStudies(this.id, userBibleStudies);
+
+			this.bible_studies = userBibleStudies;
+		}
+
+		if (isPublisher && userFieldServiceReports) {
+			await setUserFieldServiceReports(this.id, userFieldServiceReports);
+
+			this.field_service_reports = userFieldServiceReports;
+		}
 	}
 
 	getApplications() {
