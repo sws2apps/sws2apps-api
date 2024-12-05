@@ -1,3 +1,17 @@
+# [3.3.0](https://github.com/sws2apps/sws2apps-api/compare/v3.2.0...v3.3.0) (2024-12-05)
+
+
+### Bug Fixes
+
+* **api:** allow admin role to backup field service reports ([0b63512](https://github.com/sws2apps/sws2apps-api/commit/0b635122943cd3e3f59234fac83584061de15383))
+* **backup:** user field service reports and bible studies not included ([16075d2](https://github.com/sws2apps/sws2apps-api/commit/16075d27b1e1c1d0aa3fb8ea87f4bad1c1beb39e))
+
+
+### Features
+
+* **deps:** bump dotenv from 16.4.6 to 16.4.7 ([57abdc4](https://github.com/sws2apps/sws2apps-api/commit/57abdc49ffabca23087feb4d3f2f78ca46c77350))
+* **deps:** bump i18next from 24.0.2 to 24.0.5 ([a644d12](https://github.com/sws2apps/sws2apps-api/commit/a644d125f0687a762ae8e82b5124d33d9198fa9d))
+
 # [3.2.0](https://github.com/sws2apps/sws2apps-api/compare/v3.1.3...v3.2.0) (2024-12-03)
 
 
