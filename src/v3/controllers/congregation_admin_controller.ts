@@ -102,7 +102,7 @@ export const setCongregationAccessCode = async (req: Request, res: Response) => 
 	const accesCode: string = req.body.cong_access_code;
 	await cong.saveAccessCode(accesCode);
 
-	res.locals.type = 'warn';
+	res.locals.type = 'info';
 	res.locals.message = 'congregation admin set password';
 	res.status(200).json({ message: 'PASSWORD_SAVED' });
 };
@@ -152,7 +152,7 @@ export const congregationMasterKeyGet = async (req: Request, res: Response) => {
 
 	const master_key = cong.settings.cong_master_key;
 
-	res.locals.type = 'warn';
+	res.locals.type = 'info';
 	res.locals.message = 'congregation admin get master key';
 	res.status(200).json({ message: master_key });
 };
@@ -202,7 +202,7 @@ export const congregationAccessCodeGet = async (req: Request, res: Response) => 
 
 	const access_code = cong.settings.cong_access_code;
 
-	res.locals.type = 'warn';
+	res.locals.type = 'info';
 	res.locals.message = 'congregation admin get access code';
 	res.status(200).json({ message: access_code });
 };
@@ -263,7 +263,7 @@ export const pocketUserAdd = async (req: Request, res: Response) => {
 
 	cong.reloadMembers();
 
-	res.locals.type = 'warn';
+	res.locals.type = 'info';
 	res.locals.message = 'congregation admin added pocket user';
 	res.status(200).json({ message: 'POCKET_CREATED' });
 };
@@ -313,7 +313,7 @@ export const congregationGetUsers = async (req: Request, res: Response) => {
 
 	const cong_members = cong.getMembers(req.signedCookies.visitorid);
 
-	res.locals.type = 'warn';
+	res.locals.type = 'info';
 	res.locals.message = 'congregation admin fetched all users';
 	res.status(200).json(cong_members);
 };
@@ -452,7 +452,7 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 	const identifier = req.body.identifier as string;
 	await foundUser.revokeSession(identifier);
 
-	res.locals.type = 'warn';
+	res.locals.type = 'info';
 	res.locals.message = 'congregation admin terminated user session';
 	res.status(200).json({ message: 'USER_SESSION_TERMINATED' });
 };
@@ -520,7 +520,7 @@ export const pocketCodeDelete = async (req: Request, res: Response) => {
 
 	await foundUser.deletePocketCode();
 
-	res.locals.type = 'warn';
+	res.locals.type = 'info';
 	res.locals.message = 'congregation admin deleted user invitation code';
 	res.status(200).json({ message: 'POCKET_CODE_DELETED' });
 };
@@ -579,7 +579,7 @@ export const globalSearchUser = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'warn';
+	res.locals.type = 'info';
 	res.locals.message = 'congregation admin got global user';
 	res.status(200).json(foundUser);
 };
@@ -639,7 +639,7 @@ export const congregationUserAdd = async (req: Request, res: Response) => {
 		person_uid: cong_person_uid,
 	});
 
-	res.locals.type = 'warn';
+	res.locals.type = 'info';
 	res.locals.message = 'congregation admin added vip user';
 	res.status(200).json({ message: 'POCKET_CREATED' });
 };
@@ -768,7 +768,7 @@ export const setAdminUserUid = async (req: Request, res: Response) => {
 
 	cong.reloadMembers();
 
-	res.locals.type = 'warn';
+	res.locals.type = 'info';
 	res.locals.message = 'congregation admin set his user uid';
 	res.status(200).json({ message: 'USER_UID_SET' });
 };
@@ -837,7 +837,7 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 
 	await CongregationsList.delete(id);
 
-	res.locals.type = 'warn';
+	res.locals.type = 'info';
 	res.locals.message = 'congregation admin deleted congregation';
 	res.status(200).json({ message: 'CONGREGATION_DELETED' });
 };
