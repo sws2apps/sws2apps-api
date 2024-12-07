@@ -1,3 +1,11 @@
+## [3.3.1](https://github.com/sws2apps/sws2apps-api/compare/v3.3.0...v3.3.1) (2024-12-07)
+
+
+### Bug Fixes
+
+* **controllers:** get schedules and sources for elder roles ([0d9e7b7](https://github.com/sws2apps/sws2apps-api/commit/0d9e7b7f6eee8b9e02df3c4d4c9811ed223c0103))
+* **controllers:** update log level in congregation admin ([7558a03](https://github.com/sws2apps/sws2apps-api/commit/7558a0308f22d4056daaf2cedd2a05e1c6dce0fe))
+
 # [3.3.0](https://github.com/sws2apps/sws2apps-api/compare/v3.2.0...v3.3.0) (2024-12-05)
 
 
