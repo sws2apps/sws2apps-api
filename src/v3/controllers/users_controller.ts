@@ -496,7 +496,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			result.public_schedules = cong.public_schedules.schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.schedules);
 		}
 
-		if (scheduleEditor) {
+		if (scheduleEditor || elderRole) {
 			result.sources = cong.sources;
 			result.sched = cong.schedules;
 		}
