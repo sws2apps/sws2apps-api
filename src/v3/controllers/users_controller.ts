@@ -465,7 +465,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 
 		if (personMinimal) {
 			const minimalPersons = cong.persons.map((record) => {
-				const includeTimeAway = cong.settings.time_away_public.value;
+				const includeTimeAway = cong.settings.time_away_public?.value ?? false;
 
 				const personData = record.person_data as StandardRecord;
 

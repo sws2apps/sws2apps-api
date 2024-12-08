@@ -48,7 +48,7 @@ router.get('/:id/applications', getAuxiliaryApplications);
 router.post('/:id/applications', body('application').isObject().notEmpty(), submitAuxiliaryApplication);
 
 // post field service report
-router.post('/:idfield-service-reports', body('report').isObject().notEmpty(), postUserReport);
+router.post('/:id/field-service-reports', body('report').isObject().notEmpty(), postUserReport);
 
 // retrieve congregation backup
 router.get('/:id/backup', retrieveUserBackup);
