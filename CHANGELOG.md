@@ -1,3 +1,10 @@
+## [3.3.2](https://github.com/sws2apps/sws2apps-api/compare/v3.3.1...v3.3.2) (2024-12-08)
+
+
+### Bug Fixes
+
+* **routes:** update route typo for report submission ([b4baa24](https://github.com/sws2apps/sws2apps-api/commit/b4baa242c8c1a2f5d990c06e1162ae3c5a786bc8))
+
 ## [3.3.1](https://github.com/sws2apps/sws2apps-api/compare/v3.3.0...v3.3.1) (2024-12-07)
 
 
