@@ -15,6 +15,7 @@ import { generateUserSecret } from '../utils/user_utils.js';
 import { CongregationsList } from './Congregations.js';
 import { saveCongPersons, saveIncomingReports } from '../services/firebase/congregations.js';
 import { BackupData } from '../definition/congregation.js';
+import { getFileMetadata } from '../services/firebase/storage_utils.js';
 
 export class User {
 	id: string;
@@ -58,6 +59,17 @@ export class User {
 			const data = await getUserAuthDetails(this.profile.auth_uid!);
 			this.email = data.email;
 			this.auth_provider = data.auth_provider;
+
+			if (!this.profile.createdAt) {
+				this.profile.createdAt = data.createdAt;
+			}
+		}
+
+		if (this.profile.role === 'pocket' && !this.profile.createdAt) {
+			const path = `${this.id}/profile.txt`;
+			const data = await getFileMetadata({ type: 'user', path });
+
+			this.profile.createdAt = data?.timeCreated;
 		}
 
 		this.bible_studies = data.bible_studies;

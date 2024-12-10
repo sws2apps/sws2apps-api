@@ -25,6 +25,27 @@ export const uploadFileToStorage = async (data: string, options: StorageBaseType
 	return encryptedData;
 };
 
+export const getFileMetadata = async ({ path, type }: StorageBaseType) => {
+	let destPath = 'v3/';
+
+	if (type === 'congregation') {
+		destPath += `congregations/${path}`;
+	}
+
+	if (type === 'user') {
+		destPath += `users/${path}`;
+	}
+
+	const storageBucket = getStorage().bucket();
+	const file = await storageBucket.file(destPath);
+
+	const [fileExist] = await file.exists();
+
+	if (fileExist) {
+		return file.metadata;
+	}
+};
+
 export const getFileFromStorage = async ({ path, type }: StorageBaseType) => {
 	let destPath = 'v3/';
 
@@ -38,6 +59,7 @@ export const getFileFromStorage = async ({ path, type }: StorageBaseType) => {
 
 	const storageBucket = getStorage().bucket();
 	const file = await storageBucket.file(destPath);
+
 	const [fileExist] = await file.exists();
 
 	if (fileExist) {

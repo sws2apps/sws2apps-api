@@ -401,6 +401,7 @@ export class Congregation {
 			return {
 				id: member.id,
 				profile: {
+					createdAt: member.profile.createdAt,
 					global_role: member.profile.role,
 					firstname: member.profile.firstname,
 					lastname: member.profile.lastname,

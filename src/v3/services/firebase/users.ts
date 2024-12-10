@@ -11,7 +11,7 @@ export const getUserAuthDetails = async (auth_uid: string) => {
 
 	const auth_provider = userRecord.providerData[0]?.providerId || 'email';
 
-	return { email: userRecord.email, auth_provider };
+	return { email: userRecord.email, auth_provider, createdAt: userRecord.metadata.creationTime };
 };
 
 export const getUsersID = async () => {
