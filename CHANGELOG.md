@@ -1,3 +1,11 @@
+# [3.4.0](https://github.com/sws2apps/sws2apps-api/compare/v3.3.2...v3.4.0) (2024-12-11)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.39.1 to 1.40.0 ([100f61d](https://github.com/sws2apps/sws2apps-api/commit/100f61d6677520da8d95f76295f0f8260fe98967))
+* **users:** add createdAt property ([3225847](https://github.com/sws2apps/sws2apps-api/commit/32258475dbdb8a2b835c8a695d8b28979d18e6b1))
+
 ## [3.3.2](https://github.com/sws2apps/sws2apps-api/compare/v3.3.1...v3.3.2) (2024-12-08)
 
 
