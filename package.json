@@ -36,7 +36,7 @@
 		"express": "^5.0.1",
 		"express-rate-limit": "^7.5.0",
 		"express-validator": "^7.2.0",
-		"firebase-admin": "^13.0.1",
+		"firebase-admin": "^13.0.2",
 		"geoip-lite": "^1.4.10",
 		"global-jsdom": "^25.0.0",
 		"helmet": "^8.0.0",
