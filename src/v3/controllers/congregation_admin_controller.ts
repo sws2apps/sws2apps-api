@@ -388,6 +388,76 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 	res.status(200).json({ message: 'USER_UPDATED_SUCCESSFULLY' });
 };
 
+export const userRename = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({ message: 'error_api_bad-request' });
+
+		return;
+	}
+
+	const { id, user } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation id params is undefined';
+		res.status(400).json({ message: 'CONG_ID_INVALID' });
+
+		return;
+	}
+
+	const cong = CongregationsList.findById(id);
+
+	if (!cong) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no congregation could not be found with the provided id';
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
+
+		return;
+	}
+
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
+
+	if (!isValid) {
+		res.locals.type = 'warn';
+		res.locals.message = 'user not authorized to access the provided congregation';
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
+		return;
+	}
+
+	if (!user) {
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation user params is undefined';
+		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+
+		return;
+	}
+
+	const foundUser = UsersList.findById(user);
+
+	if (!foundUser) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no user could found with the provided id';
+		res.status(404).json({ message: 'USER_NOT_FOUND' });
+
+		return;
+	}
+
+	const { user_secret_code, cong_person_uid, person_firstname, person_lastname } = req.body;
+
+	await foundUser.renameUser(cong_person_uid, person_firstname, person_lastname, user_secret_code);
+
+	res.locals.type = 'warn';
+	res.locals.message = 'congregation admin fetched all users';
+	res.status(200).json({ message: 'USER_UPDATED_SUCCESSFULLY' });
+};
+
 export const userSessionDelete = async (req: Request, res: Response) => {
 	const errors = validationResult(req);
 

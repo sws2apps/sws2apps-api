@@ -17,6 +17,7 @@ import {
 	congregationDeleteUser,
 	setAdminUserUid,
 	deleteCongregation,
+	userRename,
 } from '../controllers/congregation_admin_controller.js';
 
 const router = express.Router();
@@ -74,6 +75,15 @@ router.patch(
 	body('cong_person_uid').notEmpty().isString(),
 	body('cong_person_delegates').notEmpty().isArray(),
 	userDetailsUpdate
+);
+
+// rename congregation member
+router.patch(
+	'/:id/users/:user/rename',
+	body('cong_person_uid').notEmpty().isString(),
+	body('person_firstname').notEmpty().isString(),
+	body('person_lastname').notEmpty().isString(),
+	userRename
 );
 
 // delete congregation user session

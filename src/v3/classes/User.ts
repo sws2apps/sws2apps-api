@@ -265,6 +265,29 @@ export class User {
 		cong.reloadMembers();
 	}
 
+	async renameUser(
+		cong_person_uid: string,
+		person_firstname: string,
+		person_lastname: string,
+		cong_pocket?: string
+	) {
+		const profile = structuredClone(this.profile);
+
+		profile.congregation!.user_local_uid = cong_person_uid;
+		profile.firstname = {value: person_firstname, updatedAt: new Date().toISOString()};
+		profile.lastname = {value: person_lastname, updatedAt: new Date().toISOString()};
+
+		if (cong_pocket) {
+			profile.congregation!.pocket_invitation_code = encryptData(cong_pocket);
+		}
+
+		await setUserProfile(this.id, profile);
+
+		const cong = CongregationsList.findById(profile.congregation!.id)!;
+
+		cong.reloadMembers();
+	}
+
 	async deletePocketCode() {
 		const profile = structuredClone(this.profile);
 
