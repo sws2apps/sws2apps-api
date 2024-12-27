@@ -1,3 +1,20 @@
+# [3.5.0](https://github.com/sws2apps/sws2apps-api/compare/v3.4.0...v3.5.0) (2024-12-27)
+
+
+### Features
+
+* **api:** use new env FIREBASE_STORAGE_BUCKET ([c51bc20](https://github.com/sws2apps/sws2apps-api/commit/c51bc20f947ff3386f4b502805c769b508cd55f3))
+* **deps:** bump @crowdin/crowdin-api-client from 1.40.0 to 1.41.0 ([07a1811](https://github.com/sws2apps/sws2apps-api/commit/07a18115d9b28b10ca78fb7f002a9b6442a81b88))
+* **deps:** bump express-rate-limit from 7.4.1 to 7.5.0 ([843cdc5](https://github.com/sws2apps/sws2apps-api/commit/843cdc5fd274efb0c7bd6ffade4ef02c73d1fd71))
+* **deps:** bump firebase-admin from 13.0.1 to 13.0.2 ([d7032e4](https://github.com/sws2apps/sws2apps-api/commit/d7032e44763a72e2b4f4c2fbeabc9b94dd8ffecb))
+* **deps:** bump i18next from 24.0.5 to 24.1.0 ([9878aff](https://github.com/sws2apps/sws2apps-api/commit/9878aff46317ce8f87183fbd36fec7c4f4b18bdd))
+* **deps:** bump i18next from 24.1.0 to 24.1.2 ([30b7514](https://github.com/sws2apps/sws2apps-api/commit/30b7514a831df2ecf239b6c45730e3bc0326d4f3))
+* **deps:** bump i18next from 24.1.2 to 24.2.0 ([64b19bd](https://github.com/sws2apps/sws2apps-api/commit/64b19bdde232ddf77fefc39c42073d8f9b75ea3f))
+* **deps:** bump i18next-http-middleware from 3.7.0 to 3.7.1 ([bed6074](https://github.com/sws2apps/sws2apps-api/commit/bed6074f2de331eb2f5bc9aa0736642d5640eeb2))
+* **deps:** bump node-html-parser from 6.1.13 to 7.0.1 ([43bcef3](https://github.com/sws2apps/sws2apps-api/commit/43bcef3aeb9378432465608e1a89970131ea061d))
+* **deps:** bump otpauth from 9.3.5 to 9.3.6 ([8d4e1e2](https://github.com/sws2apps/sws2apps-api/commit/8d4e1e27fa4371372c305bd34346e28ab21c2a89))
+* **deps:** bump sanitize-html from 2.13.1 to 2.14.0 ([32871f3](https://github.com/sws2apps/sws2apps-api/commit/32871f3d3bf49a3ad1798d9692ade92d53e36f67))
+
 # [3.4.0](https://github.com/sws2apps/sws2apps-api/compare/v3.3.2...v3.4.0) (2024-12-11)
 
 
