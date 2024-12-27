@@ -4,8 +4,10 @@ const serviceAccount = JSON.parse(Buffer.from(process.env.GOOGLE_CONFIG_BASE64!,
 
 const suffix = process.env.FIREBASE_STORAGE_SUFFIX || 'firebasestorage.app';
 
+const storageBucket = process.env.FIREBASE_STORAGE_BUCKET || `${process.env.FIREBASE_APP_NAME}.${suffix}`;
+
 initializeApp({
 	projectId: process.env.FIREBASE_APP_NAME,
 	credential: cert(serviceAccount),
-	storageBucket: `${process.env.FIREBASE_APP_NAME}.${suffix}`,
+	storageBucket,
 });
