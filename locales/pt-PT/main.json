@@ -9,6 +9,6 @@
 	"tr_login": "Iniciar sessão na tua conta Organized",
 	"tr_loginDesc": "Recebemos um pedido para iniciar sessão com o seu email. Por favor confirme clicando no botão abaixo.",
 	"tr_loginBtn": "Iniciar sessão no Organized",
-	"tr_loginAltText": "If you can’t use the login button above, please use the following link. Make sure it is not cropped when you are copying it:",
-	"tr_loginIgnoreText": "If you did not request this link, please just ignore this email."
+	"tr_loginAltText": "Se não conseguir usar o botão acima, por favor, use a seguinte hiperligação. Certifique-se de que copia a hiperligação completa:",
+	"tr_loginIgnoreText": "Se não pediu esta hiperligação, por favor, ignore este email."
 }
