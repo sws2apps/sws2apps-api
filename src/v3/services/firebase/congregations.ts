@@ -1,17 +1,10 @@
 import { getStorage } from 'firebase-admin/storage';
-import { AppRoleType, StandardRecord } from '../../definition/app.js';
-import {
-	BackupData,
-	CongregationCreateInfoType,
-	CongSettingsType,
-	OutgoingSpeakersRecordType,
-} from '../../definition/congregation.js';
-import { deleteFileFromStorage, getFileFromStorage, uploadFileToStorage } from './storage_utils.js';
+import { StandardRecord } from '../../definition/app.js';
+import { CongregationCreateInfoType, CongSettingsType, OutgoingSpeakersRecordType } from '../../definition/congregation.js';
+import { deleteFileFromStorage, getFileFromStorage, getFileMetadata, uploadFileToStorage } from './storage_utils.js';
 import { CongregationsList } from '../../classes/Congregations.js';
 import { decryptData, encryptData } from '../encryption/encryption.js';
 import { Congregation } from '../../classes/Congregation.js';
-import { UsersList } from '../../classes/Users.js';
-import { setUserProfile } from './users.js';
 
 export const getCongsID = async () => {
 	const pattern = '^v3\\/congregations\\/(.+?)\\/';
@@ -116,6 +109,132 @@ export const getCongDetails = async (cong_id: string) => {
 		visiting_speakers: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/visiting_speakers/incoming.txt` }),
 		outgoing_speakers: await getOutgoingSpeakersAccessList(cong_id),
 		applications: await getApplications(cong_id),
+		metadata: await getCongMetadata(cong_id),
+	};
+};
+
+export const getPersonsMetadata = async (cong_id: string) => {
+	const storageBucket = getStorage().bucket();
+	const [files] = await storageBucket.getFiles({ prefix: `v3/congregations/${cong_id}/persons` });
+
+	const dates: string[] = [];
+
+	for await (const file of files) {
+		const updated = file.metadata.updated || '';
+		dates.push(updated);
+	}
+
+	const updated = dates.sort((a, b) => b.localeCompare(a)).at(0) || '';
+
+	return updated;
+};
+
+export const getBranchCongAnalysisMetadata = async (cong_id: string) => {
+	const branchCongAnalysis = await getFileMetadata({ type: 'congregation', path: `${cong_id}/branch_cong_analysis/main.txt` });
+
+	return branchCongAnalysis?.updated || '';
+};
+
+export const getBranchFieldServiceReportsMetadata = async (cong_id: string) => {
+	const branchFieldServiceReports = await getFileMetadata({
+		type: 'congregation',
+		path: `${cong_id}/branch_field_service_reports/main.txt`,
+	});
+
+	return branchFieldServiceReports?.updated || '';
+};
+
+export const getFieldServiceGroupsMetadata = async (cong_id: string) => {
+	const fieldServiceGroups = await getFileMetadata({
+		type: 'congregation',
+		path: `${cong_id}/field_service_groups/main.txt`,
+	});
+
+	return fieldServiceGroups?.updated || '';
+};
+
+export const getFieldServiceReportsMetadata = async (cong_id: string) => {
+	const fieldServiceReports = await getFileMetadata({
+		type: 'congregation',
+		path: `${cong_id}/field_service_reports/main.txt`,
+	});
+
+	return fieldServiceReports?.updated || '';
+};
+
+export const getMeetingAttendanceMetadata = async (cong_id: string) => {
+	const meetingAttendance = await getFileMetadata({ type: 'congregation', path: `${cong_id}/meeting_attendance/main.txt` });
+
+	return meetingAttendance?.updated || '';
+};
+
+export const getSchedulesMetadata = async (cong_id: string) => {
+	const schedules = await getFileMetadata({ type: 'congregation', path: `${cong_id}/schedules/main.txt` });
+
+	return schedules?.updated || '';
+};
+
+export const getSourcesMetadata = async (cong_id: string) => {
+	const sources = await getFileMetadata({ type: 'congregation', path: `${cong_id}/sources/main.txt` });
+
+	return sources?.updated || '';
+};
+
+export const getSpeakersCongregationsMetadata = async (cong_id: string) => {
+	const speakersCongregations = await getFileMetadata({
+		type: 'congregation',
+		path: `${cong_id}/speakers_congregations/main.txt`,
+	});
+
+	return speakersCongregations?.updated || '';
+};
+
+export const getVisitingSpeakersMetadata = async (cong_id: string) => {
+	const visitingSpeakers = await getFileMetadata({ type: 'congregation', path: `${cong_id}/visiting_speakers/main.txt` });
+
+	return visitingSpeakers?.updated || '';
+};
+
+export const getSettingsMetadata = async (cong_id: string) => {
+	const settings = await getFileMetadata({ type: 'congregation', path: `${cong_id}/settings/main.txt` });
+
+	return settings?.updated || '';
+};
+
+export const getIncomingReportsMetadata = async (cong_id: string) => {
+	const incomingReports = await getFileMetadata({ type: 'congregation', path: `${cong_id}/field_service_reports/incoming.txt` });
+
+	return incomingReports?.updated || '';
+};
+
+export const getPublicSourcesMetadata = async (cong_id: string) => {
+	const publicSources = await getFileMetadata({ type: 'congregation', path: `${cong_id}/public/sources.txt` });
+
+	return publicSources?.updated || '';
+};
+
+export const getPublicSchedulesMetadata = async (cong_id: string) => {
+	const publicSchedules = await getFileMetadata({ type: 'congregation', path: `${cong_id}/public/schedules.txt` });
+
+	return publicSchedules?.updated || '';
+};
+
+const getCongMetadata = async (cong_id: string) => {
+	return {
+		branch_cong_analysis: await getBranchCongAnalysisMetadata(cong_id),
+		branch_field_service_reports: await getBranchFieldServiceReportsMetadata(cong_id),
+		field_service_groups: await getFieldServiceGroupsMetadata(cong_id),
+		cong_field_service_reports: await getFieldServiceReportsMetadata(cong_id),
+		meeting_attendance: await getMeetingAttendanceMetadata(cong_id),
+		persons: await getPersonsMetadata(cong_id),
+		schedules: await getSchedulesMetadata(cong_id),
+		cong_settings: await getSettingsMetadata(cong_id),
+		sources: await getSourcesMetadata(cong_id),
+		speakers_congregations: await getSpeakersCongregationsMetadata(cong_id),
+		visiting_speakers: await getVisitingSpeakersMetadata(cong_id),
+		incoming_reports: await getIncomingReportsMetadata(cong_id),
+		public_sources: await getPublicSourcesMetadata(cong_id),
+		public_schedules: await getPublicSchedulesMetadata(cong_id),
 	};
 };
 
@@ -227,147 +346,6 @@ export const setCongSpeakersKey = async (id: string, speakers_key: string) => {
 	const path = `${id}/visiting_speakers/key.txt`;
 
 	await uploadFileToStorage(speakers_key, { type: 'congregation', path });
-};
-
-export const saveCongBackup = async (id: string, cong_backup: BackupData, userRole: AppRoleType[]) => {
-	const secretaryRole = userRole.includes('secretary');
-
-	const adminRole = secretaryRole || userRole.some((role) => role === 'admin' || role === 'coordinator');
-
-	const serviceCommiteeRole = adminRole || userRole.includes('service_overseer');
-
-	const elderRole = userRole.includes('elder');
-
-	const scheduleEditor =
-		adminRole ||
-		userRole.some((role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule');
-
-	const publicTalkEditor = adminRole || userRole.includes('public_talk_schedule');
-
-	const attendanceEditor = adminRole || userRole.includes('attendance_tracking');
-
-	if (adminRole && cong_backup.cong_users) {
-		for (const congUser of cong_backup.cong_users) {
-			const user = UsersList.findById(congUser.id);
-
-			if (!user) continue;
-
-			const profile = structuredClone(user.profile);
-
-			if (!profile.congregation) continue;
-
-			profile.congregation.cong_role = congUser.role!;
-
-			setUserProfile(user.id, profile);
-			user.profile = profile;
-		}
-	}
-
-	if (scheduleEditor && cong_backup.persons) {
-		const persons = cong_backup.persons;
-		await setCongPersons(id, persons);
-	}
-
-	if (publicTalkEditor && cong_backup.speakers_congregations) {
-		const speakers = cong_backup.speakers_congregations;
-		await setSpeakersCongregations(id, speakers);
-	}
-
-	if (publicTalkEditor && cong_backup.visiting_speakers) {
-		const speakers = cong_backup.visiting_speakers;
-		await setCongVisitingSpeakers(id, speakers);
-	}
-
-	if (publicTalkEditor && cong_backup.outgoing_speakers) {
-		const speakers = cong_backup.outgoing_speakers;
-		const cong = CongregationsList.findById(id)!;
-
-		const outgoingData = {
-			list: speakers,
-			access: cong.outgoing_speakers.access,
-		};
-
-		await setCongOutgoingSpeakers(id, JSON.stringify(outgoingData));
-	}
-
-	if (secretaryRole && cong_backup.incoming_reports) {
-		const reports = cong_backup.incoming_reports;
-		await saveIncomingReports(id, reports);
-	}
-
-	if (serviceCommiteeRole && cong_backup.field_service_groups) {
-		const data = cong_backup.field_service_groups;
-		await setCongFieldServiceGroups(id, data);
-	}
-
-	if (publicTalkEditor && cong_backup.speakers_key) {
-		await setCongSpeakersKey(id, cong_backup.speakers_key);
-
-		const cong = CongregationsList.findById(id)!;
-		cong.outgoing_speakers.speakers_key = cong_backup.speakers_key;
-	}
-
-	if (adminRole && cong_backup.branch_cong_analysis) {
-		const data = cong_backup.branch_cong_analysis;
-		await setBranchCongAnalysis(id, data);
-	}
-
-	if (adminRole && cong_backup.branch_field_service_reports) {
-		const data = cong_backup.branch_field_service_reports;
-		await setBranchFieldServiceReports(id, data);
-	}
-
-	if (scheduleEditor && cong_backup.sources) {
-		const data = cong_backup.sources;
-		await setCongSources(id, data);
-	}
-
-	if (scheduleEditor && cong_backup.sched) {
-		const data = cong_backup.sched;
-		await setCongSchedules(id, data);
-	}
-
-	if ((elderRole || adminRole) && cong_backup.cong_field_service_reports) {
-		const data = cong_backup.cong_field_service_reports;
-		await setCongFieldServiceReports(id, data);
-	}
-
-	if (attendanceEditor && cong_backup.meeting_attendance) {
-		const data = cong_backup.meeting_attendance;
-		await setMeetingAttendance(id, data);
-	}
-
-	let settings: CongSettingsType;
-
-	if (scheduleEditor && cong_backup.app_settings.cong_settings) {
-		settings = cong_backup.app_settings.cong_settings;
-	}
-
-	if (!scheduleEditor) {
-		const findCong = CongregationsList.findById(id)!;
-		settings = findCong.settings;
-	}
-
-	const lastBackup = new Date().toISOString();
-	settings!.last_backup = lastBackup;
-
-	await setCongSettings(id, settings!);
-
-	return lastBackup;
-};
-
-export const saveCongPersons = async (id: string, cong_persons: StandardRecord[]) => {
-	await setCongPersons(id, cong_persons);
-
-	const findCong = CongregationsList.findById(id)!;
-	const settings = findCong.settings;
-
-	const lastBackup = new Date().toISOString();
-	settings!.last_backup = lastBackup;
-
-	await setCongSettings(id, settings!);
-
-	return lastBackup;
 };
 
 export const createCongregation = async (data: CongregationCreateInfoType) => {
@@ -487,20 +465,6 @@ export const rejectCongAccess = async (congId: string, requestId: string) => {
 	await setCongOutgoingSpeakers(congId, data);
 };
 
-export const publishCongSchedules = async (congId: string, sources?: string, schedules?: string, talks?: string) => {
-	if (sources) {
-		await setCongPublicSources(congId, sources);
-	}
-
-	if (schedules) {
-		await setCongPublicSchedules(congId, schedules);
-	}
-
-	if (talks) {
-		await setCongPublicOutgoingTalks(congId, talks);
-	}
-};
-
 export const saveAPApplication = async (congId: string, application: StandardRecord) => {
 	const data = JSON.stringify(application);
 
@@ -513,7 +477,7 @@ export const deleteAPApplication = async (congId: string, requestId: string) => 
 	await deleteFileFromStorage({ type: 'congregation', path });
 };
 
-export const saveIncomingReports = async (id: string, reports: StandardRecord[]) => {
+export const setIncomingReports = async (id: string, reports: StandardRecord[]) => {
 	const data = JSON.stringify(reports);
 	const path = `${id}/field_service_reports/incoming.txt`;
 	await uploadFileToStorage(data, { type: 'congregation', path });

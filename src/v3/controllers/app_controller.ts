@@ -19,8 +19,8 @@ type CustomError = string & { stack: string } & { errorInfo: { code: string } };
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const errorHandler = (error: CustomError, req: Request, res: Response, next: NextFunction) => {
 	res.locals.type = 'warn';
-	res.locals.message = `an error occured: ${error.stack || error}`;
-	console.log(`an error occured: ${error.stack || error}`);
+	res.locals.message = `An error occured: ${error.stack || error}`;
+	console.log(`An error occured: ${error.stack || error}`);
 
 	if (error.errorInfo?.code) {
 		const code = error.errorInfo.code.replace('/', '_');

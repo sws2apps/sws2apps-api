@@ -1,5 +1,5 @@
 import express from 'express';
-import { body, check } from 'express-validator';
+import { body, header } from 'express-validator';
 import { pocketVisitorChecker } from '../middleware/visitor_checker.js';
 import {
 	deletePocketSession,
@@ -26,10 +26,10 @@ router.use(pocketVisitorChecker());
 router.get('/validate-me', validatePocket);
 
 // retrieve user backup
-router.get('/backup', retrieveUserBackup);
+router.get('/backup', header('metadata').isString(), retrieveUserBackup);
 
 // send user backup
-router.post('/backup', check('lastbackup').isString(), body('cong_backup').isObject(), saveUserBackup);
+router.post('/backup', header('metadata').isString(), body('cong_backup').isObject(), saveUserBackup);
 
 // get user sessions
 router.get('/sessions', getPocketSessions);
