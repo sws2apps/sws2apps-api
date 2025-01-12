@@ -340,7 +340,7 @@ export class Congregation {
 		}
 
 		if (publicTalkEditor && cong_backup.visiting_speakers) {
-			await this.saveSpeakersCongregations(cong_backup.visiting_speakers);
+			await this.saveVisitingSpeakers(cong_backup.visiting_speakers);
 		}
 
 		if (publicTalkEditor && cong_backup.visiting_speakers) {

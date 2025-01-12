@@ -109,7 +109,7 @@ export const getCongDetails = async (cong_id: string) => {
 		visiting_speakers: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/visiting_speakers/incoming.txt` }),
 		outgoing_speakers: await getOutgoingSpeakersAccessList(cong_id),
 		applications: await getApplications(cong_id),
-		metadata: await getCongMedata(cong_id),
+		metadata: await getCongMetadata(cong_id),
 	};
 };
 
@@ -219,7 +219,7 @@ export const getPublicSchedulesMetadata = async (cong_id: string) => {
 	return publicSchedules?.updated || '';
 };
 
-const getCongMedata = async (cong_id: string) => {
+const getCongMetadata = async (cong_id: string) => {
 	return {
 		branch_cong_analysis: await getBranchCongAnalysisMetadata(cong_id),
 		branch_field_service_reports: await getBranchFieldServiceReportsMetadata(cong_id),
