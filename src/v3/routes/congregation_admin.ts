@@ -45,8 +45,8 @@ router.get('/:id/users', congregationGetUsers);
 // create a new user
 router.post(
 	'/:id/users',
-	body('user_firstname').notEmpty().isString(),
-	body('user_lastname').notEmpty().isString(),
+	body('user_firstname').isString(),
+	body('user_lastname').isString(),
 	body('user_id').notEmpty().isString(),
 	body('cong_role').notEmpty().isArray(),
 	body('cong_person_uid').notEmpty().isString(),
@@ -73,6 +73,8 @@ router.patch(
 	body('cong_role').notEmpty().isArray(),
 	body('cong_person_uid').notEmpty().isString(),
 	body('cong_person_delegates').notEmpty().isArray(),
+	body('first_name').isString(),
+	body('last_name').isString(),
 	userDetailsUpdate
 );
 
