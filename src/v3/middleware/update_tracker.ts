@@ -48,8 +48,8 @@ export const updateTracker = () => {
 						origin: req.headers.origin || req.hostname,
 						ip: clientIp,
 						details: res.locals.message?.replace(/\n|\r/g, '') || '',
-						userId: res.locals.currentUser.id,
-						congregationId: res.locals.currentUser.profile.congregation?.id,
+						userId: res.locals.currentUser?.id,
+						congregationId: res.locals.currentUser?.profile.congregation?.id,
 					};
 
 					logger(res.locals.type, JSON.stringify(log));
@@ -70,8 +70,8 @@ export const updateTracker = () => {
 					origin: req.headers.origin || req.hostname,
 					ip: clientIp,
 					details: 'this request was aborted',
-					userId: res.locals.currentUser.id,
-					congregationId: res.locals.currentUser.profile.congregation?.id,
+					userId: res.locals.currentUser?.id,
+					congregationId: res.locals.currentUser?.profile.congregation?.id,
 				};
 
 				logger('warn', JSON.stringify(log));
