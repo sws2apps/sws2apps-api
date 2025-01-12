@@ -90,7 +90,7 @@ export class Congregation {
 			branch_cong_analysis: '',
 			meeting_attendance: '',
 			speakers_congregations: '',
-			field_service_reports: '',
+			cong_field_service_reports: '',
 		};
 
 		this.public_schedules = { schedules: '', sources: '', outgoing_talks: '', incoming_talks: '' };
