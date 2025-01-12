@@ -453,7 +453,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			result.app_settings.cong_settings = structuredClone(cong.settings);
 
 			if (!masterKeyNeed) {
-				result.app_settings.cong_settings!.cong_master_key = undefined;
+				result.app_settings.cong_settings.cong_master_key = undefined;
 			}
 
 			result.metadata.cong_settings = localDate;
@@ -761,7 +761,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 
 	const cong_backup = req.body.cong_backup as BackupData;
 
-	const incomingMetadata = cong_backup.metadata as Record<string, string>;
+	const incomingMetadata = cong_backup.metadata;
 	const currentMetadata = { ...cong.metadata, ...user.metadata };
 
 	let isOutdated = false;
