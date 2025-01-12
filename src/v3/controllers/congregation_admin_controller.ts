@@ -390,7 +390,7 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 	await foundUser.updateProfile(profile);
 
 	res.locals.type = 'warn';
-	res.locals.message = 'congregation admin fetched all users';
+	res.locals.message = 'congregation admin updated user details';
 	res.status(200).json({ message: 'USER_UPDATED_SUCCESSFULLY' });
 };
 
