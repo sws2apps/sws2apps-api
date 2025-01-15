@@ -15,6 +15,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+
       - name: Checkout for release preparation
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
