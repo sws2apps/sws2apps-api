@@ -10,5 +10,5 @@
 	"tr_loginDesc": "Oleme saanud taotluse sisselogimiseks sinu e-posti aadressiga. Palun kinnita sisselogimine, klõpsates allolevat nuppu.",
 	"tr_loginBtn": "Logi sisse Organized-i",
 	"tr_loginAltText": "Kui sa ei saa kasutada ülaltoodud sisselogimise nuppu, kasuta palun järgmist linki. Veendu, et see ei oleks lõigatud, kui sa seda kopeerid:",
-	"tr_loginIgnoreText": "Kui sa ei esitanud seda linki, ignoreeri seda e-kirja palun."
+	"tr_loginIgnoreText": "Kui sa ei taotlenud seda linki, ignoreeri palun seda e-kirja."
 }
