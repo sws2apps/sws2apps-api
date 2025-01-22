@@ -101,6 +101,12 @@ export const setUserFieldServiceReports = async (id: string, reports: StandardRe
 	await uploadFileToStorage(data, { type: 'user', path });
 };
 
+export const setDelegatedFieldServiceReports = async (id: string, reports: StandardRecord[]) => {
+	const data = JSON.stringify(reports);
+	const path = `${id}/delegated_field_service_reports.txt`;
+	await uploadFileToStorage(data, { type: 'user', path });
+};
+
 export const getUserSettingsMetadata = async (user_id: string) => {
 	const userSettings = await getFileMetadata({ type: 'user', path: `${user_id}/settings.txt` });
 
@@ -131,6 +137,12 @@ export const getFieldServiceReportsMetadata = async (user_id: string) => {
 	return fieldServiceReports?.updated || '';
 };
 
+export const getDelegatedFieldServiceReportsMetadata = async (user_id: string) => {
+	const fieldServiceReports = await getFileMetadata({ type: 'user', path: `${user_id}/delegated_field_service_reports.txt` });
+
+	return fieldServiceReports?.updated || '';
+};
+
 export const getUserDetails = async (id: string) => {
 	const profile = await getUserProfileMetadata(id);
 	const settings = await getUserSettingsMetadata(id);
@@ -146,6 +158,7 @@ export const getUserDetails = async (id: string) => {
 		metadata: {
 			user_bible_studies: await getBibleStudiesMetadata(id),
 			user_field_service_reports: await getFieldServiceReportsMetadata(id),
+			delegated_field_service_reports: await getDelegatedFieldServiceReportsMetadata(id),
 			sessions: await getUserSessionsMetadata(id),
 			user_settings,
 		},
