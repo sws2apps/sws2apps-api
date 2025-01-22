@@ -2,12 +2,14 @@ import { AppRoleType, OTPSecretType, StandardRecord } from '../definition/app.js
 import { UserCongregationAssignParams, UserProfile, UserSession, UserSettings } from '../definition/user.js';
 import {
 	getBibleStudiesMetadata,
+	getDelegatedFieldServiceReportsMetadata,
 	getFieldServiceReportsMetadata,
 	getUserAuthDetails,
 	getUserDetails,
 	getUserProfileMetadata,
 	getUserSessionsMetadata,
 	getUserSettingsMetadata,
+	setDelegatedFieldServiceReports,
 	setUserBibleStudies,
 	setUserEmail,
 	setUserFieldServiceReports,
@@ -30,6 +32,7 @@ export class User {
 	settings: UserSettings;
 	bible_studies: StandardRecord[];
 	field_service_reports: StandardRecord[];
+	delegated_field_service_reports: StandardRecord[];
 	metadata: Record<string, string>;
 
 	constructor(id: string) {
@@ -37,6 +40,7 @@ export class User {
 		this.metadata = {
 			user_bible_studies: '',
 			user_field_service_reports: '',
+			delegated_field_service_reports: '',
 			user_settings: '',
 			sessions: '',
 		};
@@ -54,6 +58,7 @@ export class User {
 		};
 		this.bible_studies = [];
 		this.field_service_reports = [];
+		this.delegated_field_service_reports = [];
 	}
 
 	async loadDetails() {
@@ -309,6 +314,13 @@ export class User {
 		this.metadata.user_bible_studies = await getBibleStudiesMetadata(this.id);
 	}
 
+	async saveDelegatedFieldServiceReports(reports: StandardRecord[]) {
+		await setDelegatedFieldServiceReports(this.id, reports);
+
+		this.delegated_field_service_reports = reports;
+		this.metadata.delegated_field_service_reports = await getDelegatedFieldServiceReportsMetadata(this.id);
+	}
+
 	async saveBackup(cong_backup: BackupData, userRole: AppRoleType[]) {
 		const userSettings = cong_backup.app_settings?.user_settings;
 
@@ -334,6 +346,7 @@ export class User {
 
 		const userFieldServiceReports = cong_backup.user_field_service_reports;
 		const userBibleStudies = cong_backup.user_bible_studies;
+		const delegatedFieldServiceReports = cong_backup.delegated_field_service_reports;
 
 		if (isPublisher && userBibleStudies) {
 			await this.saveBibleStudies(userBibleStudies);
@@ -341,6 +354,10 @@ export class User {
 
 		if (isPublisher && userFieldServiceReports) {
 			await this.saveFieldServiceReports(userFieldServiceReports);
+		}
+
+		if (isPublisher && delegatedFieldServiceReports) {
+			await this.saveDelegatedFieldServiceReports(delegatedFieldServiceReports);
 		}
 	}
 

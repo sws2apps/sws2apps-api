@@ -240,6 +240,13 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 	const result = {} as BackupData;
 
 	const userUid = user.profile.congregation!.user_local_uid;
+	const delegates = user.profile.congregation!.user_members_delegate;
+
+	const miniPersons = delegates ? structuredClone(delegates) : [];
+
+	if (userUid && userUid?.length > 0) {
+		miniPersons.push(userUid);
+	}
 
 	if (cong.settings.data_sync.value) {
 		result.app_settings = {};
@@ -301,13 +308,13 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 						person_display_name: personData.person_display_name,
 						male: personData.male,
 						female: personData.female,
-						publisher_unbaptized: userUid === record.person_uid ? personData.publisher_unbaptized : undefined,
-						publisher_baptized: userUid === record.person_uid ? personData.publisher_baptized : undefined,
-						emergency_contacts: userUid === record.person_uid ? personData.emergency_contacts : undefined,
-						assignments: userUid === record.person_uid ? personData.assignments : undefined,
-						privileges: userUid === record.person_uid ? personData.privileges : undefined,
-						enrollments: userUid === record.person_uid ? personData.enrollments : undefined,
-						timeAway: includeTimeAway || userUid === record.person_uid ? personData.timeAway : undefined,
+						publisher_unbaptized: miniPersons.includes(String(record.person_uid)) ? personData.publisher_unbaptized : undefined,
+						publisher_baptized: miniPersons.includes(String(record.person_uid)) ? personData.publisher_baptized : undefined,
+						emergency_contacts: miniPersons.includes(String(record.person_uid)) ? personData.emergency_contacts : undefined,
+						assignments: miniPersons.includes(String(record.person_uid)) ? personData.assignments : undefined,
+						privileges: miniPersons.includes(String(record.person_uid)) ? personData.privileges : undefined,
+						enrollments: miniPersons.includes(String(record.person_uid)) ? personData.enrollments : undefined,
+						timeAway: includeTimeAway || miniPersons.includes(String(record.person_uid)) ? personData.timeAway : undefined,
 					},
 				};
 			});
@@ -336,6 +343,14 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 				result.metadata.user_field_service_reports = localDate;
 			}
 
+			localDate = user.metadata.delegated_field_service_reports;
+			incomingDate = metadata.delegated_field_service_reports;
+
+			if (localDate !== incomingDate) {
+				result.delegated_field_service_reports = user.delegated_field_service_reports;
+				result.metadata.delegated_field_service_reports = localDate;
+			}
+
 			localDate = cong.metadata.field_service_groups;
 			incomingDate = metadata.field_service_groups;
 
@@ -352,7 +367,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 					const congUserReports = cong.field_service_reports.filter((record) => {
 						const data = record.report_data as StandardRecord;
 
-						return data.person_uid === user.profile.congregation!.user_local_uid;
+						return miniPersons.includes(String(data.person_uid));
 					});
 
 					result.cong_field_service_reports = congUserReports;

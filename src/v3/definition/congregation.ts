@@ -175,6 +175,7 @@ export type BackupData = {
 	sources: StandardRecord[];
 	user_bible_studies?: StandardRecord[];
 	user_field_service_reports?: StandardRecord[];
+	delegated_field_service_reports?: StandardRecord[];
 	public_schedules?: StandardRecord[];
 	public_sources?: StandardRecord[];
 	incoming_reports?: StandardRecord[];
