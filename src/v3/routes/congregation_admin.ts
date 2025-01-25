@@ -49,7 +49,7 @@ router.post(
 	body('user_lastname').isString(),
 	body('user_id').notEmpty().isString(),
 	body('cong_role').notEmpty().isArray(),
-	body('cong_person_uid').notEmpty().isString(),
+	body('cong_person_uid').isString(),
 	congregationUserAdd
 );
 
@@ -71,8 +71,8 @@ router.post(
 router.patch(
 	'/:id/users/:user',
 	body('cong_role').notEmpty().isArray(),
-	body('cong_person_uid').notEmpty().isString(),
-	body('cong_person_delegates').notEmpty().isArray(),
+	body('cong_person_uid').isString(),
+	body('cong_person_delegates').isArray(),
 	body('first_name').isString(),
 	body('last_name').isString(),
 	userDetailsUpdate

@@ -383,11 +383,13 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 
 	await foundUser.updateCongregationDetails(cong_role, cong_person_uid, cong_person_delegates, user_secret_code);
 
-	const profile = structuredClone(foundUser.profile);
-	profile.firstname = { value: first_name, updatedAt: new Date().toISOString() };
-	profile.lastname = { value: last_name, updatedAt: new Date().toISOString() };
+	if (first_name !== foundUser.profile.firstname.value || last_name !== foundUser.profile.lastname.value) {
+		const profile = structuredClone(foundUser.profile);
+		profile.firstname = { value: first_name, updatedAt: new Date().toISOString() };
+		profile.lastname = { value: last_name, updatedAt: new Date().toISOString() };
 
-	await foundUser.updateProfile(profile);
+		await foundUser.updateProfile(profile);
+	}
 
 	res.locals.type = 'warn';
 	res.locals.message = 'congregation admin updated user details';
@@ -647,7 +649,7 @@ export const congregationUserAdd = async (req: Request, res: Response) => {
 
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin added vip user';
-	res.status(200).json({ message: 'POCKET_CREATED' });
+	res.status(200).json({ message: 'CONG_USER_CREATED' });
 };
 
 export const congregationDeleteUser = async (req: Request, res: Response) => {
