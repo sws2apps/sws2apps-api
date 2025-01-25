@@ -1,3 +1,10 @@
+## [3.7.1](https://github.com/sws2apps/sws2apps-api/compare/v3.7.0...v3.7.1) (2025-01-25)
+
+
+### Bug Fixes
+
+* **controllers:** check for undefined values when checking time aways ([5f2e93c](https://github.com/sws2apps/sws2apps-api/commit/5f2e93c258ed5a9b60a0bce0194e03acb8466fec))
+
 # [3.7.0](https://github.com/sws2apps/sws2apps-api/compare/v3.6.0...v3.7.0) (2025-01-25)
 
 
