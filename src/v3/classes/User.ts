@@ -253,15 +253,21 @@ export class User {
 
 	async updateCongregationDetails(
 		cong_role: AppRoleType[],
-		cong_person_uid: string,
-		cong_person_delegates: string[],
+		cong_person_uid?: string,
+		cong_person_delegates?: string[],
 		cong_pocket?: string
 	) {
 		const profile = structuredClone(this.profile);
 
 		profile.congregation!.cong_role = cong_role;
-		profile.congregation!.user_local_uid = cong_person_uid;
-		profile.congregation!.user_members_delegate = cong_person_delegates;
+
+		if (cong_person_uid) {
+			profile.congregation!.user_local_uid = cong_person_uid;
+		}
+
+		if (cong_person_delegates) {
+			profile.congregation!.user_members_delegate = cong_person_delegates;
+		}
 
 		if (cong_pocket) {
 			profile.congregation!.pocket_invitation_code = encryptData(cong_pocket);

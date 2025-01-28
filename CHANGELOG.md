@@ -1,3 +1,10 @@
+# [3.8.0](https://github.com/sws2apps/sws2apps-api/compare/v3.7.1...v3.8.0) (2025-01-26)
+
+
+### Features
+
+* **routes:** adding users without data sync enabled ([da7337e](https://github.com/sws2apps/sws2apps-api/commit/da7337e3278b2f6705de1a560d78fb1d4c16af7b))
+
 ## [3.7.1](https://github.com/sws2apps/sws2apps-api/compare/v3.7.0...v3.7.1) (2025-01-25)
 
 

@@ -21,3 +21,9 @@ export type Translation = {
 		[key: string]: string;
 	};
 };
+
+export type Country = {
+	countryGuid: string;
+	countryCode: string;
+	countryName: string;
+};
