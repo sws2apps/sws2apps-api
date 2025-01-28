@@ -12,8 +12,10 @@ import {
 	userDisable2FA,
 	userRevokeToken,
 	usersGetAll,
+	userUpdate,
 	validateAdmin,
 } from '../controllers/admin_controller.js';
+import { body } from 'express-validator';
 
 const router = express.Router();
 
@@ -44,6 +46,9 @@ router.get('/users/:id/disable-2fa', userDisable2FA);
 
 // revoke user token
 router.get('/users/:id/revoke-token', userRevokeToken);
+
+// update an user
+router.patch('/users/:id', body('lastname').isString(), body('firstname').isString(), body('email').isString(), userUpdate);
 
 // delete an user
 router.delete('/users/:id', userDelete);
