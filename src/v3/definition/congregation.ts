@@ -163,7 +163,7 @@ export type CongSettingsType = {
 export type BackupData = {
 	speakers_key?: string;
 	outgoing_talks?: object[];
-	app_settings: { cong_settings: CongSettingsType; user_settings: object };
+	app_settings: { cong_settings?: CongSettingsType; user_settings?: object };
 	persons: StandardRecord[];
 	outgoing_speakers: StandardRecord[];
 	speakers_congregations: StandardRecord[];
@@ -176,6 +176,7 @@ export type BackupData = {
 	sources: StandardRecord[];
 	user_bible_studies?: StandardRecord[];
 	user_field_service_reports?: StandardRecord[];
+	delegated_field_service_reports?: StandardRecord[];
 	public_schedules?: StandardRecord[];
 	public_sources?: StandardRecord[];
 	incoming_reports?: StandardRecord[];
@@ -185,4 +186,5 @@ export type BackupData = {
 		local_uid?: string;
 		role?: AppRoleType[];
 	}[];
+	metadata: Record<string, string>;
 };

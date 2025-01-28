@@ -379,12 +379,18 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const { user_secret_code, cong_role, cong_person_uid, cong_person_delegates } = req.body;
+	const { user_secret_code, cong_role, cong_person_uid, cong_person_delegates, first_name, last_name } = req.body;
 
 	await foundUser.updateCongregationDetails(cong_role, cong_person_uid, cong_person_delegates, user_secret_code);
 
+	const profile = structuredClone(foundUser.profile);
+	profile.firstname = { value: first_name, updatedAt: new Date().toISOString() };
+	profile.lastname = { value: last_name, updatedAt: new Date().toISOString() };
+
+	await foundUser.updateProfile(profile);
+
 	res.locals.type = 'warn';
-	res.locals.message = 'congregation admin fetched all users';
+	res.locals.message = 'congregation admin updated user details';
 	res.status(200).json({ message: 'USER_UPDATED_SUCCESSFULLY' });
 };
 

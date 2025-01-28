@@ -7,7 +7,7 @@ import { CongregationsList } from '../classes/Congregations.js';
 import { generateTokenDev } from '../dev/setup.js';
 import { formatError } from '../utils/format_log.js';
 import { StandardRecord } from '../definition/app.js';
-import { BackupData, CongregationUpdatesType } from '../definition/congregation.js';
+import { BackupData, CongregationUpdatesType, CongSettingsType } from '../definition/congregation.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';
 import { MailClient } from '../config/mail_config.js';
 
@@ -384,6 +384,8 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
+	const metadata = JSON.parse(req.headers.metadata!.toString()) as Record<string, string>;
+
 	const result = {} as BackupData;
 
 	const userRole = user.profile.congregation!.cong_role;
@@ -410,11 +412,23 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 
 	const personMinimal = !personViewer;
 	const userUid = user.profile.congregation!.user_local_uid;
+	const delegates = user.profile.congregation!.user_members_delegate;
+
+	const miniPersons = delegates ? structuredClone(delegates) : [];
+
+	if (userUid && userUid?.length > 0) {
+		miniPersons.push(userUid);
+	}
 
 	if (cong.settings.data_sync.value) {
-		result.app_settings = {
-			cong_settings: structuredClone(cong.settings),
-			user_settings: {
+		result.app_settings = {};
+		result.metadata = {};
+
+		let localDate = user.metadata.user_settings;
+		let incomingDate = metadata.user_settings;
+
+		if (localDate !== incomingDate) {
+			result.app_settings.user_settings = {
 				cong_role: user.profile.congregation?.cong_role,
 				firstname: user.profile.firstname,
 				lastname: user.profile.lastname,
@@ -425,21 +439,67 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 					user.settings.theme_follow_os_enabled?.length > 0 ? user.settings.theme_follow_os_enabled : undefined,
 				hour_credits_enabled: user.settings.hour_credits_enabled?.length > 0 ? user.settings.hour_credits_enabled : undefined,
 				data_view: user.settings.data_view?.length > 0 ? user.settings.data_view : undefined,
-			},
-		};
+			};
 
-		if (!masterKeyNeed) {
-			result.app_settings.cong_settings.cong_master_key = undefined;
+			result.metadata.user_settings = localDate;
+		}
+
+		result.app_settings.cong_settings = {
+			cong_access_code: cong.settings.cong_access_code,
+			cong_master_key: masterKeyNeed ? cong.settings.cong_master_key : undefined,
+			data_sync: cong.settings.data_sync,
+			cong_name: cong.settings.cong_name,
+			cong_number: cong.settings.cong_number,
+			country_code: cong.settings.country_code,
+		} as CongSettingsType;
+
+		localDate = cong.metadata.cong_settings;
+		incomingDate = metadata.cong_settings;
+
+		if (localDate !== incomingDate) {
+			result.app_settings.cong_settings = structuredClone(cong.settings);
+
+			if (!masterKeyNeed) {
+				result.app_settings.cong_settings.cong_master_key = undefined;
+			}
+
+			result.metadata.cong_settings = localDate;
 		}
 
 		if (personViewer) {
-			result.persons = cong.persons;
+			localDate = cong.metadata.persons;
+			incomingDate = metadata.persons;
+
+			if (localDate !== incomingDate) {
+				result.persons = cong.persons;
+				result.metadata.persons = localDate;
+			}
 		}
 
 		if (adminRole || elderRole) {
-			result.speakers_congregations = cong.speakers_congregations;
-			result.visiting_speakers = cong.visiting_speakers;
-			result.cong_field_service_reports = cong.field_service_reports;
+			localDate = cong.metadata.speakers_congregations;
+			incomingDate = metadata.speakers_congregations;
+
+			if (localDate !== incomingDate) {
+				result.speakers_congregations = cong.speakers_congregations;
+				result.metadata.speakers_congregations = localDate;
+			}
+
+			localDate = cong.metadata.visiting_speakers;
+			incomingDate = metadata.visiting_speakers;
+
+			if (localDate !== incomingDate) {
+				result.visiting_speakers = cong.visiting_speakers;
+				result.metadata.visiting_speakers = localDate;
+			}
+
+			localDate = cong.metadata.cong_field_service_reports;
+			incomingDate = metadata.cong_field_service_reports;
+
+			if (localDate !== incomingDate) {
+				result.cong_field_service_reports = cong.field_service_reports;
+				result.metadata.cong_field_service_reports = localDate;
+			}
 		}
 
 		if (publicTalkEditor) {
@@ -447,71 +507,162 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			result.outgoing_talks = cong.public_schedules.incoming_talks === '' ? [] : JSON.parse(cong.public_schedules.incoming_talks);
 		}
 
-		if (isPublisher) {
-			result.user_bible_studies = user.bible_studies;
-			result.user_field_service_reports = user.field_service_reports;
-			result.field_service_groups = cong.field_service_groups;
+		if (adminRole || isPublisher) {
+			localDate = user.metadata.user_bible_studies;
+			incomingDate = metadata.user_bible_studies;
+
+			if (localDate !== incomingDate) {
+				result.user_bible_studies = user.bible_studies;
+				result.metadata.user_bible_studies = localDate;
+			}
+
+			localDate = user.metadata.user_field_service_reports;
+			incomingDate = metadata.user_field_service_reports;
+
+			if (localDate !== incomingDate) {
+				result.user_field_service_reports = user.field_service_reports;
+				result.metadata.user_field_service_reports = localDate;
+			}
+
+			localDate = user.metadata.delegated_field_service_reports;
+			incomingDate = metadata.delegated_field_service_reports;
+
+			if (localDate !== incomingDate) {
+				result.delegated_field_service_reports = user.delegated_field_service_reports;
+				result.metadata.delegated_field_service_reports = localDate;
+			}
+
+			localDate = cong.metadata.field_service_groups;
+			incomingDate = metadata.field_service_groups;
+
+			if (localDate !== incomingDate) {
+				result.field_service_groups = cong.field_service_groups;
+				result.metadata.field_service_groups = localDate;
+			}
 
 			if (!result.cong_field_service_reports && user.profile.congregation.user_local_uid) {
-				const congUserReports = cong.field_service_reports.filter((record) => {
-					const data = record.report_data as StandardRecord;
+				localDate = cong.metadata.cong_field_service_reports;
+				incomingDate = metadata.cong_field_service_reports;
 
-					return data.person_uid === user.profile.congregation!.user_local_uid;
-				});
+				if (localDate !== incomingDate) {
+					const congUserReports = cong.field_service_reports.filter((record) => {
+						const data = record.report_data as StandardRecord;
 
-				result.cong_field_service_reports = congUserReports;
+						return miniPersons.includes(String(data.person_uid));
+					});
+
+					result.cong_field_service_reports = congUserReports;
+					result.metadata.cong_field_service_reports = localDate;
+				}
 			}
 		}
 
 		if (personMinimal) {
-			const minimalPersons = cong.persons.map((record) => {
-				const includeTimeAway = cong.settings.time_away_public?.value ?? false;
+			localDate = cong.metadata.persons;
+			incomingDate = metadata.persons;
 
-				const personData = record.person_data as StandardRecord;
+			if (localDate !== incomingDate) {
+				const minimalPersons = cong.persons.map((record) => {
+					const includeTimeAway = cong.settings.time_away_public?.value;
 
-				return {
-					_deleted: record._deleted,
-					person_uid: record.person_uid,
-					person_data: {
-						person_firstname: personData.person_firstname,
-						person_lastname: personData.person_lastname,
-						person_display_name: personData.person_display_name,
-						male: personData.male,
-						female: personData.female,
-						publisher_unbaptized: userUid === record.person_uid ? personData.publisher_unbaptized : undefined,
-						publisher_baptized: userUid === record.person_uid ? personData.publisher_baptized : undefined,
-						emergency_contacts: userUid === record.person_uid ? personData.emergency_contacts : undefined,
-						assignments: userUid === record.person_uid ? personData.assignments : undefined,
-						privileges: userUid === record.person_uid ? personData.privileges : undefined,
-						enrollments: userUid === record.person_uid ? personData.enrollments : undefined,
-						timeAway: includeTimeAway || userUid === record.person_uid ? personData.timeAway : undefined,
-					},
-				};
-			});
+					const personData = record.person_data as StandardRecord;
 
-			result.persons = minimalPersons;
+					return {
+						_deleted: record._deleted,
+						person_uid: record.person_uid,
+						person_data: {
+							person_firstname: personData.person_firstname,
+							person_lastname: personData.person_lastname,
+							person_display_name: personData.person_display_name,
+							male: personData.male,
+							female: personData.female,
+							publisher_unbaptized: miniPersons.includes(String(record.person_uid)) ? personData.publisher_unbaptized : undefined,
+							publisher_baptized: miniPersons.includes(String(record.person_uid)) ? personData.publisher_baptized : undefined,
+							emergency_contacts: miniPersons.includes(String(record.person_uid)) ? personData.emergency_contacts : undefined,
+							assignments: miniPersons.includes(String(record.person_uid)) ? personData.assignments : undefined,
+							privileges: miniPersons.includes(String(record.person_uid)) ? personData.privileges : undefined,
+							enrollments: miniPersons.includes(String(record.person_uid)) ? personData.enrollments : undefined,
+							timeAway: includeTimeAway || miniPersons.includes(String(record.person_uid)) ? personData.timeAway : undefined,
+						},
+					};
+				});
 
-			result.public_sources = cong.public_schedules.sources.length === 0 ? [] : JSON.parse(cong.public_schedules.sources);
+				result.persons = minimalPersons;
+				result.metadata.persons = localDate;
+			}
 
-			result.public_schedules = cong.public_schedules.schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.schedules);
+			localDate = cong.metadata.public_sources;
+			incomingDate = metadata.public_sources;
+
+			if (localDate !== incomingDate) {
+				result.public_sources = cong.public_schedules.sources.length === 0 ? [] : JSON.parse(cong.public_schedules.sources);
+				result.metadata.public_sources = localDate;
+			}
+
+			localDate = cong.metadata.public_schedules;
+			incomingDate = metadata.public_schedules;
+
+			if (localDate !== incomingDate) {
+				result.public_schedules = cong.public_schedules.schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.schedules);
+				result.metadata.public_schedules = localDate;
+			}
 		}
 
 		if (scheduleEditor || elderRole) {
-			result.sources = cong.sources;
-			result.sched = cong.schedules;
+			localDate = cong.metadata.sources;
+			incomingDate = metadata.sources;
+
+			if (localDate !== incomingDate) {
+				result.sources = cong.sources;
+				result.metadata.sources = localDate;
+			}
+
+			localDate = cong.metadata.schedules;
+			incomingDate = metadata.schedules;
+
+			if (localDate !== incomingDate) {
+				result.sched = cong.schedules;
+				result.metadata.schedules = localDate;
+			}
 		}
 
 		if (attendanceTracker) {
-			result.meeting_attendance = cong.meeting_attendance;
+			localDate = cong.metadata.meeting_attendance;
+			incomingDate = metadata.meeting_attendance;
+
+			if (localDate !== incomingDate) {
+				result.meeting_attendance = cong.meeting_attendance;
+				result.metadata.meeting_attendance = localDate;
+			}
 		}
 
 		if (secretaryRole) {
-			result.incoming_reports = cong.incoming_reports;
+			localDate = cong.metadata.incoming_reports;
+			incomingDate = metadata.incoming_reports;
+
+			if (localDate !== incomingDate) {
+				result.incoming_reports = cong.incoming_reports;
+				result.metadata.incoming_reports = localDate;
+			}
 		}
 
 		if (adminRole) {
-			result.branch_cong_analysis = cong.branch_cong_analysis;
-			result.branch_field_service_reports = cong.branch_field_service_reports;
+			localDate = cong.metadata.branch_cong_analysis;
+			incomingDate = metadata.branch_cong_analysis;
+
+			if (localDate !== incomingDate) {
+				result.branch_cong_analysis = cong.branch_cong_analysis;
+				result.metadata.branch_cong_analysis = localDate;
+			}
+
+			localDate = cong.metadata.branch_field_service_reports;
+			incomingDate = metadata.branch_field_service_reports;
+
+			if (localDate !== incomingDate) {
+				result.branch_field_service_reports = cong.branch_field_service_reports;
+				result.metadata.branch_field_service_reports = localDate;
+			}
+
 			result.cong_users = cong.members.map((user) => {
 				return {
 					id: user.id,
@@ -523,38 +674,54 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 	}
 
 	if (!cong.settings.data_sync.value) {
-		const midweek = cong.settings.midweek_meeting.map((record) => {
-			return { type: record.type, time: record.time, weekday: record.weekday };
-		});
+		result.app_settings = {};
+		result.metadata = {};
 
-		const weekend = cong.settings.weekend_meeting.map((record) => {
-			return { type: record.type, time: record.time, weekday: record.weekday };
-		});
+		const localUserDate = user.metadata.user_settings;
+		const incomingUserDate = metadata.user_settings;
 
-		result.app_settings = {
-			cong_settings: {
-				cong_access_code: cong.settings.cong_access_code,
-				cong_master_key: masterKeyNeed ? cong.settings.cong_master_key : undefined,
-				cong_circuit: cong.settings.cong_circuit,
-				cong_discoverable: cong.settings.cong_discoverable,
-				cong_location: cong.settings.cong_location,
-				data_sync: cong.settings.data_sync,
-				time_away_public: cong.settings.time_away_public,
-				midweek_meeting: midweek,
-				weekend_meeting: weekend,
-				cong_name: cong.settings.cong_name,
-				cong_number: cong.settings.cong_number,
-				country_code: cong.settings.country_code,
-				last_backup: cong.settings.last_backup,
-			},
-			user_settings: {
+		if (localUserDate !== incomingUserDate) {
+			result.app_settings.user_settings = {
 				cong_role: user.profile.congregation?.cong_role,
 				firstname: user.profile.firstname,
 				lastname: user.profile.lastname,
 				user_local_uid: user.profile.congregation?.user_local_uid,
 				user_members_delegate: user.profile.congregation?.user_members_delegate,
-			},
-		};
+			};
+
+			result.metadata.user_settings = localUserDate;
+		}
+
+		result.app_settings.cong_settings = {
+			cong_access_code: cong.settings.cong_access_code,
+			cong_master_key: masterKeyNeed ? cong.settings.cong_master_key : undefined,
+			data_sync: cong.settings.data_sync,
+			cong_name: cong.settings.cong_name,
+			cong_number: cong.settings.cong_number,
+			country_code: cong.settings.country_code,
+		} as CongSettingsType;
+
+		const localCongDate = cong.metadata.cong_settings;
+		const incomingCongDate = metadata.cong_settings;
+
+		if (incomingCongDate !== localCongDate) {
+			const midweek = cong.settings.midweek_meeting.map((record) => {
+				return { type: record.type, time: record.time, weekday: record.weekday };
+			});
+
+			const weekend = cong.settings.weekend_meeting.map((record) => {
+				return { type: record.type, time: record.time, weekday: record.weekday };
+			});
+
+			result.app_settings.cong_settings.cong_circuit = cong.settings.cong_circuit;
+			result.app_settings.cong_settings.cong_discoverable = cong.settings.cong_discoverable;
+			result.app_settings.cong_settings.cong_location = cong.settings.cong_location;
+			result.app_settings.cong_settings.time_away_public = cong.settings.time_away_public;
+			result.app_settings.cong_settings.midweek_meeting = midweek;
+			result.app_settings.cong_settings.weekend_meeting = weekend;
+
+			result.metadata.cong_settings = localCongDate;
+		}
 	}
 
 	res.locals.type = 'info';
@@ -607,12 +774,26 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const last_backup = req.headers.lastbackup as string;
+	const cong_backup = req.body.cong_backup as BackupData;
 
-	if (last_backup !== cong.settings.last_backup) {
+	const incomingMetadata = cong_backup.metadata;
+	const currentMetadata = { ...cong.metadata, ...user.metadata };
+
+	let isOutdated = false;
+
+	for (const [key, value] of Object.entries(incomingMetadata)) {
+		if (currentMetadata[key] && currentMetadata[key] > value) {
+			console.log({ key, remote: currentMetadata[key], value });
+			isOutdated = true;
+			break;
+		}
+	}
+
+	if (isOutdated) {
 		res.locals.type = 'info';
-		res.locals.message = 'backup action rejected since it was changed recently';
+		res.locals.message = `user backup outdated`;
 		res.status(400).json({ message: 'BACKUP_OUTDATED' });
+
 		return;
 	}
 
@@ -624,18 +805,16 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 		(role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule'
 	);
 
-	const cong_backup = req.body.cong_backup as BackupData;
-
-	cong.saveBackup(cong_backup, userRole);
+	await cong.saveBackup(cong_backup, userRole);
 
 	const userPerson = cong_backup.persons?.at(0);
 
 	if (!adminRole && !scheduleEditor && userPerson) {
 		const personData = userPerson.person_data as StandardRecord;
-		user.updatePersonData(personData.timeAway as string, personData.emergency_contacts as string);
+		await user.updatePersonData(personData.timeAway as string, personData.emergency_contacts as string);
 	}
 
-	user.saveBackup(cong_backup, userRole);
+	await user.saveBackup(cong_backup, userRole);
 
 	res.locals.type = 'info';
 	res.locals.message = 'user send backup for congregation successfully';
@@ -719,6 +898,10 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 
 	if (secretaryRole) {
 		result.incoming_reports = cong.incoming_reports;
+
+		if (result.incoming_reports.length > 0) {
+			await cong.saveIncomingReports([]);
+		}
 	}
 
 	res.locals.type = 'info';

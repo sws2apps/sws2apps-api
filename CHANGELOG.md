@@ -1,3 +1,35 @@
+## [3.7.1](https://github.com/sws2apps/sws2apps-api/compare/v3.7.0...v3.7.1) (2025-01-25)
+
+
+### Bug Fixes
+
+* **controllers:** check for undefined values when checking time aways ([5f2e93c](https://github.com/sws2apps/sws2apps-api/commit/5f2e93c258ed5a9b60a0bce0194e03acb8466fec))
+
+# [3.7.0](https://github.com/sws2apps/sws2apps-api/compare/v3.6.0...v3.7.0) (2025-01-25)
+
+
+### Features
+
+* **deps:** bump nodemailer from 6.9.16 to 6.10.0 ([638a556](https://github.com/sws2apps/sws2apps-api/commit/638a5567abd225782c22c1579f73030908abe51d))
+* **users:** support delegated field service reports ([7786cac](https://github.com/sws2apps/sws2apps-api/commit/7786cac05f84714271b91d074b0771b2da9aabc5))
+
+# [3.6.0](https://github.com/sws2apps/sws2apps-api/compare/v3.5.0...v3.6.0) (2025-01-15)
+
+
+### Bug Fixes
+
+* **api:** make names optional when updating user ([f2d5e3a](https://github.com/sws2apps/sws2apps-api/commit/f2d5e3a8b9b08d776a768a2395502fcb405cc7a9))
+
+
+### Features
+
+* **api:** use metadata properties ([c063b0a](https://github.com/sws2apps/sws2apps-api/commit/c063b0a5999a5f0c226aba26408458de1de2e125))
+* **deps:** bump express-validator from 7.2.0 to 7.2.1 ([0c24a2a](https://github.com/sws2apps/sws2apps-api/commit/0c24a2adbcb813346ab9482aec99c4a6f6e9d99e))
+* **deps:** bump i18next from 24.2.0 to 24.2.1 ([5ee6811](https://github.com/sws2apps/sws2apps-api/commit/5ee6811cf3f5ab566b2f7daab2e22a7be487fe4a))
+* **deps:** bump jsdom and global-jsdom ([42da12a](https://github.com/sws2apps/sws2apps-api/commit/42da12a7d9e17ed507368c9f80638509ec224d73))
+* **deps:** bump randomstring from 1.3.0 to 1.3.1 ([65a00b3](https://github.com/sws2apps/sws2apps-api/commit/65a00b36e0942f73b2dfae64ee392d725577680e))
+* **middleware:** include userId and congregationId in log ([dfcd8e4](https://github.com/sws2apps/sws2apps-api/commit/dfcd8e4042131cbf0481f94b82ade2a105a8fcab))
+
 # [3.5.0](https://github.com/sws2apps/sws2apps-api/compare/v3.4.0...v3.5.0) (2024-12-27)
 
 

@@ -1,8 +1,15 @@
 import { AppRoleType, OTPSecretType, StandardRecord } from '../definition/app.js';
 import { UserCongregationAssignParams, UserProfile, UserSession, UserSettings } from '../definition/user.js';
 import {
+	getBibleStudiesMetadata,
+	getDelegatedFieldServiceReportsMetadata,
+	getFieldServiceReportsMetadata,
 	getUserAuthDetails,
 	getUserDetails,
+	getUserProfileMetadata,
+	getUserSessionsMetadata,
+	getUserSettingsMetadata,
+	setDelegatedFieldServiceReports,
 	setUserBibleStudies,
 	setUserEmail,
 	setUserFieldServiceReports,
@@ -13,7 +20,6 @@ import {
 import { decryptData, encryptData } from '../services/encryption/encryption.js';
 import { generateUserSecret } from '../utils/user_utils.js';
 import { CongregationsList } from './Congregations.js';
-import { saveCongPersons, saveIncomingReports } from '../services/firebase/congregations.js';
 import { BackupData } from '../definition/congregation.js';
 import { getFileMetadata } from '../services/firebase/storage_utils.js';
 
@@ -26,9 +32,18 @@ export class User {
 	settings: UserSettings;
 	bible_studies: StandardRecord[];
 	field_service_reports: StandardRecord[];
+	delegated_field_service_reports: StandardRecord[];
+	metadata: Record<string, string>;
 
 	constructor(id: string) {
 		this.id = id;
+		this.metadata = {
+			user_bible_studies: '',
+			user_field_service_reports: '',
+			delegated_field_service_reports: '',
+			user_settings: '',
+			sessions: '',
+		};
 		this.profile = {
 			firstname: { value: '', updatedAt: '' },
 			lastname: { value: '', updatedAt: '' },
@@ -43,10 +58,13 @@ export class User {
 		};
 		this.bible_studies = [];
 		this.field_service_reports = [];
+		this.delegated_field_service_reports = [];
 	}
 
 	async loadDetails() {
 		const data = await getUserDetails(this.id);
+
+		this.metadata = data.metadata;
 
 		if (data.settings) {
 			this.settings = data.settings;
@@ -86,12 +104,14 @@ export class User {
 		await setUserProfile(this.id, profile);
 
 		this.profile = profile;
+		this.metadata.user_settings = await getUserProfileMetadata(this.id);
 	}
 
 	async updateSettings(settings: UserSettings) {
 		await setUserSettings(this.id, settings);
 
 		this.settings = settings;
+		this.metadata.user_settings = await getUserSettingsMetadata(this.id);
 	}
 
 	getActiveSessions(visitorid: string) {
@@ -113,29 +133,28 @@ export class User {
 		return result;
 	}
 
+	async updateSessions(sessions: UserSession[]) {
+		await setUserSessions(this.id, sessions);
+
+		this.sessions = sessions;
+		this.metadata.sessions = await getUserSessionsMetadata(this.id);
+	}
+
 	async revokeSession(identifier: string) {
 		const revokedSession = this.sessions.find((record) => record.identifier === identifier)!;
 
 		const sessions = this.sessions.filter((record) => record.identifier !== identifier);
 
-		await setUserSessions(this.id, sessions);
-
-		this.sessions = sessions;
+		await this.updateSessions(sessions);
 
 		return this.getActiveSessions(revokedSession.visitorid);
-	}
-
-	async updateSessions(sessions: UserSession[]) {
-		await setUserSessions(this.id, sessions);
-
-		this.sessions = sessions;
 	}
 
 	async enableMFA() {
 		const data = structuredClone(this.profile);
 		data.mfa_enabled = true;
 
-		await setUserProfile(this.id, data);
+		await this.updateProfile(data);
 
 		this.profile.mfa_enabled = true;
 	}
@@ -160,9 +179,7 @@ export class User {
 			const profile = structuredClone(this.profile);
 			profile.secret = encryptedData;
 
-			await setUserProfile(this.id, profile);
-
-			this.profile = profile;
+			await this.updateProfile(profile);
 
 			return secret;
 		}
@@ -176,9 +193,7 @@ export class User {
 		profile.secret = undefined;
 		profile.mfa_enabled = false;
 
-		await setUserProfile(this.id, profile);
-
-		this.profile = profile;
+		await this.updateProfile(profile);
 
 		await this.updateSessions([]);
 	}
@@ -198,9 +213,7 @@ export class User {
 		data.mfa_enabled = false;
 		data.secret = undefined;
 
-		await setUserProfile(this.id, data);
-
-		this.profile = data;
+		await this.updateProfile(data);
 	}
 
 	decryptSecret() {
@@ -230,9 +243,7 @@ export class User {
 			profile.congregation.user_local_uid = params.person_uid;
 		}
 
-		await setUserProfile(this.id, profile);
-
-		this.profile = profile;
+		await this.updateProfile(profile);
 
 		const cong = CongregationsList.findById(params.congId)!;
 		await cong.reloadMembers();
@@ -256,9 +267,7 @@ export class User {
 			profile.congregation!.pocket_invitation_code = encryptData(cong_pocket);
 		}
 
-		await setUserProfile(this.id, profile);
-
-		this.profile = profile;
+		await this.updateProfile(profile);
 
 		const cong = CongregationsList.findById(profile.congregation!.id)!;
 
@@ -270,9 +279,7 @@ export class User {
 
 		profile.congregation!.pocket_invitation_code = undefined;
 
-		await setUserProfile(this.id, profile);
-
-		this.profile = profile;
+		await this.updateProfile(profile);
 
 		const cong = CongregationsList.findById(profile.congregation!.id)!;
 
@@ -287,17 +294,35 @@ export class User {
 		const profile = structuredClone(this.profile);
 		profile.congregation = undefined;
 
-		await setUserProfile(this.id, profile);
-
-		this.profile = profile;
+		await this.updateProfile(profile);
 
 		if (cong) {
 			await cong.reloadMembers();
 		}
 	}
 
+	async saveFieldServiceReports(reports: StandardRecord[]) {
+		await setUserFieldServiceReports(this.id, reports);
+		this.field_service_reports = reports;
+		this.metadata.user_field_service_reports = await getFieldServiceReportsMetadata(this.id);
+	}
+
+	async saveBibleStudies(studies: StandardRecord[]) {
+		await setUserBibleStudies(this.id, studies);
+
+		this.bible_studies = studies;
+		this.metadata.user_bible_studies = await getBibleStudiesMetadata(this.id);
+	}
+
+	async saveDelegatedFieldServiceReports(reports: StandardRecord[]) {
+		await setDelegatedFieldServiceReports(this.id, reports);
+
+		this.delegated_field_service_reports = reports;
+		this.metadata.delegated_field_service_reports = await getDelegatedFieldServiceReportsMetadata(this.id);
+	}
+
 	async saveBackup(cong_backup: BackupData, userRole: AppRoleType[]) {
-		const userSettings = cong_backup.app_settings.user_settings;
+		const userSettings = cong_backup.app_settings?.user_settings;
 
 		if (userSettings) {
 			const data = userSettings as Record<string, object | string>;
@@ -321,17 +346,18 @@ export class User {
 
 		const userFieldServiceReports = cong_backup.user_field_service_reports;
 		const userBibleStudies = cong_backup.user_bible_studies;
+		const delegatedFieldServiceReports = cong_backup.delegated_field_service_reports;
 
 		if (isPublisher && userBibleStudies) {
-			await setUserBibleStudies(this.id, userBibleStudies);
-
-			this.bible_studies = userBibleStudies;
+			await this.saveBibleStudies(userBibleStudies);
 		}
 
 		if (isPublisher && userFieldServiceReports) {
-			await setUserFieldServiceReports(this.id, userFieldServiceReports);
+			await this.saveFieldServiceReports(userFieldServiceReports);
+		}
 
-			this.field_service_reports = userFieldServiceReports;
+		if (isPublisher && delegatedFieldServiceReports) {
+			await this.saveDelegatedFieldServiceReports(delegatedFieldServiceReports);
 		}
 	}
 
@@ -356,15 +382,7 @@ export class User {
 		personData.timeAway = timeAway;
 		personData.emergency_contacts = emergency;
 
-		const settings = structuredClone(cong.settings);
-
-		const lastBackup = await saveCongPersons(cong.id, persons);
-
-		cong.persons = persons;
-
-		const newSettings = structuredClone(cong.settings);
-		newSettings.last_backup = lastBackup;
-		cong.settings = settings;
+		await cong.savePersons(persons);
 	}
 
 	postReport(report: StandardRecord) {
@@ -394,6 +412,6 @@ export class User {
 
 		cong.incoming_reports = incoming_reports;
 
-		saveIncomingReports(cong.id, incoming_reports);
+		cong.saveIncomingReports(incoming_reports);
 	}
 }

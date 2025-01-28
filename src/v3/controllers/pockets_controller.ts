@@ -6,7 +6,7 @@ import { CongregationsList } from '../classes/Congregations.js';
 import { decryptData } from '../services/encryption/encryption.js';
 import { UserAuthResponse, UserSession } from '../definition/user.js';
 import { retrieveVisitorDetails } from '../services/ip_details/auth_utils.js';
-import { BackupData } from '../definition/congregation.js';
+import { BackupData, CongSettingsType } from '../definition/congregation.js';
 import { StandardRecord } from '../definition/app.js';
 import { UsersList } from '../classes/Users.js';
 
@@ -235,14 +235,28 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
+	const metadata = JSON.parse(req.headers.metadata!.toString()) as Record<string, string>;
+
 	const result = {} as BackupData;
 
 	const userUid = user.profile.congregation!.user_local_uid;
+	const delegates = user.profile.congregation!.user_members_delegate;
+
+	const miniPersons = delegates ? structuredClone(delegates) : [];
+
+	if (userUid && userUid?.length > 0) {
+		miniPersons.push(userUid);
+	}
 
 	if (cong.settings.data_sync.value) {
-		result.app_settings = {
-			cong_settings: structuredClone(cong.settings),
-			user_settings: {
+		result.app_settings = {};
+		result.metadata = {};
+
+		let localDate = user.metadata.user_settings;
+		let incomingDate = metadata.user_settings;
+
+		if (localDate !== incomingDate) {
+			result.app_settings.user_settings = {
 				cong_role: user.profile.congregation?.cong_role,
 				firstname: user.profile.firstname,
 				lastname: user.profile.lastname,
@@ -253,94 +267,183 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 					user.settings.theme_follow_os_enabled?.length > 0 ? user.settings.theme_follow_os_enabled : undefined,
 				hour_credits_enabled: user.settings.hour_credits_enabled?.length > 0 ? user.settings.hour_credits_enabled : undefined,
 				data_view: user.settings.data_view?.length > 0 ? user.settings.data_view : undefined,
-			},
-		};
-
-		result.app_settings.cong_settings.cong_master_key = undefined;
-
-		const minimalPersons = cong.persons.map((record) => {
-			const includeTimeAway = cong.settings.time_away_public.value;
-
-			const personData = record.person_data as StandardRecord;
-
-			return {
-				_deleted: record._deleted,
-				person_uid: record.person_uid,
-				person_data: {
-					person_firstname: personData.person_firstname,
-					person_lastname: personData.person_lastname,
-					person_display_name: personData.person_display_name,
-					male: personData.male,
-					female: personData.female,
-					publisher_unbaptized: userUid === record.person_uid ? personData.publisher_unbaptized : undefined,
-					publisher_baptized: userUid === record.person_uid ? personData.publisher_baptized : undefined,
-					emergency_contacts: userUid === record.person_uid ? personData.emergency_contacts : undefined,
-					assignments: userUid === record.person_uid ? personData.assignments : undefined,
-					privileges: userUid === record.person_uid ? personData.privileges : undefined,
-					enrollments: userUid === record.person_uid ? personData.enrollments : undefined,
-					timeAway: includeTimeAway || userUid === record.person_uid ? personData.timeAway : undefined,
-				},
 			};
-		});
 
-		result.persons = minimalPersons;
+			result.metadata.user_settings = localDate;
+		}
+
+		result.app_settings.cong_settings = {
+			cong_access_code: cong.settings.cong_access_code,
+			data_sync: cong.settings.data_sync,
+			cong_name: cong.settings.cong_name,
+			cong_number: cong.settings.cong_number,
+			country_code: cong.settings.country_code,
+		} as CongSettingsType;
+
+		localDate = cong.metadata.cong_settings;
+		incomingDate = metadata.cong_settings;
+
+		if (localDate !== incomingDate) {
+			result.app_settings.cong_settings = structuredClone(cong.settings);
+			result.app_settings.cong_settings.cong_master_key = undefined;
+
+			result.metadata.cong_settings = localDate;
+		}
+
+		localDate = cong.metadata.persons;
+		incomingDate = metadata.persons;
+
+		if (localDate !== incomingDate) {
+			const minimalPersons = cong.persons.map((record) => {
+				const includeTimeAway = cong.settings.time_away_public?.value;
+
+				const personData = record.person_data as StandardRecord;
+
+				return {
+					_deleted: record._deleted,
+					person_uid: record.person_uid,
+					person_data: {
+						person_firstname: personData.person_firstname,
+						person_lastname: personData.person_lastname,
+						person_display_name: personData.person_display_name,
+						male: personData.male,
+						female: personData.female,
+						publisher_unbaptized: miniPersons.includes(String(record.person_uid)) ? personData.publisher_unbaptized : undefined,
+						publisher_baptized: miniPersons.includes(String(record.person_uid)) ? personData.publisher_baptized : undefined,
+						emergency_contacts: miniPersons.includes(String(record.person_uid)) ? personData.emergency_contacts : undefined,
+						assignments: miniPersons.includes(String(record.person_uid)) ? personData.assignments : undefined,
+						privileges: miniPersons.includes(String(record.person_uid)) ? personData.privileges : undefined,
+						enrollments: miniPersons.includes(String(record.person_uid)) ? personData.enrollments : undefined,
+						timeAway: includeTimeAway || miniPersons.includes(String(record.person_uid)) ? personData.timeAway : undefined,
+					},
+				};
+			});
+
+			result.persons = minimalPersons;
+
+			result.metadata.persons = localDate;
+		}
 
 		const isPublisher = user.profile.congregation!.cong_role.includes('publisher');
 
 		if (isPublisher) {
-			result.user_bible_studies = user.bible_studies;
-			result.user_field_service_reports = user.field_service_reports;
-			result.field_service_groups = cong.field_service_groups;
+			localDate = user.metadata.user_bible_studies;
+			incomingDate = metadata.user_bible_studies;
 
-			if (user.profile.congregation?.user_local_uid) {
-				const congUserReports = cong.field_service_reports.filter((record) => {
-					const data = record.report_data as StandardRecord;
+			if (localDate !== incomingDate) {
+				result.user_bible_studies = user.bible_studies;
+				result.metadata.user_bible_studies = localDate;
+			}
 
-					return data.person_uid === user.profile.congregation!.user_local_uid;
-				});
+			localDate = user.metadata.user_field_service_reports;
+			incomingDate = metadata.user_field_service_reports;
 
-				result.cong_field_service_reports = congUserReports;
+			if (localDate !== incomingDate) {
+				result.user_field_service_reports = user.field_service_reports;
+				result.metadata.user_field_service_reports = localDate;
+			}
+
+			localDate = user.metadata.delegated_field_service_reports;
+			incomingDate = metadata.delegated_field_service_reports;
+
+			if (localDate !== incomingDate) {
+				result.delegated_field_service_reports = user.delegated_field_service_reports;
+				result.metadata.delegated_field_service_reports = localDate;
+			}
+
+			localDate = cong.metadata.field_service_groups;
+			incomingDate = metadata.field_service_groups;
+
+			if (localDate !== incomingDate) {
+				result.field_service_groups = cong.field_service_groups;
+				result.metadata.field_service_groups = localDate;
+			}
+
+			localDate = cong.metadata.cong_field_service_reports;
+			incomingDate = metadata.cong_field_service_reports;
+
+			if (localDate !== incomingDate) {
+				if (user.profile.congregation?.user_local_uid) {
+					const congUserReports = cong.field_service_reports.filter((record) => {
+						const data = record.report_data as StandardRecord;
+
+						return miniPersons.includes(String(data.person_uid));
+					});
+
+					result.cong_field_service_reports = congUserReports;
+					result.metadata.cong_field_service_reports = localDate;
+				}
 			}
 		}
 	}
 
 	if (!cong.settings.data_sync.value) {
-		const midweek = cong.settings.midweek_meeting.map((record) => {
-			return { type: record.type, time: record.time, weekday: record.weekday };
-		});
+		result.app_settings = {};
+		result.metadata = {};
 
-		const weekend = cong.settings.weekend_meeting.map((record) => {
-			return { type: record.type, time: record.time, weekday: record.weekday };
-		});
+		const localUserDate = user.metadata.user_settings;
+		const incomingUserDate = metadata.user_settings;
 
-		result.app_settings = {
-			cong_settings: {
-				cong_access_code: cong.settings.cong_access_code,
-				cong_circuit: cong.settings.cong_circuit,
-				cong_discoverable: cong.settings.cong_discoverable,
-				cong_location: cong.settings.cong_location,
-				data_sync: cong.settings.data_sync,
-				time_away_public: cong.settings.time_away_public,
-				midweek_meeting: midweek,
-				weekend_meeting: weekend,
-				cong_name: cong.settings.cong_name,
-				cong_number: cong.settings.cong_number,
-				country_code: cong.settings.country_code,
-				last_backup: cong.settings.last_backup,
-			},
-			user_settings: {
+		if (localUserDate !== incomingUserDate) {
+			result.app_settings.user_settings = {
 				cong_role: user.profile.congregation?.cong_role,
 				firstname: user.profile.firstname,
 				lastname: user.profile.lastname,
 				user_local_uid: user.profile.congregation?.user_local_uid,
 				user_members_delegate: user.profile.congregation?.user_members_delegate,
-			},
-		};
+			};
+
+			result.metadata.user_settings = localUserDate;
+		}
+
+		result.app_settings.cong_settings = {
+			cong_access_code: cong.settings.cong_access_code,
+			data_sync: cong.settings.data_sync,
+			cong_name: cong.settings.cong_name,
+			cong_number: cong.settings.cong_number,
+			country_code: cong.settings.country_code,
+		} as CongSettingsType;
+
+		const localCongDate = cong.metadata.cong_settings;
+		const incomingCongDate = metadata.cong_settings;
+
+		if (incomingCongDate !== localCongDate) {
+			const midweek = cong.settings.midweek_meeting.map((record) => {
+				return { type: record.type, time: record.time, weekday: record.weekday };
+			});
+
+			const weekend = cong.settings.weekend_meeting.map((record) => {
+				return { type: record.type, time: record.time, weekday: record.weekday };
+			});
+
+			result.app_settings.cong_settings.cong_circuit = cong.settings.cong_circuit;
+			result.app_settings.cong_settings.cong_discoverable = cong.settings.cong_discoverable;
+			result.app_settings.cong_settings.cong_location = cong.settings.cong_location;
+			result.app_settings.cong_settings.time_away_public = cong.settings.time_away_public;
+			result.app_settings.cong_settings.midweek_meeting = midweek;
+			result.app_settings.cong_settings.weekend_meeting = weekend;
+
+			result.metadata.cong_settings = localCongDate;
+		}
 	}
 
-	result.public_sources = cong.public_schedules.sources.length === 0 ? [] : JSON.parse(cong.public_schedules.sources);
+	let localDate = cong.metadata.public_sources;
+	let incomingDate = metadata.public_sources;
 
-	result.public_schedules = cong.public_schedules.schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.schedules);
+	if (localDate !== incomingDate) {
+		result.public_sources = cong.public_schedules.sources.length === 0 ? [] : JSON.parse(cong.public_schedules.sources);
+
+		result.metadata.public_sources = localDate;
+	}
+
+	localDate = cong.metadata.public_schedules;
+	incomingDate = metadata.public_schedules;
+
+	if (localDate !== incomingDate) {
+		result.public_schedules = cong.public_schedules.schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.schedules);
+
+		result.metadata.public_schedules = localDate;
+	}
 
 	res.locals.type = 'info';
 	res.locals.message = 'user retrieve backup successfully';
@@ -384,12 +487,23 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const last_backup = req.headers.lastbackup as string;
+	const incomingMetadata = JSON.parse(req.headers.metadata!.toString()) as Record<string, string>;
+	const currentMetadata = { ...cong.metadata, ...user.metadata };
 
-	if (last_backup !== cong.settings.last_backup) {
+	let isOutdated = false;
+
+	for (const [key, value] of Object.entries(incomingMetadata)) {
+		if (currentMetadata[key] && currentMetadata[key] > value) {
+			isOutdated = true;
+			break;
+		}
+	}
+
+	if (isOutdated) {
 		res.locals.type = 'info';
-		res.locals.message = 'backup action rejected since it was changed recently';
+		res.locals.message = `user backup outdated`;
 		res.status(400).json({ message: 'BACKUP_OUTDATED' });
+
 		return;
 	}
 

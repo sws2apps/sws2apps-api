@@ -1,5 +1,5 @@
 import express from 'express';
-import { body, check } from 'express-validator';
+import { body, header } from 'express-validator';
 import { visitorChecker } from '../middleware/visitor_checker.js';
 import {
 	deleteUser,
@@ -51,10 +51,10 @@ router.post('/:id/applications', body('application').isObject().notEmpty(), subm
 router.post('/:id/field-service-reports', body('report').isObject().notEmpty(), postUserReport);
 
 // retrieve congregation backup
-router.get('/:id/backup', retrieveUserBackup);
+router.get('/:id/backup', header('metadata').isString(), retrieveUserBackup);
 
 // save congregation backup
-router.post('/:id/backup', check('lastbackup').isString(), body('cong_backup').isObject(), saveUserBackup);
+router.post('/:id/backup', body('cong_backup').isObject(), saveUserBackup);
 
 // get user updates
 router.get('/:id/updates-routine', getUserUpdates);
