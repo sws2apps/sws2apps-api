@@ -17,6 +17,8 @@ export const logoutAdmin = async (req: Request, res: Response) => {
 
 	res.locals.type = 'info';
 	res.locals.message = 'administrator successfully logged out';
+
+	res.clearCookie('visitorid');
 	res.status(200).json({ message: 'LOGGED_OUT' });
 };
 
@@ -29,9 +31,6 @@ export const getAllCongregations = async (req: Request, res: Response) => {
 			country_code: cong.settings.country_code,
 			cong_name: cong.settings.cong_name,
 			cong_number: cong.settings.cong_number,
-			cong_members: cong.members.map((user) => {
-				return { ...user.profile, id: user.id };
-			}),
 		};
 	});
 
@@ -43,7 +42,7 @@ export const getAllCongregations = async (req: Request, res: Response) => {
 export const deleteCongregation = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	if (!id) {
+	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation request id params is undefined';
 		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
@@ -72,4 +71,149 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
 	res.locals.message = 'congregation deleted';
 	res.status(200).json({ message: 'OK' });
+};
+
+export const congregationPersonsGet = async (req: Request, res: Response) => {
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation id params is undefined';
+		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+
+		return;
+	}
+
+	const cong = CongregationsList.findById(id);
+
+	if (!cong) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no congregation could not be found with the provided id';
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
+
+		return;
+	}
+
+	const cong_members = cong.getMembers(req.signedCookies.visitorid);
+
+	const cong_persons = cong_members.map((person) => {
+		const user = UsersList.findById(person.id);
+
+		return {
+			id: person.id,
+			sessions: person.sessions,
+			profile: { ...person.profile, email: user?.email, mfa_enabled: user?.profile.mfa_enabled },
+		};
+	});
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin fetched all congregation persons';
+	res.status(200).json(cong_persons);
+};
+
+export const usersGetAll = async (req: Request, res: Response) => {
+	const users = UsersList.list;
+
+	const result = users.map((user) => {
+		return {
+			id: user.id,
+			sessions: user.sessions,
+			profile: { ...user.profile, email: user?.email, mfa_enabled: user?.profile.mfa_enabled },
+		};
+	});
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin fetched all users';
+	res.status(200).json(result);
+};
+
+export const userDelete = async (req: Request, res: Response) => {
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the user request id params is undefined';
+		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+
+		return;
+	}
+
+	const user = UsersList.findById(id);
+
+	if (!user) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no user could not be found with the provided id';
+		res.status(404).json({ message: 'USER_NOT_FOUND' });
+		return;
+	}
+
+	await UsersList.delete(id);
+
+	const users = UsersList.list;
+
+	const result = users.map((user) => {
+		return {
+			id: user.id,
+			sessions: user.sessions,
+			profile: { ...user.profile, email: user?.email, mfa_enabled: user?.profile.mfa_enabled },
+		};
+	});
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin deleted an user';
+	res.status(200).json(result);
+};
+
+export const userDisable2FA = async (req: Request, res: Response) => {
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the user request id params is undefined';
+		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+
+		return;
+	}
+
+	const user = UsersList.findById(id);
+
+	if (!user) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no user could not be found with the provided id';
+		res.status(404).json({ message: 'USER_NOT_FOUND' });
+		return;
+	}
+
+	await user.disableMFA();
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin disabled user 2fa';
+	res.status(200).json({ message: 'USER_2FA_DISABLED' });
+};
+
+export const userRevokeToken = async (req: Request, res: Response) => {
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the user request id params is undefined';
+		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+
+		return;
+	}
+
+	const user = UsersList.findById(id);
+
+	if (!user) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no user could not be found with the provided id';
+		res.status(404).json({ message: 'USER_NOT_FOUND' });
+		return;
+	}
+
+	await user.revokeToken();
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin revoked user token';
+	res.status(200).json({ message: 'USER_TOKEN_REVOKED' });
 };
