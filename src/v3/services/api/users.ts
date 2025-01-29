@@ -7,7 +7,13 @@ export const adminUsersGet = async () => {
 		return {
 			id: user.id,
 			sessions: user.sessions,
-			profile: { ...user.profile, email: user?.email, mfa_enabled: user?.profile.mfa_enabled },
+			profile: {
+				...user.profile,
+				email: user.email,
+				mfa_enabled: user.profile.mfa_enabled,
+				global_role: user.profile.role,
+				role: undefined,
+			},
 		};
 	});
 
