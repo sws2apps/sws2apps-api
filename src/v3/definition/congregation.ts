@@ -157,6 +157,7 @@ export type CongSettingsType = {
 	attendance_online_record?: string;
 	responsabilities?: string;
 	last_backup: string;
+	group_publishers_sort?: string;
 };
 
 export type BackupData = {
