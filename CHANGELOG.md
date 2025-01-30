@@ -1,3 +1,25 @@
+# [3.9.0](https://github.com/sws2apps/sws2apps-api/compare/v3.8.0...v3.9.0) (2025-01-30)
+
+
+### Bug Fixes
+
+* **controllers:** fix invalid property ([caffd05](https://github.com/sws2apps/sws2apps-api/commit/caffd05ac3e7e7a8df14300f0c234ec204c452e2))
+* **controllers:** update congregation users response ([22b612d](https://github.com/sws2apps/sws2apps-api/commit/22b612d4fa49b63dcb79b91d0acc73642fa055b6))
+* **controllers:** update role check for mismatch ([c271111](https://github.com/sws2apps/sws2apps-api/commit/c27111174b3b81f4360c3ba6af1503ce8bdb0d1e))
+* **middleware:** update current session details ([c68b3b4](https://github.com/sws2apps/sws2apps-api/commit/c68b3b4609b87651442f344da3a8ca8d93a6b457))
+* **services:** update users list for admin ([0cec91c](https://github.com/sws2apps/sws2apps-api/commit/0cec91c75743c36e89c4efa614cbe64b3a931461))
+* **services:** update users response for admin ([2128357](https://github.com/sws2apps/sws2apps-api/commit/2128357ddbd12df15efab1492403dbcee6bde24b))
+* **services:** update users response for admin ([2f1d03e](https://github.com/sws2apps/sws2apps-api/commit/2f1d03e1fdd260e47a21d1ca7cda81f15e461ea3))
+
+
+### Features
+
+* **controllers:** update user roles from admin console ([705ad42](https://github.com/sws2apps/sws2apps-api/commit/705ad424f049dc5e4b4c1788dd52865838aa9280))
+* **deps:** bump @crowdin/crowdin-api-client from 1.41.0 to 1.41.1 ([496c654](https://github.com/sws2apps/sws2apps-api/commit/496c6545ebdfa77cc99aa92130fc547a53ed11e9))
+* **deps:** bump i18next from 24.2.1 to 24.2.2 ([73939f1](https://github.com/sws2apps/sws2apps-api/commit/73939f113d15097d2b5e772f8f018ed8af815751))
+* **routes:** add new admin routes ([4828f08](https://github.com/sws2apps/sws2apps-api/commit/4828f087eb2fcc057db3def355318c7b45131e5a))
+* **routes:** add new admin routes ([f4a805d](https://github.com/sws2apps/sws2apps-api/commit/f4a805dcf1a28e291793aa4ec40fc0272af06949))
+
 # [3.8.0](https://github.com/sws2apps/sws2apps-api/compare/v3.7.1...v3.8.0) (2025-01-26)
 
 
