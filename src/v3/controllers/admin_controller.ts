@@ -261,7 +261,7 @@ export const userUpdate = async (req: Request, res: Response) => {
 	const firstnameSaved = user.profile.firstname.value;
 	const rolesSave = user.profile.congregation?.cong_role || [];
 
-	const roleUpdate = roles.every((record) => rolesSave.some((role) => role === record));
+	const roleUpdate = roles.length === rolesSave.length && roles.every((record) => rolesSave.some((role) => role === record));
 
 	if (lastnameSaved !== lastname || firstnameSaved !== firstname || !roleUpdate) {
 		const profile = structuredClone(user.profile);
