@@ -49,7 +49,14 @@ router.get('/users/:id/disable-2fa', userDisable2FA);
 router.get('/users/:id/revoke-token', userRevokeToken);
 
 // update an user
-router.patch('/users/:id', body('lastname').isString(), body('firstname').isString(), body('email').isString(), userUpdate);
+router.patch(
+	'/users/:id',
+	body('lastname').isString(),
+	body('firstname').isString(),
+	body('email').isString(),
+	body('roles').isArray(),
+	userUpdate
+);
 
 // delete user session
 router.delete('/users/:id/sessions', body('identifiers').isArray(), userSessionDelete);

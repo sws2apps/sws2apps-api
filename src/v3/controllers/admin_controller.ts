@@ -5,6 +5,7 @@ import { adminCongregationsGet } from '../services/api/congregations.js';
 import { adminUsersGet } from '../services/api/users.js';
 import { validationResult } from 'express-validator';
 import { formatError } from '../utils/format_log.js';
+import { AppRoleType } from '../definition/app.js';
 
 export const validateAdmin = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
@@ -254,14 +255,22 @@ export const userUpdate = async (req: Request, res: Response) => {
 	const lastname = req.body.lastname as string;
 	const firstname = req.body.firstname as string;
 	const email = req.body.email as string;
+	const roles = req.body.roles as AppRoleType[];
 
 	const lastnameSaved = user.profile.lastname.value;
 	const firstnameSaved = user.profile.firstname.value;
+	const rolesSave = user.profile.congregation?.cong_role || [];
 
-	if (lastnameSaved !== lastname || firstnameSaved !== firstname) {
+	const roleUpdate = roles.every((record) => rolesSave.some((role) => role === record));
+
+	if (lastnameSaved !== lastname || firstnameSaved !== firstname || !roleUpdate) {
 		const profile = structuredClone(user.profile);
 		profile.firstname.value = firstname;
 		profile.lastname.value = lastname;
+
+		if (profile.congregation) {
+			profile.congregation.cong_role = roles;
+		}
 
 		await user.updateProfile(profile);
 	}
