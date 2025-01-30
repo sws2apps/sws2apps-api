@@ -103,7 +103,7 @@ export const congregationPersonsGet = async (req: Request, res: Response) => {
 				...person.profile,
 				email: user?.email,
 				mfa_enabled: user?.profile.mfa_enabled,
-				congregation: { cong_role: user?.profile.cong_role || [] },
+				congregation: { cong_role: person.profile.cong_role || [] },
 			},
 		};
 	});
