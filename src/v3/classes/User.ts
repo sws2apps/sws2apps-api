@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import { AppRoleType, OTPSecretType, StandardRecord } from '../definition/app.js';
 import { UserCongregationAssignParams, UserProfile, UserSession, UserSettings } from '../definition/user.js';
 import {
@@ -22,6 +23,7 @@ import { generateUserSecret } from '../utils/user_utils.js';
 import { CongregationsList } from './Congregations.js';
 import { BackupData } from '../definition/congregation.js';
 import { getFileMetadata } from '../services/firebase/storage_utils.js';
+import { retrieveVisitorDetails } from '../services/ip_details/auth_utils.js';
 
 export class User {
 	id: string;
@@ -198,12 +200,16 @@ export class User {
 		await this.updateSessions([]);
 	}
 
-	async updateSessionLastSeen(visitorId: string) {
+	async updateSessionLastSeen(visitorId: string, req: Request) {
+		const userIP = req.clientIp!;
+
 		const last_seen = new Date().toISOString();
 
 		const newSessions = structuredClone(this.sessions!);
 		const findSession = newSessions.find((session) => session.visitorid === visitorId)!;
+
 		findSession.last_seen = last_seen;
+		findSession.visitor_details = await retrieveVisitorDetails(userIP, req);
 
 		await this.updateSessions(newSessions);
 	}

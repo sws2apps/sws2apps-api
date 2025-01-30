@@ -75,7 +75,7 @@ export const visitorChecker = () => {
 
 				if (mfaVerified) {
 					// update last seen
-					await user.updateSessionLastSeen(visitorid);
+					await user.updateSessionLastSeen(visitorid, req);
 					next();
 				} else {
 					// allow verify token to pass this middleware
@@ -89,7 +89,7 @@ export const visitorChecker = () => {
 				}
 			} else {
 				// update last seen
-				await user.updateSessionLastSeen(visitorid);
+				await user.updateSessionLastSeen(visitorid, req);
 				next();
 			}
 		} catch (err) {
@@ -124,7 +124,7 @@ export const pocketVisitorChecker = () => {
 			// assign local vars for current user in next route
 			res.locals.currentUser = user;
 
-			await user.updateSessionLastSeen(visitorid);
+			await user.updateSessionLastSeen(visitorid, req);
 			next();
 		} catch (err) {
 			next(err);
