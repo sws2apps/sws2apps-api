@@ -11,6 +11,7 @@ import {
 	userDelete,
 	userDisable2FA,
 	userRevokeToken,
+	userSessionDelete,
 	usersGetAll,
 	userUpdate,
 	validateAdmin,
@@ -49,6 +50,9 @@ router.get('/users/:id/revoke-token', userRevokeToken);
 
 // update an user
 router.patch('/users/:id', body('lastname').isString(), body('firstname').isString(), body('email').isString(), userUpdate);
+
+// delete user session
+router.delete('/users/:id/sessions', body('identifiers').isArray(), userSessionDelete);
 
 // delete an user
 router.delete('/users/:id', userDelete);

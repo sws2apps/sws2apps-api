@@ -114,7 +114,7 @@ export const congregationPersonsGet = async (req: Request, res: Response) => {
 };
 
 export const usersGetAll = async (req: Request, res: Response) => {
-	const result = await adminUsersGet();
+	const result = await adminUsersGet(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin fetched all users';
@@ -153,7 +153,7 @@ export const userDelete = async (req: Request, res: Response) => {
 		}
 	}
 
-	const result = await adminUsersGet();
+	const result = await adminUsersGet(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin deleted an user';
@@ -182,7 +182,7 @@ export const userDisable2FA = async (req: Request, res: Response) => {
 
 	await user.disableMFA();
 
-	const result = await adminUsersGet();
+	const result = await adminUsersGet(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin disabled user 2fa';
@@ -211,7 +211,7 @@ export const userRevokeToken = async (req: Request, res: Response) => {
 
 	await user.revokeToken();
 
-	const result = await adminUsersGet();
+	const result = await adminUsersGet(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin revoked user token';
@@ -280,9 +280,58 @@ export const userUpdate = async (req: Request, res: Response) => {
 		}
 	}
 
-	const result = await adminUsersGet();
+	const result = await adminUsersGet(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated user details';
+	res.status(200).json(result);
+};
+
+export const userSessionDelete = async (req: Request, res: Response) => {
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the user request id params is undefined';
+		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+
+		return;
+	}
+
+	const user = UsersList.findById(id);
+
+	if (!user) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no user could not be found with the provided id';
+		res.status(404).json({ message: 'USER_NOT_FOUND' });
+		return;
+	}
+
+	const identifiers = req.body.identifiers as string | [];
+
+	const session = identifiers.length === 0 ? [] : identifiers.at(0);
+
+	if (typeof session === 'string') {
+		await user.revokeSession(session);
+	}
+
+	if (typeof session === 'object') {
+		await user.updateSessions([]);
+	}
+
+	const userCong = user.profile.congregation?.id;
+
+	if (userCong) {
+		const cong = CongregationsList.findById(userCong);
+
+		if (cong) {
+			cong.reloadMembers();
+		}
+	}
+
+	const result = await adminUsersGet(req.signedCookies.visitorid);
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin revoked an user session';
 	res.status(200).json(result);
 };
