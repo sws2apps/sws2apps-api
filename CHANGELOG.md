@@ -1,3 +1,10 @@
+# [3.10.0](https://github.com/sws2apps/sws2apps-api/compare/v3.9.0...v3.10.0) (2025-01-31)
+
+
+### Features
+
+* **routes:** add public routes to get stats ([dc1d4f5](https://github.com/sws2apps/sws2apps-api/commit/dc1d4f5b35b38b41c93c105f30b38bf5ab082be4))
+
 # [3.9.0](https://github.com/sws2apps/sws2apps-api/compare/v3.8.0...v3.9.0) (2025-01-30)
 
 
