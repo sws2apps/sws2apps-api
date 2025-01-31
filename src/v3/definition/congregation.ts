@@ -188,3 +188,9 @@ export type BackupData = {
 	}[];
 	metadata: Record<string, string>;
 };
+
+export type CongregationByCountry = {
+	country_code: string;
+	country_name: string;
+	congregations: number;
+};
