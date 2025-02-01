@@ -203,18 +203,18 @@ export const getFeatureFlags = async (req: Request, res: Response) => {
 	const findInstallation = Installation.find(installation);
 
 	if (!findInstallation && userId) {
-		Installation.linked.push({ user: userId, installations: [installation] });
+		Installation.linked.push({ user: userId, installations: [{ id: installation, registered: new Date().toISOString() }] });
 		await Installation.save();
 	}
 
 	if (!findInstallation && !userId) {
-		Installation.pending.push(installation);
+		Installation.pending.push({ id: installation, registered: new Date().toISOString() });
 		await Installation.save();
 	}
 
 	if (findInstallation?.status === 'pending' && userId) {
-		Installation.pending.filter((record) => record !== installation);
-		Installation.linked.push({ user: userId, installations: [installation] });
+		Installation.pending.filter((record) => record.id !== installation);
+		Installation.linked.push({ user: userId, installations: [{ id: installation, registered: new Date().toISOString() }] });
 		await Installation.save();
 	}
 

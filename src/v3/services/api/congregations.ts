@@ -1,5 +1,6 @@
 import { Country } from '../../definition/app.js';
 import { CongregationsList } from '../../classes/Congregations.js';
+import { getFileMetadata } from '../firebase/storage_utils.js';
 
 export const adminCongregationsGet = async () => {
 	try {
@@ -15,17 +16,24 @@ export const adminCongregationsGet = async () => {
 
 		const congsList = CongregationsList.list;
 
-		const result = congsList.map((cong) => {
+		const result = [];
+
+		for await (const cong of congsList) {
 			const country = countriesList.find((record) => record.countryCode === cong.settings.country_code);
 
-			return {
+			const metadata = await getFileMetadata({ type: 'congregation', path: `${cong.id}/settings/main.txt` });
+
+			const obj = {
 				id: cong.id,
 				country_code: cong.settings.country_code,
 				country_name: country?.countryName || 'Unknown',
 				cong_name: cong.settings.cong_name,
 				cong_number: cong.settings.cong_number,
+				createdAt: metadata?.timeCreated || '',
 			};
-		});
+
+			result.push(obj);
+		}
 
 		return result;
 	} catch (error) {
