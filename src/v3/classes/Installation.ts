@@ -25,12 +25,12 @@ class _Installation {
 
 		for (const user of this.linked) {
 			for (const installation of user.installations) {
-				result.push({ id: installation, status: 'linked', user: user.user, registered: new Date().toISOString() });
+				result.push({ id: installation.id, registered: installation.registered, status: 'linked', user: user.user });
 			}
 		}
 
 		for (const installation of this.pending) {
-			result.push({ id: installation, status: 'pending', registered: new Date().toISOString() });
+			result.push({ id: installation.id, registered: installation.registered, status: 'pending' });
 		}
 
 		return result;

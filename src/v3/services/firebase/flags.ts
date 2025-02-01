@@ -12,6 +12,16 @@ export const loadFlags = async () => {
 		result.push(flag);
 	}
 
+	// remove old installation
+	for (const flag of result) {
+		flag.installations = flag.installations.filter((record) => {
+			const last3Month = new Date();
+			last3Month.setMonth(-3);
+
+			return record.registered >= last3Month.toISOString();
+		});
+	}
+
 	return result;
 };
 
