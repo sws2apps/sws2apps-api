@@ -14,6 +14,7 @@ import {
 	setUserBibleStudies,
 	setUserEmail,
 	setUserFieldServiceReports,
+	setUserFlags,
 	setUserProfile,
 	setUserSessions,
 	setUserSettings,
@@ -36,6 +37,7 @@ export class User {
 	field_service_reports: StandardRecord[];
 	delegated_field_service_reports: StandardRecord[];
 	metadata: Record<string, string>;
+	flags: string[];
 
 	constructor(id: string) {
 		this.id = id;
@@ -61,6 +63,7 @@ export class User {
 		this.bible_studies = [];
 		this.field_service_reports = [];
 		this.delegated_field_service_reports = [];
+		this.flags = [];
 	}
 
 	async loadDetails() {
@@ -94,6 +97,7 @@ export class User {
 
 		this.bible_studies = data.bible_studies;
 		this.field_service_reports = data.field_service_reports;
+		this.flags = data.flags;
 	}
 
 	async updateEmailAuth(auth_uid: string, email: string) {
@@ -397,7 +401,7 @@ export class User {
 		await cong.savePersons(persons);
 	}
 
-	postReport(report: StandardRecord) {
+	async postReport(report: StandardRecord) {
 		const cong = CongregationsList.findById(this.profile.congregation!.id);
 
 		if (!cong) return;
@@ -424,6 +428,11 @@ export class User {
 
 		cong.incoming_reports = incoming_reports;
 
-		cong.saveIncomingReports(incoming_reports);
+		await cong.saveIncomingReports(incoming_reports);
+	}
+
+	async updateFlags(flags: string[]) {
+		await setUserFlags(this.id, flags);
+		this.flags = flags;
 	}
 }

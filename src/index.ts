@@ -6,6 +6,8 @@ import { logger } from './v3/services/logger/logger.js';
 import { ServerTempVariableType } from './v3/definition/server.js';
 import { UsersList } from './v3/classes/Users.js';
 import { CongregationsList } from './v3/classes/Congregations.js';
+import { Flags } from './v3/classes/Flags.js';
+import { Installation } from './v3/classes/Installation.js';
 import { initializeAPI } from './v3/config/app.db_config.js';
 
 const PORT = process.env.PORT || 8000;
@@ -27,6 +29,8 @@ app.listen(PORT, async () => {
 
 	await UsersList.load();
 	await CongregationsList.load();
+	await Flags.load();
+	await Installation.load();
 
 	logger('info', JSON.stringify({ details: `loading completed.` }));
 	API_VAR.IS_SERVER_READY = true;

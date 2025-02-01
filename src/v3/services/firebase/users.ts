@@ -45,6 +45,18 @@ export const getUserSettings = async (id: string) => {
 	}
 };
 
+export const getUserFlags = async (id: string) => {
+	const path = `${id}/flags.txt`;
+	const data = await getFileFromStorage({ type: 'user', path });
+
+	if (data) {
+		const flags = JSON.parse(data) as string[];
+		return flags;
+	}
+
+	return [];
+};
+
 export const getUserProfile = async (id: string) => {
 	const path = `${id}/profile.txt`;
 	const data = await getFileFromStorage({ type: 'user', path });
@@ -162,6 +174,7 @@ export const getUserDetails = async (id: string) => {
 			sessions: await getUserSessionsMetadata(id),
 			user_settings,
 		},
+		flags: await getUserFlags(id),
 	};
 };
 
@@ -265,4 +278,11 @@ export const decodeUserIdToken = async (token: string) => {
 
 export const deleteAuthUser = async (uid: string) => {
 	await getAuth().deleteUser(uid);
+};
+
+export const setUserFlags = async (id: string, flags: string[]) => {
+	const data = JSON.stringify(flags);
+	const path = `${id}/flags.txt`;
+
+	await uploadFileToStorage(data, { type: 'user', path });
 };

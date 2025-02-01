@@ -6,6 +6,9 @@ import { adminUsersGet } from '../services/api/users.js';
 import { validationResult } from 'express-validator';
 import { formatError } from '../utils/format_log.js';
 import { AppRoleType } from '../definition/app.js';
+import { Flags } from '../classes/Flags.js';
+import { FeatureFlag } from '../definition/flag.js';
+import { adminFlagsGet } from '../services/api/flags.js';
 
 export const validateAdmin = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
@@ -104,7 +107,7 @@ export const congregationPersonsGet = async (req: Request, res: Response) => {
 				...person.profile,
 				email: user?.email,
 				mfa_enabled: user?.profile.mfa_enabled,
-				congregation: { cong_role: person.profile.cong_role || [] },
+				congregation: { id: cong.id, cong_role: person.profile.cong_role || [] },
 			},
 		};
 	});
@@ -342,5 +345,284 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin revoked an user session';
+	res.status(200).json(result);
+};
+
+export const flagsGet = async (req: Request, res: Response) => {
+	const result = adminFlagsGet();
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin fetched all feature flags';
+	res.status(200).json(result);
+};
+
+export const flagsCreate = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({ message: 'error_api_bad-request' });
+
+		return;
+	}
+
+	const name = req.body.name as string;
+	const desc = req.body.desc as string;
+	const availability = req.body.availability as FeatureFlag['availability'];
+
+	await Flags.create(name, desc, availability);
+
+	const result = adminFlagsGet();
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin created new feature flag';
+	res.status(200).json(result);
+};
+
+export const flagDelete = async (req: Request, res: Response) => {
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the flag request id params is undefined';
+		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+
+		return;
+	}
+
+	await Flags.delete(id);
+
+	const result = adminFlagsGet();
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin deleted a feature flag';
+	res.status(200).json(result);
+};
+
+export const flagUpdate = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({ message: 'error_api_bad-request' });
+
+		return;
+	}
+
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the flag request id params is undefined';
+		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+
+		return;
+	}
+
+	const flag = Flags.findById(id);
+
+	if (!flag) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no flag could not be found with the provided id';
+		res.status(404).json({ message: 'FLAG_NOT_FOUND' });
+		return;
+	}
+
+	const name = req.body.name as string;
+	const description = req.body.description as string;
+	const coverage = req.body.coverage as number;
+
+	const nameSaved = flag.name;
+	const descriptionSaved = flag.description;
+	const coverageSaved = flag.coverage;
+
+	if (name !== nameSaved || description !== descriptionSaved || coverage !== coverageSaved) {
+		await flag.update(name, description, coverage);
+	}
+
+	const result = adminFlagsGet();
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin updated a feature flag';
+	res.status(200).json(result);
+};
+
+export const flagToggle = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({ message: 'error_api_bad-request' });
+
+		return;
+	}
+
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the flag request id params is undefined';
+		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+
+		return;
+	}
+
+	const flag = Flags.findById(id);
+
+	if (!flag) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no flag could not be found with the provided id';
+		res.status(404).json({ message: 'FLAG_NOT_FOUND' });
+		return;
+	}
+
+	await flag.toggle();
+
+	const result = adminFlagsGet();
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin updated feature flag status';
+	res.status(200).json(result);
+};
+
+export const userFlagToggle = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({ message: 'error_api_bad-request' });
+
+		return;
+	}
+
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the user request id params is undefined';
+		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+
+		return;
+	}
+
+	const user = UsersList.findById(id);
+
+	if (!user) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no user could not be found with the provided id';
+		res.status(404).json({ message: 'USER_NOT_FOUND' });
+		return;
+	}
+
+	const flagid = req.body.flagid as string;
+
+	const flag = Flags.findById(flagid);
+
+	if (!flag) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no flag could not be found with the provided id';
+		res.status(404).json({ message: 'FLAG_NOT_FOUND' });
+		return;
+	}
+
+	let userFlags = structuredClone(user.flags);
+
+	const userFlag = userFlags.find((record) => record === flagid);
+
+	if (userFlag) {
+		userFlags = userFlags.filter((record) => record !== flagid);
+	}
+
+	if (!userFlag) {
+		userFlags.push(flagid);
+	}
+
+	await user.updateFlags(userFlags);
+
+	const result = adminFlagsGet();
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin updated user feature toggle';
+	res.status(200).json(result);
+};
+
+export const congregationFlagToggle = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({ message: 'error_api_bad-request' });
+
+		return;
+	}
+
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the user request id params is undefined';
+		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+
+		return;
+	}
+
+	const cong = CongregationsList.findById(id);
+
+	if (!cong) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no congregation could not be found with the provided id';
+		res.status(404).json({ message: 'CONG_NOT_FOUND' });
+		return;
+	}
+
+	const flagid = req.body.flagid as string;
+
+	const flag = Flags.findById(flagid);
+
+	if (!flag) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no flag could not be found with the provided id';
+		res.status(404).json({ message: 'FLAG_NOT_FOUND' });
+		return;
+	}
+
+	let congFlags = structuredClone(cong.flags);
+
+	const congFlag = congFlags.find((record) => record === flagid);
+
+	if (congFlag) {
+		congFlags = congFlags.filter((record) => record !== flagid);
+	}
+
+	if (!congFlag) {
+		congFlags.push(flagid);
+	}
+
+	await cong.saveFlags(congFlags);
+
+	const result = adminFlagsGet();
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin updated congregation feature toggle';
 	res.status(200).json(result);
 };

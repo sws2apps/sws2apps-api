@@ -33,6 +33,7 @@ import {
 	setBranchFieldServiceReports,
 	setCongFieldServiceGroups,
 	setCongFieldServiceReports,
+	setCongFlags,
 	setCongOutgoingSpeakers,
 	setCongPersons,
 	setCongPublicOutgoingTalks,
@@ -75,6 +76,7 @@ export class Congregation {
 	incoming_reports: StandardRecord[];
 	field_service_reports: StandardRecord[];
 	metadata: Record<string, string>;
+	flags: string[];
 
 	constructor(id: string) {
 		this.id = id;
@@ -158,6 +160,7 @@ export class Congregation {
 		this.ap_applications = [];
 		this.incoming_reports = [];
 		this.field_service_reports = [];
+		this.flags = [];
 	}
 
 	async loadDetails() {
@@ -170,8 +173,8 @@ export class Congregation {
 		this.settings = data.settings;
 		this.persons = data.cong_persons;
 		this.outgoing_speakers = data.outgoing_speakers;
-		this.settings = data.settings;
 		this.ap_applications = data.applications;
+		this.flags = data.flags;
 
 		if (data.field_service_reports) {
 			this.field_service_reports = JSON.parse(data.field_service_reports);
@@ -681,5 +684,10 @@ export class Congregation {
 				return user;
 			}
 		}
+	}
+
+	async saveFlags(flags: string[]) {
+		await setCongFlags(this.id, flags);
+		this.flags = flags;
 	}
 }

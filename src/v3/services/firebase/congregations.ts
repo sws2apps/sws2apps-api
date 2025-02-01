@@ -50,6 +50,17 @@ export const getCongSettings = async (cong_id: string) => {
 	return result;
 };
 
+export const getCongFlags = async (cong_id: string) => {
+	const data = await getFileFromStorage({ type: 'congregation', path: `${cong_id}/settings/flags.txt` });
+
+	if (data) {
+		const flags = JSON.parse(data) as string[];
+		return flags;
+	}
+
+	return [];
+};
+
 export const getOutgoingSpeakersAccessList = async (congId: string) => {
 	const outgoingSpeakers = await getFileFromStorage({ type: 'congregation', path: `${congId}/visiting_speakers/outgoing.txt` });
 
@@ -110,6 +121,7 @@ export const getCongDetails = async (cong_id: string) => {
 		outgoing_speakers: await getOutgoingSpeakersAccessList(cong_id),
 		applications: await getApplications(cong_id),
 		metadata: await getCongMetadata(cong_id),
+		flags: await getCongFlags(cong_id),
 	};
 };
 
@@ -480,5 +492,11 @@ export const deleteAPApplication = async (congId: string, requestId: string) => 
 export const setIncomingReports = async (id: string, reports: StandardRecord[]) => {
 	const data = JSON.stringify(reports);
 	const path = `${id}/field_service_reports/incoming.txt`;
+	await uploadFileToStorage(data, { type: 'congregation', path });
+};
+
+export const setCongFlags = async (id: string, flags: string[]) => {
+	const data = JSON.stringify(flags);
+	const path = `${id}/settings/flags.txt`;
 	await uploadFileToStorage(data, { type: 'congregation', path });
 };

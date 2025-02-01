@@ -15,6 +15,10 @@ export const uploadFileToStorage = async (data: string, options: StorageBaseType
 		destPath += `users/${path}`;
 	}
 
+	if (type === 'api') {
+		destPath += `api/${path}`;
+	}
+
 	const storageBucket = getStorage().bucket();
 	const file = storageBucket.file(destPath);
 
@@ -55,6 +59,10 @@ export const getFileFromStorage = async ({ path, type }: StorageBaseType) => {
 
 	if (type === 'user') {
 		destPath += `users/${path}`;
+	}
+
+	if (type === 'api') {
+		destPath += `api/${path}`;
 	}
 
 	const storageBucket = getStorage().bucket();

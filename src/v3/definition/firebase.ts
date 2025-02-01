@@ -1,5 +1,5 @@
 export type StorageBaseType = {
-	type: 'congregation' | 'user';
+	type: 'congregation' | 'user' | 'api';
 	path: string;
 };
 
