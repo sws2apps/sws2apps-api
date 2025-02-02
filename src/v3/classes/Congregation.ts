@@ -6,6 +6,7 @@ import {
 	CongSettingsType,
 	OutgoingSpeakersRecordType,
 	OutgoingTalkScheduleType,
+	UserRequestAccess,
 } from '../definition/congregation.js';
 import { decryptData } from '../services/encryption/encryption.js';
 import {
@@ -34,6 +35,7 @@ import {
 	setCongFieldServiceGroups,
 	setCongFieldServiceReports,
 	setCongFlags,
+	setCongJoinRequests,
 	setCongOutgoingSpeakers,
 	setCongPersons,
 	setCongPublicOutgoingTalks,
@@ -49,6 +51,7 @@ import {
 	setSpeakersCongregations,
 } from '../services/firebase/congregations.js';
 import { CongregationsList } from './Congregations.js';
+import { Flags } from './Flags.js';
 import { User } from './User.js';
 import { UsersList } from './Users.js';
 
@@ -77,6 +80,7 @@ export class Congregation {
 	field_service_reports: StandardRecord[];
 	metadata: Record<string, string>;
 	flags: string[];
+	join_requests: UserRequestAccess[];
 
 	constructor(id: string) {
 		this.id = id;
@@ -161,6 +165,7 @@ export class Congregation {
 		this.incoming_reports = [];
 		this.field_service_reports = [];
 		this.flags = [];
+		this.join_requests = [];
 	}
 
 	async loadDetails() {
@@ -175,6 +180,7 @@ export class Congregation {
 		this.outgoing_speakers = data.outgoing_speakers;
 		this.ap_applications = data.applications;
 		this.flags = data.flags;
+		this.join_requests = data.join_requests;
 
 		if (data.field_service_reports) {
 			this.field_service_reports = JSON.parse(data.field_service_reports);
@@ -419,7 +425,7 @@ export class Congregation {
 
 		if (!user) return false;
 
-		return user!.profile.congregation?.id === this.id;
+		return user.profile.congregation?.id === this.id;
 	}
 
 	reloadMembers() {
@@ -689,5 +695,62 @@ export class Congregation {
 	async saveFlags(flags: string[]) {
 		await setCongFlags(this.id, flags);
 		this.flags = flags;
+	}
+
+	async join(user: string) {
+		const requests = this.join_requests.filter((record) => UsersList.list.some((user) => user.id === record.user));
+
+		const request = requests.find((record) => record.user === user);
+
+		if (request) {
+			request.request_date = new Date().toISOString();
+		}
+
+		if (!request) {
+			requests.push({ user, request_date: new Date().toISOString() });
+		}
+
+		await setCongJoinRequests(this.id, requests);
+
+		// enable access request flag for this congregation (remove when released)
+		const flag = Flags.list.find((record) => record.name === 'REQUEST_ACCESS_CONGREGATION');
+		if (flag) {
+			const hasFlag = this.flags.find((record) => record === flag.id);
+
+			if (!hasFlag) {
+				const flags = structuredClone(this.flags);
+				flags.push(flag.id);
+
+				await this.saveFlags(flags);
+			}
+		}
+
+		this.join_requests = requests;
+	}
+
+	async declineJoinRequest(user: string) {
+		const requests = this.join_requests.filter(
+			(record) => record.user !== user && UsersList.list.some((user) => user.id === record.user)
+		);
+
+		await setCongJoinRequests(this.id, requests);
+
+		this.join_requests = requests;
+	}
+
+	async acceptJoinRequest(
+		user: string,
+		params: { role: AppRoleType[]; person_uid: string; firstname?: string; lastname?: string }
+	) {
+		const foundUser = UsersList.findById(user)!;
+		await foundUser.assignCongregation({ congId: this.id, ...params });
+
+		const requests = this.join_requests.filter(
+			(record) => record.user !== user && UsersList.list.some((user) => user.id === record.user)
+		);
+
+		await setCongJoinRequests(this.id, requests);
+
+		this.join_requests = requests;
 	}
 }

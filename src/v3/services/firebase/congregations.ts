@@ -1,6 +1,11 @@
 import { getStorage } from 'firebase-admin/storage';
 import { StandardRecord } from '../../definition/app.js';
-import { CongregationCreateInfoType, CongSettingsType, OutgoingSpeakersRecordType } from '../../definition/congregation.js';
+import {
+	CongregationCreateInfoType,
+	CongSettingsType,
+	OutgoingSpeakersRecordType,
+	UserRequestAccess,
+} from '../../definition/congregation.js';
 import { deleteFileFromStorage, getFileFromStorage, getFileMetadata, uploadFileToStorage } from './storage_utils.js';
 import { CongregationsList } from '../../classes/Congregations.js';
 import { decryptData, encryptData } from '../encryption/encryption.js';
@@ -122,6 +127,7 @@ export const getCongDetails = async (cong_id: string) => {
 		applications: await getApplications(cong_id),
 		metadata: await getCongMetadata(cong_id),
 		flags: await getCongFlags(cong_id),
+		join_requests: await getCongJoinRequests(cong_id),
 	};
 };
 
@@ -498,5 +504,22 @@ export const setIncomingReports = async (id: string, reports: StandardRecord[]) 
 export const setCongFlags = async (id: string, flags: string[]) => {
 	const data = JSON.stringify(flags);
 	const path = `${id}/settings/flags.txt`;
+	await uploadFileToStorage(data, { type: 'congregation', path });
+};
+
+export const getCongJoinRequests = async (cong_id: string) => {
+	const data = await getFileFromStorage({ type: 'congregation', path: `${cong_id}/users/requests.txt` });
+
+	if (data) {
+		const requests = JSON.parse(data) as UserRequestAccess[];
+		return requests;
+	}
+
+	return [];
+};
+
+export const setCongJoinRequests = async (id: string, requests: UserRequestAccess[]) => {
+	const data = JSON.stringify(requests);
+	const path = `${id}/users/requests.txt`;
 	await uploadFileToStorage(data, { type: 'congregation', path });
 };

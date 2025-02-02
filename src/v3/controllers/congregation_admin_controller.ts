@@ -4,6 +4,8 @@ import { CongregationsList } from '../classes/Congregations.js';
 import { formatError } from '../utils/format_log.js';
 import { UsersList } from '../classes/Users.js';
 import { decryptData } from '../services/encryption/encryption.js';
+import { congregationJoinRequestsGet } from '../services/api/congregations.js';
+import { AppRoleType } from '../definition/app.js';
 
 export const setCongregationMasterKey = async (req: Request, res: Response) => {
 	const errors = validationResult(req);
@@ -263,9 +265,11 @@ export const pocketUserAdd = async (req: Request, res: Response) => {
 
 	cong.reloadMembers();
 
+	const cong_members = cong.getMembers(req.signedCookies.visitorid);
+
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin added pocket user';
-	res.status(200).json({ message: 'POCKET_CREATED' });
+	res.status(200).json(cong_members);
 };
 
 export const congregationGetUsers = async (req: Request, res: Response) => {
@@ -391,9 +395,11 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 		await foundUser.updateProfile(profile);
 	}
 
+	const cong_members = cong.getMembers(req.signedCookies.visitorid);
+
 	res.locals.type = 'warn';
 	res.locals.message = 'congregation admin updated user details';
-	res.status(200).json({ message: 'USER_UPDATED_SUCCESSFULLY' });
+	res.status(200).json(cong_members);
 };
 
 export const userSessionDelete = async (req: Request, res: Response) => {
@@ -460,9 +466,11 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 	const identifier = req.body.identifier as string;
 	await foundUser.revokeSession(identifier);
 
+	const cong_members = cong.getMembers(req.signedCookies.visitorid);
+
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin terminated user session';
-	res.status(200).json({ message: 'USER_SESSION_TERMINATED' });
+	res.status(200).json(cong_members);
 };
 
 export const pocketCodeDelete = async (req: Request, res: Response) => {
@@ -528,9 +536,11 @@ export const pocketCodeDelete = async (req: Request, res: Response) => {
 
 	await foundUser.deletePocketCode();
 
+	const cong_members = cong.getMembers(req.signedCookies.visitorid);
+
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin deleted user invitation code';
-	res.status(200).json({ message: 'POCKET_CODE_DELETED' });
+	res.status(200).json(cong_members);
 };
 
 export const globalSearchUser = async (req: Request, res: Response) => {
@@ -647,9 +657,11 @@ export const congregationUserAdd = async (req: Request, res: Response) => {
 		person_uid: cong_person_uid,
 	});
 
+	const cong_members = cong.getMembers(req.signedCookies.visitorid);
+
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin added vip user';
-	res.status(200).json({ message: 'CONG_USER_CREATED' });
+	res.status(200).json(cong_members);
 };
 
 export const congregationDeleteUser = async (req: Request, res: Response) => {
@@ -715,9 +727,11 @@ export const congregationDeleteUser = async (req: Request, res: Response) => {
 
 	await UsersList.delete(user);
 
+	const cong_members = cong.getMembers(req.signedCookies.visitorid);
+
 	res.locals.type = 'warn';
 	res.locals.message = 'congregation admin removed user from congregation';
-	res.status(200).json({ message: 'USER_REMOVED' });
+	res.status(200).json(cong_members);
 };
 
 export const setAdminUserUid = async (req: Request, res: Response) => {
@@ -848,4 +862,146 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin deleted congregation';
 	res.status(200).json({ message: 'CONGREGATION_DELETED' });
+};
+
+export const deleteJoinRequest = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({
+			message: 'error_api_bad-request',
+		});
+
+		return;
+	}
+
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation id params is undefined';
+		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+
+		return;
+	}
+
+	const cong = CongregationsList.findById(id);
+
+	if (!cong) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no congregation could not be found with the provided id';
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
+
+		return;
+	}
+
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
+
+	if (!isValid) {
+		res.locals.type = 'warn';
+		res.locals.message = 'user not authorized to access the provided congregation';
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
+		return;
+	}
+
+	const userId = req.headers.user as string;
+
+	const user = UsersList.findById(userId);
+
+	if (!user) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no user record found with the provided id';
+		res.status(404).json({ message: 'error_app_join-requests-user-not-found' });
+		return;
+	}
+
+	await cong.declineJoinRequest(userId);
+
+	const result = congregationJoinRequestsGet(cong);
+
+	res.locals.type = 'info';
+	res.locals.message = 'congregation admin declined a join request';
+	res.status(200).json(result);
+};
+
+export const acceptJoinRequest = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({
+			message: 'error_api_bad-request',
+		});
+
+		return;
+	}
+
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation id params is undefined';
+		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+
+		return;
+	}
+
+	const cong = CongregationsList.findById(id);
+
+	if (!cong) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no congregation could not be found with the provided id';
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
+
+		return;
+	}
+
+	const isValid = await cong.hasMember(res.locals.currentUser.id);
+
+	if (!isValid) {
+		res.locals.type = 'warn';
+		res.locals.message = 'user not authorized to access the provided congregation';
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
+		return;
+	}
+
+	const userId = req.headers.user as string;
+
+	const user = UsersList.findById(userId);
+
+	if (!user) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no user record found with the provided id';
+		res.status(404).json({ message: 'error_app_join-requests-user-not-found' });
+		return;
+	}
+
+	if (user.profile.congregation) {
+		res.locals.type = 'warn';
+		res.locals.message = 'user already have a congregation';
+		res.status(400).json({ message: 'error_app_join-requests-invalid' });
+		return;
+	}
+
+	const role = req.body.role as AppRoleType[];
+	const person_uid = req.body.person_uid as string;
+	const firstname = req.body.firstname as string;
+	const lastname = req.body.lastname as string;
+
+	await cong.acceptJoinRequest(userId, { person_uid, role, firstname, lastname });
+
+	const result = congregationJoinRequestsGet(cong);
+
+	res.locals.type = 'info';
+	res.locals.message = 'congregation admin accepted a join request';
+	res.status(200).json(result);
 };

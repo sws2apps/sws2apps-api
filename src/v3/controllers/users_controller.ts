@@ -10,6 +10,8 @@ import { StandardRecord } from '../definition/app.js';
 import { BackupData, CongregationUpdatesType, CongSettingsType } from '../definition/congregation.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';
 import { MailClient } from '../config/mail_config.js';
+import { Flags } from '../classes/Flags.js';
+import { congregationJoinRequestsGet } from '../services/api/congregations.js';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -904,6 +906,14 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 		}
 	}
 
+	if (adminRole) {
+		const hasAccessRequest = cong.flags.some((flag) => Flags.findById(flag)?.name === 'REQUEST_ACCESS_CONGREGATION');
+
+		if (hasAccessRequest) {
+			result.join_requests = congregationJoinRequestsGet(cong);
+		}
+	}
+
 	res.locals.type = 'info';
 	res.locals.message = 'user retrieve updates successfully';
 	res.status(200).json(result);
@@ -1014,4 +1024,80 @@ export const deleteUser = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
 	res.locals.message = 'user deleted account successfully';
 	res.status(200).json({ message: 'ACCOUNT_DELETED' });
+};
+
+export const joinCongregation = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({
+			message: 'error_api_bad-request',
+		});
+
+		return;
+	}
+
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: user id are required`;
+		res.status(400).json({ message: 'USER_ID_INVALID' });
+	}
+
+	const user = UsersList.findById(id)!;
+
+	if (!user) {
+		res.locals.type = 'warn';
+		res.locals.message = `no user account found with the provided id`;
+		res.status(404).json({ message: 'USER_NOT_FOUND' });
+
+		return;
+	}
+
+	const country_code = req.body.country_code as string;
+	const cong_number = req.body.cong_number as string;
+	const firstname = req.body.firstname as string;
+	const lastname = (req.body.lastname || '') as string;
+
+	const cong = CongregationsList.findByCountryAndNumber(country_code, cong_number);
+
+	if (!cong) {
+		res.locals.type = 'warn';
+		res.locals.message = `congregation not yet available in the records`;
+		res.status(200).json({ message: 'REQUEST_SENT' });
+
+		return;
+	}
+
+	const isMember = cong.hasMember(id);
+
+	if (isMember) {
+		res.locals.type = 'warn';
+		res.locals.message = `user already member of the congregation`;
+		res.status(400).json({ message: 'ALREADY_MEMBER' });
+
+		return;
+	}
+
+	const userFirstname = user.profile.firstname.value;
+	const userLastname = user.profile.lastname.value;
+
+	if (firstname !== userFirstname || lastname !== userLastname) {
+		const profile = structuredClone(user.profile);
+		profile.lastname.value = lastname;
+		profile.firstname.value = firstname;
+
+		await user.updateProfile(profile);
+	}
+
+	await cong.join(id);
+
+	res.locals.type = 'info';
+	res.locals.message = `user request to join a congregation`;
+	res.status(200).json({ message: 'REQUEST_SENT' });
 };
