@@ -1,5 +1,5 @@
 import express from 'express';
-import { body } from 'express-validator';
+import { body, header } from 'express-validator';
 import { congregationAdminChecker } from '../middleware/congregation_admin_checker.js';
 import { visitorChecker } from '../middleware/visitor_checker.js';
 import {
@@ -17,6 +17,8 @@ import {
 	congregationDeleteUser,
 	setAdminUserUid,
 	deleteCongregation,
+	deleteJoinRequest,
+	acceptJoinRequest,
 } from '../controllers/congregation_admin_controller.js';
 
 const router = express.Router();
@@ -87,7 +89,21 @@ router.delete('/:id/pocket-user/:user', pocketCodeDelete);
 // global search user
 router.get('/:id/users/global', globalSearchUser);
 
-// global search user
+// delete a congregation
 router.delete('/:id/erase', body('key').isString().notEmpty().isLength({ min: 16 }), deleteCongregation);
+
+// accept a join request
+router.patch(
+	'/:id/join-requests',
+	header('user').isString().notEmpty(),
+	body('role').notEmpty().isArray(),
+	body('person_uid').isString().notEmpty(),
+	body('firstname').isString(),
+	body('lastname').isString(),
+	acceptJoinRequest
+);
+
+// delete a join request
+router.delete('/:id/join-requests', header('user').isString().notEmpty(), deleteJoinRequest);
 
 export default router;

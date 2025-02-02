@@ -9,6 +9,7 @@ import {
 	getUserSecretToken,
 	getUserSessions,
 	getUserUpdates,
+	joinCongregation,
 	postUserReport,
 	retrieveUserBackup,
 	saveUserBackup,
@@ -28,6 +29,16 @@ router.get('/validate-me', validateUser);
 
 // logout current user session
 router.get('/logout', userLogout);
+
+// request access to a congregation
+router.post(
+	'/:id/join-congregation',
+	body('country_code').isString().notEmpty(),
+	body('cong_number').isString().notEmpty(),
+	body('firstname').isString().notEmpty(),
+	body('lastname').isString(),
+	joinCongregation
+);
 
 // get user 2fa token
 router.get('/:id/2fa', getUserSecretToken);

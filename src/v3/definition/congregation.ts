@@ -89,6 +89,7 @@ export type CongregationUpdatesType = {
 	applications?: StandardRecord[];
 	my_applications?: StandardRecord[];
 	incoming_reports?: StandardRecord[];
+	join_requests?: UserRequestAccess[];
 };
 
 export type OutgoingTalkScheduleType = {
@@ -193,4 +194,11 @@ export type CongregationByCountry = {
 	country_code: string;
 	country_name: string;
 	congregations: number;
+};
+
+export type UserRequestAccess = {
+	user: string;
+	request_date: string;
+	firstname?: string;
+	lastname?: string;
 };

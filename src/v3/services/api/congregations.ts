@@ -1,6 +1,8 @@
 import { Country } from '../../definition/app.js';
 import { CongregationsList } from '../../classes/Congregations.js';
 import { getFileMetadata } from '../firebase/storage_utils.js';
+import { Congregation } from '../../classes/Congregation.js';
+import { UsersList } from '../../classes/Users.js';
 
 export const adminCongregationsGet = async () => {
 	try {
@@ -39,4 +41,18 @@ export const adminCongregationsGet = async () => {
 	} catch (error) {
 		throw new Error((error as Error).message);
 	}
+};
+
+export const congregationJoinRequestsGet = (cong: Congregation) => {
+	const result = cong.join_requests.map((request) => {
+		const user = UsersList.findById(request.user);
+
+		return {
+			...request,
+			firstname: user?.profile.firstname.value || '_Deleted',
+			lastname: user?.profile.lastname.value || '_Deleted',
+		};
+	});
+
+	return result;
 };
