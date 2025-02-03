@@ -57,6 +57,7 @@ import { UsersList } from './Users.js';
 
 export class Congregation {
 	id: string;
+	createdAt: string;
 	public_schedules: {
 		sources: string;
 		schedules: string;
@@ -84,6 +85,7 @@ export class Congregation {
 
 	constructor(id: string) {
 		this.id = id;
+		this.createdAt = '';
 
 		this.metadata = {
 			persons: '',
@@ -171,6 +173,7 @@ export class Congregation {
 	async loadDetails() {
 		const data = await getCongDetails(this.id);
 
+		this.createdAt = data.createdAt || '';
 		this.metadata = data.metadata;
 		this.public_schedules.outgoing_talks = data.public.outgoing_talks || '';
 		this.public_schedules.schedules = data.public.meeting_schedules || '';

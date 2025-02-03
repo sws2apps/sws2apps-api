@@ -100,6 +100,7 @@ export const getApplications = async (cong_id: string) => {
 
 export const getCongDetails = async (cong_id: string) => {
 	return {
+		createdAt: await getCongCreatedAt(cong_id),
 		public: {
 			meeting_source: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/public/sources.txt` }),
 			meeting_schedules: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/public/schedules.txt` }),
@@ -421,6 +422,8 @@ export const createCongregation = async (data: CongregationCreateInfoType) => {
 	const id = crypto.randomUUID().toUpperCase();
 	await setCongSettings(id, settings);
 
+	await setCongCreatedAt(id, new Date().toISOString());
+
 	return id;
 };
 
@@ -521,5 +524,17 @@ export const getCongJoinRequests = async (cong_id: string) => {
 export const setCongJoinRequests = async (id: string, requests: UserRequestAccess[]) => {
 	const data = JSON.stringify(requests);
 	const path = `${id}/users/requests.txt`;
+	await uploadFileToStorage(data, { type: 'congregation', path });
+};
+
+export const getCongCreatedAt = async (cong_id: string) => {
+	const createdAt = await getFileFromStorage({ type: 'congregation', path: `${cong_id}/settings/created.txt` });
+	const createdAtDefault = await getFileMetadata({ type: 'congregation', path: `${cong_id}/settings/main.txt` });
+
+	return createdAt || createdAtDefault?.timeCreated || '';
+};
+
+export const setCongCreatedAt = async (id: string, data: string) => {
+	const path = `${id}/settings/created.txt`;
 	await uploadFileToStorage(data, { type: 'congregation', path });
 };
