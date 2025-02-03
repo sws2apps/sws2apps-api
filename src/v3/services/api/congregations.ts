@@ -31,7 +31,7 @@ export const adminCongregationsGet = async () => {
 				country_name: country?.countryName || 'Unknown',
 				cong_name: cong.settings.cong_name,
 				cong_number: cong.settings.cong_number,
-				createdAt: metadata?.timeCreated || '',
+				createdAt: cong.createdAt,
 			};
 
 			result.push(obj);
