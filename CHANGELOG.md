@@ -1,3 +1,19 @@
+# [3.11.0](https://github.com/sws2apps/sws2apps-api/compare/v3.10.0...v3.11.0) (2025-02-03)
+
+
+### Bug Fixes
+
+* **controllers:** update app installation save action ([c65635c](https://github.com/sws2apps/sws2apps-api/commit/c65635c02403d5eff6fcb750d2eb3c079506b6e1))
+* **services:** update createdAt property for admin ([6283f68](https://github.com/sws2apps/sws2apps-api/commit/6283f6870612f52a3b0b406bf2276006a81b7f3a))
+
+
+### Features
+
+* **api:** add feature flags management ([1c064c0](https://github.com/sws2apps/sws2apps-api/commit/1c064c0b17bda3d5fe6692220c45871310604210))
+* **api:** cleanup old installations id ([cfdb552](https://github.com/sws2apps/sws2apps-api/commit/cfdb552fdefbcb41f17b061abef63761e1ba3688))
+* **congregations:** add createdAt property ([dff36ef](https://github.com/sws2apps/sws2apps-api/commit/dff36ef6618bd8a06d08d5239e472bab218a1033))
+* **congregations:** support new registration flow ([3cd08d2](https://github.com/sws2apps/sws2apps-api/commit/3cd08d2bb5d4220a0641b9a1a4171b9b68cb7732))
+
 # [3.10.0](https://github.com/sws2apps/sws2apps-api/compare/v3.9.0...v3.10.0) (2025-01-31)
 
 
