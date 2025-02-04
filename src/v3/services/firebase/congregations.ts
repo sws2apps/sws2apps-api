@@ -528,15 +528,15 @@ export const setCongJoinRequests = async (id: string, requests: UserRequestAcces
 };
 
 export const getCongCreatedAt = async (cong_id: string) => {
-	let createdAt: string;
+	let createdAt: string | undefined;
 
 	createdAt = await getFileFromStorage({ type: 'congregation', path: `${cong_id}/settings/created.txt` });
 
-	if (!created) {
+	if (!createdAt) {
 		const createdAtDefault = await getFileMetadata({ type: 'congregation', path: `${cong_id}/settings/main.txt` });
 		createdAt = createdAtDefault?.timeCreated || new Date().toISOString();
 
-		await setCongCreatedAt(cond_id, createdAt);
+		await setCongCreatedAt(cong_id, createdAt!);
 	}
 
 	return createdAt;
