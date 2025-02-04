@@ -891,7 +891,7 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 		result.applications = cong.ap_applications;
 	}
 
-	if (publicTalkEditor) {
+	if (publicTalkEditor && cong.settings.data_sync.value) {
 		result.speakers_key = cong.outgoing_speakers.speakers_key;
 		result.pending_speakers_requests = cong.getPendingVisitingSpeakersAccessList();
 		result.remote_congregations = cong.getRemoteCongregationsList();
