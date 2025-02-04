@@ -23,8 +23,6 @@ export const adminCongregationsGet = async () => {
 		for await (const cong of congsList) {
 			const country = countriesList.find((record) => record.countryCode === cong.settings.country_code);
 
-			const metadata = await getFileMetadata({ type: 'congregation', path: `${cong.id}/settings/main.txt` });
-
 			const obj = {
 				id: cong.id,
 				country_code: cong.settings.country_code,
