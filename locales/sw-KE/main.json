@@ -10,5 +10,9 @@
 	"tr_loginDesc": "Tumepokea ombi la kuingia kwa kutumia barua pepe yako. Tafadhali thibitisha kuingia kwa kubofya kitufe kilicho hapa chini.",
 	"tr_loginBtn": "Ingia kwenye Organized",
 	"tr_loginAltText": "Kama huwezi kutumia kitufe cha kuingia hapo juu, tafadhali tumia kiunganishi hiki kilicho hapa chini. Hakikisha kiko kamili unpo inakili:",
-	"tr_loginIgnoreText": "Kama hujafanya ombi la kiunganishi hiki, tafadhali puuza barua pepe hii."
+	"tr_loginIgnoreText": "Kama hujafanya ombi la kiunganishi hiki, tafadhali puuza barua pepe hii.",
+	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
+	"tr_joinRequestApprovedTitle": "Your request was approved",
+	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
+	"tr_greetings": "Hello {{ name }},"
 }
