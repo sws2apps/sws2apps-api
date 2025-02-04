@@ -10,5 +10,9 @@
 	"tr_loginDesc": "Nous avons reçu une demande de connexion avec votre e-mail. Veuillez confirmer votre connexion en cliquant sur le bouton ci-dessous.",
 	"tr_loginBtn": "Se connecter à Organized",
 	"tr_loginAltText": "Si vous ne pouvez pas utiliser le bouton de connexion ci-dessus, veuillez utiliser le lien suivant. Assurez-vous qu'il n'est pas coupé lorsque vous le copiez :",
-	"tr_loginIgnoreText": "Si vous n'avez pas demandé ce lien, veuillez ignorer cet e-mail."
+	"tr_loginIgnoreText": "Si vous n'avez pas demandé ce lien, veuillez ignorer cet e-mail.",
+	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
+	"tr_joinRequestApprovedTitle": "Your request was approved",
+	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
+	"tr_greetings": "Hello {{ name }},"
 }
