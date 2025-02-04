@@ -1,6 +1,5 @@
 import { Country } from '../../definition/app.js';
 import { CongregationsList } from '../../classes/Congregations.js';
-import { getFileMetadata } from '../firebase/storage_utils.js';
 import { Congregation } from '../../classes/Congregation.js';
 import { UsersList } from '../../classes/Users.js';
 
