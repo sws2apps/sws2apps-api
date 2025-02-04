@@ -1,3 +1,10 @@
+## [3.11.1](https://github.com/sws2apps/sws2apps-api/compare/v3.11.0...v3.11.1) (2025-02-04)
+
+
+### Bug Fixes
+
+* **services:** assign default congregation created date ([4278411](https://github.com/sws2apps/sws2apps-api/commit/4278411947883382403a74677c5bf15e5d79b22f))
+
 # [3.11.0](https://github.com/sws2apps/sws2apps-api/compare/v3.10.0...v3.11.0) (2025-02-03)
 
 
