@@ -1010,13 +1010,14 @@ export const acceptJoinRequest = async (req: Request, res: Response) => {
 		req.i18n.changeLanguage(language);
 
 		const congregation = `${cong.settings.cong_name} (${cong.settings.cong_number})`;
+		const requestor = user.profile.firstname.value;
 
 		const options = {
 			to: userEmail,
 			subject: req.t('tr_joinRequestApprovedSubject', { congregation }),
 			template: 'join-request-approved',
 			context: {
-				requestor: user.profile.firstname.value,
+				requestor: req.t('tr_greetings', { name: requestor }),
 				joinRequestApprovedTitle: req.t('tr_joinRequestApprovedTitle'),
 				joinRequestApprovedMessage: req.t('tr_joinRequestApprovedDesc', { congregation, url: req.headers.origin! }),
 				copyright: new Date().getFullYear(),
