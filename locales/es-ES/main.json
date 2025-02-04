@@ -10,5 +10,9 @@
 	"tr_loginDesc": "Hemos recibido una solicitud para iniciar sesión con tu correo electrónico. Por favor, confirma el inicio de sesión haciendo clic en el botón de abajo.",
 	"tr_loginBtn": "Iniciar sesión en Organized",
 	"tr_loginAltText": "Si no puedes usar el botón de inicio de sesión de arriba, por favor utiliza el siguiente enlace. Asegúrate de copiarlo completo:",
-	"tr_loginIgnoreText": "Si no solicitaste este enlace, simplemente ignora este correo."
+	"tr_loginIgnoreText": "Si no solicitaste este enlace, simplemente ignora este correo.",
+	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
+	"tr_joinRequestApprovedTitle": "Your request was approved",
+	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
+	"tr_greetings": "Hello {{ name }},"
 }
