@@ -10,5 +10,9 @@
 	"tr_loginDesc": "我们收到了使用您的电子邮件登录的请求。请点击下面的按钮确认登录。",
 	"tr_loginBtn": "登录Organized",
 	"tr_loginAltText": "如果您无法使用上面的登录按钮，请使用以下链接。复制时请确保链接没有被截断：",
-	"tr_loginIgnoreText": "如果您没有请求此链接，请忽略此邮件。"
+	"tr_loginIgnoreText": "如果您没有请求此链接，请忽略此邮件。",
+	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
+	"tr_joinRequestApprovedTitle": "Your request was approved",
+	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
+	"tr_greetings": "Hello {{ name }},"
 }

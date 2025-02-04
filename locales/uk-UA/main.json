@@ -10,5 +10,9 @@
 	"tr_loginDesc": "Ми отримали запит на вхід через твій email. Будь ласка, підтверди вхід, натиснувши кнопку нижче.",
 	"tr_loginBtn": "Увійти в Organized",
 	"tr_loginAltText": "Якщо в тебе не виходить скористатись кнопкою входу вище, будь ласка, використай наступне посилання. Переконайся, що воно не обрізане, коли ти його копіюватимеш:",
-	"tr_loginIgnoreText": "Якщо ти не робив запит на це посилання, будь ласка, просто проігноруй цей електронний лист."
+	"tr_loginIgnoreText": "Якщо ти не робив запит на це посилання, будь ласка, просто проігноруй цей електронний лист.",
+	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
+	"tr_joinRequestApprovedTitle": "Your request was approved",
+	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
+	"tr_greetings": "Hello {{ name }},"
 }

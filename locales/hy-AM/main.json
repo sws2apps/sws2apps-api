@@ -10,5 +10,9 @@
 	"tr_loginDesc": "Մենք ստացել ենք ձեր էլ.փոստով մուտք գործելու խնդրանք: Խնդրում ենք հաստատել մուտքը՝ սեղմելով ստորև նշված կոճակը:",
 	"tr_loginBtn": "Մուտք գործել Organized",
 	"tr_loginAltText": "Եթե դուք չեք կարողանում օգտվել վերը նշված մուտք գործելու կոճակից, խնդրում ենք օգտագործել հետևյալ հղումը: Համոզվեք, որ այն չի վնասվել պատճենելու ընթացքում.",
-	"tr_loginIgnoreText": "Եթե դուք չեք դիմել հղումը ստանալու համար, խնդրում ենք անտեսել այս էլ փոստը:"
+	"tr_loginIgnoreText": "Եթե դուք չեք դիմել հղումը ստանալու համար, խնդրում ենք անտեսել այս էլ փոստը:",
+	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
+	"tr_joinRequestApprovedTitle": "Your request was approved",
+	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
+	"tr_greetings": "Hello {{ name }},"
 }

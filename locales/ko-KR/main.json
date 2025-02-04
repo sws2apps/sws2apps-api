@@ -10,5 +10,9 @@
 	"tr_loginDesc": "이메일로 로그인 요청이 접수되었습니다. 아래 버튼을 클릭하여 로그인을 확인해주세요.",
 	"tr_loginBtn": "Organized에 로그인",
 	"tr_loginAltText": "위의 로그인 버튼을 사용할 수 없는 경우, 아래 링크를 이용해주세요. 복사할 때 링크가 잘리지 않도록 주의하세요:",
-	"tr_loginIgnoreText": "이 링크를 요청하지 않으셨다면, 이 이메일을 무시하시기 바랍니다."
+	"tr_loginIgnoreText": "이 링크를 요청하지 않으셨다면, 이 이메일을 무시하시기 바랍니다.",
+	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
+	"tr_joinRequestApprovedTitle": "Your request was approved",
+	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
+	"tr_greetings": "Hello {{ name }},"
 }
