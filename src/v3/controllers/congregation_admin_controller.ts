@@ -6,6 +6,7 @@ import { UsersList } from '../classes/Users.js';
 import { decryptData } from '../services/encryption/encryption.js';
 import { congregationJoinRequestsGet } from '../services/api/congregations.js';
 import { AppRoleType } from '../definition/app.js';
+import { MailClient } from '../config/mail_config.js';
 
 export const setCongregationMasterKey = async (req: Request, res: Response) => {
 	const errors = validationResult(req);
@@ -1000,6 +1001,30 @@ export const acceptJoinRequest = async (req: Request, res: Response) => {
 	await cong.acceptJoinRequest(userId, { person_uid, role, firstname, lastname });
 
 	const result = congregationJoinRequestsGet(cong);
+
+	const MAIL_ENABLED = process.env.MAIL_ENABLED === 'true';
+	const userEmail = user.email;
+
+	if (MAIL_ENABLED && user.email) {
+		const language = (req.headers?.applanguage as string) || 'en';
+		req.i18n.changeLanguage(language);
+
+		const congregation = `${cong.settings.cong_name} (${cong.settings.cong_number})`;
+
+		const options = {
+			to: userEmail,
+			subject: req.t('tr_joinRequestApprovedSubject', { congregation }),
+			template: 'join-request-approved',
+			context: {
+				requestor: user.profile.firstname.value,
+				joinRequestApprovedTitle: req.t('tr_joinRequestApprovedTitle'),
+				joinRequestApprovedMessage: req.t('tr_joinRequestApprovedDesc', { congregation, url: req.headers.origin! }),
+				copyright: new Date().getFullYear(),
+			},
+		};
+
+		MailClient.sendEmail(options, 'Join request approval email sent to user');
+	}
 
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin accepted a join request';
