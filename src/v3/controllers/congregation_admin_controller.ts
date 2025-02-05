@@ -54,7 +54,7 @@ export const setCongregationMasterKey = async (req: Request, res: Response) => {
 	const key: string = req.body.cong_master_key;
 	await cong.saveMasterKey(key);
 
-	res.locals.type = 'warn';
+	res.locals.type = 'info';
 	res.locals.message = 'congregation admin set master key';
 	res.status(200).json({ message: 'MASTER_KEY_SAVED' });
 };
@@ -398,7 +398,7 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 
 	const cong_members = cong.getMembers(req.signedCookies.visitorid);
 
-	res.locals.type = 'warn';
+	res.locals.type = 'info';
 	res.locals.message = 'congregation admin updated user details';
 	res.status(200).json(cong_members);
 };
@@ -730,7 +730,7 @@ export const congregationDeleteUser = async (req: Request, res: Response) => {
 
 	const cong_members = cong.getMembers(req.signedCookies.visitorid);
 
-	res.locals.type = 'warn';
+	res.locals.type = 'info';
 	res.locals.message = 'congregation admin removed user from congregation';
 	res.status(200).json(cong_members);
 };
