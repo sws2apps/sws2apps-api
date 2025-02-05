@@ -1,3 +1,15 @@
+# [3.12.0](https://github.com/sws2apps/sws2apps-api/compare/v3.11.1...v3.12.0) (2025-02-05)
+
+
+### Bug Fixes
+
+* **controllers:** link speakers details with data sync value ([beab637](https://github.com/sws2apps/sws2apps-api/commit/beab6374cb596732bc44caae58699245beed64cc))
+
+
+### Features
+
+* **views:** email template for approved join requests ([254808f](https://github.com/sws2apps/sws2apps-api/commit/254808f1571ee185dcd67249fb424d18be65dc8b))
+
 ## [3.11.1](https://github.com/sws2apps/sws2apps-api/compare/v3.11.0...v3.11.1) (2025-02-04)
 
 
