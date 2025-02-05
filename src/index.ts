@@ -9,6 +9,7 @@ import { CongregationsList } from './v3/classes/Congregations.js';
 import { Flags } from './v3/classes/Flags.js';
 import { Installation } from './v3/classes/Installation.js';
 import { initializeAPI } from './v3/config/app.db_config.js';
+import { createAdminUser } from './v3/config/dev.config.js';
 
 const PORT = process.env.PORT || 8000;
 const APP_VERSION = process.env.npm_package_version;
@@ -20,6 +21,7 @@ export const API_VAR: ServerTempVariableType = {
 };
 
 await initializeAPI();
+await createAdminUser();
 
 logger('info', JSON.stringify({ details: `API: minimum frontend client version set to ${API_VAR.MINIMUM_APP_VERSION}` }));
 
