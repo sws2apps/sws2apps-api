@@ -11,8 +11,8 @@
 	"tr_loginBtn": "Prijavi se v Organized",
 	"tr_loginAltText": "Če ti zgornji gumb za prijavo ne deluje, uporabi naslednjo povezavo. Pri kopiranju pazi, da boš kopiral celotno povezavo:",
 	"tr_loginIgnoreText": "Če te povezave nisi zahteval, tega e-poštnega sporočila ne upoštevaj.",
-	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
-	"tr_joinRequestApprovedTitle": "Your request was approved",
-	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
-	"tr_greetings": "Hello {{ name }},"
+	"tr_joinRequestApprovedSubject": "Odobritev za pridružitev občini {{ congregation }}",
+	"tr_joinRequestApprovedTitle": "Tvoja prošnja je bila odobrena",
+	"tr_joinRequestApprovedDesc": "Občina <strong>{{ congregation }}</strong> je odobrila tvojo prošnjo za pridružitev. Aplikacijo Organized lahko odpreš na <a href='{{ url }}'>{{ url }}</a> in se prijaviš.",
+	"tr_greetings": "Zdravo {{ name }}!"
 }

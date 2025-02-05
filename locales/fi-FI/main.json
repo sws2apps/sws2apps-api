@@ -11,8 +11,8 @@
 	"tr_loginBtn": "Kirjaudu sisään Organizediin",
 	"tr_loginAltText": "Jos et voi käyttää yllä olevaa kirjautumispainiketta, käytä seuraavaa linkkiä. Varmista, että kopioit koko linkin:",
 	"tr_loginIgnoreText": "Jos et ole pyytänyt tätä linkkiä, jätä tämä sähköposti huomiotta.",
-	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
-	"tr_joinRequestApprovedTitle": "Your request was approved",
-	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
-	"tr_greetings": "Hello {{ name }},"
+	"tr_joinRequestApprovedSubject": "Hyväksyntä liittyä {{ congregation }} seurakuntaan",
+	"tr_joinRequestApprovedTitle": "Pyyntösi hyväksyttiin",
+	"tr_joinRequestApprovedDesc": "<strong>{{ congregation }}</strong> seurakunta on hyväksynyt pyyntösi Voit nyt avata Organized-sovelluksen <a href='{{ url }}'>{{ url }}</a>, ja kirjautua sisään.",
+	"tr_greetings": "Hei {{ name }},"
 }
