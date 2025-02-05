@@ -11,8 +11,8 @@
 	"tr_loginBtn": "Hiditra ao amin’ny Organized",
 	"tr_loginAltText": "Raha tsy mandeha ny rohy eo ambony, dia ampiasao ity eto ambany ity. Jereo tsara sao misy tapaka ilay izy rehefa mandika ilay izy ianao:",
 	"tr_loginIgnoreText": "Azonao fafana fotsiny ity hafatra ity raha tsy nangataka an’io rohy io ianao.",
-	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
-	"tr_joinRequestApprovedTitle": "Your request was approved",
-	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
-	"tr_greetings": "Hello {{ name }},"
+	"tr_joinRequestApprovedSubject": "Fangatahana hiditra ao amin’ny fiangonana {{ congregation }}",
+	"tr_joinRequestApprovedTitle": "Nekena ny fangatahanao",
+	"tr_joinRequestApprovedDesc": "Nanaiky ny fangatahanao hiditra ao aminy ny fiangonana <strong>{{ congregation }}.</strong> Afaka manokatra sy miditra amin’ny programa Organized amin’izay ianao ao amin’ny <a href='{{ url }}'>{{ url }}</a>.",
+	"tr_greetings": "Salama {{ name }},"
 }
