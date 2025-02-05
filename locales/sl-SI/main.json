@@ -13,6 +13,6 @@
 	"tr_loginIgnoreText": "Če te povezave nisi zahteval, tega e-poštnega sporočila ne upoštevaj.",
 	"tr_joinRequestApprovedSubject": "Odobritev za pridružitev občini {{ congregation }}",
 	"tr_joinRequestApprovedTitle": "Tvoja prošnja je bila odobrena",
-	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
-	"tr_greetings": "Hello {{ name }},"
+	"tr_joinRequestApprovedDesc": "Občina <strong>{{ congregation }}</strong> je odobrila tvojo prošnjo za pridružitev. Aplikacijo Organized lahko odpreš na <a href='{{ url }}'>{{ url }}</a> in se prijaviš.",
+	"tr_greetings": "Zdravo {{ name }}!"
 }
