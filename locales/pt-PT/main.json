@@ -11,8 +11,8 @@
 	"tr_loginBtn": "Iniciar sessão no Organized",
 	"tr_loginAltText": "Se não conseguir usar o botão acima, por favor, use a seguinte hiperligação. Certifique-se de que copia a hiperligação completa:",
 	"tr_loginIgnoreText": "Se não pediu esta hiperligação, por favor, ignore este email.",
-	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
-	"tr_joinRequestApprovedTitle": "Your request was approved",
-	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
-	"tr_greetings": "Hello {{ name }},"
+	"tr_joinRequestApprovedSubject": "Aprove para se juntar à congregação {{ congregation }}",
+	"tr_joinRequestApprovedTitle": "O seu pedido foi aprovado",
+	"tr_joinRequestApprovedDesc": "A congregação <strong>{{ congregation }}</strong> aprovou o seu pedido para se juntar. Pode abrir a aplicação Organized no <a href='{{ url }}'>{{ url }}</a>, e Iniciar sessão.",
+	"tr_greetings": "Olá {{ name }},"
 }
