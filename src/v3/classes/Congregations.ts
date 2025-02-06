@@ -57,12 +57,15 @@ class Congregations {
 	}
 
 	findVisitingSpeakersCongregations(congId: string, name: string) {
+		const keywords = name.toLowerCase();
+
 		const congs = this.list.filter(
 			(record) =>
 				record.id !== congId &&
 				record.settings.cong_discoverable.value &&
-				(record.settings.cong_name.toLowerCase().includes(name.toLowerCase()) ||
-					record.settings.cong_number.toLowerCase().includes(name.toLowerCase()))
+				record.settings.data_sync.value &&
+				(record.settings.cong_name.toLowerCase().includes(keywords) ||
+					record.settings.cong_number.toString().toLowerCase().includes(keywords))
 		);
 
 		const result = congs.map((cong) => {
