@@ -1,3 +1,11 @@
+## [3.12.1](https://github.com/sws2apps/sws2apps-api/compare/v3.12.0...v3.12.1) (2025-02-06)
+
+
+### Bug Fixes
+
+* **classes:** convert cong number to strings for search ([19dc5b7](https://github.com/sws2apps/sws2apps-api/commit/19dc5b7b39ec4604c332af3f4ba41abb2b6ba938))
+* **controllers:** update some log levels in congregation admin ([bea2548](https://github.com/sws2apps/sws2apps-api/commit/bea2548f838a545e54d6ce64052644ae6e44b54b))
+
 # [3.12.0](https://github.com/sws2apps/sws2apps-api/compare/v3.11.1...v3.12.0) (2025-02-05)
 
 
