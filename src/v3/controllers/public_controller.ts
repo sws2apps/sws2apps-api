@@ -9,6 +9,7 @@ import { CongregationsList } from '../classes/Congregations.js';
 import { UsersList } from '../classes/Users.js';
 import { Flags } from '../classes/Flags.js';
 import { Installation } from '../classes/Installation.js';
+import { getAppLanguages } from '../services/crowdin/index.js';
 
 export const getStats = async (req: Request, res: Response) => {
 	const url = process.env.APP_COUNTRY_API! + new URLSearchParams({ language: 'E' });
@@ -44,7 +45,10 @@ export const getStats = async (req: Request, res: Response) => {
 		return acc;
 	}, []);
 
+	const languages = await getAppLanguages();
+
 	const result = {
+		languages,
 		congregations: congs.length,
 		users: users.length,
 		countries: {
