@@ -1,3 +1,11 @@
+# [3.13.0](https://github.com/sws2apps/sws2apps-api/compare/v3.12.1...v3.13.0) (2025-02-08)
+
+
+### Features
+
+* **api:** include languages count in stats ([83c51d5](https://github.com/sws2apps/sws2apps-api/commit/83c51d5b1942543312d3ca285401bc2bb2ba260d))
+* **deps:** bump firebase-admin from 13.0.2 to 13.1.0 ([b55a4d2](https://github.com/sws2apps/sws2apps-api/commit/b55a4d270150cd4fcd28d4452a59b70070915e7a))
+
 ## [3.12.1](https://github.com/sws2apps/sws2apps-api/compare/v3.12.0...v3.12.1) (2025-02-06)
 
 
