@@ -577,7 +577,7 @@ export class Congregation {
 				const newSchedule = talks.filter((record) => record.recipient === congregation.id);
 				schedules.push(...newSchedule);
 
-				await this.savePublicIncomingTalks(schedules);
+				await congregation.savePublicIncomingTalks(schedules);
 			}
 		}
 	}
