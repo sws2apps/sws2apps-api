@@ -473,7 +473,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.persons;
 
 			if (localDate !== incomingDate) {
-				result.persons = cong.persons;
+				result.persons = await cong.getPersons();
 				result.metadata.persons = localDate;
 			}
 		}
@@ -483,7 +483,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.speakers_congregations;
 
 			if (localDate !== incomingDate) {
-				result.speakers_congregations = cong.speakers_congregations;
+				result.speakers_congregations = await cong.getSpeakersCongregations();
 				result.metadata.speakers_congregations = localDate;
 			}
 
@@ -491,7 +491,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.visiting_speakers;
 
 			if (localDate !== incomingDate) {
-				result.visiting_speakers = cong.visiting_speakers;
+				result.visiting_speakers = await cong.getVisitingSpeakers();
 				result.metadata.visiting_speakers = localDate;
 			}
 
@@ -499,14 +499,14 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.cong_field_service_reports;
 
 			if (localDate !== incomingDate) {
-				result.cong_field_service_reports = cong.field_service_reports;
+				result.cong_field_service_reports = await cong.getFieldServiceReports();
 				result.metadata.cong_field_service_reports = localDate;
 			}
 		}
 
 		if (publicTalkEditor) {
 			result.speakers_key = cong.outgoing_speakers.speakers_key;
-			result.outgoing_talks = cong.public_schedules.incoming_talks === '' ? [] : JSON.parse(cong.public_schedules.incoming_talks);
+			result.outgoing_talks = await cong.getPublicIncomingTalks();
 		}
 
 		if (adminRole || isPublisher) {
@@ -514,7 +514,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.user_bible_studies;
 
 			if (localDate !== incomingDate) {
-				result.user_bible_studies = user.bible_studies;
+				result.user_bible_studies = await user.getBibleStudies();
 				result.metadata.user_bible_studies = localDate;
 			}
 
@@ -522,7 +522,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.user_field_service_reports;
 
 			if (localDate !== incomingDate) {
-				result.user_field_service_reports = user.field_service_reports;
+				result.user_field_service_reports = await user.getFieldServiceReports();
 				result.metadata.user_field_service_reports = localDate;
 			}
 
@@ -530,7 +530,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.delegated_field_service_reports;
 
 			if (localDate !== incomingDate) {
-				result.delegated_field_service_reports = user.delegated_field_service_reports;
+				result.delegated_field_service_reports = await user.getDelegatedFieldServiceReports();
 				result.metadata.delegated_field_service_reports = localDate;
 			}
 
@@ -538,7 +538,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.field_service_groups;
 
 			if (localDate !== incomingDate) {
-				result.field_service_groups = cong.field_service_groups;
+				result.field_service_groups = await cong.getFieldServiceGroups();
 				result.metadata.field_service_groups = localDate;
 			}
 
@@ -547,7 +547,9 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 				incomingDate = metadata.cong_field_service_reports;
 
 				if (localDate !== incomingDate) {
-					const congUserReports = cong.field_service_reports.filter((record) => {
+					const reports = await cong.getFieldServiceReports();
+
+					const congUserReports = reports.filter((record) => {
 						const data = record.report_data as StandardRecord;
 
 						return miniPersons.includes(String(data.person_uid));
@@ -564,7 +566,9 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.persons;
 
 			if (localDate !== incomingDate) {
-				const minimalPersons = cong.persons.map((record) => {
+				const persons = await cong.getPersons();
+
+				const minimalPersons = persons.map((record) => {
 					const includeTimeAway = cong.settings.time_away_public?.value;
 
 					const personData = record.person_data as StandardRecord;
@@ -597,7 +601,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.public_sources;
 
 			if (localDate !== incomingDate) {
-				result.public_sources = cong.public_schedules.sources.length === 0 ? [] : JSON.parse(cong.public_schedules.sources);
+				result.public_sources = await cong.getPublicSources();
 				result.metadata.public_sources = localDate;
 			}
 
@@ -605,7 +609,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.public_schedules;
 
 			if (localDate !== incomingDate) {
-				result.public_schedules = cong.public_schedules.schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.schedules);
+				result.public_schedules = await cong.getPublicSchedules();
 				result.metadata.public_schedules = localDate;
 			}
 		}
@@ -615,7 +619,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.sources;
 
 			if (localDate !== incomingDate) {
-				result.sources = cong.sources;
+				result.sources = await cong.getSources();
 				result.metadata.sources = localDate;
 			}
 
@@ -623,7 +627,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.schedules;
 
 			if (localDate !== incomingDate) {
-				result.sched = cong.schedules;
+				result.sched = await cong.getSchedules();
 				result.metadata.schedules = localDate;
 			}
 		}
@@ -633,7 +637,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.meeting_attendance;
 
 			if (localDate !== incomingDate) {
-				result.meeting_attendance = cong.meeting_attendance;
+				result.meeting_attendance = await cong.getMeetingAttendance();
 				result.metadata.meeting_attendance = localDate;
 			}
 		}
@@ -653,7 +657,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.branch_cong_analysis;
 
 			if (localDate !== incomingDate) {
-				result.branch_cong_analysis = cong.branch_cong_analysis;
+				result.branch_cong_analysis = await cong.getBranchCongAnalysis();
 				result.metadata.branch_cong_analysis = localDate;
 			}
 
@@ -661,7 +665,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.branch_field_service_reports;
 
 			if (localDate !== incomingDate) {
-				result.branch_field_service_reports = cong.branch_field_service_reports;
+				result.branch_field_service_reports = await cong.getBranchFieldServiceReports();
 				result.metadata.branch_field_service_reports = localDate;
 			}
 

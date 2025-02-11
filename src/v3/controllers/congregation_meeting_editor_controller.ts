@@ -368,7 +368,7 @@ export const publishSchedules = async (req: Request, res: Response) => {
 
 	await cong.publishSchedules(JSON.stringify(sources), JSON.stringify(schedules), JSON.stringify(talks));
 
-	cong.copyOutgoingTalkSchedule(talks);
+	await cong.copyOutgoingTalkSchedule(talks);
 
 	res.locals.type = 'info';
 	res.locals.message = `user published the schedules`;
@@ -418,9 +418,8 @@ export const publicSchedulesGet = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const sources = cong.public_schedules.sources.length === 0 ? [] : JSON.parse(cong.public_schedules.sources);
-
-	const schedules = cong.public_schedules.schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.schedules);
+	const sources = await cong.getPublicSources();
+	const schedules = await cong.getPublicSchedules();
 
 	res.locals.type = 'info';
 	res.locals.message = `user fetched congregations public schedules`;

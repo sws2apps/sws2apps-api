@@ -294,7 +294,9 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 		incomingDate = metadata.persons;
 
 		if (localDate !== incomingDate) {
-			const minimalPersons = cong.persons.map((record) => {
+			const persons = await cong.getPersons();
+
+			const minimalPersons = persons.map((record) => {
 				const includeTimeAway = cong.settings.time_away_public?.value;
 
 				const personData = record.person_data as StandardRecord;
@@ -331,7 +333,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.user_bible_studies;
 
 			if (localDate !== incomingDate) {
-				result.user_bible_studies = user.bible_studies;
+				result.user_bible_studies = await user.getBibleStudies();
 				result.metadata.user_bible_studies = localDate;
 			}
 
@@ -339,7 +341,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.user_field_service_reports;
 
 			if (localDate !== incomingDate) {
-				result.user_field_service_reports = user.field_service_reports;
+				result.user_field_service_reports = await user.getFieldServiceReports();
 				result.metadata.user_field_service_reports = localDate;
 			}
 
@@ -347,7 +349,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.delegated_field_service_reports;
 
 			if (localDate !== incomingDate) {
-				result.delegated_field_service_reports = user.delegated_field_service_reports;
+				result.delegated_field_service_reports = await user.getDelegatedFieldServiceReports();
 				result.metadata.delegated_field_service_reports = localDate;
 			}
 
@@ -355,7 +357,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			incomingDate = metadata.field_service_groups;
 
 			if (localDate !== incomingDate) {
-				result.field_service_groups = cong.field_service_groups;
+				result.field_service_groups = await cong.getFieldServiceGroups();
 				result.metadata.field_service_groups = localDate;
 			}
 
@@ -364,7 +366,9 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 
 			if (localDate !== incomingDate) {
 				if (user.profile.congregation?.user_local_uid) {
-					const congUserReports = cong.field_service_reports.filter((record) => {
+					const reports = await cong.getFieldServiceReports();
+
+					const congUserReports = reports.filter((record) => {
 						const data = record.report_data as StandardRecord;
 
 						return miniPersons.includes(String(data.person_uid));
@@ -431,8 +435,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 	let incomingDate = metadata.public_sources;
 
 	if (localDate !== incomingDate) {
-		result.public_sources = cong.public_schedules.sources.length === 0 ? [] : JSON.parse(cong.public_schedules.sources);
-
+		result.public_sources = await cong.getPublicSources();
 		result.metadata.public_sources = localDate;
 	}
 
@@ -440,8 +443,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 	incomingDate = metadata.public_schedules;
 
 	if (localDate !== incomingDate) {
-		result.public_schedules = cong.public_schedules.schedules.length === 0 ? [] : JSON.parse(cong.public_schedules.schedules);
-
+		result.public_schedules = await cong.getPublicSchedules();
 		result.metadata.public_schedules = localDate;
 	}
 

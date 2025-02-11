@@ -113,6 +113,18 @@ export const setUserFieldServiceReports = async (id: string, reports: StandardRe
 	await uploadFileToStorage(data, { type: 'user', path });
 };
 
+export const getDelegatedFieldServiceReports = async (id: string) => {
+	const path = `${id}/delegated_field_service_reports.txt`;
+	const data = await getFileFromStorage({ type: 'user', path });
+
+	if (data) {
+		const reports = JSON.parse(data) as StandardRecord[];
+		return reports;
+	}
+
+	return [];
+};
+
 export const setDelegatedFieldServiceReports = async (id: string, reports: StandardRecord[]) => {
 	const data = JSON.stringify(reports);
 	const path = `${id}/delegated_field_service_reports.txt`;
@@ -165,8 +177,6 @@ export const getUserDetails = async (id: string) => {
 		settings: await getUserSettings(id),
 		profile: await getUserProfile(id),
 		sessions: await getUserSessions(id),
-		bible_studies: await getUserBibleStudies(id),
-		field_service_reports: await getUserFieldServiceReports(id),
 		metadata: {
 			user_bible_studies: await getBibleStudiesMetadata(id),
 			user_field_service_reports: await getFieldServiceReportsMetadata(id),

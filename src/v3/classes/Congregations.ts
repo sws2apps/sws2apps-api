@@ -20,7 +20,7 @@ class Congregations {
 	async load() {
 		this.list = await loadAllCongs();
 
-		loadIncomingTalks();
+		await loadIncomingTalks();
 
 		this.#sort();
 		return this.list;

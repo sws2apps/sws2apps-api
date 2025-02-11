@@ -4,6 +4,7 @@ import {
 	CongregationCreateInfoType,
 	CongSettingsType,
 	OutgoingSpeakersRecordType,
+	OutgoingTalkScheduleType,
 	UserRequestAccess,
 } from '../../definition/congregation.js';
 import { deleteFileFromStorage, getFileFromStorage, getFileMetadata, uploadFileToStorage } from './storage_utils.js';
@@ -101,34 +102,13 @@ export const getApplications = async (cong_id: string) => {
 export const getCongDetails = async (cong_id: string) => {
 	return {
 		createdAt: await getCongCreatedAt(cong_id),
-		public: {
-			meeting_source: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/public/sources.txt` }),
-			meeting_schedules: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/public/schedules.txt` }),
-			outgoing_talks: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/public/outgoing_talks.txt` }),
-		},
-		branch_cong_analysis: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/branch_cong_analysis/main.txt` }),
-		branch_field_service_reports: await getFileFromStorage({
-			type: 'congregation',
-			path: `${cong_id}/branch_field_service_reports/main.txt`,
-		}),
-		field_service_groups: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/field_service_groups/main.txt` }),
-		field_service_reports: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/field_service_reports/main.txt` }),
-		incoming_reports: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/field_service_reports/incoming.txt` }),
-		meeting_attendance: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/meeting_attendance/main.txt` }),
-		cong_persons: await getCongPersons(cong_id),
-		schedules: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/schedules/main.txt` }),
 		settings: await getCongSettings(cong_id),
-		sources: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/sources/main.txt` }),
-		speakers_congregations: await getFileFromStorage({
-			type: 'congregation',
-			path: `${cong_id}/speakers_congregations/main.txt`,
-		}),
-		visiting_speakers: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/visiting_speakers/incoming.txt` }),
 		outgoing_speakers: await getOutgoingSpeakersAccessList(cong_id),
-		applications: await getApplications(cong_id),
 		metadata: await getCongMetadata(cong_id),
 		flags: await getCongFlags(cong_id),
 		join_requests: await getCongJoinRequests(cong_id),
+		incoming_reports: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/field_service_reports/incoming.txt` }),
+		applications: await getApplications(cong_id),
 	};
 };
 
@@ -544,5 +524,11 @@ export const getCongCreatedAt = async (cong_id: string) => {
 
 export const setCongCreatedAt = async (id: string, data: string) => {
 	const path = `${id}/settings/created.txt`;
+	await uploadFileToStorage(data, { type: 'congregation', path });
+};
+
+export const setPublicIncomingTalks = async (id: string, schedules: OutgoingTalkScheduleType[]) => {
+	const data = JSON.stringify(schedules);
+	const path = `${id}/public/incoming_talks.txt`;
 	await uploadFileToStorage(data, { type: 'congregation', path });
 };
