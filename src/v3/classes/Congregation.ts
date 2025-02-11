@@ -1,3 +1,4 @@
+import { getStorage } from 'firebase-admin/storage';
 import { AppRoleType, StandardRecord } from '../definition/app.js';
 import {
 	BackupData,
@@ -54,34 +55,19 @@ import { CongregationsList } from './Congregations.js';
 import { Flags } from './Flags.js';
 import { User } from './User.js';
 import { UsersList } from './Users.js';
+import { getFileFromStorage, uploadFileToStorage } from '../services/firebase/storage_utils.js';
 
 export class Congregation {
 	id: string;
 	createdAt: string;
-	public_schedules: {
-		sources: string;
-		schedules: string;
-		outgoing_talks: string;
-		incoming_talks: string;
-	};
 	members: User[];
-	persons: StandardRecord[];
 	settings: CongSettingsType;
-	sources: StandardRecord[];
-	schedules: StandardRecord[];
-	field_service_groups: StandardRecord[];
-	visiting_speakers: StandardRecord[];
 	outgoing_speakers: OutgoingSpeakersRecordType;
-	branch_field_service_reports: StandardRecord[];
-	branch_cong_analysis: StandardRecord[];
-	meeting_attendance: StandardRecord[];
-	speakers_congregations: StandardRecord[];
-	ap_applications: StandardRecord[];
-	incoming_reports: StandardRecord[];
-	field_service_reports: StandardRecord[];
 	metadata: Record<string, string>;
 	flags: string[];
 	join_requests: UserRequestAccess[];
+	ap_applications: StandardRecord[];
+	incoming_reports: StandardRecord[];
 
 	constructor(id: string) {
 		this.id = id;
@@ -101,7 +87,6 @@ export class Congregation {
 			cong_field_service_reports: '',
 		};
 
-		this.public_schedules = { schedules: '', sources: '', outgoing_talks: '', incoming_talks: '' };
 		this.settings = {
 			attendance_online_record: '',
 			circuit_overseer: '',
@@ -153,21 +138,11 @@ export class Congregation {
 			],
 		};
 		this.outgoing_speakers = { list: [], speakers_key: '', access: [] };
-		this.branch_cong_analysis = [];
-		this.branch_field_service_reports = [];
-		this.field_service_groups = [];
-		this.meeting_attendance = [];
 		this.members = [];
-		this.persons = [];
-		this.schedules = [];
-		this.sources = [];
-		this.speakers_congregations = [];
-		this.visiting_speakers = [];
-		this.ap_applications = [];
-		this.incoming_reports = [];
-		this.field_service_reports = [];
 		this.flags = [];
 		this.join_requests = [];
+		this.ap_applications = [];
+		this.incoming_reports = [];
 	}
 
 	async loadDetails() {
@@ -175,51 +150,11 @@ export class Congregation {
 
 		this.createdAt = data.createdAt || '';
 		this.metadata = data.metadata;
-		this.public_schedules.outgoing_talks = data.public.outgoing_talks || '';
-		this.public_schedules.schedules = data.public.meeting_schedules || '';
-		this.public_schedules.sources = data.public.meeting_source || '';
 		this.settings = data.settings;
-		this.persons = data.cong_persons;
 		this.outgoing_speakers = data.outgoing_speakers;
-		this.ap_applications = data.applications;
 		this.flags = data.flags;
 		this.join_requests = data.join_requests;
-
-		if (data.field_service_reports) {
-			this.field_service_reports = JSON.parse(data.field_service_reports);
-		}
-
-		if (data.branch_cong_analysis) {
-			this.branch_cong_analysis = JSON.parse(data.branch_cong_analysis);
-		}
-
-		if (data.branch_field_service_reports) {
-			this.branch_field_service_reports = JSON.parse(data.branch_field_service_reports);
-		}
-
-		if (data.field_service_groups) {
-			this.field_service_groups = JSON.parse(data.field_service_groups);
-		}
-
-		if (data.meeting_attendance) {
-			this.meeting_attendance = JSON.parse(data.meeting_attendance);
-		}
-
-		if (data.schedules) {
-			this.schedules = JSON.parse(data.schedules);
-		}
-
-		if (data.sources) {
-			this.sources = JSON.parse(data.sources);
-		}
-
-		if (data.speakers_congregations) {
-			this.speakers_congregations = JSON.parse(data.speakers_congregations);
-		}
-
-		if (data.visiting_speakers) {
-			this.visiting_speakers = JSON.parse(data.visiting_speakers);
-		}
+		this.ap_applications = data.applications;
 
 		if (data.incoming_reports) {
 			this.incoming_reports = JSON.parse(data.incoming_reports);
@@ -230,8 +165,23 @@ export class Congregation {
 
 	async savePersons(persons: StandardRecord[]) {
 		await setCongPersons(this.id, persons);
-		this.persons = persons;
 		this.metadata.persons = await getPersonsMetadata(this.id);
+	}
+
+	async getPersons() {
+		const storageBucket = getStorage().bucket();
+		const [files] = await storageBucket.getFiles({ prefix: `v3/congregations/${this.id}/persons` });
+
+		const cong_persons: StandardRecord[] = [];
+
+		for await (const file of files) {
+			const contents = await file.download();
+			const person = decryptData(contents.toString())!;
+
+			cong_persons.push(JSON.parse(person));
+		}
+
+		return cong_persons;
 	}
 
 	async saveSettings(settings: CongSettingsType) {
@@ -242,55 +192,46 @@ export class Congregation {
 
 	async saveSources(sources: StandardRecord[]) {
 		await setCongSources(this.id, sources);
-		this.sources = sources;
 		this.metadata.sources = await getSourcesMetadata(this.id);
 	}
 
 	async saveSchedules(schedules: StandardRecord[]) {
 		await setCongSchedules(this.id, schedules);
-		this.schedules = schedules;
 		this.metadata.schedules = await getSchedulesMetadata(this.id);
 	}
 
 	async saveFieldServiceReports(reports: StandardRecord[]) {
 		await setCongFieldServiceReports(this.id, reports);
-		this.field_service_reports = reports;
 		this.metadata.cong_field_service_reports = await getFieldServiceReportsMetadata(this.id);
 	}
 
 	async saveFieldServiceGroups(groups: StandardRecord[]) {
 		await setCongFieldServiceGroups(this.id, groups);
-		this.field_service_groups = groups;
 		this.metadata.field_service_groups = await getFieldServiceGroupsMetadata(this.id);
 	}
 
 	async saveVisitingSpeakers(speakers: StandardRecord[]) {
 		await setCongVisitingSpeakers(this.id, speakers);
-		this.visiting_speakers = speakers;
 		this.metadata.visiting_speakers = await getVisitingSpeakersMetadata(this.id);
 	}
 
 	async saveBranchFieldServiceReports(reports: StandardRecord[]) {
 		await setBranchFieldServiceReports(this.id, reports);
-		this.branch_field_service_reports = reports;
 		this.metadata.branch_field_service_reports = await getBranchFieldServiceReportsMetadata(this.id);
 	}
 
 	async saveBranchCongAnalysis(reports: StandardRecord[]) {
 		await setBranchCongAnalysis(this.id, reports);
-		this.branch_cong_analysis = reports;
 		this.metadata.branch_cong_analysis = await getBranchCongAnalysisMetadata(this.id);
 	}
 
 	async saveMeetingAttendance(reports: StandardRecord[]) {
 		await setMeetingAttendance(this.id, reports);
-		this.meeting_attendance = reports;
 		this.metadata.meeting_attendance = await getMeetingAttendanceMetadata(this.id);
 	}
 
 	async saveSpeakersCongregations(congregations: StandardRecord[]) {
 		await setSpeakersCongregations(this.id, congregations);
-		this.speakers_congregations = congregations;
 		this.metadata.speakers_congregations = await getSpeakersCongregationsMetadata(this.id);
 	}
 
@@ -581,19 +522,16 @@ export class Congregation {
 
 	async savePublicSchedules(schedules: string) {
 		await setCongPublicSchedules(this.id, schedules);
-		this.public_schedules.schedules = schedules;
 		this.metadata.public_schedules = await getPublicSchedulesMetadata(this.id);
 	}
 
 	async savePublicSources(sources: string) {
 		await setCongPublicSources(this.id, sources);
-		this.public_schedules.sources = sources;
 		this.metadata.public_sources = await getPublicSourcesMetadata(this.id);
 	}
 
 	async savePublicOutgoingTalks(talks: string) {
 		await setCongPublicOutgoingTalks(this.id, talks);
-		this.public_schedules.outgoing_talks = talks;
 	}
 
 	async publishSchedules(sources?: string, schedules?: string, talks?: string) {
@@ -610,23 +548,36 @@ export class Congregation {
 		}
 	}
 
-	copyOutgoingTalkSchedule(talks: OutgoingTalkScheduleType[]) {
+	async getPublicOutgoingTalks(): Promise<OutgoingTalkScheduleType[]> {
+		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/public/outgoing_talks.txt` });
+		return data && data.length > 0 ? JSON.parse(data) : [];
+	}
+
+	async getPublicIncomingTalks(): Promise<OutgoingTalkScheduleType[]> {
+		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/public/incoming_talks.txt` });
+		return data && data.length > 0 ? JSON.parse(data) : [];
+	}
+
+	async savePublicIncomingTalks(schedules: OutgoingTalkScheduleType[]) {
+		const data = JSON.stringify(schedules);
+		const path = `${this.id}/public/incoming_talks.txt`;
+		await uploadFileToStorage(data, { type: 'congregation', path });
+	}
+
+	async copyOutgoingTalkSchedule(talks: OutgoingTalkScheduleType[]) {
 		if (talks.length > 0) {
 			const congregations = CongregationsList.list.filter((record) =>
 				record.outgoing_speakers.access.find((cong) => cong.cong_id === this.id && cong.status === 'approved')
 			);
 
-			for (const congregation of congregations) {
-				let schedules: OutgoingTalkScheduleType[] =
-					congregation.public_schedules.incoming_talks === '' ? [] : JSON.parse(congregation.public_schedules.incoming_talks);
-
+			for await (const congregation of congregations) {
+				let schedules = await congregation.getPublicIncomingTalks();
 				schedules = schedules.filter((record) => record.sender !== this.id);
 
 				const newSchedule = talks.filter((record) => record.recipient === congregation.id);
-
 				schedules.push(...newSchedule);
 
-				congregation.public_schedules.incoming_talks = schedules.length === 0 ? '' : JSON.stringify(schedules);
+				await this.savePublicIncomingTalks(schedules);
 			}
 		}
 	}
@@ -755,5 +706,60 @@ export class Congregation {
 		await setCongJoinRequests(this.id, requests);
 
 		this.join_requests = requests;
+	}
+
+	async getPublicSources() {
+		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/public/sources.txt` });
+		return data && data.length > 0 ? JSON.parse(data) : [];
+	}
+
+	async getPublicSchedules() {
+		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/public/schedules.txt` });
+		return data && data.length > 0 ? JSON.parse(data) : [];
+	}
+
+	async getFieldServiceGroups() {
+		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/field_service_groups/main.txt` });
+		return data && data.length > 0 ? JSON.parse(data) : [];
+	}
+
+	async getFieldServiceReports(): Promise<StandardRecord[]> {
+		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/field_service_reports/main.txt` });
+		return data && data.length > 0 ? JSON.parse(data) : [];
+	}
+
+	async getSpeakersCongregations(): Promise<StandardRecord[]> {
+		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/speakers_congregations/main.txt` });
+		return data && data.length > 0 ? JSON.parse(data) : [];
+	}
+
+	async getVisitingSpeakers(): Promise<StandardRecord[]> {
+		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/visiting_speakers/main.txt` });
+		return data && data.length > 0 ? JSON.parse(data) : [];
+	}
+
+	async getSources(): Promise<StandardRecord[]> {
+		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/sources/main.txt` });
+		return data && data.length > 0 ? JSON.parse(data) : [];
+	}
+
+	async getSchedules(): Promise<StandardRecord[]> {
+		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/schedules/main.txt` });
+		return data && data.length > 0 ? JSON.parse(data) : [];
+	}
+
+	async getMeetingAttendance(): Promise<StandardRecord[]> {
+		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/meeting_attendance/main.txt` });
+		return data && data.length > 0 ? JSON.parse(data) : [];
+	}
+
+	async getBranchCongAnalysis(): Promise<StandardRecord[]> {
+		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/branch_cong_analysis/main.txt` });
+		return data && data.length > 0 ? JSON.parse(data) : [];
+	}
+
+	async getBranchFieldServiceReports(): Promise<StandardRecord[]> {
+		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/branch_field_service_reports/main.txt` });
+		return data && data.length > 0 ? JSON.parse(data) : [];
 	}
 }

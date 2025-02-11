@@ -23,7 +23,7 @@ import { decryptData, encryptData } from '../services/encryption/encryption.js';
 import { generateUserSecret } from '../utils/user_utils.js';
 import { CongregationsList } from './Congregations.js';
 import { BackupData } from '../definition/congregation.js';
-import { getFileMetadata } from '../services/firebase/storage_utils.js';
+import { getFileFromStorage, getFileMetadata } from '../services/firebase/storage_utils.js';
 import { retrieveVisitorDetails } from '../services/ip_details/auth_utils.js';
 
 export class User {
@@ -33,9 +33,6 @@ export class User {
 	profile: UserProfile;
 	sessions: UserSession[];
 	settings: UserSettings;
-	bible_studies: StandardRecord[];
-	field_service_reports: StandardRecord[];
-	delegated_field_service_reports: StandardRecord[];
 	metadata: Record<string, string>;
 	flags: string[];
 
@@ -60,9 +57,6 @@ export class User {
 			hour_credits_enabled: '',
 			theme_follow_os_enabled: '',
 		};
-		this.bible_studies = [];
-		this.field_service_reports = [];
-		this.delegated_field_service_reports = [];
 		this.flags = [];
 	}
 
@@ -95,8 +89,6 @@ export class User {
 			this.profile.createdAt = data?.timeCreated;
 		}
 
-		this.bible_studies = data.bible_studies;
-		this.field_service_reports = data.field_service_reports;
 		this.flags = data.flags;
 	}
 
@@ -319,21 +311,16 @@ export class User {
 
 	async saveFieldServiceReports(reports: StandardRecord[]) {
 		await setUserFieldServiceReports(this.id, reports);
-		this.field_service_reports = reports;
 		this.metadata.user_field_service_reports = await getFieldServiceReportsMetadata(this.id);
 	}
 
 	async saveBibleStudies(studies: StandardRecord[]) {
 		await setUserBibleStudies(this.id, studies);
-
-		this.bible_studies = studies;
 		this.metadata.user_bible_studies = await getBibleStudiesMetadata(this.id);
 	}
 
 	async saveDelegatedFieldServiceReports(reports: StandardRecord[]) {
 		await setDelegatedFieldServiceReports(this.id, reports);
-
-		this.delegated_field_service_reports = reports;
 		this.metadata.delegated_field_service_reports = await getDelegatedFieldServiceReportsMetadata(this.id);
 	}
 
@@ -389,7 +376,7 @@ export class User {
 
 		if (!cong) return;
 
-		const persons = structuredClone(cong.persons);
+		const persons = await cong.getPersons();
 		const person = persons.find((record) => record.person_uid === this.profile.congregation!.user_local_uid);
 
 		if (!person) return;
@@ -434,5 +421,41 @@ export class User {
 	async updateFlags(flags: string[]) {
 		await setUserFlags(this.id, flags);
 		this.flags = flags;
+	}
+
+	async getFieldServiceReports() {
+		const path = `${this.id}/field_service_reports.txt`;
+		const data = await getFileFromStorage({ type: 'user', path });
+
+		if (data) {
+			const reports = JSON.parse(data) as StandardRecord[];
+			return reports;
+		}
+
+		return [];
+	}
+
+	async getBibleStudies() {
+		const path = `${this.id}/bible_studies.txt`;
+		const data = await getFileFromStorage({ type: 'user', path });
+
+		if (data) {
+			const studies = JSON.parse(data) as StandardRecord[];
+			return studies;
+		}
+
+		return [];
+	}
+
+	async getDelegatedFieldServiceReports() {
+		const path = `${this.id}/delegated_field_service_reports.txt`;
+		const data = await getFileFromStorage({ type: 'user', path });
+
+		if (data) {
+			const reports = JSON.parse(data) as StandardRecord[];
+			return reports;
+		}
+
+		return [];
 	}
 }
