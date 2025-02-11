@@ -11,8 +11,8 @@
 	"tr_loginBtn": "Logi sisse Organized-i",
 	"tr_loginAltText": "Kui sa ei saa kasutada ülaltoodud sisselogimise nuppu, kasuta palun järgmist linki. Veendu, et see ei oleks lõigatud, kui sa seda kopeerid:",
 	"tr_loginIgnoreText": "Kui sa ei taotlenud seda linki, ignoreeri palun seda e-kirja.",
-	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
-	"tr_joinRequestApprovedTitle": "Your request was approved",
-	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
-	"tr_greetings": "Hello {{ name }},"
+	"tr_joinRequestApprovedSubject": "Nõusolek ühinemiseks {{ congregation }} kogudusega",
+	"tr_joinRequestApprovedTitle": "Sinu taotlus on heaks kiidetud",
+	"tr_joinRequestApprovedDesc": "<strong>{{ congregation }}</strong> kogudus on teie liitumistaotluse heaks kiitnud. Saate avada Organized rakenduse aadressil <a href='{{ url }}'>{{ url }}</a>, ja logige nüüd sisse.",
+	"tr_greetings": "Tere, {{ name }},"
 }
