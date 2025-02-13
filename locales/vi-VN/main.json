@@ -1,8 +1,8 @@
 {
-	"tr_welcomeTitle": "Chào mừng đến với ứng dụng Organized!",
+	"tr_welcomeTitle": "Welcome to Organized app!",
 	"tr_welcomeDesc": "Thanks for registering! We’re excited for you to explore Organized. Watch this introductory video to start using the app and make organizing all your theocratic activities easier:",
-	"tr_watchVideoLabel": "Xem video trên YouTube",
-	"tr_moreInfoTitle": "Thêm thông tin về ứng dụng:",
+	"tr_watchVideoLabel": "Watch the video on YouTube",
+	"tr_moreInfoTitle": "More info about the app:",
 	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>User guide</a> that provides step-by-step instructions",
 	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Our blog</a> with tips and useful features",
 	"tr_moreInfoSupportLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Support the app</a> with a donation to power its growth",
