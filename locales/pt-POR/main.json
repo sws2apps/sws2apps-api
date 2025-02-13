@@ -1,0 +1,18 @@
+{
+	"tr_welcomeTitle": "Bem-vindo ao aplicativo Organized!",
+	"tr_welcomeDesc": "Obrigado por se registrar! Estamos animados para que você explore o Organized. Assista a este vídeo introdutório para começar a usar o aplicativo e veja como ele pode tornar a criação de todas as suas atividades teocráticas mais fácil:",
+	"tr_watchVideoLabel": "Assista o vídeo no YouTube",
+	"tr_moreInfoTitle": "Mais informações sobre o aplicativo:",
+	"tr_moreInfoGuideLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com'>Guia do usuário</a> que fornece instruções passo a passo",
+	"tr_moreInfoBlogLabel": "<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/blog'>Nosso blog</a> com dicas e recursos úteis",
+	"tr_moreInfoSupportLabel": "U<a class='h4' target='_blank' rel='noreferrer' href='https://guide.organized-app.com/how-to-support/'>Apoie o app</a> com uma doação para impulsionar o crescimento",
+	"tr_login": "Faça login na sua conta do Organized",
+	"tr_loginDesc": "Recebemos um pedido de acesso com seu e-mail. Por favor, confirme o login clicando no botão abaixo.",
+	"tr_loginBtn": "Faça o login no Organized",
+	"tr_loginAltText": "Se você não puder usar o botão de login acima, use o seguinte link. Certifique-se de que ele não é cortado quando você estiver copiando:",
+	"tr_loginIgnoreText": "Se você não solicitou este link, basta ignorar este e-mail.",
+	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
+	"tr_joinRequestApprovedTitle": "Your request was approved",
+	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
+	"tr_greetings": "Hello {{ name }},"
+}
