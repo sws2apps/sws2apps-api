@@ -78,7 +78,7 @@
 		"@types/sanitize-html": "^2.13.0",
 		"@types/serve-favicon": "^2.5.7",
 		"eslint": "^9.20.1",
-		"globals": "^15.14.0",
+		"globals": "^15.15.0",
 		"nodemon": "^3.1.9",
 		"rimraf": "^6.0.1",
 		"semantic-release": "^24.2.2",
