@@ -9,7 +9,7 @@
 	"tr_login": "Accedi al tuo account Organized",
 	"tr_loginDesc": "Abbiamo ricevuto una richiesta di accesso con la tua email. Si prega di confermare il login facendo clic sul pulsante qui sotto.",
 	"tr_loginBtn": "Accedi a Organized",
-	"tr_loginAltText": "Se non è possibile utilizzare il pulsante di accesso sopra, si prega di utilizzare il seguente link. Assicurarsi che non sia ritagliato al momento della copia:",
+	"tr_loginAltText": "If you can’t use the login button above, please use the following link. Make sure it is not cropped when you are copying it:",
 	"tr_loginIgnoreText": "Se non hai richiesto questo link, ignora questa email.",
 	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
 	"tr_joinRequestApprovedTitle": "Your request was approved",
