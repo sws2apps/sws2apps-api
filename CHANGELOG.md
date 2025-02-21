@@ -1,3 +1,20 @@
+# [3.14.0](https://github.com/sws2apps/sws2apps-api/compare/v3.13.0...v3.14.0) (2025-02-21)
+
+
+### Bug Fixes
+
+* **api:** update class members ([f52783d](https://github.com/sws2apps/sws2apps-api/commit/f52783da7e179cbd7a10192975c174c9adde9c75))
+* **controller:** always save data sync state ([71fbe4e](https://github.com/sws2apps/sws2apps-api/commit/71fbe4ec28ef92786b426c1ee068a089c70c21b6))
+* **controller:** clean up metadata for disabled data sync ([9b83644](https://github.com/sws2apps/sws2apps-api/commit/9b836446ff243b0963d4a380467ad628d9c5c847))
+* **controller:** update error message ([00bc006](https://github.com/sws2apps/sws2apps-api/commit/00bc006a4317a19a7e4435ee229900b1f46f4c74))
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.41.1 to 1.41.2 ([ce0a710](https://github.com/sws2apps/sws2apps-api/commit/ce0a7106492ea4f3b81fac1fc580238e411ec538))
+* **deps:** bump compression from 1.7.5 to 1.8.0 ([70bef08](https://github.com/sws2apps/sws2apps-api/commit/70bef08cbfda82de11372ebbe4bf3e2a336959cc))
+* **routes:** add new route for admins ([c38ead1](https://github.com/sws2apps/sws2apps-api/commit/c38ead1775e77604195b46a327fc810166a232ad))
+
 # [3.13.0](https://github.com/sws2apps/sws2apps-api/compare/v3.12.1...v3.13.0) (2025-02-08)
 
 
