@@ -626,3 +626,35 @@ export const congregationFlagToggle = async (req: Request, res: Response) => {
 	res.locals.message = 'admin updated congregation feature toggle';
 	res.status(200).json(result);
 };
+
+export const congregationDataSyncToggle = async (req: Request, res: Response) => {
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the user request id params is undefined';
+		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+
+		return;
+	}
+
+	const cong = CongregationsList.findById(id);
+
+	if (!cong) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no congregation could not be found with the provided id';
+		res.status(404).json({ message: 'CONG_NOT_FOUND' });
+		return;
+	}
+
+	const settings = structuredClone(cong.settings);
+	settings.data_sync = { value: !settings.data_sync.value, updatedAt: new Date().toISOString() };
+
+	await cong.saveSettings(settings);
+
+	const result = await adminCongregationsGet();
+
+	res.locals.type = 'info';
+	res.locals.message = `admin updated congregation data sync`;
+	res.status(200).json(result);
+};

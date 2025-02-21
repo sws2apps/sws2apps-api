@@ -29,6 +29,8 @@ export const adminCongregationsGet = async () => {
 				cong_name: cong.settings.cong_name,
 				cong_number: cong.settings.cong_number,
 				createdAt: cong.createdAt,
+				data_sync: cong.settings.data_sync.value,
+				metadata: cong.metadata,
 			};
 
 			result.push(obj);

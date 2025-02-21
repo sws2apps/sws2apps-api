@@ -4,6 +4,7 @@ import { visitorChecker } from '../middleware/visitor_checker.js';
 import { adminAuthChecker } from '../middleware/admin_auth_checker.js';
 
 import {
+	congregationDataSyncToggle,
 	congregationFlagToggle,
 	congregationPersonsGet,
 	deleteCongregation,
@@ -45,6 +46,9 @@ router.get('/congregations/:id/persons', congregationPersonsGet);
 
 // toggle congregation feature flag
 router.patch('/congregations/:id/feature-flags', body('flagid').isString(), congregationFlagToggle);
+
+// toggle data sync
+router.patch('/congregations/:id/data-sync', congregationDataSyncToggle);
 
 // delete congregation
 router.delete('/congregations/:id', deleteCongregation);
