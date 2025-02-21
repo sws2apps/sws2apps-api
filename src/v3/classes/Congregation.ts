@@ -284,56 +284,58 @@ export class Congregation {
 			await this.saveSettings(cong_backup.app_settings.cong_settings);
 		}
 
-		if (scheduleEditor && cong_backup.persons) {
-			await this.savePersons(cong_backup.persons);
-		}
+		if (this.settings.data_sync.value) {
+			if (scheduleEditor && cong_backup.persons) {
+				await this.savePersons(cong_backup.persons);
+			}
 
-		if (publicTalkEditor && cong_backup.speakers_congregations) {
-			await this.saveSpeakersCongregations(cong_backup.speakers_congregations);
-		}
+			if (publicTalkEditor && cong_backup.speakers_congregations) {
+				await this.saveSpeakersCongregations(cong_backup.speakers_congregations);
+			}
 
-		if (publicTalkEditor && cong_backup.visiting_speakers) {
-			await this.saveVisitingSpeakers(cong_backup.visiting_speakers);
-		}
+			if (publicTalkEditor && cong_backup.visiting_speakers) {
+				await this.saveVisitingSpeakers(cong_backup.visiting_speakers);
+			}
 
-		if (publicTalkEditor && cong_backup.visiting_speakers) {
-			await this.saveBranchFieldServiceReports(cong_backup.branch_field_service_reports);
-		}
+			if (publicTalkEditor && cong_backup.visiting_speakers) {
+				await this.saveBranchFieldServiceReports(cong_backup.branch_field_service_reports);
+			}
 
-		if (publicTalkEditor && cong_backup.speakers_key) {
-			await this.saveSpeakersKey(cong_backup.speakers_key);
-		}
+			if (publicTalkEditor && cong_backup.speakers_key) {
+				await this.saveSpeakersKey(cong_backup.speakers_key);
+			}
 
-		if (adminRole && cong_backup.branch_cong_analysis) {
-			await this.saveBranchCongAnalysis(cong_backup.branch_cong_analysis);
-		}
+			if (adminRole && cong_backup.branch_cong_analysis) {
+				await this.saveBranchCongAnalysis(cong_backup.branch_cong_analysis);
+			}
 
-		if (serviceCommiteeRole && cong_backup.field_service_groups) {
-			await this.saveFieldServiceGroups(cong_backup.field_service_groups);
-		}
+			if (serviceCommiteeRole && cong_backup.field_service_groups) {
+				await this.saveFieldServiceGroups(cong_backup.field_service_groups);
+			}
 
-		if (scheduleEditor && cong_backup.sched) {
-			await this.saveSchedules(cong_backup.sched);
-		}
+			if (scheduleEditor && cong_backup.sched) {
+				await this.saveSchedules(cong_backup.sched);
+			}
 
-		if (scheduleEditor && cong_backup.sources) {
-			await this.saveSources(cong_backup.sources);
-		}
+			if (scheduleEditor && cong_backup.sources) {
+				await this.saveSources(cong_backup.sources);
+			}
 
-		if (elderRole && cong_backup.cong_field_service_reports) {
-			await this.saveFieldServiceReports(cong_backup.cong_field_service_reports);
-		}
+			if (elderRole && cong_backup.cong_field_service_reports) {
+				await this.saveFieldServiceReports(cong_backup.cong_field_service_reports);
+			}
 
-		if (attendanceEditor && cong_backup.meeting_attendance) {
-			await this.saveMeetingAttendance(cong_backup.meeting_attendance);
-		}
+			if (attendanceEditor && cong_backup.meeting_attendance) {
+				await this.saveMeetingAttendance(cong_backup.meeting_attendance);
+			}
 
-		if (publicTalkEditor && cong_backup.outgoing_speakers) {
-			await this.saveOutgoingSpeakers(cong_backup.outgoing_speakers);
-		}
+			if (publicTalkEditor && cong_backup.outgoing_speakers) {
+				await this.saveOutgoingSpeakers(cong_backup.outgoing_speakers);
+			}
 
-		if (secretaryRole && cong_backup.incoming_reports) {
-			await this.saveIncomingReports(cong_backup.incoming_reports);
+			if (secretaryRole && cong_backup.incoming_reports) {
+				await this.saveIncomingReports(cong_backup.incoming_reports);
+			}
 		}
 
 		if (adminRole && cong_backup.cong_users) {

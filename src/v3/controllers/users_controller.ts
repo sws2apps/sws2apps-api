@@ -785,11 +785,21 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 	const incomingMetadata = cong_backup.metadata;
 	const currentMetadata = { ...cong.metadata, ...user.metadata };
 
+	// remove all metadata when data sync is disabled
+	if (!cong.settings.data_sync.value) {
+		const keys = Object.keys(incomingMetadata);
+		const invalidKeys = keys.filter((key) => key !== 'user_settings' && key !== 'cong_settings');
+
+		for (const key of invalidKeys) {
+			delete incomingMetadata[key];
+		}
+	}
+
 	let isOutdated = false;
 
 	for (const [key, value] of Object.entries(incomingMetadata)) {
 		if (currentMetadata[key] && currentMetadata[key] > value) {
-			console.log({ key, remote: currentMetadata[key], value });
+			console.log(JSON.stringify({ key, remote: currentMetadata[key], value }));
 			isOutdated = true;
 			break;
 		}
