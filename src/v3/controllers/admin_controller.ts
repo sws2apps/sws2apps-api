@@ -632,7 +632,7 @@ export const congregationDataSyncToggle = async (req: Request, res: Response) =>
 
 	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
-		res.locals.message = 'the user request id params is undefined';
+		res.locals.message = 'the congregation request id params is undefined';
 		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
 
 		return;
