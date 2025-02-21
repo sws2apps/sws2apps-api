@@ -796,6 +796,13 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 	}
 
 	if (isOutdated) {
+		if (cong_backup.app_settings?.cong_settings?.data_sync.value) {
+			const settings = structuredClone(cong.settings);
+			settings.data_sync = cong_backup.app_settings.cong_settings.data_sync;
+
+			await cong.saveSettings(settings);
+		}
+
 		res.locals.type = 'info';
 		res.locals.message = `user backup outdated`;
 		res.status(400).json({ message: 'BACKUP_OUTDATED' });
