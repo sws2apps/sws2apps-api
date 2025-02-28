@@ -413,11 +413,11 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 
 		if (incomingCongDate !== localCongDate) {
 			const midweek = cong.settings.midweek_meeting.map((record) => {
-				return { type: record.type, time: record.time, weekday: record.weekday };
+				return { type: record.type, time: record.time, weekday: record.weekday, _deleted: record._deleted };
 			});
 
 			const weekend = cong.settings.weekend_meeting.map((record) => {
-				return { type: record.type, time: record.time, weekday: record.weekday };
+				return { type: record.type, time: record.time, weekday: record.weekday, _deleted: record._deleted };
 			});
 
 			result.app_settings.cong_settings.cong_circuit = cong.settings.cong_circuit;

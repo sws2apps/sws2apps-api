@@ -356,10 +356,11 @@ export const createCongregation = async (data: CongregationCreateInfoType) => {
 		data_sync: { value: false, updatedAt: new Date().toISOString() },
 		time_away_public: { value: false, updatedAt: new Date().toISOString() },
 		cong_location: { ...data.cong_location, updatedAt: new Date().toISOString() },
-		cong_circuit: [{ type: 'main', value: data.cong_circuit, updatedAt: new Date().toISOString() }],
+		cong_circuit: [{ type: 'main', value: data.cong_circuit, updatedAt: new Date().toISOString(), _deleted: false }],
 		midweek_meeting: [
 			{
 				type: 'main',
+				_deleted: { value: false, updatedAt: new Date().toISOString() },
 				time: { value: data.midweek_meeting.time, updatedAt: new Date().toISOString() },
 				weekday: { value: data.midweek_meeting.weekday, updatedAt: new Date().toISOString() },
 				aux_class_counselor_default: '',
@@ -371,6 +372,7 @@ export const createCongregation = async (data: CongregationCreateInfoType) => {
 		weekend_meeting: [
 			{
 				type: 'main',
+				_deleted: { value: false, updatedAt: new Date().toISOString() },
 				time: { value: data.weekend_meeting.time, updatedAt: new Date().toISOString() },
 				weekday: { value: data.weekend_meeting.weekday, updatedAt: new Date().toISOString() },
 				consecutive_monthly_parts_notice_shown: '',

@@ -91,7 +91,7 @@ export class Congregation {
 			attendance_online_record: '',
 			circuit_overseer: '',
 			cong_access_code: '',
-			cong_circuit: [{ type: 'main', value: '', updatedAt: '' }],
+			cong_circuit: [{ type: 'main', value: '', updatedAt: '', _deleted: false }],
 			cong_discoverable: { value: false, updatedAt: '' },
 			cong_location: { lat: undefined, lng: undefined, address: '', updatedAt: '' },
 			cong_master_key: '',
@@ -115,6 +115,7 @@ export class Congregation {
 			midweek_meeting: [
 				{
 					type: 'main',
+					_deleted: { value: false, updatedAt: '' },
 					weekday: { value: undefined, updatedAt: '' },
 					time: { value: '', updatedAt: '' },
 					aux_class_counselor_default: '',
@@ -126,6 +127,7 @@ export class Congregation {
 			weekend_meeting: [
 				{
 					type: 'main',
+					_deleted: { value: false, updatedAt: '' },
 					weekday: { value: undefined, updatedAt: '' },
 					time: { value: '', updatedAt: '' },
 					consecutive_monthly_parts_notice_shown: '',

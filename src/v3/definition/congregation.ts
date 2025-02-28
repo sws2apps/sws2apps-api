@@ -121,7 +121,7 @@ export type CongSettingsType = {
 	cong_access_code: string;
 	cong_location: { address: string; lat: number | undefined; lng: number | undefined; updatedAt: string };
 	cong_new?: boolean;
-	cong_circuit: { type: string; value: string; updatedAt: string }[];
+	cong_circuit: { type: string; value: string; updatedAt: string; _deleted: boolean }[];
 	cong_discoverable: { value: boolean; updatedAt: string };
 	data_sync: { value: boolean; updatedAt: string };
 	fullname_option?: string;
@@ -133,6 +133,7 @@ export type CongSettingsType = {
 	special_months?: string;
 	midweek_meeting: {
 		type: string;
+		_deleted: { value: boolean; updatedAt: string };
 		weekday: { value?: number; updatedAt: string };
 		time: { value: string; updatedAt: string };
 		class_count?: string;
@@ -142,6 +143,7 @@ export type CongSettingsType = {
 	}[];
 	weekend_meeting: {
 		type: string;
+		_deleted: { value: boolean; updatedAt: string };
 		weekday: { value?: number; updatedAt: string };
 		time: { value: string; updatedAt: string };
 		opening_prayer_auto_assigned?: string;
