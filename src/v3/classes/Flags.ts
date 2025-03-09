@@ -31,12 +31,9 @@ class _Flags {
 			installations: [],
 		});
 
-		const flags = structuredClone(this.list);
-		flags.push(flag);
+		this.list.push(flag);
 
-		await setFlags(flags);
-
-		this.list = flags;
+		await this.save();
 	}
 
 	async delete(id: string) {

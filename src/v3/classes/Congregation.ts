@@ -52,7 +52,6 @@ import {
 	setSpeakersCongregations,
 } from '../services/firebase/congregations.js';
 import { CongregationsList } from './Congregations.js';
-import { Flags } from './Flags.js';
 import { User } from './User.js';
 import { UsersList } from './Users.js';
 import { getFileFromStorage, uploadFileToStorage } from '../services/firebase/storage_utils.js';
@@ -669,19 +668,6 @@ export class Congregation {
 		}
 
 		await setCongJoinRequests(this.id, requests);
-
-		// enable access request flag for this congregation (remove when released)
-		const flag = Flags.list.find((record) => record.name === 'REQUEST_ACCESS_CONGREGATION');
-		if (flag) {
-			const hasFlag = this.flags.find((record) => record === flag.id);
-
-			if (!hasFlag) {
-				const flags = structuredClone(this.flags);
-				flags.push(flag.id);
-
-				await this.saveFlags(flags);
-			}
-		}
 
 		this.join_requests = requests;
 	}
