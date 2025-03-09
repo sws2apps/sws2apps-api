@@ -10,7 +10,6 @@ import { StandardRecord } from '../definition/app.js';
 import { BackupData, CongregationUpdatesType, CongSettingsType } from '../definition/congregation.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';
 import { MailClient } from '../config/mail_config.js';
-import { Flags } from '../classes/Flags.js';
 import { congregationJoinRequestsGet } from '../services/api/congregations.js';
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -928,11 +927,7 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 	}
 
 	if (adminRole) {
-		const hasAccessRequest = cong.flags.some((flag) => Flags.findById(flag)?.name === 'REQUEST_ACCESS_CONGREGATION');
-
-		if (hasAccessRequest) {
-			result.join_requests = congregationJoinRequestsGet(cong);
-		}
+		result.join_requests = congregationJoinRequestsGet(cong);
 	}
 
 	res.locals.type = 'info';
