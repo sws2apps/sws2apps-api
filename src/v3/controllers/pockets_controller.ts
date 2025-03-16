@@ -326,6 +326,14 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			result.metadata.persons = localDate;
 		}
 
+		localDate = cong.metadata.field_service_groups;
+		incomingDate = metadata.field_service_groups;
+
+		if (localDate !== incomingDate) {
+			result.field_service_groups = await cong.getFieldServiceGroups();
+			result.metadata.field_service_groups = localDate;
+		}
+
 		const isPublisher = user.profile.congregation!.cong_role.includes('publisher');
 
 		if (isPublisher) {
@@ -351,14 +359,6 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			if (localDate !== incomingDate) {
 				result.delegated_field_service_reports = await user.getDelegatedFieldServiceReports();
 				result.metadata.delegated_field_service_reports = localDate;
-			}
-
-			localDate = cong.metadata.field_service_groups;
-			incomingDate = metadata.field_service_groups;
-
-			if (localDate !== incomingDate) {
-				result.field_service_groups = await cong.getFieldServiceGroups();
-				result.metadata.field_service_groups = localDate;
 			}
 
 			localDate = cong.metadata.cong_field_service_reports;
