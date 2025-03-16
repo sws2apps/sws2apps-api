@@ -1,3 +1,12 @@
+# [3.15.0](https://github.com/sws2apps/sws2apps-api/compare/v3.14.0...v3.15.0) (2025-03-16)
+
+
+### Features
+
+* **controllers:** support new access request workflow ([b0f43ab](https://github.com/sws2apps/sws2apps-api/commit/b0f43ab1f4a285bb040acfcd1ea2545e7e428d58))
+* **deps:** bump firebase-admin from 13.1.0 to 13.2.0 ([12c4a2d](https://github.com/sws2apps/sws2apps-api/commit/12c4a2d3f3367ed479e843668ceb5b0fd8962c5f))
+* **deps:** bump i18next from 24.2.2 to 24.2.3 ([71fe86e](https://github.com/sws2apps/sws2apps-api/commit/71fe86e9ce0e968df18821d2b4f1a9ec16358a12))
+
 # [3.14.0](https://github.com/sws2apps/sws2apps-api/compare/v3.13.0...v3.14.0) (2025-02-21)
 
 
