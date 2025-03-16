@@ -1,3 +1,10 @@
+# [3.16.0](https://github.com/sws2apps/sws2apps-api/compare/v3.15.0...v3.16.0) (2025-03-16)
+
+
+### Features
+
+* **api:** add field service groups to all roles ([82a557a](https://github.com/sws2apps/sws2apps-api/commit/82a557a8b8dde6b43b4ceee1eecd5247ff94b927))
+
 # [3.15.0](https://github.com/sws2apps/sws2apps-api/compare/v3.14.0...v3.15.0) (2025-03-16)
 
 
