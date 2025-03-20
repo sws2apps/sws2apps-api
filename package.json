@@ -68,7 +68,7 @@
 		"@types/compression": "^1.7.5",
 		"@types/cookie-parser": "^1.4.8",
 		"@types/cors": "^2.8.17",
-		"@types/express": "^5.0.0",
+		"@types/express": "^5.0.1",
 		"@types/geoip-lite": "^1.4.4",
 		"@types/node": "^22.13.10",
 		"@types/nodemailer": "^6.4.17",
