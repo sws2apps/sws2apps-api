@@ -177,6 +177,7 @@ export type BackupData = {
 	meeting_attendance: StandardRecord[];
 	sched: StandardRecord[];
 	sources: StandardRecord[];
+	upcoming_events: StandardRecord[];
 	user_bible_studies?: StandardRecord[];
 	user_field_service_reports?: StandardRecord[];
 	delegated_field_service_reports?: StandardRecord[];
