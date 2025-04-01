@@ -33,7 +33,7 @@
 		"cryptr": "^6.3.0",
 		"dayjs": "^1.11.13",
 		"dotenv": "^16.4.7",
-		"express": "^5.0.1",
+		"express": "^5.1.0",
 		"express-rate-limit": "^7.5.0",
 		"express-validator": "^7.2.1",
 		"firebase-admin": "^13.2.0",
