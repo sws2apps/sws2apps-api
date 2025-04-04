@@ -41,7 +41,7 @@
 		"global-jsdom": "^26.0.0",
 		"helmet": "^8.1.0",
 		"i18next": "^24.2.3",
-		"i18next-http-middleware": "^3.7.1",
+		"i18next-http-middleware": "^3.7.2",
 		"is-online": "^11.0.0",
 		"jsdom": "^26.0.0",
 		"node-2fa": "^2.0.3",
