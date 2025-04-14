@@ -22,7 +22,7 @@
 		"npm": ">=10"
 	},
 	"dependencies": {
-		"@crowdin/crowdin-api-client": "^1.41.4",
+		"@crowdin/crowdin-api-client": "^1.42.0",
 		"@logtail/node": "^0.5.2",
 		"bcrypt": "^5.1.1",
 		"compression": "^1.8.0",
@@ -32,7 +32,7 @@
 		"crypto-es": "^2.1.0",
 		"cryptr": "^6.3.0",
 		"dayjs": "^1.11.13",
-		"dotenv": "^16.4.7",
+		"dotenv": "^16.5.0",
 		"express": "^5.1.0",
 		"express-rate-limit": "^7.5.0",
 		"express-validator": "^7.2.1",
@@ -84,6 +84,6 @@
 		"semantic-release": "^24.2.3",
 		"tsx": "^4.19.3",
 		"typescript": "^5.8.3",
-		"typescript-eslint": "^8.29.0"
+		"typescript-eslint": "^8.29.1"
 	}
 }
