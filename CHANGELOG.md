@@ -1,3 +1,21 @@
+# [3.17.0](https://github.com/sws2apps/sws2apps-api/compare/v3.16.0...v3.17.0) (2025-04-16)
+
+
+### Features
+
+* **definition:** add code for backup upcoming events ([42867de](https://github.com/sws2apps/sws2apps-api/commit/42867de2085da9a4724b8852b71627875e8674c7))
+* **deps:** bump @crowdin/crowdin-api-client from 1.41.2 to 1.41.4 ([7f0e575](https://github.com/sws2apps/sws2apps-api/commit/7f0e57526f92c3d751bfe908513b86545fab59a9))
+* **deps:** bump @crowdin/crowdin-api-client from 1.41.4 to 1.42.0 ([ea7f178](https://github.com/sws2apps/sws2apps-api/commit/ea7f178fb04de7d44092ce9aeea75e65e926aafa))
+* **deps:** bump dotenv from 16.4.7 to 16.5.0 ([59fd5a7](https://github.com/sws2apps/sws2apps-api/commit/59fd5a77646651cf45cc587840ccf431ee6a9612))
+* **deps:** bump express from 5.0.1 to 5.1.0 ([a68d5ec](https://github.com/sws2apps/sws2apps-api/commit/a68d5ec896abbddf75df98db324d35407604c6d9))
+* **deps:** bump helmet from 8.0.0 to 8.1.0 ([aff8660](https://github.com/sws2apps/sws2apps-api/commit/aff86602550d82af292073b75c660e9f6779fdcc))
+* **deps:** bump i18next from 24.2.3 to 25.0.0 ([45d1845](https://github.com/sws2apps/sws2apps-api/commit/45d1845b26c59c014a5a5d59d6e7220dce1d6e29))
+* **deps:** bump i18next-http-middleware from 3.7.1 to 3.7.2 ([d02fde5](https://github.com/sws2apps/sws2apps-api/commit/d02fde5099db1387add2f8a0a453925f8465fa75))
+* **deps:** bump jsdom from 26.0.0 to 26.1.0 ([402ac7a](https://github.com/sws2apps/sws2apps-api/commit/402ac7a5719cdf28a56566b63427694e2cd2b14b))
+* **deps:** bump nodemailer from 6.10.0 to 6.10.1 ([7e40de7](https://github.com/sws2apps/sws2apps-api/commit/7e40de7e9f9013d0f2c57348ef1bd128f5a8e9a3))
+* **deps:** bump otpauth from 9.3.6 to 9.4.0 ([e07df58](https://github.com/sws2apps/sws2apps-api/commit/e07df587235522845584e448e47ca7e6a34de4a0))
+* **deps:** bump sanitize-html from 2.14.0 to 2.15.0 ([de82db4](https://github.com/sws2apps/sws2apps-api/commit/de82db484514ca13e0ebd460d07dd3c92fa292ba))
+
 # [3.16.0](https://github.com/sws2apps/sws2apps-api/compare/v3.15.0...v3.16.0) (2025-03-16)
 
 
