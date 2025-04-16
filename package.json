@@ -18,7 +18,7 @@
 	"license": "MIT",
 	"type": "module",
 	"engines": {
-		"node": "20.x",
+		"node": "22.x",
 		"npm": ">=10"
 	},
 	"dependencies": {
