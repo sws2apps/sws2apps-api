@@ -1,3 +1,14 @@
+# [3.18.0](https://github.com/sws2apps/sws2apps-api/compare/v3.17.0...v3.18.0) (2025-04-27)
+
+
+### Features
+
+* **deps:** bump @logtail/node from 0.5.2 to 0.5.4 ([77d7f26](https://github.com/sws2apps/sws2apps-api/commit/77d7f2678cb1a123319a916cb6b8ca6f5244ba31))
+* **deps:** bump firebase-admin from 13.2.0 to 13.3.0 ([dfe042c](https://github.com/sws2apps/sws2apps-api/commit/dfe042c7b3c0492de6778bd6a4d3ff689397fbf3))
+* **deps:** bump i18next from 25.0.0 to 25.0.1 ([7abd44f](https://github.com/sws2apps/sws2apps-api/commit/7abd44fa7c54057792024268eb26066a0e52ab00))
+* **deps:** bump i18next-http-middleware from 3.7.2 to 3.7.4 ([c915aeb](https://github.com/sws2apps/sws2apps-api/commit/c915aeb52ebb3d11d0b5e0eeb22c23d330fd9720))
+* **deps:** bump sanitize-html from 2.15.0 to 2.16.0 ([201f6c0](https://github.com/sws2apps/sws2apps-api/commit/201f6c0369c4a2c7d6879f7db0dfc4066b6c50b8))
+
 # [3.17.0](https://github.com/sws2apps/sws2apps-api/compare/v3.16.0...v3.17.0) (2025-04-16)
 
 
