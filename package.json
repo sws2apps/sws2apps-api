@@ -22,7 +22,7 @@
 		"npm": ">=10"
 	},
 	"dependencies": {
-		"@crowdin/crowdin-api-client": "^1.42.0",
+		"@crowdin/crowdin-api-client": "^1.43.0",
 		"@logtail/node": "^0.5.4",
 		"bcrypt": "^5.1.1",
 		"compression": "^1.8.0",
