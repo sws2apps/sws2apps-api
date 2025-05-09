@@ -67,7 +67,7 @@
 		"@semantic-release/git": "^10.0.1",
 		"@types/compression": "^1.7.5",
 		"@types/cookie-parser": "^1.4.8",
-		"@types/cors": "^2.8.17",
+		"@types/cors": "^2.8.18",
 		"@types/express": "^5.0.1",
 		"@types/geoip-lite": "^1.4.4",
 		"@types/node": "^22.15.14",
