@@ -31,6 +31,7 @@ app.listen(PORT, async () => {
 
 	await UsersList.load();
 	await CongregationsList.load();
+	await CongregationsList.cleanupTasks();
 	await Flags.load();
 	await Installation.load();
 

@@ -1,6 +1,7 @@
 import { CongregationCreateInfoType } from '../definition/congregation.js';
 import { createCongregation, loadAllCongs } from '../services/firebase/congregations.js';
 import { deleteFileFromStorage } from '../services/firebase/storage_utils.js';
+import { logger } from '../services/logger/logger.js';
 import { loadIncomingTalks } from '../utils/congregation_utils.js';
 import { Congregation } from './Congregation.js';
 
@@ -82,6 +83,29 @@ class Congregations {
 		});
 
 		return result;
+	}
+
+	async cleanupTasks() {
+		try {
+			for (const Congregation of this.list) {
+				const { settings } = Congregation;
+
+				if (!settings.group_publishers_sort) {
+					continue;
+				}
+
+				if (typeof settings.group_publishers_sort === 'string') {
+					continue;
+				}
+
+				const newSettings = structuredClone(Congregation.settings);
+				delete newSettings.group_publishers_sort;
+
+				await Congregation.saveSettings(newSettings);
+			}
+		} catch {
+			logger('error', JSON.stringify({ details: `an error occured while removing invalid setting` }));
+		}
 	}
 }
 

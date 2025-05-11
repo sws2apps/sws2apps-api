@@ -112,6 +112,7 @@ export class Congregation {
 			time_away_public: { value: false, updatedAt: '' },
 			week_start_sunday: '',
 			data_sync: { value: false, updatedAt: '' },
+			group_publishers_sort: '',
 			midweek_meeting: [
 				{
 					type: 'main',
