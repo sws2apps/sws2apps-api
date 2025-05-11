@@ -123,7 +123,9 @@ class Users {
 					return !last_seen || new Date(last_seen) > validMonth;
 				});
 
-				await User.updateSessions(validSessions);
+				if (validSessions.length !== sessions.length) {
+					await User.updateSessions(validSessions);
+				}
 			}
 
 			logger('error', JSON.stringify({ details: `outdated sessions cleanup completed.` }));
