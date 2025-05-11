@@ -4,6 +4,7 @@ import { CongregationsList } from './Congregations.js';
 import { createPocketUser, createUser, deleteAuthUser, loadAllUsers } from '../services/firebase/users.js';
 import { deleteFileFromStorage } from '../services/firebase/storage_utils.js';
 import { getAuth } from 'firebase-admin/auth';
+import { logger } from '../services/logger/logger.js';
 
 class Users {
 	list: User[];
@@ -104,6 +105,30 @@ class Users {
 			if (cong) {
 				cong.reloadMembers();
 			}
+		}
+	}
+
+	async removeOutdatedSessions() {
+		logger('info', JSON.stringify({ details: `cleaning outdated user sessions ...` }));
+
+		try {
+			const validMonth = new Date();
+			validMonth.setMonth(validMonth.getMonth() - 6);
+
+			for (const User of this.list) {
+				const sessions = User.sessions;
+
+				const validSessions = sessions.filter((record) => {
+					const { last_seen } = record;
+					return !last_seen || new Date(last_seen) > validMonth;
+				});
+
+				await User.updateSessions(validSessions);
+			}
+
+			logger('error', JSON.stringify({ details: `outdated sessions cleanup completed.` }));
+		} catch {
+			logger('error', JSON.stringify({ details: `an error occured while removing outdated session` }));
 		}
 	}
 }
