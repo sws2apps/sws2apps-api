@@ -1,3 +1,21 @@
+# [3.19.0](https://github.com/sws2apps/sws2apps-api/compare/v3.18.0...v3.19.0) (2025-05-11)
+
+
+### Bug Fixes
+
+* **classes:** update merge logic of congregation settings ([f9b9468](https://github.com/sws2apps/sws2apps-api/commit/f9b9468bd330806a99917743519552ffab44501e))
+
+
+### Features
+
+* **classes:** remove outdated user sessions on restart ([8a22cdc](https://github.com/sws2apps/sws2apps-api/commit/8a22cdccf1cefafacf424d060144a2255c7c984d))
+* **deps:** bump @crowdin/crowdin-api-client from 1.42.0 to 1.43.0 ([f59ce23](https://github.com/sws2apps/sws2apps-api/commit/f59ce2316feebda054fd7d413a43dc58194acb50))
+* **deps:** bump i18next from 25.0.1 to 25.0.2 ([0481138](https://github.com/sws2apps/sws2apps-api/commit/048113824fd359a7c8771c97240a9d716ec40e80))
+* **deps:** bump i18next from 25.0.2 to 25.1.1 ([6b156d5](https://github.com/sws2apps/sws2apps-api/commit/6b156d5d0ba4a386dca91e52a17b743527fa0de1))
+* **deps:** bump i18next from 25.1.1 to 25.1.2 ([51add91](https://github.com/sws2apps/sws2apps-api/commit/51add9153093aa182c49864bc91be2fac6328908))
+* **deps:** bump nodemailer from 6.10.1 to 7.0.2 ([53469da](https://github.com/sws2apps/sws2apps-api/commit/53469da68130b43cb66be2cc72ce6af96562f132))
+* **deps:** bump nodemailer from 7.0.2 to 7.0.3 ([dc30885](https://github.com/sws2apps/sws2apps-api/commit/dc3088507739f53117c3949cff201bf2693366ec))
+
 # [3.18.0](https://github.com/sws2apps/sws2apps-api/compare/v3.17.0...v3.18.0) (2025-04-27)
 
 
