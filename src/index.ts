@@ -34,6 +34,9 @@ app.listen(PORT, async () => {
 	await Flags.load();
 	await Installation.load();
 
+	// non-blocking calls
+	UsersList.removeOutdatedSessions();
+
 	logger('info', JSON.stringify({ details: `loading completed.` }));
 	API_VAR.IS_SERVER_READY = true;
 });
