@@ -798,7 +798,6 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 
 	for (const [key, value] of Object.entries(incomingMetadata)) {
 		if (currentMetadata[key] && currentMetadata[key] > value) {
-			console.log(JSON.stringify({ key, remote: currentMetadata[key], value }));
 			isOutdated = true;
 			break;
 		}

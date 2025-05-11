@@ -55,6 +55,7 @@ import { CongregationsList } from './Congregations.js';
 import { User } from './User.js';
 import { UsersList } from './Users.js';
 import { getFileFromStorage, uploadFileToStorage } from '../services/firebase/storage_utils.js';
+import { syncFromIncoming } from '../utils/congregation_utils.js';
 
 export class Congregation {
 	id: string;
@@ -282,7 +283,11 @@ export class Congregation {
 			cong_backup.app_settings.cong_settings.cong_access_code = accessCode;
 			cong_backup.app_settings.cong_settings.cong_master_key = masterKey;
 
-			await this.saveSettings(cong_backup.app_settings.cong_settings);
+			const newSettings = structuredClone(this.settings);
+
+			syncFromIncoming(newSettings, cong_backup.app_settings.cong_settings);
+
+			await this.saveSettings(newSettings);
 		}
 
 		if (this.settings.data_sync.value) {
