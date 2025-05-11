@@ -1,3 +1,15 @@
+# [3.20.0](https://github.com/sws2apps/sws2apps-api/compare/v3.19.0...v3.20.0) (2025-05-11)
+
+
+### Bug Fixes
+
+* **classes:** remove invalid data type in congregation settings ([d610cf2](https://github.com/sws2apps/sws2apps-api/commit/d610cf2cb3f78b0d6845e0eac02b5bb9b6c7a955))
+
+
+### Features
+
+* **classes:** only update valid sessions if changed ([12db335](https://github.com/sws2apps/sws2apps-api/commit/12db3358d6c5253e22bf1be55a4c2a010b972b8c))
+
 # [3.19.0](https://github.com/sws2apps/sws2apps-api/compare/v3.18.0...v3.19.0) (2025-05-11)
 
 
