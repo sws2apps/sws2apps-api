@@ -1,3 +1,15 @@
+# [3.21.0](https://github.com/sws2apps/sws2apps-api/compare/v3.20.0...v3.21.0) (2025-05-12)
+
+
+### Bug Fixes
+
+* **utils:** some congregation settings not saved ([38b64bc](https://github.com/sws2apps/sws2apps-api/commit/38b64bca8df00c0c3f84a5d5099f1b1ac1e4eed3))
+
+
+### Features
+
+* **deps:** bump bcrypt from 5.1.1 to 6.0.0 ([981a4be](https://github.com/sws2apps/sws2apps-api/commit/981a4be9754a2b96a67c09710e3ba2e48fbdd420))
+
 # [3.20.0](https://github.com/sws2apps/sws2apps-api/compare/v3.19.0...v3.20.0) (2025-05-11)
 
 
