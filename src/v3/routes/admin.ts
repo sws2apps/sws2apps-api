@@ -1,4 +1,5 @@
 import express from 'express';
+import { body } from 'express-validator';
 
 import { visitorChecker } from '../middleware/visitor_checker.js';
 import { adminAuthChecker } from '../middleware/admin_auth_checker.js';
@@ -7,6 +8,7 @@ import {
 	congregationDataSyncToggle,
 	congregationFlagToggle,
 	congregationPersonsGet,
+	createCongregation,
 	deleteCongregation,
 	flagDelete,
 	flagsCreate,
@@ -24,7 +26,6 @@ import {
 	userUpdate,
 	validateAdmin,
 } from '../controllers/admin_controller.js';
-import { body } from 'express-validator';
 
 const router = express.Router();
 
@@ -37,6 +38,15 @@ router.get('/', validateAdmin);
 
 // logout admin
 router.get('/logout', logoutAdmin);
+
+// create new congregation
+router.post(
+	'/congregations',
+	body('country').isString(),
+	body('name').notEmpty().isString().notEmpty(),
+	body('number').isNumeric().notEmpty(),
+	createCongregation
+);
 
 // get all congregations
 router.get('/congregations', getAllCongregations);

@@ -658,3 +658,49 @@ export const congregationDataSyncToggle = async (req: Request, res: Response) =>
 	res.locals.message = `admin updated congregation data sync`;
 	res.status(200).json(result);
 };
+
+export const createCongregation = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({ message: 'error_api_bad-request' });
+
+		return;
+	}
+
+	const { country, name, number } = req.body as Record<string, string>;
+
+	const cong = CongregationsList.findByCountryAndNumber(country, number);
+
+	if (cong) {
+		res.locals.type = 'warn';
+		res.locals.message = 'custom congregation already exists';
+		res.status(400).json({ message: 'CONG_EXISTS' });
+		return;
+	}
+
+	const id = await CongregationsList.create({
+		cong_circuit: '',
+		cong_location: {
+			address: '',
+			lat: 0,
+			lng: 0,
+		},
+		cong_name: name,
+		cong_number: number.toString(),
+		country_code: country,
+		midweek_meeting: { time: '18:30', weekday: 3 },
+		weekend_meeting: { time: '10:00', weekday: 7 },
+	});
+
+	const result = await adminCongregationsGet();
+
+	res.locals.type = 'info';
+	res.locals.message = `admin created a custom congregation: ${id}`;
+	res.status(200).json(result);
+};
