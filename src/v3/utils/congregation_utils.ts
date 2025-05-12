@@ -49,5 +49,15 @@ export const syncFromIncoming = <T extends object>(local: T, remote: T): T => {
 		}
 	}
 
+	const primitiveKeys = Object.keys(remote).filter((key) => {
+		const objKey = key as keyof object;
+
+		return typeof remote[objKey] !== 'object';
+	}) as (keyof object)[];
+
+	for (const key of primitiveKeys) {
+		local[key] = remote[key];
+	}
+
 	return local;
 };
