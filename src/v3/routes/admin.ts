@@ -17,6 +17,7 @@ import {
 	flagUpdate,
 	getAllCongregations,
 	logoutAdmin,
+	userAssignCongregation,
 	userDelete,
 	userDisable2FA,
 	userFlagToggle,
@@ -90,6 +91,9 @@ router.delete('/users/:id/sessions', body('identifiers').isArray(), userSessionD
 
 // delete an user
 router.delete('/users/:id', userDelete);
+
+// assign user to congregation
+router.patch('/users/:id/congregation', body('congregation').isString().notEmpty(), userAssignCongregation);
 
 // get all feature flags
 router.get('/flags', flagsGet);

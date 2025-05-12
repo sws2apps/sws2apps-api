@@ -704,3 +704,68 @@ export const createCongregation = async (req: Request, res: Response) => {
 	res.locals.message = `admin created a custom congregation: ${id}`;
 	res.status(200).json(result);
 };
+
+export const userAssignCongregation = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({
+			message: 'error_api_bad-request',
+		});
+
+		return;
+	}
+
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the user request id params is undefined';
+		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+
+		return;
+	}
+
+	const user = UsersList.findById(id);
+
+	if (!user) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no user could not found with the provided id';
+		res.status(404).json({ message: 'USER_NOT_FOUND' });
+
+		return;
+	}
+
+	const congregation = req.body.congregation as string;
+	const cong = CongregationsList.findById(congregation);
+
+	if (!cong) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no congregation could not found with the provided id';
+		res.status(404).json({ message: 'CONG_NOT_FOUND' });
+
+		return;
+	}
+
+	const isValid = cong.hasMember(user.id);
+
+	if (isValid) {
+		res.locals.type = 'warn';
+		res.locals.message = 'user already member of the congregation';
+		res.status(400).json({ message: 'USER_MEMBER_ALREADY' });
+		return;
+	}
+
+	await user.assignCongregation({ congId: congregation, role: ['admin'] });
+
+	const result = await adminUsersGet(req.signedCookies.visitorid);
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin assigned an user to a congregation';
+	res.status(200).json(result);
+};
