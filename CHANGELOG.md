@@ -1,3 +1,12 @@
+# [3.22.0](https://github.com/sws2apps/sws2apps-api/compare/v3.21.0...v3.22.0) (2025-05-13)
+
+
+### Features
+
+* **controllers:** enable adding users to custom congregation ([52c2ee5](https://github.com/sws2apps/sws2apps-api/commit/52c2ee55207b7431dc4b29aff721830c54815daa))
+* **controllers:** enable creating custom congregation ([d0760cf](https://github.com/sws2apps/sws2apps-api/commit/d0760cf30c3a3563e50100a6aa47f345cb8cd009))
+* **deps:** bump firebase-admin from 13.3.0 to 13.4.0 ([4b892c3](https://github.com/sws2apps/sws2apps-api/commit/4b892c352a3bd5c10a46e41b5573b73c36a3b082))
+
 # [3.21.0](https://github.com/sws2apps/sws2apps-api/compare/v3.20.0...v3.21.0) (2025-05-12)
 
 
