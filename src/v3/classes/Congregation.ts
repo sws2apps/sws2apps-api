@@ -304,16 +304,16 @@ export class Congregation {
 				await this.saveVisitingSpeakers(cong_backup.visiting_speakers);
 			}
 
-			if (publicTalkEditor && cong_backup.visiting_speakers) {
-				await this.saveBranchFieldServiceReports(cong_backup.branch_field_service_reports);
-			}
-
 			if (publicTalkEditor && cong_backup.speakers_key) {
 				await this.saveSpeakersKey(cong_backup.speakers_key);
 			}
 
 			if (adminRole && cong_backup.branch_cong_analysis) {
 				await this.saveBranchCongAnalysis(cong_backup.branch_cong_analysis);
+			}
+
+			if (adminRole && cong_backup.branch_field_service_reports) {
+				await this.saveBranchFieldServiceReports(cong_backup.branch_field_service_reports);
 			}
 
 			if (serviceCommiteeRole && cong_backup.field_service_groups) {
