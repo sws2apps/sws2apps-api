@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { UsersList } from '../classes/Users.js';
 import { CongregationsList } from '../classes/Congregations.js';
-import { adminCongregationsGet } from '../services/api/congregations.js';
+import { adminCongregationGet, adminCongregationsGet } from '../services/api/congregations.js';
 import { adminUsersGet } from '../services/api/users.js';
 import { validationResult } from 'express-validator';
 import { formatError } from '../utils/format_log.js';
@@ -9,6 +9,7 @@ import { AppRoleType } from '../definition/app.js';
 import { Flags } from '../classes/Flags.js';
 import { FeatureFlag } from '../definition/flag.js';
 import { adminFlagsGet } from '../services/api/flags.js';
+import { setCongOutgoingSpeakers } from '../services/firebase/congregations.js';
 
 export const validateAdmin = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
@@ -74,7 +75,7 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 	res.status(200).json(result);
 };
 
-export const congregationPersonsGet = async (req: Request, res: Response) => {
+export const congregationGet = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -95,26 +96,11 @@ export const congregationPersonsGet = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong_members = cong.getMembers(req.signedCookies.visitorid);
-
-	const cong_persons = cong_members.map((person) => {
-		const user = UsersList.findById(person.id);
-
-		return {
-			id: person.id,
-			sessions: person.sessions,
-			profile: {
-				...person.profile,
-				email: user?.email,
-				mfa_enabled: user?.profile.mfa_enabled,
-				congregation: { id: cong.id, cong_role: person.profile.cong_role || [] },
-			},
-		};
-	});
+	const result = adminCongregationGet(id);
 
 	res.locals.type = 'info';
-	res.locals.message = 'admin fetched all congregation persons';
-	res.status(200).json(cong_persons);
+	res.locals.message = 'admin fetched a congergation';
+	res.status(200).json(result);
 };
 
 export const usersGetAll = async (req: Request, res: Response) => {
@@ -652,7 +638,7 @@ export const congregationDataSyncToggle = async (req: Request, res: Response) =>
 
 	await cong.saveSettings(settings);
 
-	const result = await adminCongregationsGet();
+	const result = adminCongregationGet(id);
 
 	res.locals.type = 'info';
 	res.locals.message = `admin updated congregation data sync`;
@@ -767,5 +753,83 @@ export const userAssignCongregation = async (req: Request, res: Response) => {
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin assigned an user to a congregation';
+	res.status(200).json(result);
+};
+
+export const congregationDeleteRequest = async (req: Request, res: Response) => {
+	const { id, request } = req.params;
+
+	if (!id || id === 'undefined' || !request || request === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation or request id params are undefined';
+		res.status(400).json({ message: 'CONG_REQUEST_ID_INVALID' });
+
+		return;
+	}
+
+	const cong = CongregationsList.findById(id);
+
+	if (!cong) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no congregation could not be found with the provided id';
+		res.status(404).json({ message: 'CONG_NOT_FOUND' });
+		return;
+	}
+
+	cong.outgoing_speakers.access = cong.outgoing_speakers.access.filter((record) => record.request_id !== request);
+
+	const data = JSON.stringify({
+		list: cong.outgoing_speakers.list,
+		access: cong.outgoing_speakers.access,
+	});
+
+	await setCongOutgoingSpeakers(id, data);
+
+	const result = adminCongregationGet(id);
+
+	res.locals.type = 'info';
+	res.locals.message = `admin deleted congregation access request`;
+	res.status(200).json(result);
+};
+
+export const congregationResetSpeakersKey = async (req: Request, res: Response) => {
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation or request id params are undefined';
+		res.status(400).json({ message: 'CONG_ID_INVALID' });
+
+		return;
+	}
+
+	const cong = CongregationsList.findById(id);
+
+	if (!cong) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no congregation could not be found with the provided id';
+		res.status(404).json({ message: 'CONG_NOT_FOUND' });
+		return;
+	}
+
+	cong.outgoing_speakers = {
+		access: [],
+		list: [],
+		speakers_key: '',
+	};
+
+	await cong.saveSpeakersKey('');
+
+	const data = JSON.stringify({
+		list: cong.outgoing_speakers.list,
+		access: cong.outgoing_speakers.access,
+	});
+
+	await setCongOutgoingSpeakers(id, data);
+
+	const result = adminCongregationGet(id);
+
+	res.locals.type = 'info';
+	res.locals.message = `admin reset the congregation speakers key`;
 	res.status(200).json(result);
 };
