@@ -1,3 +1,17 @@
+# [3.23.0](https://github.com/sws2apps/sws2apps-api/compare/v3.22.0...v3.23.0) (2025-05-18)
+
+
+### Bug Fixes
+
+* **classes:** update validation check to save backup data ([f951408](https://github.com/sws2apps/sws2apps-api/commit/f951408b23fd452bc1d1ce9992824306f484a50b))
+
+
+### Features
+
+* **admin:** create route for resetting speakers key ([f95ddbc](https://github.com/sws2apps/sws2apps-api/commit/f95ddbcd485dc4f942f830440ff9e69b70413666))
+* **deps:** bump i18next from 25.1.2 to 25.1.3 ([277842d](https://github.com/sws2apps/sws2apps-api/commit/277842d3e3441479000953f005af92d2194e9ec0))
+* **deps:** bump sanitize-html from 2.16.0 to 2.17.0 ([cf98f49](https://github.com/sws2apps/sws2apps-api/commit/cf98f4984a9b4de33c09f6063d4384cc391dcc21))
+
 # [3.22.0](https://github.com/sws2apps/sws2apps-api/compare/v3.21.0...v3.22.0) (2025-05-13)
 
 
