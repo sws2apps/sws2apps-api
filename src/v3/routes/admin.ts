@@ -6,8 +6,10 @@ import { adminAuthChecker } from '../middleware/admin_auth_checker.js';
 
 import {
 	congregationDataSyncToggle,
+	congregationDeleteRequest,
 	congregationFlagToggle,
-	congregationPersonsGet,
+	congregationGet,
+	congregationResetSpeakersKey,
 	createCongregation,
 	deleteCongregation,
 	flagDelete,
@@ -53,13 +55,19 @@ router.post(
 router.get('/congregations', getAllCongregations);
 
 // get congregation persons
-router.get('/congregations/:id/persons', congregationPersonsGet);
+router.get('/congregations/:id', congregationGet);
 
 // toggle congregation feature flag
 router.patch('/congregations/:id/feature-flags', body('flagid').isString(), congregationFlagToggle);
 
 // toggle data sync
 router.patch('/congregations/:id/data-sync', congregationDataSyncToggle);
+
+// reset speakers key
+router.delete('/congregations/:id/speakers-key', congregationResetSpeakersKey);
+
+// delete congregation access request
+router.delete('/congregations/:id/requests/:request', congregationDeleteRequest);
 
 // delete congregation
 router.delete('/congregations/:id', deleteCongregation);
