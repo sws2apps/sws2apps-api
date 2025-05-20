@@ -6,6 +6,7 @@ import { ApiCongregationSearchResponse } from '../definition/congregation.js';
 import { formatError } from '../utils/format_log.js';
 import { StandardRecord } from '../definition/app.js';
 import { MailClient } from '../config/mail_config.js';
+import { ALL_LANGUAGES } from '../constant/langList';
 
 const MAIL_ENABLED = process.env.MAIL_ENABLED === 'true';
 
