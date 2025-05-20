@@ -1,3 +1,18 @@
+# [3.24.0](https://github.com/sws2apps/sws2apps-api/compare/v3.23.0...v3.24.0) (2025-05-20)
+
+
+### Bug Fixes
+
+* **api:** get correct locale for email message ([ac583e8](https://github.com/sws2apps/sws2apps-api/commit/ac583e83a79e863434d52f62c375ea04491ab9e3))
+* **constant:** update locale key from email localization ([ff1a939](https://github.com/sws2apps/sws2apps-api/commit/ff1a9398d02d0c2fd8565e367d9428fc07484cc6))
+* **controllers:** add missing import for languages ([c2ee956](https://github.com/sws2apps/sws2apps-api/commit/c2ee956c7fb002fe97211f5c3411fe2b7bcab6d4))
+
+
+### Features
+
+* **deps:** bump @logtail/node from 0.5.4 to 0.5.5 ([1c5bf2c](https://github.com/sws2apps/sws2apps-api/commit/1c5bf2ca40a46eeddd9c3756d32346a13cab5d3c))
+* **deps:** bump i18next from 25.1.3 to 25.2.0 ([d3ac2ed](https://github.com/sws2apps/sws2apps-api/commit/d3ac2edc67780d85aa89cffb818585ba051a187a))
+
 # [3.23.0](https://github.com/sws2apps/sws2apps-api/compare/v3.22.0...v3.23.0) (2025-05-18)
 
 
