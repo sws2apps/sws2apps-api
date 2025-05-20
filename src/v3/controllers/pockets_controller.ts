@@ -293,6 +293,8 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 		localDate = cong.metadata.persons;
 		incomingDate = metadata.persons;
 
+		const isPublisher = user.profile.congregation!.cong_role.includes('publisher');
+
 		if (localDate !== incomingDate) {
 			const persons = await cong.getPersons();
 
@@ -310,8 +312,9 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 						person_display_name: personData.person_display_name,
 						male: personData.male,
 						female: personData.female,
-						publisher_unbaptized: miniPersons.includes(String(record.person_uid)) ? personData.publisher_unbaptized : undefined,
-						publisher_baptized: miniPersons.includes(String(record.person_uid)) ? personData.publisher_baptized : undefined,
+						categories: personData.categories,
+						publisher_unbaptized: isPublisher ? personData.publisher_unbaptized : undefined,
+						publisher_baptized: isPublisher ? personData.publisher_baptized : undefined,
 						emergency_contacts: miniPersons.includes(String(record.person_uid)) ? personData.emergency_contacts : undefined,
 						assignments: miniPersons.includes(String(record.person_uid)) ? personData.assignments : undefined,
 						privileges: miniPersons.includes(String(record.person_uid)) ? personData.privileges : undefined,
@@ -333,8 +336,6 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			result.field_service_groups = await cong.getFieldServiceGroups();
 			result.metadata.field_service_groups = localDate;
 		}
-
-		const isPublisher = user.profile.congregation!.cong_role.includes('publisher');
 
 		if (isPublisher) {
 			localDate = user.metadata.user_bible_studies;
