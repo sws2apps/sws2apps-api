@@ -1006,7 +1006,7 @@ export const acceptJoinRequest = async (req: Request, res: Response) => {
 	const userEmail = user.email;
 
 	if (MAIL_ENABLED && user.email) {
-		const language = (req.headers?.applanguage as string) || 'en';
+		const language = (req.headers?.applanguage as string) || 'eng';
 		req.i18n.changeLanguage(language);
 
 		const congregation = `${cong.settings.cong_name} (${cong.settings.cong_number})`;

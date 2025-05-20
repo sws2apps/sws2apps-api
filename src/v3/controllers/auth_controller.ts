@@ -162,7 +162,7 @@ export const createSignInLink = async (req: Request, res: Response) => {
 	}
 
 	const { email } = req.body;
-	const language = (req.headers?.applanguage as string) || 'en';
+	const language = (req.headers?.applanguage as string) || 'eng';
 
 	const link = await UsersList.generatePasswordLessLink({ email, origin: req.headers.origin! });
 

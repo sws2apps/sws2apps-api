@@ -120,8 +120,11 @@ export const createCongregation = async (req: Request, res: Response) => {
 	}
 
 	// is congregation authentic
-	const language = (req.headers.language as string) || 'en';
-	const url = process.env.APP_CONGREGATION_API! + new URLSearchParams({ country: country_code, language, name: cong_number });
+	const language = (req.headers.language as string) || 'eng';
+	const code = ALL_LANGUAGES.find((record) => record.threeLettersCode === language)?.code ?? 'E';
+
+	const url =
+		process.env.APP_CONGREGATION_API! + new URLSearchParams({ country: country_code, language: code, name: cong_number });
 
 	const response = await fetch(url);
 	if (response.status !== 200) {

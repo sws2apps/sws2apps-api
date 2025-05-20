@@ -1,10 +1,10 @@
 export const ALL_LANGUAGES = [
-	{ locale: 'deu', name: 'Deutsch', code: 'X' },
-	{ locale: 'eng', name: 'English', code: 'E' },
-	{ locale: 'mlg', name: 'Malagasy', code: 'MG' },
-	{ locale: 'pol', name: 'Polski', code: 'P' },
-	{ locale: 'por', name: 'Português (Brasil)', code: 'T' },
-	{ locale: 'rus', name: 'русский', code: 'U' },
-	{ locale: 'ttm', name: 'Tenin’ny Tanana Malagasy', code: 'TTM' },
-	{ locale: 'ukr', name: 'Українська', code: 'K' },
+	{ locale: 'de-DE', threeLettersCode: 'deu', name: 'Deutsch', code: 'X' },
+	{ locale: 'en', threeLettersCode: 'eng', name: 'English', code: 'E' },
+	{ locale: 'mg-MG', threeLettersCode: 'mlg', name: 'Malagasy', code: 'MG' },
+	{ locale: 'pl-PL', threeLettersCode: 'pol', name: 'Polski', code: 'P' },
+	{ locale: 'pt-POR', threeLettersCode: 'por', name: 'Português (Brasil)', code: 'T' },
+	{ locale: 'ru-RU', threeLettersCode: 'rus', name: 'русский', code: 'U' },
+	{ locale: 'mg-TTM', threeLettersCode: 'ttm', name: 'Tenin’ny Tanana Malagasy', code: 'TTM' },
+	{ locale: 'uk-UA', threeLettersCode: 'ukr', name: 'Українська', code: 'K' },
 ];
