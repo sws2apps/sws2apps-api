@@ -1,3 +1,10 @@
+## [3.24.1](https://github.com/sws2apps/sws2apps-api/compare/v3.24.0...v3.24.1) (2025-05-20)
+
+
+### Bug Fixes
+
+* **locales:** update default language code for i18n ([1a86d80](https://github.com/sws2apps/sws2apps-api/commit/1a86d80252fc3214bda9e4c6809de238220d93bd))
+
 # [3.24.0](https://github.com/sws2apps/sws2apps-api/compare/v3.23.0...v3.24.0) (2025-05-20)
 
 
