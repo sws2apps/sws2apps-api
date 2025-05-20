@@ -91,9 +91,9 @@ app.use(serverReadyChecker());
 app.use(rateLimit({ windowMs: 1000, max: 20, message: JSON.stringify({ message: 'TOO_MANY_REQUESTS' }) }));
 
 i18next.init({
-	preload: ['en'],
-	lng: 'en',
-	fallbackLng: 'en',
+	preload: ['eng'],
+	lng: 'eng',
+	fallbackLng: 'eng',
 	resources: resources,
 });
 
