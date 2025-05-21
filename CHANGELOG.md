@@ -1,3 +1,10 @@
+# [3.25.0](https://github.com/sws2apps/sws2apps-api/compare/v3.24.1...v3.25.0) (2025-05-21)
+
+
+### Features
+
+* **controllers:** update backup data for language groups requirement ([0369d7d](https://github.com/sws2apps/sws2apps-api/commit/0369d7d78df279b1a5f3835ea92aefade60ec957))
+
 ## [3.24.1](https://github.com/sws2apps/sws2apps-api/compare/v3.24.0...v3.24.1) (2025-05-20)
 
 
