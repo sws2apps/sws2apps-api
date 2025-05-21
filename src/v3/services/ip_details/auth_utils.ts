@@ -31,35 +31,42 @@ export const retrieveVisitorDetails = async (visitorIP: string, req: Request) =>
 	try {
 		const resultAPI = {} as Record<string, string | string[]>;
 
-		let currentIndex = 0;
-		for await (const api of APIs) {
-			try {
-				const host = api.host.replace('${visitorIP}', visitorIP);
+		if (visitorIP === '::1') {
+			resultAPI['continent_code'] = 'LCL';
+			resultAPI['country_name'] = 'Local Dev';
+			resultAPI['country_code'] = 'LCL';
+			resultAPI['city'] = 'Local Dev';
+		} else {
+			let currentIndex = 0;
+			for await (const api of APIs) {
+				try {
+					const host = api.host.replace('${visitorIP}', visitorIP);
 
-				const res = await fetch(host);
+					const res = await fetch(host);
 
-				if (res.status !== 200 && currentIndex === APIs.length - 1) {
-					throw new Error('THIRDY_PARTY_ERROR_IP_DETAILS');
-				}
-
-				if (res.status === 200) {
-					const dataIP = (await res.json()) as Record<string, string | string[]>;
-
-					for (const [key, value] of Object.entries(api.map)) {
-						resultAPI[value] = dataIP[key];
+					if (res.status !== 200 && currentIndex === APIs.length - 1) {
+						throw new Error('THIRDY_PARTY_ERROR_IP_DETAILS');
 					}
 
-					break;
-				}
-				currentIndex++;
-			} catch {
-				if (currentIndex === APIs.length - 1) {
-					throw new Error('THIRDY_PARTY_ERROR_IP_DETAILS');
-				}
+					if (res.status === 200) {
+						const dataIP = (await res.json()) as Record<string, string | string[]>;
 
-				currentIndex++;
+						for (const [key, value] of Object.entries(api.map)) {
+							resultAPI[value] = dataIP[key];
+						}
 
-				continue;
+						break;
+					}
+					currentIndex++;
+				} catch {
+					if (currentIndex === APIs.length - 1) {
+						throw new Error('THIRDY_PARTY_ERROR_IP_DETAILS');
+					}
+
+					currentIndex++;
+
+					continue;
+				}
 			}
 		}
 
