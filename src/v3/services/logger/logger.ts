@@ -1,9 +1,10 @@
 import { Logtail } from '@logtail/node';
 
 const sourceToken = process.env.LOGTAIL_SOURCE_TOKEN;
+const ingestingHost = process.env.LOGTAIL_INGESTING_HOST ?? 'https://in.logs.betterstack.com';
 
 export const logger = (level: string, message: string) => {
-	const logtail = sourceToken ? new Logtail(sourceToken) : undefined;
+	const logtail = sourceToken ? new Logtail(sourceToken, { endpoint: ingestingHost }) : undefined;
 
 	if (level === 'info') {
 		console.log(message);
