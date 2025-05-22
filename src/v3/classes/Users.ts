@@ -128,7 +128,7 @@ class Users {
 				}
 			}
 
-			logger('error', JSON.stringify({ details: `outdated sessions cleanup completed.` }));
+			logger('info', JSON.stringify({ details: `outdated sessions cleanup completed.` }));
 		} catch {
 			logger('error', JSON.stringify({ details: `an error occured while removing outdated session` }));
 		}
