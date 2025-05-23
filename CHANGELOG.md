@@ -1,3 +1,18 @@
+## [3.25.1](https://github.com/sws2apps/sws2apps-api/compare/v3.25.0...v3.25.1) (2025-05-23)
+
+
+### Bug Fixes
+
+* **controllers:** allow decline join request to remove outdated records ([fb54851](https://github.com/sws2apps/sws2apps-api/commit/fb548510bae3fcedda133ad3fa6e13aae5e37e19))
+* **controllers:** update congregation delete user to use remove congregation action ([8f3b5d2](https://github.com/sws2apps/sws2apps-api/commit/8f3b5d2182acdd488d83a20cf73e082ee98001a5))
+* **deps:** add logtail ingesting host ([b2c4766](https://github.com/sws2apps/sws2apps-api/commit/b2c4766124676400631b298d38bf0dab75f178a1))
+
+
+### Performance Improvements
+
+* **controller:** log user outdated metadata ([f34ee5b](https://github.com/sws2apps/sws2apps-api/commit/f34ee5b9ab68166c7c0650e7a31e620b2d5cc405))
+* **services:** handle local ip address ([c8ac6e0](https://github.com/sws2apps/sws2apps-api/commit/c8ac6e0a9cd0b4a0659b0f2b8548c2276000c81f))
+
 # [3.25.0](https://github.com/sws2apps/sws2apps-api/compare/v3.24.1...v3.25.0) (2025-05-21)
 
 
