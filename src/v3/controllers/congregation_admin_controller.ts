@@ -912,15 +912,6 @@ export const deleteJoinRequest = async (req: Request, res: Response) => {
 
 	const userId = req.headers.user as string;
 
-	const user = UsersList.findById(userId);
-
-	if (!user) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no user record found with the provided id';
-		res.status(404).json({ message: 'error_app_join-requests-user-not-found' });
-		return;
-	}
-
 	await cong.declineJoinRequest(userId);
 
 	const result = congregationJoinRequestsGet(cong);
