@@ -726,7 +726,7 @@ export const congregationDeleteUser = async (req: Request, res: Response) => {
 		return;
 	}
 
-	await UsersList.delete(user);
+	await foundUser.removeCongregation();
 
 	const cong_members = cong.getMembers(req.signedCookies.visitorid);
 
