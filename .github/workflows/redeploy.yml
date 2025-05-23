@@ -18,6 +18,7 @@ jobs:
       - name: Install Koyeb CLI
         run: |
           curl -fsSL https://raw.githubusercontent.com/koyeb/koyeb-cli/master/install.sh | sh
+          export PATH="/home/runner/.koyeb/bin:$PATH"
 
       - name: Deploy API to Koeyb
         env:
