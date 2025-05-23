@@ -15,19 +15,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install Heroku CLI
+      - name: Install Koyeb CLI
         run: |
-          curl https://cli-assets.heroku.com/install.sh | sh
+          curl -fsSL https://raw.githubusercontent.com/koyeb/koyeb-cli/master/install.sh | sh
 
-      - name: Checkout for release preparation
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          ref: main
-          persist-credentials: false
-
-      - name: Deploy API to Heroku
-        uses: akhileshns/heroku-deploy@e3eb99d45a8e2ec5dca08735e089607befa4bf28
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: sws2apps
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
+      - name: Deploy API to Koeyb
+        env:
+          KOEYB_SERVICE_NAME: ${{ secrets.KOEYB_SERVICE_NAME }}
+          KOEYB_API_TOKEN: ${{ secrets.KOEYB_API_TOKEN }}
+        run: |
+          koyeb login --token $KOEYB_API_TOKEN
+          koyeb service redeploy $KOEYB_SERVICE_NAME
