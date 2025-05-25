@@ -1,3 +1,4 @@
+import { LogLevel } from '@logtail/types';
 import { PocketNewParams, RequestPasswordLessLinkParams, UserNewParams } from '../definition/user.js';
 import { User } from './User.js';
 import { CongregationsList } from './Congregations.js';
@@ -109,7 +110,7 @@ class Users {
 	}
 
 	async removeOutdatedSessions() {
-		logger('info', JSON.stringify({ details: `cleaning outdated user sessions ...` }));
+		logger(LogLevel.Info, `cleaning outdated user sessions ...`);
 
 		try {
 			const validMonth = new Date();
@@ -128,9 +129,9 @@ class Users {
 				}
 			}
 
-			logger('info', JSON.stringify({ details: `outdated sessions cleanup completed.` }));
+			logger(LogLevel.Info, `outdated sessions cleanup completed.`);
 		} catch {
-			logger('error', JSON.stringify({ details: `an error occured while removing outdated session` }));
+			logger(LogLevel.Warn, `an error occured while removing outdated session`);
 		}
 	}
 }

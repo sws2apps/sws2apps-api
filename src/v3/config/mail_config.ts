@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer/index.js';
 import SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
 import hbs, { NodemailerExpressHandlebarsOptions } from 'nodemailer-express-handlebars';
+import { LogLevel } from '@logtail/types';
 import { logger } from '../services/logger/logger.js';
 
 const MAIL_ADDRESS = process.env.MAIL_ADDRESS!;
@@ -45,16 +46,14 @@ export const MailClient = {
 				return new Promise((resolve) => {
 					return transporter.sendMail(options, (error) => {
 						if (error) {
-							logger(
-								'warn',
-								JSON.stringify({
-									details: `failed to send message: ${error.message}. trying again ...`,
-								})
-							);
+							logger(LogLevel.Warn, `failed to send message: ${error.message}. trying again ...`, {
+								service: 'mail_client',
+								transport_status: 'failed',
+							});
 							return resolve(false);
 						}
 
-						logger('info', JSON.stringify({ details: successText }));
+						logger(LogLevel.Info, successText, { service: 'mail_client', transport_status: 'success' });
 						return resolve(true);
 					});
 				});

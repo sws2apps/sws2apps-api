@@ -1,3 +1,4 @@
+import { LogLevel } from '@logtail/types';
 import { CongregationCreateInfoType } from '../definition/congregation.js';
 import { createCongregation, loadAllCongs } from '../services/firebase/congregations.js';
 import { deleteFileFromStorage } from '../services/firebase/storage_utils.js';
@@ -103,8 +104,8 @@ class Congregations {
 
 				await Congregation.saveSettings(newSettings);
 			}
-		} catch {
-			logger('error', JSON.stringify({ details: `an error occured while removing invalid setting` }));
+		} catch (error) {
+			logger(LogLevel.Warn, `an error occured while removing invalid setting ${String(error)}`);
 		}
 	}
 }
