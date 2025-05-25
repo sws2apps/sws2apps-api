@@ -6,9 +6,10 @@ export const serverReadyChecker = () => {
 		if (API_VAR.IS_SERVER_READY === true) {
 			next();
 		} else {
+			res.set('Retry-After', '30');
 			res.locals.type = 'warn';
 			res.locals.message = 'the server is not yet ready. try again later';
-			res.status(500).json({ message: 'SERVER_NOT_READY' });
+			res.status(503).json({ message: 'SERVER_NOT_READY' });
 		}
 	};
 };
