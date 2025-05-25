@@ -1,3 +1,10 @@
+## [3.25.2](https://github.com/sws2apps/sws2apps-api/compare/v3.25.1...v3.25.2) (2025-05-25)
+
+
+### Bug Fixes
+
+* **logger:** update logger format ([c86cabf](https://github.com/sws2apps/sws2apps-api/commit/c86cabffbf782ca26154b9a038b48ce2bf5b40a3))
+
 ## [3.25.1](https://github.com/sws2apps/sws2apps-api/compare/v3.25.0...v3.25.1) (2025-05-23)
 
 
