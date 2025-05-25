@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import isOnline from 'is-online';
+import { LogLevel } from '@logtail/types';
 import { logger } from '../services/logger/logger.js';
-import { formatLog } from '../utils/format_log.js';
 
 export const internetChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
@@ -11,7 +11,7 @@ export const internetChecker = () => {
 					next();
 				} else {
 					res.status(500).json({ message: 'INTERNAL_ERROR' });
-					logger('warn', formatLog('the server could not make request to the internet', req, res));
+					logger(LogLevel.Warn, 'the server could not make request to the internet');
 				}
 			});
 		} catch (err) {

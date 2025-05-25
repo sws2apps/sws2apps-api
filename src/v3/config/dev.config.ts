@@ -1,4 +1,5 @@
 import { getAuth } from 'firebase-admin/auth';
+import { LogLevel } from '@logtail/types';
 import { logger } from '../services/logger/logger.js';
 import { UserProfile } from '../definition/user.js';
 import { setUserProfile } from '../services/firebase/users.js';
@@ -17,7 +18,7 @@ export const createAdminUser = async () => {
 		try {
 			await getAuth().getUser(adminUid);
 		} catch {
-			logger('info', JSON.stringify({ details: `creating admin user for firebase emulators ...` }));
+			logger(LogLevel.Info, `creating admin user for firebase emulators`);
 
 			await getAuth().importUsers([
 				{
@@ -53,7 +54,7 @@ export const createAdminUser = async () => {
 
 			await setUserProfile(id, profile);
 
-			logger('info', JSON.stringify({ details: `admin account creation created` }));
+			logger(LogLevel.Info, `dev admin account creation created`);
 		}
 	} catch (error) {
 		console.error(error);

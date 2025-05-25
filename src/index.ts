@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { LogLevel } from '@logtail/types';
 
 import app from './app.js';
 
@@ -23,11 +24,14 @@ export const API_VAR: ServerTempVariableType = {
 await initializeAPI();
 await createAdminUser();
 
-logger('info', JSON.stringify({ details: `API: minimum frontend client version set to ${API_VAR.MINIMUM_APP_VERSION}` }));
+logger(LogLevel.Info, `minimum frontend client version set to ${API_VAR.MINIMUM_APP_VERSION}`);
 
 app.listen(PORT, async () => {
-	logger('info', JSON.stringify({ details: `server up and running on port ${PORT} (v${APP_VERSION})` }));
-	logger('info', JSON.stringify({ details: `loading Firebase data ...` }));
+	logger(LogLevel.Info, `server up and running on port ${PORT} (v${APP_VERSION})`);
+
+	const start = performance.now();
+
+	logger(LogLevel.Info, `loading firebase data`, { service: 'firebase' });
 
 	await UsersList.load();
 	await CongregationsList.load();
@@ -38,6 +42,12 @@ app.listen(PORT, async () => {
 	// non-blocking calls
 	UsersList.removeOutdatedSessions();
 
-	logger('info', JSON.stringify({ details: `loading completed.` }));
+	const end = performance.now();
+	const durationMs = end - start;
+	const totalSeconds = Math.floor(durationMs / 1000);
+	const minutes = Math.floor(totalSeconds / 60);
+
+	logger(LogLevel.Info, `loading firebase completed`, { service: 'firebase', duration: minutes });
+
 	API_VAR.IS_SERVER_READY = true;
 });
