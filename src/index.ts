@@ -26,28 +26,28 @@ await createAdminUser();
 
 logger(LogLevel.Info, `minimum frontend client version set to ${API_VAR.MINIMUM_APP_VERSION}`);
 
-const start = performance.now();
-
-logger(LogLevel.Info, `loading firebase data`, { service: 'firebase' });
-
-await UsersList.load();
-await CongregationsList.load();
-await CongregationsList.cleanupTasks();
-await Flags.load();
-await Installation.load();
-
-// non-blocking calls
-UsersList.removeOutdatedSessions();
-
-const end = performance.now();
-const durationMs = end - start;
-const totalSeconds = Math.floor(durationMs / 1000);
-const minutes = Math.floor(totalSeconds / 60);
-
-logger(LogLevel.Info, `loading firebase completed`, { service: 'firebase', duration: minutes });
-
 app.listen(PORT, async () => {
 	logger(LogLevel.Info, `server up and running on port ${PORT} (v${APP_VERSION})`);
+
+	const start = performance.now();
+
+	logger(LogLevel.Info, `loading firebase data`, { service: 'firebase' });
+
+	await UsersList.load();
+	await CongregationsList.load();
+	await CongregationsList.cleanupTasks();
+	await Flags.load();
+	await Installation.load();
+
+	// non-blocking calls
+	UsersList.removeOutdatedSessions();
+
+	const end = performance.now();
+	const durationMs = end - start;
+	const totalSeconds = Math.floor(durationMs / 1000);
+	const minutes = Math.floor(totalSeconds / 60);
+
+	logger(LogLevel.Info, `loading firebase completed`, { service: 'firebase', duration: minutes });
 
 	API_VAR.IS_SERVER_READY = true;
 });
