@@ -87,23 +87,32 @@ export const getFeatureFlags = async (req: Request, res: Response) => {
 	const result: Record<string, boolean> = {};
 
 	// get enabled flags
-	const enabledFlags = Flags.list.filter((record) => record.status && record.coverage > 0);
+	const enabledFlags = Flags.list.filter((record) => record.status);
 
-	for await (const flag of enabledFlags) {
+	for (const flag of enabledFlags) {
+		// don’t provide flag if installation is not provided
 		if (installation.length === 0) continue;
 
+		// target app flag
 		if (flag.availability === 'app') {
+			// if the coverage is 100, then the flag is always enabled
 			if (flag.coverage === 100) {
 				result[flag.name] = flag.status;
 				continue;
 			}
 
+			if (flag.coverage === 0) {
+				continue;
+			}
+
 			const findInstallation = flag.installations.find((rec) => rec.id === installation);
 
+			// if installation is included in the flag installations, then the flag is enabled
 			if (findInstallation) {
 				result[flag.name] = flag.status;
 			}
 
+			// if the installation is not included in the flag installations, then check the coverage
 			if (!findInstallation) {
 				const currentCount = flag.installations.length;
 				const currentAvg = (currentCount * 100) / installationsCount;
@@ -123,22 +132,27 @@ export const getFeatureFlags = async (req: Request, res: Response) => {
 			continue;
 		}
 
+		// get user associated with the installation
 		const findInstallation = Installation.find(installation);
 		userId = userId || findInstallation?.user;
 
+		// target congregation flag
 		if (flag.availability === 'congregation' && userId) {
 			const user = UsersList.findById(userId);
 			const congId = user?.profile.congregation?.id;
 			const cong = congId ? CongregationsList.findById(congId) : undefined;
 
+			// if the user is not associated with a congregation, skip the flag
 			if (!cong) continue;
 
 			const ownFlag = cong.flags.find((record) => record === flag.id);
 
+			// if the congregation already has the flag, set it to true
 			if (ownFlag) {
 				result[flag.name] = true;
 			}
 
+			// if the congregation does not have the flag, check the coverage
 			if (!ownFlag) {
 				if (flag.coverage === 100) {
 					result[flag.name] = true;
@@ -149,7 +163,7 @@ export const getFeatureFlags = async (req: Request, res: Response) => {
 					await cong.saveFlags(flags);
 				}
 
-				if (flag.coverage < 100) {
+				if (flag.coverage > 0 && flag.coverage < 100) {
 					const currentCount = CongregationsList.list.filter((record) => record.flags.some((f) => f === flag.id)).length;
 					const currentAvg = (currentCount * 100) / congregationsCount;
 
@@ -165,17 +179,21 @@ export const getFeatureFlags = async (req: Request, res: Response) => {
 			}
 		}
 
+		// target user flag
 		if (flag.availability === 'user' && userId) {
 			const user = UsersList.findById(userId);
 
+			// if the user is not found, skip the flag
 			if (!user) continue;
 
 			const ownFlag = user.flags.find((record) => record === flag.id);
 
+			// if the user already has the flag, set it to true
 			if (ownFlag) {
 				result[flag.name] = true;
 			}
 
+			// if the user does not have the flag, check the coverage
 			if (!ownFlag) {
 				if (flag.coverage === 100) {
 					result[flag.name] = true;
@@ -186,7 +204,7 @@ export const getFeatureFlags = async (req: Request, res: Response) => {
 					await user.updateFlags(flags);
 				}
 
-				if (flag.coverage < 100) {
+				if (flag.coverage > 0 && flag.coverage < 100) {
 					const currentCount = UsersList.list.filter((record) => record.flags.some((f) => f === flag.id)).length;
 					const currentAvg = (currentCount * 100) / usersCount;
 
@@ -206,18 +224,21 @@ export const getFeatureFlags = async (req: Request, res: Response) => {
 	// update installation
 	const findInstallation = Installation.find(installation);
 
+	// if the installation is not found and userId is provided, link the installation to the user
 	if (!findInstallation && userId) {
 		Installation.linked.push({ user: userId, installations: [{ id: installation, registered: new Date().toISOString() }] });
 		await Installation.save();
 	}
 
+	// if the installation is not found and userId is not provided, add it to pending installations
 	if (!findInstallation && !userId) {
 		Installation.pending.push({ id: installation, registered: new Date().toISOString() });
 		await Installation.save();
 	}
 
+	// if the installation is found and its status is pending and userId is provided, link the installation to the user
 	if (findInstallation?.status === 'pending' && userId) {
-		Installation.pending.filter((record) => record.id !== installation);
+		Installation.pending = Installation.pending.filter((record) => record.id !== installation);
 		Installation.linked.push({ user: userId, installations: [{ id: installation, registered: new Date().toISOString() }] });
 		await Installation.save();
 	}
