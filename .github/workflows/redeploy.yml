@@ -21,7 +21,7 @@ jobs:
 
       - name: Deploy API to Koeyb
         env:
-          KOEYB_SERVICE_NAME: ${{ secrets.KOEYB_SERVICE_NAME }}
+          KOEYB_SERVICE_NAME: ${{ vars.KOEYB_SERVICE_NAME }}
           KOEYB_API_TOKEN: ${{ secrets.KOEYB_API_TOKEN }}
         run: |
           export PATH="$HOME/.koyeb/bin:$PATH"
