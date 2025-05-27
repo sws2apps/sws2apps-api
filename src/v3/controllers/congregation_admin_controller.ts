@@ -1001,7 +1001,7 @@ export const acceptJoinRequest = async (req: Request, res: Response) => {
 		req.i18n.changeLanguage(language);
 
 		const congregation = `${cong.settings.cong_name} (${cong.settings.cong_number})`;
-		const requestor = user.profile.firstname.value;
+		const requestor = firstname + (lastname ? ` ${lastname}` : '');
 
 		const options = {
 			to: userEmail,
