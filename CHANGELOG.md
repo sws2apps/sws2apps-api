@@ -1,3 +1,24 @@
+# [3.26.0](https://github.com/sws2apps/sws2apps-api/compare/v3.25.2...v3.26.0) (2025-05-31)
+
+
+### Bug Fixes
+
+* **controllers:** check for enabled flags before coverage check ([c320eca](https://github.com/sws2apps/sws2apps-api/commit/c320eca67831fd6f83e499599d4ecdef9de9c22a))
+
+
+### Features
+
+* **controllers:** include additional data to minimal persons list ([05d30b7](https://github.com/sws2apps/sws2apps-api/commit/05d30b719ef4551277cca53abd62c7ea74570749))
+* **deps:** bump @crowdin/crowdin-api-client from 1.43.0 to 1.44.0 ([b8ea911](https://github.com/sws2apps/sws2apps-api/commit/b8ea9117b11785915f174fd6764d4225c1a0caa6))
+* **deps:** bump i18next from 25.2.0 to 25.2.1 ([1b291bd](https://github.com/sws2apps/sws2apps-api/commit/1b291bd0b0046efcb48009f96f71ac7974819f32))
+* **logger:** log memory usage ([11280ad](https://github.com/sws2apps/sws2apps-api/commit/11280ad8b91c1f29b65ae6a6f0effc609cd7f720))
+
+
+### Performance Improvements
+
+* **api:** testing cold start tolerance ([427b592](https://github.com/sws2apps/sws2apps-api/commit/427b5921daa880336e92f06101480cdf234432cc))
+* **api:** use conditional check for server readiness ([0545e87](https://github.com/sws2apps/sws2apps-api/commit/0545e87c90ebe4c8de961dab8aa89b854ffaeaa2))
+
 ## [3.25.2](https://github.com/sws2apps/sws2apps-api/compare/v3.25.1...v3.25.2) (2025-05-25)
 
 
