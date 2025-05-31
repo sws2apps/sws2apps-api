@@ -58,6 +58,7 @@ export const getUserFlags = async (id: string) => {
 };
 
 export const getUserProfile = async (id: string) => {
+	console.log(`loading user ${id}`);
 	const path = `${id}/profile.txt`;
 	const data = await getFileFromStorage({ type: 'user', path });
 
