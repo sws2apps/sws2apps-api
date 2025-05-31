@@ -48,6 +48,16 @@ export const updateTracker = () => {
 				const message = (res.locals.message ?? '').replace(/\n|\r/g, '');
 				const user = res.locals.currentUser;
 
+				const memory = process.memoryUsage();
+
+				const memory_usage = {
+					rssMB: +(memory.rss / 1024 / 1024).toFixed(2),
+					heapTotalMB: +(memory.heapTotal / 1024 / 1024).toFixed(2),
+					heapUsedMB: +(memory.heapUsed / 1024 / 1024).toFixed(2),
+					externalMB: +(memory.external / 1024 / 1024).toFixed(2),
+					arrayBuffersMB: +(memory.arrayBuffers / 1024 / 1024).toFixed(2),
+				};
+
 				const context = {
 					method: req.method,
 					status: res.statusCode,
@@ -59,6 +69,7 @@ export const updateTracker = () => {
 					congregationId: user?.profile.congregation?.id,
 					duration: ms,
 					size: responseSize,
+					memory_usage,
 				};
 
 				let failedLoginAttempt = 0;

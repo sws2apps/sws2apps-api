@@ -16,7 +16,7 @@ export const logger = (level: LogLevel, message: string, context?: Context) => {
 			', ' +
 			Object.entries(context)
 				.filter(([, value]) => value !== undefined)
-				.map(([key, value]) => `${key}="${value}"`)
+				.map(([key, value]) => `${key}=${JSON.stringify(value)}`)
 				.join(' ');
 	}
 
