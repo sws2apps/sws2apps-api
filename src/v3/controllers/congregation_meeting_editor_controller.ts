@@ -366,9 +366,11 @@ export const publishSchedules = async (req: Request, res: Response) => {
 
 	const talks = req.body.talks as OutgoingTalkScheduleType[];
 
-	await cong.publishSchedules(JSON.stringify(sources), JSON.stringify(schedules), JSON.stringify(talks));
+	await cong.publishSchedules(JSON.stringify(sources), JSON.stringify(schedules), talks ? JSON.stringify(talks) : undefined);
 
-	await cong.copyOutgoingTalkSchedule(talks);
+	if (talks) {
+		await cong.copyOutgoingTalkSchedule(talks);
+	}
 
 	res.locals.type = 'info';
 	res.locals.message = `user published the schedules`;
