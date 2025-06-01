@@ -301,8 +301,22 @@ export class User {
 
 		const profile = structuredClone(this.profile);
 		profile.congregation = undefined;
-
 		await this.updateProfile(profile);
+
+		const settings = structuredClone(this.settings);
+		settings.backup_automatic = '';
+		settings.data_view = '';
+		settings.hour_credits_enabled = '';
+		settings.theme_follow_os_enabled = '';
+		await this.updateSettings(settings);
+
+		await this.updateSessions([]);
+
+		await this.saveFieldServiceReports([]);
+
+		await this.saveBibleStudies([]);
+
+		await this.saveDelegatedFieldServiceReports([]);
 
 		if (cong) {
 			await cong.reloadMembers();
