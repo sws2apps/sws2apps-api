@@ -726,7 +726,13 @@ export const congregationDeleteUser = async (req: Request, res: Response) => {
 		return;
 	}
 
-	await foundUser.removeCongregation();
+	if (foundUser.profile.role === 'vip') {
+		await foundUser.removeCongregation();
+	}
+
+	if (foundUser.profile.role === 'pocket') {
+		await UsersList.delete(foundUser.id);
+	}
 
 	const cong_members = cong.getMembers(req.signedCookies.visitorid);
 

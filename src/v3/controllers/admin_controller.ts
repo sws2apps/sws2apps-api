@@ -856,7 +856,13 @@ export const userRemoveCongregation = async (req: Request, res: Response) => {
 
 	const userCong = user.profile.congregation?.id;
 
-	await user.removeCongregation();
+	if (user.profile.role === 'vip') {
+		await user.removeCongregation();
+	}
+
+	if (user.profile.role === 'pocket') {
+		await UsersList.delete(user.id);
+	}
 
 	if (userCong) {
 		const cong = CongregationsList.findById(userCong);
