@@ -76,9 +76,16 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 app.use((req, res, next) => {
 	res.header('Access-Control-Allow-Origin', req.headers.origin);
-	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE');
-	res.header('Access-Control-Allow-Headers', 'Content-Type');
+	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS');
+	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 	res.header('Access-Control-Allow-Credentials', 'true');
+	res.header('Access-Control-Max-Age', '86400');
+
+	if (req.method === 'OPTIONS') {
+		res.sendStatus(204);
+		return;
+	}
+
 	next();
 });
 
