@@ -23,6 +23,7 @@ import {
 	userDelete,
 	userDisable2FA,
 	userFlagToggle,
+	userRemoveCongregation,
 	userRevokeToken,
 	userSessionDelete,
 	usersGetAll,
@@ -96,6 +97,9 @@ router.patch('/users/:id/feature-flags', body('flagid').isString(), userFlagTogg
 
 // delete user session
 router.delete('/users/:id/sessions', body('identifiers').isArray(), userSessionDelete);
+
+// remove user congregation
+router.delete('/users/:id/congregation', userRemoveCongregation);
 
 // delete an user
 router.delete('/users/:id', userDelete);

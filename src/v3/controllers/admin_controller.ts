@@ -833,3 +833,42 @@ export const congregationResetSpeakersKey = async (req: Request, res: Response) 
 	res.locals.message = `admin reset the congregation speakers key`;
 	res.status(200).json(result);
 };
+
+export const userRemoveCongregation = async (req: Request, res: Response) => {
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the user request id params is undefined';
+		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+
+		return;
+	}
+
+	const user = UsersList.findById(id);
+
+	if (!user) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no user could not be found with the provided id';
+		res.status(404).json({ message: 'USER_NOT_FOUND' });
+		return;
+	}
+
+	const userCong = user.profile.congregation?.id;
+
+	await user.removeCongregation();
+
+	if (userCong) {
+		const cong = CongregationsList.findById(userCong);
+
+		if (cong) {
+			cong.reloadMembers();
+		}
+	}
+
+	const result = await adminUsersGet(req.signedCookies.visitorid);
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin removed a user from a congregation';
+	res.status(200).json(result);
+};
