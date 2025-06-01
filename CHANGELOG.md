@@ -1,3 +1,15 @@
+## [3.26.1](https://github.com/sws2apps/sws2apps-api/compare/v3.26.0...v3.26.1) (2025-06-01)
+
+
+### Bug Fixes
+
+* **definition:** add user profile schema ([8cc0e53](https://github.com/sws2apps/sws2apps-api/commit/8cc0e536c1c093243d1c6f8901ff7ed20902fa49))
+
+
+### Performance Improvements
+
+* **controllers:** check for talks data before saving public schedules ([98ed7b4](https://github.com/sws2apps/sws2apps-api/commit/98ed7b40d47331656489ca1da06645c6ca7cf538))
+
 # [3.26.0](https://github.com/sws2apps/sws2apps-api/compare/v3.25.2...v3.26.0) (2025-05-31)
 
 
