@@ -211,4 +211,5 @@ export type BackupForStorage = {
 	totalChunks: number;
 	received: number;
 	timeout: NodeJS.Timeout;
+	userId: string;
 };

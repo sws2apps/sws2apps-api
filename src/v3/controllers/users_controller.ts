@@ -1212,7 +1212,9 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 	}
 
 	// reject if this upload is already in progress and not expired
-	if (backupUploadsInProgress.has(cong.id)) {
+	let findBackup = backupUploadsInProgress.get(cong.id);
+
+	if (findBackup && findBackup.userId !== user.id) {
 		res.locals.type = 'warn';
 		res.status(409).json({ message: 'BACKUP_OUTDATED' });
 
@@ -1220,7 +1222,6 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 	}
 
 	// init or reset timer for the upload
-	let findBackup = backupUploadsInProgress.get(cong.id);
 
 	if (!findBackup) {
 		const timeout = setTimeout(() => {
@@ -1234,7 +1235,10 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 			totalChunks,
 			received: 0,
 			timeout,
+			userId: user.id,
 		};
+
+		backupUploadsInProgress.set(cong.id, findBackup);
 	} else {
 		// refresh timeout on activity
 		clearTimeout(findBackup.timeout);
@@ -1282,6 +1286,6 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 	}
 
 	res.locals.type = 'info';
-	res.locals.message = `congregation backup chunk ${chunkIndex} out of ${totalChunks} received`;
+	res.locals.message = `congregation backup chunk ${chunkIndex + 1} out of ${totalChunks} received`;
 	res.status(200).json({ message: 'BACKUP_CHUNK_RECEIVED' });
 };
