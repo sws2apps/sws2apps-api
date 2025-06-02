@@ -11,7 +11,7 @@ import { StandardRecord } from '../definition/app.js';
 import { BackupData, CongregationUpdatesType, CongSettingsType } from '../definition/congregation.js';
 import { BACKUP_EXPIRY, ROLE_MASTER_KEY } from '../constant/base.js';
 import { MailClient } from '../config/mail_config.js';
-import { congregationJoinRequestsGet } from '../services/api/congregations.js';
+import { congregationJoinRequestsGet, findBackupByCongregation } from '../services/api/congregations.js';
 import { backupUploadsInProgress } from '../../index.js';
 import { logger } from '../services/logger/logger.js';
 
@@ -1203,48 +1203,53 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 	const chunkIndex = req.body.chunkIndex as number;
 	const totalChunks = req.body.totalChunks as number;
 	const chunkData = req.body.chunkData as string;
+	const uploadId = req.body.uploadId as string;
 
-	if (chunkIndex == null || !chunkData || !totalChunks) {
+	if (!uploadId || chunkIndex == null || !chunkData || !totalChunks) {
 		res.locals.type = 'warn';
 		res.status(400).json({ message: 'error_api_bad-request' });
 
 		return;
 	}
 
-	// reject if this upload is already in progress and not expired
-	let findBackup = backupUploadsInProgress.get(cong.id);
+	const currentBackup = findBackupByCongregation(cong.id);
 
-	if (findBackup && findBackup.userId !== user.id) {
-		res.locals.type = 'warn';
-		res.status(409).json({ message: 'BACKUP_OUTDATED' });
+	if (currentBackup) {
+		const anotherUser = currentBackup.record.userId !== user.id;
+		const anotherDevice = currentBackup.record.userId === user.id && currentBackup.uploadId !== uploadId;
 
-		return;
+		// reject if upload from another user or another device
+		if (anotherUser || anotherDevice) {
+			res.locals.type = 'warn';
+			res.locals.message = `congregation already has a backup in progress`;
+			res.status(409).json({ message: 'BACKUP_OUTDATED' });
+
+			return;
+		}
 	}
 
 	// init or reset timer for the upload
+	let findBackup = backupUploadsInProgress.get(uploadId);
 
 	if (!findBackup) {
-		const timeout = setTimeout(() => {
-			backupUploadsInProgress.delete(cong.id);
-
-			logger(LogLevel.Warn, 'backup to be saved was expired', { congregationId: cong.id, userId: user.id });
-		}, BACKUP_EXPIRY);
-
 		findBackup = {
 			chunks: new Array(totalChunks).fill(null),
 			totalChunks,
 			received: 0,
-			timeout,
 			userId: user.id,
+			congregationId: cong.id,
+			timeout: setTimeout(() => {
+				backupUploadsInProgress.delete(uploadId);
+				logger(LogLevel.Warn, 'backup to be saved was expired', { congregationId: cong.id, userId: user.id });
+			}, BACKUP_EXPIRY),
 		};
 
-		backupUploadsInProgress.set(cong.id, findBackup);
+		backupUploadsInProgress.set(uploadId, findBackup);
 	} else {
 		// refresh timeout on activity
 		clearTimeout(findBackup.timeout);
 		findBackup.timeout = setTimeout(() => {
-			backupUploadsInProgress.delete(cong.id);
-
+			backupUploadsInProgress.delete(uploadId);
 			logger(LogLevel.Warn, 'backup to be saved was expired', { congregationId: cong.id, userId: user.id });
 		}, BACKUP_EXPIRY);
 	}
@@ -1263,7 +1268,7 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 		const cong_backup = JSON.parse(congBackupStr) as BackupData;
 
 		clearTimeout(findBackup.timeout);
-		backupUploadsInProgress.delete(cong.id);
+		backupUploadsInProgress.delete(uploadId);
 
 		const userRole = user.profile.congregation!.cong_role;
 

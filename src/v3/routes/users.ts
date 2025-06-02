@@ -69,6 +69,7 @@ router.get('/:id/backup', header('metadata').isString(), retrieveUserBackup);
 router.post(
 	'/:id/backup/chunked',
 	header('metadata').isString(),
+	body('uploadId').isString().notEmpty(),
 	body('chunkIndex').toInt().isNumeric().notEmpty(),
 	body('totalChunks').toInt().isNumeric().notEmpty(),
 	body('chunkData').isString().notEmpty(),

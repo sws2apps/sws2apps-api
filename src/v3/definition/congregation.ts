@@ -212,4 +212,5 @@ export type BackupForStorage = {
 	received: number;
 	timeout: NodeJS.Timeout;
 	userId: string;
+	congregationId: string;
 };

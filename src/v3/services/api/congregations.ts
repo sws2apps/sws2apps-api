@@ -2,6 +2,7 @@ import { Country } from '../../definition/app.js';
 import { CongregationsList } from '../../classes/Congregations.js';
 import { Congregation } from '../../classes/Congregation.js';
 import { UsersList } from '../../classes/Users.js';
+import { backupUploadsInProgress } from '../../../index.js';
 
 export const adminCongregationsGet = async () => {
 	try {
@@ -101,4 +102,14 @@ export const adminCongregationGet = (id: string) => {
 	const has_speakers_key = cong.outgoing_speakers.speakers_key ? cong.outgoing_speakers.speakers_key.length > 0 : false;
 
 	return { cong_persons, cong_requests, has_speakers_key };
+};
+
+export const findBackupByCongregation = (congregationId: string) => {
+	for (const [uploadId, record] of backupUploadsInProgress.entries()) {
+		if (record.congregationId === congregationId) {
+			return { uploadId, record };
+		}
+	}
+
+	return undefined;
 };
