@@ -1249,40 +1249,39 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 	findBackup.chunks[chunkIndex] = chunkData;
 	findBackup.received++;
 
-	if (findBackup.received < findBackup.totalChunks) {
-		res.locals.type = 'info';
-		res.locals.message = `congregation backup chunk ${chunkIndex} out of ${totalChunks} received`;
-		res.status(200).json({ message: 'BACKUP_CHUNK_RECEIVED' });
+	if (findBackup.received === findBackup.totalChunks) {
+		const congBackupStr = findBackup.chunks.join('');
+		const cong_backup = JSON.parse(congBackupStr).cong_backup as BackupData;
 
+		clearTimeout(findBackup.timeout);
+		backupUploadsInProgress.delete(cong.id);
+
+		const userRole = user.profile.congregation!.cong_role;
+
+		const adminRole = userRole.some((role) => role === 'admin' || role === 'coordinator' || role === 'secretary');
+
+		const scheduleEditor = userRole.some(
+			(role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule'
+		);
+
+		await cong.saveBackup(cong_backup, userRole);
+
+		const userPerson = cong_backup.persons?.at(0);
+
+		if (!adminRole && !scheduleEditor && userPerson) {
+			const personData = userPerson.person_data as StandardRecord;
+			await user.updatePersonData(personData.timeAway as string, personData.emergency_contacts as string);
+		}
+
+		await user.saveBackup(cong_backup, userRole);
+
+		res.locals.type = 'info';
+		res.locals.message = 'user send backup for congregation successfully';
+		res.status(200).json({ message: 'BACKUP_SENT' });
 		return;
 	}
 
-	const congBackupStr = findBackup.chunks.join('');
-	const cong_backup = JSON.parse(congBackupStr).cong_backup as BackupData;
-
-	clearTimeout(findBackup.timeout);
-	backupUploadsInProgress.delete(cong.id);
-
-	const userRole = user.profile.congregation!.cong_role;
-
-	const adminRole = userRole.some((role) => role === 'admin' || role === 'coordinator' || role === 'secretary');
-
-	const scheduleEditor = userRole.some(
-		(role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule'
-	);
-
-	await cong.saveBackup(cong_backup, userRole);
-
-	const userPerson = cong_backup.persons?.at(0);
-
-	if (!adminRole && !scheduleEditor && userPerson) {
-		const personData = userPerson.person_data as StandardRecord;
-		await user.updatePersonData(personData.timeAway as string, personData.emergency_contacts as string);
-	}
-
-	await user.saveBackup(cong_backup, userRole);
-
 	res.locals.type = 'info';
-	res.locals.message = 'user send backup for congregation successfully';
-	res.status(200).json({ message: 'BACKUP_SENT' });
+	res.locals.message = `congregation backup chunk ${chunkIndex} out of ${totalChunks} received`;
+	res.status(200).json({ message: 'BACKUP_CHUNK_RECEIVED' });
 };
