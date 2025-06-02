@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
+import { LogLevel } from '@logtail/types';
 import sanitizeHtml from 'sanitize-html';
 
 import { UsersList } from '../classes/Users.js';
@@ -13,7 +14,6 @@ import { MailClient } from '../config/mail_config.js';
 import { congregationJoinRequestsGet } from '../services/api/congregations.js';
 import { backupUploadsInProgress } from '../../index.js';
 import { logger } from '../services/logger/logger.js';
-import { LogLevel } from '@logtail/types';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -1255,7 +1255,7 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 
 	if (findBackup.received === findBackup.totalChunks) {
 		const congBackupStr = findBackup.chunks.join('');
-		const cong_backup = JSON.parse(congBackupStr).cong_backup as BackupData;
+		const cong_backup = JSON.parse(congBackupStr) as BackupData;
 
 		clearTimeout(findBackup.timeout);
 		backupUploadsInProgress.delete(cong.id);
