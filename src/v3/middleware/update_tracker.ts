@@ -50,14 +50,6 @@ export const updateTracker = () => {
 
 				const memory = process.memoryUsage();
 
-				const memory_usage = {
-					rssMB: +(memory.rss / 1024 / 1024).toFixed(2),
-					heapTotalMB: +(memory.heapTotal / 1024 / 1024).toFixed(2),
-					heapUsedMB: +(memory.heapUsed / 1024 / 1024).toFixed(2),
-					externalMB: +(memory.external / 1024 / 1024).toFixed(2),
-					arrayBuffersMB: +(memory.arrayBuffers / 1024 / 1024).toFixed(2),
-				};
-
 				const context = {
 					method: req.method,
 					status: res.statusCode,
@@ -69,7 +61,10 @@ export const updateTracker = () => {
 					congregationId: user?.profile.congregation?.id,
 					duration: ms,
 					size: responseSize,
-					memory_usage,
+					memory_rss: memory.rss,
+					memory_heap_total: memory.heapTotal,
+					memory_heap_used: memory.heapUsed,
+					memory_array_buffers: memory.arrayBuffers,
 				};
 
 				let failedLoginAttempt = 0;
@@ -101,7 +96,7 @@ export const updateTracker = () => {
 					}
 
 					res.status(400);
-					logger(LogLevel.Warn, message, context);
+					logger(LogLevel.Warn, 'request aborted and cannot be completed', context);
 				}
 			});
 

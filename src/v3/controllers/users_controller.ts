@@ -1252,6 +1252,11 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 	// save chunk
 	findBackup.chunks[chunkIndex] = chunkData;
 	findBackup.received++;
+	logger(
+		LogLevel.Info,
+		`congregation backup chunk ${chunkIndex + 1} out of ${totalChunks} received, by ${user.id}, for ${cong.id}`,
+		{ congregationId: cong.id, userId: user.id }
+	);
 
 	if (findBackup.received === findBackup.totalChunks) {
 		const congBackupStr = findBackup.chunks.join('');
@@ -1286,6 +1291,6 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 	}
 
 	res.locals.type = 'info';
-	res.locals.message = `congregation backup chunk ${chunkIndex + 1} out of ${totalChunks} received`;
+	res.locals.message = `congregation backup chunk processed`;
 	res.status(200).json({ message: 'BACKUP_CHUNK_RECEIVED' });
 };
