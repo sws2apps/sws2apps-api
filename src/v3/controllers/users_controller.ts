@@ -8,9 +8,12 @@ import { generateTokenDev } from '../dev/setup.js';
 import { formatError } from '../utils/format_log.js';
 import { StandardRecord } from '../definition/app.js';
 import { BackupData, CongregationUpdatesType, CongSettingsType } from '../definition/congregation.js';
-import { ROLE_MASTER_KEY } from '../constant/base.js';
+import { BACKUP_EXPIRY, ROLE_MASTER_KEY } from '../constant/base.js';
 import { MailClient } from '../config/mail_config.js';
 import { congregationJoinRequestsGet } from '../services/api/congregations.js';
+import { backupUploadsInProgress } from '../../index.js';
+import { logger } from '../services/logger/logger.js';
+import { LogLevel } from '@logtail/types';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -1119,4 +1122,167 @@ export const joinCongregation = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
 	res.locals.message = `user request to join a congregation`;
 	res.status(200).json({ message: 'REQUEST_SENT' });
+};
+
+export const saveUserChunkedBackup = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({ message: 'error_api_bad-request' });
+
+		return;
+	}
+
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: user id is required`;
+		res.status(400).json({ message: 'USER_ID_INVALID' });
+
+		return;
+	}
+
+	const user = UsersList.findById(id)!;
+
+	if (!user.profile.congregation) {
+		res.locals.type = 'warn';
+		res.locals.message = `user does not have an assigned congregation`;
+		res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
+
+		return;
+	}
+
+	const cong = CongregationsList.findById(user.profile.congregation?.id);
+
+	if (!cong) {
+		res.locals.type = 'warn';
+		res.locals.message = 'user congregation is invalid';
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
+
+		return;
+	}
+
+	const incomingMetadata = JSON.parse(req.headers.metadata!.toString()) as Record<string, string>;
+	const currentMetadata = { ...cong.metadata, ...user.metadata };
+
+	// remove all metadata when data sync is disabled
+	if (!cong.settings.data_sync.value) {
+		const keys = Object.keys(incomingMetadata);
+		const invalidKeys = keys.filter((key) => key !== 'user_settings' && key !== 'cong_settings');
+
+		for (const key of invalidKeys) {
+			delete incomingMetadata[key];
+		}
+	}
+
+	let isOutdated = false;
+
+	for (const [key, value] of Object.entries(incomingMetadata)) {
+		if (currentMetadata[key] && currentMetadata[key] > value) {
+			isOutdated = true;
+
+			const outdatedData = { key, remote_value: currentMetadata[key], incoming_value: value };
+			res.locals.message = JSON.stringify(outdatedData);
+
+			break;
+		}
+	}
+
+	if (isOutdated) {
+		res.locals.type = 'warn';
+		res.status(409).json({ message: 'BACKUP_OUTDATED' });
+
+		return;
+	}
+
+	const chunkIndex = req.body.chunkIndex as number;
+	const totalChunks = req.body.totalChunks as number;
+	const chunkData = req.body.chunkData as string;
+
+	if (chunkIndex == null || !chunkData || !totalChunks) {
+		res.locals.type = 'warn';
+		res.status(400).json({ message: 'error_api_bad-request' });
+
+		return;
+	}
+
+	// reject if this upload is already in progress and not expired
+	if (backupUploadsInProgress.has(cong.id)) {
+		res.locals.type = 'warn';
+		res.status(409).json({ message: 'BACKUP_OUTDATED' });
+
+		return;
+	}
+
+	// init or reset timer for the upload
+	let findBackup = backupUploadsInProgress.get(cong.id);
+
+	if (!findBackup) {
+		const timeout = setTimeout(() => {
+			backupUploadsInProgress.delete(cong.id);
+
+			logger(LogLevel.Warn, 'backup to be saved was expired', { congregationId: cong.id, userId: user.id });
+		}, BACKUP_EXPIRY);
+
+		findBackup = {
+			chunks: new Array(totalChunks).fill(null),
+			totalChunks,
+			received: 0,
+			timeout,
+		};
+	} else {
+		// refresh timeout on activity
+		clearTimeout(findBackup.timeout);
+		findBackup.timeout = setTimeout(() => {
+			backupUploadsInProgress.delete(cong.id);
+
+			logger(LogLevel.Warn, 'backup to be saved was expired', { congregationId: cong.id, userId: user.id });
+		}, BACKUP_EXPIRY);
+	}
+
+	// save chunk
+	findBackup.chunks[chunkIndex] = chunkData;
+	findBackup.received++;
+
+	if (findBackup.received < findBackup.totalChunks) {
+		res.locals.type = 'info';
+		res.locals.message = `congregation backup chunk ${chunkIndex} out of ${totalChunks} received`;
+		res.status(200).json({ message: 'BACKUP_CHUNK_RECEIVED' });
+
+		return;
+	}
+
+	const congBackupStr = findBackup.chunks.join('');
+	const cong_backup = JSON.parse(congBackupStr).cong_backup as BackupData;
+
+	clearTimeout(findBackup.timeout);
+	backupUploadsInProgress.delete(cong.id);
+
+	const userRole = user.profile.congregation!.cong_role;
+
+	const adminRole = userRole.some((role) => role === 'admin' || role === 'coordinator' || role === 'secretary');
+
+	const scheduleEditor = userRole.some(
+		(role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule'
+	);
+
+	await cong.saveBackup(cong_backup, userRole);
+
+	const userPerson = cong_backup.persons?.at(0);
+
+	if (!adminRole && !scheduleEditor && userPerson) {
+		const personData = userPerson.person_data as StandardRecord;
+		await user.updatePersonData(personData.timeAway as string, personData.emergency_contacts as string);
+	}
+
+	await user.saveBackup(cong_backup, userRole);
+
+	res.locals.type = 'info';
+	res.locals.message = 'user send backup for congregation successfully';
+	res.status(200).json({ message: 'BACKUP_SENT' });
 };

@@ -205,3 +205,10 @@ export type UserRequestAccess = {
 	firstname?: string;
 	lastname?: string;
 };
+
+export type BackupForStorage = {
+	chunks: string[];
+	totalChunks: number;
+	received: number;
+	timeout: NodeJS.Timeout;
+};

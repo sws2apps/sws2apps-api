@@ -5,6 +5,7 @@ import app from './app.js';
 
 import { logger } from './v3/services/logger/logger.js';
 import { ServerTempVariableType } from './v3/definition/server.js';
+import { BackupForStorage } from './v3/definition/congregation.js';
 import { UsersList } from './v3/classes/Users.js';
 import { CongregationsList } from './v3/classes/Congregations.js';
 import { Flags } from './v3/classes/Flags.js';
@@ -20,6 +21,8 @@ export const API_VAR: ServerTempVariableType = {
 	IS_SERVER_READY: false,
 	REQUEST_TRACKER: [],
 };
+
+export const backupUploadsInProgress = new Map<string, BackupForStorage>();
 
 await initializeAPI();
 await createDevTestUsers();

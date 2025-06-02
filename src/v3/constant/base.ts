@@ -10,3 +10,5 @@ export const ROLE_MASTER_KEY = [
 	'elder',
 	'service_overseer',
 ];
+
+export const BACKUP_EXPIRY = 2 * 60 * 1000;

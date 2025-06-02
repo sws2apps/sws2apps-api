@@ -13,6 +13,7 @@ import {
 	postUserReport,
 	retrieveUserBackup,
 	saveUserBackup,
+	saveUserChunkedBackup,
 	submitAuxiliaryApplication,
 	userLogout,
 	userPostFeedback,
@@ -63,6 +64,16 @@ router.post('/:id/field-service-reports', body('report').isObject().notEmpty(), 
 
 // retrieve congregation backup
 router.get('/:id/backup', header('metadata').isString(), retrieveUserBackup);
+
+// save congregation backup in chunk
+router.post(
+	'/:id/backup/chunked',
+	header('metadata').isString(),
+	body('chunkIndex').toInt().isNumeric().notEmpty(),
+	body('totalChunks').toInt().isNumeric().notEmpty(),
+	body('chunkData').isString().notEmpty(),
+	saveUserChunkedBackup
+);
 
 // save congregation backup
 router.post('/:id/backup', body('cong_backup').isObject(), saveUserBackup);
