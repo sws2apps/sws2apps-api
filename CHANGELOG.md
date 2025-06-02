@@ -1,3 +1,17 @@
+# [3.27.0](https://github.com/sws2apps/sws2apps-api/compare/v3.26.1...v3.27.0) (2025-06-02)
+
+
+### Bug Fixes
+
+* **api:** set max age for cors preflight caching ([7de4e2b](https://github.com/sws2apps/sws2apps-api/commit/7de4e2bd3b143efa4bd056b17bbc4ede356d4f25))
+* **classes:** reset user data when removing congregation ([e2e1736](https://github.com/sws2apps/sws2apps-api/commit/e2e1736a8bdef2dcabefcdfa122a39734c0055c8))
+* **controllers:** separate vip and pocket users action on delete ([6995dc0](https://github.com/sws2apps/sws2apps-api/commit/6995dc0ba2f2e03edd5451f253040b4a12b4b4d6))
+
+
+### Features
+
+* **routes:** add remove user from congregation for admin ([b88dc9d](https://github.com/sws2apps/sws2apps-api/commit/b88dc9df0275116a3171db5e1f87d91c8976d46d))
+
 ## [3.26.1](https://github.com/sws2apps/sws2apps-api/compare/v3.26.0...v3.26.1) (2025-06-01)
 
 
