@@ -1195,7 +1195,7 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 
 	if (isOutdated) {
 		res.locals.type = 'warn';
-		res.status(409).json({ message: 'BACKUP_OUTDATED' });
+		res.status(409).json({ message: 'error_api_sync-conflict' });
 
 		return;
 	}
@@ -1222,7 +1222,7 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 		if (anotherUser || anotherDevice) {
 			res.locals.type = 'warn';
 			res.locals.message = `congregation already has a backup in progress`;
-			res.status(409).json({ message: 'BACKUP_OUTDATED' });
+			res.status(409).json({ message: 'error_api_sync-conflict' });
 
 			return;
 		}
