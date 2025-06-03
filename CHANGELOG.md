@@ -1,3 +1,23 @@
+# [3.28.0](https://github.com/sws2apps/sws2apps-api/compare/v3.27.0...v3.28.0) (2025-06-03)
+
+
+### Bug Fixes
+
+* **controllers:** check for upload from the same account ([ef29a36](https://github.com/sws2apps/sws2apps-api/commit/ef29a363a41fc28f74194b686fc94098903919bc))
+* **controllers:** map not set for chunked backup ([eeec3c6](https://github.com/sws2apps/sws2apps-api/commit/eeec3c6f9ae0acd73467f2774a05788b68add521))
+* **controllers:** update backup chunks merge ([b321e11](https://github.com/sws2apps/sws2apps-api/commit/b321e11c77e4948e4c6155900f0f50f8f909f181))
+* **controllers:** update chunk verification ([8eadf74](https://github.com/sws2apps/sws2apps-api/commit/8eadf74613d9c3857bcdfc36baa52df9eefcb7c5))
+
+
+### Features
+
+* **routes:** add route for user backup upload chunk ([cd8ed45](https://github.com/sws2apps/sws2apps-api/commit/cd8ed452d7c7a5403b884bfe929a66e530f29248))
+
+
+### Performance Improvements
+
+* **controllers:** log final backup chunks received ([19e9b9d](https://github.com/sws2apps/sws2apps-api/commit/19e9b9d7627406224041e65de05488f23dc2be80))
+
 # [3.27.0](https://github.com/sws2apps/sws2apps-api/compare/v3.26.1...v3.27.0) (2025-06-02)
 
 
