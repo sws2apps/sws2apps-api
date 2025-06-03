@@ -47,10 +47,8 @@ app.listen(PORT, async () => {
 
 	const end = performance.now();
 	const durationMs = end - start;
-	const totalSeconds = Math.floor(durationMs / 1000);
-	const minutes = Math.floor(totalSeconds / 60);
 
-	logger(LogLevel.Info, `loading firebase completed`, { service: 'firebase', duration: minutes });
+	logger(LogLevel.Info, `loading firebase completed`, { service: 'firebase', duration: durationMs });
 
 	API_VAR.IS_SERVER_READY = true;
 });
