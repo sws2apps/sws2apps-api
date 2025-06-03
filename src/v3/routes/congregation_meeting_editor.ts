@@ -25,7 +25,7 @@ router.post(
 	'/:id/schedules',
 	body('sources').isArray().notEmpty(),
 	body('schedules').isArray().notEmpty(),
-	body('talks').isArray(),
+	body('talks').optional().isArray(),
 	publishSchedules
 );
 
