@@ -1,3 +1,15 @@
+## [3.28.1](https://github.com/sws2apps/sws2apps-api/compare/v3.28.0...v3.28.1) (2025-06-03)
+
+
+### Bug Fixes
+
+* **routes:** make talks optional for publishing schedules ([4cbcd53](https://github.com/sws2apps/sws2apps-api/commit/4cbcd53184a40f4a659d2b67f34554d92e92dea9))
+
+
+### Performance Improvements
+
+* **api:** show data loading duration in ms ([641859c](https://github.com/sws2apps/sws2apps-api/commit/641859c5d1fcb1fc776d58b18f203eae5a12262e))
+
 # [3.28.0](https://github.com/sws2apps/sws2apps-api/compare/v3.27.0...v3.28.0) (2025-06-03)
 
 
