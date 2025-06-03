@@ -46,7 +46,7 @@ app.listen(PORT, async () => {
 	UsersList.removeOutdatedSessions();
 
 	const end = performance.now();
-	const durationMs = end - start;
+	const durationMs = Math.round(end - start);
 
 	logger(LogLevel.Info, `loading firebase completed`, { service: 'firebase', duration: durationMs });
 
