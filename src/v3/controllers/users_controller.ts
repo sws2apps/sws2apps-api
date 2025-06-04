@@ -499,14 +499,6 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 				result.visiting_speakers = await cong.getVisitingSpeakers();
 				result.metadata.visiting_speakers = localDate;
 			}
-
-			localDate = cong.metadata.cong_field_service_reports;
-			incomingDate = metadata.cong_field_service_reports;
-
-			if (localDate !== incomingDate) {
-				result.cong_field_service_reports = await cong.getFieldServiceReports();
-				result.metadata.cong_field_service_reports = localDate;
-			}
 		}
 
 		if (reportEditorRole) {
