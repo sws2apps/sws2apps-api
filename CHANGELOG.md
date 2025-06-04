@@ -1,3 +1,10 @@
+# [3.29.0](https://github.com/sws2apps/sws2apps-api/compare/v3.28.1...v3.29.0) (2025-06-04)
+
+
+### Features
+
+* **api:** add two new roles for group overseers ([282d32f](https://github.com/sws2apps/sws2apps-api/commit/282d32ff1a4419f048cecb3b9e7a3a5eb29cbef6))
+
 ## [3.28.1](https://github.com/sws2apps/sws2apps-api/compare/v3.28.0...v3.28.1) (2025-06-03)
 
 
