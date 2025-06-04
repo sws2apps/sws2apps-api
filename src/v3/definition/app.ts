@@ -10,7 +10,9 @@ export type AppRoleType =
 	| 'attendance_tracking'
 	| 'publisher'
 	| 'view_schedules'
-	| 'elder';
+	| 'elder'
+	| 'group_overseers'
+	| 'language_group_overseers';
 
 export type OTPSecretType = { secret: string; uri: string; version: number };
 

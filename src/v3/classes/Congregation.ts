@@ -56,6 +56,7 @@ import { User } from './User.js';
 import { UsersList } from './Users.js';
 import { getFileFromStorage, uploadFileToStorage } from '../services/firebase/storage_utils.js';
 import { syncFromIncoming } from '../utils/congregation_utils.js';
+import { getUserRoles } from '../services/api/users.js';
 
 export class Congregation {
 	id: string;
@@ -261,21 +262,15 @@ export class Congregation {
 	}
 
 	async saveBackup(cong_backup: BackupData, userRole: AppRoleType[]) {
-		const secretaryRole = userRole.includes('secretary');
-
-		const adminRole = secretaryRole || userRole.some((role) => role === 'admin' || role === 'coordinator');
-
-		const serviceCommiteeRole = adminRole || userRole.includes('service_overseer');
-
-		const elderRole = adminRole || userRole.includes('elder');
-
-		const scheduleEditor =
-			adminRole ||
-			userRole.some((role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule');
-
-		const publicTalkEditor = adminRole || userRole.includes('public_talk_schedule');
-
-		const attendanceEditor = adminRole || userRole.includes('attendance_tracking');
+		const {
+			reportEditorRole,
+			publicTalkEditor,
+			adminRole,
+			scheduleEditor,
+			secretaryRole,
+			serviceCommiteeRole,
+			attendanceTracker,
+		} = getUserRoles(userRole);
 
 		if (scheduleEditor && cong_backup.app_settings?.cong_settings) {
 			const accessCode = this.settings.cong_access_code;
@@ -328,11 +323,11 @@ export class Congregation {
 				await this.saveSources(cong_backup.sources);
 			}
 
-			if (elderRole && cong_backup.cong_field_service_reports) {
+			if (reportEditorRole && cong_backup.cong_field_service_reports) {
 				await this.saveFieldServiceReports(cong_backup.cong_field_service_reports);
 			}
 
-			if (attendanceEditor && cong_backup.meeting_attendance) {
+			if (attendanceTracker && cong_backup.meeting_attendance) {
 				await this.saveMeetingAttendance(cong_backup.meeting_attendance);
 			}
 

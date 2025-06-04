@@ -1,5 +1,6 @@
 import { CongregationsList } from '../../classes/Congregations.js';
 import { UsersList } from '../../classes/Users.js';
+import { AppRoleType } from '../../definition/app.js';
 
 export const adminUsersGet = async (visitorid: string) => {
 	const users = UsersList.list;
@@ -42,4 +43,52 @@ export const adminUsersGet = async (visitorid: string) => {
 	});
 
 	return result;
+};
+
+export const getUserRoles = (userRole: AppRoleType[]) => {
+	const secretaryRole = userRole.includes('secretary');
+	const coordinatorRole = userRole.includes('coordinator');
+	const adminRole = userRole.includes('admin') || secretaryRole || coordinatorRole;
+
+	const serviceCommiteeRole = adminRole || userRole.includes('service_overseer');
+
+	const groupOverseerRole = adminRole || userRole.includes('group_overseers');
+
+	const languageGroupOverseerRole = adminRole || userRole.includes('language_group_overseers');
+
+	const elderRole = adminRole || userRole.includes('elder');
+
+	const reportEditorRole = elderRole || languageGroupOverseerRole || groupOverseerRole;
+
+	const scheduleEditor =
+		adminRole ||
+		languageGroupOverseerRole ||
+		userRole.some((role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule');
+
+	const personViewer = scheduleEditor || groupOverseerRole || languageGroupOverseerRole || elderRole;
+
+	const publicTalkEditor = adminRole || languageGroupOverseerRole || userRole.some((role) => role === 'public_talk_schedule');
+
+	const attendanceTracker = adminRole || languageGroupOverseerRole || userRole.some((role) => role === 'attendance_tracking');
+
+	const isPublisher = userRole.includes('publisher');
+
+	const personMinimal = !personViewer;
+
+	return {
+		secretaryRole,
+		coordinatorRole,
+		adminRole,
+		groupOverseerRole,
+		languageGroupOverseerRole,
+		elderRole,
+		reportEditorRole,
+		scheduleEditor,
+		personViewer,
+		publicTalkEditor,
+		attendanceTracker,
+		isPublisher,
+		personMinimal,
+		serviceCommiteeRole,
+	};
 };
