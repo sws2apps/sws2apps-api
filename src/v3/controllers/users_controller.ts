@@ -14,6 +14,7 @@ import { MailClient } from '../config/mail_config.js';
 import { congregationJoinRequestsGet, findBackupByCongregation } from '../services/api/congregations.js';
 import { backupUploadsInProgress } from '../../index.js';
 import { logger } from '../services/logger/logger.js';
+import { getUserRoles } from '../services/api/users.js';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -396,25 +397,19 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 
 	const masterKeyNeed = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
 
-	const secretaryRole = userRole.includes('secretary');
-	const coordinatorRole = userRole.includes('coordinator');
-	const adminRole = userRole.includes('admin') || secretaryRole || coordinatorRole;
+	const {
+		personViewer,
+		elderRole,
+		reportEditorRole,
+		publicTalkEditor,
+		isPublisher,
+		adminRole,
+		personMinimal,
+		scheduleEditor,
+		attendanceTracker,
+		secretaryRole,
+	} = getUserRoles(userRole);
 
-	const elderRole = userRole.includes('elder');
-
-	const scheduleEditor =
-		adminRole ||
-		userRole.some((role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule');
-
-	const personViewer = scheduleEditor || elderRole;
-
-	const publicTalkEditor = adminRole || userRole.some((role) => role === 'public_talk_schedule');
-
-	const attendanceTracker = adminRole || userRole.some((role) => role === 'attendance_tracking');
-
-	const isPublisher = userRole.includes('publisher');
-
-	const personMinimal = !personViewer;
 	const userUid = user.profile.congregation!.user_local_uid;
 	const delegates = user.profile.congregation!.user_members_delegate;
 
@@ -488,7 +483,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			}
 		}
 
-		if (adminRole || elderRole) {
+		if (elderRole) {
 			localDate = cong.metadata.speakers_congregations;
 			incomingDate = metadata.speakers_congregations;
 
@@ -505,6 +500,16 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 				result.metadata.visiting_speakers = localDate;
 			}
 
+			localDate = cong.metadata.cong_field_service_reports;
+			incomingDate = metadata.cong_field_service_reports;
+
+			if (localDate !== incomingDate) {
+				result.cong_field_service_reports = await cong.getFieldServiceReports();
+				result.metadata.cong_field_service_reports = localDate;
+			}
+		}
+
+		if (reportEditorRole) {
 			localDate = cong.metadata.cong_field_service_reports;
 			incomingDate = metadata.cong_field_service_reports;
 
@@ -584,8 +589,8 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 							person_display_name: personData.person_display_name,
 							male: personData.male,
 							female: personData.female,
-							publisher_unbaptized: isPublisher ? personData.publisher_unbaptized : undefined,
-							publisher_baptized: isPublisher ? personData.publisher_baptized : undefined,
+							publisher_unbaptized: personData.publisher_unbaptized,
+							publisher_baptized: personData.publisher_baptized,
 							midweek_meeting_student: personData.midweek_meeting_student,
 							emergency_contacts: miniPersons.includes(String(record.person_uid)) ? personData.emergency_contacts : undefined,
 							assignments: miniPersons.includes(String(record.person_uid)) ? personData.assignments : undefined,
@@ -903,7 +908,8 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 	const coordinatorRole = roles.includes('coordinator');
 	const serviceOverseerRole = roles.includes('service_overseer');
 	const serviceCommittee = adminRole || coordinatorRole || secretaryRole || serviceOverseerRole;
-	const publicTalkEditor = adminRole || roles.includes('public_talk_schedule');
+	const languageGroupOverseerRole = adminRole || roles.includes('language_group_overseers');
+	const publicTalkEditor = languageGroupOverseerRole || roles.includes('public_talk_schedule');
 
 	const result: CongregationUpdatesType = {
 		cong_access_code: cong.settings.cong_access_code,
