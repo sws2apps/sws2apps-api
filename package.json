@@ -10,7 +10,7 @@
 		"start": "cross-env NODE_ENV=production node dist/index.js",
 		"start:dev": "cross-env NODE_ENV=development node dist/index.js",
 		"setup:emulators": "firebase init emulators",
-		"start:emulators": "firebase emulators:start",
+		"start:emulators": "firebase emulators:start --project=organized-local",
 		"lint": "eslint src"
 	},
 	"keywords": [],

@@ -41,40 +41,12 @@ If you’re only fixing a bug, it’s fine to submit a pull request right away b
 
 We use Firebase to be our backend. Therefore, during development, Firebase Emulators is used.
 
-- If it is the first time you use Firebase CLI, run `firebase login` to authenticate to your account.
-- Run `npm run setup:emulators`, and if not selected, choose `Firestore Emulator`. Emulators Ports are already defined in the `firebase.json` file. Feel free to change them later if you want to use different values.
-- Complete the wizard until Firebase initialization is completed.
 - Run `cp storage.rules.example storage.rules` to copy `storage.rules.example` to `storage.rules`.
 - Run `npm run start:emulators` to start the Firebase Emulators.
 
-### Get GOOGLE_CONFIG_BASE64
-
-- Go to the Firebase Console.
-- Select the `dev-sws2apps` project.
-- Navigate to "Project settings" > "Service accounts".
-- Click on "Generate new private key". This will download a JSON file containing your service account key.
-- Run `base64 <downloaded service account key>` to convert to base64.
-
 ### Setup Environment Variables
 
-Environment variables are required in order to locally run this API. Please find below the necessary instructions on how to create them.
-
-You can just copy the `.env.example` file to `.env` and fill in the remaining environment variables.
-
-- USER_PARSER_API_KEY: create an account at [https://www.userparser.com/](https://www.userparser.com/) and get your API KEY from the dashboard page.
-- GMAIL_ADDRESS: the email address you want to use for testing.
-- GMAIL_APP_PASSWORD: your gmail address app password. To create this value, follow [this guide](https://support.google.com/mail/answer/185833).
-- GMAIL_SENDER_NAME: sender name for your email address.
-- JW_CDN: set the value to be `https://app.jw-cdn.org/apis/pub-media/GETPUBMEDIALINKS?`
-- JW_FINDER: set the value to be `https://www.jw.org/finder?`
-- APP_COUNTRY_API: set the value to be `https://collect-api.sws2apps.com/api/countries?`
-- APP_CONGREGATION_API: set the value to be `https://collect-api.sws2apps.com/api/congregations?`
-- FIREBASE_APP_NAME: your Firebase Project ID defined in the Firebase Console.
-- FIREBASE_STORAGE_EMULATOR_HOST: the `Host:Port` for Firestore Storage.
-- FIRESTORE_EMULATOR_HOST: the `Host:Port` for Firestore Emulator.
-- GOOGLE_CONFIG_BASE64: base64 string of the firebase account service key (See intructions [above](#get-google-config-base64))
-- CROWDIN_PROJECT_NAME: set the name created project on https://crowdin.com/
-- CROWDIN_API_KEY: set the value from created project on https://crowdin.com/
+Environment variables are required in order to locally run this API. You can just copy the `.env.example` file to `.env`.
 
 ### Starting the Development Server
 
