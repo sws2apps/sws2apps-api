@@ -73,10 +73,10 @@ export const updateTracker = () => {
 					duration: ms,
 					request_size: requestSize,
 					response_size: responseSize,
-					memory_rss: memory.rss,
-					memory_heap_total: memory.heapTotal,
-					memory_heap_used: memory.heapUsed,
-					memory_array_buffers: memory.arrayBuffers,
+					rss_size: memory.rss,
+					heap_total_size: memory.heapTotal,
+					heap_used_size: memory.heapUsed,
+					array_buffers_size: memory.arrayBuffers,
 				};
 
 				let failedLoginAttempt = 0;
