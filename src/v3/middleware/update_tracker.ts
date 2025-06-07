@@ -18,6 +18,17 @@ export const updateTracker = () => {
 			const reqCity = geo ? `${geo.city} (${geo.country})` : 'Unknown';
 			const ipIndex = REQUEST_TRACKER.findIndex((client) => client.ip === clientIp);
 
+			let requestSize = 0;
+
+			if (req.body && typeof req.body === 'object') {
+				try {
+					const bodyString = JSON.stringify(req.body);
+					requestSize = Buffer.byteLength(bodyString, 'utf8');
+				} catch {
+					requestSize = 0;
+				}
+			}
+
 			// Initialize response size counter
 			let responseSize = 0;
 
@@ -60,7 +71,8 @@ export const updateTracker = () => {
 					userId: user?.id,
 					congregationId: user?.profile.congregation?.id,
 					duration: ms,
-					size: responseSize,
+					request_size: requestSize,
+					response_size: responseSize,
 					memory_rss: memory.rss,
 					memory_heap_total: memory.heapTotal,
 					memory_heap_used: memory.heapUsed,
