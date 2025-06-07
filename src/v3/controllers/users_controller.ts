@@ -14,7 +14,7 @@ import { MailClient } from '../config/mail_config.js';
 import { congregationJoinRequestsGet, findBackupByCongregation } from '../services/api/congregations.js';
 import { backupUploadsInProgress } from '../../index.js';
 import { logger } from '../services/logger/logger.js';
-import { getUserRoles } from '../services/api/users.js';
+import { getUserRoles, saveUserBackupAsync } from '../services/api/users.js';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -824,22 +824,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 
 	const userRole = user.profile.congregation!.cong_role;
 
-	const adminRole = userRole.some((role) => role === 'admin' || role === 'coordinator' || role === 'secretary');
-
-	const scheduleEditor = userRole.some(
-		(role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule'
-	);
-
-	await cong.saveBackup(cong_backup, userRole);
-
-	const userPerson = cong_backup.persons?.at(0);
-
-	if (!adminRole && !scheduleEditor && userPerson) {
-		const personData = userPerson.person_data as StandardRecord;
-		await user.updatePersonData(personData.timeAway as string, personData.emergency_contacts as string);
-	}
-
-	await user.saveBackup(cong_backup, userRole);
+	saveUserBackupAsync({ congId: cong.id, userId: user.id, cong_backup, userRole });
 
 	res.locals.type = 'info';
 	res.locals.message = 'user send backup for congregation successfully';
@@ -1270,22 +1255,7 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 
 		const userRole = user.profile.congregation!.cong_role;
 
-		const adminRole = userRole.some((role) => role === 'admin' || role === 'coordinator' || role === 'secretary');
-
-		const scheduleEditor = userRole.some(
-			(role) => role === 'midweek_schedule' || role === 'weekend_schedule' || role === 'public_talk_schedule'
-		);
-
-		await cong.saveBackup(cong_backup, userRole);
-
-		const userPerson = cong_backup.persons?.at(0);
-
-		if (!adminRole && !scheduleEditor && userPerson) {
-			const personData = userPerson.person_data as StandardRecord;
-			await user.updatePersonData(personData.timeAway as string, personData.emergency_contacts as string);
-		}
-
-		await user.saveBackup(cong_backup, userRole);
+		saveUserBackupAsync({ congId: cong.id, userId: user.id, userRole, cong_backup });
 
 		res.locals.type = 'info';
 		res.locals.message = 'user send backup for congregation successfully';

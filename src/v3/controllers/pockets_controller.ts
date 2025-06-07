@@ -9,6 +9,7 @@ import { retrieveVisitorDetails } from '../services/ip_details/auth_utils.js';
 import { BackupData, CongSettingsType } from '../definition/congregation.js';
 import { StandardRecord } from '../definition/app.js';
 import { UsersList } from '../classes/Users.js';
+import { savePocketBackupAsync } from '../services/api/users.js';
 
 export const validateInvitation = async (req: Request, res: Response) => {
 	// validate through express middleware
@@ -511,16 +512,9 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 	}
 
 	const userRole = user.profile.congregation!.cong_role;
-
 	const cong_backup = req.body.cong_backup as BackupData;
-	const userPerson = cong_backup.persons?.at(0);
 
-	if (userPerson) {
-		const personData = userPerson.person_data as StandardRecord;
-		user.updatePersonData(personData.timeAway as string, personData.emergency_contacts as string);
-	}
-
-	user.saveBackup(cong_backup, userRole);
+	savePocketBackupAsync({ userId: user.id, userRole, cong_backup });
 
 	res.locals.type = 'info';
 	res.locals.message = 'user send backup successfully';
