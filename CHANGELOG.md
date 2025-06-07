@@ -1,3 +1,18 @@
+# [3.30.0](https://github.com/sws2apps/sws2apps-api/compare/v3.29.0...v3.30.0) (2025-06-07)
+
+
+### Bug Fixes
+
+* **controllers:** move backup in progress cleanup in utils ([6035832](https://github.com/sws2apps/sws2apps-api/commit/60358327fe61fcc22e2df621bfa9e24dafbc236e))
+* **logger:** update memory prop key name ([2b851c8](https://github.com/sws2apps/sws2apps-api/commit/2b851c89796032d7c754e9b4cc978e6c2fdb1256))
+
+
+### Features
+
+* **controllers:** make backup save action async ([dcc2b8e](https://github.com/sws2apps/sws2apps-api/commit/dcc2b8ef61277d42b6f5b1cd57455a5d9ec9a830))
+* **logger:** log request body size ([e57b37a](https://github.com/sws2apps/sws2apps-api/commit/e57b37abc285da4fc8f0ab6881c4a16ab0d1d27a))
+* **middleware:** ignore some paths that update last seen ([802cf02](https://github.com/sws2apps/sws2apps-api/commit/802cf026b0ee6128a58b807e243b507514eb7c3d))
+
 # [3.29.0](https://github.com/sws2apps/sws2apps-api/compare/v3.28.1...v3.29.0) (2025-06-04)
 
 
