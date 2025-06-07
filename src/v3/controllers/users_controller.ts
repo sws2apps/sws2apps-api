@@ -1250,9 +1250,6 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 		const congBackupStr = findBackup.chunks.join('');
 		const cong_backup = JSON.parse(congBackupStr) as BackupData;
 
-		clearTimeout(findBackup.timeout);
-		backupUploadsInProgress.delete(uploadId);
-
 		const userRole = user.profile.congregation!.cong_role;
 
 		saveUserBackupAsync({ congId: cong.id, userId: user.id, userRole, cong_backup });

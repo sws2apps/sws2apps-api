@@ -4,6 +4,8 @@ import { CongregationsList } from '../../classes/Congregations.js';
 import { UsersList } from '../../classes/Users.js';
 import { logger } from '../logger/logger.js';
 import { LogLevel } from '@logtail/types';
+import { findBackupByCongregation } from './congregations.js';
+import { backupUploadsInProgress } from '../../../index.js';
 
 export const adminUsersGet = async (visitorid: string) => {
 	const users = UsersList.list;
@@ -127,6 +129,15 @@ export const saveUserBackupAsync = async ({
 		}
 
 		await user.saveBackup(cong_backup, userRole);
+
+		const currentBackup = findBackupByCongregation(congId);
+
+		if (currentBackup) {
+			const findBackup = currentBackup.record;
+
+			clearTimeout(findBackup.timeout);
+			backupUploadsInProgress.delete(currentBackup.uploadId);
+		}
 	} catch (error) {
 		logger(LogLevel.Error, `backup user saving error: ${String(error)}`, { congregationId: congId, userId });
 	}
