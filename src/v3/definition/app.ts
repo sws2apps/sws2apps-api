@@ -12,7 +12,8 @@ export type AppRoleType =
 	| 'view_schedules'
 	| 'elder'
 	| 'group_overseers'
-	| 'language_group_overseers';
+	| 'language_group_overseers'
+	| 'duties_schedule';
 
 export type OTPSecretType = { secret: string; uri: string; version: number };
 
