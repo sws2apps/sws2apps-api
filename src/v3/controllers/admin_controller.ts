@@ -878,3 +878,50 @@ export const userRemoveCongregation = async (req: Request, res: Response) => {
 	res.locals.message = 'admin removed a user from a congregation';
 	res.status(200).json(result);
 };
+
+export const updateBasicCongregationInfo = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({ message: 'error_api_bad-request' });
+
+		return;
+	}
+
+	const { id } = req.params;
+
+	if (!id || id === 'undefined') {
+		res.locals.type = 'warn';
+		res.locals.message = 'the congregation request id params is undefined';
+		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+
+		return;
+	}
+
+	const cong = CongregationsList.findById(id);
+
+	if (!cong) {
+		res.locals.type = 'warn';
+		res.locals.message = 'no congregation could not be found with the provided id';
+		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+		return;
+	}
+
+	const settings = structuredClone(cong.settings);
+
+	settings.cong_name = req.body.name as string;
+	settings.cong_number = req.body.number as string;
+
+	await cong.saveSettings(settings);
+
+	const result = await adminCongregationsGet();
+
+	res.locals.type = 'info';
+	res.locals.message = `admin update basic info for congregation ${id}`;
+	res.status(200).json(result);
+};
