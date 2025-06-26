@@ -19,6 +19,7 @@ import {
 	flagUpdate,
 	getAllCongregations,
 	logoutAdmin,
+	updateBasicCongregationInfo,
 	userAssignCongregation,
 	userDelete,
 	userDisable2FA,
@@ -63,6 +64,14 @@ router.patch('/congregations/:id/feature-flags', body('flagid').isString(), cong
 
 // toggle data sync
 router.patch('/congregations/:id/data-sync', congregationDataSyncToggle);
+
+// update congregation name and number
+router.patch(
+	'/congregations/:id',
+	body('name').notEmpty().isString(),
+	body('number').notEmpty().isString(),
+	updateBasicCongregationInfo
+);
 
 // reset speakers key
 router.delete('/congregations/:id/speakers-key', congregationResetSpeakersKey);
