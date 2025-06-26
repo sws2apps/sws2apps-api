@@ -1,3 +1,13 @@
+# [3.31.0](https://github.com/sws2apps/sws2apps-api/compare/v3.30.0...v3.31.0) (2025-06-26)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.44.0 to 1.45.0 ([dca3a2f](https://github.com/sws2apps/sws2apps-api/commit/dca3a2fc735753a2a723bfb2cec75af1400940b6))
+* **deps:** bump express-rate-limit from 7.5.0 to 7.5.1 ([ef51c16](https://github.com/sws2apps/sws2apps-api/commit/ef51c165db9acd557f22c6bddff9789ac0476fe4))
+* **deps:** bump serve-favicon from 2.5.0 to 2.5.1 ([05e4812](https://github.com/sws2apps/sws2apps-api/commit/05e48123f0212a72c9c44614797cf96d96bb7f20))
+* **routes:** add route to update congregation name and number ([53a996d](https://github.com/sws2apps/sws2apps-api/commit/53a996d0f29571a1ee65baed0057f25e90675a04))
+
 # [3.30.0](https://github.com/sws2apps/sws2apps-api/compare/v3.29.0...v3.30.0) (2025-06-07)
 
 
