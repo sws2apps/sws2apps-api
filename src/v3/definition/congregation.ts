@@ -161,6 +161,7 @@ export type CongSettingsType = {
 	responsabilities?: string;
 	last_backup: string;
 	group_publishers_sort?: string;
+	first_day_of_the_week?: string;
 };
 
 export type BackupData = {
