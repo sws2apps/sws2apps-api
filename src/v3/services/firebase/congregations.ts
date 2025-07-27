@@ -534,3 +534,14 @@ export const setPublicIncomingTalks = async (id: string, schedules: OutgoingTalk
 	const path = `${id}/public/incoming_talks.txt`;
 	await uploadFileToStorage(data, { type: 'congregation', path });
 };
+
+export const setUpcomingEvents = async (id: string, events: StandardRecord[]) => {
+	const data = JSON.stringify(events);
+	const path = `${id}/upcoming_events/main.txt`;
+	await uploadFileToStorage(data, { type: 'congregation', path });
+};
+
+export const getUpcomingEventsMetadata = async (cong_id: string) => {
+	const record = await getFileMetadata({ type: 'congregation', path: `${cong_id}/upcoming_events/main.txt` });
+	return record?.updated || '';
+};

@@ -338,6 +338,14 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			result.metadata.field_service_groups = localDate;
 		}
 
+		localDate = cong.metadata.upcoming_events;
+		incomingDate = metadata.upcoming_events;
+
+		if (localDate !== incomingDate) {
+			result.upcoming_events = await cong.getUpcomingEvents();
+			result.metadata.upcoming_events = localDate;
+		}
+
 		if (isPublisher) {
 			localDate = user.metadata.user_bible_studies;
 			incomingDate = metadata.user_bible_studies;
