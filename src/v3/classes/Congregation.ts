@@ -27,6 +27,7 @@ import {
 	getSettingsMetadata,
 	getSourcesMetadata,
 	getSpeakersCongregationsMetadata,
+	getUpcomingEventsMetadata,
 	getVisitingSpeakersMetadata,
 	rejectCongAccess,
 	requestCongAccess,
@@ -50,6 +51,7 @@ import {
 	setIncomingReports,
 	setMeetingAttendance,
 	setSpeakersCongregations,
+	setUpcomingEvents,
 } from '../services/firebase/congregations.js';
 import { CongregationsList } from './Congregations.js';
 import { User } from './User.js';
@@ -86,6 +88,7 @@ export class Congregation {
 			meeting_attendance: '',
 			speakers_congregations: '',
 			cong_field_service_reports: '',
+			upcoming_events: '',
 		};
 
 		this.settings = {
@@ -261,6 +264,11 @@ export class Congregation {
 		this.metadata.incoming_reports = await getIncomingReportsMetadata(this.id);
 	}
 
+	async saveUpcomingEvents(events: StandardRecord[]) {
+		await setUpcomingEvents(this.id, events);
+		this.metadata.upcoming_events = await getUpcomingEventsMetadata(this.id);
+	}
+
 	async saveBackup(cong_backup: BackupData, userRole: AppRoleType[]) {
 		const {
 			reportEditorRole,
@@ -329,6 +337,10 @@ export class Congregation {
 
 			if (attendanceTracker && cong_backup.meeting_attendance) {
 				await this.saveMeetingAttendance(cong_backup.meeting_attendance);
+			}
+
+			if (adminRole && cong_backup.upcoming_events) {
+				await this.saveUpcomingEvents(cong_backup.upcoming_events);
 			}
 
 			if (publicTalkEditor && cong_backup.outgoing_speakers) {
@@ -751,6 +763,11 @@ export class Congregation {
 
 	async getBranchFieldServiceReports(): Promise<StandardRecord[]> {
 		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/branch_field_service_reports/main.txt` });
+		return data && data.length > 0 ? JSON.parse(data) : [];
+	}
+
+	async getUpcomingEvents(): Promise<StandardRecord[]> {
+		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/upcoming_events/main.txt` });
 		return data && data.length > 0 ? JSON.parse(data) : [];
 	}
 }
