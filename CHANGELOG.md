@@ -1,3 +1,23 @@
+# [3.32.0](https://github.com/sws2apps/sws2apps-api/compare/v3.31.0...v3.32.0) (2025-07-27)
+
+
+### Features
+
+* **api:** support upcoming_events for congregation data ([50be428](https://github.com/sws2apps/sws2apps-api/commit/50be4282ded0e10e82d817aa77c74ebe267097c6))
+* **deps:** bump @crowdin/crowdin-api-client from 1.45.0 to 1.45.1 ([6f738a1](https://github.com/sws2apps/sws2apps-api/commit/6f738a15779a1f191f8e7d781d723248b5c6c20a))
+* **deps:** bump @crowdin/crowdin-api-client from 1.45.1 to 1.46.0 ([c4f3307](https://github.com/sws2apps/sws2apps-api/commit/c4f33078fa037a7100ee50648a2eecae3060a580))
+* **deps:** bump dotenv from 16.5.0 to 17.0.0 ([a1b8a7b](https://github.com/sws2apps/sws2apps-api/commit/a1b8a7b8edb99d9027ad2c8b87def8d601d534cc))
+* **deps:** bump dotenv from 17.0.0 to 17.0.1 ([ec69368](https://github.com/sws2apps/sws2apps-api/commit/ec6936853791e2727b74f9a894cf1b1c272b5987))
+* **deps:** bump dotenv from 17.0.1 to 17.1.0 ([8caa39a](https://github.com/sws2apps/sws2apps-api/commit/8caa39a9b49d08fa234079c7ac1f944ed69713e1))
+* **deps:** bump dotenv from 17.1.0 to 17.2.0 ([c182112](https://github.com/sws2apps/sws2apps-api/commit/c1821126fb992a8870dd5a5847aabf23f9534383))
+* **deps:** bump dotenv from 17.2.0 to 17.2.1 ([72dda6f](https://github.com/sws2apps/sws2apps-api/commit/72dda6fd99770da6c3a341cd07193a27acabe0f8))
+* **deps:** bump express-rate-limit from 7.5.1 to 8.0.1 ([08015b9](https://github.com/sws2apps/sws2apps-api/commit/08015b9ed6a627b085b7dda22008aa8607113f27))
+* **deps:** bump i18next from 25.2.1 to 25.3.0 ([48e3dfd](https://github.com/sws2apps/sws2apps-api/commit/48e3dfdc4b40d84810095dbd4d081acad3e44ea4))
+* **deps:** bump i18next from 25.3.0 to 25.3.1 ([fc7dca7](https://github.com/sws2apps/sws2apps-api/commit/fc7dca708e0fce72eea50b5df47170c4da2ed626))
+* **deps:** bump i18next from 25.3.1 to 25.3.2 ([b254c13](https://github.com/sws2apps/sws2apps-api/commit/b254c13185a034daa5fd90d0c357791e7bc0a106))
+* **deps:** bump nodemailer from 7.0.3 to 7.0.4 ([c5a8ba9](https://github.com/sws2apps/sws2apps-api/commit/c5a8ba9f1279106287b5025d0290310ba5837067))
+* **deps:** bump nodemailer from 7.0.4 to 7.0.5 ([d657695](https://github.com/sws2apps/sws2apps-api/commit/d657695dd3d2d54a6252ac622da021ed9ceaed88))
+
 # [3.31.0](https://github.com/sws2apps/sws2apps-api/compare/v3.30.0...v3.31.0) (2025-06-26)
 
 
