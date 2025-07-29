@@ -1,3 +1,11 @@
+# [3.33.0](https://github.com/sws2apps/sws2apps-api/compare/v3.32.0...v3.33.0) (2025-07-29)
+
+
+### Features
+
+* **deps:** bump cross-env from 7.0.3 to 10.0.0 ([a241819](https://github.com/sws2apps/sws2apps-api/commit/a2418198465fb992774eab8d27e1e297d3e44998))
+* **deps:** bump i18next-http-middleware from 3.7.4 to 3.8.0 ([e677dd3](https://github.com/sws2apps/sws2apps-api/commit/e677dd31780e06d60670418dfe18714efd40bd20))
+
 # [3.32.0](https://github.com/sws2apps/sws2apps-api/compare/v3.31.0...v3.32.0) (2025-07-27)
 
 
