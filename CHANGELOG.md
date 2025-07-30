@@ -1,3 +1,10 @@
+# [3.34.0](https://github.com/sws2apps/sws2apps-api/compare/v3.33.0...v3.34.0) (2025-07-30)
+
+
+### Features
+
+* **api:** allow admin to set minimum client from console ([65f68cc](https://github.com/sws2apps/sws2apps-api/commit/65f68ccd5fb570bf04bf86198a9dc81a6e70957a))
+
 # [3.33.0](https://github.com/sws2apps/sws2apps-api/compare/v3.32.0...v3.33.0) (2025-07-29)
 
 
