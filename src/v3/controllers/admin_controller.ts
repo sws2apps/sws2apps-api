@@ -10,6 +10,8 @@ import { Flags } from '../classes/Flags.js';
 import { FeatureFlag } from '../definition/flag.js';
 import { adminFlagsGet } from '../services/api/flags.js';
 import { setCongOutgoingSpeakers } from '../services/firebase/congregations.js';
+import { API_VAR } from '../../index.js';
+import { updateAPIMinimumClient } from '../services/firebase/api.js';
 
 export const validateAdmin = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
@@ -924,4 +926,33 @@ export const updateBasicCongregationInfo = async (req: Request, res: Response) =
 	res.locals.type = 'info';
 	res.locals.message = `admin update basic info for congregation ${id}`;
 	res.status(200).json(result);
+};
+
+export const getClientVersion = async (req: Request, res: Response) => {
+	res.locals.type = 'info';
+	res.locals.message = 'admin fetched minimum client';
+	res.status(200).json({ version: API_VAR.MINIMUM_APP_VERSION });
+};
+
+export const updateClientVersion = async (req: Request, res: Response) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({ message: 'error_api_bad-request' });
+
+		return;
+	}
+
+	const version = req.body.version as string;
+
+	await updateAPIMinimumClient(version);
+
+	res.locals.type = 'info';
+	res.locals.message = 'admin updated minimum client';
+	res.status(200).json({ version: API_VAR.MINIMUM_APP_VERSION });
 };

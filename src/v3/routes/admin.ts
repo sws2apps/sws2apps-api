@@ -18,8 +18,10 @@ import {
 	flagToggle,
 	flagUpdate,
 	getAllCongregations,
+	getClientVersion,
 	logoutAdmin,
 	updateBasicCongregationInfo,
+	updateClientVersion,
 	userAssignCongregation,
 	userDelete,
 	userDisable2FA,
@@ -43,6 +45,12 @@ router.get('/', validateAdmin);
 
 // logout admin
 router.get('/logout', logoutAdmin);
+
+// get minimum client
+router.get('/client-version', getClientVersion);
+
+// get minimum client
+router.post('/client-version', updateClientVersion);
 
 // create new congregation
 router.post(
