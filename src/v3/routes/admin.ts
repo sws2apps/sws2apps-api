@@ -50,7 +50,7 @@ router.get('/logout', logoutAdmin);
 router.get('/client-version', getClientVersion);
 
 // get minimum client
-router.post('/client-version', updateClientVersion);
+router.post('/client-version', body('version').isString().notEmpty(), updateClientVersion);
 
 // create new congregation
 router.post(

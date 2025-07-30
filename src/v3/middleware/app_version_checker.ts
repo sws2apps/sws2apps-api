@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { check, validationResult } from 'express-validator';
-import { API_VAR } from '../../index.js';
 import { formatError } from '../utils/format_log.js';
+import { isValidClientVersion } from '../utils/app.js';
 
 export const appVersionChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
@@ -30,20 +30,16 @@ export const appVersionChecker = () => {
 				return;
 			}
 
-			const appMinimum = API_VAR.MINIMUM_APP_VERSION;
+			const validVersion = isValidClientVersion(appVersion);
 
-			const majorOK = +appVersion.split('.')[0] > +appMinimum.split('.')[0];
-			const minorOK = +appVersion.split('.')[1] > +appMinimum.split('.')[1];
-			const patchOK = +appVersion.split('.')[2] > +appMinimum.split('.')[2];
-
-			if (appMinimum === appVersion || majorOK || (!majorOK && minorOK) || (!minorOK && patchOK)) {
-				next();
+			if (!validVersion) {
+				res.locals.type = 'warn';
+				res.locals.message = `client version outdated`;
+				res.status(400).json({ message: 'CLIENT_VERSION_OUTDATED' });
 				return;
 			}
 
-			res.locals.type = 'warn';
-			res.locals.message = `client version outdated`;
-			res.status(400).json({ message: 'CLIENT_VERSION_OUTDATED' });
+			next();
 		} catch (err) {
 			next(err);
 		}
