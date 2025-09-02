@@ -22,13 +22,13 @@ jobs:
           ref: main
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@3c3833e0f8c1c83d449a7478aa59c036a9165498
+        uses: github/codeql-action/init@2d92b76c45b91eb80fc44c74ce3fce0ee94e8f9d
         with:
           languages: javascript
           queries: security-extended
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@3c3833e0f8c1c83d449a7478aa59c036a9165498
+        uses: github/codeql-action/analyze@2d92b76c45b91eb80fc44c74ce3fce0ee94e8f9d
 
   nodejsscan:
     name: NodeJS Scan
@@ -51,6 +51,6 @@ jobs:
           args: '. --sarif --output results.sarif || true'
 
       - name: Upload njsscan report
-        uses: github/codeql-action/upload-sarif@3c3833e0f8c1c83d449a7478aa59c036a9165498
+        uses: github/codeql-action/upload-sarif@2d92b76c45b91eb80fc44c74ce3fce0ee94e8f9d
         with:
           sarif_file: results.sarif
