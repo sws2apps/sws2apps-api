@@ -1,3 +1,13 @@
+# [3.35.0](https://github.com/sws2apps/sws2apps-api/compare/v3.34.0...v3.35.0) (2025-09-06)
+
+
+### Features
+
+* **deps:** bump crypto-es from 2.1.0 to 3.0.4 ([1b45997](https://github.com/sws2apps/sws2apps-api/commit/1b45997170a83a3b8f0134eb0d99e5d9b65bee4a))
+* **deps:** bump dayjs from 1.11.13 to 1.11.18 ([30890c3](https://github.com/sws2apps/sws2apps-api/commit/30890c34d764946a25caf91b4e657679ec4310ba))
+* **deps:** bump i18next from 25.3.2 to 25.4.2 ([d5d217e](https://github.com/sws2apps/sws2apps-api/commit/d5d217e14c1646adeb8498ea5f9096f6d1926f69))
+* **deps:** bump otpauth from 9.4.0 to 9.4.1 ([9467fe8](https://github.com/sws2apps/sws2apps-api/commit/9467fe8461cc9fa51a0aea67916624878aa4e063))
+
 # [3.34.0](https://github.com/sws2apps/sws2apps-api/compare/v3.33.0...v3.34.0) (2025-07-30)
 
 
