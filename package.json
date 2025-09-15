@@ -32,7 +32,7 @@
 		"crypto-es": "^3.1.2",
 		"cryptr": "^6.3.0",
 		"dayjs": "^1.11.18",
-		"dotenv": "^17.2.1",
+		"dotenv": "^17.2.2",
 		"express": "^5.1.0",
 		"express-rate-limit": "^8.0.1",
 		"express-validator": "^7.2.1",
