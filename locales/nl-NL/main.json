@@ -14,5 +14,7 @@
 	"tr_joinRequestApprovedSubject": "Goedkeuring om lid te worden van de {{ congregation }} gemeente",
 	"tr_joinRequestApprovedTitle": "Uw aanvraag werd goedgekeurd",
 	"tr_joinRequestApprovedDesc": "De <strong>{{ congregation }}</strong> gemeente heeft uw verzoek om lid te worden goedgekeurd. U kunt de Georganiseerde app in <a href='{{ url }}'>{{ url }}</a>openen en nu inloggen.",
-	"tr_greetings": "Hallo {{ name }},"
+	"tr_greetings": "Hallo {{ name }},",
+	"tr_loginOTP": "Alternatively, you can also use this verification code:",
+	"tr_loginOTPDuration": "This verification code is valid for five minutes."
 }
