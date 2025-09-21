@@ -15,6 +15,11 @@ router.post(
 	verifyPasswordlessInfo
 );
 
-router.post('/verify-email-token', body('email').isEmail(), body('token').isString(), verifyEmailToken);
+router.post(
+	'/verify-email-token',
+	body('email').isEmail(),
+	body('token').isNumeric().isLength({ min: 6, max: 6 }),
+	verifyEmailToken
+);
 
 export default router;

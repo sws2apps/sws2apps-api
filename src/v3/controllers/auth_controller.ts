@@ -334,7 +334,14 @@ export const verifyEmailToken = async (req: Request, res: Response) => {
 	const email = req.body.email as string;
 	const token = req.body.token as string;
 
-	const authUser = UsersList.findByEmail(email)!;
+	const authUser = UsersList.findByEmail(email);
+
+	if (!authUser) {
+		res.locals.type = 'warn';
+		res.locals.message = 'user record not found';
+		res.status(404).json({ message: 'USER_NOT_FOUND' });
+		return;
+	}
 
 	if (!authUser.profile.email_otp) {
 		res.locals.type = 'warn';
@@ -352,7 +359,7 @@ export const verifyEmailToken = async (req: Request, res: Response) => {
 			isInvalid = true;
 		}
 
-		if (!isExpired && authUser.profile.email_otp.code !== token) {
+		if (!isExpired && authUser.profile.email_otp.code !== String(token)) {
 			isInvalid = true;
 		}
 
