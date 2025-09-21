@@ -15,6 +15,6 @@
 	"tr_joinRequestApprovedTitle": "Pyyntösi hyväksyttiin",
 	"tr_joinRequestApprovedDesc": "<strong>{{ congregation }}</strong> seurakunta on hyväksynyt pyyntösi Voit nyt avata Organized-sovelluksen <a href='{{ url }}'>{{ url }}</a>, ja kirjautua sisään.",
 	"tr_greetings": "Hei {{ name }},",
-	"tr_loginOTP": "Alternatively, you can also use this verification code:",
-	"tr_loginOTPDuration": "This verification code is valid for five minutes."
+	"tr_loginOTP": "Vaihtoehtoisesti voit myös käyttää tätä vahvistuskoodia:",
+	"tr_loginOTPDuration": "Vahvistuskoodi on voimassa viisi minuuttia."
 }
