@@ -15,6 +15,6 @@
 	"tr_joinRequestApprovedTitle": "Din begäran har godkänts",
 	"tr_joinRequestApprovedDesc": "Församlingen <strong>{{ congregation }}</strong> har godkänt din begäran att gå med. Du kan nu öppna Organized-appen på <a href='{{ url }}'>{{ url }}</a>och logga in.",
 	"tr_greetings": "Hej {{ name }},",
-	"tr_loginOTP": "Alternatively, you can also use this verification code:",
-	"tr_loginOTPDuration": "This verification code is valid for five minutes."
+	"tr_loginOTP": "Alternativt kan du också använda denna verifieringskod:",
+	"tr_loginOTPDuration": "Denna verifieringskod är giltig i fem minuter."
 }
