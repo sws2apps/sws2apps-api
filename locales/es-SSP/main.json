@@ -11,8 +11,10 @@
 	"tr_loginBtn": "Iniciar sesión en Organized",
 	"tr_loginAltText": "Si no puedes usar el botón de inicio de sesión de arriba, por favor utiliza el siguiente enlace. Asegúrate de copiarlo completo:",
 	"tr_loginIgnoreText": "Si no solicitaste este enlace, simplemente ignora este correo.",
-	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
-	"tr_joinRequestApprovedTitle": "Your request was approved",
-	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
-	"tr_greetings": "Hello {{ name }},"
+	"tr_joinRequestApprovedSubject": "Aprobación para unirse a la congregación {{ congregation }}",
+	"tr_joinRequestApprovedTitle": "Tu solicitud fue aprobada",
+	"tr_joinRequestApprovedDesc": "La congregación <strong>{{ congregation }}</strong> ha aprobado tu solicitud de unión. Puedes abrir la aplicación Organized en <a href='{{ url }}'>{{ url }}</a> e iniciar sesión ahora.",
+	"tr_greetings": "Hola {{ name }},",
+	"tr_loginOTP": "Alternatively, you can also use this verification code:",
+	"tr_loginOTPDuration": "This verification code is valid for five minutes."
 }
