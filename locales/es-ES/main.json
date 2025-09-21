@@ -14,5 +14,7 @@
 	"tr_joinRequestApprovedSubject": "Aprobación para unirse a la congregación {{ congregation }}",
 	"tr_joinRequestApprovedTitle": "Tu solicitud fue aprobada",
 	"tr_joinRequestApprovedDesc": "La congregación <strong>{{ congregation }}</strong> ha aprobado tu solicitud de unión. Puedes abrir la aplicación Organized en <a href='{{ url }}'>{{ url }}</a> e iniciar sesión ahora.",
-	"tr_greetings": "Hola {{ name }},"
+	"tr_greetings": "Hola {{ name }},",
+	"tr_loginOTP": "Alternatively, you can also use this verification code:",
+	"tr_loginOTPDuration": "This verification code is valid for five minutes."
 }
