@@ -14,5 +14,7 @@
 	"tr_joinRequestApprovedSubject": "Затвердження для приєднання до збору {{ congregation }}",
 	"tr_joinRequestApprovedTitle": "Твій запит був схвалений",
 	"tr_joinRequestApprovedDesc": "Збір <strong>{{ congregation }}</strong> затвердив твій запит на приєднання. Тепер ти можеш відкрити та увійти у додаток Organized <a href='{{ url }}'>{{ url }}</a>.",
-	"tr_greetings": "Привіт, {{ name }},"
+	"tr_greetings": "Привіт, {{ name }},",
+	"tr_loginOTP": "Alternatively, you can also use this verification code:",
+	"tr_loginOTPDuration": "This verification code is valid for five minutes."
 }
