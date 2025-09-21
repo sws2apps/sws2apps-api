@@ -317,9 +317,9 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 						publisher_baptized: personData.publisher_baptized,
 						midweek_meeting_student: personData.midweek_meeting_student,
 						privileges: personData.privileges,
+						enrollments: personData.enrollments,
 						emergency_contacts: miniPersons.includes(String(record.person_uid)) ? personData.emergency_contacts : undefined,
 						assignments: miniPersons.includes(String(record.person_uid)) ? personData.assignments : undefined,
-						enrollments: miniPersons.includes(String(record.person_uid)) ? personData.enrollments : undefined,
 						timeAway: includeTimeAway || miniPersons.includes(String(record.person_uid)) ? personData.timeAway : undefined,
 					},
 				};
