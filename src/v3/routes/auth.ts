@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, header } from 'express-validator';
-import { createSignInLink, loginUser, verifyPasswordlessInfo } from '../controllers/auth_controller.js';
+import { createSignInLink, loginUser, verifyEmailToken, verifyPasswordlessInfo } from '../controllers/auth_controller.js';
 import { authBearerCheck } from '../services/validator/auth.js';
 
 const router = express.Router();
@@ -12,8 +12,9 @@ router.post('/user-passwordless-login', body('email').isEmail(), createSignInLin
 router.post(
 	'/user-passwordless-verify',
 	header('Authorization').exists().notEmpty().isString().custom(authBearerCheck),
-	body('email').isEmail(),
 	verifyPasswordlessInfo
 );
+
+router.post('/verify-email-token', body('email').isEmail(), body('token').isString(), verifyEmailToken);
 
 export default router;

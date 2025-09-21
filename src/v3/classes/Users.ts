@@ -1,3 +1,4 @@
+import randomstring from 'randomstring';
 import { LogLevel } from '@logtail/types';
 import { PocketNewParams, RequestPasswordLessLinkParams, UserNewParams } from '../definition/user.js';
 import { User } from './User.js';
@@ -71,15 +72,48 @@ class Users {
 			const results = await getAuth().getUsers([{ email }]);
 
 			if (results.users.length === 0) {
-				await getAuth().createUser({ email });
+				const user = await getAuth().createUser({ email });
+
+				await this.create({ auth_uid: user.uid, firstname: '', lastname: '', email });
 			}
+		}
+
+		const foundUser = UsersList.findByEmail(email)!;
+
+		let createOTP = false;
+		let emailOTP: string | undefined = undefined;
+
+		if (!foundUser.profile.email_otp) {
+			createOTP = true;
+		}
+
+		if (foundUser.profile.email_otp) {
+			const isExpired = Date.now() > foundUser.profile.email_otp.expiredAt;
+
+			if (isExpired) {
+				createOTP = true;
+			}
+
+			if (!isExpired) {
+				emailOTP = foundUser.profile.email_otp.code;
+			}
+		}
+
+		if (createOTP) {
+			emailOTP = randomstring.generate({ length: 6, charset: ['numeric'] });
+
+			const profile = structuredClone(foundUser.profile);
+			profile.email_otp = { code: emailOTP, expiredAt: Date.now() + 5 * 60 * 1000 };
+
+			await foundUser.updateProfile(profile);
 		}
 
 		const user = await getAuth().getUserByEmail(email);
 		const token = await getAuth().createCustomToken(user.uid);
 
 		const link = `${origin}/#/?code=${token}`;
-		return link;
+
+		return { link, otp: emailOTP };
 	}
 
 	async createPocket(params: PocketNewParams) {
