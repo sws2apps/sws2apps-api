@@ -14,5 +14,7 @@
 	"tr_joinRequestApprovedSubject": "Odobritev za pridružitev občini {{ congregation }}",
 	"tr_joinRequestApprovedTitle": "Tvoja prošnja je bila odobrena",
 	"tr_joinRequestApprovedDesc": "Občina <strong>{{ congregation }}</strong> je odobrila tvojo prošnjo za pridružitev. Aplikacijo Organized lahko odpreš na <a href='{{ url }}'>{{ url }}</a> in se prijaviš.",
-	"tr_greetings": "Zdravo {{ name }}!"
+	"tr_greetings": "Zdravo {{ name }}!",
+	"tr_loginOTP": "Alternatively, you can also use this verification code:",
+	"tr_loginOTPDuration": "This verification code is valid for five minutes."
 }
