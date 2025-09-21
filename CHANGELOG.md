@@ -1,3 +1,24 @@
+# [3.36.0](https://github.com/sws2apps/sws2apps-api/compare/v3.35.0...v3.36.0) (2025-09-21)
+
+
+### Bug Fixes
+
+* **services:** support crypto-es esm change ([3b645f1](https://github.com/sws2apps/sws2apps-api/commit/3b645f1b697aa3b79a2b8d31363ebae36c1ec7bb))
+
+
+### Features
+
+* **api:** include person enrollments for all roles ([2a3d438](https://github.com/sws2apps/sws2apps-api/commit/2a3d438f9f1b69dc689aa826f974b4424408a90a))
+* **api:** include person privileges for all roles ([13cfd42](https://github.com/sws2apps/sws2apps-api/commit/13cfd422967d881d345b05f6b20d9ca5703a8b32))
+* **api:** support login with email otp code ([f3b9f34](https://github.com/sws2apps/sws2apps-api/commit/f3b9f34a6e2aec4559b812c367d5d9672c5c2911))
+* **deps:** bump @logtail/node from 0.5.5 to 0.5.6 ([21d60c8](https://github.com/sws2apps/sws2apps-api/commit/21d60c812beac4d5aff73512b4ac38a8face60df))
+* **deps:** bump crypto-es from 3.0.4 to 3.1.2 ([7b0a1a1](https://github.com/sws2apps/sws2apps-api/commit/7b0a1a197174f57c74c41b4e6c81e175a98dfb69))
+* **deps:** bump dotenv from 17.2.1 to 17.2.2 ([f47fe37](https://github.com/sws2apps/sws2apps-api/commit/f47fe378ce05347d8d434878251f297616a17713))
+* **deps:** bump express-rate-limit from 8.0.1 to 8.1.0 ([fb09e36](https://github.com/sws2apps/sws2apps-api/commit/fb09e36bb8e4caae3b2d761cfdf8fb55dfe613b8))
+* **deps:** bump firebase-admin from 13.4.0 to 13.5.0 ([92b6a5b](https://github.com/sws2apps/sws2apps-api/commit/92b6a5b1040577f4f04e2633b47539c11f42d1fa))
+* **deps:** bump i18next from 25.4.2 to 25.5.2 ([ac56a42](https://github.com/sws2apps/sws2apps-api/commit/ac56a42c02c7f64b333953ebec0d6dde73dd36ba))
+* **deps:** bump nodemailer and @types/nodemailer ([2e9e109](https://github.com/sws2apps/sws2apps-api/commit/2e9e109644cbdc0975b449e7f5d646a0fae40a39))
+
 # [3.35.0](https://github.com/sws2apps/sws2apps-api/compare/v3.34.0...v3.35.0) (2025-09-06)
 
 
