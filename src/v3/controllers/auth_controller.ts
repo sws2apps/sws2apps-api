@@ -164,7 +164,7 @@ export const createSignInLink = async (req: Request, res: Response) => {
 	const { email } = req.body;
 	const language = (req.headers?.applanguage as string) || 'eng';
 
-	const link = await UsersList.generatePasswordLessLink({ email, origin: req.headers.origin! });
+	const { link, otp } = await UsersList.generatePasswordLessLink({ email, origin: req.headers.origin! });
 
 	const MAIL_ENABLED = process.env.MAIL_ENABLED === 'true';
 
@@ -179,9 +179,12 @@ export const createSignInLink = async (req: Request, res: Response) => {
 				loginTitle: req.t('tr_login'),
 				loginDesc: req.t('tr_loginDesc'),
 				link,
+				otp,
 				loginButton: req.t('tr_loginBtn'),
 				loginAltText: req.t('tr_loginAltText'),
 				loginIgnoreText: req.t('tr_loginIgnoreText'),
+				loginOTP: req.t('tr_loginOTP'),
+				loginOTPDuration: req.t('tr_loginOTPDuration'),
 				copyright: new Date().getFullYear(),
 			},
 		};
@@ -191,7 +194,7 @@ export const createSignInLink = async (req: Request, res: Response) => {
 
 	res.locals.type = 'info';
 	res.locals.message = 'passwordless link will be sent to user';
-	res.status(200).json(MAIL_ENABLED ? { message: 'SIGNIN_LINK_SEND' } : { link });
+	res.status(200).json(MAIL_ENABLED ? { message: 'SIGNIN_LINK_SEND' } : { link, otp });
 };
 
 export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
@@ -221,21 +224,15 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const visitorid = req.signedCookies.visitorid || crypto.randomUUID();
-	const email = req.body.email as string;
+	const authUser = UsersList.findByAuthUid(uid)!;
 
-	let authUser = UsersList.findByAuthUid(uid);
+	const visitorid = req.signedCookies.visitorid || crypto.randomUUID();
 
 	let newSessions: UserSession[] = [];
 
 	if (authUser) {
 		newSessions = authUser.sessions?.filter((session) => session.visitorid !== visitorid) || [];
 	}
-
-	if (!authUser) {
-		authUser = await UsersList.create({ auth_uid: uid, firstname: '', lastname: '', email });
-	}
-
 	const newSession: UserSession = {
 		mfaVerified: false,
 		last_seen: new Date().toISOString(),
@@ -314,6 +311,137 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 
 	res.locals.type = 'info';
 	res.locals.message = 'user successfully logged in without MFA';
+
+	res.cookie('visitorid', visitorid, cookieOptions(req));
+	res.status(200).json(userInfo);
+};
+
+export const verifyEmailToken = async (req: Request, res: Response) => {
+	const userIP = req.clientIp!;
+
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		const msg = formatError(errors);
+
+		res.locals.type = 'warn';
+		res.locals.message = `invalid input: ${msg}`;
+
+		res.status(400).json({ message: 'error_api_bad-request' });
+
+		return;
+	}
+
+	const email = req.body.email as string;
+	const token = req.body.token as string;
+
+	const authUser = UsersList.findByEmail(email)!;
+
+	if (!authUser.profile.email_otp) {
+		res.locals.type = 'warn';
+		res.locals.message = 'user email otp not found in records';
+		res.status(404).json({ message: 'error_auth_invalid-token' });
+		return;
+	}
+
+	if (authUser.profile.email_otp) {
+		let isInvalid = false;
+
+		const isExpired = Date.now() > authUser.profile.email_otp.expiredAt;
+
+		if (isExpired) {
+			isInvalid = true;
+		}
+
+		if (!isExpired && authUser.profile.email_otp.code !== token) {
+			isInvalid = true;
+		}
+
+		if (isInvalid) {
+			res.locals.type = 'warn';
+			res.locals.message = 'email otp is invalid';
+			res.status(403).json({ message: 'error_auth_invalid-token' });
+			return;
+		}
+	}
+
+	const profile = structuredClone(authUser.profile);
+
+	delete profile.email_otp;
+
+	await authUser.updateProfile(profile);
+
+	const visitorid = req.signedCookies.visitorid || crypto.randomUUID();
+
+	let newSessions: UserSession[] = [];
+
+	if (authUser) {
+		newSessions = authUser.sessions?.filter((session) => session.visitorid !== visitorid) || [];
+	}
+	const newSession: UserSession = {
+		mfaVerified: true,
+		last_seen: new Date().toISOString(),
+		visitorid: visitorid,
+		visitor_details: await retrieveVisitorDetails(userIP, req),
+		identifier: crypto.randomUUID(),
+	};
+
+	newSessions.push(newSession);
+
+	await authUser.updateSessions(newSessions);
+
+	const userInfo: UserAuthResponse = {
+		message: 'TOKEN_VALID',
+		id: authUser.id,
+		app_settings: {
+			user_settings: {
+				firstname: authUser.profile.firstname,
+				lastname: authUser.profile.lastname,
+				role: authUser.profile.role,
+				mfa: 'not_enabled',
+			},
+		},
+	};
+
+	if (authUser.profile.congregation?.id) {
+		const userCong = CongregationsList.findById(authUser.profile.congregation.id);
+
+		const userRole = authUser.profile.congregation.cong_role;
+		const masterKeyNeeded = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
+
+		if (userCong) {
+			userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation.user_local_uid;
+			userInfo.app_settings.user_settings.user_members_delegate = authUser.profile.congregation.user_members_delegate;
+			userInfo.app_settings.user_settings.cong_role = authUser.profile.congregation.cong_role;
+
+			const midweek = userCong.settings.midweek_meeting.map((record) => {
+				return { type: record.type, time: record.time, weekday: record.weekday };
+			});
+
+			const weekend = userCong.settings.weekend_meeting.map((record) => {
+				return { type: record.type, time: record.time, weekday: record.weekday };
+			});
+
+			userInfo.app_settings.cong_settings = {
+				id: authUser.profile.congregation.id,
+				cong_circuit: userCong.settings.cong_circuit,
+				cong_name: userCong.settings.cong_name,
+				cong_number: userCong.settings.cong_number,
+				country_code: userCong.settings.country_code,
+				cong_access_code: userCong.settings.cong_access_code,
+				cong_master_key: masterKeyNeeded ? userCong.settings.cong_master_key : undefined,
+				cong_location: userCong.settings.cong_location,
+				midweek_meeting: midweek,
+				weekend_meeting: weekend,
+			};
+		}
+	}
+
+	res.locals.type = 'info';
+	res.locals.message = 'user successfully logged with email OTP';
+
+	const customToken = await getAuth().createCustomToken(authUser.profile.auth_uid!);
+
+	userInfo.custom_token = customToken;
 
 	res.cookie('visitorid', visitorid, cookieOptions(req));
 	res.status(200).json(userInfo);

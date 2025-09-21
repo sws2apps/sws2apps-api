@@ -68,6 +68,7 @@ export type UserProfile = {
 	role: UserGlobalRoleType;
 	mfa_enabled?: boolean;
 	secret?: string;
+	email_otp?: { code: string; expiredAt: number };
 	congregation?: {
 		id: string;
 		cong_role: AppRoleType[];
@@ -101,6 +102,7 @@ export type UserSession = {
 export type UserAuthResponse = {
 	message?: string;
 	id: string;
+	custom_token?: string;
 	app_settings: {
 		user_settings: {
 			firstname: { value: string; updatedAt: string };
