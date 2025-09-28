@@ -101,8 +101,10 @@ export class Congregation {
 			cong_master_key: '',
 			cong_name: '',
 			cong_new: true,
-			cong_number: '',
+			cong_number: { value: '', updatedAt: '' },
 			country_code: '',
+			country_guid: '',
+			cong_prefix: '',
 			display_name_enabled: '',
 			format_24h_enabled: '',
 			fullname_option: '',
@@ -403,13 +405,18 @@ export class Congregation {
 	getVisitingSpeakersAccessList() {
 		const approvedCong = this.outgoing_speakers.access.filter((record) => record.status === 'approved');
 
-		const result = approvedCong.map((cong) => {
+		const validCongs = approvedCong.filter((cong) => {
+			const foundCong = CongregationsList.findById(cong.cong_id);
+
+			if (!foundCong) return false;
+		});
+
+		const result = validCongs.map((cong) => {
 			const foundCong = CongregationsList.findById(cong.cong_id)!;
 
 			return {
 				cong_id: cong.cong_id,
 				request_id: cong.request_id,
-				cong_number: foundCong.settings.cong_number,
 				cong_name: foundCong.settings.cong_name,
 			};
 		});
@@ -430,7 +437,6 @@ export class Congregation {
 			return {
 				cong_id: cong.cong_id,
 				updatedAt: cong.updatedAt,
-				cong_number: foundCong.settings.cong_number,
 				cong_name: foundCong.settings.cong_name,
 				country_code: foundCong.settings.country_code,
 				request_id: cong.request_id,
@@ -465,7 +471,6 @@ export class Congregation {
 				status: 'approved',
 				updatedAt: requestDetails.updatedAt,
 				cong_name: cong.settings.cong_name,
-				cong_number: cong.settings.cong_number,
 				country_code: cong.settings.country_code,
 				request_id: requestDetails.request_id,
 			};
@@ -489,7 +494,6 @@ export class Congregation {
 				status: 'disapproved',
 				updatedAt: requestDetails.updatedAt,
 				cong_name: cong.settings.cong_name,
-				cong_number: cong.settings.cong_number,
 				country_code: cong.settings.country_code,
 				request_id: requestDetails.request_id,
 			};

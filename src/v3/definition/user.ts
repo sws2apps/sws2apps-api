@@ -118,7 +118,8 @@ export type UserAuthResponse = {
 			country_code: string;
 			cong_circuit: CircuitRecordType[];
 			cong_name: string;
-			cong_number: string;
+			cong_number?: { value: string; updatedAt: string };
+			cong_prefix: string;
 			cong_master_key?: string;
 			cong_access_code: string;
 			cong_location: { address: string; lat?: number; lng?: number; updatedAt: string };

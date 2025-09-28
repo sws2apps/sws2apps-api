@@ -21,8 +21,8 @@ router.get('/search', getCongregations);
 router.put(
 	'/',
 	body('country_code').isString().notEmpty(),
+	body('country_guid').isString().notEmpty(),
 	body('cong_name').isString().notEmpty(),
-	body('cong_number').isNumeric(),
 	body('firstname').isString().notEmpty(),
 	body('lastname').isString(),
 	createCongregation

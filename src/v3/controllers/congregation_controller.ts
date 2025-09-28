@@ -6,6 +6,7 @@ import { ApiCongregationSearchResponse } from '../definition/congregation.js';
 import { formatError } from '../utils/format_log.js';
 import { StandardRecord } from '../definition/app.js';
 import { MailClient } from '../config/mail_config.js';
+import { formatMeetingWeekday } from '../utils/congregation_utils.js';
 import { ALL_LANGUAGES } from '../constant/langList.js';
 
 const MAIL_ENABLED = process.env.MAIL_ENABLED === 'true';
@@ -104,14 +105,11 @@ export const createCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const country_code = req.body.country_code as string;
-	const cong_name = req.body.cong_name as string;
-	const cong_number = req.body.cong_number as string;
-	const firstname = req.body.firstname as string;
-	const lastname = req.body.lastname as string;
+	const { country_code, country_guid, cong_name, firstname, lastname } = req.body as Record<string, string>;
 
 	// find congregation
-	const cong = CongregationsList.findByCountryAndNumber(country_code, cong_number);
+	const cong = CongregationsList.findByCountryAndName(country_guid, cong_name);
+
 	if (cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation requested already exists';
@@ -124,8 +122,7 @@ export const createCongregation = async (req: Request, res: Response) => {
 	const language = (req.headers.language as string) || 'eng';
 	const code = ALL_LANGUAGES.find((record) => record.threeLettersCode === language)?.code ?? 'E';
 
-	const url =
-		process.env.APP_CONGREGATION_API! + new URLSearchParams({ country: country_code, language: code, name: cong_number });
+	const url = process.env.APP_CONGREGATION_API! + new URLSearchParams({ country: country_guid, language: code, name: cong_name });
 
 	const response = await fetch(url);
 	if (response.status !== 200) {
@@ -136,17 +133,15 @@ export const createCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const congsList = (await response.json()) as [];
-	let isValidCong = true;
+	const congsList = (await response.json()) as ApiCongregationSearchResponse[];
 
-	if (congsList.length === 0) {
-		isValidCong = false;
-	}
+	let isValidCong = false;
 
-	if (congsList.length > 0) {
-		const tmpCong = congsList.at(0)! as ApiCongregationSearchResponse;
-		if (tmpCong.congName !== cong_name || tmpCong.congNumber !== cong_number) {
-			isValidCong = false;
+	if (congsList?.length > 0) {
+		const findCong = congsList.find((record) => record.congName === cong_name);
+
+		if (findCong) {
+			isValidCong = true;
 		}
 	}
 
@@ -168,21 +163,21 @@ export const createCongregation = async (req: Request, res: Response) => {
 	await user.updateProfile(profile);
 
 	// create congregation
-	const congRequest = congsList.at(0)! as ApiCongregationSearchResponse;
+	const congRequest = congsList.find((record) => record.congName === cong_name)!;
 
 	const congId = await CongregationsList.create({
 		cong_name,
-		cong_number,
+		country_guid,
 		country_code,
 		cong_circuit: congRequest.circuit,
 		cong_location: { address: congRequest.address, lat: congRequest.location.lat, lng: congRequest.location.lng },
 		midweek_meeting: {
 			time: congRequest.midweekMeetingTime.time.slice(0, -3),
-			weekday: congRequest.midweekMeetingTime.weekday,
+			weekday: formatMeetingWeekday(congRequest.midweekMeetingTime.weekday),
 		},
 		weekend_meeting: {
 			time: congRequest.weekendMeetingTime.time.slice(0, -3),
-			weekday: congRequest.weekendMeetingTime.weekday,
+			weekday: formatMeetingWeekday(congRequest.weekendMeetingTime.weekday),
 		},
 	});
 

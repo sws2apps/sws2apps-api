@@ -32,12 +32,20 @@ class Congregations {
 		return this.list.find((cong) => cong.id === id);
 	}
 
-	findByCountryAndNumber(country_code: string, cong_number: string) {
-		return this.list.find((cong) => cong.settings.country_code === country_code && cong.settings.cong_number === cong_number);
+	findByCountryAndName(country: string, cong_name: string) {
+		return this.list.find(
+			(cong) =>
+				(cong.settings.country_code === country || cong.settings.country_guid === country) &&
+				cong.settings.cong_name === cong_name
+		);
 	}
 
-	findByNumber(cong_number: string) {
-		return this.list.find((cong) => cong.settings.cong_number === cong_number);
+	findByCountryAndPrefix(country: string, cong_prefix: string) {
+		return this.list.find(
+			(cong) =>
+				(cong.settings.country_code === country || cong.settings.country_guid === country) &&
+				cong.settings.cong_prefix === cong_prefix
+		);
 	}
 
 	async create(data: CongregationCreateInfoType) {
@@ -66,15 +74,14 @@ class Congregations {
 				record.id !== congId &&
 				record.settings.cong_discoverable.value &&
 				record.settings.data_sync.value &&
-				(record.settings.cong_name.toLowerCase().includes(keywords) ||
-					record.settings.cong_number.toString().toLowerCase().includes(keywords))
+				record.settings.cong_name.toLowerCase().includes(keywords)
 		);
 
 		const result = congs.map((cong) => {
 			return {
 				cong_id: cong.id,
 				cong_name: cong.settings.cong_name,
-				cong_number: cong.settings.cong_number,
+				cong_number: cong.settings.cong_number?.value,
 				country_code: cong.settings.country_code,
 				cong_location: cong.settings.cong_location,
 				cong_circuit: cong.settings.cong_circuit.find((record) => record.type === 'main')!.value,

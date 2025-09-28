@@ -28,7 +28,8 @@ export const adminCongregationsGet = async () => {
 				country_code: cong.settings.country_code,
 				country_name: country?.countryName || 'Unknown',
 				cong_name: cong.settings.cong_name,
-				cong_number: cong.settings.cong_number,
+				cong_prefix: cong.settings.cong_prefix,
+				cong_number: cong.settings.cong_number?.value,
 				createdAt: cong.createdAt,
 				data_sync: cong.settings.data_sync.value,
 			};
@@ -86,7 +87,8 @@ export const adminCongregationGet = (id: string) => {
 				cong_id: access.cong_id,
 				request_id: access.request_id,
 				cong_country: foundCong.settings.country_code,
-				cong_number: foundCong.settings.cong_number,
+				cong_prefix: foundCong.settings.cong_prefix,
+				cong_number: foundCong.settings.cong_number?.value,
 				cong_name: foundCong.settings.cong_name,
 				request_status: access.status,
 			};

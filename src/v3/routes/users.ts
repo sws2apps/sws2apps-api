@@ -35,7 +35,7 @@ router.get('/logout', userLogout);
 router.post(
 	'/:id/join-congregation',
 	body('country_code').isString().notEmpty(),
-	body('cong_number').isString().notEmpty(),
+	body('cong_name').isString().notEmpty(),
 	body('firstname').isString().notEmpty(),
 	body('lastname').isString(),
 	joinCongregation

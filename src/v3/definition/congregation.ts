@@ -2,8 +2,8 @@ import { AppRoleType, StandardRecord } from './app.js';
 
 export type CongregationCreateInfoType = {
 	country_code: string;
+	country_guid: string;
 	cong_name: string;
-	cong_number: string;
 	cong_location: { address: string; lat: number; lng: number };
 	cong_circuit: string;
 	midweek_meeting: { weekday: number; time: string };
@@ -12,7 +12,7 @@ export type CongregationCreateInfoType = {
 
 export type CongregationRecordType = {
 	cong_name: string;
-	cong_number: string;
+	cong_number: { value: string; updatedAt: string };
 	country_code: string;
 	last_backup?: string;
 	cong_circuit: CircuitRecordType[];
@@ -24,7 +24,7 @@ export type CongregationRecordType = {
 
 export type ApiCongregationSearchResponse = {
 	congName: string;
-	congNumber: string;
+	congGuid: string;
 	address: string;
 	location: { lat: number; lng: number };
 	midweekMeetingTime: { weekday: number; time: string };
@@ -65,7 +65,6 @@ export type OutgoingSpeakersRecordType = IncomingSpeakersType & {
 export type CongRequestPendingType = {
 	cong_id: string;
 	updatedAt: string;
-	cong_number: string;
 	cong_name: string;
 	country_code: string;
 	request_id: string;
@@ -115,7 +114,9 @@ export type OutgoingTalkScheduleType = {
 
 export type CongSettingsType = {
 	country_code: string;
-	cong_number: string;
+	country_guid: string;
+	cong_prefix: string;
+	cong_number?: { value: string; updatedAt: string };
 	cong_name: string;
 	cong_master_key?: string;
 	cong_access_code: string;
