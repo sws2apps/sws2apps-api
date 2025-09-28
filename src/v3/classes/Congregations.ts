@@ -81,7 +81,6 @@ class Congregations {
 			return {
 				cong_id: cong.id,
 				cong_name: cong.settings.cong_name,
-				cong_number: cong.settings.cong_number?.value,
 				country_code: cong.settings.country_code,
 				cong_location: cong.settings.cong_location,
 				cong_circuit: cong.settings.cong_circuit.find((record) => record.type === 'main')!.value,
