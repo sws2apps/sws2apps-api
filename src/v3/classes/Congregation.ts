@@ -409,6 +409,8 @@ export class Congregation {
 			const foundCong = CongregationsList.findById(cong.cong_id);
 
 			if (!foundCong) return false;
+
+			return true;
 		});
 
 		const result = validCongs.map((cong) => {
