@@ -5,7 +5,7 @@ import { adminCongregationGet, adminCongregationsGet } from '../services/api/con
 import { adminUsersGet } from '../services/api/users.js';
 import { validationResult } from 'express-validator';
 import { formatError } from '../utils/format_log.js';
-import { AppRoleType } from '../definition/app.js';
+import { AppRoleType, Country } from '../definition/app.js';
 import { Flags } from '../classes/Flags.js';
 import { FeatureFlag } from '../definition/flag.js';
 import { adminFlagsGet } from '../services/api/flags.js';
@@ -672,6 +672,20 @@ export const createCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
+	const url = process.env.APP_COUNTRY_API!;
+	const response = await fetch(url);
+
+	if (!response.ok) {
+		res.locals.type = 'warn';
+		res.locals.message = 'an error occured while getting list of all countries';
+		res.status(response.status).json({ message: 'FETCH_FAILED' });
+		return;
+	}
+
+	const countries = (await response.json()) as Country[];
+
+	const findCountry = countries.find((record) => record.countryCode === country);
+
 	const id = await CongregationsList.create({
 		cong_circuit: '',
 		cong_location: {
@@ -680,10 +694,10 @@ export const createCongregation = async (req: Request, res: Response) => {
 			lng: 0,
 		},
 		cong_name: name,
-		country_guid: country,
+		country_guid: findCountry?.countryGuid || crypto.randomUUID(),
 		country_code: country,
-		midweek_meeting: { time: '18:30', weekday: 3 },
-		weekend_meeting: { time: '10:00', weekday: 7 },
+		midweek_meeting: { time: '18:30', weekday: 2 },
+		weekend_meeting: { time: '10:00', weekday: 6 },
 	});
 
 	const result = await adminCongregationsGet();

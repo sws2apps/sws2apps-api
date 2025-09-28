@@ -81,7 +81,6 @@ export type CongregationUpdatesType = {
 		status: 'disapproved';
 		updatedAt: string;
 		cong_name: string;
-		cong_number: string;
 		country_code: string;
 		request_id: string;
 	}[];
