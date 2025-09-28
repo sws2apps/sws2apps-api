@@ -1,3 +1,13 @@
+# [3.37.0](https://github.com/sws2apps/sws2apps-api/compare/v3.36.0...v3.37.0) (2025-09-28)
+
+
+### Features
+
+* **api:** update to support congregations api changes ([b2574e6](https://github.com/sws2apps/sws2apps-api/commit/b2574e6cf55961db7df3368e0c7cb456b1346ec9))
+* **deps:** bump @crowdin/crowdin-api-client from 1.46.0 to 1.48.3 ([7fe5526](https://github.com/sws2apps/sws2apps-api/commit/7fe55260fe052360a1a36675b0fd1a6471660d77))
+* **deps:** bump cryptr from 6.3.0 to 6.4.0 ([b3dd0c8](https://github.com/sws2apps/sws2apps-api/commit/b3dd0c839b9e671afecf949ce59302c7c8fa045a))
+* **deps:** bump is-online from 11.0.0 to 12.0.1 ([7b860e7](https://github.com/sws2apps/sws2apps-api/commit/7b860e70948355ccb2ec166fd9d2f5672e55c732))
+
 # [3.36.0](https://github.com/sws2apps/sws2apps-api/compare/v3.35.0...v3.36.0) (2025-09-21)
 
 
