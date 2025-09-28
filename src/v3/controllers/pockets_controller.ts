@@ -34,8 +34,8 @@ export const validateInvitation = async (req: Request, res: Response) => {
 	const code = req.body.code as string;
 
 	const pattern = '(.+?)-(.+?)-(.+?)$';
-	let rgExp = new RegExp(pattern, 'g');
-	let groups = rgExp.exec(code);
+	const rgExp = new RegExp(pattern, 'g');
+	const groups = rgExp.exec(code);
 
 	if (groups === null) {
 		res.locals.type = 'warn';
@@ -48,10 +48,6 @@ export const validateInvitation = async (req: Request, res: Response) => {
 
 	const congInfo = matches.at(1)!;
 	const tmpAccessCode = matches.at(3)!;
-
-	const congPattern = '(.+?)(\\d+)$';
-	rgExp = new RegExp(congPattern, 'g');
-	groups = rgExp.exec(congInfo);
 
 	if (congInfo.length <= 3) {
 		res.locals.type = 'warn';
