@@ -661,9 +661,9 @@ export const createCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const { country, name, number } = req.body as Record<string, string>;
+	const { country, name } = req.body as Record<string, string>;
 
-	const cong = CongregationsList.findByCountryAndNumber(country, number);
+	const cong = CongregationsList.findByCountryAndName(country, name);
 
 	if (cong) {
 		res.locals.type = 'warn';
@@ -680,7 +680,7 @@ export const createCongregation = async (req: Request, res: Response) => {
 			lng: 0,
 		},
 		cong_name: name,
-		cong_number: number.toString(),
+		country_guid: country,
 		country_code: country,
 		midweek_meeting: { time: '18:30', weekday: 3 },
 		weekend_meeting: { time: '10:00', weekday: 7 },
@@ -917,7 +917,7 @@ export const updateBasicCongregationInfo = async (req: Request, res: Response) =
 	const settings = structuredClone(cong.settings);
 
 	settings.cong_name = req.body.name as string;
-	settings.cong_number = req.body.number as string;
+	settings.cong_number = { value: req.body.number as string, updatedAt: new Date().toISOString() };
 
 	await cong.saveSettings(settings);
 

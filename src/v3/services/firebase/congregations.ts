@@ -1,4 +1,5 @@
 import { getStorage } from 'firebase-admin/storage';
+import randomstring from 'randomstring';
 import { StandardRecord } from '../../definition/app.js';
 import {
 	CongregationCreateInfoType,
@@ -350,8 +351,10 @@ export const setCongSpeakersKey = async (id: string, speakers_key: string) => {
 export const createCongregation = async (data: CongregationCreateInfoType) => {
 	const settings: CongSettingsType = {
 		country_code: data.country_code,
-		cong_number: data.cong_number,
+		country_guid: data.country_guid,
+		cong_prefix: randomstring.generate(8).toUpperCase(),
 		cong_name: data.cong_name,
+		cong_number: { value: '', updatedAt: '' },
 		cong_discoverable: { value: false, updatedAt: new Date().toISOString() },
 		data_sync: { value: false, updatedAt: new Date().toISOString() },
 		time_away_public: { value: false, updatedAt: new Date().toISOString() },

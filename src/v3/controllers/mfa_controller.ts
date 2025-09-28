@@ -97,6 +97,7 @@ export const verifyToken = async (req: Request, res: Response) => {
 				id: user.profile.congregation.id,
 				cong_circuit: userCong.settings.cong_circuit,
 				cong_name: userCong.settings.cong_name,
+				cong_prefix: userCong.settings.cong_prefix,
 				cong_number: userCong.settings.cong_number,
 				country_code: userCong.settings.country_code,
 				cong_access_code: userCong.settings.cong_access_code,

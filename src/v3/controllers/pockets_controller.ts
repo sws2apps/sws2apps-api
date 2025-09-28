@@ -44,7 +44,7 @@ export const validateInvitation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	let matches = Array.from(groups);
+	const matches = Array.from(groups);
 
 	const congInfo = matches.at(1)!;
 	const tmpAccessCode = matches.at(3)!;
@@ -53,19 +53,17 @@ export const validateInvitation = async (req: Request, res: Response) => {
 	rgExp = new RegExp(congPattern, 'g');
 	groups = rgExp.exec(congInfo);
 
-	if (groups === null) {
+	if (congInfo.length <= 3) {
 		res.locals.type = 'warn';
 		res.locals.message = 'the code received is invalid';
 		res.status(400).json({ message: 'error_app_security_invalid-invitation-code' });
 		return;
 	}
 
-	matches = Array.from(groups);
+	const cong_country = congInfo.substring(0, 3);
+	const cong_prefix = congInfo.substring(3);
 
-	const country = matches.at(1)!;
-	const number = matches.at(2)!;
-
-	const cong = CongregationsList.findByCountryAndNumber(country, number);
+	const cong = CongregationsList.findByCountryAndPrefix(cong_country, cong_prefix);
 
 	if (!cong) {
 		res.locals.type = 'warn';
@@ -144,7 +142,7 @@ export const validateInvitation = async (req: Request, res: Response) => {
 		id: user.profile.congregation!.id,
 		cong_circuit: cong.settings.cong_circuit,
 		cong_name: cong.settings.cong_name,
-		cong_number: cong.settings.cong_number,
+		cong_prefix: cong.settings.cong_prefix,
 		country_code: cong.settings.country_code,
 		cong_access_code: cong.settings.cong_access_code,
 		cong_location: cong.settings.cong_location,
@@ -200,7 +198,7 @@ export const validatePocket = async (req: Request, res: Response) => {
 		id: user.profile.congregation!.id,
 		cong_circuit: cong.settings.cong_circuit,
 		cong_name: cong.settings.cong_name,
-		cong_number: cong.settings.cong_number,
+		cong_prefix: cong.settings.cong_prefix,
 		country_code: cong.settings.country_code,
 		cong_access_code: cong.settings.cong_access_code,
 		cong_location: cong.settings.cong_location,
@@ -277,6 +275,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			cong_access_code: cong.settings.cong_access_code,
 			data_sync: cong.settings.data_sync,
 			cong_name: cong.settings.cong_name,
+			cong_prefix: cong.settings.cong_prefix,
 			cong_number: cong.settings.cong_number,
 			country_code: cong.settings.country_code,
 		} as CongSettingsType;
@@ -414,6 +413,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			cong_access_code: cong.settings.cong_access_code,
 			data_sync: cong.settings.data_sync,
 			cong_name: cong.settings.cong_name,
+			cong_prefix: cong.settings.cong_prefix,
 			cong_number: cong.settings.cong_number,
 			country_code: cong.settings.country_code,
 		} as CongSettingsType;

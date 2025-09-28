@@ -39,6 +39,7 @@ export const validateUser = async (req: Request, res: Response) => {
 		cong_id: cong.id,
 		country_code: cong.settings.country_code,
 		cong_name: cong.settings.cong_name,
+		cong_prefix: cong.settings.cong_prefix,
 		cong_number: cong.settings.cong_number,
 		cong_role: user.profile.congregation.cong_role,
 		user_local_uid: user.profile.congregation.user_local_uid,
@@ -448,6 +449,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			cong_master_key: masterKeyNeed ? cong.settings.cong_master_key : undefined,
 			data_sync: cong.settings.data_sync,
 			cong_name: cong.settings.cong_name,
+			cong_prefix: cong.settings.cong_prefix,
 			cong_number: cong.settings.cong_number,
 			country_code: cong.settings.country_code,
 		} as CongSettingsType;
@@ -711,6 +713,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 			cong_master_key: masterKeyNeed ? cong.settings.cong_master_key : undefined,
 			data_sync: cong.settings.data_sync,
 			cong_name: cong.settings.cong_name,
+			cong_prefix: cong.settings.cong_prefix,
 			cong_number: cong.settings.cong_number,
 			country_code: cong.settings.country_code,
 		} as CongSettingsType;
@@ -1073,11 +1076,11 @@ export const joinCongregation = async (req: Request, res: Response) => {
 	}
 
 	const country_code = req.body.country_code as string;
-	const cong_number = req.body.cong_number as string;
+	const cong_name = req.body.cong_name as string;
 	const firstname = req.body.firstname as string;
 	const lastname = (req.body.lastname || '') as string;
 
-	const cong = CongregationsList.findByCountryAndNumber(country_code, cong_number);
+	const cong = CongregationsList.findByCountryAndName(country_code, cong_name);
 
 	if (!cong) {
 		res.locals.type = 'warn';

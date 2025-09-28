@@ -41,7 +41,8 @@ export const adminUsersGet = async (visitorid: string) => {
 					...user.profile.congregation,
 					country_code: cong?.settings.country_code || '',
 					cong_name: cong?.settings.cong_name || '',
-					cong_number: cong?.settings.cong_number || '',
+					cong_prefix: cong?.settings.cong_prefix,
+					cong_number: cong?.settings.cong_number?.value || '',
 				},
 			},
 		};
