@@ -28,7 +28,7 @@
 		"compression": "^1.8.1",
 		"cookie-parser": "^1.4.7",
 		"cors": "^2.8.5",
-		"cross-env": "^10.0.0",
+		"cross-env": "^10.1.0",
 		"crypto-es": "^3.1.2",
 		"cryptr": "^6.4.0",
 		"dayjs": "^1.11.18",
