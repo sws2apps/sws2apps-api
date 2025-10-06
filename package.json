@@ -81,7 +81,7 @@
 		"rimraf": "^6.0.1",
 		"semantic-release": "^24.2.9",
 		"tsx": "^4.20.6",
-		"typescript": "^5.8.3",
+		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.45.0"
 	}
 }
