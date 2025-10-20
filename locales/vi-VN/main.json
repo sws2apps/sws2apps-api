@@ -15,6 +15,6 @@
 	"tr_joinRequestApprovedTitle": "Yêu cầu của anh/chị đã được chấp thuận",
 	"tr_joinRequestApprovedDesc": "Hội thánh <strong>{{ congregation }}</strong> đã chấp thuận đơn xin đăng ký của anh/chị. Anh/chị có thể sử dụng ứng dụng Organized tại <a href='{{ url }}'><a href='{{ url }}'><a href='{{ url }}'>{{ url }}</a> và đăng nhập ngay bây giờ.",
 	"tr_greetings": "Chào {{ name }},",
-	"tr_loginOTP": "Alternatively, you can also use this verification code:",
-	"tr_loginOTPDuration": "This verification code is valid for five minutes."
+	"tr_loginOTP": "Ngoài ra, anh/chị cũng có thể sử dụng mã xác minh này:",
+	"tr_loginOTPDuration": "Mã xác minh này có hiệu lực trong năm phút."
 }
