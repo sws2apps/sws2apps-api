@@ -78,10 +78,10 @@ export class User {
 			if (data) {
 				this.email = data.email;
 				this.auth_provider = data.auth_provider;
-			}
 
-			if (!this.profile.createdAt) {
-				this.profile.createdAt = data.createdAt;
+				if (!this.profile.createdAt) {
+					this.profile.createdAt = data.createdAt;
+				}
 			}
 		}
 

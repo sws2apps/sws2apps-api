@@ -17,7 +17,7 @@ export const getUserAuthDetails = async (auth_uid: string) => {
 
 		return { email: userRecord.email, auth_provider, createdAt: userRecord.metadata.creationTime };
 	} catch (error) {
-		logger(LogLevel.Warn, String(error?.message));
+		logger(LogLevel.Warn, String(error));
 
 		return;
 	}
@@ -301,7 +301,7 @@ export const deleteAuthUser = async (uid: string) => {
 	try {
 		await getAuth().deleteUser(uid);
 	} catch (error) {
-		console.error('Failed to delete auth user', err);
+		console.error('Failed to delete auth user', error);
 	}
 };
 
