@@ -1,3 +1,10 @@
+## [3.38.1](https://github.com/sws2apps/sws2apps-api/compare/v3.38.0...v3.38.1) (2025-10-20)
+
+
+### Bug Fixes
+
+* **api:** handle undefined auth users ([ea1d79a](https://github.com/sws2apps/sws2apps-api/commit/ea1d79a5ea7506e600f784ad4145355975ac80eb))
+
 # [3.38.0](https://github.com/sws2apps/sws2apps-api/compare/v3.37.0...v3.38.0) (2025-10-20)
 
 
