@@ -74,8 +74,11 @@ export class User {
 
 		if (this.profile.role !== 'pocket') {
 			const data = await getUserAuthDetails(this.profile.auth_uid!);
-			this.email = data.email;
-			this.auth_provider = data.auth_provider;
+
+			if (data) {
+				this.email = data.email;
+				this.auth_provider = data.auth_provider;
+			}
 
 			if (!this.profile.createdAt) {
 				this.profile.createdAt = data.createdAt;

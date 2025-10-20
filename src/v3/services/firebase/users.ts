@@ -1,18 +1,26 @@
 import { getAuth } from 'firebase-admin/auth';
 import { getStorage } from 'firebase-admin/storage';
+import { LogLevel } from '@logtail/types';
 import { StandardRecord } from '../../definition/app.js';
 import { PocketNewParams, UserNewParams, UserProfile, UserSession, UserSettings } from '../../definition/user.js';
 import { getFileFromStorage, getFileMetadata, uploadFileToStorage } from './storage_utils.js';
 import { User } from '../../classes/User.js';
 import { encryptData } from '../encryption/encryption.js';
 import { schemaUserProfile } from '../../definition/schema.js';
+import { logger } from '../logger/logger.js';
 
 export const getUserAuthDetails = async (auth_uid: string) => {
-	const userRecord = await getAuth().getUser(auth_uid);
+	try {
+		const userRecord = await getAuth().getUser(auth_uid);
 
-	const auth_provider = userRecord.providerData[0]?.providerId || 'email';
+		const auth_provider = userRecord.providerData[0]?.providerId || 'email';
 
-	return { email: userRecord.email, auth_provider, createdAt: userRecord.metadata.creationTime };
+		return { email: userRecord.email, auth_provider, createdAt: userRecord.metadata.creationTime };
+	} catch (error) {
+		logger(LogLevel.Warn, String(error?.message));
+
+		return;
+	}
 };
 
 export const getUsersID = async () => {
@@ -290,7 +298,11 @@ export const decodeUserIdToken = async (token: string) => {
 };
 
 export const deleteAuthUser = async (uid: string) => {
-	await getAuth().deleteUser(uid);
+	try {
+		await getAuth().deleteUser(uid);
+	} catch (error) {
+		console.error('Failed to delete auth user', err);
+	}
 };
 
 export const setUserFlags = async (id: string, flags: string[]) => {
