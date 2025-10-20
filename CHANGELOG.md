@@ -1,3 +1,16 @@
+# [3.38.0](https://github.com/sws2apps/sws2apps-api/compare/v3.37.0...v3.38.0) (2025-10-20)
+
+
+### Features
+
+* **deps:** bump cross-env from 10.0.0 to 10.1.0 ([7f14f9a](https://github.com/sws2apps/sws2apps-api/commit/7f14f9a65f3f8f2cc35a4511911d26f93abda932))
+* **deps:** bump dotenv from 17.2.2 to 17.2.3 ([2aa3291](https://github.com/sws2apps/sws2apps-api/commit/2aa329133ffba17212179d8dcd6cec94ca9ac471))
+* **deps:** bump i18next from 25.5.2 to 25.5.3 ([5736164](https://github.com/sws2apps/sws2apps-api/commit/573616495f567d3d25ee8de48a4c63076936df76))
+* **deps:** bump i18next from 25.5.3 to 25.6.0 ([6f35490](https://github.com/sws2apps/sws2apps-api/commit/6f354909abf4ba6a7cf2efcdae5d0f2d5cadde2e))
+* **deps:** bump i18next-http-middleware from 3.8.0 to 3.8.1 ([cf3bbbd](https://github.com/sws2apps/sws2apps-api/commit/cf3bbbd639706d901f079fa5e5d54eb9c52187d4))
+* **deps:** bump nodemailer and @types/nodemailer ([c7614a4](https://github.com/sws2apps/sws2apps-api/commit/c7614a427eef6f5364fb57b93b57924a93e7b304))
+* **deps:** bump nodemailer from 7.0.7 to 7.0.9 ([5bf0d5f](https://github.com/sws2apps/sws2apps-api/commit/5bf0d5f0839de187dcffd3cea29151ebf4209126))
+
 # [3.37.0](https://github.com/sws2apps/sws2apps-api/compare/v3.36.0...v3.37.0) (2025-09-28)
 
 
