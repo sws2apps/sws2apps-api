@@ -15,6 +15,6 @@
 	"tr_joinRequestApprovedTitle": "Sinu taotlus on heaks kiidetud",
 	"tr_joinRequestApprovedDesc": "<strong>{{ congregation }}</strong> kogudus on teie liitumistaotluse heaks kiitnud. Saate avada Organized rakenduse aadressil <a href='{{ url }}'>{{ url }}</a>, ja logige nüüd sisse.",
 	"tr_greetings": "Tere, {{ name }},",
-	"tr_loginOTP": "Alternatively, you can also use this verification code:",
-	"tr_loginOTPDuration": "This verification code is valid for five minutes."
+	"tr_loginOTP": "Alternatiivina võid kasutada ka järgmist kinnituskoodi:",
+	"tr_loginOTPDuration": "See kinnituskood kehtib viis minutit."
 }
