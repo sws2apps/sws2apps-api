@@ -1,3 +1,15 @@
+# [3.39.0](https://github.com/sws2apps/sws2apps-api/compare/v3.38.1...v3.39.0) (2025-10-28)
+
+
+### Bug Fixes
+
+* package.json & package-lock.json to reduce vulnerabilities ([961f614](https://github.com/sws2apps/sws2apps-api/commit/961f6140e380eb1706837faacaa06f5306f3ba73))
+
+
+### Features
+
+* **deps:** bump nodemailer and @types/nodemailer ([6c7e690](https://github.com/sws2apps/sws2apps-api/commit/6c7e6904f5c0ea0bda9a88035df0648ee1efd617))
+
 ## [3.38.1](https://github.com/sws2apps/sws2apps-api/compare/v3.38.0...v3.38.1) (2025-10-20)
 
 
