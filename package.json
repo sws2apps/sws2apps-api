@@ -82,6 +82,6 @@
 		"semantic-release": "^25.0.2",
 		"tsx": "^4.20.6",
 		"typescript": "^5.9.3",
-		"typescript-eslint": "^8.47.0"
+		"typescript-eslint": "^8.48.0"
 	}
 }
