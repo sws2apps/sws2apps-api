@@ -11,10 +11,10 @@
 	"tr_loginBtn": "Ingia kwenye Organized",
 	"tr_loginAltText": "Kama huwezi kutumia kitufe cha kuingia hapo juu, tafadhali tumia kiunganishi hiki kilicho hapa chini. Hakikisha kiko kamili unpo inakili:",
 	"tr_loginIgnoreText": "Kama hujafanya ombi la kiunganishi hiki, tafadhali puuza barua pepe hii.",
-	"tr_joinRequestApprovedSubject": "Approval to join the {{ congregation }} congregation",
-	"tr_joinRequestApprovedTitle": "Your request was approved",
-	"tr_joinRequestApprovedDesc": "The <strong>{{ congregation }}</strong> congregation has approved your request to join. You can open the Organized app at <a href='{{ url }}'>{{ url }}</a>, and login now.",
-	"tr_greetings": "Hello {{ name }},",
-	"tr_loginOTP": "Alternatively, you can also use this verification code:",
-	"tr_loginOTPDuration": "This verification code is valid for five minutes."
+	"tr_joinRequestApprovedSubject": "Idhini ya kujiunga na kutaniko la {{ congregation }}",
+	"tr_joinRequestApprovedTitle": "Ombi lako imekubaliwa",
+	"tr_joinRequestApprovedDesc": "Kutaniko la <strong>{{ congregation }}</strong> limeidhinisha ombi lako la kujiunga. Unaweza kufungua programu ya \"Organized\" kwenye <a href='{{ url }}'>{{ url }}</a>, na ujiunge sasa.",
+	"tr_greetings": "Habari {{ name }},",
+	"tr_loginOTP": "Vinginevyo, unaweza pia kutumia nambari hii ya uthibitishaji:",
+	"tr_loginOTPDuration": "Nambari hii ya uthibitishaji ni halali kwa dakika tano."
 }
