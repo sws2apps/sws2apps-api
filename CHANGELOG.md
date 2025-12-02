@@ -1,3 +1,21 @@
+# [3.40.0](https://github.com/sws2apps/sws2apps-api/compare/v3.39.0...v3.40.0) (2025-12-02)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.48.3 to 1.49.0 ([e5dd2e9](https://github.com/sws2apps/sws2apps-api/commit/e5dd2e96484cc761c4b0860e9531f09407b288d2))
+* **deps:** bump dayjs from 1.11.18 to 1.11.19 ([70b460b](https://github.com/sws2apps/sws2apps-api/commit/70b460b661ad2263a6a792e25678c60017a10812))
+* **deps:** bump express-rate-limit from 8.1.0 to 8.2.1 ([a5a3e91](https://github.com/sws2apps/sws2apps-api/commit/a5a3e913ad439772a5863779ddb8075a80df4495))
+* **deps:** bump express-validator from 7.3.0 to 7.3.1 ([be22f36](https://github.com/sws2apps/sws2apps-api/commit/be22f3601914dd49250070b092f9307db8df5ba5))
+* **deps:** bump firebase-admin from 13.5.0 to 13.6.0 ([d8fb005](https://github.com/sws2apps/sws2apps-api/commit/d8fb0055825e1937fbe18a7cd7a00de5b5325066))
+* **deps:** bump i18next from 25.6.0 to 25.6.1 ([cf3bac9](https://github.com/sws2apps/sws2apps-api/commit/cf3bac9c7d7d8eb1b94ef8e3e4f62e6c5df50250))
+* **deps:** bump i18next from 25.6.1 to 25.6.2 ([7843e79](https://github.com/sws2apps/sws2apps-api/commit/7843e79b7affe47a38d11a747ad0b2c5b9b401ab))
+* **deps:** bump i18next from 25.6.2 to 25.6.3 ([ca46b1d](https://github.com/sws2apps/sws2apps-api/commit/ca46b1dd964d59b22d395563cda533ff9e9b050a))
+* **deps:** bump i18next from 25.6.3 to 25.7.1 ([d273b3b](https://github.com/sws2apps/sws2apps-api/commit/d273b3b3e1bbf39ca116d4f72c9492162cd0a5f2))
+* **deps:** bump i18next-http-middleware from 3.8.1 to 3.8.2 ([276a1e5](https://github.com/sws2apps/sws2apps-api/commit/276a1e58506c8cf15b6c89d248a08605b740503e))
+* **deps:** bump is-online from 12.0.1 to 12.0.2 ([6c0c080](https://github.com/sws2apps/sws2apps-api/commit/6c0c080f401e257c7b08bb678b09c80005b3cf4b))
+* **deps:** bump nodemailer from 7.0.10 to 7.0.11 ([ae0ac59](https://github.com/sws2apps/sws2apps-api/commit/ae0ac593b979121a6eb059e8ffc565fa14bdc2c7))
+
 # [3.39.0](https://github.com/sws2apps/sws2apps-api/compare/v3.38.1...v3.39.0) (2025-10-28)
 
 
