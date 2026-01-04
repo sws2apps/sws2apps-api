@@ -3,7 +3,8 @@ name: CD-Redeploy
 on:
   workflow_dispatch:
 
-permissions: read-all
+permissions:
+  contents: read
 
 jobs:
   redeploy_render:
