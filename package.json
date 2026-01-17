@@ -18,8 +18,8 @@
 	"license": "MIT",
 	"type": "module",
 	"engines": {
-		"node": "22.x",
-		"npm": ">=10"
+		"node": "24.x",
+		"npm": ">=11"
 	},
 	"dependencies": {
 		"@crowdin/crowdin-api-client": "^1.51.1",
