@@ -1,3 +1,18 @@
+# [3.41.0](https://github.com/sws2apps/sws2apps-api/compare/v3.40.0...v3.41.0) (2026-01-17)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.49.0 to 1.50.0 ([ef48d15](https://github.com/sws2apps/sws2apps-api/commit/ef48d15a0020fd3275aaa34e7fdbf1d7cb155721))
+* **deps:** bump @crowdin/crowdin-api-client from 1.51.0 to 1.51.1 ([74ae065](https://github.com/sws2apps/sws2apps-api/commit/74ae06588db2c8ccafda06613374ac4f20f0eb63))
+* **deps:** bump i18next from 25.7.1 to 25.7.2 ([759b56e](https://github.com/sws2apps/sws2apps-api/commit/759b56e60200e39dbdbbe66906e695da7e7428b6))
+* **deps:** bump i18next from 25.7.2 to 25.7.3 ([2ffc4e3](https://github.com/sws2apps/sws2apps-api/commit/2ffc4e3451ccebb08c6b07588749519e46340f16))
+* **deps:** bump i18next from 25.7.3 to 25.7.4 ([de05e34](https://github.com/sws2apps/sws2apps-api/commit/de05e34313e01720f98209e6446e625846cdf332))
+* **deps:** bump i18next-http-middleware from 3.8.2 to 3.9.0 ([a8a4eb4](https://github.com/sws2apps/sws2apps-api/commit/a8a4eb4b6866236f0c8d0ae0e8f36a8e275b88ab))
+* **deps:** bump i18next-http-middleware from 3.9.0 to 3.9.1 ([eabf20a](https://github.com/sws2apps/sws2apps-api/commit/eabf20a06f22c016fb086272378f86ea03910636))
+* **deps:** bump i18next-http-middleware from 3.9.1 to 3.9.2 ([a2730dd](https://github.com/sws2apps/sws2apps-api/commit/a2730ddcc712fe18980eb882d1058f8c1d8a68de))
+* **deps:** bump nodemailer from 7.0.11 to 7.0.12 ([58108cd](https://github.com/sws2apps/sws2apps-api/commit/58108cdcabc4328942ed2807fe505e5c5f26cc63))
+
 # [3.40.0](https://github.com/sws2apps/sws2apps-api/compare/v3.39.0...v3.40.0) (2025-12-02)
 
 
