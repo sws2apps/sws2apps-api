@@ -1,3 +1,10 @@
+## [3.41.1](https://github.com/sws2apps/sws2apps-api/compare/v3.41.0...v3.41.1) (2026-01-18)
+
+
+### Bug Fixes
+
+* **classes:** handle undefined congregation settings ([7d61cc1](https://github.com/sws2apps/sws2apps-api/commit/7d61cc1deb3f31fc4a575dabbc731fb7e828419c))
+
 # [3.41.0](https://github.com/sws2apps/sws2apps-api/compare/v3.40.0...v3.41.0) (2026-01-17)
 
 
