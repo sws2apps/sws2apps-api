@@ -1,5 +1,6 @@
 import { getStorage } from 'firebase-admin/storage';
 import randomstring from 'randomstring';
+import { LogLevel } from '@logtail/types';
 import { StandardRecord } from '../../definition/app.js';
 import {
 	CongregationCreateInfoType,
@@ -12,6 +13,7 @@ import { deleteFileFromStorage, getFileFromStorage, getFileMetadata, uploadFileT
 import { CongregationsList } from '../../classes/Congregations.js';
 import { decryptData, encryptData } from '../encryption/encryption.js';
 import { Congregation } from '../../classes/Congregation.js';
+import { logger } from '../logger/logger.js';
 
 export const getCongsID = async () => {
 	const pattern = '^v3\\/congregations\\/(.+?)\\/';
@@ -52,6 +54,11 @@ export const getCongPersons = async (cong_id: string) => {
 
 export const getCongSettings = async (cong_id: string) => {
 	const data = await getFileFromStorage({ type: 'congregation', path: `${cong_id}/settings/main.txt` });
+
+	if (!data) {
+		logger(LogLevel.Warn, 'congregation settings not found', { service: 'firebase', cong_id });
+		return;
+	}
 
 	const result: CongSettingsType = JSON.parse(data!);
 	return result;

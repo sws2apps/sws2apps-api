@@ -159,11 +159,15 @@ export class Congregation {
 
 		this.createdAt = data.createdAt || '';
 		this.metadata = data.metadata;
-		this.settings = data.settings;
+
 		this.outgoing_speakers = data.outgoing_speakers;
 		this.flags = data.flags;
 		this.join_requests = data.join_requests;
 		this.ap_applications = data.applications;
+
+		if (data.settings) {
+			this.settings = data.settings;
+		}
 
 		if (data.incoming_reports) {
 			this.incoming_reports = JSON.parse(data.incoming_reports);
@@ -458,12 +462,12 @@ export class Congregation {
 
 	getRemoteCongregationsList() {
 		const approvedRequests = CongregationsList.list.filter((record) =>
-			record.outgoing_speakers.access.find((access) => access.cong_id === this.id && access.status === 'approved')
+			record.outgoing_speakers.access.find((access) => access.cong_id === this.id && access.status === 'approved'),
 		);
 
 		const congs = approvedRequests.map((cong) => {
 			const requestDetails = cong.outgoing_speakers.access.find(
-				(access) => access.cong_id === this.id && access.status === 'approved'
+				(access) => access.cong_id === this.id && access.status === 'approved',
 			)!;
 
 			return {
@@ -483,12 +487,12 @@ export class Congregation {
 
 	getRejectedRequests() {
 		const disapprovedRequests = CongregationsList.list.filter((record) =>
-			record.outgoing_speakers.access.find((access) => access.cong_id === this.id && access.status === 'disapproved')
+			record.outgoing_speakers.access.find((access) => access.cong_id === this.id && access.status === 'disapproved'),
 		);
 
 		const congs = disapprovedRequests.map((cong) => {
 			const requestDetails = cong.outgoing_speakers.access.find(
-				(access) => access.cong_id === this.id && access.status === 'disapproved'
+				(access) => access.cong_id === this.id && access.status === 'disapproved',
 			)!;
 
 			return {
@@ -589,7 +593,7 @@ export class Congregation {
 	async copyOutgoingTalkSchedule(talks: OutgoingTalkScheduleType[]) {
 		if (talks.length > 0) {
 			const congregations = CongregationsList.list.filter((record) =>
-				record.outgoing_speakers.access.find((cong) => cong.cong_id === this.id && cong.status === 'approved')
+				record.outgoing_speakers.access.find((cong) => cong.cong_id === this.id && cong.status === 'approved'),
 			);
 
 			for await (const congregation of congregations) {
@@ -693,7 +697,7 @@ export class Congregation {
 
 	async declineJoinRequest(user: string) {
 		const requests = this.join_requests.filter(
-			(record) => record.user !== user && UsersList.list.some((user) => user.id === record.user)
+			(record) => record.user !== user && UsersList.list.some((user) => user.id === record.user),
 		);
 
 		await setCongJoinRequests(this.id, requests);
@@ -703,13 +707,13 @@ export class Congregation {
 
 	async acceptJoinRequest(
 		user: string,
-		params: { role: AppRoleType[]; person_uid: string; firstname?: string; lastname?: string }
+		params: { role: AppRoleType[]; person_uid: string; firstname?: string; lastname?: string },
 	) {
 		const foundUser = UsersList.findById(user)!;
 		await foundUser.assignCongregation({ congId: this.id, ...params });
 
 		const requests = this.join_requests.filter(
-			(record) => record.user !== user && UsersList.list.some((user) => user.id === record.user)
+			(record) => record.user !== user && UsersList.list.some((user) => user.id === record.user),
 		);
 
 		await setCongJoinRequests(this.id, requests);
