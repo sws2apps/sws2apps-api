@@ -1,3 +1,18 @@
+# [3.42.0](https://github.com/sws2apps/sws2apps-api/compare/v3.41.1...v3.42.0) (2026-02-07)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.51.1 to 1.52.0 ([ef8dcf0](https://github.com/sws2apps/sws2apps-api/commit/ef8dcf081beede6b80d8d971c33faf1e2ce1f281))
+* **deps:** bump cors from 2.8.5 to 2.8.6 ([e081b07](https://github.com/sws2apps/sws2apps-api/commit/e081b07902da3c24b34088e34214fdcb756c963a))
+* **deps:** bump dotenv from 17.2.3 to 17.2.4 ([5b37e69](https://github.com/sws2apps/sws2apps-api/commit/5b37e692ece45341d92c0a85df78cbd32625bbea))
+* **deps:** bump firebase-admin from 13.6.0 to 13.6.1 ([b4fb09d](https://github.com/sws2apps/sws2apps-api/commit/b4fb09d9632bf395615d189c9394bbbc9e6035f0))
+* **deps:** bump i18next from 25.7.4 to 25.8.0 ([24e01ed](https://github.com/sws2apps/sws2apps-api/commit/24e01ed6097574b7c3e24e9689b2e1f27b3828c8))
+* **deps:** bump i18next from 25.8.0 to 25.8.3 ([d60aca9](https://github.com/sws2apps/sws2apps-api/commit/d60aca986106d1313eb7dcef3c0f4225258559a0))
+* **deps:** bump i18next from 25.8.3 to 25.8.4 ([520ee96](https://github.com/sws2apps/sws2apps-api/commit/520ee96ae1ea07b9fe077057861da5125270c83c))
+* **deps:** bump nodemailer from 7.0.12 to 8.0.0 ([ef8935a](https://github.com/sws2apps/sws2apps-api/commit/ef8935a4a544c836e6a30f07960147c3f6e1a783))
+* **deps:** bump otpauth from 9.4.1 to 9.5.0 ([99d56ae](https://github.com/sws2apps/sws2apps-api/commit/99d56ae3c1b96ec99f7fc1fddc135238e8190d93))
+
 ## [3.41.1](https://github.com/sws2apps/sws2apps-api/compare/v3.41.0...v3.41.1) (2026-01-18)
 
 
