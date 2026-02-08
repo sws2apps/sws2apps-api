@@ -1,3 +1,10 @@
+## [3.42.1](https://github.com/sws2apps/sws2apps-api/compare/v3.42.0...v3.42.1) (2026-02-08)
+
+
+### Bug Fixes
+
+* **controllers:** pass country code when creating new congregation ([aa7ea46](https://github.com/sws2apps/sws2apps-api/commit/aa7ea461899026a287fb079c465a79de443e6821))
+
 # [3.42.0](https://github.com/sws2apps/sws2apps-api/compare/v3.41.1...v3.42.0) (2026-02-07)
 
 
