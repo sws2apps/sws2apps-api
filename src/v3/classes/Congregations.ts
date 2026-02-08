@@ -32,19 +32,21 @@ class Congregations {
 		return this.list.find((cong) => cong.id === id);
 	}
 
-	findByCountryAndName(country: string, cong_name: string) {
-		return this.list.find(
-			(cong) =>
-				(cong.settings.country_code === country || cong.settings.country_guid === country) &&
-				cong.settings.cong_name === cong_name
-		);
+	findByCountryAndName(country_guid: string, cong_name: string, country_code?: string) {
+		return this.list.find((cong) => {
+			const { country_code: code, country_guid: guid, cong_name: name } = cong.settings;
+
+			const matchesCountry = (country_code && code === country_code) || code === country_guid || guid === country_guid;
+
+			return matchesCountry && name === cong_name;
+		});
 	}
 
 	findByCountryAndPrefix(country: string, cong_prefix: string) {
 		return this.list.find(
 			(cong) =>
 				(cong.settings.country_code === country || cong.settings.country_guid === country) &&
-				cong.settings.cong_prefix === cong_prefix
+				cong.settings.cong_prefix === cong_prefix,
 		);
 	}
 
@@ -74,7 +76,7 @@ class Congregations {
 				record.id !== congId &&
 				record.settings.cong_discoverable.value &&
 				record.settings.data_sync.value &&
-				record.settings.cong_name.toLowerCase().includes(keywords)
+				record.settings.cong_name.toLowerCase().includes(keywords),
 		);
 
 		const result = congs.map((cong) => {

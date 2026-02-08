@@ -108,7 +108,7 @@ export const createCongregation = async (req: Request, res: Response) => {
 	const { country_code, country_guid, cong_name, firstname, lastname } = req.body as Record<string, string>;
 
 	// find congregation
-	const cong = CongregationsList.findByCountryAndName(country_guid, cong_name);
+	const cong = CongregationsList.findByCountryAndName(country_guid, cong_name, country_code);
 
 	if (cong) {
 		res.locals.type = 'warn';
