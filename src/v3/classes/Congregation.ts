@@ -104,6 +104,7 @@ export class Congregation {
 			cong_number: { value: '', updatedAt: '' },
 			country_code: '',
 			country_guid: '',
+			cong_guid: '',
 			cong_prefix: '',
 			display_name_enabled: '',
 			format_24h_enabled: '',

@@ -114,6 +114,7 @@ export type OutgoingTalkScheduleType = {
 export type CongSettingsType = {
 	country_code: string;
 	country_guid: string;
+	cong_guid: string;
 	cong_prefix: string;
 	cong_number?: { value: string; updatedAt: string };
 	cong_name: string;
