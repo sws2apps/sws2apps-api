@@ -58,7 +58,7 @@ router.post(
 	body('country').isString(),
 	body('name').notEmpty().isString().notEmpty(),
 	body('number').isNumeric().notEmpty(),
-	createCongregation
+	createCongregation,
 );
 
 // get all congregations
@@ -77,8 +77,9 @@ router.patch('/congregations/:id/data-sync', congregationDataSyncToggle);
 router.patch(
 	'/congregations/:id',
 	body('name').notEmpty().isString(),
-	body('number').notEmpty().isString(),
-	updateBasicCongregationInfo
+	body('number').optional().isString(),
+	body('guid').notEmpty().isString(),
+	updateBasicCongregationInfo,
 );
 
 // reset speakers key
@@ -106,7 +107,7 @@ router.patch(
 	body('firstname').isString(),
 	body('email').isString(),
 	body('roles').isArray(),
-	userUpdate
+	userUpdate,
 );
 
 // toggle user feature flag
@@ -133,7 +134,7 @@ router.post(
 	body('name').isString().notEmpty(),
 	body('desc').isString().notEmpty(),
 	body('availability').isString().notEmpty(),
-	flagsCreate
+	flagsCreate,
 );
 
 // toggle feature flag
@@ -145,7 +146,7 @@ router.patch(
 	body('name').isString().notEmpty(),
 	body('description').isString().notEmpty(),
 	body('coverage').isNumeric(),
-	flagUpdate
+	flagUpdate,
 );
 
 // delete feature flag

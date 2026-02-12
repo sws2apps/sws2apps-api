@@ -930,8 +930,21 @@ export const updateBasicCongregationInfo = async (req: Request, res: Response) =
 
 	const settings = structuredClone(cong.settings);
 
-	settings.cong_name = req.body.name as string;
-	settings.cong_number = { value: req.body.number as string, updatedAt: new Date().toISOString() };
+	const congNameNew = req.body.name as string;
+	const congNumberNew = req.body.number as string;
+	const congGuidNew = req.body.guid as string;
+
+	if (congNumberNew !== settings.cong_number?.value) {
+		settings.cong_number = { value: congNumberNew, updatedAt: new Date().toISOString() };
+	}
+
+	if (congNameNew !== settings.cong_name) {
+		settings.cong_name = congNameNew;
+	}
+
+	if (congGuidNew !== settings.cong_guid) {
+		settings.cong_guid = congGuidNew;
+	}
 
 	await cong.saveSettings(settings);
 
