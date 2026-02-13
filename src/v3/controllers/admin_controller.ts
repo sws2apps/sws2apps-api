@@ -934,7 +934,7 @@ export const updateBasicCongregationInfo = async (req: Request, res: Response) =
 	const congNumberNew = req.body.number as string;
 	const congGuidNew = req.body.guid as string;
 
-	if (congNumberNew !== settings.cong_number?.value) {
+	if (congNumberNew !== undefined && congNumberNew !== settings.cong_number?.value) {
 		settings.cong_number = { value: congNumberNew, updatedAt: new Date().toISOString() };
 	}
 
