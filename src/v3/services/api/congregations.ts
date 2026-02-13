@@ -30,6 +30,7 @@ export const adminCongregationsGet = async () => {
 				cong_name: cong.settings.cong_name,
 				cong_prefix: cong.settings.cong_prefix,
 				cong_number: cong.settings.cong_number?.value,
+				cong_guid: cong.settings.cong_guid ?? '',
 				createdAt: cong.createdAt,
 				data_sync: cong.settings.data_sync.value,
 			};
