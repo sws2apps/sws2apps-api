@@ -3,7 +3,6 @@ import { AppRoleType, StandardRecord } from './app.js';
 export type CongregationCreateInfoType = {
 	country_code: string;
 	country_guid: string;
-	cong_guid: string;
 	cong_name: string;
 	cong_guid: string;
 	cong_location: { address: string; lat: number; lng: number };
