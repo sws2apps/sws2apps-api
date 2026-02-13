@@ -245,16 +245,24 @@ const getCongMetadata = async (cong_id: string) => {
 	};
 };
 
-export const loadAllCongs = async () => {
+export const loadAllCongs = async (batchSize = 10) => {
 	const congs = await getCongsID();
-
 	const result: Congregation[] = [];
 
-	for await (const record of congs) {
-		const cong = new Congregation(record);
-		await cong.loadDetails();
+	// Process in batches
+	for (let i = 0; i < congs.length; i += batchSize) {
+		const batch = congs.slice(i, i + batchSize);
 
-		result.push(cong);
+		// Run all in parallel for this batch
+		const loadedBatch = await Promise.all(
+			batch.map(async (record) => {
+				const cong = new Congregation(record);
+				await cong.loadDetails();
+				return cong;
+			}),
+		);
+
+		result.push(...loadedBatch);
 	}
 
 	return result;
