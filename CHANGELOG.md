@@ -1,3 +1,15 @@
+# [3.43.0](https://github.com/sws2apps/sws2apps-api/compare/v3.42.1...v3.43.0) (2026-02-13)
+
+
+### Features
+
+* **api:** load users and congregations in batch ([545ce9a](https://github.com/sws2apps/sws2apps-api/commit/545ce9a58dc0b58a6e7306833e3482d7622c4048))
+* **congregations:** support new guid field ([45bcfb8](https://github.com/sws2apps/sws2apps-api/commit/45bcfb811bfe702c8e1f63c2c013ac4a3f31896e))
+* **deps:** bump dotenv from 17.2.4 to 17.3.1 ([42ae3dc](https://github.com/sws2apps/sws2apps-api/commit/42ae3dce4efbcc412ac0e8c8820c486186495cf3))
+* **deps:** bump i18next from 25.8.4 to 25.8.5 ([42ed328](https://github.com/sws2apps/sws2apps-api/commit/42ed328f6145ee549f7c4cced6dffc8f3a735482))
+* **deps:** bump i18next from 25.8.5 to 25.8.6 ([52b2fe2](https://github.com/sws2apps/sws2apps-api/commit/52b2fe2e4a1d3d69e4c71e8a58b4140eb51c4b8d))
+* **deps:** bump nodemailer from 8.0.0 to 8.0.1 ([2288fab](https://github.com/sws2apps/sws2apps-api/commit/2288fab8a7f9387a3dfd20f33b6cad2b58f8f449))
+
 ## [3.42.1](https://github.com/sws2apps/sws2apps-api/compare/v3.42.0...v3.42.1) (2026-02-08)
 
 
