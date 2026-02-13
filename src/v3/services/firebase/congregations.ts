@@ -367,6 +367,7 @@ export const createCongregation = async (data: CongregationCreateInfoType) => {
 	const settings: CongSettingsType = {
 		country_code: data.country_code,
 		country_guid: data.country_guid,
+		cong_guid: data.cong_guid,
 		cong_prefix: randomstring.generate(8).toUpperCase(),
 		cong_name: data.cong_name,
 		cong_number: { value: '', updatedAt: '' },
