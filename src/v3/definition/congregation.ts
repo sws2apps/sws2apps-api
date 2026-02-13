@@ -5,6 +5,7 @@ export type CongregationCreateInfoType = {
 	country_guid: string;
 	cong_guid: string;
 	cong_name: string;
+	cong_guid: string;
 	cong_location: { address: string; lat: number; lng: number };
 	cong_circuit: string;
 	midweek_meeting: { weekday: number; time: string };

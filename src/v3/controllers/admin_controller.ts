@@ -695,6 +695,7 @@ export const createCongregation = async (req: Request, res: Response) => {
 		},
 		cong_name: name,
 		country_guid: findCountry?.countryGuid || crypto.randomUUID(),
+		cong_guid: '',
 		country_code: country,
 		midweek_meeting: { time: '18:30', weekday: 2 },
 		weekend_meeting: { time: '10:00', weekday: 6 },

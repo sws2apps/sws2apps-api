@@ -171,6 +171,7 @@ export const createCongregation = async (req: Request, res: Response) => {
 		country_code,
 		cong_guid: congRequest.congGuid,
 		cong_circuit: congRequest.circuit,
+		cong_guid: congRequest.congGuid,
 		cong_location: { address: congRequest.address, lat: congRequest.location.lat, lng: congRequest.location.lng },
 		midweek_meeting: {
 			time: congRequest.midweekMeetingTime.time.slice(0, -3),
