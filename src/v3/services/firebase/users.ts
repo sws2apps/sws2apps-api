@@ -199,16 +199,24 @@ export const getUserDetails = async (id: string) => {
 	};
 };
 
-export const loadAllUsers = async () => {
+export const loadAllUsers = async (batchSize = 20) => {
 	const users = await getUsersID();
-
 	const result: User[] = [];
 
-	for await (const record of users) {
-		const user = new User(record);
-		await user.loadDetails();
+	// Process in batches
+	for (let i = 0; i < users.length; i += batchSize) {
+		const batch = users.slice(i, i + batchSize);
 
-		result.push(user);
+		// Run all in parallel for this batch
+		const loadedBatch = await Promise.all(
+			batch.map(async (record) => {
+				const user = new User(record);
+				await user.loadDetails();
+				return user;
+			}),
+		);
+
+		result.push(...loadedBatch);
 	}
 
 	return result;
