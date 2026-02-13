@@ -39,7 +39,7 @@
 		"firebase-admin": "^13.6.1",
 		"geoip-lite": "^1.4.10",
 		"helmet": "^8.1.0",
-		"i18next": "^25.8.5",
+		"i18next": "^25.8.6",
 		"i18next-http-middleware": "^3.9.2",
 		"is-online": "^12.0.2",
 		"node-fetch": "^3.3.2",
