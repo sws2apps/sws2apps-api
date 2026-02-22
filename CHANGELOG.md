@@ -1,3 +1,11 @@
+# [3.44.0](https://github.com/sws2apps/sws2apps-api/compare/v3.43.0...v3.44.0) (2026-02-22)
+
+
+### Features
+
+* **admin:** return cong guid for admin ([c3a5ee4](https://github.com/sws2apps/sws2apps-api/commit/c3a5ee4db1f232fe91ca01b046fe55bdd6b2cf73))
+* **deps:** bump i18next from 25.8.6 to 25.8.10 ([ad536df](https://github.com/sws2apps/sws2apps-api/commit/ad536dfced479eaefd5792311afdf042105ea6c1))
+
 # [3.43.0](https://github.com/sws2apps/sws2apps-api/compare/v3.42.1...v3.43.0) (2026-02-13)
 
 
