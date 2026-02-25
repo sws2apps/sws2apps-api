@@ -1,3 +1,15 @@
+# [3.45.0](https://github.com/sws2apps/sws2apps-api/compare/v3.44.0...v3.45.0) (2026-02-25)
+
+
+### Bug Fixes
+
+* **congregation:** application status not updated for service overseer ([97ca2ac](https://github.com/sws2apps/sws2apps-api/commit/97ca2ac3522b7755a3c50b685759c06dcd03f294))
+
+
+### Features
+
+* **deps:** bump sanitize-html from 2.17.0 to 2.17.1 ([7469466](https://github.com/sws2apps/sws2apps-api/commit/7469466390d9df87719ca3a235231a00ebe1b030))
+
 # [3.44.0](https://github.com/sws2apps/sws2apps-api/compare/v3.43.0...v3.44.0) (2026-02-22)
 
 
