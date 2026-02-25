@@ -627,7 +627,7 @@ export class Congregation {
 		current.status = application.status;
 		current.coordinator = application.coordinator;
 		current.secretary = application.secretary;
-		current.service = application.service;
+		current.service_overseer = application.service_overseer;
 		current.notified = application.notified;
 		current.expired = application.expired;
 		current.updatedAt = application.updatedAt;
