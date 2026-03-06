@@ -58,7 +58,7 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.39.2",
-		"@logtail/types": "^0.5.3",
+		"@logtail/types": "^0.5.8",
 		"@semantic-release/changelog": "^6.0.3",
 		"@semantic-release/exec": "^7.1.0",
 		"@semantic-release/git": "^10.0.1",
