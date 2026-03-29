@@ -1,3 +1,14 @@
+# [3.46.0](https://github.com/sws2apps/sws2apps-api/compare/v3.45.0...v3.46.0) (2026-03-29)
+
+
+### Features
+
+* **deps:** bump crypto-es from 3.1.2 to 3.1.3 ([8036609](https://github.com/sws2apps/sws2apps-api/commit/8036609e0ef8cc06463dcd550d722588c95e741e))
+* **deps:** bump express-rate-limit from 8.2.1 to 8.3.0 ([f72dd11](https://github.com/sws2apps/sws2apps-api/commit/f72dd11db4eee4b30c2b82c7e68d0a45a57a4097))
+* **deps:** bump firebase-admin from 13.6.1 to 13.7.0 ([ec0b807](https://github.com/sws2apps/sws2apps-api/commit/ec0b8075d2892fe8ffb316185ef515876f9bec64))
+* **deps:** bump geoip-lite from 1.4.10 to 2.0.0 ([f1f0691](https://github.com/sws2apps/sws2apps-api/commit/f1f0691a62d6f346e1ae645b13d0ea53391ff1b1))
+* **deps:** bump i18next from 25.8.10 to 25.8.13 ([9a0856d](https://github.com/sws2apps/sws2apps-api/commit/9a0856d5a30807f5deeb9d1fe7df834ca733bd8e))
+
 # [3.45.0](https://github.com/sws2apps/sws2apps-api/compare/v3.44.0...v3.45.0) (2026-02-25)
 
 
