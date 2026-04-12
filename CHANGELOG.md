@@ -1,3 +1,11 @@
+# [3.47.0](https://github.com/sws2apps/sws2apps-api/compare/v3.46.0...v3.47.0) (2026-04-12)
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.52.0 to 1.55.0 ([81d45b4](https://github.com/sws2apps/sws2apps-api/commit/81d45b4fa11446178401b12809ba8df899964405))
+* **deps:** bump geoip-lite from 2.0.0 to 2.0.1 ([b2e9f66](https://github.com/sws2apps/sws2apps-api/commit/b2e9f66f15adeb168279de6f9de0b63e06848e18))
+
 # [3.46.0](https://github.com/sws2apps/sws2apps-api/compare/v3.45.0...v3.46.0) (2026-03-29)
 
 
