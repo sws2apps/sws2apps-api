@@ -1,3 +1,11 @@
+# [3.48.0](https://github.com/sws2apps/sws2apps-api/compare/v3.47.0...v3.48.0) (2026-04-20)
+
+
+### Features
+
+* **deps:** bump express-rate-limit from 8.3.0 to 8.3.2 ([135af03](https://github.com/sws2apps/sws2apps-api/commit/135af0308b6d1ef99b85a8613b1ced2dcce15c27))
+* **deps:** bump firebase-admin from 13.7.0 to 13.8.0 ([3996ee1](https://github.com/sws2apps/sws2apps-api/commit/3996ee1f7641ad0b9d74a29349d0ad9f5d955778))
+
 # [3.47.0](https://github.com/sws2apps/sws2apps-api/compare/v3.46.0...v3.47.0) (2026-04-12)
 
 
