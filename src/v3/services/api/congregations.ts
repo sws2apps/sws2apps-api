@@ -5,43 +5,39 @@ import { UsersList } from '../../classes/Users.js';
 import { backupUploadsInProgress } from '../../../index.js';
 
 export const adminCongregationsGet = async () => {
-	try {
-		const url = process.env.APP_COUNTRY_API! + new URLSearchParams({ language: 'E' });
+	const url = process.env.APP_COUNTRY_API! + new URLSearchParams({ language: 'E' });
 
-		const response = await fetch(url);
+	const response = await fetch(url);
 
-		if (!response.ok) {
-			throw new Error('FETCH_FAILED');
-		}
-
-		const countriesList: Country[] = await response.json();
-
-		const congsList = CongregationsList.list;
-
-		const result = [];
-
-		for await (const cong of congsList) {
-			const country = countriesList.find((record) => record.countryCode === cong.settings.country_code);
-
-			const obj = {
-				id: cong.id,
-				country_code: cong.settings.country_code,
-				country_name: country?.countryName || 'Unknown',
-				cong_name: cong.settings.cong_name,
-				cong_prefix: cong.settings.cong_prefix,
-				cong_number: cong.settings.cong_number?.value,
-				cong_guid: cong.settings.cong_guid ?? '',
-				createdAt: cong.createdAt,
-				data_sync: cong.settings.data_sync.value,
-			};
-
-			result.push(obj);
-		}
-
-		return result;
-	} catch (error) {
-		throw new Error((error as Error).message);
+	if (!response.ok) {
+		throw new Error('FETCH_FAILED');
 	}
+
+	const countriesList: Country[] = await response.json();
+
+	const congsList = CongregationsList.list;
+
+	const result = [];
+
+	for await (const cong of congsList) {
+		const country = countriesList.find((record) => record.countryCode === cong.settings.country_code);
+
+		const obj = {
+			id: cong.id,
+			country_code: cong.settings.country_code,
+			country_name: country?.countryName || 'Unknown',
+			cong_name: cong.settings.cong_name,
+			cong_prefix: cong.settings.cong_prefix,
+			cong_number: cong.settings.cong_number?.value,
+			cong_guid: cong.settings.cong_guid ?? '',
+			createdAt: cong.createdAt,
+			data_sync: cong.settings.data_sync.value,
+		};
+
+		result.push(obj);
+	}
+
+	return result;
 };
 
 export const congregationJoinRequestsGet = (cong: Congregation) => {
