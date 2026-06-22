@@ -81,7 +81,7 @@
 		"semantic-release": "^25.0.3",
 		"tsx": "^4.22.4",
 		"typescript": "^6.0.3",
-		"typescript-eslint": "^8.61.0"
+		"typescript-eslint": "^8.61.1"
 	},
 	"allowScripts": {
 		"esbuild@0.28.1": true,
