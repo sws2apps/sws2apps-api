@@ -36,7 +36,7 @@
 		"express-rate-limit": "^8.5.2",
 		"express-validator": "^7.3.1",
 		"firebase-admin": "^13.8.0",
-		"geoip-lite": "^2.0.1",
+		"geoip-lite": "^2.0.3",
 		"helmet": "^8.1.0",
 		"i18next": "^26.3.1",
 		"i18next-http-middleware": "^3.9.7",
