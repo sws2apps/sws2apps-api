@@ -85,6 +85,7 @@
 	},
 	"allowScripts": {
 		"esbuild@0.28.1": true,
-		"protobufjs@7.6.1": true
+		"@firebase/util@1.15.1": true,
+		"protobufjs@7.6.4": true
 	}
 }
