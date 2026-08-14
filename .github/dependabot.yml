@@ -26,3 +26,6 @@ updates:
         patterns:
           - 'eslint'
           - '@eslint/js'
+      github/codeql-action:
+        patterns:
+          - 'github/codeql-action'
