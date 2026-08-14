@@ -60,7 +60,7 @@
 		"@logtail/types": "^0.5.8",
 		"@semantic-release/changelog": "^6.0.3",
 		"@semantic-release/exec": "^7.1.0",
-		"@semantic-release/git": "^10.0.1",
+		"@semantic-release/git": "^11.0.1",
 		"@types/bcrypt": "^6.0.0",
 		"@types/compression": "^1.8.1",
 		"@types/cookie-parser": "^1.4.10",
