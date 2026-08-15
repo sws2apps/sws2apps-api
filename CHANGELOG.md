@@ -1,3 +1,20 @@
+# [3.50.0](https://github.com/sws2apps/sws2apps-api/compare/v3.49.0...v3.50.0) (2026-08-15)
+
+
+### Features
+
+* **deps-dev:** bump js-yaml from 4.2.0 to 4.3.1 ([3df3a7d](https://github.com/sws2apps/sws2apps-api/commit/3df3a7d53aa25d399cf97c65de15789cc5be2455))
+* **deps:** bump axios and @crowdin/crowdin-api-client ([6562bf3](https://github.com/sws2apps/sws2apps-api/commit/6562bf31aa7ca006bf3e9e22d05357eadcaa015f))
+* **deps:** bump body-parser from 2.2.1 to 2.3.0 ([b49cc82](https://github.com/sws2apps/sws2apps-api/commit/b49cc8231c7749961b65bb4ecbb0c54a4c1cc41d))
+* **deps:** bump dayjs from 1.11.20 to 1.11.21 ([0430604](https://github.com/sws2apps/sws2apps-api/commit/043060408061ca3672b6edf0a06ff5da64a556f9))
+* **deps:** bump express-rate-limit from 8.5.2 to 8.6.2 ([b47b6bc](https://github.com/sws2apps/sws2apps-api/commit/b47b6bc82ab2b58e3c04f273ad727e206e7209cf))
+* **deps:** bump express-validator from 7.3.1 to 7.3.2 ([d9704c6](https://github.com/sws2apps/sws2apps-api/commit/d9704c63fb797ae9237398648910393282f4a863))
+* **deps:** bump helmet from 8.2.0 to 8.3.0 ([5e72aa7](https://github.com/sws2apps/sws2apps-api/commit/5e72aa7c8be6225bd2188690b29ead8be67e33ae))
+* **deps:** bump i18next-http-middleware from 3.9.7 to 3.9.8 ([a4364a3](https://github.com/sws2apps/sws2apps-api/commit/a4364a3d73e110def6d44c2bcc23a42d4c2d0aec))
+* **deps:** bump ip-address from 10.2.0 to 10.5.0 ([d13bfc2](https://github.com/sws2apps/sws2apps-api/commit/d13bfc22cdf830446d20d02dc8a167b649e3afb1))
+* **deps:** bump postcss from 8.5.14 to 8.5.26 ([61ebde8](https://github.com/sws2apps/sws2apps-api/commit/61ebde89e3a2fea7309d776472abaabf778f0a29))
+* **deps:** bump sanitize-html from 2.17.5 to 2.17.6 ([2caf70b](https://github.com/sws2apps/sws2apps-api/commit/2caf70b7747924bd03dabb815e3e84ab03c1753d))
+
 # [3.49.0](https://github.com/sws2apps/sws2apps-api/compare/v3.48.0...v3.49.0) (2026-07-02)
 
 
