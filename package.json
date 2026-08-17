@@ -58,7 +58,7 @@
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
 		"@logtail/types": "^0.5.8",
-		"@semantic-release/changelog": "^6.0.3",
+		"@semantic-release/changelog": "^7.0.0",
 		"@semantic-release/exec": "^7.1.0",
 		"@semantic-release/git": "^11.0.1",
 		"@types/bcrypt": "^6.0.0",
