@@ -8,7 +8,7 @@ import { formatError } from '../../v3/utils/format_log.js';
 import { AppRoleType, Country } from '../../v3/definition/app.js';
 import { Flags } from '../../v3/classes/Flags.js';
 import { FeatureFlag } from '../../v3/definition/flag.js';
-import { adminFlagsGet } from '../../v3/services/api/flags.js';
+import { getAdministrationFlags } from './administration-flags.service.js';
 import { setCongOutgoingSpeakers } from '../../v3/services/firebase/congregations.js';
 import { serverState } from '../../platform/runtime/server-state.js';
 import { updateAPIMinimumClient } from '../../v3/services/firebase/api.js';
@@ -338,7 +338,7 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 };
 
 export const flagsGet = async (req: Request, res: Response) => {
-	const result = adminFlagsGet();
+        const result = getAdministrationFlags();
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin fetched all feature flags';
@@ -365,7 +365,7 @@ export const flagsCreate = async (req: Request, res: Response) => {
 
 	await Flags.create(name, desc, availability);
 
-	const result = adminFlagsGet();
+        const result = getAdministrationFlags();
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin created new feature flag';
@@ -385,7 +385,7 @@ export const flagDelete = async (req: Request, res: Response) => {
 
 	await Flags.delete(id);
 
-	const result = adminFlagsGet();
+        const result = getAdministrationFlags();
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin deleted a feature flag';
@@ -437,7 +437,7 @@ export const flagUpdate = async (req: Request, res: Response) => {
 		await flag.update(name, description, coverage);
 	}
 
-	const result = adminFlagsGet();
+        const result = getAdministrationFlags();
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated a feature flag';
@@ -479,7 +479,7 @@ export const flagToggle = async (req: Request, res: Response) => {
 
 	await flag.toggle();
 
-	const result = adminFlagsGet();
+        const result = getAdministrationFlags();
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated feature flag status';
@@ -544,7 +544,7 @@ export const userFlagToggle = async (req: Request, res: Response) => {
 
 	await user.updateFlags(userFlags);
 
-	const result = adminFlagsGet();
+        const result = getAdministrationFlags();
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated user feature toggle';
@@ -609,7 +609,7 @@ export const congregationFlagToggle = async (req: Request, res: Response) => {
 
 	await cong.saveFlags(congFlags);
 
-	const result = adminFlagsGet();
+	const result = getAdministrationFlags();
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated congregation feature toggle';
