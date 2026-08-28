@@ -1,5 +1,5 @@
 import cors, { CorsOptions } from 'cors';
-import express, { Request } from 'express';
+import express from 'express';
 import { handle } from 'i18next-http-middleware';
 import favicon from 'serve-favicon';
 import helmet from 'helmet';
@@ -21,46 +21,10 @@ import routesV3 from './v3/routes/index.js';
 import { errorHandler, getRoot, invalidEndpointHandler } from './http/app.controller.js';
 import resources from './v3/config/i18n_config.js';
 import { env } from './config/env.js';
+import { createCorsOptions } from './http/security/cors.js';
 
-// allowed apps url
-const whitelist = [
-	'https://organized-app.com',
-	'https://staging.organized-app.com',
-	'https://cpe-web.sws2apps.com',
-	'https://console.sws2apps.com',
-	'https://dev-console.sws2apps.com',
-	'https://dev-console.sws2apps.com',
-	'https://cpe-sws.firebaseapp.com',
-];
-
-const allowedUri = ['/app-version', '/api/public/source-material'];
-
-const corsOptionsDelegate = function (req: Request, callback: (_: null, options: CorsOptions) => void) {
-	const corsOptions: CorsOptions = {
-		origin: true,
-		credentials: true,
-		methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-		allowedHeaders: ['Content-Type', 'Authorization'],
-		maxAge: 86400,
-	};
-
-	if (env.isProduction) {
-		const reqOrigin = req.header('Origin');
-		if (reqOrigin) {
-			if (whitelist.indexOf(reqOrigin) === -1) {
-				const originalUri = req.headers['x-original-uri'] as string;
-
-				if (originalUri !== '/') {
-					const allowed = allowedUri.find((uri) => uri.startsWith(originalUri)) ? true : false;
-					corsOptions.origin = allowed;
-				}
-			}
-		} else {
-			corsOptions.origin = false;
-		}
-	}
-
-	callback(null, corsOptions); // callback expects two parameters: error and options
+const corsOptionsDelegate = (request: express.Request, callback: (_error: null, options: CorsOptions) => void) => {
+	callback(null, createCorsOptions(request, env.isProduction));
 };
 
 const app = express();
