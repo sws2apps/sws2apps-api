@@ -13,7 +13,7 @@ import { BACKUP_EXPIRY, ROLE_MASTER_KEY } from '../constant/base.js';
 import { mailClient } from '../../platform/email/mail-client.js';
 import { congregationJoinRequestsGet, findBackupByCongregation } from '../services/api/congregations.js';
 import { backupUploadsInProgress } from '../../index.js';
-import { logger } from '../services/logger/logger.js';
+import { logger } from '../../platform/logging/logger.js';
 import { getUserRoles, saveUserBackupAsync } from '../services/api/users.js';
 
 const isDev = process.env.NODE_ENV === 'development';

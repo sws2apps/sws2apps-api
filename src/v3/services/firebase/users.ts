@@ -7,7 +7,7 @@ import { getFileFromStorage, getFileMetadata, uploadFileToStorage } from './stor
 import { User } from '../../classes/User.js';
 import { encryptData } from '../encryption/encryption.js';
 import { schemaUserProfile } from '../../definition/schema.js';
-import { logger } from '../logger/logger.js';
+import { logger } from '../../../platform/logging/logger.js';
 
 export const getUserAuthDetails = async (auth_uid: string) => {
 	try {

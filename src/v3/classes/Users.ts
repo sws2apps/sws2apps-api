@@ -6,7 +6,7 @@ import { CongregationsList } from './Congregations.js';
 import { createPocketUser, createUser, deleteAuthUser, loadAllUsers } from '../services/firebase/users.js';
 import { deleteFileFromStorage } from '../services/firebase/storage_utils.js';
 import { getAuth } from 'firebase-admin/auth';
-import { logger } from '../services/logger/logger.js';
+import { logger } from '../../platform/logging/logger.js';
 
 class Users {
 	list: User[];

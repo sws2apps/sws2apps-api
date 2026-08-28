@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import isOnline from 'is-online';
 import { LogLevel } from '@logtail/types';
-import { logger } from '../services/logger/logger.js';
+import { logger } from '../../platform/logging/logger.js';
 
 export const internetChecker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {

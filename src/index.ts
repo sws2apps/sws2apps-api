@@ -4,7 +4,7 @@ import { LogLevel } from '@logtail/types';
 import app from './app.js';
 import { env } from './config/env.js';
 
-import { logger } from './v3/services/logger/logger.js';
+import { logger } from './platform/logging/logger.js';
 import { BackupForStorage } from './v3/definition/congregation.js';
 import { UsersList } from './v3/classes/Users.js';
 import { CongregationsList } from './v3/classes/Congregations.js';

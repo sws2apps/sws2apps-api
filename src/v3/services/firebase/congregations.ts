@@ -13,7 +13,7 @@ import { deleteFileFromStorage, getFileFromStorage, getFileMetadata, uploadFileT
 import { CongregationsList } from '../../classes/Congregations.js';
 import { decryptData, encryptData } from '../encryption/encryption.js';
 import { Congregation } from '../../classes/Congregation.js';
-import { logger } from '../logger/logger.js';
+import { logger } from '../../../platform/logging/logger.js';
 
 export const getCongsID = async () => {
 	const pattern = '^v3\\/congregations\\/(.+?)\\/';

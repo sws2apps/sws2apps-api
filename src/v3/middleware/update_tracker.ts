@@ -4,7 +4,7 @@ import geoip from 'geoip-lite';
 import WhichBrowser from 'which-browser';
 
 import { serverState } from '../../platform/runtime/server-state.js';
-import { logger } from '../services/logger/logger.js';
+import { logger } from '../../platform/logging/logger.js';
 
 export const updateTracker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {

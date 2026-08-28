@@ -2,7 +2,7 @@ import { AppRoleType, StandardRecord } from '../../definition/app.js';
 import { BackupData } from '../../definition/congregation.js';
 import { CongregationsList } from '../../classes/Congregations.js';
 import { UsersList } from '../../classes/Users.js';
-import { logger } from '../logger/logger.js';
+import { logger } from '../../../platform/logging/logger.js';
 import { LogLevel } from '@logtail/types';
 import { findBackupByCongregation } from './congregations.js';
 import { backupUploadsInProgress } from '../../../index.js';
