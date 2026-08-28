@@ -58,7 +58,7 @@ import { User } from './User.js';
 import { UsersList } from './Users.js';
 import { getFileFromStorage, uploadFileToStorage } from '../services/firebase/storage_utils.js';
 import { syncFromIncoming } from '../utils/congregation_utils.js';
-import { getUserRoles } from '../services/api/users.js';
+import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 
 export class Congregation {
 	id: string;
@@ -285,7 +285,7 @@ export class Congregation {
 			secretaryRole,
 			serviceCommiteeRole,
 			attendanceTracker,
-		} = getUserRoles(userRole);
+		} = getUserCapabilities(userRole);
 
 		if (scheduleEditor && cong_backup.app_settings?.cong_settings) {
 			const accessCode = this.settings.cong_access_code;

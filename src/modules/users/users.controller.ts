@@ -14,7 +14,8 @@ import { mailClient } from '../../platform/email/mail-client.js';
 import { congregationJoinRequestsGet, findBackupByCongregation } from '../../v3/services/api/congregations.js';
 import { backupUploadsInProgress } from '../../platform/runtime/backup-uploads.js';
 import { logger } from '../../platform/logging/logger.js';
-import { getUserRoles, saveUserBackupAsync } from '../../v3/services/api/users.js';
+import { saveUserBackupAsync } from '../../v3/services/api/users.js';
+import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 import { env } from '../../config/env.js';
 import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
 
@@ -411,7 +412,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 		scheduleEditor,
 		attendanceTracker,
 		secretaryRole,
-	} = getUserRoles(userRole);
+	} = getUserCapabilities(userRole);
 
 	const userUid = user.profile.congregation!.user_local_uid;
 	const delegates = user.profile.congregation!.user_members_delegate;
