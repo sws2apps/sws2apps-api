@@ -4,7 +4,7 @@ import { CongregationsList } from '../../classes/Congregations.js';
 import { UsersList } from '../../classes/Users.js';
 import { logger } from '../../../platform/logging/logger.js';
 import { LogLevel } from '@logtail/types';
-import { findBackupByCongregation } from './congregations.js';
+import { findBackupUploadByCongregation } from '../../../modules/backups/backup-upload-tracker.js';
 import { backupUploadsInProgress } from '../../../platform/runtime/backup-uploads.js';
 
 export const saveUserBackupAsync = async ({
@@ -39,7 +39,7 @@ export const saveUserBackupAsync = async ({
 
 		await user.saveBackup(cong_backup, userRole);
 
-		const currentBackup = findBackupByCongregation(congId);
+		const currentBackup = findBackupUploadByCongregation(congId);
 
 		if (currentBackup) {
 			const findBackup = currentBackup.record;

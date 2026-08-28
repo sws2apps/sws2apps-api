@@ -11,7 +11,8 @@ import { StandardRecord } from '../../v3/definition/app.js';
 import { BackupData, CongregationUpdatesType, CongSettingsType } from '../../v3/definition/congregation.js';
 import { BACKUP_EXPIRY, ROLE_MASTER_KEY } from '../../v3/constant/base.js';
 import { mailClient } from '../../platform/email/mail-client.js';
-import { congregationJoinRequestsGet, findBackupByCongregation } from '../../v3/services/api/congregations.js';
+import { congregationJoinRequestsGet } from '../../v3/services/api/congregations.js';
+import { findBackupUploadByCongregation } from '../backups/backup-upload-tracker.js';
 import { backupUploadsInProgress } from '../../platform/runtime/backup-uploads.js';
 import { logger } from '../../platform/logging/logger.js';
 import { saveUserBackupAsync } from '../../v3/services/api/users.js';
@@ -1199,7 +1200,7 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const currentBackup = findBackupByCongregation(cong.id);
+	const currentBackup = findBackupUploadByCongregation(cong.id);
 
 	if (currentBackup) {
 		const anotherUser = currentBackup.record.userId !== user.id;
