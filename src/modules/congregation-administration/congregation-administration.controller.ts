@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { CongregationsList } from '../classes/Congregations.js';
-import { formatError } from '../utils/format_log.js';
-import { UsersList } from '../classes/Users.js';
-import { decryptData } from '../services/encryption/encryption.js';
-import { congregationJoinRequestsGet } from '../services/api/congregations.js';
-import { AppRoleType } from '../definition/app.js';
+import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { formatError } from '../../v3/utils/format_log.js';
+import { UsersList } from '../../v3/classes/Users.js';
+import { decryptData } from '../../v3/services/encryption/encryption.js';
+import { congregationJoinRequestsGet } from '../../v3/services/api/congregations.js';
+import { AppRoleType } from '../../v3/definition/app.js';
 import { mailClient } from '../../platform/email/mail-client.js';
 import { env } from '../../config/env.js';
 
