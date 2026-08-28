@@ -5,7 +5,7 @@ import { UsersList } from '../../classes/Users.js';
 import { logger } from '../../../platform/logging/logger.js';
 import { LogLevel } from '@logtail/types';
 import { findBackupByCongregation } from './congregations.js';
-import { backupUploadsInProgress } from '../../../index.js';
+import { backupUploadsInProgress } from '../../../platform/runtime/backup-uploads.js';
 
 export const adminUsersGet = async (visitorid: string) => {
 	const users = UsersList.list;

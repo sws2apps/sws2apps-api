@@ -11,6 +11,7 @@ import { StandardRecord } from '../../v3/definition/app.js';
 import { UsersList } from '../../v3/classes/Users.js';
 import { savePocketBackupAsync } from '../../v3/services/api/users.js';
 import { parsePocketInvitationCode } from './invitation-code.js';
+import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
 
 export const validateInvitation = async (req: Request, res: Response) => {
 	// validate through express middleware
@@ -485,16 +486,9 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 	const incomingMetadata = JSON.parse(req.headers.metadata!.toString()) as Record<string, string>;
 	const currentMetadata = { ...cong.metadata, ...user.metadata };
 
-	let isOutdated = false;
+	const metadataConflict = findBackupMetadataConflict(currentMetadata, incomingMetadata);
 
-	for (const [key, value] of Object.entries(incomingMetadata)) {
-		if (currentMetadata[key] && currentMetadata[key] > value) {
-			isOutdated = true;
-			break;
-		}
-	}
-
-	if (isOutdated) {
+	if (metadataConflict) {
 		res.locals.type = 'info';
 		res.locals.message = `user backup outdated`;
 		res.status(400).json({ message: 'BACKUP_OUTDATED' });

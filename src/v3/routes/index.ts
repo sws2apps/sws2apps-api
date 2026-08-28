@@ -5,7 +5,7 @@ import authRoute from '../../modules/auth/auth.routes.js';
 import congregationRoute from '../../modules/congregations/congregations.routes.js';
 import congregationMeetingEditorRoute from '../../modules/meetings/meetings.routes.js';
 import congregationAdminRoute from './congregation_admin.js';
-import userRoute from './users.js';
+import userRoute from '../../modules/users/users.routes.js';
 import mfaRoute from '../../modules/mfa/mfa.routes.js';
 import publicRoute from '../../modules/public-api/public.routes.js';
 import pocketRoute from '../../modules/pockets/pockets.routes.js';

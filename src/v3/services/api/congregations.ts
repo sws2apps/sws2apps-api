@@ -2,7 +2,7 @@ import { Country } from '../../definition/app.js';
 import { CongregationsList } from '../../classes/Congregations.js';
 import { Congregation } from '../../classes/Congregation.js';
 import { UsersList } from '../../classes/Users.js';
-import { backupUploadsInProgress } from '../../../index.js';
+import { backupUploadsInProgress } from '../../../platform/runtime/backup-uploads.js';
 import { env } from '../../../config/env.js';
 
 export const adminCongregationsGet = async () => {

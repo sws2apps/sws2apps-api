@@ -3,19 +3,20 @@ import { validationResult } from 'express-validator';
 import { LogLevel } from '@logtail/types';
 import sanitizeHtml from 'sanitize-html';
 
-import { UsersList } from '../classes/Users.js';
-import { CongregationsList } from '../classes/Congregations.js';
-import { generateTokenDev } from '../dev/setup.js';
-import { formatError } from '../utils/format_log.js';
-import { StandardRecord } from '../definition/app.js';
-import { BackupData, CongregationUpdatesType, CongSettingsType } from '../definition/congregation.js';
-import { BACKUP_EXPIRY, ROLE_MASTER_KEY } from '../constant/base.js';
+import { UsersList } from '../../v3/classes/Users.js';
+import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { generateTokenDev } from '../../v3/dev/setup.js';
+import { formatError } from '../../v3/utils/format_log.js';
+import { StandardRecord } from '../../v3/definition/app.js';
+import { BackupData, CongregationUpdatesType, CongSettingsType } from '../../v3/definition/congregation.js';
+import { BACKUP_EXPIRY, ROLE_MASTER_KEY } from '../../v3/constant/base.js';
 import { mailClient } from '../../platform/email/mail-client.js';
-import { congregationJoinRequestsGet, findBackupByCongregation } from '../services/api/congregations.js';
-import { backupUploadsInProgress } from '../../index.js';
+import { congregationJoinRequestsGet, findBackupByCongregation } from '../../v3/services/api/congregations.js';
+import { backupUploadsInProgress } from '../../platform/runtime/backup-uploads.js';
 import { logger } from '../../platform/logging/logger.js';
-import { getUserRoles, saveUserBackupAsync } from '../services/api/users.js';
+import { getUserRoles, saveUserBackupAsync } from '../../v3/services/api/users.js';
 import { env } from '../../config/env.js';
+import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
 
 const isDev = env.isDevelopment;
 
@@ -807,20 +808,15 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 		}
 	}
 
-	let isOutdated = false;
+	const metadataConflict = findBackupMetadataConflict(currentMetadata, incomingMetadata);
 
-	for (const [key, value] of Object.entries(incomingMetadata)) {
-		if (currentMetadata[key] && currentMetadata[key] > value) {
-			isOutdated = true;
+	if (metadataConflict) {
+		res.locals.message = JSON.stringify({
+			key: metadataConflict.key,
+			remote_value: metadataConflict.currentValue,
+			incoming_value: metadataConflict.incomingValue,
+		});
 
-			const outdatedData = { key, remote_value: currentMetadata[key], incoming_value: value };
-			res.locals.message = JSON.stringify(outdatedData);
-
-			break;
-		}
-	}
-
-	if (isOutdated) {
 		if (cong_backup.app_settings?.cong_settings?.data_sync.value) {
 			const settings = structuredClone(cong.settings);
 			settings.data_sync = cong_backup.app_settings.cong_settings.data_sync;
@@ -1175,20 +1171,15 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 		}
 	}
 
-	let isOutdated = false;
+	const metadataConflict = findBackupMetadataConflict(currentMetadata, incomingMetadata);
 
-	for (const [key, value] of Object.entries(incomingMetadata)) {
-		if (currentMetadata[key] && currentMetadata[key] > value) {
-			isOutdated = true;
+	if (metadataConflict) {
+		res.locals.message = JSON.stringify({
+			key: metadataConflict.key,
+			remote_value: metadataConflict.currentValue,
+			incoming_value: metadataConflict.incomingValue,
+		});
 
-			const outdatedData = { key, remote_value: currentMetadata[key], incoming_value: value };
-			res.locals.message = JSON.stringify(outdatedData);
-
-			break;
-		}
-	}
-
-	if (isOutdated) {
 		res.locals.type = 'warn';
 		res.status(409).json({ message: 'error_api_sync-conflict' });
 

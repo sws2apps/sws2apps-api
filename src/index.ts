@@ -5,7 +5,6 @@ import app from './app.js';
 import { env } from './config/env.js';
 
 import { logger } from './platform/logging/logger.js';
-import { BackupForStorage } from './v3/definition/congregation.js';
 import { UsersList } from './v3/classes/Users.js';
 import { CongregationsList } from './v3/classes/Congregations.js';
 import { Flags } from './v3/classes/Flags.js';
@@ -13,8 +12,6 @@ import { Installation } from './v3/classes/Installation.js';
 import { initializeAPI } from './v3/config/app.db_config.js';
 import { createDevTestUsers } from './v3/config/dev.config.js';
 import { serverState } from './platform/runtime/server-state.js';
-
-export const backupUploadsInProgress = new Map<string, BackupForStorage>();
 
 await initializeAPI();
 await createDevTestUsers();

@@ -18,74 +18,79 @@ import {
 	userLogout,
 	userPostFeedback,
 	validateUser,
-} from '../controllers/users_controller.js';
+} from './users.controller.js';
 
-const router = express.Router();
+const userRouter = express.Router();
 
 // activate middleware at this point
-router.use(requireAuthenticatedSession());
+userRouter.use(requireAuthenticatedSession());
 
 // validate user for active session
-router.get('/validate-me', validateUser);
+userRouter.get('/validate-me', validateUser);
 
 // logout current user session
-router.get('/logout', userLogout);
+userRouter.get('/logout', userLogout);
 
 // request access to a congregation
-router.post(
+userRouter.post(
 	'/:id/join-congregation',
 	body('country_code').isString().notEmpty(),
 	body('cong_name').isString().notEmpty(),
 	body('firstname').isString().notEmpty(),
 	body('lastname').isString(),
-	joinCongregation
+	joinCongregation,
 );
 
 // get user 2fa token
-router.get('/:id/2fa', getUserSecretToken);
+userRouter.get('/:id/2fa', getUserSecretToken);
 
 // disable user 2fa
-router.get('/:id/2fa/disable', disableUser2FA);
+userRouter.get('/:id/2fa/disable', disableUser2FA);
 
 // get user sessions
-router.get('/:id/sessions', getUserSessions);
+userRouter.get('/:id/sessions', getUserSessions);
 
 // delete user session
-router.delete('/:id/sessions', body('identifier').notEmpty(), deleteUserSession);
+userRouter.delete('/:id/sessions', body('identifier').isString().notEmpty(), deleteUserSession);
 
 // get auxiliary pioneer applications
-router.get('/:id/applications', getAuxiliaryApplications);
+userRouter.get('/:id/applications', getAuxiliaryApplications);
 
 // submit auxiliary pioneer application
-router.post('/:id/applications', body('application').isObject().notEmpty(), submitAuxiliaryApplication);
+userRouter.post('/:id/applications', body('application').isObject().notEmpty(), submitAuxiliaryApplication);
 
 // post field service report
-router.post('/:id/field-service-reports', body('report').isObject().notEmpty(), postUserReport);
+userRouter.post('/:id/field-service-reports', body('report').isObject().notEmpty(), postUserReport);
 
 // retrieve congregation backup
-router.get('/:id/backup', header('metadata').isString(), retrieveUserBackup);
+userRouter.get('/:id/backup', header('metadata').isString().notEmpty(), retrieveUserBackup);
 
 // save congregation backup in chunk
-router.post(
+userRouter.post(
 	'/:id/backup/chunked',
-	header('metadata').isString(),
+	header('metadata').isString().notEmpty(),
 	body('uploadId').isString().notEmpty(),
 	body('chunkIndex').toInt().isNumeric().notEmpty(),
 	body('totalChunks').toInt().isNumeric().notEmpty(),
 	body('chunkData').isString().notEmpty(),
-	saveUserChunkedBackup
+	saveUserChunkedBackup,
 );
 
 // save congregation backup
-router.post('/:id/backup', body('cong_backup').isObject(), saveUserBackup);
+userRouter.post('/:id/backup', body('cong_backup').isObject(), saveUserBackup);
 
 // get user updates
-router.get('/:id/updates-routine', getUserUpdates);
+userRouter.get('/:id/updates-routine', getUserUpdates);
 
 // get user updates
-router.post('/:id/feedback', body('subject').notEmpty().isString(), body('message').notEmpty().isString(), userPostFeedback);
+userRouter.post(
+	'/:id/feedback',
+	body('subject').isString().notEmpty(),
+	body('message').isString().notEmpty(),
+	userPostFeedback,
+);
 
 // delete user
-router.delete('/:id/erase', deleteUser);
+userRouter.delete('/:id/erase', deleteUser);
 
-export default router;
+export default userRouter;
