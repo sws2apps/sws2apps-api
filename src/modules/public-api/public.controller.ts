@@ -9,7 +9,7 @@ import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { UsersList } from '../../v3/classes/Users.js';
 import { Flags } from '../../v3/classes/Flags.js';
 import { Installation } from '../../v3/classes/Installation.js';
-import { getAppLanguages } from '../../v3/services/crowdin/index.js';
+import { getApplicationLanguageCount } from '../../platform/localization/crowdin-client.js';
 import { buildPublicStats } from './public.service.js';
 
 export const getStats = async (req: Request, res: Response) => {
@@ -24,7 +24,7 @@ export const getStats = async (req: Request, res: Response) => {
 	const countries = (await countryApiResponse.json()) as Country[];
 	const congregations = CongregationsList.list;
 	const users = UsersList.list;
-	const languages = await getAppLanguages();
+	const languages = await getApplicationLanguageCount();
 	const publicStats = buildPublicStats({ countries, congregations, users, languages });
 
 	res.locals.type = 'info';
