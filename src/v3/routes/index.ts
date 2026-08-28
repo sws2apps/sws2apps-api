@@ -3,7 +3,7 @@ import cookieParser from 'cookie-parser';
 
 import authRoute from '../../modules/auth/auth.routes.js';
 import congregationRoute from '../../modules/congregations/congregations.routes.js';
-import congregationMeetingEditorRoute from './congregation_meeting_editor.js';
+import congregationMeetingEditorRoute from '../../modules/meetings/meetings.routes.js';
 import congregationAdminRoute from './congregation_admin.js';
 import userRoute from './users.js';
 import mfaRoute from '../../modules/mfa/mfa.routes.js';

@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { CongregationsList } from '../classes/Congregations.js';
-import { formatError } from '../utils/format_log.js';
-import { OutgoingTalkScheduleType } from '../definition/congregation.js';
+import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { formatError } from '../../v3/utils/format_log.js';
+import { OutgoingTalkScheduleType } from '../../v3/definition/congregation.js';
+import { prepareSchedulePublication } from './schedule-publication.js';
 
 export const getApprovedVisitingSpeakersAccess = async (req: Request, res: Response) => {
 	const errors = validationResult(req);
@@ -366,7 +367,13 @@ export const publishSchedules = async (req: Request, res: Response) => {
 
 	const talks = req.body.talks as OutgoingTalkScheduleType[];
 
-	await cong.publishSchedules(JSON.stringify(sources), JSON.stringify(schedules), talks ? JSON.stringify(talks) : undefined);
+	const { serializedSources, serializedSchedules, serializedTalks } = prepareSchedulePublication({
+		sources,
+		schedules,
+		talks,
+	});
+
+	await cong.publishSchedules(serializedSources, serializedSchedules, serializedTalks);
 
 	if (talks) {
 		await cong.copyOutgoingTalkSchedule(talks);
@@ -377,7 +384,7 @@ export const publishSchedules = async (req: Request, res: Response) => {
 	res.status(200).json({ message: 'SCHEDULES_PUBLISHED' });
 };
 
-export const publicSchedulesGet = async (req: Request, res: Response) => {
+export const getPublicSchedules = async (req: Request, res: Response) => {
 	const errors = validationResult(req);
 
 	if (!errors.isEmpty()) {
