@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { Request, Response } from 'express';
 
-import { errorHandler, getRoot, invalidEndpointHandler } from '../../src/v3/controllers/app_controller.js';
+import { errorHandler, getRoot, invalidEndpointHandler } from '../../src/http/app.controller.js';
 
 type ResponseState = {
 	statusCode?: number;
@@ -52,13 +52,13 @@ describe('application HTTP handlers', () => {
 
 	it('does not expose an unexpected internal error', () => {
 		const { response, state } = createResponse();
-		const originalLog = console.log;
-		console.log = () => undefined;
+		const originalConsoleError = console.error;
+		console.error = () => undefined;
 
 		try {
 			errorHandler(new Error('sensitive detail') as never, request, response, () => undefined);
 		} finally {
-			console.log = originalLog;
+			console.error = originalConsoleError;
 		}
 
 		assert.equal(state.statusCode, 500);
@@ -67,8 +67,8 @@ describe('application HTTP handlers', () => {
 
 	it('preserves the existing normalized Firebase error code', () => {
 		const { response, state } = createResponse();
-		const originalLog = console.log;
-		console.log = () => undefined;
+		const originalConsoleError = console.error;
+		console.error = () => undefined;
 		const error = Object.assign(new Error('authentication failed'), {
 			errorInfo: { code: 'auth/id-token-expired' },
 		});
@@ -76,7 +76,7 @@ describe('application HTTP handlers', () => {
 		try {
 			errorHandler(error as never, request, response, () => undefined);
 		} finally {
-			console.log = originalLog;
+			console.error = originalConsoleError;
 		}
 
 		assert.equal(state.statusCode, 500);

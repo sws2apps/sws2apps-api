@@ -18,7 +18,7 @@ import { serverReadyChecker } from './v3/middleware/server_ready_checker.js';
 
 import routesV3 from './v3/routes/index.js';
 
-import { errorHandler, getRoot, invalidEndpointHandler } from './v3/controllers/app_controller.js';
+import { errorHandler, getRoot, invalidEndpointHandler } from './http/app.controller.js';
 import resources from './v3/config/i18n_config.js';
 import { env } from './config/env.js';
 
