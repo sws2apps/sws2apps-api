@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { UsersList } from '../../v3/classes/Users.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { adminCongregationGet, adminCongregationsGet } from '../../v3/services/api/congregations.js';
-import { adminUsersGet } from '../../v3/services/api/users.js';
+import { getAdministrationUsers } from './administration-users.service.js';
 import { validationResult } from 'express-validator';
 import { formatError } from '../../v3/utils/format_log.js';
 import { AppRoleType, Country } from '../../v3/definition/app.js';
@@ -107,7 +107,7 @@ export const congregationGet = async (req: Request, res: Response) => {
 };
 
 export const usersGetAll = async (req: Request, res: Response) => {
-	const result = await adminUsersGet(req.signedCookies.visitorid);
+	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin fetched all users';
@@ -146,7 +146,7 @@ export const userDelete = async (req: Request, res: Response) => {
 		}
 	}
 
-	const result = await adminUsersGet(req.signedCookies.visitorid);
+	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin deleted an user';
@@ -175,7 +175,7 @@ export const userDisable2FA = async (req: Request, res: Response) => {
 
 	await user.disableMFA();
 
-	const result = await adminUsersGet(req.signedCookies.visitorid);
+	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin disabled user 2fa';
@@ -204,7 +204,7 @@ export const userRevokeToken = async (req: Request, res: Response) => {
 
 	await user.revokeToken();
 
-	const result = await adminUsersGet(req.signedCookies.visitorid);
+	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin revoked user token';
@@ -281,7 +281,7 @@ export const userUpdate = async (req: Request, res: Response) => {
 		}
 	}
 
-	const result = await adminUsersGet(req.signedCookies.visitorid);
+	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated user details';
@@ -330,7 +330,7 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 		}
 	}
 
-	const result = await adminUsersGet(req.signedCookies.visitorid);
+	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin revoked an user session';
@@ -767,7 +767,7 @@ export const userAssignCongregation = async (req: Request, res: Response) => {
 
 	await user.assignCongregation({ congId: congregation, role: ['admin'] });
 
-	const result = await adminUsersGet(req.signedCookies.visitorid);
+	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin assigned an user to a congregation';
@@ -890,7 +890,7 @@ export const userRemoveCongregation = async (req: Request, res: Response) => {
 		}
 	}
 
-	const result = await adminUsersGet(req.signedCookies.visitorid);
+	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin removed a user from a congregation';
