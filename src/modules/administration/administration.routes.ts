@@ -32,7 +32,8 @@ import {
 	usersGetAll,
 	userUpdate,
 	validateAdmin,
-} from '../controllers/admin_controller.js';
+} from './administration.controller.js';
+import { isValidFeatureFlagAvailability } from './feature-flag-validation.js';
 
 const router = express.Router();
 
@@ -50,7 +51,7 @@ router.get('/logout', logoutAdmin);
 router.get('/client-version', getClientVersion);
 
 // get minimum client
-router.post('/client-version', body('version').isString().notEmpty(), updateClientVersion);
+router.post('/client-version', body('version').isString().matches(/^\d+(?:\.\d+)*$/), updateClientVersion);
 
 // create new congregation
 router.post(
@@ -68,7 +69,7 @@ router.get('/congregations', getAllCongregations);
 router.get('/congregations/:id', congregationGet);
 
 // toggle congregation feature flag
-router.patch('/congregations/:id/feature-flags', body('flagid').isString(), congregationFlagToggle);
+router.patch('/congregations/:id/feature-flags', body('flagid').isString().notEmpty(), congregationFlagToggle);
 
 // toggle data sync
 router.patch('/congregations/:id/data-sync', congregationDataSyncToggle);
@@ -106,15 +107,15 @@ router.patch(
 	body('lastname').isString(),
 	body('firstname').isString(),
 	body('email').isString(),
-	body('roles').isArray(),
+	body('roles').isArray({ min: 1 }),
 	userUpdate,
 );
 
 // toggle user feature flag
-router.patch('/users/:id/feature-flags', body('flagid').isString(), userFlagToggle);
+router.patch('/users/:id/feature-flags', body('flagid').isString().notEmpty(), userFlagToggle);
 
 // delete user session
-router.delete('/users/:id/sessions', body('identifiers').isArray(), userSessionDelete);
+router.delete('/users/:id/sessions', body('identifiers').isArray({ min: 1 }), userSessionDelete);
 
 // remove user congregation
 router.delete('/users/:id/congregation', userRemoveCongregation);
@@ -133,7 +134,7 @@ router.post(
 	'/flags',
 	body('name').isString().notEmpty(),
 	body('desc').isString().notEmpty(),
-	body('availability').isString().notEmpty(),
+	body('availability').custom(isValidFeatureFlagAvailability),
 	flagsCreate,
 );
 
@@ -145,7 +146,7 @@ router.patch(
 	'/flags/:id',
 	body('name').isString().notEmpty(),
 	body('description').isString().notEmpty(),
-	body('coverage').isNumeric(),
+	body('coverage').isFloat({ min: 0, max: 100 }),
 	flagUpdate,
 );
 

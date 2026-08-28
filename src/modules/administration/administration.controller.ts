@@ -1,17 +1,17 @@
 import { Request, Response } from 'express';
-import { UsersList } from '../classes/Users.js';
-import { CongregationsList } from '../classes/Congregations.js';
-import { adminCongregationGet, adminCongregationsGet } from '../services/api/congregations.js';
-import { adminUsersGet } from '../services/api/users.js';
+import { UsersList } from '../../v3/classes/Users.js';
+import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { adminCongregationGet, adminCongregationsGet } from '../../v3/services/api/congregations.js';
+import { adminUsersGet } from '../../v3/services/api/users.js';
 import { validationResult } from 'express-validator';
-import { formatError } from '../utils/format_log.js';
-import { AppRoleType, Country } from '../definition/app.js';
-import { Flags } from '../classes/Flags.js';
-import { FeatureFlag } from '../definition/flag.js';
-import { adminFlagsGet } from '../services/api/flags.js';
-import { setCongOutgoingSpeakers } from '../services/firebase/congregations.js';
+import { formatError } from '../../v3/utils/format_log.js';
+import { AppRoleType, Country } from '../../v3/definition/app.js';
+import { Flags } from '../../v3/classes/Flags.js';
+import { FeatureFlag } from '../../v3/definition/flag.js';
+import { adminFlagsGet } from '../../v3/services/api/flags.js';
+import { setCongOutgoingSpeakers } from '../../v3/services/firebase/congregations.js';
 import { serverState } from '../../platform/runtime/server-state.js';
-import { updateAPIMinimumClient } from '../services/firebase/api.js';
+import { updateAPIMinimumClient } from '../../v3/services/firebase/api.js';
 import { env } from '../../config/env.js';
 
 export const validateAdmin = async (req: Request, res: Response) => {

@@ -9,7 +9,7 @@ import userRoute from '../../modules/users/users.routes.js';
 import mfaRoute from '../../modules/mfa/mfa.routes.js';
 import publicRoute from '../../modules/public-api/public.routes.js';
 import pocketRoute from '../../modules/pockets/pockets.routes.js';
-import adminRoute from './admin.js';
+import adminRoute from '../../modules/administration/administration.routes.js';
 
 import { clientVersionChecker } from '../../http/middleware/client-version.middleware.js';
 import { env } from '../../config/env.js';
