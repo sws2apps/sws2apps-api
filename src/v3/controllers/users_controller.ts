@@ -10,7 +10,7 @@ import { formatError } from '../utils/format_log.js';
 import { StandardRecord } from '../definition/app.js';
 import { BackupData, CongregationUpdatesType, CongSettingsType } from '../definition/congregation.js';
 import { BACKUP_EXPIRY, ROLE_MASTER_KEY } from '../constant/base.js';
-import { MailClient } from '../config/mail_config.js';
+import { mailClient } from '../../platform/email/mail-client.js';
 import { congregationJoinRequestsGet, findBackupByCongregation } from '../services/api/congregations.js';
 import { backupUploadsInProgress } from '../../index.js';
 import { logger } from '../services/logger/logger.js';
@@ -995,7 +995,7 @@ export const userPostFeedback = async (req: Request, res: Response) => {
 		},
 	};
 
-	MailClient.sendEmail(options, 'Feedback sent successfully to support team');
+	mailClient.sendEmail(options, 'Feedback sent successfully to support team');
 
 	res.locals.type = 'info';
 	res.locals.message = 'user sent feedback successfully';

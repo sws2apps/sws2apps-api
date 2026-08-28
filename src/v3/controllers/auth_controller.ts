@@ -10,7 +10,7 @@ import { formatError } from '../utils/format_log.js';
 import { decodeUserIdToken } from '../services/firebase/users.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';
-import { MailClient } from '../config/mail_config.js';
+import { mailClient } from '../../platform/email/mail-client.js';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -190,7 +190,7 @@ export const createSignInLink = async (req: Request, res: Response) => {
 			},
 		};
 
-		MailClient.sendEmail(options, 'Passwordless link sent to user');
+		mailClient.sendEmail(options, 'Passwordless link sent to user');
 	}
 
 	res.locals.type = 'info';

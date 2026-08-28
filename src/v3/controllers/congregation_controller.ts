@@ -5,7 +5,7 @@ import { CongregationsList } from '../classes/Congregations.js';
 import { ApiCongregationSearchResponse } from '../definition/congregation.js';
 import { formatError } from '../utils/format_log.js';
 import { StandardRecord } from '../definition/app.js';
-import { MailClient } from '../config/mail_config.js';
+import { mailClient } from '../../platform/email/mail-client.js';
 import { formatMeetingWeekday } from '../utils/congregation_utils.js';
 import { ALL_LANGUAGES } from '../constant/langList.js';
 
@@ -204,7 +204,7 @@ export const createCongregation = async (req: Request, res: Response) => {
 			},
 		};
 
-		MailClient.sendEmail(options, 'Welcome message sent to user');
+		mailClient.sendEmail(options, 'Welcome message sent to user');
 	}
 
 	const finalResult = {

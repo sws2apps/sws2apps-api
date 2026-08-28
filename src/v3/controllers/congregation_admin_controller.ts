@@ -6,7 +6,7 @@ import { UsersList } from '../classes/Users.js';
 import { decryptData } from '../services/encryption/encryption.js';
 import { congregationJoinRequestsGet } from '../services/api/congregations.js';
 import { AppRoleType } from '../definition/app.js';
-import { MailClient } from '../config/mail_config.js';
+import { mailClient } from '../../platform/email/mail-client.js';
 
 export const setCongregationMasterKey = async (req: Request, res: Response) => {
 	const errors = validationResult(req);
@@ -1021,7 +1021,7 @@ export const acceptJoinRequest = async (req: Request, res: Response) => {
 			},
 		};
 
-		MailClient.sendEmail(options, 'Join request approval email sent to user');
+		mailClient.sendEmail(options, 'Join request approval email sent to user');
 	}
 
 	res.locals.type = 'info';
