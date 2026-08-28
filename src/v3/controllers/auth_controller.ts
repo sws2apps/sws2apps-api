@@ -8,7 +8,7 @@ import { retrieveVisitorDetails } from '../services/ip_details/auth_utils.js';
 import { CongregationsList } from '../classes/Congregations.js';
 import { formatError } from '../utils/format_log.js';
 import { decodeUserIdToken } from '../services/firebase/users.js';
-import { cookieOptions } from '../utils/app.js';
+import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';
 import { MailClient } from '../config/mail_config.js';
 
@@ -80,7 +80,7 @@ export const loginUser = async (req: Request, res: Response) => {
 		res.locals.type = 'info';
 		res.locals.message = 'user required to verify mfa';
 
-		res.cookie('visitorid', visitorid, cookieOptions(req));
+		res.cookie('visitorid', visitorid, getSessionCookieOptions(req));
 
 		if (isDev) {
 			const tokenDev = generateTokenDev(authUser.email!, authUser.profile.secret!);
@@ -145,7 +145,7 @@ export const loginUser = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
 	res.locals.message = 'user successfully logged in without MFA';
 
-	res.cookie('visitorid', visitorid, cookieOptions(req));
+	res.cookie('visitorid', visitorid, getSessionCookieOptions(req));
 	res.status(200).json(userInfo);
 };
 
@@ -250,7 +250,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 		res.locals.type = 'info';
 		res.locals.message = 'user required to verify mfa';
 
-		res.cookie('visitorid', visitorid, cookieOptions(req));
+		res.cookie('visitorid', visitorid, getSessionCookieOptions(req));
 		if (isDev) {
 			const tokenDev = generateTokenDev(authUser.email!, authUser.profile.secret!);
 			console.log('Use this code to login:', tokenDev);
@@ -314,7 +314,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
 	res.locals.message = 'user successfully logged in without MFA';
 
-	res.cookie('visitorid', visitorid, cookieOptions(req));
+	res.cookie('visitorid', visitorid, getSessionCookieOptions(req));
 	res.status(200).json(userInfo);
 };
 
@@ -453,6 +453,6 @@ export const verifyEmailToken = async (req: Request, res: Response) => {
 
 	userInfo.custom_token = customToken;
 
-	res.cookie('visitorid', visitorid, cookieOptions(req));
+	res.cookie('visitorid', visitorid, getSessionCookieOptions(req));
 	res.status(200).json(userInfo);
 };

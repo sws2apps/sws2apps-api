@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { formatError } from '../utils/format_log.js';
-import { cookieOptions } from '../utils/app.js';
+import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { CongregationsList } from '../classes/Congregations.js';
 import { decryptData } from '../services/encryption/encryption.js';
 import { UserAuthResponse, UserSession } from '../definition/user.js';
@@ -149,7 +149,7 @@ export const validateInvitation = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
 	res.locals.message = 'pocket user successfully logged in';
 
-	res.cookie('visitorid', visitorid, cookieOptions(req));
+	res.cookie('visitorid', visitorid, getSessionCookieOptions(req));
 	res.status(200).json(userInfo);
 };
 
