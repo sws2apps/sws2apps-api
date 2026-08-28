@@ -2,9 +2,9 @@ import express from 'express';
 import { body } from 'express-validator';
 import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
 import {
-	congregationMeetingEditorChecker,
-	congregationPublicTalkCoordinatorChecker,
-} from '../middleware/congregation_role_checker.js';
+	requireMeetingEditor,
+	requirePublicTalkCoordinator,
+} from '../../http/middleware/authorization.middleware.js';
 import {
 	approveVisitingSpeakersAccess,
 	findVisitingSpeakersCongregations,
@@ -19,7 +19,7 @@ import {
 const router = express.Router();
 
 router.use(requireAuthenticatedSession());
-router.use(congregationMeetingEditorChecker());
+router.use(requireMeetingEditor());
 
 router.post(
 	'/:id/schedules',
@@ -32,7 +32,7 @@ router.post(
 router.get('/:id/schedules', publicSchedulesGet);
 
 // activate public talk coordinator role
-router.use(congregationPublicTalkCoordinatorChecker());
+router.use(requirePublicTalkCoordinator());
 
 // find visiting speakears congregations
 router.get('/:id/visiting-speakers/congregations', findVisitingSpeakersCongregations);

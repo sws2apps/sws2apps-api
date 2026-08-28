@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, header } from 'express-validator';
-import { congregationAdminChecker } from '../middleware/congregation_admin_checker.js';
+import { requireCongregationAdministrator } from '../../http/middleware/authorization.middleware.js';
 import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
 import {
 	setCongregationMasterKey,
@@ -24,7 +24,7 @@ import {
 const router = express.Router();
 
 router.use(requireAuthenticatedSession());
-router.use(congregationAdminChecker());
+router.use(requireCongregationAdministrator());
 
 // set congregation master key
 router.post('/:id/local-uid', body('user_uid').isString().notEmpty(), setAdminUserUid);

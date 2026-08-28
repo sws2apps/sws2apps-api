@@ -2,7 +2,7 @@ import express from 'express';
 import { body } from 'express-validator';
 
 import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
-import { adminAuthChecker } from '../middleware/admin_auth_checker.js';
+import { requireGlobalAdministrator } from '../../http/middleware/authorization.middleware.js';
 
 import {
 	congregationDataSyncToggle,
@@ -38,7 +38,7 @@ const router = express.Router();
 
 // activate middleware
 router.use(requireAuthenticatedSession());
-router.use(adminAuthChecker());
+router.use(requireGlobalAdministrator());
 
 // validate user admin => passed middleware
 router.get('/', validateAdmin);
