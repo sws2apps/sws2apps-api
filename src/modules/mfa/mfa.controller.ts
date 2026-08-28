@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import * as OTPAuth from 'otpauth';
 import { validationResult } from 'express-validator';
-import { UsersList } from '../classes/Users.js';
-import { CongregationsList } from '../classes/Congregations.js';
-import { formatError } from '../utils/format_log.js';
-import { UserAuthResponse } from '../definition/user.js';
-import { ROLE_MASTER_KEY } from '../constant/base.js';
+import { UsersList } from '../../v3/classes/Users.js';
+import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { formatError } from '../../v3/utils/format_log.js';
+import { UserAuthResponse } from '../../v3/definition/user.js';
+import { ROLE_MASTER_KEY } from '../../v3/constant/base.js';
 import { env } from '../../config/env.js';
+import { isTokenWithinAllowedWindow } from './token-validation.js';
 
 export const verifyToken = async (req: Request, res: Response) => {
 	const isProd = env.isProduction;
@@ -43,9 +44,9 @@ export const verifyToken = async (req: Request, res: Response) => {
 	});
 
 	// Validate a token.
-	const delta = totp.validate({ token: token, window: 1 });
+	const timeStepDifference = totp.validate({ token, window: 1 });
 
-	if (delta === null || delta === undefined || (delta < -1 && delta > 1)) {
+	if (!isTokenWithinAllowedWindow(timeStepDifference)) {
 		res.locals.type = 'warn';
 		res.locals.message = 'OTP token invalid';
 		res.status(403).json({ message: 'TOKEN_INVALID' });
