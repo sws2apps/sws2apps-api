@@ -14,7 +14,7 @@ import './v3/config/firebase_config.js';
 import { internetChecker } from './v3/middleware/internet_checker.js';
 import { requestChecker } from './v3/middleware/request_checker.js';
 import { updateTracker } from './v3/middleware/update_tracker.js';
-import { serverReadyChecker } from './v3/middleware/server_ready_checker.js';
+import { serverReadyChecker } from './http/middleware/server-ready.middleware.js';
 
 import routesV3 from './v3/routes/index.js';
 

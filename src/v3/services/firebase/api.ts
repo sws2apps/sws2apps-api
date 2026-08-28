@@ -1,6 +1,6 @@
 import { getApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { API_VAR } from '../../../index.js';
+import { serverState } from '../../../platform/runtime/server-state.js';
 
 const db = getFirestore(getApp());
 
@@ -14,5 +14,5 @@ export const updateAPIMinimumClient = async (version: string) => {
 
 	await docRef.update({ minimum_version: version });
 
-	API_VAR.MINIMUM_APP_VERSION = version;
+	serverState.minimumAppVersion = version;
 };

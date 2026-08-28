@@ -1,5 +1,5 @@
 import { CookieOptions, Request } from 'express';
-import { API_VAR } from '../../index.js';
+import { serverState } from '../../platform/runtime/server-state.js';
 
 const isLocalRequest = (req: Request) => {
 	const host = req.get('host');
@@ -20,7 +20,7 @@ export const cookieOptions = (req: Request): CookieOptions => {
 
 export const isValidClientVersion = (version: string) => {
 	const parts1 = version.split('.').map(Number);
-	const parts2 = API_VAR.MINIMUM_APP_VERSION.split('.').map(Number);
+	const parts2 = serverState.minimumAppVersion.split('.').map(Number);
 
 	const maxLength = Math.max(parts1.length, parts2.length);
 	for (let i = 0; i < maxLength; i++) {

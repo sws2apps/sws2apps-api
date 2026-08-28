@@ -1,6 +1,6 @@
 import { getFirestore } from 'firebase-admin/firestore';
 import { getApp } from 'firebase-admin/app';
-import { API_VAR } from '../../index.js';
+import { serverState } from '../../platform/runtime/server-state.js';
 
 const db = getFirestore(getApp());
 
@@ -12,7 +12,7 @@ export const initializeAPI = async () => {
     const snapshot = await apiSettings.get();
     snapshot.forEach((doc) => {
       settingID = doc.id;
-      API_VAR.MINIMUM_APP_VERSION = doc.data().minimum_version;
+      serverState.minimumAppVersion = doc.data().minimum_version;
     });
 
     if (!settingID) {
@@ -21,7 +21,7 @@ export const initializeAPI = async () => {
       };
 
       await db.collection('api_settings_v3').add(data);
-      API_VAR.MINIMUM_APP_VERSION = data.minimum_version;
+      serverState.minimumAppVersion = data.minimum_version;
     }
   } catch (err) {
     throw new Error(String(err), { cause: err });

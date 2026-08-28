@@ -3,20 +3,20 @@ import { LogLevel } from '@logtail/types';
 import geoip from 'geoip-lite';
 import WhichBrowser from 'which-browser';
 
-import { API_VAR } from '../../index.js';
+import { serverState } from '../../platform/runtime/server-state.js';
 import { logger } from '../services/logger/logger.js';
 
 export const updateTracker = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const start = process.hrtime();
-			const { REQUEST_TRACKER } = API_VAR;
+			const requestTracker = serverState.requestTracker;
 
 			const clientIp = req.clientIp!;
 			const geo = geoip.lookup(clientIp);
 			const browserInfo = new WhichBrowser(req.headers);
 			const reqCity = geo ? `${geo.city} (${geo.country})` : 'Unknown';
-			const ipIndex = REQUEST_TRACKER.findIndex((client) => client.ip === clientIp);
+			const ipIndex = requestTracker.findIndex((client) => client.ip === clientIp);
 
 			let requestSize = 0;
 
@@ -83,11 +83,11 @@ export const updateTracker = () => {
 
 				if (res.writableEnded) {
 					if (res.locals.failedLoginAttempt) {
-						const reqTrackRef = REQUEST_TRACKER.find((client) => client.ip === clientIp);
+						const reqTrackRef = requestTracker.find((client) => client.ip === clientIp);
 						failedLoginAttempt = (reqTrackRef?.failedLoginAttempt ?? 0) + 1;
 
-						REQUEST_TRACKER.splice(ipIndex, 1);
-						REQUEST_TRACKER.push({
+						requestTracker.splice(ipIndex, 1);
+						requestTracker.push({
 							ip: clientIp,
 							city: reqCity,
 							reqInProgress: false,
@@ -95,7 +95,7 @@ export const updateTracker = () => {
 							retryOn: undefined,
 						});
 					} else {
-						REQUEST_TRACKER.splice(ipIndex, 1);
+						requestTracker.splice(ipIndex, 1);
 					}
 
 					logger(res.locals.type as LogLevel, message, {
@@ -104,7 +104,7 @@ export const updateTracker = () => {
 					});
 				} else {
 					if (ipIndex >= 0) {
-						REQUEST_TRACKER.splice(ipIndex, 1);
+							requestTracker.splice(ipIndex, 1);
 					}
 
 					res.status(400);

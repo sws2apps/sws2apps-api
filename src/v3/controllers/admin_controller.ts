@@ -10,7 +10,7 @@ import { Flags } from '../classes/Flags.js';
 import { FeatureFlag } from '../definition/flag.js';
 import { adminFlagsGet } from '../services/api/flags.js';
 import { setCongOutgoingSpeakers } from '../services/firebase/congregations.js';
-import { API_VAR } from '../../index.js';
+import { serverState } from '../../platform/runtime/server-state.js';
 import { updateAPIMinimumClient } from '../services/firebase/api.js';
 
 export const validateAdmin = async (req: Request, res: Response) => {
@@ -959,7 +959,7 @@ export const updateBasicCongregationInfo = async (req: Request, res: Response) =
 export const getClientVersion = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
 	res.locals.message = 'admin fetched minimum client';
-	res.status(200).json({ version: API_VAR.MINIMUM_APP_VERSION });
+	res.status(200).json({ version: serverState.minimumAppVersion });
 };
 
 export const updateClientVersion = async (req: Request, res: Response) => {
@@ -982,5 +982,5 @@ export const updateClientVersion = async (req: Request, res: Response) => {
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated minimum client';
-	res.status(200).json({ version: API_VAR.MINIMUM_APP_VERSION });
+	res.status(200).json({ version: serverState.minimumAppVersion });
 };
