@@ -2,64 +2,34 @@ import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import fetch from 'node-fetch';
 
-import { formatError } from '../utils/format_log.js';
-import { Country } from '../definition/app.js';
-import { CongregationByCountry } from '../definition/congregation.js';
-import { CongregationsList } from '../classes/Congregations.js';
-import { UsersList } from '../classes/Users.js';
-import { Flags } from '../classes/Flags.js';
-import { Installation } from '../classes/Installation.js';
-import { getAppLanguages } from '../services/crowdin/index.js';
+import { env } from '../../config/env.js';
+import { formatError } from '../../v3/utils/format_log.js';
+import { Country } from '../../v3/definition/app.js';
+import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { UsersList } from '../../v3/classes/Users.js';
+import { Flags } from '../../v3/classes/Flags.js';
+import { Installation } from '../../v3/classes/Installation.js';
+import { getAppLanguages } from '../../v3/services/crowdin/index.js';
+import { buildPublicStats } from './public.service.js';
 
 export const getStats = async (req: Request, res: Response) => {
-	const url = process.env.APP_COUNTRY_API! + new URLSearchParams({ language: 'E' });
+	const countryApiUrl = env.appCountryApi + new URLSearchParams({ language: 'E' });
 
-	const response = await fetch(url);
+	const countryApiResponse = await fetch(countryApiUrl);
 
-	if (!response.ok) {
+	if (!countryApiResponse.ok) {
 		throw new Error('FETCH_FAILED');
 	}
 
-	const countries = (await response.json()) as Country[];
-
-	const congs = CongregationsList.list;
-	const users = UsersList.list.filter((record) => record.profile.role !== 'admin');
-
-	const congsByCountry = congs.reduce((acc: CongregationByCountry[], current) => {
-		const country = acc.find((record) => record.country_code === current.settings.country_code);
-
-		if (!country) {
-			const details = countries.find((record) => record.countryCode === current.settings.country_code);
-
-			acc.push({
-				country_name: details?.countryName || 'Unknown',
-				country_code: current.settings.country_code,
-				congregations: 1,
-			});
-		}
-
-		if (country) {
-			country.congregations++;
-		}
-
-		return acc;
-	}, []);
-
+	const countries = (await countryApiResponse.json()) as Country[];
+	const congregations = CongregationsList.list;
+	const users = UsersList.list;
 	const languages = await getAppLanguages();
-
-	const result = {
-		languages,
-		congregations: congs.length,
-		users: users.length,
-		countries: {
-			count: congsByCountry.length,
-			list: congsByCountry,
-		},
-	};
+	const publicStats = buildPublicStats({ countries, congregations, users, languages });
 
 	res.locals.type = 'info';
 	res.locals.message = 'app stats generated';
-	res.status(200).json(result);
+	res.status(200).json(publicStats);
 };
 
 export const getFeatureFlags = async (req: Request, res: Response) => {

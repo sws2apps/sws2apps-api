@@ -12,7 +12,7 @@
 		"setup:emulators": "firebase init emulators",
 		"start:emulators": "firebase emulators:start --project=organized-local",
 		"lint": "eslint src test",
-		"test": "rimraf .test-dist && tsc --project tsconfig.test.json && node --test .test-dist/test/**/*.test.js"
+		"test": "rimraf .test-dist && tsc --project test/tsconfig.json && node --test .test-dist/test/**/*.test.js"
 	},
 	"keywords": [],
 	"author": "",
