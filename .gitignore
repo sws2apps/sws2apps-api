@@ -13,6 +13,7 @@ cong_backup
 # testing
 /coverage
 .nyc_output/
+.test-dist/
 
 # production
 /build
