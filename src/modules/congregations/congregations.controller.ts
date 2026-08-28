@@ -1,14 +1,15 @@
 import fetch from 'node-fetch';
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { CongregationsList } from '../classes/Congregations.js';
-import { ApiCongregationSearchResponse } from '../definition/congregation.js';
-import { formatError } from '../utils/format_log.js';
-import { StandardRecord } from '../definition/app.js';
+import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { ApiCongregationSearchResponse } from '../../v3/definition/congregation.js';
+import { formatError } from '../../v3/utils/format_log.js';
+import { StandardRecord } from '../../v3/definition/app.js';
 import { mailClient } from '../../platform/email/mail-client.js';
-import { formatMeetingWeekday } from '../utils/congregation_utils.js';
-import { ALL_LANGUAGES } from '../constant/langList.js';
+import { formatMeetingWeekday } from '../../v3/utils/congregation_utils.js';
+import { ALL_LANGUAGES } from '../../v3/constant/langList.js';
 import { env } from '../../config/env.js';
+import { canManageCongregationApplications } from './congregation-permissions.js';
 
 const MAIL_ENABLED = env.mailEnabled;
 
@@ -261,14 +262,7 @@ export const updateApplicationApproval = async (req: Request, res: Response) => 
 
 	const roles = user.profile.congregation!.cong_role;
 
-	const adminRole = roles.includes('admin');
-	const coordinatorRole = roles.includes('coordinator');
-	const secretaryRole = roles.includes('secretary');
-	const serviceRole = roles.includes('service_overseer');
-
-	const committeeRole = adminRole || coordinatorRole || secretaryRole || serviceRole;
-
-	if (!committeeRole) {
+	if (!canManageCongregationApplications(roles)) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to process this application';
 		res.status(403).json({ message: 'error_api_unauthorized-request' });
@@ -325,14 +319,7 @@ export const deleteApplication = async (req: Request, res: Response) => {
 
 	const roles = user.profile.congregation!.cong_role;
 
-	const adminRole = roles.includes('admin');
-	const coordinatorRole = roles.includes('coordinator');
-	const secretaryRole = roles.includes('secretary');
-	const serviceRole = roles.includes('service_overseer');
-
-	const committeeRole = adminRole || coordinatorRole || secretaryRole || serviceRole;
-
-	if (!committeeRole) {
+	if (!canManageCongregationApplications(roles)) {
 		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to process this application';
 		res.status(403).json({ message: 'error_api_unauthorized-request' });

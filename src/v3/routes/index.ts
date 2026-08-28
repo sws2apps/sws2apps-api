@@ -2,7 +2,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 
 import authRoute from './auth.js';
-import congregationRoute from './congregation.js';
+import congregationRoute from '../../modules/congregations/congregations.routes.js';
 import congregationMeetingEditorRoute from './congregation_meeting_editor.js';
 import congregationAdminRoute from './congregation_admin.js';
 import userRoute from './users.js';
