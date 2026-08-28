@@ -1,13 +1,13 @@
 import express from 'express';
 import { body, header } from 'express-validator';
 import { createSignInLink, loginUser, verifyEmailToken, verifyPasswordlessInfo } from './auth.controller.js';
-import { authBearerCheck } from '../../v3/services/validator/auth.js';
+import { validateBearerAuthorization } from '../../http/security/bearer-token.js';
 
 const authRouter = express.Router();
 
 authRouter.get(
 	'/user-login',
-	header('Authorization').exists().notEmpty().isString().custom(authBearerCheck),
+	header('Authorization').exists().notEmpty().isString().custom(validateBearerAuthorization),
 	loginUser,
 );
 
@@ -15,7 +15,7 @@ authRouter.post('/user-passwordless-login', body('email').isEmail(), createSignI
 
 authRouter.post(
 	'/user-passwordless-verify',
-	header('Authorization').exists().notEmpty().isString().custom(authBearerCheck),
+	header('Authorization').exists().notEmpty().isString().custom(validateBearerAuthorization),
 	verifyPasswordlessInfo,
 );
 

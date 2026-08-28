@@ -3,13 +3,20 @@ import { header, validationResult } from 'express-validator';
 import { UsersList } from '../../v3/classes/Users.js';
 import { formatError } from '../../v3/utils/format_log.js';
 import { decodeUserIdToken } from '../../v3/services/firebase/users.js';
-import { authBearerCheck } from '../../v3/services/validator/auth.js';
-import { extractBearerToken } from '../security/bearer-token.js';
+import {
+	extractBearerToken,
+	validateBearerAuthorization,
+} from '../security/bearer-token.js';
 
 export const requireAuthenticatedSession = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			await header('Authorization').exists().notEmpty().isString().custom(authBearerCheck).run(req);
+			await header('Authorization')
+				.exists()
+				.notEmpty()
+				.isString()
+				.custom(validateBearerAuthorization)
+				.run(req);
 
 			const validationErrors = validationResult(req);
 
