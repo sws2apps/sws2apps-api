@@ -9,7 +9,7 @@ import requestIp from 'request-ip';
 import compression from 'compression';
 import i18next from 'i18next';
 
-import './v3/config/firebase_config.js';
+import './platform/firebase/firebase-app.js';
 
 import { internetChecker } from './v3/middleware/internet_checker.js';
 import { requestChecker } from './v3/middleware/request_checker.js';
