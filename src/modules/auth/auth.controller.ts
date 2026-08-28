@@ -1,17 +1,18 @@
 import { Request, Response } from 'express';
 import { getAuth } from 'firebase-admin/auth';
 import { validationResult } from 'express-validator';
-import { generateTokenDev } from '../dev/setup.js';
-import { UsersList } from '../classes/Users.js';
-import { UserAuthResponse, UserSession } from '../definition/user.js';
-import { retrieveVisitorDetails } from '../services/ip_details/auth_utils.js';
-import { CongregationsList } from '../classes/Congregations.js';
-import { formatError } from '../utils/format_log.js';
-import { decodeUserIdToken } from '../services/firebase/users.js';
+import { generateTokenDev } from '../../v3/dev/setup.js';
+import { UsersList } from '../../v3/classes/Users.js';
+import { UserAuthResponse, UserSession } from '../../v3/definition/user.js';
+import { retrieveVisitorDetails } from '../../v3/services/ip_details/auth_utils.js';
+import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { formatError } from '../../v3/utils/format_log.js';
+import { decodeUserIdToken } from '../../v3/services/firebase/users.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
-import { ROLE_MASTER_KEY } from '../constant/base.js';
+import { ROLE_MASTER_KEY } from '../../v3/constant/base.js';
 import { mailClient } from '../../platform/email/mail-client.js';
 import { env } from '../../config/env.js';
+import { isEmailOneTimePasswordValid } from './email-otp.js';
 
 const isDev = env.isDevelopment;
 
@@ -353,25 +354,11 @@ export const verifyEmailToken = async (req: Request, res: Response) => {
 		return;
 	}
 
-	if (authUser.profile.email_otp) {
-		let isInvalid = false;
-
-		const isExpired = Date.now() > authUser.profile.email_otp.expiredAt;
-
-		if (isExpired) {
-			isInvalid = true;
-		}
-
-		if (!isExpired && authUser.profile.email_otp.code !== String(token)) {
-			isInvalid = true;
-		}
-
-		if (isInvalid) {
-			res.locals.type = 'warn';
-			res.locals.message = 'email otp is invalid';
-			res.status(403).json({ message: 'error_auth_invalid-token' });
-			return;
-		}
+	if (!isEmailOneTimePasswordValid(authUser.profile.email_otp, String(token))) {
+		res.locals.type = 'warn';
+		res.locals.message = 'email otp is invalid';
+		res.status(403).json({ message: 'error_auth_invalid-token' });
+		return;
 	}
 
 	const profile = structuredClone(authUser.profile);
