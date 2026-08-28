@@ -1,12 +1,12 @@
 import { initializeApp, cert, AppOptions } from 'firebase-admin/app';
+import { env } from '../../config/env.js';
 
-const suffix = process.env.FIREBASE_STORAGE_SUFFIX || 'firebasestorage.app';
-const storageBucket = process.env.FIREBASE_STORAGE_BUCKET || `${process.env.FIREBASE_APP_NAME}.${suffix}`;
+const storageBucket = env.firebaseStorageBucket || `${env.firebaseAppName}.${env.firebaseStorageSuffix}`;
 
-const options = { projectId: process.env.FIREBASE_APP_NAME, storageBucket } as AppOptions;
+const options = { projectId: env.firebaseAppName, storageBucket } as AppOptions;
 
-if (process.env.GOOGLE_CONFIG_BASE64) {
-	options.credential = cert(JSON.parse(Buffer.from(process.env.GOOGLE_CONFIG_BASE64, 'base64').toString('ascii')));
+if (env.googleConfigBase64) {
+	options.credential = cert(JSON.parse(Buffer.from(env.googleConfigBase64, 'base64').toString('utf8')));
 }
 
 initializeApp(options);

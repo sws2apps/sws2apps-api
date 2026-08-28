@@ -1,6 +1,7 @@
 import { AES, Utf8 } from 'crypto-es';
+import { env } from '../../../config/env.js';
 
-const SERVER_KEY = `&sws2apps_${process.env.SEC_ENCRYPT_KEY ?? 'server_key_dev'}`;
+const SERVER_KEY = `&sws2apps_${env.encryptionKey}`;
 
 export const encryptData = (data: string, passphrase?: string) => {
 	const key = passphrase || SERVER_KEY;

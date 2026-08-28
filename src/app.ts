@@ -20,6 +20,7 @@ import routesV3 from './v3/routes/index.js';
 
 import { errorHandler, getRoot, invalidEndpointHandler } from './v3/controllers/app_controller.js';
 import resources from './v3/config/i18n_config.js';
+import { env } from './config/env.js';
 
 // allowed apps url
 const whitelist = [
@@ -35,9 +36,15 @@ const whitelist = [
 const allowedUri = ['/app-version', '/api/public/source-material'];
 
 const corsOptionsDelegate = function (req: Request, callback: (_: null, options: CorsOptions) => void) {
-	const corsOptions: CorsOptions = { origin: true, credentials: true };
+	const corsOptions: CorsOptions = {
+		origin: true,
+		credentials: true,
+		methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+		allowedHeaders: ['Content-Type', 'Authorization'],
+		maxAge: 86400,
+	};
 
-	if (process.env.NODE_ENV === 'production') {
+	if (env.isProduction) {
 		const reqOrigin = req.header('Origin');
 		if (reqOrigin) {
 			if (whitelist.indexOf(reqOrigin) === -1) {
@@ -73,21 +80,6 @@ app.use(cors(corsOptionsDelegate));
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
-
-app.use((req, res, next) => {
-	res.header('Access-Control-Allow-Origin', req.headers.origin);
-	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS');
-	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-	res.header('Access-Control-Allow-Credentials', 'true');
-	res.header('Access-Control-Max-Age', '86400');
-
-	if (req.method === 'OPTIONS') {
-		res.sendStatus(204);
-		return;
-	}
-
-	next();
-});
 
 app.use(requestIp.mw()); // get IP address middleware
 app.use(internetChecker());

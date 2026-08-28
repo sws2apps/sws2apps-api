@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { LogLevel } from '@logtail/types';
 
 import app from './app.js';
+import { env } from './config/env.js';
 
 import { logger } from './v3/services/logger/logger.js';
 import { ServerTempVariableType } from './v3/definition/server.js';
@@ -12,9 +13,6 @@ import { Flags } from './v3/classes/Flags.js';
 import { Installation } from './v3/classes/Installation.js';
 import { initializeAPI } from './v3/config/app.db_config.js';
 import { createDevTestUsers } from './v3/config/dev.config.js';
-
-const PORT = process.env.PORT || 8000;
-const APP_VERSION = process.env.npm_package_version;
 
 export const API_VAR: ServerTempVariableType = {
 	MINIMUM_APP_VERSION: '',
@@ -29,8 +27,8 @@ await createDevTestUsers();
 
 logger(LogLevel.Info, `minimum frontend client version set to ${API_VAR.MINIMUM_APP_VERSION}`);
 
-app.listen(PORT, async () => {
-	logger(LogLevel.Info, `server up and running on port ${PORT} (v${APP_VERSION})`);
+app.listen(env.port, async () => {
+	logger(LogLevel.Info, `server up and running on port ${env.port} (v${env.appVersion})`);
 
 	const start = performance.now();
 

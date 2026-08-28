@@ -12,10 +12,11 @@ import pocketRoute from './pockets.js';
 import adminRoute from './admin.js';
 
 import { appVersionChecker } from '../middleware/app_version_checker.js';
+import { env } from '../../config/env.js';
 
 const router = express.Router();
 
-router.use(cookieParser(process.env.SEC_ENCRYPT_KEY || 'DON’T_FORGET_TO_SET_KEY_IN_PROD'));
+router.use(cookieParser(env.encryptionKey));
 
 router.use('/public', publicRoute);
 
