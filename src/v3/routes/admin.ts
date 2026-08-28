@@ -1,7 +1,7 @@
 import express from 'express';
 import { body } from 'express-validator';
 
-import { visitorChecker } from '../middleware/visitor_checker.js';
+import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
 import { adminAuthChecker } from '../middleware/admin_auth_checker.js';
 
 import {
@@ -37,7 +37,7 @@ import {
 const router = express.Router();
 
 // activate middleware
-router.use(visitorChecker());
+router.use(requireAuthenticatedSession());
 router.use(adminAuthChecker());
 
 // validate user admin => passed middleware

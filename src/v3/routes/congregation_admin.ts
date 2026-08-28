@@ -1,7 +1,7 @@
 import express from 'express';
 import { body, header } from 'express-validator';
 import { congregationAdminChecker } from '../middleware/congregation_admin_checker.js';
-import { visitorChecker } from '../middleware/visitor_checker.js';
+import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
 import {
 	setCongregationMasterKey,
 	setCongregationAccessCode,
@@ -23,7 +23,7 @@ import {
 
 const router = express.Router();
 
-router.use(visitorChecker());
+router.use(requireAuthenticatedSession());
 router.use(congregationAdminChecker());
 
 // set congregation master key

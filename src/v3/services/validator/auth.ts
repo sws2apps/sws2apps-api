@@ -1,10 +1,13 @@
+import { extractBearerToken } from '../../../http/security/bearer-token.js';
+
 export const authBearerCheck = (value: string) => {
-	if (!value.startsWith('Bearer ')) {
+	const token = extractBearerToken(value);
+
+	if (!token) {
 		throw new Error('Invalid token format');
 	}
 
-	const token = value.split(' ')[1];
-	if (!token || token === 'undefined') {
+	if (token === 'undefined') {
 		throw new Error('Token is missing');
 	}
 

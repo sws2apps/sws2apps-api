@@ -1,6 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
-import { visitorChecker } from '../middleware/visitor_checker.js';
+import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
 import {
 	congregationMeetingEditorChecker,
 	congregationPublicTalkCoordinatorChecker,
@@ -18,7 +18,7 @@ import {
 
 const router = express.Router();
 
-router.use(visitorChecker());
+router.use(requireAuthenticatedSession());
 router.use(congregationMeetingEditorChecker());
 
 router.post(

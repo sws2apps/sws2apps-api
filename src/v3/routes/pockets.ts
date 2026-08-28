@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, header } from 'express-validator';
-import { pocketVisitorChecker } from '../middleware/visitor_checker.js';
+import { requirePocketSession } from '../../http/middleware/session-authentication.middleware.js';
 import {
 	deletePocketSession,
 	deletePocketUser,
@@ -20,7 +20,7 @@ const router = express.Router();
 router.post('/signup', body('code').isString().notEmpty(), validateInvitation);
 
 // activate middleware at this point
-router.use(pocketVisitorChecker());
+router.use(requirePocketSession());
 
 // validate user for active session
 router.get('/validate-me', validatePocket);

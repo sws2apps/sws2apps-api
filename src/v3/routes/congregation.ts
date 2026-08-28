@@ -1,6 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
-import { visitorChecker } from '../middleware/visitor_checker.js';
+import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
 import {
 	createCongregation,
 	deleteApplication,
@@ -11,7 +11,7 @@ import {
 
 const router = express.Router();
 
-router.use(visitorChecker());
+router.use(requireAuthenticatedSession());
 
 router.get('/countries', getCountries);
 

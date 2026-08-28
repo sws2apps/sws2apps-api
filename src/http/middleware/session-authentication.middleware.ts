@@ -1,22 +1,23 @@
 import { NextFunction, Request, Response } from 'express';
-import { check, validationResult } from 'express-validator';
-import { UsersList } from '../classes/Users.js';
-import { formatError } from '../utils/format_log.js';
-import { decodeUserIdToken } from '../services/firebase/users.js';
-import { authBearerCheck } from '../services/validator/auth.js';
+import { header, validationResult } from 'express-validator';
+import { UsersList } from '../../v3/classes/Users.js';
+import { formatError } from '../../v3/utils/format_log.js';
+import { decodeUserIdToken } from '../../v3/services/firebase/users.js';
+import { authBearerCheck } from '../../v3/services/validator/auth.js';
+import { extractBearerToken } from '../security/bearer-token.js';
 
-export const visitorChecker = () => {
+export const requireAuthenticatedSession = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			await check('Authorization').exists().notEmpty().isString().custom(authBearerCheck).run(req);
+			await header('Authorization').exists().notEmpty().isString().custom(authBearerCheck).run(req);
 
-			const errors = validationResult(req);
+			const validationErrors = validationResult(req);
 
-			if (!errors.isEmpty()) {
-				const msg = formatError(errors);
+			if (!validationErrors.isEmpty()) {
+				const validationMessage = formatError(validationErrors);
 
 				res.locals.type = 'warn';
-				res.locals.message = `invalid input: ${msg}`;
+				res.locals.message = `invalid input: ${validationMessage}`;
 
 				res.status(400).json({ message: 'INPUT_INVALID' });
 
@@ -24,10 +25,10 @@ export const visitorChecker = () => {
 			}
 
 			// decode authorization
-			const idToken = req.headers.authorization!.split('Bearer ')[1];
-			const uid = await decodeUserIdToken(idToken);
+			const idToken = extractBearerToken(req.headers.authorization!)!;
+			const authenticatedUserId = await decodeUserIdToken(idToken);
 
-			if (!uid) {
+			if (!authenticatedUserId) {
 				res.locals.type = 'warn';
 				res.locals.message = 'this user is not yet authenticated';
 				res.status(403).json({ message: 'LOGIN_FIRST' });
@@ -35,15 +36,15 @@ export const visitorChecker = () => {
 			}
 
 			// get visitorid signed
-			const visitorid = req.signedCookies.visitorid;
-			if (!visitorid) {
+			const visitorId = req.signedCookies.visitorid;
+			if (!visitorId) {
 				res.locals.type = 'warn';
 				res.locals.message = 'the device the user is using was revoked';
 				res.status(403).json({ message: 'DEVICE_REVOKED' });
 				return;
 			}
 
-			const user = UsersList.findByAuthUid(uid);
+			const user = UsersList.findByAuthUid(authenticatedUserId);
 
 			if (!user) {
 				res.locals.type = 'warn';
@@ -53,12 +54,12 @@ export const visitorChecker = () => {
 			}
 
 			// get user session
-			const sessions = user.sessions;
+			const userSessions = user.sessions;
 
 			// find if visitor id has valid session
-			const findSession = sessions!.find((session) => session.visitorid === visitorid);
+			const activeSession = userSessions!.find((session) => session.visitorid === visitorId);
 
-			if (!findSession) {
+			if (!activeSession) {
 				res.locals.type = 'warn';
 				res.locals.message = 'the visitor id is invalid or does not have an active session';
 
@@ -71,11 +72,11 @@ export const visitorChecker = () => {
 			res.locals.currentUser = user;
 
 			if (user.profile.mfa_enabled) {
-				const { mfaVerified } = findSession;
+				const { mfaVerified } = activeSession;
 
 				if (mfaVerified) {
 					// update last seen
-					await user.updateSessionLastSeen(visitorid, req);
+					await user.updateSessionLastSeen(visitorId, req);
 					next();
 				} else {
 					// allow verify token to pass this middleware
@@ -89,9 +90,9 @@ export const visitorChecker = () => {
 				}
 			} else {
 				// update last seen
-				const ignorePath = ['/validate-me'];
-				if (ignorePath.includes(req.path)) {
-					await user.updateSessionLastSeen(visitorid, req);
+				const lastSeenUpdatePaths = ['/validate-me'];
+				if (lastSeenUpdatePaths.includes(req.path)) {
+					await user.updateSessionLastSeen(visitorId, req);
 				}
 
 				next();
@@ -102,19 +103,19 @@ export const visitorChecker = () => {
 	};
 };
 
-export const pocketVisitorChecker = () => {
+export const requirePocketSession = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			// get visitorid signed
-			const visitorid = req.signedCookies.visitorid;
-			if (!visitorid) {
+			const visitorId = req.signedCookies.visitorid;
+			if (!visitorId) {
 				res.locals.type = 'warn';
 				res.locals.message = 'the device the user is using was revoked';
 				res.status(403).json({ message: 'DEVICE_REVOKED' });
 				return;
 			}
 
-			const user = UsersList.findByVisitorId(visitorid);
+			const user = UsersList.findByVisitorId(visitorId);
 
 			if (!user) {
 				res.locals.type = 'warn';
@@ -129,9 +130,9 @@ export const pocketVisitorChecker = () => {
 			res.locals.currentUser = user;
 
 			// ignore path that update last seen
-			const ignorePath = ['/validate-me'];
-			if (ignorePath.includes(req.path)) {
-				await user.updateSessionLastSeen(visitorid, req);
+			const lastSeenUpdatePaths = ['/validate-me'];
+			if (lastSeenUpdatePaths.includes(req.path)) {
+				await user.updateSessionLastSeen(visitorId, req);
 			}
 
 			next();

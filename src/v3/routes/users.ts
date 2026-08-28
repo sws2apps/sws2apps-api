@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, header } from 'express-validator';
-import { visitorChecker } from '../middleware/visitor_checker.js';
+import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
 import {
 	deleteUser,
 	deleteUserSession,
@@ -23,7 +23,7 @@ import {
 const router = express.Router();
 
 // activate middleware at this point
-router.use(visitorChecker());
+router.use(requireAuthenticatedSession());
 
 // validate user for active session
 router.get('/validate-me', validateUser);
