@@ -1,6 +1,9 @@
 import { getStorage } from 'firebase-admin/storage';
 import { StorageBaseType } from '../../definition/firebase.js';
-import { decryptData, encryptData } from '../encryption/encryption.js';
+import {
+	decryptData,
+	encryptData,
+} from '../../../platform/encryption/encryption.js';
 
 export const uploadFileToStorage = async (data: string, options: StorageBaseType) => {
 	const { path, type } = options;

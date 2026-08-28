@@ -3,7 +3,7 @@ import { validationResult } from 'express-validator';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { formatError } from '../../v3/utils/format_log.js';
 import { UsersList } from '../../v3/classes/Users.js';
-import { decryptData } from '../../v3/services/encryption/encryption.js';
+import { decryptData } from '../../platform/encryption/encryption.js';
 import { congregationJoinRequestsGet } from '../../v3/services/api/congregations.js';
 import { AppRoleType } from '../../v3/definition/app.js';
 import { mailClient } from '../../platform/email/mail-client.js';

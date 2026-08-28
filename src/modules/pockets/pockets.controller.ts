@@ -3,7 +3,7 @@ import { validationResult } from 'express-validator';
 import { formatError } from '../../v3/utils/format_log.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
-import { decryptData } from '../../v3/services/encryption/encryption.js';
+import { decryptData } from '../../platform/encryption/encryption.js';
 import { UserAuthResponse, UserSession } from '../../v3/definition/user.js';
 import { retrieveVisitorDetails } from '../../v3/services/ip_details/auth_utils.js';
 import { BackupData, CongSettingsType } from '../../v3/definition/congregation.js';

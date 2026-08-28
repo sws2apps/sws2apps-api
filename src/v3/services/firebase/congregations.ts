@@ -11,7 +11,10 @@ import {
 } from '../../definition/congregation.js';
 import { deleteFileFromStorage, getFileFromStorage, getFileMetadata, uploadFileToStorage } from './storage_utils.js';
 import { CongregationsList } from '../../classes/Congregations.js';
-import { decryptData, encryptData } from '../encryption/encryption.js';
+import {
+	decryptData,
+	encryptData,
+} from '../../../platform/encryption/encryption.js';
 import { Congregation } from '../../classes/Congregation.js';
 import { logger } from '../../../platform/logging/logger.js';
 

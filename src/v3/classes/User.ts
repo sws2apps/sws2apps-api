@@ -19,7 +19,10 @@ import {
 	setUserSessions,
 	setUserSettings,
 } from '../services/firebase/users.js';
-import { decryptData, encryptData } from '../services/encryption/encryption.js';
+import {
+	decryptData,
+	encryptData,
+} from '../../platform/encryption/encryption.js';
 import { generateUserSecret } from '../utils/user_utils.js';
 import { CongregationsList } from './Congregations.js';
 import { BackupData } from '../definition/congregation.js';

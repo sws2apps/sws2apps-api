@@ -9,7 +9,7 @@ import {
 	OutgoingTalkScheduleType,
 	UserRequestAccess,
 } from '../definition/congregation.js';
-import { decryptData } from '../services/encryption/encryption.js';
+import { decryptData } from '../../platform/encryption/encryption.js';
 import {
 	approveCongAccess,
 	deleteAPApplication,

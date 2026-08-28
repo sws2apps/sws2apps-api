@@ -5,7 +5,7 @@ import { StandardRecord } from '../../definition/app.js';
 import { PocketNewParams, UserNewParams, UserProfile, UserSession, UserSettings } from '../../definition/user.js';
 import { getFileFromStorage, getFileMetadata, uploadFileToStorage } from './storage_utils.js';
 import { User } from '../../classes/User.js';
-import { encryptData } from '../encryption/encryption.js';
+import { encryptData } from '../../../platform/encryption/encryption.js';
 import { schemaUserProfile } from '../../definition/schema.js';
 import { logger } from '../../../platform/logging/logger.js';
 
