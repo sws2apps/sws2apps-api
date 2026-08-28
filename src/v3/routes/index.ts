@@ -8,7 +8,7 @@ import congregationAdminRoute from './congregation_admin.js';
 import userRoute from './users.js';
 import mfaRoute from '../../modules/mfa/mfa.routes.js';
 import publicRoute from '../../modules/public-api/public.routes.js';
-import pocketRoute from './pockets.js';
+import pocketRoute from '../../modules/pockets/pockets.routes.js';
 import adminRoute from './admin.js';
 
 import { clientVersionChecker } from '../../http/middleware/client-version.middleware.js';

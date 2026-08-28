@@ -1,15 +1,16 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { formatError } from '../utils/format_log.js';
+import { formatError } from '../../v3/utils/format_log.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
-import { CongregationsList } from '../classes/Congregations.js';
-import { decryptData } from '../services/encryption/encryption.js';
-import { UserAuthResponse, UserSession } from '../definition/user.js';
-import { retrieveVisitorDetails } from '../services/ip_details/auth_utils.js';
-import { BackupData, CongSettingsType } from '../definition/congregation.js';
-import { StandardRecord } from '../definition/app.js';
-import { UsersList } from '../classes/Users.js';
-import { savePocketBackupAsync } from '../services/api/users.js';
+import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { decryptData } from '../../v3/services/encryption/encryption.js';
+import { UserAuthResponse, UserSession } from '../../v3/definition/user.js';
+import { retrieveVisitorDetails } from '../../v3/services/ip_details/auth_utils.js';
+import { BackupData, CongSettingsType } from '../../v3/definition/congregation.js';
+import { StandardRecord } from '../../v3/definition/app.js';
+import { UsersList } from '../../v3/classes/Users.js';
+import { savePocketBackupAsync } from '../../v3/services/api/users.js';
+import { parsePocketInvitationCode } from './invitation-code.js';
 
 export const validateInvitation = async (req: Request, res: Response) => {
 	// validate through express middleware
@@ -33,35 +34,21 @@ export const validateInvitation = async (req: Request, res: Response) => {
 	// find congregation
 	const code = req.body.code as string;
 
-	const pattern = '(.+?)-(.+?)-(.+?)$';
-	const rgExp = new RegExp(pattern, 'g');
-	const groups = rgExp.exec(code);
+	const invitationDetails = parsePocketInvitationCode(code);
 
-	if (groups === null) {
+	if (!invitationDetails) {
 		res.locals.type = 'warn';
 		res.locals.message = 'the code received is invalid';
 		res.status(400).json({ message: 'error_app_security_invalid-invitation-code' });
 		return;
 	}
 
-	const matches = Array.from(groups);
+	const congregation = CongregationsList.findByCountryAndPrefix(
+		invitationDetails.countryCode,
+		invitationDetails.congregationPrefix,
+	);
 
-	const congInfo = matches.at(1)!;
-	const tmpAccessCode = matches.at(3)!;
-
-	if (congInfo.length <= 3) {
-		res.locals.type = 'warn';
-		res.locals.message = 'the code received is invalid';
-		res.status(400).json({ message: 'error_app_security_invalid-invitation-code' });
-		return;
-	}
-
-	const cong_country = congInfo.substring(0, 3);
-	const cong_prefix = congInfo.substring(3);
-
-	const cong = CongregationsList.findByCountryAndPrefix(cong_country, cong_prefix);
-
-	if (!cong) {
+	if (!congregation) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no congregation could not be found with the provided code';
 		res.status(400).json({ message: 'error_app_security_invalid-invitation-code' });
@@ -69,8 +56,8 @@ export const validateInvitation = async (req: Request, res: Response) => {
 	}
 
 	// check access code
-	const encryptedAccessCode = cong.settings.cong_access_code;
-	const decryptedAccessCode = decryptData(encryptedAccessCode, tmpAccessCode);
+	const encryptedAccessCode = congregation.settings.cong_access_code;
+	const decryptedAccessCode = decryptData(encryptedAccessCode, invitationDetails.temporaryAccessCode);
 
 	if (!decryptedAccessCode) {
 		res.locals.type = 'warn';
@@ -81,7 +68,7 @@ export const validateInvitation = async (req: Request, res: Response) => {
 
 	const accessCode = JSON.parse(decryptedAccessCode);
 
-	const user = cong.findPocketUser(code, accessCode);
+	const user = congregation.findPocketUser(code, accessCode);
 
 	if (!user) {
 		res.locals.type = 'warn';
@@ -109,7 +96,7 @@ export const validateInvitation = async (req: Request, res: Response) => {
 
 	await user.updateSessions(newSessions);
 
-	cong.reloadMembers();
+	congregation.reloadMembers();
 
 	const userInfo: UserAuthResponse = {
 		message: 'TOKEN_VALID',
@@ -126,22 +113,22 @@ export const validateInvitation = async (req: Request, res: Response) => {
 		},
 	};
 
-	const midweek = cong.settings.midweek_meeting.map((record) => {
+	const midweek = congregation.settings.midweek_meeting.map((record) => {
 		return { type: record.type, time: record.time, weekday: record.weekday };
 	});
 
-	const weekend = cong.settings.weekend_meeting.map((record) => {
+	const weekend = congregation.settings.weekend_meeting.map((record) => {
 		return { type: record.type, time: record.time, weekday: record.weekday };
 	});
 
 	userInfo.app_settings.cong_settings = {
 		id: user.profile.congregation!.id,
-		cong_circuit: cong.settings.cong_circuit,
-		cong_name: cong.settings.cong_name,
-		cong_prefix: cong.settings.cong_prefix,
-		country_code: cong.settings.country_code,
-		cong_access_code: cong.settings.cong_access_code,
-		cong_location: cong.settings.cong_location,
+		cong_circuit: congregation.settings.cong_circuit,
+		cong_name: congregation.settings.cong_name,
+		cong_prefix: congregation.settings.cong_prefix,
+		country_code: congregation.settings.country_code,
+		cong_access_code: congregation.settings.cong_access_code,
+		cong_location: congregation.settings.cong_location,
 		midweek_meeting: midweek,
 		weekend_meeting: weekend,
 	};
