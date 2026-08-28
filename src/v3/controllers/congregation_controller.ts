@@ -8,8 +8,9 @@ import { StandardRecord } from '../definition/app.js';
 import { mailClient } from '../../platform/email/mail-client.js';
 import { formatMeetingWeekday } from '../utils/congregation_utils.js';
 import { ALL_LANGUAGES } from '../constant/langList.js';
+import { env } from '../../config/env.js';
 
-const MAIL_ENABLED = process.env.MAIL_ENABLED === 'true';
+const MAIL_ENABLED = env.mailEnabled;
 
 export const getCountries = async (req: Request, res: Response) => {
 	const errors = validationResult(req);
@@ -27,7 +28,7 @@ export const getCountries = async (req: Request, res: Response) => {
 
 	const language = (req.query.language as string) || 'E';
 
-	const url = process.env.APP_COUNTRY_API! + new URLSearchParams({ language });
+	const url = env.appCountryApi + new URLSearchParams({ language });
 
 	const response = await fetch(url);
 
@@ -74,7 +75,7 @@ export const getCongregations = async (req: Request, res: Response) => {
 
 	country = country.toUpperCase();
 
-	const url = process.env.APP_CONGREGATION_API! + new URLSearchParams({ country, language, name });
+	const url = env.appCongregationApi + new URLSearchParams({ country, language, name });
 
 	const response = await fetch(url);
 
@@ -122,7 +123,8 @@ export const createCongregation = async (req: Request, res: Response) => {
 	const language = (req.headers.language as string) || 'eng';
 	const code = ALL_LANGUAGES.find((record) => record.threeLettersCode === language)?.code ?? 'E';
 
-	const url = process.env.APP_CONGREGATION_API! + new URLSearchParams({ country: country_guid, language: code, name: cong_name });
+	const url =
+		env.appCongregationApi + new URLSearchParams({ country: country_guid, language: code, name: cong_name });
 
 	const response = await fetch(url);
 	if (response.status !== 200) {

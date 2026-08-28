@@ -3,10 +3,11 @@ import { LogLevel } from '@logtail/types';
 import { logger } from '../../platform/logging/logger.js';
 import { UserGlobalRoleType, UserProfile } from '../definition/user.js';
 import { setUserProfile } from '../services/firebase/users.js';
+import { env } from '../../config/env.js';
 
 export const createDevTestUsers = async () => {
 	try {
-		if (!process.env.FIREBASE_AUTH_EMULATOR_HOST) return;
+		if (!env.firebaseAuthEmulatorHost) return;
 
 		const users = [
 			{

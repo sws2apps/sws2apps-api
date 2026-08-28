@@ -1,5 +1,7 @@
 import 'dotenv/config';
 
+import { applicationVersion } from './application.js';
+
 type NodeEnvironment = 'development' | 'production' | 'test';
 
 const readOptional = (name: string) => {
@@ -59,7 +61,7 @@ export const env = Object.freeze({
 	isProduction: nodeEnv === 'production',
 	isTest: nodeEnv === 'test',
 	port: readPort(),
-	appVersion: readOptional('npm_package_version') ?? 'unknown',
+	appVersion: applicationVersion,
 	appCountryApi: readUrl('APP_COUNTRY_API'),
 	appCongregationApi: readUrl('APP_CONGREGATION_API'),
 	firebaseAppName: readRequired('FIREBASE_APP_NAME'),

@@ -6,9 +6,10 @@ import { CongregationsList } from '../classes/Congregations.js';
 import { formatError } from '../utils/format_log.js';
 import { UserAuthResponse } from '../definition/user.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';
+import { env } from '../../config/env.js';
 
 export const verifyToken = async (req: Request, res: Response) => {
-	const isProd = process.env.NODE_ENV === 'production';
+	const isProd = env.isProduction;
 
 	const errors = validationResult(req);
 

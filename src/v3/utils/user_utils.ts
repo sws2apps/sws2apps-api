@@ -1,8 +1,9 @@
 import * as OTPAuth from 'otpauth';
 import { OTPSecretType } from '../definition/app.js';
+import { env } from '../../config/env.js';
 
 export const generateUserSecret = (email: string) => {
-	const isProd = process.env.NODE_ENV === 'production';
+	const isProd = env.isProduction;
 
 	const tempSecret = new OTPAuth.Secret().base32;
 

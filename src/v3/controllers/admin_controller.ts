@@ -12,6 +12,7 @@ import { adminFlagsGet } from '../services/api/flags.js';
 import { setCongOutgoingSpeakers } from '../services/firebase/congregations.js';
 import { serverState } from '../../platform/runtime/server-state.js';
 import { updateAPIMinimumClient } from '../services/firebase/api.js';
+import { env } from '../../config/env.js';
 
 export const validateAdmin = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
@@ -672,7 +673,7 @@ export const createCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const url = process.env.APP_COUNTRY_API!;
+	const url = env.appCountryApi;
 	const response = await fetch(url);
 
 	if (!response.ok) {

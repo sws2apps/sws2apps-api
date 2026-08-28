@@ -11,8 +11,9 @@ import { decodeUserIdToken } from '../services/firebase/users.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { ROLE_MASTER_KEY } from '../constant/base.js';
 import { mailClient } from '../../platform/email/mail-client.js';
+import { env } from '../../config/env.js';
 
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = env.isDevelopment;
 
 export const loginUser = async (req: Request, res: Response) => {
 	const userIP = req.clientIp!;
@@ -167,7 +168,7 @@ export const createSignInLink = async (req: Request, res: Response) => {
 
 	const { link, otp } = await UsersList.generatePasswordLessLink({ email, origin: req.headers.origin! });
 
-	const MAIL_ENABLED = process.env.MAIL_ENABLED === 'true';
+	const MAIL_ENABLED = env.mailEnabled;
 
 	if (MAIL_ENABLED) {
 		req.i18n.changeLanguage(language);
@@ -200,7 +201,7 @@ export const createSignInLink = async (req: Request, res: Response) => {
 
 export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 	const userIP = req.clientIp!;
-	const isDev = process.env.NODE_ENV === 'development';
+	const isDev = env.isDevelopment;
 
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {

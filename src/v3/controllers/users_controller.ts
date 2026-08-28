@@ -15,8 +15,9 @@ import { congregationJoinRequestsGet, findBackupByCongregation } from '../servic
 import { backupUploadsInProgress } from '../../index.js';
 import { logger } from '../../platform/logging/logger.js';
 import { getUserRoles, saveUserBackupAsync } from '../services/api/users.js';
+import { env } from '../../config/env.js';
 
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = env.isDevelopment;
 
 export const validateUser = async (req: Request, res: Response) => {
 	const user = res.locals.currentUser;

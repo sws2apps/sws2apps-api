@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { Request, Response } from 'express';
 
+import { applicationVersion } from '../../src/config/application.js';
 import { errorHandler, getRoot, invalidEndpointHandler } from '../../src/http/app.controller.js';
 
 type ResponseState = {
@@ -36,7 +37,7 @@ describe('application HTTP handlers', () => {
 		await getRoot(request, response);
 
 		assert.equal(state.statusCode, 200);
-		assert.deepEqual(state.body, { message: `SWS Apps API services v${process.env.npm_package_version}` });
+		assert.deepEqual(state.body, { message: `SWS Apps API services v${applicationVersion}` });
 		assert.equal(state.locals.type, 'info');
 	});
 

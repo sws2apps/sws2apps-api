@@ -7,6 +7,7 @@ import { decryptData } from '../services/encryption/encryption.js';
 import { congregationJoinRequestsGet } from '../services/api/congregations.js';
 import { AppRoleType } from '../definition/app.js';
 import { mailClient } from '../../platform/email/mail-client.js';
+import { env } from '../../config/env.js';
 
 export const setCongregationMasterKey = async (req: Request, res: Response) => {
 	const errors = validationResult(req);
@@ -999,7 +1000,7 @@ export const acceptJoinRequest = async (req: Request, res: Response) => {
 
 	const result = congregationJoinRequestsGet(cong);
 
-	const MAIL_ENABLED = process.env.MAIL_ENABLED === 'true';
+	const MAIL_ENABLED = env.mailEnabled;
 	const userEmail = user.email;
 
 	if (MAIL_ENABLED && user.email) {

@@ -1,9 +1,10 @@
 import { Credentials, ProjectsGroups } from '@crowdin/crowdin-api-client';
+import { env } from '../../../config/env.js';
 
 export const getAppLanguages = async () => {
 	try {
-		const token = process.env.CROWDIN_API_KEY;
-		const projectId = process.env.CROWDIN_PROJECT_ID;
+		const token = env.crowdinApiKey;
+		const projectId = env.crowdinProjectId;
 
 		if (!token || !projectId) return 0;
 

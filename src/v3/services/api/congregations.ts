@@ -3,9 +3,10 @@ import { CongregationsList } from '../../classes/Congregations.js';
 import { Congregation } from '../../classes/Congregation.js';
 import { UsersList } from '../../classes/Users.js';
 import { backupUploadsInProgress } from '../../../index.js';
+import { env } from '../../../config/env.js';
 
 export const adminCongregationsGet = async () => {
-	const url = process.env.APP_COUNTRY_API! + new URLSearchParams({ language: 'E' });
+	const url = env.appCountryApi + new URLSearchParams({ language: 'E' });
 
 	const response = await fetch(url);
 

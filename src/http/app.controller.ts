@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-
-const APP_VERSION = process.env.npm_package_version;
+import { applicationVersion } from '../config/application.js';
 
 type ApiError = Error & {
 	errorInfo?: {
@@ -16,7 +15,7 @@ const describeError = (error: unknown) => {
 export const getRoot = async (_request: Request, response: Response) => {
 	response.locals.type = 'info';
 	response.locals.message = 'success opening main route';
-	response.status(200).json({ message: `SWS Apps API services v${APP_VERSION}` });
+	response.status(200).json({ message: `SWS Apps API services v${applicationVersion}` });
 };
 
 export const invalidEndpointHandler = async (_request: Request, response: Response) => {
