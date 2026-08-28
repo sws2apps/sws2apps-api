@@ -5,7 +5,7 @@ import { getSessionCookieOptions } from '../../http/security/session-cookie-opti
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { decryptData } from '../../platform/encryption/encryption.js';
 import { UserAuthResponse, UserSession } from '../../v3/definition/user.js';
-import { retrieveVisitorDetails } from '../../v3/services/ip_details/auth_utils.js';
+import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
 import { BackupData, CongSettingsType } from '../../v3/definition/congregation.js';
 import { StandardRecord } from '../../v3/definition/app.js';
 import { UsersList } from '../../v3/classes/Users.js';

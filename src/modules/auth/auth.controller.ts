@@ -4,7 +4,7 @@ import { validationResult } from 'express-validator';
 import { generateTokenDev } from '../../v3/dev/setup.js';
 import { UsersList } from '../../v3/classes/Users.js';
 import { UserAuthResponse, UserSession } from '../../v3/definition/user.js';
-import { retrieveVisitorDetails } from '../../v3/services/ip_details/auth_utils.js';
+import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { formatError } from '../../v3/utils/format_log.js';
 import { decodeUserIdToken } from '../../v3/services/firebase/users.js';
