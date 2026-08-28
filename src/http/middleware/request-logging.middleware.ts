@@ -5,8 +5,9 @@ import WhichBrowser from 'which-browser';
 
 import { serverState } from '../../platform/runtime/server-state.js';
 import { logger } from '../../platform/logging/logger.js';
+import { calculateJsonSize } from '../request-size.js';
 
-export const updateTracker = () => {
+export const logRequestCompletion = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const start = process.hrtime();
@@ -18,16 +19,7 @@ export const updateTracker = () => {
 			const reqCity = geo ? `${geo.city} (${geo.country})` : 'Unknown';
 			const ipIndex = requestTracker.findIndex((client) => client.ip === clientIp);
 
-			let requestSize = 0;
-
-			if (req.body && typeof req.body === 'object') {
-				try {
-					const bodyString = JSON.stringify(req.body);
-					requestSize = Buffer.byteLength(bodyString, 'utf8');
-				} catch {
-					requestSize = 0;
-				}
-			}
+			const requestSize = calculateJsonSize(req.body);
 
 			// Initialize response size counter
 			let responseSize = 0;

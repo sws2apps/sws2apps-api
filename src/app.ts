@@ -11,9 +11,9 @@ import i18next from 'i18next';
 
 import './platform/firebase/firebase-app.js';
 
-import { internetChecker } from './v3/middleware/internet_checker.js';
-import { requestChecker } from './v3/middleware/request_checker.js';
-import { updateTracker } from './v3/middleware/update_tracker.js';
+import { requireInternetConnection } from './http/middleware/internet-connection.middleware.js';
+import { trackRequestState } from './http/middleware/request-state.middleware.js';
+import { logRequestCompletion } from './http/middleware/request-logging.middleware.js';
 import { serverReadyChecker } from './http/middleware/server-ready.middleware.js';
 
 import apiV3Routes from './http/api-v3.routes.js';
@@ -46,9 +46,9 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 app.use(requestIp.mw()); // get IP address middleware
-app.use(internetChecker());
-app.use(requestChecker());
-app.use(updateTracker());
+app.use(requireInternetConnection());
+app.use(trackRequestState());
+app.use(logRequestCompletion());
 app.use(serverReadyChecker());
 
 app.use(rateLimit({ windowMs: 1000, max: 20, message: JSON.stringify({ message: 'TOO_MANY_REQUESTS' }) }));
