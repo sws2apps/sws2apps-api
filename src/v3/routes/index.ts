@@ -11,7 +11,7 @@ import publicRoute from '../../modules/public-api/public.routes.js';
 import pocketRoute from './pockets.js';
 import adminRoute from './admin.js';
 
-import { appVersionChecker } from '../middleware/app_version_checker.js';
+import { clientVersionChecker } from '../../http/middleware/client-version.middleware.js';
 import { env } from '../../config/env.js';
 
 const router = express.Router();
@@ -20,7 +20,7 @@ router.use(cookieParser(env.encryptionKey));
 
 router.use('/public', publicRoute);
 
-router.use(appVersionChecker());
+router.use(clientVersionChecker());
 
 router.use('/', authRoute);
 router.use('/pockets', pocketRoute);
