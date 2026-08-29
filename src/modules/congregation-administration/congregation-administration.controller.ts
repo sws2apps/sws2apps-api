@@ -3,13 +3,13 @@ import { validationResult } from 'express-validator';
 import { CongregationsList } from '../congregations/congregations.js';
 import { formatError } from '../../http/validation-errors.js';
 import { UsersList } from '../users/users.js';
-import { decryptData } from '../../platform/encryption/encryption.js';
 import { getCongregationJoinRequests } from '../congregations/congregation-join-requests.service.js';
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import {
 	isJoinRequestApprovalEmailEnabled,
 	sendJoinRequestApprovalEmail,
 } from './congregation-administration-notifications.service.js';
+import { isCongregationMasterKeyValid } from './congregation-administration-security.service.js';
 
 export const setCongregationMasterKey = async (req: Request, res: Response) => {
 	const errors = validationResult(req);
@@ -852,7 +852,10 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 
 	const { key } = req.body;
 
-	const passed = decryptData(cong.settings.cong_master_key!, key);
+	const passed = isCongregationMasterKeyValid(
+		cong.settings.cong_master_key!,
+		key,
+	);
 
 	if (!passed) {
 		res.locals.type = 'warn';
