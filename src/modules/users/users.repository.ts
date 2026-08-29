@@ -14,7 +14,7 @@ import {
 } from '../../platform/firebase/storage.js';
 import { User } from '../../v3/classes/User.js';
 import { encryptData } from '../../platform/encryption/encryption.js';
-import { schemaUserProfile } from '../../v3/definition/schema.js';
+import { schemaUserProfile } from './default-user-profile.js';
 import { updateFirebaseUserEmail } from '../../platform/firebase/authentication.js';
 
 export const getUsersID = async () => {

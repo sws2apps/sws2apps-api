@@ -1,4 +1,4 @@
-import { UserProfile } from './user.js';
+import type { UserProfile } from '../../v3/definition/user.js';
 
 export const schemaUserProfile = {
 	firstname: { updatedAt: '', value: '' },
