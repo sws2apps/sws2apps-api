@@ -1,6 +1,6 @@
-import { AppRoleType } from '../definition/app.js';
+import { AppRoleType } from '../../v3/definition/app.js';
 
-export const ROLE_MASTER_KEY: AppRoleType[] = [
+export const ROLE_MASTER_KEY: readonly AppRoleType[] = [
 	'admin',
 	'midweek_schedule',
 	'weekend_schedule',
@@ -12,5 +12,3 @@ export const ROLE_MASTER_KEY: AppRoleType[] = [
 	'group_overseers',
 	'language_group_overseers',
 ];
-
-export const BACKUP_EXPIRY = 2 * 60 * 1000;

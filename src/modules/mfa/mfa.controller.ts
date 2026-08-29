@@ -5,7 +5,7 @@ import { UsersList } from '../../v3/classes/Users.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { formatError } from '../../http/validation-errors.js';
 import { UserAuthResponse } from '../../v3/definition/user.js';
-import { ROLE_MASTER_KEY } from '../../v3/constant/base.js';
+import { ROLE_MASTER_KEY } from '../../domain/users/master-key-roles.js';
 import { env } from '../../config/env.js';
 import { isTokenWithinAllowedWindow } from './token-validation.js';
 

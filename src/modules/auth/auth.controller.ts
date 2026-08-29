@@ -9,7 +9,7 @@ import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { formatError } from '../../http/validation-errors.js';
 import { verifyFirebaseIdToken } from '../../platform/firebase/authentication.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
-import { ROLE_MASTER_KEY } from '../../v3/constant/base.js';
+import { ROLE_MASTER_KEY } from '../../domain/users/master-key-roles.js';
 import { mailClient } from '../../platform/email/mail-client.js';
 import { env } from '../../config/env.js';
 import { isEmailOneTimePasswordValid } from './email-otp.js';
