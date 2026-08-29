@@ -5,7 +5,7 @@ import sanitizeHtml from 'sanitize-html';
 
 import { UsersList } from '../../v3/classes/Users.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
-import { generateTokenDev } from '../../v3/dev/setup.js';
+import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
 import { formatError } from '../../v3/utils/format_log.js';
 import { StandardRecord } from '../../v3/definition/app.js';
 import { BackupData, CongregationUpdatesType, CongSettingsType } from '../../v3/definition/congregation.js';
@@ -76,7 +76,7 @@ export const getUserSecretToken = async (req: Request, res: Response) => {
 	res.locals.message = `the user has fetched 2fa successfully`;
 
 	if (!user.profile.mfa_enabled && isDev) {
-		const tokenDev = generateTokenDev(user.email!, user.profile.secret!);
+		const tokenDev = generateDevelopmentMfaToken(user.email!, user.profile.secret!);
 		res.status(200).json({ secret: secret, qrCode: uri, mfaEnabled: user.profile.mfa_enabled, MFA_CODE: tokenDev });
 	} else {
 		res.status(200).json({

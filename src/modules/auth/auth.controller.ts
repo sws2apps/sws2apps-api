@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { getAuth } from 'firebase-admin/auth';
 import { validationResult } from 'express-validator';
-import { generateTokenDev } from '../../v3/dev/setup.js';
+import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
 import { UsersList } from '../../v3/classes/Users.js';
 import { UserAuthResponse, UserSession } from '../../v3/definition/user.js';
 import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
@@ -85,7 +85,10 @@ export const loginUser = async (req: Request, res: Response) => {
 		res.cookie('visitorid', visitorid, getSessionCookieOptions(req));
 
 		if (isDev) {
-			const tokenDev = generateTokenDev(authUser.email!, authUser.profile.secret!);
+			const tokenDev = generateDevelopmentMfaToken(
+				authUser.email!,
+				authUser.profile.secret!,
+			);
 			console.log('Use this code to login:', tokenDev);
 
 			res.status(200).json({ message: 'MFA_VERIFY', code: tokenDev });
@@ -254,7 +257,10 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 
 		res.cookie('visitorid', visitorid, getSessionCookieOptions(req));
 		if (isDev) {
-			const tokenDev = generateTokenDev(authUser.email!, authUser.profile.secret!);
+			const tokenDev = generateDevelopmentMfaToken(
+				authUser.email!,
+				authUser.profile.secret!,
+			);
 			console.log('Use this code to login:', tokenDev);
 
 			res.status(200).json({ message: 'MFA_VERIFY', code: tokenDev });
