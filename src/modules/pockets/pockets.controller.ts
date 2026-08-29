@@ -3,7 +3,6 @@ import { validationResult } from 'express-validator';
 import { formatError } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { CongregationsList } from '../congregations/congregations.js';
-import { decryptData } from '../../platform/encryption/encryption.js';
 import type {
 	UserAuthResponse,
 	UserSession,
@@ -16,6 +15,7 @@ import { UsersList } from '../users/users.js';
 import { savePocketBackupAsync } from '../backups/backup-persistence.service.js';
 import { parsePocketInvitationCode } from './invitation-code.js';
 import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
+import { decryptPocketAccessCode } from './pocket-invitation.service.js';
 
 export const validateInvitation = async (req: Request, res: Response) => {
 	// validate through express middleware
@@ -62,16 +62,19 @@ export const validateInvitation = async (req: Request, res: Response) => {
 
 	// check access code
 	const encryptedAccessCode = congregation.settings.cong_access_code;
-	const decryptedAccessCode = decryptData(encryptedAccessCode, invitationDetails.temporaryAccessCode);
+	const decryptedInvitation = decryptPocketAccessCode(
+		encryptedAccessCode,
+		invitationDetails.temporaryAccessCode,
+	);
 
-	if (!decryptedAccessCode) {
+	if (!decryptedInvitation) {
 		res.locals.type = 'warn';
 		res.locals.message = 'the code received is invalid';
 		res.status(400).json({ message: 'error_app_security_invalid-invitation-code' });
 		return;
 	}
 
-	const accessCode = JSON.parse(decryptedAccessCode);
+	const { accessCode } = decryptedInvitation;
 
 	const user = congregation.findPocketUser(code, accessCode);
 
