@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import * as OTPAuth from 'otpauth';
 import { validationResult } from 'express-validator';
-import { UsersList } from '../../v3/classes/Users.js';
-import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { UsersList } from '../users/users.js';
+import { CongregationsList } from '../congregations/congregations.js';
 import { formatError } from '../../http/validation-errors.js';
 import type { UserAuthResponse } from '../users/user.types.js';
 import { ROLE_MASTER_KEY } from '../../domain/users/master-key-roles.js';

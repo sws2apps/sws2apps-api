@@ -1,7 +1,7 @@
 import { getStorage } from 'firebase-admin/storage';
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
-import { BackupData } from '../../modules/backups/backup.types.js';
+import { BackupData } from '../backups/backup.types.js';
 import {
 	CongregationUpdatesType,
 	CongRequestPendingType,
@@ -9,7 +9,7 @@ import {
 	OutgoingSpeakersRecordType,
 	OutgoingTalkScheduleType,
 	UserRequestAccess,
-} from '../../modules/congregations/congregations.types.js';
+} from './congregations.types.js';
 import { decryptData } from '../../platform/encryption/encryption.js';
 import {
 	approveCongAccess,
@@ -53,15 +53,15 @@ import {
 	setMeetingAttendance,
 	setSpeakersCongregations,
 	setUpcomingEvents,
-} from '../../modules/congregations/congregations.repository.js';
-import { CongregationsList } from './Congregations.js';
-import { User } from './User.js';
-import { UsersList } from './Users.js';
+} from './congregations.repository.js';
+import { CongregationsList } from './congregations.js';
+import { User } from '../users/user.js';
+import { UsersList } from '../users/users.js';
 import {
 	getFileFromStorage,
 	uploadFileToStorage,
 } from '../../platform/firebase/storage.js';
-import { mergeIncomingData } from '../../modules/backups/incoming-data-merge.js';
+import { mergeIncomingData } from '../backups/incoming-data-merge.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 
 export class Congregation {

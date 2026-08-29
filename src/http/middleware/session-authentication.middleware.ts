@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { header, validationResult } from 'express-validator';
-import { UsersList } from '../../v3/classes/Users.js';
+import { UsersList } from '../../modules/users/users.js';
 import { formatError } from '../validation-errors.js';
 import { verifyFirebaseIdToken } from '../../platform/firebase/authentication.js';
 import {

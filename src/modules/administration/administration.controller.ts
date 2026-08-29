@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { UsersList } from '../../v3/classes/Users.js';
-import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { UsersList } from '../users/users.js';
+import { CongregationsList } from '../congregations/congregations.js';
 import {
 	getAdministrationCongregation,
 	getAdministrationCongregations,

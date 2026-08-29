@@ -5,8 +5,8 @@ import app from './app.js';
 import { env } from './config/env.js';
 
 import { logger } from './platform/logging/logger.js';
-import { UsersList } from './v3/classes/Users.js';
-import { CongregationsList } from './v3/classes/Congregations.js';
+import { UsersList } from './modules/users/users.js';
+import { CongregationsList } from './modules/congregations/congregations.js';
 import { Flags } from './v3/classes/Flags.js';
 import { InstallationsList } from './modules/installations/installation-list.js';
 import { initializeMinimumClientVersion } from './modules/administration/administration-settings.service.js';

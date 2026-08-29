@@ -2,8 +2,8 @@ import { LogLevel } from '@logtail/types';
 
 import { logger } from '../../platform/logging/logger.js';
 import { backupUploadsInProgress } from '../../platform/runtime/backup-uploads.js';
-import { CongregationsList } from '../../v3/classes/Congregations.js';
-import { UsersList } from '../../v3/classes/Users.js';
+import { CongregationsList } from '../congregations/congregations.js';
+import { UsersList } from '../users/users.js';
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import { BackupData } from './backup.types.js';

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { formatError } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
-import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { CongregationsList } from '../congregations/congregations.js';
 import { decryptData } from '../../platform/encryption/encryption.js';
 import type {
 	UserAuthResponse,
@@ -12,7 +12,7 @@ import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-d
 import { BackupData } from '../backups/backup.types.js';
 import { CongSettingsType } from '../congregations/congregations.types.js';
 import type { StandardRecord } from '../../types/standard-record.js';
-import { UsersList } from '../../v3/classes/Users.js';
+import { UsersList } from '../users/users.js';
 import { savePocketBackupAsync } from '../backups/backup-persistence.service.js';
 import { parsePocketInvitationCode } from './invitation-code.js';
 import { findBackupMetadataConflict } from '../backups/backup-metadata.js';

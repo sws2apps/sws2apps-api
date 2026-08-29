@@ -1,6 +1,6 @@
-import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { CongregationsList } from '../congregations/congregations.js';
+import { UsersList } from '../users/users.js';
 import { Flags } from '../../v3/classes/Flags.js';
-import { UsersList } from '../../v3/classes/Users.js';
 import { FeatureFlag } from '../feature-flags/feature-flag.js';
 
 type AdministrationFlagSource = Pick<

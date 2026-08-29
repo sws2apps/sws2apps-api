@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { CongregationsList } from '../congregations/congregations.js';
 import { formatError } from '../../http/validation-errors.js';
 import { OutgoingTalkScheduleType } from '../congregations/congregations.types.js';
 import { prepareSchedulePublication } from './schedule-publication.js';

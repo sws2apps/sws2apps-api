@@ -3,9 +3,9 @@ import {
 	loadFeatureFlags,
 	saveFeatureFlags,
 } from '../../modules/feature-flags/feature-flags.repository.js';
-import { CongregationsList } from './Congregations.js';
+import { CongregationsList } from '../../modules/congregations/congregations.js';
 import { Flag } from './Flag.js';
-import { UsersList } from './Users.js';
+import { UsersList } from '../../modules/users/users.js';
 
 class _Flags {
 	list: Flag[];

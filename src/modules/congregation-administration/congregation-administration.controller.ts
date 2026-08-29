@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { CongregationsList } from '../congregations/congregations.js';
 import { formatError } from '../../http/validation-errors.js';
-import { UsersList } from '../../v3/classes/Users.js';
+import { UsersList } from '../users/users.js';
 import { decryptData } from '../../platform/encryption/encryption.js';
 import { getCongregationJoinRequests } from '../congregations/congregation-join-requests.service.js';
 import type { AppRoleType } from '../../domain/users/app-role.js';

@@ -1,13 +1,13 @@
 import { LogLevel } from '@logtail/types';
-import { CongregationCreateInfoType } from '../../modules/congregations/congregations.types.js';
+import { CongregationCreateInfoType } from './congregations.types.js';
 import {
 	createCongregation,
 	loadAllCongs,
-} from '../../modules/congregations/congregations.repository.js';
+} from './congregations.repository.js';
 import { deleteFileFromStorage } from '../../platform/firebase/storage.js';
 import { logger } from '../../platform/logging/logger.js';
-import { initializeIncomingTalks } from '../../modules/congregations/incoming-talks.service.js';
-import { Congregation } from './Congregation.js';
+import { initializeIncomingTalks } from './incoming-talks.service.js';
+import { Congregation } from './congregation.js';
 
 class Congregations {
 	list: Congregation[];

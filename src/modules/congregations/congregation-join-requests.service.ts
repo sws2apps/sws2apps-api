@@ -1,5 +1,5 @@
-import { Congregation } from '../../v3/classes/Congregation.js';
-import { UsersList } from '../../v3/classes/Users.js';
+import { Congregation } from './congregation.js';
+import { UsersList } from '../users/users.js';
 import { UserRequestAccess } from './congregations.types.js';
 
 type JoinRequestUser = {

@@ -4,14 +4,14 @@ import type {
 	PocketNewParams,
 	RequestPasswordLessLinkParams,
 	UserNewParams,
-} from '../../modules/users/user.types.js';
-import { User } from './User.js';
-import { CongregationsList } from './Congregations.js';
+} from './user.types.js';
+import { User } from './user.js';
+import { CongregationsList } from '../congregations/congregations.js';
 import {
 	createPocketUser,
 	createUser,
 	loadAllUsers,
-} from '../../modules/users/users.repository.js';
+} from './users.repository.js';
 import { deleteFirebaseAuthUser } from '../../platform/firebase/authentication.js';
 import { deleteFileFromStorage } from '../../platform/firebase/storage.js';
 import { getAuth } from 'firebase-admin/auth';

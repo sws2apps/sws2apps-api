@@ -15,12 +15,12 @@ import {
 	getFileMetadata,
 	uploadFileToStorage,
 } from '../../platform/firebase/storage.js';
-import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { CongregationsList } from './congregations.js';
 import {
 	decryptData,
 	encryptData,
 } from '../../platform/encryption/encryption.js';
-import { Congregation } from '../../v3/classes/Congregation.js';
+import { Congregation } from './congregation.js';
 import { logger } from '../../platform/logging/logger.js';
 
 export const getCongsID = async () => {

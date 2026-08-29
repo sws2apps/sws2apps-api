@@ -1,13 +1,13 @@
 import { Request } from 'express';
 import type { AppRoleType } from '../../domain/users/app-role.js';
-import type { OTPSecretType } from '../../modules/mfa/user-secret.js';
+import type { OTPSecretType } from '../mfa/user-secret.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import type {
 	UserCongregationAssignParams,
 	UserProfile,
 	UserSession,
 	UserSettings,
-} from '../../modules/users/user.types.js';
+} from './user.types.js';
 import {
 	getBibleStudiesMetadata,
 	getDelegatedFieldServiceReportsMetadata,
@@ -23,7 +23,7 @@ import {
 	setUserProfile,
 	setUserSessions,
 	setUserSettings,
-} from '../../modules/users/users.repository.js';
+} from './users.repository.js';
 import {
 	getFirebaseUserDetails,
 	updateFirebaseUserEmail,
@@ -32,9 +32,9 @@ import {
 	decryptData,
 	encryptData,
 } from '../../platform/encryption/encryption.js';
-import { generateUserMfaSecret } from '../../modules/mfa/user-secret.js';
-import { CongregationsList } from './Congregations.js';
-import { BackupData } from '../../modules/backups/backup.types.js';
+import { generateUserMfaSecret } from '../mfa/user-secret.js';
+import { CongregationsList } from '../congregations/congregations.js';
+import { BackupData } from '../backups/backup.types.js';
 import {
 	getFileFromStorage,
 	getFileMetadata,

@@ -1,6 +1,6 @@
 import { env } from '../../config/env.js';
-import { CongregationsList } from '../../v3/classes/Congregations.js';
-import { UsersList } from '../../v3/classes/Users.js';
+import { CongregationsList } from '../congregations/congregations.js';
+import { UsersList } from '../users/users.js';
 import type { Country } from '../../domain/countries/country.js';
 
 export const getAdministrationCongregations = async () => {

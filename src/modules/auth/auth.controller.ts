@@ -2,13 +2,13 @@ import { Request, Response } from 'express';
 import { getAuth } from 'firebase-admin/auth';
 import { validationResult } from 'express-validator';
 import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
-import { UsersList } from '../../v3/classes/Users.js';
+import { UsersList } from '../users/users.js';
 import type {
 	UserAuthResponse,
 	UserSession,
 } from '../users/user.types.js';
 import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
-import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { CongregationsList } from '../congregations/congregations.js';
 import { formatError } from '../../http/validation-errors.js';
 import { verifyFirebaseIdToken } from '../../platform/firebase/authentication.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';

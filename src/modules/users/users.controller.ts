@@ -3,8 +3,8 @@ import { validationResult } from 'express-validator';
 import { LogLevel } from '@logtail/types';
 import sanitizeHtml from 'sanitize-html';
 
-import { UsersList } from '../../v3/classes/Users.js';
-import { CongregationsList } from '../../v3/classes/Congregations.js';
+import { UsersList } from './users.js';
+import { CongregationsList } from '../congregations/congregations.js';
 import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
 import { formatError } from '../../http/validation-errors.js';
 import type { StandardRecord } from '../../types/standard-record.js';
