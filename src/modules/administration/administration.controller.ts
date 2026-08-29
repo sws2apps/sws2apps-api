@@ -1,7 +1,10 @@
 import { Request, Response } from 'express';
 import { UsersList } from '../../v3/classes/Users.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
-import { adminCongregationGet, adminCongregationsGet } from '../../v3/services/api/congregations.js';
+import {
+	getAdministrationCongregation,
+	getAdministrationCongregations,
+} from './administration-congregations.service.js';
 import { getAdministrationUsers } from './administration-users.service.js';
 import { validationResult } from 'express-validator';
 import { formatError } from '../../v3/utils/format_log.js';
@@ -35,7 +38,7 @@ export const logoutAdmin = async (req: Request, res: Response) => {
 };
 
 export const getAllCongregations = async (req: Request, res: Response) => {
-	const result = await adminCongregationsGet();
+	const result = await getAdministrationCongregations();
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin fetched all congregation';
@@ -71,7 +74,7 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 
 	await CongregationsList.delete(id);
 
-	const result = await adminCongregationsGet();
+	const result = await getAdministrationCongregations();
 
 	res.locals.type = 'info';
 	res.locals.message = `admin deleted congregation ${id}`;
@@ -99,7 +102,7 @@ export const congregationGet = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const result = adminCongregationGet(id);
+	const result = getAdministrationCongregation(id);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin fetched a congergation';
@@ -641,7 +644,7 @@ export const congregationDataSyncToggle = async (req: Request, res: Response) =>
 
 	await cong.saveSettings(settings);
 
-	const result = adminCongregationGet(id);
+	const result = getAdministrationCongregation(id);
 
 	res.locals.type = 'info';
 	res.locals.message = `admin updated congregation data sync`;
@@ -702,7 +705,7 @@ export const createCongregation = async (req: Request, res: Response) => {
 		weekend_meeting: { time: '10:00', weekday: 6 },
 	});
 
-	const result = await adminCongregationsGet();
+	const result = await getAdministrationCongregations();
 
 	res.locals.type = 'info';
 	res.locals.message = `admin created a custom congregation: ${id}`;
@@ -803,7 +806,7 @@ export const congregationDeleteRequest = async (req: Request, res: Response) => 
 
 	await setCongOutgoingSpeakers(id, data);
 
-	const result = adminCongregationGet(id);
+	const result = getAdministrationCongregation(id);
 
 	res.locals.type = 'info';
 	res.locals.message = `admin deleted congregation access request`;
@@ -845,7 +848,7 @@ export const congregationResetSpeakersKey = async (req: Request, res: Response) 
 
 	await setCongOutgoingSpeakers(id, data);
 
-	const result = adminCongregationGet(id);
+	const result = getAdministrationCongregation(id);
 
 	res.locals.type = 'info';
 	res.locals.message = `admin reset the congregation speakers key`;
@@ -950,7 +953,7 @@ export const updateBasicCongregationInfo = async (req: Request, res: Response) =
 
 	await cong.saveSettings(settings);
 
-	const result = await adminCongregationsGet();
+	const result = await getAdministrationCongregations();
 
 	res.locals.type = 'info';
 	res.locals.message = `admin update basic info for congregation ${id}`;
