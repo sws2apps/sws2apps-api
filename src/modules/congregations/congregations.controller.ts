@@ -1,8 +1,6 @@
-import fetch from 'node-fetch';
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { CongregationsList } from './congregations.js';
-import { ApiCongregationSearchResponse } from './congregations.types.js';
 import { formatError } from '../../http/validation-errors.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import { mailClient } from '../../platform/email/mail-client.js';
@@ -10,7 +8,11 @@ import { toMondayFirstWeekday } from './meeting-weekday.js';
 import { ALL_LANGUAGES } from '../../platform/localization/languages.js';
 import { env } from '../../config/env.js';
 import { canManageCongregationApplications } from './congregation-permissions.js';
-import { getAvailableCountries } from './congregation-directory.service.js';
+import {
+	getAvailableCountries,
+	searchCongregationDirectory,
+	verifyCongregationDirectoryRecord,
+} from './congregation-directory.service.js';
 
 const MAIL_ENABLED = env.mailEnabled;
 
@@ -74,22 +76,22 @@ export const getCongregations = async (req: Request, res: Response) => {
 
 	country = country.toUpperCase();
 
-	const url = env.appCongregationApi + new URLSearchParams({ country, language, name });
+	const directoryResult = await searchCongregationDirectory(
+		country,
+		language,
+		name,
+	);
 
-	const response = await fetch(url);
-
-	if (!response.ok) {
+	if ('errorStatusCode' in directoryResult) {
 		res.locals.type = 'warn';
 		res.locals.message = 'an error occured while getting congregations list';
-		res.status(response.status).json({ message: 'FETCH_FAILED' });
+		res.status(directoryResult.errorStatusCode).json({ message: 'FETCH_FAILED' });
 		return;
 	}
 
-	const congsList = await response.json();
-
 	res.locals.type = 'info';
 	res.locals.message = 'user fetched congregations';
-	res.status(200).json(congsList);
+	res.status(200).json(directoryResult.congregations);
 };
 
 export const createCongregation = async (req: Request, res: Response) => {
@@ -122,19 +124,21 @@ export const createCongregation = async (req: Request, res: Response) => {
 	const language = (req.headers.language as string) || 'eng';
 	const code = ALL_LANGUAGES.find((record) => record.threeLettersCode === language)?.code ?? 'E';
 
-	const url =
-		env.appCongregationApi + new URLSearchParams({ country: country_guid, language: code, name: cong_name });
+	const directoryResult = await verifyCongregationDirectoryRecord(
+		country_guid,
+		code,
+		cong_name,
+	);
 
-	const response = await fetch(url);
-	if (response.status !== 200) {
+	if ('errorStatusCode' in directoryResult) {
 		res.locals.type = 'warn';
 		res.locals.message = 'an error occured while verifying the congregation data';
-		res.status(response.status).json({ message: 'REQUEST_NOT_VALIDATED' });
+		res.status(directoryResult.errorStatusCode).json({ message: 'REQUEST_NOT_VALIDATED' });
 
 		return;
 	}
 
-	const congsList = (await response.json()) as ApiCongregationSearchResponse[];
+	const congsList = directoryResult.congregations;
 
 	let isValidCong = false;
 

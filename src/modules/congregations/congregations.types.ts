@@ -23,16 +23,6 @@ export type CongregationRecordType = {
 	cong_discoverable: { value: boolean; updatedAt: string };
 };
 
-export type ApiCongregationSearchResponse = {
-	congName: string;
-	congGuid: string;
-	address: string;
-	location: { lat: number; lng: number };
-	midweekMeetingTime: { weekday: number; time: string };
-	weekendMeetingTime: { weekday: number; time: string };
-	circuit: string;
-};
-
 export type CircuitRecordType = {
 	type: string;
 	value: string;
