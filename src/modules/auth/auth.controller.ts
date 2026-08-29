@@ -16,9 +16,12 @@ import {
 	getAuthenticationUserDisplayName,
 	verifyAuthenticationToken,
 } from './auth.service.js';
-import { mailClient } from '../../platform/email/mail-client.js';
 import { env } from '../../config/env.js';
 import { isEmailOneTimePasswordValid } from './email-otp.js';
+import {
+	isPasswordlessEmailEnabled,
+	sendPasswordlessLoginEmail,
+} from './auth-notifications.service.js';
 
 const isDev = env.isDevelopment;
 
@@ -177,35 +180,29 @@ export const createSignInLink = async (req: Request, res: Response) => {
 
 	const { link, otp } = await UsersList.generatePasswordLessLink({ email, origin: req.headers.origin! });
 
-	const MAIL_ENABLED = env.mailEnabled;
+	const mailEnabled = isPasswordlessEmailEnabled();
 
-	if (MAIL_ENABLED) {
+	if (mailEnabled) {
 		req.i18n.changeLanguage(language);
 
-		const options = {
-			to: email,
+		sendPasswordlessLoginEmail({
+			recipient: email,
 			subject: req.t('tr_login'),
-			template: 'login',
-			context: {
-				loginTitle: req.t('tr_login'),
-				loginDesc: req.t('tr_loginDesc'),
-				link,
-				otp,
-				loginButton: req.t('tr_loginBtn'),
-				loginAltText: req.t('tr_loginAltText'),
-				loginIgnoreText: req.t('tr_loginIgnoreText'),
-				loginOTP: req.t('tr_loginOTP'),
-				loginOTPDuration: req.t('tr_loginOTPDuration'),
-				copyright: new Date().getFullYear(),
-			},
-		};
-
-		mailClient.sendEmail(options, 'Passwordless link sent to user');
+			title: req.t('tr_login'),
+			description: req.t('tr_loginDesc'),
+			loginLink: link,
+			oneTimePassword: otp,
+			loginButtonLabel: req.t('tr_loginBtn'),
+			alternativeLinkText: req.t('tr_loginAltText'),
+			ignoreRequestText: req.t('tr_loginIgnoreText'),
+			oneTimePasswordLabel: req.t('tr_loginOTP'),
+			oneTimePasswordDurationText: req.t('tr_loginOTPDuration'),
+		});
 	}
 
 	res.locals.type = 'info';
 	res.locals.message = 'passwordless link will be sent to user';
-	res.status(200).json(MAIL_ENABLED ? { message: 'SIGNIN_LINK_SEND' } : { link, otp });
+	res.status(200).json(mailEnabled ? { message: 'SIGNIN_LINK_SEND' } : { link, otp });
 };
 
 export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
