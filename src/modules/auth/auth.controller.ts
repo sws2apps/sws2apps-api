@@ -3,7 +3,10 @@ import { getAuth } from 'firebase-admin/auth';
 import { validationResult } from 'express-validator';
 import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
 import { UsersList } from '../../v3/classes/Users.js';
-import { UserAuthResponse, UserSession } from '../../v3/definition/user.js';
+import type {
+	UserAuthResponse,
+	UserSession,
+} from '../users/user.types.js';
 import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { formatError } from '../../http/validation-errors.js';

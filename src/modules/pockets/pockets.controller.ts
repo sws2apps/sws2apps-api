@@ -4,7 +4,10 @@ import { formatError } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { decryptData } from '../../platform/encryption/encryption.js';
-import { UserAuthResponse, UserSession } from '../../v3/definition/user.js';
+import type {
+	UserAuthResponse,
+	UserSession,
+} from '../users/user.types.js';
 import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
 import { BackupData, CongSettingsType } from '../../v3/definition/congregation.js';
 import type { StandardRecord } from '../../types/standard-record.js';

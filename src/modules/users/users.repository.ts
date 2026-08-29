@@ -1,12 +1,12 @@
 import { getStorage } from 'firebase-admin/storage';
 import type { StandardRecord } from '../../types/standard-record.js';
-import {
+import type {
 	PocketNewParams,
 	UserNewParams,
 	UserProfile,
 	UserSession,
 	UserSettings,
-} from '../../v3/definition/user.js';
+} from './user.types.js';
 import {
 	getFileFromStorage,
 	getFileMetadata,

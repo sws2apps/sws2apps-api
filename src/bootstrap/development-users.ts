@@ -1,7 +1,10 @@
 import { getAuth } from 'firebase-admin/auth';
 import { LogLevel } from '@logtail/types';
 import { logger } from '../platform/logging/logger.js';
-import { UserGlobalRoleType, UserProfile } from '../v3/definition/user.js';
+import type {
+	UserGlobalRoleType,
+	UserProfile,
+} from '../modules/users/user.types.js';
 import { setUserProfile } from '../modules/users/users.repository.js';
 import { env } from '../config/env.js';
 

@@ -1,6 +1,10 @@
 import randomstring from 'randomstring';
 import { LogLevel } from '@logtail/types';
-import { PocketNewParams, RequestPasswordLessLinkParams, UserNewParams } from '../definition/user.js';
+import type {
+	PocketNewParams,
+	RequestPasswordLessLinkParams,
+	UserNewParams,
+} from '../../modules/users/user.types.js';
 import { User } from './User.js';
 import { CongregationsList } from './Congregations.js';
 import {

@@ -1,6 +1,6 @@
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { UsersList } from '../../v3/classes/Users.js';
-import { UserSession } from '../../v3/definition/user.js';
+import type { UserSession } from '../users/user.types.js';
 
 export const formatAdministrationSession = (
 	session: UserSession,

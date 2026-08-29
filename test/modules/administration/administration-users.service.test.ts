@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { formatAdministrationSession } from '../../../src/modules/administration/administration-users.service.js';
-import { UserSession } from '../../../src/v3/definition/user.js';
+import type { UserSession } from '../../../src/modules/users/user.types.js';
 
 const session: UserSession = {
 	identifier: 'session-1',
