@@ -1,5 +1,5 @@
 import { FeatureFlag } from '../definition/flag.js';
-import { setFlags } from '../services/firebase/flags.js';
+import { saveFeatureFlags } from '../../modules/feature-flags/feature-flags.repository.js';
 import { Flags } from './Flags.js';
 
 export class Flag {
@@ -26,11 +26,11 @@ export class Flag {
 		this.description = description;
 		this.coverage = coverage;
 
-		await setFlags(Flags.list);
+		await saveFeatureFlags(Flags.list);
 	}
 
 	async toggle() {
 		this.status = !this.status;
-		await setFlags(Flags.list);
+		await saveFeatureFlags(Flags.list);
 	}
 }

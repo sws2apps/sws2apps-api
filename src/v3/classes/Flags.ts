@@ -1,5 +1,8 @@
 import { FeatureFlag } from '../definition/flag.js';
-import { loadFlags, setFlags } from '../services/firebase/flags.js';
+import {
+	loadFeatureFlags,
+	saveFeatureFlags,
+} from '../../modules/feature-flags/feature-flags.repository.js';
 import { CongregationsList } from './Congregations.js';
 import { Flag } from './Flag.js';
 import { UsersList } from './Users.js';
@@ -12,7 +15,7 @@ class _Flags {
 	}
 
 	async load() {
-		this.list = await loadFlags();
+		this.list = await loadFeatureFlags();
 		return this.list;
 	}
 
@@ -59,13 +62,13 @@ class _Flags {
 
 		// delete master record
 		const flags = this.list.filter((record) => record.id !== id);
-		await setFlags(flags);
+		await saveFeatureFlags(flags);
 
 		this.list = flags;
 	}
 
 	async save() {
-		await setFlags(this.list);
+		await saveFeatureFlags(this.list);
 	}
 }
 
