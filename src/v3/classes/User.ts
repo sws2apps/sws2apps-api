@@ -25,7 +25,7 @@ import {
 	decryptData,
 	encryptData,
 } from '../../platform/encryption/encryption.js';
-import { generateUserSecret } from '../utils/user_utils.js';
+import { generateUserMfaSecret } from '../../modules/mfa/user-secret.js';
 import { CongregationsList } from './Congregations.js';
 import { BackupData } from '../definition/congregation.js';
 import {
@@ -182,7 +182,7 @@ export class User {
 
 	async generateSecret() {
 		if (!this.profile.secret) {
-			const secret = generateUserSecret(this.email!);
+			const secret = generateUserMfaSecret(this.email!);
 			const encryptedData = encryptData(JSON.stringify(secret));
 
 			const profile = structuredClone(this.profile);
