@@ -1,4 +1,7 @@
-import { AppInstallation, InstallationItem } from '../definition/installations.js';
+import {
+	AppInstallation,
+	InstallationItem,
+} from '../../modules/installations/installation.js';
 import {
 	loadInstallations,
 	saveInstallations,

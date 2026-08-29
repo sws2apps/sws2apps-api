@@ -1,5 +1,5 @@
 import { getFileFromStorage, uploadFileToStorage } from '../../platform/firebase/storage.js';
-import { AppInstallation } from '../../v3/definition/installations.js';
+import { AppInstallation } from './installation.js';
 
 const installationsStoragePath = 'installations.txt';
 const emptyInstallations = '{"linked":[],"pending":[]}';
