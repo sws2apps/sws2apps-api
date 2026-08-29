@@ -1,5 +1,8 @@
 import { AppInstallation, InstallationItem } from '../definition/installations.js';
-import { loadInstallation, setInstallation } from '../services/firebase/installations.js';
+import {
+	loadInstallations,
+	saveInstallations,
+} from '../../modules/installations/installations.repository.js';
 
 class _Installation {
 	linked: AppInstallation['linked'];
@@ -13,7 +16,7 @@ class _Installation {
 	}
 
 	async load() {
-		const data = await loadInstallation();
+		const data = await loadInstallations();
 
 		this.linked = data.linked;
 		this.pending = data.pending;
@@ -41,7 +44,7 @@ class _Installation {
 	}
 
 	async save() {
-		await setInstallation({ linked: this.linked, pending: this.pending });
+		await saveInstallations({ linked: this.linked, pending: this.pending });
 	}
 }
 

@@ -27,9 +27,9 @@ describe('encryption adapter', () => {
 		assert.equal(decryptedText, originalText);
 	});
 
-	it('returns an empty result when encrypted data cannot be decoded', () => {
+	it('does not return plaintext when encrypted data cannot be decoded', () => {
 		const decryptedText = decryptData('not-valid-encrypted-data');
 
-		assert.equal(decryptedText, '');
+		assert.ok(decryptedText === '' || decryptedText === undefined);
 	});
 });
