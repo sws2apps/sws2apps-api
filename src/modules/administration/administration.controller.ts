@@ -13,7 +13,7 @@ import type { Country } from '../../domain/countries/country.js';
 import { Flags } from '../feature-flags/flags.js';
 import { FeatureFlag } from '../feature-flags/feature-flag.js';
 import { getAdministrationFlags } from './administration-flags.service.js';
-import { setCongOutgoingSpeakers } from '../congregations/congregations.repository.js';
+import { saveOutgoingSpeakersState } from '../congregations/outgoing-speakers.service.js';
 import { serverState } from '../../platform/runtime/server-state.js';
 import { updateMinimumClientVersion } from './administration-settings.service.js';
 import { env } from '../../config/env.js';
@@ -800,12 +800,7 @@ export const congregationDeleteRequest = async (req: Request, res: Response) => 
 
 	cong.outgoing_speakers.access = cong.outgoing_speakers.access.filter((record) => record.request_id !== request);
 
-	const data = JSON.stringify({
-		list: cong.outgoing_speakers.list,
-		access: cong.outgoing_speakers.access,
-	});
-
-	await setCongOutgoingSpeakers(id, data);
+	await saveOutgoingSpeakersState(id, cong.outgoing_speakers);
 
 	const result = getAdministrationCongregation(id);
 
@@ -842,12 +837,7 @@ export const congregationResetSpeakersKey = async (req: Request, res: Response) 
 
 	await cong.saveSpeakersKey('');
 
-	const data = JSON.stringify({
-		list: cong.outgoing_speakers.list,
-		access: cong.outgoing_speakers.access,
-	});
-
-	await setCongOutgoingSpeakers(id, data);
+	await saveOutgoingSpeakersState(id, cong.outgoing_speakers);
 
 	const result = getAdministrationCongregation(id);
 
