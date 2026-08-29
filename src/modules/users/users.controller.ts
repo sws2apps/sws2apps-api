@@ -9,7 +9,7 @@ import { formatError } from '../../http/validation-errors.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import { BackupData } from '../backups/backup.types.js';
 import { CongregationUpdatesType, CongSettingsType } from '../congregations/congregations.types.js';
-import { ROLE_MASTER_KEY } from '../../domain/users/master-key-roles.js';
+import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
 import { getCongregationJoinRequests } from '../congregations/congregation-join-requests.service.js';
 import {
 	findBackupUploadByCongregation,
@@ -36,7 +36,7 @@ export const validateUser = async (req: Request, res: Response) => {
 	const cong = CongregationsList.findById(user.profile.congregation.id)!;
 
 	const userRole = user.profile.congregation.cong_role;
-	const masterKeyNeeded = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
+	const masterKeyNeeded = canAccessCongregationMasterKey(userRole);
 
 	const obj = {
 		id: user.id,
@@ -401,7 +401,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 
 	const userRole = user.profile.congregation!.cong_role;
 
-	const masterKeyNeed = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
+	const masterKeyNeed = canAccessCongregationMasterKey(userRole);
 
 	const {
 		personViewer,
@@ -888,7 +888,7 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 	}
 
 	const roles = user.profile.congregation!.cong_role;
-	const masterKeyNeed = roles.some((role) => ROLE_MASTER_KEY.includes(role));
+	const masterKeyNeed = canAccessCongregationMasterKey(roles);
 
 	const adminRole = roles.includes('admin');
 	const secretaryRole = roles.includes('secretary');

@@ -8,7 +8,7 @@ import type {
 import { CongregationsList } from '../congregations/congregations.js';
 import { formatError } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
-import { ROLE_MASTER_KEY } from '../../domain/users/master-key-roles.js';
+import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
 import {
 	createAuthenticationSession,
 	createPasswordlessSignIn,
@@ -111,7 +111,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
 		if (userCong) {
 			const userRole = authUser.profile.congregation.cong_role;
-			const masterKeyNeeded = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
+			const masterKeyNeeded = canAccessCongregationMasterKey(userRole);
 
 			userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation.user_local_uid;
 			userInfo.app_settings.user_settings.user_members_delegate = authUser.profile.congregation.user_members_delegate;
@@ -267,7 +267,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 		const userCong = CongregationsList.findById(authUser.profile.congregation.id);
 
 		const userRole = authUser.profile.congregation.cong_role;
-		const masterKeyNeeded = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
+		const masterKeyNeeded = canAccessCongregationMasterKey(userRole);
 
 		if (userCong) {
 			userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation.user_local_uid;
@@ -379,7 +379,7 @@ export const verifyEmailToken = async (req: Request, res: Response) => {
 		const userCong = CongregationsList.findById(authUser.profile.congregation.id);
 
 		const userRole = authUser.profile.congregation.cong_role;
-		const masterKeyNeeded = userRole.some((role) => ROLE_MASTER_KEY.includes(role));
+		const masterKeyNeeded = canAccessCongregationMasterKey(userRole);
 
 		if (userCong) {
 			userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation.user_local_uid;

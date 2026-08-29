@@ -12,3 +12,7 @@ export const ROLE_MASTER_KEY: readonly AppRoleType[] = [
 	'group_overseers',
 	'language_group_overseers',
 ];
+
+export const canAccessCongregationMasterKey = (roles: readonly AppRoleType[]): boolean => {
+	return roles.some((role) => ROLE_MASTER_KEY.includes(role));
+};

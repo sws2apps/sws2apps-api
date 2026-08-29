@@ -1,7 +1,7 @@
 import * as OTPAuth from 'otpauth';
 
 import { env } from '../../config/env.js';
-import { ROLE_MASTER_KEY } from '../../domain/users/master-key-roles.js';
+import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import type { UserAuthResponse, UserSession } from '../users/user.types.js';
 import { UsersList } from '../users/users.js';
@@ -77,7 +77,7 @@ export const verifyMfaToken = async ({
 	}
 
 	const congregationRoles = user.profile.congregation!.cong_role;
-	const needsMasterKey = congregationRoles.some((role) => ROLE_MASTER_KEY.includes(role));
+	const needsMasterKey = canAccessCongregationMasterKey(congregationRoles);
 	const midweekMeeting = congregation.settings.midweek_meeting.map(({ type, time, weekday }) => ({
 		type,
 		time,
