@@ -14,8 +14,10 @@ import { Flags } from '../feature-flags/flags.js';
 import { FeatureFlag } from '../feature-flags/feature-flag.js';
 import { getAdministrationFlags } from './administration-flags.service.js';
 import { saveOutgoingSpeakersState } from '../congregations/outgoing-speakers.service.js';
-import { serverState } from '../../platform/runtime/server-state.js';
-import { updateMinimumClientVersion } from './administration-settings.service.js';
+import {
+	getMinimumClientVersion,
+	updateMinimumClientVersion,
+} from './administration-settings.service.js';
 
 export const validateAdmin = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
@@ -950,7 +952,7 @@ export const updateBasicCongregationInfo = async (req: Request, res: Response) =
 export const getClientVersion = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
 	res.locals.message = 'admin fetched minimum client';
-	res.status(200).json({ version: serverState.minimumAppVersion });
+	res.status(200).json({ version: getMinimumClientVersion() });
 };
 
 export const updateClientVersion = async (req: Request, res: Response) => {
@@ -969,9 +971,9 @@ export const updateClientVersion = async (req: Request, res: Response) => {
 
 	const version = req.body.version as string;
 
-	await updateMinimumClientVersion(version);
+	const updatedVersion = await updateMinimumClientVersion(version);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated minimum client';
-	res.status(200).json({ version: serverState.minimumAppVersion });
+	res.status(200).json({ version: updatedVersion });
 };

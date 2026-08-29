@@ -7,6 +7,8 @@ import {
 type UpdateMinimumClientVersionRecord = (minimumVersion: string) => Promise<void>;
 type LoadMinimumClientVersionRecord = () => Promise<string>;
 
+export const getMinimumClientVersion = (): string => serverState.minimumAppVersion;
+
 export const initializeMinimumClientVersion = async (
 	loadVersionRecord: LoadMinimumClientVersionRecord = loadOrCreateMinimumClientVersionRecord,
 ): Promise<void> => {
@@ -18,8 +20,10 @@ export const initializeMinimumClientVersion = async (
 export const updateMinimumClientVersion = async (
 	minimumVersion: string,
 	updateVersionRecord: UpdateMinimumClientVersionRecord = updateMinimumClientVersionRecord,
-): Promise<void> => {
+): Promise<string> => {
 	await updateVersionRecord(minimumVersion);
 
 	serverState.minimumAppVersion = minimumVersion;
+
+	return minimumVersion;
 };
