@@ -14,7 +14,7 @@ import { FeatureFlag } from '../../v3/definition/flag.js';
 import { getAdministrationFlags } from './administration-flags.service.js';
 import { setCongOutgoingSpeakers } from '../../v3/services/firebase/congregations.js';
 import { serverState } from '../../platform/runtime/server-state.js';
-import { updateAPIMinimumClient } from '../../v3/services/firebase/api.js';
+import { updateMinimumClientVersion } from './administration-settings.service.js';
 import { env } from '../../config/env.js';
 
 export const validateAdmin = async (req: Request, res: Response) => {
@@ -982,7 +982,7 @@ export const updateClientVersion = async (req: Request, res: Response) => {
 
 	const version = req.body.version as string;
 
-	await updateAPIMinimumClient(version);
+	await updateMinimumClientVersion(version);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated minimum client';
