@@ -1,4 +1,4 @@
-import { AppRoleType } from '../../v3/definition/app.js';
+import type { AppRoleType } from './app-role.js';
 
 export const getUserCapabilities = (userRoles: readonly AppRoleType[]) => {
 	const secretaryRole = userRoles.includes('secretary');

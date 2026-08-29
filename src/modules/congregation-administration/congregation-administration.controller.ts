@@ -5,7 +5,7 @@ import { formatError } from '../../http/validation-errors.js';
 import { UsersList } from '../../v3/classes/Users.js';
 import { decryptData } from '../../platform/encryption/encryption.js';
 import { getCongregationJoinRequests } from '../congregations/congregation-join-requests.service.js';
-import { AppRoleType } from '../../v3/definition/app.js';
+import type { AppRoleType } from '../../domain/users/app-role.js';
 import { mailClient } from '../../platform/email/mail-client.js';
 import { env } from '../../config/env.js';
 

@@ -1,4 +1,4 @@
-import { AppRoleType } from './app.js';
+import type { AppRoleType } from '../../domain/users/app-role.js';
 import { CircuitRecordType } from './congregation.js';
 
 export type UserGlobalRoleType = 'vip' | 'pocket' | 'admin';

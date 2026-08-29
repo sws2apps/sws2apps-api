@@ -1,4 +1,4 @@
-import type { AppRoleType } from '../../v3/definition/app.js';
+import type { AppRoleType } from '../../domain/users/app-role.js';
 
 export const hasAnyCongregationRole = (
 	userRoles: readonly AppRoleType[] | undefined,

@@ -1,4 +1,4 @@
-import { AppRoleType } from '../../v3/definition/app.js';
+import type { AppRoleType } from './app-role.js';
 
 export const ROLE_MASTER_KEY: readonly AppRoleType[] = [
 	'admin',

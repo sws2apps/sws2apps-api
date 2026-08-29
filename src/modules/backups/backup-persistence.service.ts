@@ -4,7 +4,8 @@ import { logger } from '../../platform/logging/logger.js';
 import { backupUploadsInProgress } from '../../platform/runtime/backup-uploads.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { UsersList } from '../../v3/classes/Users.js';
-import { AppRoleType, StandardRecord } from '../../v3/definition/app.js';
+import type { AppRoleType } from '../../domain/users/app-role.js';
+import { StandardRecord } from '../../v3/definition/app.js';
 import { BackupData } from '../../v3/definition/congregation.js';
 import { findBackupUploadByCongregation } from './backup-upload-tracker.js';
 

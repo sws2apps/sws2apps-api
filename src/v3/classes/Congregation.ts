@@ -1,5 +1,6 @@
 import { getStorage } from 'firebase-admin/storage';
-import { AppRoleType, StandardRecord } from '../definition/app.js';
+import type { AppRoleType } from '../../domain/users/app-role.js';
+import { StandardRecord } from '../definition/app.js';
 import {
 	BackupData,
 	CongregationUpdatesType,
