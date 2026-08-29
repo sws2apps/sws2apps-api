@@ -10,6 +10,7 @@ import { toMondayFirstWeekday } from './meeting-weekday.js';
 import { ALL_LANGUAGES } from '../../platform/localization/languages.js';
 import { env } from '../../config/env.js';
 import { canManageCongregationApplications } from './congregation-permissions.js';
+import { getAvailableCountries } from './congregation-directory.service.js';
 
 const MAIL_ENABLED = env.mailEnabled;
 
@@ -29,21 +30,18 @@ export const getCountries = async (req: Request, res: Response) => {
 
 	const language = (req.query.language as string) || 'E';
 
-	const url = env.appCountryApi + new URLSearchParams({ language });
+	const countryResult = await getAvailableCountries(language);
 
-	const response = await fetch(url);
-
-	if (!response.ok) {
+	if (countryResult.errorStatusCode) {
 		res.locals.type = 'warn';
 		res.locals.message = 'an error occured while getting list of all countries';
-		res.status(response.status).json({ message: 'FETCH_FAILED' });
+		res.status(countryResult.errorStatusCode).json({ message: 'FETCH_FAILED' });
 		return;
 	}
 
-	const countriesList = await response.json();
 	res.locals.type = 'info';
 	res.locals.message = 'user fetched all countries';
-	res.status(200).json(countriesList);
+	res.status(200).json(countryResult.countries);
 };
 
 export const getCongregations = async (req: Request, res: Response) => {
