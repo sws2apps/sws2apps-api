@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { LogLevel } from '@logtail/types';
 import sanitizeHtml from 'sanitize-html';
 
 import { UsersList } from './users.js';
@@ -11,11 +10,11 @@ import type { StandardRecord } from '../../types/standard-record.js';
 import { BackupData } from '../backups/backup.types.js';
 import { CongregationUpdatesType, CongSettingsType } from '../congregations/congregations.types.js';
 import { ROLE_MASTER_KEY } from '../../domain/users/master-key-roles.js';
-import { BACKUP_EXPIRY } from '../backups/backup-upload-expiry.js';
 import { getCongregationJoinRequests } from '../congregations/congregation-join-requests.service.js';
-import { findBackupUploadByCongregation } from '../backups/backup-upload-tracker.js';
-import { backupUploadsInProgress } from '../../platform/runtime/backup-uploads.js';
-import { logger } from '../../platform/logging/logger.js';
+import {
+	findBackupUploadByCongregation,
+	recordBackupUploadChunk,
+} from '../backups/backup-upload-tracker.js';
 import { saveUserBackupAsync } from '../backups/backup-persistence.service.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 import { env } from '../../config/env.js';
@@ -1212,48 +1211,26 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 		}
 	}
 
-	// init or reset timer for the upload
-	let findBackup = backupUploadsInProgress.get(uploadId);
+	const completedBackup = recordBackupUploadChunk({
+		uploadId,
+		chunkIndex,
+		totalChunks,
+		chunkData,
+		userId: user.id,
+		congregationId: cong.id,
+	});
 
-	if (!findBackup) {
-		findBackup = {
-			chunks: new Array(totalChunks).fill(null),
-			totalChunks,
-			received: 0,
-			userId: user.id,
-			congregationId: cong.id,
-			timeout: setTimeout(() => {
-				backupUploadsInProgress.delete(uploadId);
-				logger(LogLevel.Warn, 'backup to be saved was expired', { congregationId: cong.id, userId: user.id });
-			}, BACKUP_EXPIRY),
-		};
-
-		backupUploadsInProgress.set(uploadId, findBackup);
-	} else {
-		// refresh timeout on activity
-		clearTimeout(findBackup.timeout);
-		findBackup.timeout = setTimeout(() => {
-			backupUploadsInProgress.delete(uploadId);
-			logger(LogLevel.Warn, 'backup to be saved was expired', { congregationId: cong.id, userId: user.id });
-		}, BACKUP_EXPIRY);
-	}
-
-	// save chunk
-	findBackup.chunks[chunkIndex] = chunkData;
-	findBackup.received++;
-	logger(
-		LogLevel.Info,
-		`congregation backup chunk ${chunkIndex + 1} out of ${totalChunks} received, by ${user.id}, for ${cong.id}`,
-		{ congregationId: cong.id, userId: user.id }
-	);
-
-	if (findBackup.received === findBackup.totalChunks) {
-		const congBackupStr = findBackup.chunks.join('');
-		const cong_backup = JSON.parse(congBackupStr) as BackupData;
+	if (completedBackup) {
+		const congregationBackup = JSON.parse(completedBackup) as BackupData;
 
 		const userRole = user.profile.congregation!.cong_role;
 
-		saveUserBackupAsync({ congId: cong.id, userId: user.id, userRole, cong_backup });
+		saveUserBackupAsync({
+			congId: cong.id,
+			userId: user.id,
+			userRole,
+			cong_backup: congregationBackup,
+		});
 
 		res.locals.type = 'info';
 		res.locals.message = 'user send backup for congregation successfully';

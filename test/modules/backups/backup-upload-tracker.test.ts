@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { findBackupUploadByCongregation } from '../../../src/modules/backups/backup-upload-tracker.js';
+import {
+	findBackupUploadByCongregation,
+	recordBackupUploadChunk,
+} from '../../../src/modules/backups/backup-upload-tracker.js';
 import { BackupForStorage } from '../../../src/modules/backups/backup.types.js';
 
 const createUpload = (congregationId: string): BackupForStorage => {
@@ -42,5 +45,31 @@ describe('backup upload tracker', () => {
 		const result = findBackupUploadByCongregation('congregation-1', new Map());
 
 		assert.equal(result, undefined);
+	});
+
+	it('tracks chunks and returns the assembled backup when complete', () => {
+		const uploads = new Map<string, BackupForStorage>();
+		const log = () => undefined;
+		const commonChunkDetails = {
+			uploadId: 'upload-1',
+			totalChunks: 2,
+			userId: 'user-1',
+			congregationId: 'congregation-1',
+		};
+
+		const firstResult = recordBackupUploadChunk(
+			{ ...commonChunkDetails, chunkIndex: 0, chunkData: '{"value":' },
+			{ uploads, log },
+		);
+		const completedResult = recordBackupUploadChunk(
+			{ ...commonChunkDetails, chunkIndex: 1, chunkData: 'true}' },
+			{ uploads, log },
+		);
+
+		assert.equal(firstResult, undefined);
+		assert.equal(completedResult, '{"value":true}');
+		assert.equal(uploads.get('upload-1')?.received, 2);
+
+		clearTimeout(uploads.get('upload-1')?.timeout);
 	});
 });
