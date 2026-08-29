@@ -2,17 +2,13 @@ import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
 import { UsersList } from '../users/users.js';
-import type {
-	UserAuthResponse,
-} from '../users/user.types.js';
-import { CongregationsList } from '../congregations/congregations.js';
 import { formatError } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
-import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
 import {
 	createAuthenticationSession,
 	createPasswordlessSignIn,
 	createAuthenticationToken,
+	buildUserAuthenticationResponse,
 	getAuthenticationUserDisplayName,
 	verifyAuthenticationToken,
 } from './auth.service.js';
@@ -93,53 +89,7 @@ export const loginUser = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const userInfo: UserAuthResponse = {
-		message: 'TOKEN_VALID',
-		id: authUser.id,
-		app_settings: {
-			user_settings: {
-				firstname: authUser.profile.firstname,
-				lastname: authUser.profile.lastname,
-				role: authUser.profile.role,
-				mfa: 'not_enabled',
-			},
-		},
-	};
-
-	if (authUser.profile.congregation?.id) {
-		const userCong = CongregationsList.findById(authUser.profile.congregation.id);
-
-		if (userCong) {
-			const userRole = authUser.profile.congregation.cong_role;
-			const masterKeyNeeded = canAccessCongregationMasterKey(userRole);
-
-			userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation.user_local_uid;
-			userInfo.app_settings.user_settings.user_members_delegate = authUser.profile.congregation.user_members_delegate;
-			userInfo.app_settings.user_settings.cong_role = authUser.profile.congregation.cong_role;
-
-			const midweek = userCong.settings.midweek_meeting.map((record) => {
-				return { type: record.type, time: record.time, weekday: record.weekday };
-			});
-
-			const weekend = userCong.settings.weekend_meeting.map((record) => {
-				return { type: record.type, time: record.time, weekday: record.weekday };
-			});
-
-			userInfo.app_settings.cong_settings = {
-				id: authUser.profile.congregation.id,
-				cong_circuit: userCong.settings.cong_circuit,
-				cong_name: userCong.settings.cong_name,
-				cong_prefix: userCong.settings.cong_prefix,
-				cong_number: userCong.settings.cong_number,
-				country_code: userCong.settings.country_code,
-				cong_access_code: userCong.settings.cong_access_code,
-				cong_master_key: masterKeyNeeded ? userCong.settings.cong_master_key : undefined,
-				cong_location: userCong.settings.cong_location,
-				midweek_meeting: midweek,
-				weekend_meeting: weekend,
-			};
-		}
-	}
+	const userInfo = buildUserAuthenticationResponse({ authUser });
 
 	res.locals.type = 'info';
 	res.locals.message = 'user successfully logged in without MFA';
@@ -250,53 +200,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const userInfo: UserAuthResponse = {
-		message: 'TOKEN_VALID',
-		id: authUser.id,
-		app_settings: {
-			user_settings: {
-				firstname: authUser.profile.firstname,
-				lastname: authUser.profile.lastname,
-				role: authUser.profile.role,
-				mfa: 'not_enabled',
-			},
-		},
-	};
-
-	if (authUser.profile.congregation?.id) {
-		const userCong = CongregationsList.findById(authUser.profile.congregation.id);
-
-		const userRole = authUser.profile.congregation.cong_role;
-		const masterKeyNeeded = canAccessCongregationMasterKey(userRole);
-
-		if (userCong) {
-			userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation.user_local_uid;
-			userInfo.app_settings.user_settings.user_members_delegate = authUser.profile.congregation.user_members_delegate;
-			userInfo.app_settings.user_settings.cong_role = authUser.profile.congregation.cong_role;
-
-			const midweek = userCong.settings.midweek_meeting.map((record) => {
-				return { type: record.type, time: record.time, weekday: record.weekday };
-			});
-
-			const weekend = userCong.settings.weekend_meeting.map((record) => {
-				return { type: record.type, time: record.time, weekday: record.weekday };
-			});
-
-			userInfo.app_settings.cong_settings = {
-				id: authUser.profile.congregation.id,
-				cong_circuit: userCong.settings.cong_circuit,
-				cong_name: userCong.settings.cong_name,
-				cong_prefix: userCong.settings.cong_prefix,
-				cong_number: userCong.settings.cong_number,
-				country_code: userCong.settings.country_code,
-				cong_access_code: userCong.settings.cong_access_code,
-				cong_master_key: masterKeyNeeded ? userCong.settings.cong_master_key : undefined,
-				cong_location: userCong.settings.cong_location,
-				midweek_meeting: midweek,
-				weekend_meeting: weekend,
-			};
-		}
-	}
+	const userInfo = buildUserAuthenticationResponse({ authUser });
 
 	res.locals.type = 'info';
 	res.locals.message = 'user successfully logged in without MFA';
@@ -362,53 +266,7 @@ export const verifyEmailToken = async (req: Request, res: Response) => {
 		mfaVerified: true,
 	});
 
-	const userInfo: UserAuthResponse = {
-		message: 'TOKEN_VALID',
-		id: authUser.id,
-		app_settings: {
-			user_settings: {
-				firstname: authUser.profile.firstname,
-				lastname: authUser.profile.lastname,
-				role: authUser.profile.role,
-				mfa: 'not_enabled',
-			},
-		},
-	};
-
-	if (authUser.profile.congregation?.id) {
-		const userCong = CongregationsList.findById(authUser.profile.congregation.id);
-
-		const userRole = authUser.profile.congregation.cong_role;
-		const masterKeyNeeded = canAccessCongregationMasterKey(userRole);
-
-		if (userCong) {
-			userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation.user_local_uid;
-			userInfo.app_settings.user_settings.user_members_delegate = authUser.profile.congregation.user_members_delegate;
-			userInfo.app_settings.user_settings.cong_role = authUser.profile.congregation.cong_role;
-
-			const midweek = userCong.settings.midweek_meeting.map((record) => {
-				return { type: record.type, time: record.time, weekday: record.weekday };
-			});
-
-			const weekend = userCong.settings.weekend_meeting.map((record) => {
-				return { type: record.type, time: record.time, weekday: record.weekday };
-			});
-
-			userInfo.app_settings.cong_settings = {
-				id: authUser.profile.congregation.id,
-				cong_circuit: userCong.settings.cong_circuit,
-				cong_name: userCong.settings.cong_name,
-				cong_prefix: userCong.settings.cong_prefix,
-				cong_number: userCong.settings.cong_number,
-				country_code: userCong.settings.country_code,
-				cong_access_code: userCong.settings.cong_access_code,
-				cong_master_key: masterKeyNeeded ? userCong.settings.cong_master_key : undefined,
-				cong_location: userCong.settings.cong_location,
-				midweek_meeting: midweek,
-				weekend_meeting: weekend,
-			};
-		}
-	}
+	const userInfo = buildUserAuthenticationResponse({ authUser });
 
 	res.locals.type = 'info';
 	res.locals.message = 'user successfully logged with email OTP';
