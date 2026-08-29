@@ -9,7 +9,7 @@ import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-d
 import { BackupData, CongSettingsType } from '../../v3/definition/congregation.js';
 import { StandardRecord } from '../../v3/definition/app.js';
 import { UsersList } from '../../v3/classes/Users.js';
-import { savePocketBackupAsync } from '../../v3/services/api/users.js';
+import { savePocketBackupAsync } from '../backups/backup-persistence.service.js';
 import { parsePocketInvitationCode } from './invitation-code.js';
 import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
 

@@ -15,7 +15,7 @@ import { getCongregationJoinRequests } from '../congregations/congregation-join-
 import { findBackupUploadByCongregation } from '../backups/backup-upload-tracker.js';
 import { backupUploadsInProgress } from '../../platform/runtime/backup-uploads.js';
 import { logger } from '../../platform/logging/logger.js';
-import { saveUserBackupAsync } from '../../v3/services/api/users.js';
+import { saveUserBackupAsync } from '../backups/backup-persistence.service.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 import { env } from '../../config/env.js';
 import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
