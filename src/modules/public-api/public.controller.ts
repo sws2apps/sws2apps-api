@@ -7,7 +7,7 @@ import { formatError } from '../../http/validation-errors.js';
 import type { Country } from '../../domain/countries/country.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
-import { Flags } from '../../v3/classes/Flags.js';
+import { Flags } from '../feature-flags/flags.js';
 import { InstallationsList } from '../installations/installation-list.js';
 import { getApplicationLanguageCount } from '../../platform/localization/crowdin-client.js';
 import { buildPublicStats } from './public.service.js';

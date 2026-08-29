@@ -9,7 +9,7 @@ The feature-flag endpoint accepts an installation identifier and an optional use
 identifier through headers. Although the endpoint is public, both values are
 untrusted input and must be validated before use.
 
-During the incremental architecture migration, this module still depends on legacy
-in-memory collections and persistence methods under `src/v3`. Those dependencies
-should move behind services and repositories once their existing behavior has
-characterization coverage.
+During the incremental architecture migration, this module still reads the shared
+in-memory singleton collections (`UsersList`, `CongregationsList`, `Flags`,
+`InstallationsList`). Those cross-feature reads should move behind service contracts
+once the aggregation behavior has characterization coverage.

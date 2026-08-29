@@ -1,6 +1,6 @@
-import { FeatureFlag } from '../../modules/feature-flags/feature-flag.js';
-import { saveFeatureFlags } from '../../modules/feature-flags/feature-flags.repository.js';
-import { Flags } from './Flags.js';
+import { FeatureFlag } from './feature-flag.js';
+import { saveFeatureFlags } from './feature-flags.repository.js';
+import { Flags } from './flags.js';
 
 export class Flag {
 	id: string;

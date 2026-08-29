@@ -1,5 +1,5 @@
 import { getFileFromStorage, uploadFileToStorage } from '../../platform/firebase/storage.js';
-import { Flag } from '../../v3/classes/Flag.js';
+import { Flag } from './flag.js';
 import { FeatureFlag } from './feature-flag.js';
 
 const featureFlagsStoragePath = 'flags.txt';

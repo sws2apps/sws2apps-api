@@ -1,11 +1,11 @@
-import { FeatureFlag } from '../../modules/feature-flags/feature-flag.js';
+import { FeatureFlag } from './feature-flag.js';
 import {
 	loadFeatureFlags,
 	saveFeatureFlags,
-} from '../../modules/feature-flags/feature-flags.repository.js';
-import { CongregationsList } from '../../modules/congregations/congregations.js';
-import { Flag } from './Flag.js';
-import { UsersList } from '../../modules/users/users.js';
+} from './feature-flags.repository.js';
+import { CongregationsList } from '../congregations/congregations.js';
+import { Flag } from './flag.js';
+import { UsersList } from '../users/users.js';
 
 class _Flags {
 	list: Flag[];
