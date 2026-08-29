@@ -1,15 +1,21 @@
 import { getStorage } from 'firebase-admin/storage';
-import { StandardRecord } from '../../definition/app.js';
-import { PocketNewParams, UserNewParams, UserProfile, UserSession, UserSettings } from '../../definition/user.js';
+import { StandardRecord } from '../../v3/definition/app.js';
+import {
+	PocketNewParams,
+	UserNewParams,
+	UserProfile,
+	UserSession,
+	UserSettings,
+} from '../../v3/definition/user.js';
 import {
 	getFileFromStorage,
 	getFileMetadata,
 	uploadFileToStorage,
-} from '../../../platform/firebase/storage.js';
-import { User } from '../../classes/User.js';
-import { encryptData } from '../../../platform/encryption/encryption.js';
-import { schemaUserProfile } from '../../definition/schema.js';
-import { updateFirebaseUserEmail } from '../../../platform/firebase/authentication.js';
+} from '../../platform/firebase/storage.js';
+import { User } from '../../v3/classes/User.js';
+import { encryptData } from '../../platform/encryption/encryption.js';
+import { schemaUserProfile } from '../../v3/definition/schema.js';
+import { updateFirebaseUserEmail } from '../../platform/firebase/authentication.js';
 
 export const getUsersID = async () => {
 	const pattern = '^v3\\/users\\/(.+?)\\/';

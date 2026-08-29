@@ -3,7 +3,11 @@ import { LogLevel } from '@logtail/types';
 import { PocketNewParams, RequestPasswordLessLinkParams, UserNewParams } from '../definition/user.js';
 import { User } from './User.js';
 import { CongregationsList } from './Congregations.js';
-import { createPocketUser, createUser, loadAllUsers } from '../services/firebase/users.js';
+import {
+	createPocketUser,
+	createUser,
+	loadAllUsers,
+} from '../../modules/users/users.repository.js';
 import { deleteFirebaseAuthUser } from '../../platform/firebase/authentication.js';
 import { deleteFileFromStorage } from '../../platform/firebase/storage.js';
 import { getAuth } from 'firebase-admin/auth';

@@ -16,7 +16,7 @@ import {
 	setUserProfile,
 	setUserSessions,
 	setUserSettings,
-} from '../services/firebase/users.js';
+} from '../../modules/users/users.repository.js';
 import {
 	getFirebaseUserDetails,
 	updateFirebaseUserEmail,
