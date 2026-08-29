@@ -1,24 +1,29 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { CongregationsList } from '../congregations/congregations.js';
-import { formatError } from '../../http/validation-errors.js';
-import { OutgoingTalkScheduleType } from '../congregations/congregations.types.js';
-import { prepareSchedulePublication } from './schedule-publication.js';
 
-export const getApprovedVisitingSpeakersAccess = async (req: Request, res: Response) => {
+import { formatError } from '../../http/validation-errors.js';
+import type { OutgoingTalkScheduleType } from '../congregations/congregations.types.js';
+import {
+	approveVisitingSpeakerAccess,
+	getApprovedVisitingSpeakerAccess,
+	getMeetingSchedules,
+	getPendingVisitingSpeakerAccess,
+	MeetingAccessError,
+	publishMeetingSchedules,
+	rejectVisitingSpeakerAccess,
+	requestVisitingSpeakerAccess,
+	searchVisitingSpeakerCongregations,
+} from './meetings.service.js';
+
+const getValidatedCongregationId = (req: Request, res: Response): string | undefined => {
 	const errors = validationResult(req);
 
 	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
+		const message = formatError(errors);
 		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
+		res.locals.message = `invalid input: ${message}`;
+		res.status(400).json({ message: 'error_api_bad-request' });
+		return undefined;
 	}
 
 	const { id } = req.params;
@@ -27,410 +32,175 @@ export const getApprovedVisitingSpeakersAccess = async (req: Request, res: Respo
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation id params is undefined';
 		res.status(400).json({ message: 'CONG_ID_INVALID' });
-		return;
+		return undefined;
 	}
 
-	const cong = CongregationsList.findById(id);
+	return id;
+};
 
-	if (!cong) {
-		res.locals.type = 'warn';
+const handleMeetingAccessError = (error: unknown, res: Response): boolean => {
+	if (!(error instanceof MeetingAccessError)) return false;
+
+	res.locals.type = 'warn';
+
+	if (error.code === 'CONGREGATION_NOT_FOUND') {
 		res.locals.message = 'no congregation could not be found with the provided id';
 		res.status(404).json({ message: 'error_app_congregation_not-found' });
-		return;
+		return true;
 	}
 
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
+	res.locals.message = 'user not authorized to access the provided congregation';
+	res.status(403).json({ message: 'error_api_unauthorized-request' });
+	return true;
+};
 
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
+const rethrowUnexpectedError = (error: unknown, res: Response) => {
+	if (!handleMeetingAccessError(error, res)) throw error;
+};
+
+export const getApprovedVisitingSpeakersAccess = async (req: Request, res: Response) => {
+	const congregationId = getValidatedCongregationId(req, res);
+	if (!congregationId) return;
+
+	try {
+		const congregations = await getApprovedVisitingSpeakerAccess(congregationId, res.locals.currentUser.id);
+
+		res.locals.type = 'info';
+		res.locals.message = 'user fetched congregation speakers access';
+		res.status(200).json({ congregations });
+	} catch (error) {
+		rethrowUnexpectedError(error, res);
 	}
-
-	const access = cong.getVisitingSpeakersAccessList();
-
-	res.locals.type = 'info';
-	res.locals.message = `user fetched congregation speakers access`;
-	res.status(200).json({ congregations: access });
 };
 
 export const findVisitingSpeakersCongregations = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
+	const congregationId = getValidatedCongregationId(req, res);
+	if (!congregationId) return;
 
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
+	try {
+		const result = await searchVisitingSpeakerCongregations(
+			congregationId,
+			res.locals.currentUser.id,
+			req.query.name as string,
+		);
 
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
+		res.locals.type = 'info';
+		res.locals.message = 'user fetched congregations visiting speakers list';
+		res.status(200).json(result);
+	} catch (error) {
+		rethrowUnexpectedError(error, res);
 	}
-
-	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
-		return;
-	}
-
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-		return;
-	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	const name = req.query.name as string;
-
-	const result = CongregationsList.findVisitingSpeakersCongregations(cong.id, name);
-
-	res.locals.type = 'info';
-	res.locals.message = `user fetched congregations visiting speakers list`;
-	res.status(200).json(result);
 };
 
 export const requestAccessSpeakersCongregation = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
+	const congregationId = getValidatedCongregationId(req, res);
+	if (!congregationId) return;
 
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
+	const targetCongregationId = req.body.cong_id as string;
 
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
+	try {
+		await requestVisitingSpeakerAccess(
+			congregationId,
+			res.locals.currentUser.id,
+			targetCongregationId,
+			req.body.key as string,
+			req.body.request_id as string,
+		);
 
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
+		res.locals.type = 'info';
+		res.locals.message = 'user requested access to a congregation outgoing speakers list';
+		res.status(200).json({ cong_id: targetCongregationId });
+	} catch (error) {
+		rethrowUnexpectedError(error, res);
 	}
-
-	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
-		return;
-	}
-
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-		return;
-	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	const cong_id: string = req.body.cong_id;
-	const key: string = req.body.key;
-	const request_id: string = req.body.request_id;
-
-	await cong.requestAccessCongregation(cong_id, key, request_id);
-
-	res.locals.type = 'info';
-	res.locals.message = `user requested access to a congregation outgoing speakers list`;
-	res.status(200).json({ cong_id });
 };
 
 export const getPendingVisitingSpeakersAccess = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
+	const congregationId = getValidatedCongregationId(req, res);
+	if (!congregationId) return;
 
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
+	try {
+		const result = await getPendingVisitingSpeakerAccess(congregationId, res.locals.currentUser.id);
 
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
+		res.locals.type = 'info';
+		res.locals.message = 'user fetched congregation speakers pending access';
+		res.status(200).json(result);
+	} catch (error) {
+		rethrowUnexpectedError(error, res);
 	}
-
-	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
-		return;
-	}
-
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-		return;
-	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	const congregations = cong.getPendingVisitingSpeakersAccessList();
-
-	res.locals.type = 'info';
-	res.locals.message = `user fetched congregation speakers pending access`;
-	res
-		.status(200)
-		.json({ congregations, speakers_key: cong.outgoing_speakers.speakers_key, cong_master_key: cong.settings.cong_master_key });
 };
 
 export const approveVisitingSpeakersAccess = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
+	const congregationId = getValidatedCongregationId(req, res);
+	if (!congregationId) return;
 
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
+	try {
+		const congregations = await approveVisitingSpeakerAccess(
+			congregationId,
+			res.locals.currentUser.id,
+			req.body.request_id as string,
+			req.body.key as string,
+		);
 
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
+		res.locals.type = 'info';
+		res.locals.message = 'user approved congregation speakers access';
+		res.status(200).json({ congregations });
+	} catch (error) {
+		rethrowUnexpectedError(error, res);
 	}
-
-	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
-		return;
-	}
-
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-		return;
-	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	const request_id: string = req.body.request_id;
-	const key: string = req.body.key;
-	await cong.approveCongregationRequest(request_id, key);
-
-	const congregations = cong.getPendingVisitingSpeakersAccessList();
-
-	res.locals.type = 'info';
-	res.locals.message = `user approved congregation speakers access`;
-	res.status(200).json({ congregations });
 };
 
 export const rejectVisitingSpeakersAccess = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
+	const congregationId = getValidatedCongregationId(req, res);
+	if (!congregationId) return;
 
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
+	try {
+		const congregations = await rejectVisitingSpeakerAccess(
+			congregationId,
+			res.locals.currentUser.id,
+			req.body.request_id as string,
+		);
 
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
+		res.locals.type = 'info';
+		res.locals.message = 'user rejected congregation speakers access';
+		res.status(200).json({ congregations });
+	} catch (error) {
+		rethrowUnexpectedError(error, res);
 	}
-
-	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
-		return;
-	}
-
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-		return;
-	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	const request_id: string = req.body.request_id;
-	await cong.rejectCongregationRequest(request_id);
-
-	const congregations = cong.getPendingVisitingSpeakersAccessList();
-
-	res.locals.type = 'info';
-	res.locals.message = `user rejected congregation speakers access`;
-	res.status(200).json({ congregations });
 };
 
 export const publishSchedules = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
+	const congregationId = getValidatedCongregationId(req, res);
+	if (!congregationId) return;
 
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
+	try {
+		await publishMeetingSchedules({
+			congregationId,
+			userId: res.locals.currentUser.id,
+			sources: req.body.sources as unknown[],
+			schedules: req.body.schedules as unknown[],
+			talks: req.body.talks as OutgoingTalkScheduleType[] | undefined,
 		});
 
-		return;
+		res.locals.type = 'info';
+		res.locals.message = 'user published the schedules';
+		res.status(200).json({ message: 'SCHEDULES_PUBLISHED' });
+	} catch (error) {
+		rethrowUnexpectedError(error, res);
 	}
-
-	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
-		return;
-	}
-
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-		return;
-	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	const { sources, schedules } = req.body;
-
-	const talks = req.body.talks as OutgoingTalkScheduleType[];
-
-	const { serializedSources, serializedSchedules, serializedTalks } = prepareSchedulePublication({
-		sources,
-		schedules,
-		talks,
-	});
-
-	await cong.publishSchedules(serializedSources, serializedSchedules, serializedTalks);
-
-	if (talks) {
-		await cong.copyOutgoingTalkSchedule(talks);
-	}
-
-	res.locals.type = 'info';
-	res.locals.message = `user published the schedules`;
-	res.status(200).json({ message: 'SCHEDULES_PUBLISHED' });
 };
 
 export const getPublicSchedules = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
+	const congregationId = getValidatedCongregationId(req, res);
+	if (!congregationId) return;
 
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
+	try {
+		const schedules = await getMeetingSchedules(congregationId, res.locals.currentUser.id);
 
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
+		res.locals.type = 'info';
+		res.locals.message = 'user fetched congregations public schedules';
+		res.status(200).json(schedules);
+	} catch (error) {
+		rethrowUnexpectedError(error, res);
 	}
-
-	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
-		return;
-	}
-
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-		return;
-	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	const sources = await cong.getPublicSources();
-	const schedules = await cong.getPublicSchedules();
-
-	res.locals.type = 'info';
-	res.locals.message = `user fetched congregations public schedules`;
-	res.status(200).json({ sources, schedules });
 };
