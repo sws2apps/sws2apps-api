@@ -6,7 +6,6 @@ import { CongregationsList } from '../congregations/congregations.js';
 import { BackupData } from '../backups/backup.types.js';
 import { CongSettingsType } from '../congregations/congregations.types.js';
 import type { StandardRecord } from '../../types/standard-record.js';
-import { UsersList } from '../users/users.js';
 import { savePocketBackupAsync } from '../backups/backup-persistence.service.js';
 import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
 import {
@@ -14,6 +13,15 @@ import {
 	PocketAuthenticationError,
 	validatePocketSession,
 } from './pocket-authentication.service.js';
+import {
+	deletePocketAccount,
+	getPocketApplications,
+	getPocketUserSessions,
+	PocketUserError,
+	revokePocketUserSession,
+	submitPocketApplication,
+	submitPocketReport,
+} from './pocket-user.service.js';
 
 export const validateInvitation = async (req: Request, res: Response) => {
 	// validate through express middleware
@@ -379,8 +387,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 };
 
 export const getPocketSessions = async (req: Request, res: Response) => {
-	const user = res.locals.currentUser;
-	const sessions = user.getActiveSessions(req.signedCookies.visitorid);
+	const sessions = getPocketUserSessions(res.locals.currentUser.id, req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = `user has fetched sessions successfully`;
@@ -404,16 +411,7 @@ export const deletePocketSession = async (req: Request, res: Response) => {
 
 	const identifier = req.body.identifier as string;
 
-	const user = res.locals.currentUser;
-	const sessions = await user.revokeSession(identifier);
-
-	if (user.profile.congregation && user.profile.congregation.id.length > 0) {
-		const cong = CongregationsList.findById(user.profile.congregation.id);
-
-		if (cong) {
-			cong.reloadMembers();
-		}
-	}
+	const sessions = await revokePocketUserSession(res.locals.currentUser.id, identifier);
 
 	res.locals.type = 'info';
 	res.locals.message = `user has revoked session successfully`;
@@ -435,30 +433,24 @@ export const postPocketReport = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = res.locals.currentUser;
-	const congId = user.profile.congregation?.id;
-	const cong = CongregationsList.findById(congId!);
+	try {
+		submitPocketReport(res.locals.currentUser.id, req.body.report as StandardRecord);
+	} catch (error) {
+		if (!(error instanceof PocketUserError)) throw error;
 
-	if (!cong) {
 		res.locals.type = 'warn';
-		res.locals.message = 'user not associated to any congregation';
 
-		res.clearCookie('visitorid');
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-		return;
-	}
+		if (error.code === 'CONGREGATION_NOT_FOUND') {
+			res.locals.message = 'user not associated to any congregation';
+			res.clearCookie('visitorid');
+			res.status(404).json({ message: 'error_app_congregation_not-found' });
+			return;
+		}
 
-	const isValid = cong.hasMember(user.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
 		res.locals.message = 'user not authorized to access the provided congregation';
 		res.status(403).json({ message: 'error_api_unauthorized-request' });
 		return;
 	}
-
-	const report = req.body.report as StandardRecord;
-	user.postReport(report);
 
 	res.locals.type = 'info';
 	res.locals.message = `user sent report successfully`;
@@ -466,9 +458,7 @@ export const postPocketReport = async (req: Request, res: Response) => {
 };
 
 export const getPocketAuxiliaryApplications = async (req: Request, res: Response) => {
-	const user = res.locals.currentUser;
-
-	const results = user.getApplications();
+	const results = getPocketApplications(res.locals.currentUser.id);
 
 	res.locals.type = 'info';
 	res.locals.message = `user get submitted auxiliary pioneer application list`;
@@ -476,23 +466,7 @@ export const getPocketAuxiliaryApplications = async (req: Request, res: Response
 };
 
 export const submitPocketAuxiliaryApplications = async (req: Request, res: Response) => {
-	const user = res.locals.currentUser;
-	const congId = user.profile.congregation!.id;
-	const cong = CongregationsList.findById(congId)!;
-
-	const form = req.body.application as StandardRecord;
-
-	const application = {
-		request_id: crypto.randomUUID().toUpperCase(),
-		person_uid: user.profile.congregation!.user_local_uid,
-		months: form.months,
-		continuous: form.continuous,
-		submitted: form.submitted,
-		updatedAt: new Date().toISOString(),
-		expired: null,
-	};
-
-	cong.saveApplication(application);
+	submitPocketApplication(res.locals.currentUser.id, req.body.application as StandardRecord);
 
 	res.locals.type = 'info';
 	res.locals.message = `user submitted auxiliary pioneer application`;
@@ -500,15 +474,7 @@ export const submitPocketAuxiliaryApplications = async (req: Request, res: Respo
 };
 
 export const deletePocketUser = async (req: Request, res: Response) => {
-	const user = res.locals.currentUser;
-	const congId = user.profile.congregation?.id;
-
-	await UsersList.delete(user.id);
-
-	if (congId) {
-		const cong = CongregationsList.findById(congId);
-		cong?.reloadMembers();
-	}
+	await deletePocketAccount(res.locals.currentUser.id);
 
 	res.locals.type = 'info';
 	res.locals.message = 'user deleted account successfully';
