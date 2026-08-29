@@ -3,19 +3,17 @@ import { validationResult } from 'express-validator';
 import { formatError } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { CongregationsList } from '../congregations/congregations.js';
-import type {
-	UserAuthResponse,
-	UserSession,
-} from '../users/user.types.js';
-import { getVisitorSessionDetails } from '../auth/auth.service.js';
 import { BackupData } from '../backups/backup.types.js';
 import { CongSettingsType } from '../congregations/congregations.types.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import { UsersList } from '../users/users.js';
 import { savePocketBackupAsync } from '../backups/backup-persistence.service.js';
-import { parsePocketInvitationCode } from './invitation-code.js';
 import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
-import { decryptPocketAccessCode } from './pocket-invitation.service.js';
+import {
+	authenticatePocketInvitation,
+	PocketAuthenticationError,
+	validatePocketSession,
+} from './pocket-authentication.service.js';
 
 export const validateInvitation = async (req: Request, res: Response) => {
 	// validate through express middleware
@@ -31,175 +29,42 @@ export const validateInvitation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const userIP = req.clientIp!;
+	try {
+		const authentication = await authenticatePocketInvitation({
+			invitationCode: req.body.code as string,
+			visitorId: req.signedCookies.visitorid,
+			visitorIp: req.clientIp!,
+			headers: req.headers,
+		});
 
-	// get or assign visitor id
-	const visitorid: string = req.signedCookies.visitorid || crypto.randomUUID();
+		res.locals.type = 'info';
+		res.locals.message = 'pocket user successfully logged in';
+		res.cookie('visitorid', authentication.visitorId, getSessionCookieOptions(req));
+		res.status(200).json(authentication.userInfo);
+	} catch (error) {
+		if (!(error instanceof PocketAuthenticationError) || error.code !== 'INVALID_INVITATION') throw error;
 
-	// find congregation
-	const code = req.body.code as string;
-
-	const invitationDetails = parsePocketInvitationCode(code);
-
-	if (!invitationDetails) {
 		res.locals.type = 'warn';
 		res.locals.message = 'the code received is invalid';
 		res.status(400).json({ message: 'error_app_security_invalid-invitation-code' });
-		return;
 	}
-
-	const congregation = CongregationsList.findByCountryAndPrefix(
-		invitationDetails.countryCode,
-		invitationDetails.congregationPrefix,
-	);
-
-	if (!congregation) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided code';
-		res.status(400).json({ message: 'error_app_security_invalid-invitation-code' });
-		return;
-	}
-
-	// check access code
-	const encryptedAccessCode = congregation.settings.cong_access_code;
-	const decryptedInvitation = decryptPocketAccessCode(
-		encryptedAccessCode,
-		invitationDetails.temporaryAccessCode,
-	);
-
-	if (!decryptedInvitation) {
-		res.locals.type = 'warn';
-		res.locals.message = 'the code received is invalid';
-		res.status(400).json({ message: 'error_app_security_invalid-invitation-code' });
-		return;
-	}
-
-	const { accessCode } = decryptedInvitation;
-
-	const user = congregation.findPocketUser(code, accessCode);
-
-	if (!user) {
-		res.locals.type = 'warn';
-		res.locals.message = 'the code received is invalid';
-		res.status(400).json({ message: 'error_app_security_invalid-invitation-code' });
-		return;
-	}
-
-	const profile = structuredClone(user.profile);
-	profile.congregation!.pocket_invitation_code = undefined;
-
-	await user.updateProfile(profile);
-
-	const newSessions = user.sessions?.filter((session) => session.visitorid !== visitorid) || [];
-
-	const newSession: UserSession = {
-		mfaVerified: false,
-		last_seen: new Date().toISOString(),
-		visitorid: visitorid,
-		visitor_details: await getVisitorSessionDetails(userIP, req.headers),
-		identifier: crypto.randomUUID(),
-	};
-
-	newSessions.push(newSession);
-
-	await user.updateSessions(newSessions);
-
-	congregation.reloadMembers();
-
-	const userInfo: UserAuthResponse = {
-		message: 'TOKEN_VALID',
-		id: user.id,
-		app_settings: {
-			user_settings: {
-				firstname: user.profile.firstname,
-				lastname: user.profile.lastname,
-				role: user.profile.role,
-				user_local_uid: user.profile.congregation!.user_local_uid,
-				cong_role: user.profile.congregation!.cong_role,
-				user_members_delegate: user.profile.congregation!.user_members_delegate,
-			},
-		},
-	};
-
-	const midweek = congregation.settings.midweek_meeting.map((record) => {
-		return { type: record.type, time: record.time, weekday: record.weekday };
-	});
-
-	const weekend = congregation.settings.weekend_meeting.map((record) => {
-		return { type: record.type, time: record.time, weekday: record.weekday };
-	});
-
-	userInfo.app_settings.cong_settings = {
-		id: user.profile.congregation!.id,
-		cong_circuit: congregation.settings.cong_circuit,
-		cong_name: congregation.settings.cong_name,
-		cong_prefix: congregation.settings.cong_prefix,
-		country_code: congregation.settings.country_code,
-		cong_access_code: congregation.settings.cong_access_code,
-		cong_location: congregation.settings.cong_location,
-		midweek_meeting: midweek,
-		weekend_meeting: weekend,
-	};
-
-	res.locals.type = 'info';
-	res.locals.message = 'pocket user successfully logged in';
-
-	res.cookie('visitorid', visitorid, getSessionCookieOptions(req));
-	res.status(200).json(userInfo);
 };
 
 export const validatePocket = async (req: Request, res: Response) => {
-	const user = res.locals.currentUser;
+	try {
+		const userInfo = validatePocketSession(res.locals.currentUser.id);
 
-	const congId = user.profile.congregation?.id;
-	const cong = CongregationsList.findById(congId!);
+		res.locals.type = 'info';
+		res.locals.message = 'pocket user successfully logged in';
+		res.status(200).json(userInfo);
+	} catch (error) {
+		if (!(error instanceof PocketAuthenticationError) || error.code !== 'CONGREGATION_NOT_FOUND') throw error;
 
-	if (!cong) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no congregation could not be found with the provided code';
-
 		res.clearCookie('visitorid');
 		res.status(404).json({ message: 'error_app_congregation_not-found' });
-		return;
 	}
-
-	const userInfo: UserAuthResponse = {
-		id: user.id,
-		app_settings: {
-			user_settings: {
-				firstname: user.profile.firstname,
-				lastname: user.profile.lastname,
-				role: user.profile.role,
-				user_local_uid: user.profile.congregation!.user_local_uid,
-				cong_role: user.profile.congregation!.cong_role,
-				user_members_delegate: user.profile.congregation!.user_members_delegate,
-			},
-		},
-	};
-
-	const midweek = cong.settings.midweek_meeting.map((record) => {
-		return { type: record.type, time: record.time, weekday: record.weekday };
-	});
-
-	const weekend = cong.settings.weekend_meeting.map((record) => {
-		return { type: record.type, time: record.time, weekday: record.weekday };
-	});
-
-	userInfo.app_settings.cong_settings = {
-		id: user.profile.congregation!.id,
-		cong_circuit: cong.settings.cong_circuit,
-		cong_name: cong.settings.cong_name,
-		cong_prefix: cong.settings.cong_prefix,
-		country_code: cong.settings.country_code,
-		cong_access_code: cong.settings.cong_access_code,
-		cong_location: cong.settings.cong_location,
-		midweek_meeting: midweek,
-		weekend_meeting: weekend,
-	};
-
-	res.locals.type = 'info';
-	res.locals.message = 'pocket user successfully logged in';
-	res.status(200).json(userInfo);
 };
 
 export const retrieveUserBackup = async (req: Request, res: Response) => {
