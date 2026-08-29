@@ -5,7 +5,6 @@ import { formatError } from '../../http/validation-errors.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import { mailClient } from '../../platform/email/mail-client.js';
 import { toMondayFirstWeekday } from './meeting-weekday.js';
-import { ALL_LANGUAGES } from '../../platform/localization/languages.js';
 import { env } from '../../config/env.js';
 import { canManageCongregationApplications } from './congregation-permissions.js';
 import {
@@ -122,11 +121,10 @@ export const createCongregation = async (req: Request, res: Response) => {
 
 	// is congregation authentic
 	const language = (req.headers.language as string) || 'eng';
-	const code = ALL_LANGUAGES.find((record) => record.threeLettersCode === language)?.code ?? 'E';
 
 	const directoryResult = await verifyCongregationDirectoryRecord(
 		country_guid,
-		code,
+		language,
 		cong_name,
 	);
 

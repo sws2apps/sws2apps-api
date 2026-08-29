@@ -8,6 +8,7 @@ import {
 	verifyCongregation,
 } from '../../platform/congregation-directory/congregation-directory-client.js';
 import type { CongregationDirectoryRecord } from '../../platform/congregation-directory/congregation-directory-client.js';
+import { ALL_LANGUAGES } from '../../platform/localization/languages.js';
 
 type CongregationDirectoryResult =
 	| { congregations: CongregationDirectoryRecord[] }
@@ -45,12 +46,21 @@ export const searchCongregationDirectory = async (
 
 export const verifyCongregationDirectoryRecord = async (
 	country: string,
-	language: string,
+	requestedLanguage: string,
 	name: string,
 ): Promise<CongregationDirectoryResult> => {
+	const directoryLanguage =
+		ALL_LANGUAGES.find(
+			(language) => language.threeLettersCode === requestedLanguage,
+		)?.code ?? 'E';
+
 	try {
 		return {
-			congregations: await verifyCongregation({ country, language, name }),
+			congregations: await verifyCongregation({
+				country,
+				language: directoryLanguage,
+				name,
+			}),
 		};
 	} catch (error) {
 		if (error instanceof CongregationDirectoryRequestError) {
