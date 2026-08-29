@@ -1,11 +1,11 @@
 import { getAuth } from 'firebase-admin/auth';
 import { LogLevel } from '@logtail/types';
-import { logger } from '../../platform/logging/logger.js';
-import { UserGlobalRoleType, UserProfile } from '../definition/user.js';
-import { setUserProfile } from '../../modules/users/users.repository.js';
-import { env } from '../../config/env.js';
+import { logger } from '../platform/logging/logger.js';
+import { UserGlobalRoleType, UserProfile } from '../v3/definition/user.js';
+import { setUserProfile } from '../modules/users/users.repository.js';
+import { env } from '../config/env.js';
 
-export const createDevTestUsers = async () => {
+export const createDevelopmentUsers = async () => {
 	try {
 		if (!env.firebaseAuthEmulatorHost) return;
 
@@ -72,7 +72,7 @@ export const createDevTestUsers = async () => {
 				logger(LogLevel.Info, `dev ${user.role} role account creation created`);
 			}
 		}
-	} catch (error) {
-		console.error(error);
+	} catch {
+		logger(LogLevel.Error, 'Firebase emulator user setup failed');
 	}
 };
