@@ -11,6 +11,7 @@ import { formatError } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { ROLE_MASTER_KEY } from '../../domain/users/master-key-roles.js';
 import {
+	createPasswordlessSignIn,
 	createAuthenticationToken,
 	getAuthenticationUserDisplayName,
 	getVisitorSessionDetails,
@@ -18,10 +19,7 @@ import {
 } from './auth.service.js';
 import { env } from '../../config/env.js';
 import { isEmailOneTimePasswordValid } from './email-otp.js';
-import {
-	isPasswordlessEmailEnabled,
-	sendPasswordlessLoginEmail,
-} from './auth-notifications.service.js';
+import { isPasswordlessEmailEnabled } from './auth-notifications.service.js';
 
 const isDev = env.isDevelopment;
 
@@ -178,31 +176,32 @@ export const createSignInLink = async (req: Request, res: Response) => {
 	const { email } = req.body;
 	const language = (req.headers?.applanguage as string) || 'eng';
 
-	const { link, otp } = await UsersList.generatePasswordLessLink({ email, origin: req.headers.origin! });
-
-	const mailEnabled = isPasswordlessEmailEnabled();
-
-	if (mailEnabled) {
+	if (isPasswordlessEmailEnabled()) {
 		req.i18n.changeLanguage(language);
+	}
 
-		sendPasswordlessLoginEmail({
-			recipient: email,
+	const signIn = await createPasswordlessSignIn({
+		email,
+		origin: req.headers.origin!,
+		emailContent: {
 			subject: req.t('tr_login'),
 			title: req.t('tr_login'),
 			description: req.t('tr_loginDesc'),
-			loginLink: link,
-			oneTimePassword: otp,
 			loginButtonLabel: req.t('tr_loginBtn'),
 			alternativeLinkText: req.t('tr_loginAltText'),
 			ignoreRequestText: req.t('tr_loginIgnoreText'),
 			oneTimePasswordLabel: req.t('tr_loginOTP'),
 			oneTimePasswordDurationText: req.t('tr_loginOTPDuration'),
-		});
-	}
+		},
+	});
 
 	res.locals.type = 'info';
 	res.locals.message = 'passwordless link will be sent to user';
-	res.status(200).json(mailEnabled ? { message: 'SIGNIN_LINK_SEND' } : { link, otp });
+	res.status(200).json(
+		signIn.emailEnabled
+			? { message: 'SIGNIN_LINK_SEND' }
+			: { link: signIn.link, otp: signIn.otp },
+	);
 };
 
 export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
