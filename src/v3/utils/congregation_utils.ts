@@ -30,40 +30,6 @@ export const loadIncomingTalks = async () => {
       (record) => record.recipient === congregation.id
     );
 
-    await congregation.savePublicIncomingTalks(affectedTalks);
-  }
-};
-
-export const syncFromIncoming = <T extends object>(local: T, remote: T): T => {
-  const objectKeys = Object.keys(remote).filter((key) => {
-    const objKey = key as keyof object;
-
-    return remote[objKey] !== null && typeof remote[objKey] === 'object';
-  }) as (keyof object)[];
-
-  for (const key of objectKeys) {
-    if (local[key] && typeof local[key] === 'object') {
-      if (!('updatedAt' in remote[key])) {
-        syncFromIncoming(local[key], remote[key]);
-      } else {
-        if (remote[key]['updatedAt'] > local[key]['updatedAt']) {
-          local[key] = remote[key];
-        }
-      }
-    } else {
-      local[key] = remote[key];
-    }
-  }
-
-  const primitiveKeys = Object.keys(remote).filter((key) => {
-    const objKey = key as keyof object;
-
-    return typeof remote[objKey] !== 'object';
-  }) as (keyof object)[];
-
-  for (const key of primitiveKeys) {
-    local[key] = remote[key];
-  }
-
-  return local;
+		await congregation.savePublicIncomingTalks(affectedTalks);
+	}
 };

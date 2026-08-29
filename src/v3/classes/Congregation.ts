@@ -60,7 +60,7 @@ import {
 	getFileFromStorage,
 	uploadFileToStorage,
 } from '../../platform/firebase/storage.js';
-import { syncFromIncoming } from '../utils/congregation_utils.js';
+import { mergeIncomingData } from '../../modules/backups/incoming-data-merge.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 
 export class Congregation {
@@ -299,7 +299,7 @@ export class Congregation {
 
 			const newSettings = structuredClone(this.settings);
 
-			syncFromIncoming(newSettings, cong_backup.app_settings.cong_settings);
+			mergeIncomingData(newSettings, cong_backup.app_settings.cong_settings);
 
 			await this.saveSettings(newSettings);
 		}
