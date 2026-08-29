@@ -54,11 +54,8 @@ export const saveUserBackupAsync = async ({
 			clearTimeout(currentUpload.record.timeout);
 			backupUploadsInProgress.delete(currentUpload.uploadId);
 		}
-	} catch (error) {
-		logger(LogLevel.Error, `backup user saving error: ${String(error)}`, {
-			congregationId: congId,
-			userId,
-		});
+	} catch {
+		logger(LogLevel.Error, 'congregation backup could not be saved');
 	}
 };
 
@@ -85,10 +82,7 @@ export const savePocketBackupAsync = async ({
 		}
 
 		await user.saveBackup(cong_backup, userRole);
-	} catch (error) {
-		logger(LogLevel.Error, `backup pocket saving error: ${String(error)}`, {
-			congregationId: user.profile.congregation?.id,
-			userId,
-		});
+	} catch {
+		logger(LogLevel.Error, 'Pocket backup could not be saved');
 	}
 };

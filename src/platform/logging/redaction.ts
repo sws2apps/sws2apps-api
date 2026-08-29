@@ -1,7 +1,8 @@
 import type { Context } from '@logtail/types';
 
 const redactedValue = '[REDACTED]';
-const sensitiveKeyPattern = /(authorization|cookie|email|password|secret|token|access.?code|master.?key|backup)/i;
+const sensitiveKeyPattern =
+	/(authorization|cookie|email|password|secret|token|access.?code|master.?key|backup|user.?id|congregation.?id|cong_?id|^ip$|browser)/i;
 
 const redactValue = (value: unknown): unknown => {
 	if (Array.isArray(value)) return value.map(redactValue);

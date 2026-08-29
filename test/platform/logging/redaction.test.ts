@@ -33,4 +33,22 @@ describe('log context redaction', () => {
 			},
 		});
 	});
+
+	it('redacts personal request identifiers and fingerprints', () => {
+		const result = redactLogContext({
+			userId: 'user-1',
+			congregationId: 'congregation-1',
+			ip: '192.0.2.1',
+			browser: 'Example Browser',
+			method: 'GET',
+		});
+
+		assert.deepEqual(result, {
+			userId: '[REDACTED]',
+			congregationId: '[REDACTED]',
+			ip: '[REDACTED]',
+			browser: '[REDACTED]',
+			method: 'GET',
+		});
+	});
 });

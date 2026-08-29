@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { LogLevel } from '@logtail/types';
 import geoip from 'geoip-lite';
-import WhichBrowser from 'which-browser';
 
 import { serverState } from '../../platform/runtime/server-state.js';
 import { logger } from '../../platform/logging/logger.js';
@@ -15,7 +14,6 @@ export const logRequestCompletion = () => {
 
 			const clientIp = req.clientIp!;
 			const geo = geoip.lookup(clientIp);
-			const browserInfo = new WhichBrowser(req.headers);
 			const reqCity = geo ? `${geo.city} (${geo.country})` : 'Unknown';
 			const ipIndex = requestTracker.findIndex((client) => client.ip === clientIp);
 
@@ -49,19 +47,12 @@ export const logRequestCompletion = () => {
 				const ms = Math.round(s * 1e3 + ns / 1e6);
 
 				const message = (res.locals.message ?? '').replace(/\n|\r/g, '');
-				const user = res.locals.currentUser;
-
 				const memory = process.memoryUsage();
 
 				const context = {
 					method: req.method,
 					status: res.statusCode,
-					path: req.originalUrl,
-					origin: req.hostname ?? req.headers.origin,
-					ip: clientIp,
-					browser: browserInfo.browser.toString(),
-					userId: user?.id,
-					congregationId: user?.profile.congregation?.id,
+					path: req.path,
 					duration: ms,
 					request_size: requestSize,
 					response_size: responseSize,

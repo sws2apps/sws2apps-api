@@ -115,8 +115,8 @@ class Congregations {
 
 				await Congregation.saveSettings(newSettings);
 			}
-		} catch (error) {
-			logger(LogLevel.Warn, `an error occured while removing invalid setting ${String(error)}`);
+			} catch {
+				logger(LogLevel.Warn, 'invalid congregation setting cleanup failed');
 		}
 	}
 }

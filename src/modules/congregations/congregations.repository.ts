@@ -64,7 +64,7 @@ export const getCongSettings = async (cong_id: string) => {
 	const data = await getFileFromStorage({ type: 'congregation', path: `${cong_id}/settings/main.txt` });
 
 	if (!data) {
-		logger(LogLevel.Warn, 'congregation settings not found', { service: 'firebase', cong_id });
+		logger(LogLevel.Warn, 'congregation settings not found', { service: 'firebase' });
 		return;
 	}
 
