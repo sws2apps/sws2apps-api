@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import type { IncomingHttpHeaders } from 'node:http';
 import fetch from 'node-fetch';
 import WhichBrowser from 'which-browser';
 
@@ -101,9 +101,12 @@ const retrieveIpLocation = async (visitorIp: string): Promise<Partial<IpLocation
 	throw new Error('THIRDY_PARTY_ERROR_IP_DETAILS');
 };
 
-export const retrieveVisitorDetails = async (visitorIp: string, request: Request) => {
+export const retrieveVisitorDetails = async (
+	visitorIp: string,
+	requestHeaders: IncomingHttpHeaders,
+) => {
 	const location = await retrieveIpLocation(visitorIp);
-	const browserDetails = new WhichBrowser(request.headers);
+	const browserDetails = new WhichBrowser(requestHeaders);
 
 	return {
 		browser: browserDetails.browser.toString(),

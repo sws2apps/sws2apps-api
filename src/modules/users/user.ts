@@ -223,7 +223,7 @@ export class User {
 		const findSession = newSessions.find((session) => session.visitorid === visitorId)!;
 
 		findSession.last_seen = last_seen;
-		findSession.visitor_details = await retrieveVisitorDetails(userIP, req);
+		findSession.visitor_details = await retrieveVisitorDetails(userIP, req.headers);
 
 		await this.updateSessions(newSessions);
 	}

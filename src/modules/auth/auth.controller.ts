@@ -6,7 +6,6 @@ import type {
 	UserAuthResponse,
 	UserSession,
 } from '../users/user.types.js';
-import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { formatError } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
@@ -14,6 +13,7 @@ import { ROLE_MASTER_KEY } from '../../domain/users/master-key-roles.js';
 import {
 	createAuthenticationToken,
 	getAuthenticationUserDisplayName,
+	getVisitorSessionDetails,
 	verifyAuthenticationToken,
 } from './auth.service.js';
 import { env } from '../../config/env.js';
@@ -78,7 +78,7 @@ export const loginUser = async (req: Request, res: Response) => {
 		mfaVerified: false,
 		last_seen: new Date().toISOString(),
 		visitorid: visitorid,
-		visitor_details: await retrieveVisitorDetails(userIP, req),
+		visitor_details: await getVisitorSessionDetails(userIP, req.headers),
 		identifier: crypto.randomUUID(),
 	};
 
@@ -245,7 +245,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 		mfaVerified: false,
 		last_seen: new Date().toISOString(),
 		visitorid: visitorid,
-		visitor_details: await retrieveVisitorDetails(userIP, req),
+		visitor_details: await getVisitorSessionDetails(userIP, req.headers),
 		identifier: crypto.randomUUID(),
 	};
 
@@ -386,7 +386,7 @@ export const verifyEmailToken = async (req: Request, res: Response) => {
 		mfaVerified: true,
 		last_seen: new Date().toISOString(),
 		visitorid: visitorid,
-		visitor_details: await retrieveVisitorDetails(userIP, req),
+		visitor_details: await getVisitorSessionDetails(userIP, req.headers),
 		identifier: crypto.randomUUID(),
 	};
 

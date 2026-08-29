@@ -8,7 +8,7 @@ import type {
 	UserAuthResponse,
 	UserSession,
 } from '../users/user.types.js';
-import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
+import { getVisitorSessionDetails } from '../auth/auth.service.js';
 import { BackupData } from '../backups/backup.types.js';
 import { CongSettingsType } from '../congregations/congregations.types.js';
 import type { StandardRecord } from '../../types/standard-record.js';
@@ -93,7 +93,7 @@ export const validateInvitation = async (req: Request, res: Response) => {
 		mfaVerified: false,
 		last_seen: new Date().toISOString(),
 		visitorid: visitorid,
-		visitor_details: await retrieveVisitorDetails(userIP, req),
+		visitor_details: await getVisitorSessionDetails(userIP, req.headers),
 		identifier: crypto.randomUUID(),
 	};
 
