@@ -1,13 +1,13 @@
 import {
 	AppInstallation,
 	InstallationItem,
-} from '../../modules/installations/installation.js';
+} from './installation.js';
 import {
 	loadInstallations,
 	saveInstallations,
-} from '../../modules/installations/installations.repository.js';
+} from './installations.repository.js';
 
-class _Installation {
+export class Installation {
 	linked: AppInstallation['linked'];
 	pending: AppInstallation['pending'];
 	list: InstallationItem[];
@@ -51,4 +51,4 @@ class _Installation {
 	}
 }
 
-export const Installation = new _Installation();
+export const InstallationsList = new Installation();

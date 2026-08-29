@@ -8,7 +8,7 @@ import { logger } from './platform/logging/logger.js';
 import { UsersList } from './v3/classes/Users.js';
 import { CongregationsList } from './v3/classes/Congregations.js';
 import { Flags } from './v3/classes/Flags.js';
-import { Installation } from './v3/classes/Installation.js';
+import { InstallationsList } from './modules/installations/installation-list.js';
 import { initializeMinimumClientVersion } from './modules/administration/administration-settings.service.js';
 import { createDevelopmentUsers } from './bootstrap/development-users.js';
 import { serverState } from './platform/runtime/server-state.js';
@@ -29,7 +29,7 @@ app.listen(env.port, async () => {
 	await CongregationsList.load();
 	await CongregationsList.cleanupTasks();
 	await Flags.load();
-	await Installation.load();
+	await InstallationsList.load();
 
 	// non-blocking calls
 	UsersList.removeOutdatedSessions();

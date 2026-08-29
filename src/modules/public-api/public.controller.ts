@@ -8,7 +8,7 @@ import type { Country } from '../../domain/countries/country.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { UsersList } from '../../v3/classes/Users.js';
 import { Flags } from '../../v3/classes/Flags.js';
-import { Installation } from '../../v3/classes/Installation.js';
+import { InstallationsList } from '../installations/installation-list.js';
 import { getApplicationLanguageCount } from '../../platform/localization/crowdin-client.js';
 import { buildPublicStats } from './public.service.js';
 
@@ -52,7 +52,7 @@ export const getFeatureFlags = async (req: Request, res: Response) => {
 
 	const usersCount = UsersList.list.filter((record) => record.profile.role !== 'admin').length;
 	const congregationsCount = CongregationsList.list.length;
-	const installationsCount = Installation.list.length;
+	const installationsCount = InstallationsList.list.length;
 
 	const result: Record<string, boolean> = {};
 
@@ -103,7 +103,7 @@ export const getFeatureFlags = async (req: Request, res: Response) => {
 		}
 
 		// get user associated with the installation
-		const findInstallation = Installation.find(installation);
+		const findInstallation = InstallationsList.find(installation);
 		userId = userId || findInstallation?.user;
 
 		// target congregation flag
@@ -192,25 +192,25 @@ export const getFeatureFlags = async (req: Request, res: Response) => {
 	}
 
 	// update installation
-	const findInstallation = Installation.find(installation);
+	const findInstallation = InstallationsList.find(installation);
 
 	// if the installation is not found and userId is provided, link the installation to the user
 	if (!findInstallation && userId) {
-		Installation.linked.push({ user: userId, installations: [{ id: installation, registered: new Date().toISOString() }] });
-		await Installation.save();
+		InstallationsList.linked.push({ user: userId, installations: [{ id: installation, registered: new Date().toISOString() }] });
+		await InstallationsList.save();
 	}
 
 	// if the installation is not found and userId is not provided, add it to pending installations
 	if (!findInstallation && !userId) {
-		Installation.pending.push({ id: installation, registered: new Date().toISOString() });
-		await Installation.save();
+		InstallationsList.pending.push({ id: installation, registered: new Date().toISOString() });
+		await InstallationsList.save();
 	}
 
 	// if the installation is found and its status is pending and userId is provided, link the installation to the user
 	if (findInstallation?.status === 'pending' && userId) {
-		Installation.pending = Installation.pending.filter((record) => record.id !== installation);
-		Installation.linked.push({ user: userId, installations: [{ id: installation, registered: new Date().toISOString() }] });
-		await Installation.save();
+		InstallationsList.pending = InstallationsList.pending.filter((record) => record.id !== installation);
+		InstallationsList.linked.push({ user: userId, installations: [{ id: installation, registered: new Date().toISOString() }] });
+		await InstallationsList.save();
 	}
 
 	res.locals.type = 'info';
