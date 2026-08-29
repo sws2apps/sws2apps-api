@@ -4,17 +4,16 @@ import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
 import { UsersList } from '../users/users.js';
 import type {
 	UserAuthResponse,
-	UserSession,
 } from '../users/user.types.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { formatError } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { ROLE_MASTER_KEY } from '../../domain/users/master-key-roles.js';
 import {
+	createAuthenticationSession,
 	createPasswordlessSignIn,
 	createAuthenticationToken,
 	getAuthenticationUserDisplayName,
-	getVisitorSessionDetails,
 	verifyAuthenticationToken,
 } from './auth.service.js';
 import { env } from '../../config/env.js';
@@ -52,11 +51,6 @@ export const loginUser = async (req: Request, res: Response) => {
 
 	const visitorid: string = req.signedCookies.visitorid || crypto.randomUUID();
 	let authUser = UsersList.findByAuthUid(uid);
-	let newSessions: UserSession[] = [];
-
-	if (authUser) {
-		newSessions = authUser.sessions?.filter((record) => record.visitorid !== visitorid) || [];
-	}
 
 	if (!authUser) {
 		const displayName = await getAuthenticationUserDisplayName(uid);
@@ -72,17 +66,13 @@ export const loginUser = async (req: Request, res: Response) => {
 		authUser = await UsersList.create({ auth_uid: uid, firstname, lastname });
 	}
 
-	const newSession: UserSession = {
+	await createAuthenticationSession({
+		userId: authUser.id,
+		visitorId: visitorid,
+		visitorIp: userIP,
+		headers: req.headers,
 		mfaVerified: false,
-		last_seen: new Date().toISOString(),
-		visitorid: visitorid,
-		visitor_details: await getVisitorSessionDetails(userIP, req.headers),
-		identifier: crypto.randomUUID(),
-	};
-
-	newSessions.push(newSession);
-
-	await authUser.updateSessions(newSessions);
+	});
 
 	if (authUser.profile.mfa_enabled) {
 		res.locals.type = 'info';
@@ -233,22 +223,13 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 
 	const visitorid = req.signedCookies.visitorid || crypto.randomUUID();
 
-	let newSessions: UserSession[] = [];
-
-	if (authUser) {
-		newSessions = authUser.sessions?.filter((session) => session.visitorid !== visitorid) || [];
-	}
-	const newSession: UserSession = {
+	await createAuthenticationSession({
+		userId: authUser.id,
+		visitorId: visitorid,
+		visitorIp: userIP,
+		headers: req.headers,
 		mfaVerified: false,
-		last_seen: new Date().toISOString(),
-		visitorid: visitorid,
-		visitor_details: await getVisitorSessionDetails(userIP, req.headers),
-		identifier: crypto.randomUUID(),
-	};
-
-	newSessions.push(newSession);
-
-	await authUser.updateSessions(newSessions);
+	});
 
 	if (authUser.profile.mfa_enabled) {
 		res.locals.type = 'info';
@@ -372,22 +353,13 @@ export const verifyEmailToken = async (req: Request, res: Response) => {
 
 	const visitorid = req.signedCookies.visitorid || crypto.randomUUID();
 
-	let newSessions: UserSession[] = [];
-
-	if (authUser) {
-		newSessions = authUser.sessions?.filter((session) => session.visitorid !== visitorid) || [];
-	}
-	const newSession: UserSession = {
+	await createAuthenticationSession({
+		userId: authUser.id,
+		visitorId: visitorid,
+		visitorIp: userIP,
+		headers: req.headers,
 		mfaVerified: true,
-		last_seen: new Date().toISOString(),
-		visitorid: visitorid,
-		visitor_details: await getVisitorSessionDetails(userIP, req.headers),
-		identifier: crypto.randomUUID(),
-	};
-
-	newSessions.push(newSession);
-
-	await authUser.updateSessions(newSessions);
+	});
 
 	const userInfo: UserAuthResponse = {
 		message: 'TOKEN_VALID',

@@ -69,3 +69,26 @@ export const createPasswordlessSignIn = async (request: PasswordlessSignInReques
 
 	return { emailEnabled, link, otp };
 };
+
+type CreateAuthenticationSessionInput = {
+	userId: string;
+	visitorId: string;
+	visitorIp: string;
+	headers: IncomingHttpHeaders;
+	mfaVerified: boolean;
+};
+
+export const createAuthenticationSession = async (input: CreateAuthenticationSessionInput): Promise<void> => {
+	const user = UsersList.findById(input.userId)!;
+	const sessions = user.sessions?.filter((session) => session.visitorid !== input.visitorId) || [];
+
+	sessions.push({
+		mfaVerified: input.mfaVerified,
+		last_seen: new Date().toISOString(),
+		visitorid: input.visitorId,
+		visitor_details: await getVisitorSessionDetails(input.visitorIp, input.headers),
+		identifier: crypto.randomUUID(),
+	});
+
+	await user.updateSessions(sessions);
+};
