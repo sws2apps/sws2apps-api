@@ -2,6 +2,8 @@ import express from 'express';
 import { body, header } from 'express-validator';
 import { createSignInLink, loginUser, verifyEmailToken, verifyPasswordlessInfo } from './auth.controller.js';
 import { validateBearerAuthorization } from '../../http/security/bearer-token.js';
+import { isPasswordlessOriginAllowed } from '../../http/security/cors.js';
+import { env } from '../../config/env.js';
 
 const authRouter = express.Router();
 
@@ -18,7 +20,7 @@ authRouter.post(
 		protocols: ['http', 'https'],
 		require_protocol: true,
 		require_tld: false,
-	}),
+	}).custom((origin: string) => isPasswordlessOriginAllowed(origin, env.isProduction)),
 	header('applanguage').optional().isString().isLength({ min: 2, max: 10 }),
 	createSignInLink,
 );

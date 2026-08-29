@@ -24,6 +24,21 @@ export const isProductionCorsRequestAllowed = (origin: string | undefined, reque
 	return crossOriginPublicPaths.has(normalizePath(requestPath));
 };
 
+export const isPasswordlessOriginAllowed = (origin: string, isProduction: boolean): boolean => {
+	if (trustedApplicationOrigins.has(origin)) return true;
+	if (isProduction) return false;
+
+	try {
+		const url = new URL(origin);
+		const isHttpProtocol = url.protocol === 'http:' || url.protocol === 'https:';
+		const isLocalHost = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+
+		return isHttpProtocol && isLocalHost;
+	} catch {
+		return false;
+	}
+};
+
 export const createCorsOptions = (request: Request, isProduction: boolean): CorsOptions => {
 	const originalRequestUri = request.header('x-original-uri') || request.originalUrl;
 	const origin = request.header('Origin');

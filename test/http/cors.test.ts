@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { isProductionCorsRequestAllowed } from '../../src/http/security/cors.js';
+import {
+	isPasswordlessOriginAllowed,
+	isProductionCorsRequestAllowed,
+} from '../../src/http/security/cors.js';
 
 describe('production CORS policy', () => {
 	it('allows trusted application origins', () => {
@@ -23,5 +26,18 @@ describe('production CORS policy', () => {
 
 	it('rejects requests without an Origin header', () => {
 		assert.equal(isProductionCorsRequestAllowed(undefined, '/app-version'), false);
+	});
+});
+
+describe('passwordless sign-in origins', () => {
+	it('allows trusted applications in production', () => {
+		assert.equal(isPasswordlessOriginAllowed('https://organized-app.com', true), true);
+		assert.equal(isPasswordlessOriginAllowed('https://attacker.example', true), false);
+	});
+
+	it('allows only exact local hosts outside production', () => {
+		assert.equal(isPasswordlessOriginAllowed('http://localhost:5173', false), true);
+		assert.equal(isPasswordlessOriginAllowed('http://127.0.0.1:3000', false), true);
+		assert.equal(isPasswordlessOriginAllowed('https://localhost.attacker.example', false), false);
 	});
 });
