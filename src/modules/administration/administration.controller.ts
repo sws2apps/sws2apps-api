@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { UsersList } from '../users/users.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import {
+	findAdministrationCountry,
 	getAdministrationCongregation,
 	getAdministrationCongregations,
 } from './administration-congregations.service.js';
@@ -9,14 +10,12 @@ import { getAdministrationUsers } from './administration-users.service.js';
 import { validationResult } from 'express-validator';
 import { formatError } from '../../http/validation-errors.js';
 import type { AppRoleType } from '../../domain/users/app-role.js';
-import type { Country } from '../../domain/countries/country.js';
 import { Flags } from '../feature-flags/flags.js';
 import { FeatureFlag } from '../feature-flags/feature-flag.js';
 import { getAdministrationFlags } from './administration-flags.service.js';
 import { saveOutgoingSpeakersState } from '../congregations/outgoing-speakers.service.js';
 import { serverState } from '../../platform/runtime/server-state.js';
 import { updateMinimumClientVersion } from './administration-settings.service.js';
-import { env } from '../../config/env.js';
 
 export const validateAdmin = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
@@ -677,19 +676,16 @@ export const createCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const url = env.appCountryApi;
-	const response = await fetch(url);
+	const countryResult = await findAdministrationCountry(country);
 
-	if (!response.ok) {
+	if (countryResult.errorStatusCode) {
 		res.locals.type = 'warn';
 		res.locals.message = 'an error occured while getting list of all countries';
-		res.status(response.status).json({ message: 'FETCH_FAILED' });
+		res.status(countryResult.errorStatusCode).json({ message: 'FETCH_FAILED' });
 		return;
 	}
 
-	const countries = (await response.json()) as Country[];
-
-	const findCountry = countries.find((record) => record.countryCode === country);
+	const findCountry = countryResult.country;
 
 	const id = await CongregationsList.create({
 		cong_circuit: '',

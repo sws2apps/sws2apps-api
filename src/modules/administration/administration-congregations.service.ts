@@ -1,17 +1,12 @@
-import { env } from '../../config/env.js';
+import {
+	CountryCatalogRequestError,
+	getCountries,
+} from '../../platform/countries/country-client.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
-import type { Country } from '../../domain/countries/country.js';
 
 export const getAdministrationCongregations = async () => {
-	const countryApiUrl = env.appCountryApi + new URLSearchParams({ language: 'E' });
-	const countryApiResponse = await fetch(countryApiUrl);
-
-	if (!countryApiResponse.ok) {
-		throw new Error('FETCH_FAILED');
-	}
-
-	const countries = (await countryApiResponse.json()) as Country[];
+	const countries = await getCountries('E');
 	const congregations = [];
 
 	for (const congregation of CongregationsList.list) {
@@ -33,6 +28,22 @@ export const getAdministrationCongregations = async () => {
 	}
 
 	return congregations;
+};
+
+export const findAdministrationCountry = async (countryCode: string) => {
+	try {
+		const countries = await getCountries();
+
+		return {
+			country: countries.find((country) => country.countryCode === countryCode),
+		};
+	} catch (error) {
+		if (error instanceof CountryCatalogRequestError) {
+			return { errorStatusCode: error.statusCode };
+		}
+
+		throw error;
+	}
 };
 
 export const getAdministrationCongregation = (congregationId: string) => {
