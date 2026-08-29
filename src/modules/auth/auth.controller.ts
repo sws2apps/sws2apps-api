@@ -161,7 +161,8 @@ export const createSignInLink = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const { email } = req.body;
+	const email = req.body.email as string;
+	const origin = req.headers.origin as string;
 	const language = (req.headers?.applanguage as string) || 'eng';
 
 	if (isPasswordlessEmailEnabled()) {
@@ -170,7 +171,7 @@ export const createSignInLink = async (req: Request, res: Response) => {
 
 	const signIn = await createPasswordlessSignIn({
 		email,
-		origin: req.headers.origin!,
+		origin,
 		emailContent: {
 			subject: req.t('tr_login'),
 			title: req.t('tr_login'),

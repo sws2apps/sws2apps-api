@@ -11,7 +11,17 @@ authRouter.get(
 	loginUser,
 );
 
-authRouter.post('/user-passwordless-login', body('email').isEmail(), createSignInLink);
+authRouter.post(
+	'/user-passwordless-login',
+	body('email').isEmail(),
+	header('Origin').isURL({
+		protocols: ['http', 'https'],
+		require_protocol: true,
+		require_tld: false,
+	}),
+	header('applanguage').optional().isString().isLength({ min: 2, max: 10 }),
+	createSignInLink,
+);
 
 authRouter.post(
 	'/user-passwordless-verify',
