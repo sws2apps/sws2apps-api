@@ -52,6 +52,9 @@ Express objects end at the controller boundary. Firebase objects end at reposito
 or platform boundaries. This makes business behavior independently testable and
 keeps infrastructure replacement localized.
 
+ESLint enforces two established boundaries: controllers cannot import repositories,
+Firebase packages, or platform adapters, and services cannot import Express.
+
 ## Migration process
 
 1. Add shared configuration, HTTP, observability, and test foundations.
@@ -68,4 +71,3 @@ Version 3 remains mounted at `/api/v3`. Compatibility includes response envelope
 HTTP status codes, required headers, cookie behavior, validation semantics, and
 stored document shapes. Intentional changes require an architecture decision record
 and an explicit migration plan.
-
