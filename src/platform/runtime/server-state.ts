@@ -1,4 +1,4 @@
-import type { RequestTrackerType } from '../../v3/definition/server.js';
+import type { RequestTrackerType } from './request-tracker.js';
 
 /**
  * Process-local state shared by request middleware and startup tasks.
