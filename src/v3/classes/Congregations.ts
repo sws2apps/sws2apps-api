@@ -1,5 +1,5 @@
 import { LogLevel } from '@logtail/types';
-import { CongregationCreateInfoType } from '../definition/congregation.js';
+import { CongregationCreateInfoType } from '../../modules/congregations/congregations.types.js';
 import {
 	createCongregation,
 	loadAllCongs,

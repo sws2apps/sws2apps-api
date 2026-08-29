@@ -1,5 +1,5 @@
 import type { AppRoleType } from '../../domain/users/app-role.js';
-import type { CircuitRecordType } from '../../v3/definition/congregation.js';
+import type { CircuitRecordType } from '../congregations/congregations.types.js';
 
 export type UserGlobalRoleType = 'vip' | 'pocket' | 'admin';
 

@@ -1,4 +1,4 @@
-import { OutgoingTalkScheduleType } from '../../v3/definition/congregation.js';
+import { OutgoingTalkScheduleType } from './congregations.types.js';
 
 type SpeakerAccess = {
 	cong_id: string;

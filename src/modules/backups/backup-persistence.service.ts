@@ -6,7 +6,7 @@ import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { UsersList } from '../../v3/classes/Users.js';
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
-import { BackupData } from '../../v3/definition/congregation.js';
+import { BackupData } from './backup.types.js';
 import { findBackupUploadByCongregation } from './backup-upload-tracker.js';
 
 export const saveUserBackupAsync = async ({

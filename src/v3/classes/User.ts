@@ -34,7 +34,7 @@ import {
 } from '../../platform/encryption/encryption.js';
 import { generateUserMfaSecret } from '../../modules/mfa/user-secret.js';
 import { CongregationsList } from './Congregations.js';
-import { BackupData } from '../definition/congregation.js';
+import { BackupData } from '../../modules/backups/backup.types.js';
 import {
 	getFileFromStorage,
 	getFileMetadata,

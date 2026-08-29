@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { findBackupUploadByCongregation } from '../../../src/modules/backups/backup-upload-tracker.js';
-import { BackupForStorage } from '../../../src/v3/definition/congregation.js';
+import { BackupForStorage } from '../../../src/modules/backups/backup.types.js';
 
 const createUpload = (congregationId: string): BackupForStorage => {
 	const timeout = setTimeout(() => undefined, 60_000);

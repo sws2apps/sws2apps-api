@@ -1,15 +1,15 @@
 import { getStorage } from 'firebase-admin/storage';
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
+import { BackupData } from '../../modules/backups/backup.types.js';
 import {
-	BackupData,
 	CongregationUpdatesType,
 	CongRequestPendingType,
 	CongSettingsType,
 	OutgoingSpeakersRecordType,
 	OutgoingTalkScheduleType,
 	UserRequestAccess,
-} from '../definition/congregation.js';
+} from '../../modules/congregations/congregations.types.js';
 import { decryptData } from '../../platform/encryption/encryption.js';
 import {
 	approveCongAccess,

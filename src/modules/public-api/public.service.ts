@@ -1,5 +1,5 @@
 import type { Country } from '../../domain/countries/country.js';
-import type { CongregationByCountry } from '../../v3/definition/congregation.js';
+import type { CongregationByCountry } from '../congregations/congregations.types.js';
 
 type CongregationSummary = {
 	settings: {

@@ -5,7 +5,7 @@ import {
 	IncomingTalksCongregation,
 	initializeIncomingTalks,
 } from '../../../src/modules/congregations/incoming-talks.service.js';
-import { OutgoingTalkScheduleType } from '../../../src/v3/definition/congregation.js';
+import { OutgoingTalkScheduleType } from '../../../src/modules/congregations/congregations.types.js';
 
 const createCongregation = ({
 	id,

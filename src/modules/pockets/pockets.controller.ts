@@ -9,7 +9,8 @@ import type {
 	UserSession,
 } from '../users/user.types.js';
 import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
-import { BackupData, CongSettingsType } from '../../v3/definition/congregation.js';
+import { BackupData } from '../backups/backup.types.js';
+import { CongSettingsType } from '../congregations/congregations.types.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import { UsersList } from '../../v3/classes/Users.js';
 import { savePocketBackupAsync } from '../backups/backup-persistence.service.js';

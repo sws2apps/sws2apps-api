@@ -1,4 +1,4 @@
-import type { OutgoingTalkScheduleType } from '../../v3/definition/congregation.js';
+import type { OutgoingTalkScheduleType } from '../congregations/congregations.types.js';
 
 type SchedulePublicationInput = {
 	sources: unknown[];

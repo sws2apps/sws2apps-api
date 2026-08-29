@@ -1,5 +1,5 @@
 import { backupUploadsInProgress } from '../../platform/runtime/backup-uploads.js';
-import { BackupForStorage } from '../../v3/definition/congregation.js';
+import { BackupForStorage } from './backup.types.js';
 
 export const findBackupUploadByCongregation = (
 	congregationId: string,

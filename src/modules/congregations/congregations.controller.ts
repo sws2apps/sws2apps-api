@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
-import { ApiCongregationSearchResponse } from '../../v3/definition/congregation.js';
+import { ApiCongregationSearchResponse } from './congregations.types.js';
 import { formatError } from '../../http/validation-errors.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import { mailClient } from '../../platform/email/mail-client.js';

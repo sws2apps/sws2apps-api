@@ -8,7 +8,7 @@ import {
 	OutgoingSpeakersRecordType,
 	OutgoingTalkScheduleType,
 	UserRequestAccess,
-} from '../../v3/definition/congregation.js';
+} from './congregations.types.js';
 import {
 	deleteFileFromStorage,
 	getFileFromStorage,

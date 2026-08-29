@@ -1,6 +1,6 @@
 import { Congregation } from '../../v3/classes/Congregation.js';
 import { UsersList } from '../../v3/classes/Users.js';
-import { UserRequestAccess } from '../../v3/definition/congregation.js';
+import { UserRequestAccess } from './congregations.types.js';
 
 type JoinRequestUser = {
 	profile: {
