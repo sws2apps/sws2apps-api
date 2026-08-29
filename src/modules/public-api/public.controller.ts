@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 
 import { env } from '../../config/env.js';
 import { formatError } from '../../http/validation-errors.js';
-import { Country } from '../../v3/definition/app.js';
+import type { Country } from '../../domain/countries/country.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { UsersList } from '../../v3/classes/Users.js';
 import { Flags } from '../../v3/classes/Flags.js';

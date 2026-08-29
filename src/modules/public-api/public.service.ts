@@ -1,4 +1,4 @@
-import type { Country } from '../../v3/definition/app.js';
+import type { Country } from '../../domain/countries/country.js';
 import type { CongregationByCountry } from '../../v3/definition/congregation.js';
 
 type CongregationSummary = {
