@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { header, validationResult } from 'express-validator';
 
 import { serverState } from '../../platform/runtime/server-state.js';
-import { formatError } from '../../v3/utils/format_log.js';
+import { formatError } from '../validation-errors.js';
 import { isClientVersionSupported } from '../client-version.js';
 
 export const clientVersionChecker = () => {

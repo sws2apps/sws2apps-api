@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { formatError } from '../../v3/utils/format_log.js';
+import { formatError } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { decryptData } from '../../platform/encryption/encryption.js';

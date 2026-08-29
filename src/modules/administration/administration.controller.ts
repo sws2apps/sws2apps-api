@@ -7,7 +7,7 @@ import {
 } from './administration-congregations.service.js';
 import { getAdministrationUsers } from './administration-users.service.js';
 import { validationResult } from 'express-validator';
-import { formatError } from '../../v3/utils/format_log.js';
+import { formatError } from '../../http/validation-errors.js';
 import { AppRoleType, Country } from '../../v3/definition/app.js';
 import { Flags } from '../../v3/classes/Flags.js';
 import { FeatureFlag } from '../../v3/definition/flag.js';

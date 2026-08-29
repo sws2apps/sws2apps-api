@@ -6,7 +6,7 @@ import { UsersList } from '../../v3/classes/Users.js';
 import { UserAuthResponse, UserSession } from '../../v3/definition/user.js';
 import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
-import { formatError } from '../../v3/utils/format_log.js';
+import { formatError } from '../../http/validation-errors.js';
 import { verifyFirebaseIdToken } from '../../platform/firebase/authentication.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { ROLE_MASTER_KEY } from '../../v3/constant/base.js';

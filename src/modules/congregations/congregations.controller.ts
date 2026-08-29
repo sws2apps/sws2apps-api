@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { ApiCongregationSearchResponse } from '../../v3/definition/congregation.js';
-import { formatError } from '../../v3/utils/format_log.js';
+import { formatError } from '../../http/validation-errors.js';
 import { StandardRecord } from '../../v3/definition/app.js';
 import { mailClient } from '../../platform/email/mail-client.js';
 import { formatMeetingWeekday } from '../../v3/utils/congregation_utils.js';

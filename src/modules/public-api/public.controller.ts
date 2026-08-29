@@ -3,7 +3,7 @@ import { validationResult } from 'express-validator';
 import fetch from 'node-fetch';
 
 import { env } from '../../config/env.js';
-import { formatError } from '../../v3/utils/format_log.js';
+import { formatError } from '../../http/validation-errors.js';
 import { Country } from '../../v3/definition/app.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { UsersList } from '../../v3/classes/Users.js';

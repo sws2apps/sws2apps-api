@@ -6,7 +6,7 @@ import sanitizeHtml from 'sanitize-html';
 import { UsersList } from '../../v3/classes/Users.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
-import { formatError } from '../../v3/utils/format_log.js';
+import { formatError } from '../../http/validation-errors.js';
 import { StandardRecord } from '../../v3/definition/app.js';
 import { BackupData, CongregationUpdatesType, CongSettingsType } from '../../v3/definition/congregation.js';
 import { BACKUP_EXPIRY, ROLE_MASTER_KEY } from '../../v3/constant/base.js';
