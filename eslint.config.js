@@ -9,6 +9,18 @@ export default [
 	pluginJs.configs.recommended,
 	...tseslint.configs.recommended,
 	{
+		files: ['src/**/*.ts'],
+		rules: {
+			'no-console': 'error',
+		},
+	},
+	{
+		files: ['src/platform/logging/logger.ts'],
+		rules: {
+			'no-console': 'off',
+		},
+	},
+	{
 		files: ['src/modules/**/*.controller.ts'],
 		rules: {
 			'no-restricted-imports': [
