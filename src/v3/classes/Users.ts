@@ -3,7 +3,8 @@ import { LogLevel } from '@logtail/types';
 import { PocketNewParams, RequestPasswordLessLinkParams, UserNewParams } from '../definition/user.js';
 import { User } from './User.js';
 import { CongregationsList } from './Congregations.js';
-import { createPocketUser, createUser, deleteAuthUser, loadAllUsers } from '../services/firebase/users.js';
+import { createPocketUser, createUser, loadAllUsers } from '../services/firebase/users.js';
+import { deleteFirebaseAuthUser } from '../../platform/firebase/authentication.js';
 import { deleteFileFromStorage } from '../../platform/firebase/storage.js';
 import { getAuth } from 'firebase-admin/auth';
 import { logger } from '../../platform/logging/logger.js';
@@ -129,7 +130,7 @@ class Users {
 		const user = this.findById(id);
 
 		if (user?.profile.auth_uid) {
-			await deleteAuthUser(user.profile.auth_uid);
+			await deleteFirebaseAuthUser(user.profile.auth_uid);
 		}
 
 		this.list = this.list.filter((record) => record.id !== id);

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { header, validationResult } from 'express-validator';
 import { UsersList } from '../../v3/classes/Users.js';
 import { formatError } from '../../v3/utils/format_log.js';
-import { decodeUserIdToken } from '../../v3/services/firebase/users.js';
+import { verifyFirebaseIdToken } from '../../platform/firebase/authentication.js';
 import {
 	extractBearerToken,
 	validateBearerAuthorization,
@@ -33,7 +33,7 @@ export const requireAuthenticatedSession = () => {
 
 			// decode authorization
 			const idToken = extractBearerToken(req.headers.authorization!)!;
-			const authenticatedUserId = await decodeUserIdToken(idToken);
+			const authenticatedUserId = await verifyFirebaseIdToken(idToken);
 
 			if (!authenticatedUserId) {
 				res.locals.type = 'warn';

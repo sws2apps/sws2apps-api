@@ -7,7 +7,7 @@ import { UserAuthResponse, UserSession } from '../../v3/definition/user.js';
 import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { formatError } from '../../v3/utils/format_log.js';
-import { decodeUserIdToken } from '../../v3/services/firebase/users.js';
+import { verifyFirebaseIdToken } from '../../platform/firebase/authentication.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { ROLE_MASTER_KEY } from '../../v3/constant/base.js';
 import { mailClient } from '../../platform/email/mail-client.js';
@@ -34,7 +34,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
 	// decode authorization
 	const idToken = req.headers.authorization!.split('Bearer ')[1];
-	const uid = await decodeUserIdToken(idToken);
+	const uid = await verifyFirebaseIdToken(idToken);
 
 	if (!uid) {
 		res.locals.type = 'warn';
@@ -218,7 +218,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 
 	// decode authorization
 	const idToken = req.headers.authorization!.split('Bearer ')[1];
-	const uid = await decodeUserIdToken(idToken);
+	const uid = await verifyFirebaseIdToken(idToken);
 
 	if (!uid) {
 		res.locals.type = 'warn';

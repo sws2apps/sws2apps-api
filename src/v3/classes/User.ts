@@ -5,20 +5,22 @@ import {
 	getBibleStudiesMetadata,
 	getDelegatedFieldServiceReportsMetadata,
 	getFieldServiceReportsMetadata,
-	getUserAuthDetails,
 	getUserDetails,
 	getUserProfileMetadata,
 	getUserSessionsMetadata,
 	getUserSettingsMetadata,
 	setDelegatedFieldServiceReports,
 	setUserBibleStudies,
-	setUserEmail,
 	setUserFieldServiceReports,
 	setUserFlags,
 	setUserProfile,
 	setUserSessions,
 	setUserSettings,
 } from '../services/firebase/users.js';
+import {
+	getFirebaseUserDetails,
+	updateFirebaseUserEmail,
+} from '../../platform/firebase/authentication.js';
 import {
 	decryptData,
 	encryptData,
@@ -79,7 +81,7 @@ export class User {
 		this.profile = data.profile;
 
 		if (this.profile.role !== 'pocket') {
-			const data = await getUserAuthDetails(this.profile.auth_uid!);
+			const data = await getFirebaseUserDetails(this.profile.auth_uid!);
 
 			if (data) {
 				this.email = data.email;
@@ -102,7 +104,7 @@ export class User {
 	}
 
 	async updateEmailAuth(auth_uid: string, email: string) {
-		await setUserEmail(auth_uid, email);
+		await updateFirebaseUserEmail(auth_uid, email);
 
 		this.email = email;
 	}
