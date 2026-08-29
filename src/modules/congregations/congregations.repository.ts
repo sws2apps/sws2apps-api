@@ -1,27 +1,27 @@
 import { getStorage } from 'firebase-admin/storage';
 import randomstring from 'randomstring';
 import { LogLevel } from '@logtail/types';
-import { StandardRecord } from '../../definition/app.js';
+import { StandardRecord } from '../../v3/definition/app.js';
 import {
 	CongregationCreateInfoType,
 	CongSettingsType,
 	OutgoingSpeakersRecordType,
 	OutgoingTalkScheduleType,
 	UserRequestAccess,
-} from '../../definition/congregation.js';
+} from '../../v3/definition/congregation.js';
 import {
 	deleteFileFromStorage,
 	getFileFromStorage,
 	getFileMetadata,
 	uploadFileToStorage,
-} from '../../../platform/firebase/storage.js';
-import { CongregationsList } from '../../classes/Congregations.js';
+} from '../../platform/firebase/storage.js';
+import { CongregationsList } from '../../v3/classes/Congregations.js';
 import {
 	decryptData,
 	encryptData,
-} from '../../../platform/encryption/encryption.js';
-import { Congregation } from '../../classes/Congregation.js';
-import { logger } from '../../../platform/logging/logger.js';
+} from '../../platform/encryption/encryption.js';
+import { Congregation } from '../../v3/classes/Congregation.js';
+import { logger } from '../../platform/logging/logger.js';
 
 export const getCongsID = async () => {
 	const pattern = '^v3\\/congregations\\/(.+?)\\/';

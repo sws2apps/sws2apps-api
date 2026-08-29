@@ -52,7 +52,7 @@ import {
 	setMeetingAttendance,
 	setSpeakersCongregations,
 	setUpcomingEvents,
-} from '../services/firebase/congregations.js';
+} from '../../modules/congregations/congregations.repository.js';
 import { CongregationsList } from './Congregations.js';
 import { User } from './User.js';
 import { UsersList } from './Users.js';

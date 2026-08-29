@@ -12,7 +12,7 @@ import { AppRoleType, Country } from '../../v3/definition/app.js';
 import { Flags } from '../../v3/classes/Flags.js';
 import { FeatureFlag } from '../../v3/definition/flag.js';
 import { getAdministrationFlags } from './administration-flags.service.js';
-import { setCongOutgoingSpeakers } from '../../v3/services/firebase/congregations.js';
+import { setCongOutgoingSpeakers } from '../congregations/congregations.repository.js';
 import { serverState } from '../../platform/runtime/server-state.js';
 import { updateMinimumClientVersion } from './administration-settings.service.js';
 import { env } from '../../config/env.js';
