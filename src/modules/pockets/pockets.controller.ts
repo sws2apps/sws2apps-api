@@ -6,8 +6,6 @@ import { CongregationsList } from '../congregations/congregations.js';
 import { BackupData } from '../backups/backup.types.js';
 import { CongSettingsType } from '../congregations/congregations.types.js';
 import type { StandardRecord } from '../../types/standard-record.js';
-import { savePocketBackupAsync } from '../backups/backup-persistence.service.js';
-import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
 import {
 	authenticatePocketInvitation,
 	PocketAuthenticationError,
@@ -22,6 +20,40 @@ import {
 	submitPocketApplication,
 	submitPocketReport,
 } from './pocket-user.service.js';
+import {
+	parsePocketBackupMetadata,
+	PocketBackupError,
+	submitPocketBackup,
+} from './pocket-backup.service.js';
+
+const handlePocketBackupError = (error: unknown, res: Response): boolean => {
+	if (!(error instanceof PocketBackupError)) return false;
+
+	res.locals.type = error.code === 'BACKUP_OUTDATED' ? 'info' : 'warn';
+
+	if (error.code === 'INVALID_METADATA') {
+		res.locals.message = 'invalid backup metadata';
+		res.status(400).json({ message: 'error_api_bad-request' });
+		return true;
+	}
+
+	if (error.code === 'CONGREGATION_NOT_FOUND') {
+		res.locals.message = 'user not associated to any congregation';
+		res.clearCookie('visitorid');
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
+		return true;
+	}
+
+	if (error.code === 'MEMBERSHIP_REQUIRED') {
+		res.locals.message = 'user not authorized to access the provided congregation';
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
+		return true;
+	}
+
+	res.locals.message = 'user backup outdated';
+	res.status(400).json({ message: 'BACKUP_OUTDATED' });
+	return true;
+};
 
 export const validateInvitation = async (req: Request, res: Response) => {
 	// validate through express middleware
@@ -98,7 +130,14 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const metadata = JSON.parse(req.headers.metadata!.toString()) as Record<string, string>;
+	let metadata: Record<string, string>;
+
+	try {
+		metadata = parsePocketBackupMetadata(req.headers.metadata!.toString());
+	} catch (error) {
+		if (!handlePocketBackupError(error, res)) throw error;
+		return;
+	}
 
 	const result = {} as BackupData;
 
@@ -341,45 +380,16 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = res.locals.currentUser;
-	const congId = user.profile.congregation?.id;
-	const cong = CongregationsList.findById(congId!);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not associated to any congregation';
-
-		res.clearCookie('visitorid');
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
+	try {
+		submitPocketBackup(
+			res.locals.currentUser.id,
+			req.headers.metadata!.toString(),
+			req.body.cong_backup as BackupData,
+		);
+	} catch (error) {
+		if (!handlePocketBackupError(error, res)) throw error;
 		return;
 	}
-
-	const isValid = cong.hasMember(user.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	const incomingMetadata = JSON.parse(req.headers.metadata!.toString()) as Record<string, string>;
-	const currentMetadata = { ...cong.metadata, ...user.metadata };
-
-	const metadataConflict = findBackupMetadataConflict(currentMetadata, incomingMetadata);
-
-	if (metadataConflict) {
-		res.locals.type = 'info';
-		res.locals.message = `user backup outdated`;
-		res.status(400).json({ message: 'BACKUP_OUTDATED' });
-
-		return;
-	}
-
-	const userRole = user.profile.congregation!.cong_role;
-	const cong_backup = req.body.cong_backup as BackupData;
-
-	savePocketBackupAsync({ userId: user.id, userRole, cong_backup });
 
 	res.locals.type = 'info';
 	res.locals.message = 'user send backup successfully';
