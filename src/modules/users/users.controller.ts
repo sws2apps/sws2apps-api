@@ -12,7 +12,6 @@ import { BackupData } from '../backups/backup.types.js';
 import { CongregationUpdatesType, CongSettingsType } from '../congregations/congregations.types.js';
 import { ROLE_MASTER_KEY } from '../../domain/users/master-key-roles.js';
 import { BACKUP_EXPIRY } from '../backups/backup-upload-expiry.js';
-import { mailClient } from '../../platform/email/mail-client.js';
 import { getCongregationJoinRequests } from '../congregations/congregation-join-requests.service.js';
 import { findBackupUploadByCongregation } from '../backups/backup-upload-tracker.js';
 import { backupUploadsInProgress } from '../../platform/runtime/backup-uploads.js';
@@ -21,6 +20,7 @@ import { saveUserBackupAsync } from '../backups/backup-persistence.service.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 import { env } from '../../config/env.js';
 import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
+import { sendFeedbackEmail } from './user-notifications.service.js';
 
 const isDev = env.isDevelopment;
 
@@ -986,17 +986,11 @@ export const userPostFeedback = async (req: Request, res: Response) => {
 	const cleanSubject = sanitizeHtml(subject);
 	const cleanMessage = sanitizeHtml(message);
 
-	const options = {
-		to: 'support@organized-app.com',
+	sendFeedbackEmail({
 		replyTo: user.email,
-		subject: `Feedback: ${cleanSubject}`,
-		template: 'feedback',
-		context: {
-			message: cleanMessage,
-		},
-	};
-
-	mailClient.sendEmail(options, 'Feedback sent successfully to support team');
+		subject: cleanSubject,
+		message: cleanMessage,
+	});
 
 	res.locals.type = 'info';
 	res.locals.message = 'user sent feedback successfully';
