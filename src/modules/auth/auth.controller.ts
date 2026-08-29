@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { getAuth } from 'firebase-admin/auth';
 import { validationResult } from 'express-validator';
 import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
 import { UsersList } from '../users/users.js';
@@ -10,9 +9,13 @@ import type {
 import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { formatError } from '../../http/validation-errors.js';
-import { verifyFirebaseIdToken } from '../../platform/firebase/authentication.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { ROLE_MASTER_KEY } from '../../domain/users/master-key-roles.js';
+import {
+	createAuthenticationToken,
+	getAuthenticationUserDisplayName,
+	verifyAuthenticationToken,
+} from './auth.service.js';
 import { mailClient } from '../../platform/email/mail-client.js';
 import { env } from '../../config/env.js';
 import { isEmailOneTimePasswordValid } from './email-otp.js';
@@ -37,7 +40,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
 	// decode authorization
 	const idToken = req.headers.authorization!.split('Bearer ')[1];
-	const uid = await verifyFirebaseIdToken(idToken);
+	const uid = await verifyAuthenticationToken(idToken);
 
 	if (!uid) {
 		res.locals.type = 'warn';
@@ -55,8 +58,7 @@ export const loginUser = async (req: Request, res: Response) => {
 	}
 
 	if (!authUser) {
-		const userRecord = await getAuth().getUser(uid);
-		const displayName = userRecord.displayName || userRecord.providerData[0].displayName;
+		const displayName = await getAuthenticationUserDisplayName(uid);
 		let firstname = '';
 		let lastname = '';
 
@@ -224,7 +226,7 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 
 	// decode authorization
 	const idToken = req.headers.authorization!.split('Bearer ')[1];
-	const uid = await verifyFirebaseIdToken(idToken);
+	const uid = await verifyAuthenticationToken(idToken);
 
 	if (!uid) {
 		res.locals.type = 'warn';
@@ -446,7 +448,7 @@ export const verifyEmailToken = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
 	res.locals.message = 'user successfully logged with email OTP';
 
-	const customToken = await getAuth().createCustomToken(authUser.profile.auth_uid!);
+	const customToken = await createAuthenticationToken(authUser.profile.auth_uid!);
 
 	userInfo.custom_token = customToken;
 

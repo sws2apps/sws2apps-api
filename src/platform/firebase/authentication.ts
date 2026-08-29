@@ -41,6 +41,20 @@ export const verifyFirebaseIdToken = async (
 	}
 };
 
+export const getFirebaseUserDisplayName = async (
+	authenticationUserId: string,
+): Promise<string> => {
+	const userRecord = await getAuth().getUser(authenticationUserId);
+
+	return userRecord.displayName || userRecord.providerData[0].displayName;
+};
+
+export const createFirebaseCustomToken = async (
+	authenticationUserId: string,
+): Promise<string> => {
+	return getAuth().createCustomToken(authenticationUserId);
+};
+
 export const deleteFirebaseAuthUser = async (
 	authenticationUserId: string,
 ): Promise<void> => {
