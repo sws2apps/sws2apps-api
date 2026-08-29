@@ -1,31 +1,15 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import fetch from 'node-fetch';
 
-import { env } from '../../config/env.js';
 import { formatError } from '../../http/validation-errors.js';
-import type { Country } from '../../domain/countries/country.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
 import { Flags } from '../feature-flags/flags.js';
 import { InstallationsList } from '../installations/installation-list.js';
-import { getApplicationLanguageCount } from '../../platform/localization/crowdin-client.js';
-import { buildPublicStats } from './public.service.js';
+import { getPublicStats } from './public.service.js';
 
 export const getStats = async (req: Request, res: Response) => {
-	const countryApiUrl = env.appCountryApi + new URLSearchParams({ language: 'E' });
-
-	const countryApiResponse = await fetch(countryApiUrl);
-
-	if (!countryApiResponse.ok) {
-		throw new Error('FETCH_FAILED');
-	}
-
-	const countries = (await countryApiResponse.json()) as Country[];
-	const congregations = CongregationsList.list;
-	const users = UsersList.list;
-	const languages = await getApplicationLanguageCount();
-	const publicStats = buildPublicStats({ countries, congregations, users, languages });
+	const publicStats = await getPublicStats();
 
 	res.locals.type = 'info';
 	res.locals.message = 'app stats generated';

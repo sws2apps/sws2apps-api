@@ -1,5 +1,9 @@
 import type { Country } from '../../domain/countries/country.js';
+import { getCountries } from '../../platform/countries/country-client.js';
+import { getApplicationLanguageCount } from '../../platform/localization/crowdin-client.js';
 import type { CongregationByCountry } from '../congregations/congregations.types.js';
+import { CongregationsList } from '../congregations/congregations.js';
+import { UsersList } from '../users/users.js';
 
 type CongregationSummary = {
 	settings: {
@@ -55,4 +59,16 @@ export const buildPublicStats = ({ countries, congregations, users, languages }:
 			list: congregationsByCountry,
 		},
 	};
+};
+
+export const getPublicStats = async () => {
+	const countries = await getCountries('E');
+	const languages = await getApplicationLanguageCount();
+
+	return buildPublicStats({
+		countries,
+		congregations: CongregationsList.list,
+		users: UsersList.list,
+		languages,
+	});
 };
