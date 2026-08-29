@@ -70,3 +70,89 @@ export const buildAdministrationFlagList = (
 export const getAdministrationFlags = () => {
 	return buildAdministrationFlagList(Flags.list, UsersList.list, CongregationsList.list);
 };
+
+export const createAdministrationFlag = async (
+	name: string,
+	description: string,
+	availability: FeatureFlag['availability'],
+) => {
+	await Flags.create(name, description, availability);
+	return getAdministrationFlags();
+};
+
+export const deleteAdministrationFlag = async (flagId: string) => {
+	await Flags.delete(flagId);
+	return getAdministrationFlags();
+};
+
+export const updateAdministrationFlag = async (
+	flagId: string,
+	name: string,
+	description: string,
+	coverage: number,
+) => {
+	const flag = Flags.findById(flagId);
+
+	if (!flag) return undefined;
+
+	if (name !== flag.name || description !== flag.description || coverage !== flag.coverage) {
+		await flag.update(name, description, coverage);
+	}
+
+	return getAdministrationFlags();
+};
+
+export const toggleAdministrationFlag = async (flagId: string) => {
+	const flag = Flags.findById(flagId);
+
+	if (!flag) return undefined;
+
+	await flag.toggle();
+	return getAdministrationFlags();
+};
+
+export const toggleUserFlag = async (userId: string, flagId: string) => {
+	const user = UsersList.findById(userId);
+
+	if (!user) return undefined;
+
+	const flag = Flags.findById(flagId);
+
+	if (!flag) return undefined;
+
+	let userFlags = structuredClone(user.flags);
+
+	const userFlag = userFlags.find((record) => record === flagId);
+
+	if (userFlag) {
+		userFlags = userFlags.filter((record) => record !== flagId);
+	} else {
+		userFlags.push(flagId);
+	}
+
+	await user.updateFlags(userFlags);
+	return getAdministrationFlags();
+};
+
+export const toggleCongregationFlag = async (congregationId: string, flagId: string) => {
+	const congregation = CongregationsList.findById(congregationId);
+
+	if (!congregation) return undefined;
+
+	const flag = Flags.findById(flagId);
+
+	if (!flag) return undefined;
+
+	let congregationFlags = structuredClone(congregation.flags);
+
+	const congregationFlag = congregationFlags.find((record) => record === flagId);
+
+	if (congregationFlag) {
+		congregationFlags = congregationFlags.filter((record) => record !== flagId);
+	} else {
+		congregationFlags.push(flagId);
+	}
+
+	await congregation.saveFlags(congregationFlags);
+	return getAdministrationFlags();
+};

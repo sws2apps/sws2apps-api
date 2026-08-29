@@ -10,9 +10,16 @@ import { getAdministrationUsers } from './administration-users.service.js';
 import { validationResult } from 'express-validator';
 import { formatError } from '../../http/validation-errors.js';
 import type { AppRoleType } from '../../domain/users/app-role.js';
-import { Flags } from '../feature-flags/flags.js';
-import { FeatureFlag } from '../feature-flags/feature-flag.js';
-import { getAdministrationFlags } from './administration-flags.service.js';
+import type { FeatureFlag } from '../feature-flags/feature-flag.js';
+import {
+	createAdministrationFlag,
+	deleteAdministrationFlag,
+	getAdministrationFlags,
+	toggleAdministrationFlag,
+	toggleCongregationFlag,
+	toggleUserFlag,
+	updateAdministrationFlag,
+} from './administration-flags.service.js';
 import { saveOutgoingSpeakersState } from '../congregations/outgoing-speakers.service.js';
 import {
 	getMinimumClientVersion,
@@ -368,9 +375,7 @@ export const flagsCreate = async (req: Request, res: Response) => {
 	const desc = req.body.desc as string;
 	const availability = req.body.availability as FeatureFlag['availability'];
 
-	await Flags.create(name, desc, availability);
-
-        const result = getAdministrationFlags();
+	const result = await createAdministrationFlag(name, desc, availability);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin created new feature flag';
@@ -388,9 +393,7 @@ export const flagDelete = async (req: Request, res: Response) => {
 		return;
 	}
 
-	await Flags.delete(id);
-
-        const result = getAdministrationFlags();
+	const result = await deleteAdministrationFlag(id);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin deleted a feature flag';
@@ -421,28 +424,17 @@ export const flagUpdate = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const flag = Flags.findById(id);
+	const name = req.body.name as string;
+	const description = req.body.description as string;
+	const coverage = req.body.coverage as number;
+	const result = await updateAdministrationFlag(id, name, description, coverage);
 
-	if (!flag) {
+	if (!result) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no flag could not be found with the provided id';
 		res.status(404).json({ message: 'FLAG_NOT_FOUND' });
 		return;
 	}
-
-	const name = req.body.name as string;
-	const description = req.body.description as string;
-	const coverage = req.body.coverage as number;
-
-	const nameSaved = flag.name;
-	const descriptionSaved = flag.description;
-	const coverageSaved = flag.coverage;
-
-	if (name !== nameSaved || description !== descriptionSaved || coverage !== coverageSaved) {
-		await flag.update(name, description, coverage);
-	}
-
-        const result = getAdministrationFlags();
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated a feature flag';
@@ -473,18 +465,14 @@ export const flagToggle = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const flag = Flags.findById(id);
+	const result = await toggleAdministrationFlag(id);
 
-	if (!flag) {
+	if (!result) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no flag could not be found with the provided id';
 		res.status(404).json({ message: 'FLAG_NOT_FOUND' });
 		return;
 	}
-
-	await flag.toggle();
-
-        const result = getAdministrationFlags();
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated feature flag status';
@@ -526,30 +514,14 @@ export const userFlagToggle = async (req: Request, res: Response) => {
 
 	const flagid = req.body.flagid as string;
 
-	const flag = Flags.findById(flagid);
+	const result = await toggleUserFlag(id, flagid);
 
-	if (!flag) {
+	if (!result) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no flag could not be found with the provided id';
 		res.status(404).json({ message: 'FLAG_NOT_FOUND' });
 		return;
 	}
-
-	let userFlags = structuredClone(user.flags);
-
-	const userFlag = userFlags.find((record) => record === flagid);
-
-	if (userFlag) {
-		userFlags = userFlags.filter((record) => record !== flagid);
-	}
-
-	if (!userFlag) {
-		userFlags.push(flagid);
-	}
-
-	await user.updateFlags(userFlags);
-
-        const result = getAdministrationFlags();
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated user feature toggle';
@@ -591,30 +563,14 @@ export const congregationFlagToggle = async (req: Request, res: Response) => {
 
 	const flagid = req.body.flagid as string;
 
-	const flag = Flags.findById(flagid);
+	const result = await toggleCongregationFlag(id, flagid);
 
-	if (!flag) {
+	if (!result) {
 		res.locals.type = 'warn';
 		res.locals.message = 'no flag could not be found with the provided id';
 		res.status(404).json({ message: 'FLAG_NOT_FOUND' });
 		return;
 	}
-
-	let congFlags = structuredClone(cong.flags);
-
-	const congFlag = congFlags.find((record) => record === flagid);
-
-	if (congFlag) {
-		congFlags = congFlags.filter((record) => record !== flagid);
-	}
-
-	if (!congFlag) {
-		congFlags.push(flagid);
-	}
-
-	await cong.saveFlags(congFlags);
-
-	const result = getAdministrationFlags();
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated congregation feature toggle';
