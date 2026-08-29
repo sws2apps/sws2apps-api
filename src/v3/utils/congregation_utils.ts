@@ -67,9 +67,3 @@ export const syncFromIncoming = <T extends object>(local: T, remote: T): T => {
 
   return local;
 };
-
-export const formatMeetingWeekday = (value: number) => {
-  if (value === 0) return 6;
-
-  return value - 1;
-};

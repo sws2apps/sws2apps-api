@@ -6,7 +6,7 @@ import { ApiCongregationSearchResponse } from '../../v3/definition/congregation.
 import { formatError } from '../../http/validation-errors.js';
 import { StandardRecord } from '../../v3/definition/app.js';
 import { mailClient } from '../../platform/email/mail-client.js';
-import { formatMeetingWeekday } from '../../v3/utils/congregation_utils.js';
+import { toMondayFirstWeekday } from './meeting-weekday.js';
 import { ALL_LANGUAGES } from '../../platform/localization/languages.js';
 import { env } from '../../config/env.js';
 import { canManageCongregationApplications } from './congregation-permissions.js';
@@ -177,11 +177,11 @@ export const createCongregation = async (req: Request, res: Response) => {
 		cong_location: { address: congRequest.address, lat: congRequest.location.lat, lng: congRequest.location.lng },
 		midweek_meeting: {
 			time: congRequest.midweekMeetingTime.time.slice(0, -3),
-			weekday: formatMeetingWeekday(congRequest.midweekMeetingTime.weekday),
+			weekday: toMondayFirstWeekday(congRequest.midweekMeetingTime.weekday),
 		},
 		weekend_meeting: {
 			time: congRequest.weekendMeetingTime.time.slice(0, -3),
-			weekday: formatMeetingWeekday(congRequest.weekendMeetingTime.weekday),
+			weekday: toMondayFirstWeekday(congRequest.weekendMeetingTime.weekday),
 		},
 	});
 
