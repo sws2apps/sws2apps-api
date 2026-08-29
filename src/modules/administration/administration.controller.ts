@@ -10,7 +10,7 @@ import { validationResult } from 'express-validator';
 import { formatError } from '../../http/validation-errors.js';
 import { AppRoleType, Country } from '../../v3/definition/app.js';
 import { Flags } from '../../v3/classes/Flags.js';
-import { FeatureFlag } from '../../v3/definition/flag.js';
+import { FeatureFlag } from '../feature-flags/feature-flag.js';
 import { getAdministrationFlags } from './administration-flags.service.js';
 import { setCongOutgoingSpeakers } from '../congregations/congregations.repository.js';
 import { serverState } from '../../platform/runtime/server-state.js';

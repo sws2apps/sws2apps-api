@@ -1,4 +1,4 @@
-import type { FeatureFlag } from '../../v3/definition/flag.js';
+import type { FeatureFlag } from '../feature-flags/feature-flag.js';
 
 const allowedAvailability = new Set<FeatureFlag['availability']>(['app', 'user', 'congregation']);
 

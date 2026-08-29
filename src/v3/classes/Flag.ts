@@ -1,4 +1,4 @@
-import { FeatureFlag } from '../definition/flag.js';
+import { FeatureFlag } from '../../modules/feature-flags/feature-flag.js';
 import { saveFeatureFlags } from '../../modules/feature-flags/feature-flags.repository.js';
 import { Flags } from './Flags.js';
 
