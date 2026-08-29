@@ -4,7 +4,7 @@ import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { formatError } from '../../v3/utils/format_log.js';
 import { UsersList } from '../../v3/classes/Users.js';
 import { decryptData } from '../../platform/encryption/encryption.js';
-import { congregationJoinRequestsGet } from '../../v3/services/api/congregations.js';
+import { getCongregationJoinRequests } from '../congregations/congregation-join-requests.service.js';
 import { AppRoleType } from '../../v3/definition/app.js';
 import { mailClient } from '../../platform/email/mail-client.js';
 import { env } from '../../config/env.js';
@@ -921,7 +921,7 @@ export const deleteJoinRequest = async (req: Request, res: Response) => {
 
 	await cong.declineJoinRequest(userId);
 
-	const result = congregationJoinRequestsGet(cong);
+	const result = getCongregationJoinRequests(cong);
 
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin declined a join request';
@@ -998,7 +998,7 @@ export const acceptJoinRequest = async (req: Request, res: Response) => {
 
 	await cong.acceptJoinRequest(userId, { person_uid, role, firstname, lastname });
 
-	const result = congregationJoinRequestsGet(cong);
+	const result = getCongregationJoinRequests(cong);
 
 	const MAIL_ENABLED = env.mailEnabled;
 	const userEmail = user.email;

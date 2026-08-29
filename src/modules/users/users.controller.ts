@@ -11,7 +11,7 @@ import { StandardRecord } from '../../v3/definition/app.js';
 import { BackupData, CongregationUpdatesType, CongSettingsType } from '../../v3/definition/congregation.js';
 import { BACKUP_EXPIRY, ROLE_MASTER_KEY } from '../../v3/constant/base.js';
 import { mailClient } from '../../platform/email/mail-client.js';
-import { congregationJoinRequestsGet } from '../../v3/services/api/congregations.js';
+import { getCongregationJoinRequests } from '../congregations/congregation-join-requests.service.js';
 import { findBackupUploadByCongregation } from '../backups/backup-upload-tracker.js';
 import { backupUploadsInProgress } from '../../platform/runtime/backup-uploads.js';
 import { logger } from '../../platform/logging/logger.js';
@@ -926,7 +926,7 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 	}
 
 	if (adminRole) {
-		result.join_requests = congregationJoinRequestsGet(cong);
+		result.join_requests = getCongregationJoinRequests(cong);
 	}
 
 	res.locals.type = 'info';

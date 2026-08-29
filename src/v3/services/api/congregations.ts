@@ -1,6 +1,5 @@
 import { Country } from '../../definition/app.js';
 import { CongregationsList } from '../../classes/Congregations.js';
-import { Congregation } from '../../classes/Congregation.js';
 import { UsersList } from '../../classes/Users.js';
 import { env } from '../../../config/env.js';
 
@@ -36,20 +35,6 @@ export const adminCongregationsGet = async () => {
 
 		result.push(obj);
 	}
-
-	return result;
-};
-
-export const congregationJoinRequestsGet = (cong: Congregation) => {
-	const result = cong.join_requests.map((request) => {
-		const user = UsersList.findById(request.user);
-
-		return {
-			...request,
-			firstname: user?.profile.firstname.value || '_Deleted',
-			lastname: user?.profile.lastname.value || '_Deleted',
-		};
-	});
 
 	return result;
 };
