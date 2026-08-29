@@ -3,17 +3,17 @@ import { validationResult } from 'express-validator';
 import { CongregationsList } from './congregations.js';
 import { formatError } from '../../http/validation-errors.js';
 import type { StandardRecord } from '../../types/standard-record.js';
-import { mailClient } from '../../platform/email/mail-client.js';
 import { toMondayFirstWeekday } from './meeting-weekday.js';
-import { env } from '../../config/env.js';
 import { canManageCongregationApplications } from './congregation-permissions.js';
 import {
 	getAvailableCountries,
 	searchCongregationDirectory,
 	verifyCongregationDirectoryRecord,
 } from './congregation-directory.service.js';
-
-const MAIL_ENABLED = env.mailEnabled;
+import {
+	isWelcomeEmailEnabled,
+	sendWelcomeEmail,
+} from './congregation-notifications.service.js';
 
 export const getCountries = async (req: Request, res: Response) => {
 	const errors = validationResult(req);
@@ -188,26 +188,20 @@ export const createCongregation = async (req: Request, res: Response) => {
 	// add user to congregation
 	const userCong = await user.assignCongregation({ congId: congId, role: ['admin'] });
 
-	if (MAIL_ENABLED) {
+	if (isWelcomeEmailEnabled()) {
 		req.i18n.changeLanguage(language);
 
-		const options = {
-			to: user.email,
+		sendWelcomeEmail({
+			recipient: user.email!,
 			subject: req.t('tr_welcomeTitle'),
-			template: 'welcome',
-			context: {
-				welcomeTitle: req.t('tr_welcomeTitle'),
-				welcomeDesc: req.t('tr_welcomeDesc'),
-				watchVideoLabel: req.t('tr_watchVideoLabel'),
-				moreInfoTitle: req.t('tr_moreInfoTitle'),
-				moreInfoGuideLabel: req.t('tr_moreInfoGuideLabel'),
-				moreInfoBlogLabel: req.t('tr_moreInfoBlogLabel'),
-				moreInfoSupportLabel: req.t('tr_moreInfoSupportLabel'),
-				copyright: new Date().getFullYear(),
-			},
-		};
-
-		mailClient.sendEmail(options, 'Welcome message sent to user');
+			welcomeTitle: req.t('tr_welcomeTitle'),
+			welcomeDescription: req.t('tr_welcomeDesc'),
+			watchVideoLabel: req.t('tr_watchVideoLabel'),
+			moreInformationTitle: req.t('tr_moreInfoTitle'),
+			guideLabel: req.t('tr_moreInfoGuideLabel'),
+			blogLabel: req.t('tr_moreInfoBlogLabel'),
+			supportLabel: req.t('tr_moreInfoSupportLabel'),
+		});
 	}
 
 	const finalResult = {
