@@ -1,7 +1,7 @@
 import { getStorage } from 'firebase-admin/storage';
 
 import { decryptData, encryptData } from '../encryption/encryption.js';
-import { StorageBaseType } from '../../v3/definition/firebase.js';
+import type { StorageBaseType } from './storage.types.js';
 
 export const buildStoragePath = (
 	{ path, type }: StorageBaseType,
