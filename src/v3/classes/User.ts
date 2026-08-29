@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { OTPSecretType } from '../../modules/mfa/user-secret.js';
-import { StandardRecord } from '../definition/app.js';
+import type { StandardRecord } from '../../types/standard-record.js';
 import { UserCongregationAssignParams, UserProfile, UserSession, UserSettings } from '../definition/user.js';
 import {
 	getBibleStudiesMetadata,

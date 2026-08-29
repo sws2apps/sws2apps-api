@@ -1,5 +1,5 @@
 import { getStorage } from 'firebase-admin/storage';
-import { StandardRecord } from '../../v3/definition/app.js';
+import type { StandardRecord } from '../../types/standard-record.js';
 import {
 	PocketNewParams,
 	UserNewParams,

@@ -1,5 +1,5 @@
 import type { AppRoleType } from '../../domain/users/app-role.js';
-import type { StandardRecord } from './app.js';
+import type { StandardRecord } from '../../types/standard-record.js';
 
 export type CongregationCreateInfoType = {
 	country_code: string;

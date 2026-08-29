@@ -4,7 +4,7 @@ import { validationResult } from 'express-validator';
 import { CongregationsList } from '../../v3/classes/Congregations.js';
 import { ApiCongregationSearchResponse } from '../../v3/definition/congregation.js';
 import { formatError } from '../../http/validation-errors.js';
-import { StandardRecord } from '../../v3/definition/app.js';
+import type { StandardRecord } from '../../types/standard-record.js';
 import { mailClient } from '../../platform/email/mail-client.js';
 import { toMondayFirstWeekday } from './meeting-weekday.js';
 import { ALL_LANGUAGES } from '../../platform/localization/languages.js';

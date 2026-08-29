@@ -7,7 +7,7 @@ import { decryptData } from '../../platform/encryption/encryption.js';
 import { UserAuthResponse, UserSession } from '../../v3/definition/user.js';
 import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
 import { BackupData, CongSettingsType } from '../../v3/definition/congregation.js';
-import { StandardRecord } from '../../v3/definition/app.js';
+import type { StandardRecord } from '../../types/standard-record.js';
 import { UsersList } from '../../v3/classes/Users.js';
 import { savePocketBackupAsync } from '../backups/backup-persistence.service.js';
 import { parsePocketInvitationCode } from './invitation-code.js';

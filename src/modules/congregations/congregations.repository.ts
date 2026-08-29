@@ -1,7 +1,7 @@
 import { getStorage } from 'firebase-admin/storage';
 import randomstring from 'randomstring';
 import { LogLevel } from '@logtail/types';
-import { StandardRecord } from '../../v3/definition/app.js';
+import type { StandardRecord } from '../../types/standard-record.js';
 import {
 	CongregationCreateInfoType,
 	CongSettingsType,
