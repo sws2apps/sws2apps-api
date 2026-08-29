@@ -19,7 +19,7 @@ import { serverReadyChecker } from './http/middleware/server-ready.middleware.js
 import apiV3Routes from './http/api-v3.routes.js';
 
 import { errorHandler, getRoot, invalidEndpointHandler } from './http/app.controller.js';
-import resources from './v3/config/i18n_config.js';
+import resources from './platform/localization/resources.js';
 import { env } from './config/env.js';
 import { createCorsOptions } from './http/security/cors.js';
 

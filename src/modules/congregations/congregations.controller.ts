@@ -7,7 +7,7 @@ import { formatError } from '../../v3/utils/format_log.js';
 import { StandardRecord } from '../../v3/definition/app.js';
 import { mailClient } from '../../platform/email/mail-client.js';
 import { formatMeetingWeekday } from '../../v3/utils/congregation_utils.js';
-import { ALL_LANGUAGES } from '../../v3/constant/langList.js';
+import { ALL_LANGUAGES } from '../../platform/localization/languages.js';
 import { env } from '../../config/env.js';
 import { canManageCongregationApplications } from './congregation-permissions.js';
 
