@@ -6,7 +6,7 @@ import {
 } from '../../modules/congregations/congregations.repository.js';
 import { deleteFileFromStorage } from '../../platform/firebase/storage.js';
 import { logger } from '../../platform/logging/logger.js';
-import { loadIncomingTalks } from '../utils/congregation_utils.js';
+import { initializeIncomingTalks } from '../../modules/congregations/incoming-talks.service.js';
 import { Congregation } from './Congregation.js';
 
 class Congregations {
@@ -25,7 +25,7 @@ class Congregations {
 	async load() {
 		this.list = await loadAllCongs();
 
-		await loadIncomingTalks();
+		await initializeIncomingTalks(this.list);
 
 		this.#sort();
 		return this.list;
