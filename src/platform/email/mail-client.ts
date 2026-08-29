@@ -9,13 +9,14 @@ import { logger } from '../logging/logger.js';
 import { buildMailTransportOptions } from './mail-transport.js';
 
 const sender = `${env.mailSenderName} <${env.mailAddress}>`;
+const templatesPath = path.resolve('./src/platform/email/templates/');
 
 const handlebarsOptions: NodemailerExpressHandlebarsOptions = {
-  viewEngine: {
-		partialsDir: path.resolve('./src/v3/views/'),
+	viewEngine: {
+		partialsDir: templatesPath,
 		defaultLayout: false,
 	},
-	viewPath: path.resolve('./src/v3/views/'),
+	viewPath: templatesPath,
 };
 
 const transportOptions = buildMailTransportOptions(env.mailAddress, env.mailPassword);
