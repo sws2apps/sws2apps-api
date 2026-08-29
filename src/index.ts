@@ -9,11 +9,11 @@ import { UsersList } from './v3/classes/Users.js';
 import { CongregationsList } from './v3/classes/Congregations.js';
 import { Flags } from './v3/classes/Flags.js';
 import { Installation } from './v3/classes/Installation.js';
-import { initializeAPI } from './v3/config/app.db_config.js';
+import { initializeMinimumClientVersion } from './modules/administration/administration-settings.service.js';
 import { createDevTestUsers } from './v3/config/dev.config.js';
 import { serverState } from './platform/runtime/server-state.js';
 
-await initializeAPI();
+await initializeMinimumClientVersion();
 await createDevTestUsers();
 
 logger(LogLevel.Info, `minimum frontend client version set to ${serverState.minimumAppVersion}`);

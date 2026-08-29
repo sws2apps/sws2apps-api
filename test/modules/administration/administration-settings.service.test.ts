@@ -1,10 +1,25 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { updateMinimumClientVersion } from '../../../src/modules/administration/administration-settings.service.js';
+import {
+	initializeMinimumClientVersion,
+	updateMinimumClientVersion,
+} from '../../../src/modules/administration/administration-settings.service.js';
 import { serverState } from '../../../src/platform/runtime/server-state.js';
 
 describe('administration API settings', () => {
+	it('initializes runtime state from the persisted minimum version', async () => {
+		const originalVersion = serverState.minimumAppVersion;
+
+		try {
+			await initializeMinimumClientVersion(async () => '3.50.0');
+
+			assert.equal(serverState.minimumAppVersion, '3.50.0');
+		} finally {
+			serverState.minimumAppVersion = originalVersion;
+		}
+	});
+
 	it('updates runtime state after the version is persisted', async () => {
 		const originalVersion = serverState.minimumAppVersion;
 		const calls: string[] = [];
