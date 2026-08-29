@@ -1,7 +1,11 @@
 import * as OTPAuth from 'otpauth';
 
 import { env } from '../../config/env.js';
-import { OTPSecretType } from '../../v3/definition/app.js';
+export type OTPSecretType = {
+	secret: string;
+	uri: string;
+	version: number;
+};
 
 export const generateUserMfaSecret = (userEmail: string): OTPSecretType => {
 	const base32Secret = new OTPAuth.Secret().base32;
