@@ -9,7 +9,12 @@ import {
 	OutgoingTalkScheduleType,
 	UserRequestAccess,
 } from '../../definition/congregation.js';
-import { deleteFileFromStorage, getFileFromStorage, getFileMetadata, uploadFileToStorage } from './storage_utils.js';
+import {
+	deleteFileFromStorage,
+	getFileFromStorage,
+	getFileMetadata,
+	uploadFileToStorage,
+} from '../../../platform/firebase/storage.js';
 import { CongregationsList } from '../../classes/Congregations.js';
 import {
 	decryptData,

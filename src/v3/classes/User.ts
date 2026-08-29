@@ -26,7 +26,10 @@ import {
 import { generateUserSecret } from '../utils/user_utils.js';
 import { CongregationsList } from './Congregations.js';
 import { BackupData } from '../definition/congregation.js';
-import { getFileFromStorage, getFileMetadata } from '../services/firebase/storage_utils.js';
+import {
+	getFileFromStorage,
+	getFileMetadata,
+} from '../../platform/firebase/storage.js';
 import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
 
 export class User {

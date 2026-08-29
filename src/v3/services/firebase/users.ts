@@ -3,7 +3,11 @@ import { getStorage } from 'firebase-admin/storage';
 import { LogLevel } from '@logtail/types';
 import { StandardRecord } from '../../definition/app.js';
 import { PocketNewParams, UserNewParams, UserProfile, UserSession, UserSettings } from '../../definition/user.js';
-import { getFileFromStorage, getFileMetadata, uploadFileToStorage } from './storage_utils.js';
+import {
+	getFileFromStorage,
+	getFileMetadata,
+	uploadFileToStorage,
+} from '../../../platform/firebase/storage.js';
 import { User } from '../../classes/User.js';
 import { encryptData } from '../../../platform/encryption/encryption.js';
 import { schemaUserProfile } from '../../definition/schema.js';

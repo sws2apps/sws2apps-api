@@ -1,5 +1,8 @@
 import { AppInstallation } from '../../definition/installations.js';
-import { getFileFromStorage, uploadFileToStorage } from './storage_utils.js';
+import {
+	getFileFromStorage,
+	uploadFileToStorage,
+} from '../../../platform/firebase/storage.js';
 
 export const loadInstallation = async () => {
 	const installation = JSON.parse(

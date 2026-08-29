@@ -4,7 +4,7 @@ import { PocketNewParams, RequestPasswordLessLinkParams, UserNewParams } from '.
 import { User } from './User.js';
 import { CongregationsList } from './Congregations.js';
 import { createPocketUser, createUser, deleteAuthUser, loadAllUsers } from '../services/firebase/users.js';
-import { deleteFileFromStorage } from '../services/firebase/storage_utils.js';
+import { deleteFileFromStorage } from '../../platform/firebase/storage.js';
 import { getAuth } from 'firebase-admin/auth';
 import { logger } from '../../platform/logging/logger.js';
 

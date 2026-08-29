@@ -1,6 +1,9 @@
 import { FeatureFlag } from '../../definition/flag.js';
 import { Flag } from '../../classes/Flag.js';
-import { getFileFromStorage, uploadFileToStorage } from './storage_utils.js';
+import {
+	getFileFromStorage,
+	uploadFileToStorage,
+} from '../../../platform/firebase/storage.js';
 
 export const loadFlags = async () => {
 	const flags = JSON.parse((await getFileFromStorage({ type: 'api', path: 'flags.txt' })) || '[]');

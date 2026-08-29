@@ -1,7 +1,7 @@
 import { LogLevel } from '@logtail/types';
 import { CongregationCreateInfoType } from '../definition/congregation.js';
 import { createCongregation, loadAllCongs } from '../services/firebase/congregations.js';
-import { deleteFileFromStorage } from '../services/firebase/storage_utils.js';
+import { deleteFileFromStorage } from '../../platform/firebase/storage.js';
 import { logger } from '../../platform/logging/logger.js';
 import { loadIncomingTalks } from '../utils/congregation_utils.js';
 import { Congregation } from './Congregation.js';

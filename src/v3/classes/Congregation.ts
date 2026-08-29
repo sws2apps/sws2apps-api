@@ -56,7 +56,10 @@ import {
 import { CongregationsList } from './Congregations.js';
 import { User } from './User.js';
 import { UsersList } from './Users.js';
-import { getFileFromStorage, uploadFileToStorage } from '../services/firebase/storage_utils.js';
+import {
+	getFileFromStorage,
+	uploadFileToStorage,
+} from '../../platform/firebase/storage.js';
 import { syncFromIncoming } from '../utils/congregation_utils.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 
