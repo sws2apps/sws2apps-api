@@ -6,8 +6,10 @@ import { UsersList } from '../users/users.js';
 import { decryptData } from '../../platform/encryption/encryption.js';
 import { getCongregationJoinRequests } from '../congregations/congregation-join-requests.service.js';
 import type { AppRoleType } from '../../domain/users/app-role.js';
-import { mailClient } from '../../platform/email/mail-client.js';
-import { env } from '../../config/env.js';
+import {
+	isJoinRequestApprovalEmailEnabled,
+	sendJoinRequestApprovalEmail,
+} from './congregation-administration-notifications.service.js';
 
 export const setCongregationMasterKey = async (req: Request, res: Response) => {
 	const errors = validationResult(req);
@@ -1000,29 +1002,25 @@ export const acceptJoinRequest = async (req: Request, res: Response) => {
 
 	const result = getCongregationJoinRequests(cong);
 
-	const MAIL_ENABLED = env.mailEnabled;
 	const userEmail = user.email;
 
-	if (MAIL_ENABLED && user.email) {
+	if (isJoinRequestApprovalEmailEnabled() && userEmail) {
 		const language = (req.headers?.applanguage as string) || 'eng';
 		req.i18n.changeLanguage(language);
 
 		const congregation = `${cong.settings.cong_name} (${cong.settings.country_code})`;
 		const requestor = user.profile.firstname.value;
 
-		const options = {
-			to: userEmail,
+		sendJoinRequestApprovalEmail({
+			recipient: userEmail,
 			subject: req.t('tr_joinRequestApprovedSubject', { congregation }),
-			template: 'join-request-approved',
-			context: {
-				requestor: req.t('tr_greetings', { name: requestor }),
-				joinRequestApprovedTitle: req.t('tr_joinRequestApprovedTitle'),
-				joinRequestApprovedMessage: req.t('tr_joinRequestApprovedDesc', { congregation, url: req.headers.origin! }),
-				copyright: new Date().getFullYear(),
-			},
-		};
-
-		mailClient.sendEmail(options, 'Join request approval email sent to user');
+			greeting: req.t('tr_greetings', { name: requestor }),
+			title: req.t('tr_joinRequestApprovedTitle'),
+			message: req.t('tr_joinRequestApprovedDesc', {
+				congregation,
+				url: req.headers.origin!,
+			}),
+		});
 	}
 
 	res.locals.type = 'info';
