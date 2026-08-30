@@ -4,6 +4,11 @@ import { CongregationsList } from '../congregations/congregations.js';
 import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
 import { UsersList } from './users.js';
 import { deleteUser } from './user-lifecycle.service.js';
+import {
+	decryptUserMfaSecret,
+	disableUserMfa as disableMfaForUser,
+	ensureUserMfaSecret,
+} from '../mfa/user-mfa.service.js';
 
 export type UserAccountErrorCode = 'CONGREGATION_NOT_ASSIGNED' | 'CONGREGATION_NOT_FOUND';
 
@@ -45,9 +50,9 @@ export const getValidatedUserAccount = (userId: string) => {
 
 export const getUserMfaEnrollment = async (userId: string) => {
 	const user = UsersList.findById(userId)!;
-	await user.generateSecret();
+	await ensureUserMfaSecret(user);
 
-	const { secret, uri } = user.decryptSecret();
+	const { secret, uri } = decryptUserMfaSecret(user);
 	const developmentCode = !user.profile.mfa_enabled && env.isDevelopment
 		? generateDevelopmentMfaToken(user.email!, user.profile.secret!)
 		: undefined;
@@ -80,7 +85,7 @@ export const logoutUserSession = async (userId: string | undefined, visitorId: s
 };
 
 export const disableUserMfa = async (userId: string) => {
-	await UsersList.findById(userId)!.disableMFA();
+	await disableMfaForUser(UsersList.findById(userId)!);
 };
 
 export const deleteUserAccount = async (userId: string) => {

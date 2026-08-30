@@ -6,6 +6,10 @@ import { CongregationsList } from '../congregations/congregations.js';
 import type { UserAuthResponse, UserSession } from '../users/user.types.js';
 import { UsersList } from '../users/users.js';
 import { isTokenWithinAllowedWindow } from './token-validation.js';
+import {
+	decryptUserMfaSecret,
+	enableUserMfa,
+} from './user-mfa.service.js';
 
 export class InvalidMfaTokenError extends Error {
 	constructor() {
@@ -28,7 +32,7 @@ export const verifyMfaToken = async ({
 	token,
 }: VerifyMfaTokenInput): Promise<UserAuthResponse> => {
 	const user = UsersList.findById(userId)!;
-	const encryptedSecret = user.decryptSecret();
+	const encryptedSecret = decryptUserMfaSecret(user);
 	const tokenGenerator = new OTPAuth.TOTP({
 		issuer: env.isProduction ? 'Organized' : 'Organized-dev',
 		label: user.email,
@@ -48,7 +52,7 @@ export const verifyMfaToken = async ({
 	currentSession.last_seen = new Date().toISOString();
 	currentSession.mfaVerified = true;
 
-	await user.enableMFA();
+	await enableUserMfa(user);
 	await user.updateSessions(updatedSessions);
 
 	const userInfo: UserAuthResponse = {

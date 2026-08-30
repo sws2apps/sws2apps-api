@@ -3,6 +3,10 @@ import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
 import { deleteUser } from '../users/user-lifecycle.service.js';
 import { updateUserAuthenticationEmail } from '../users/user-identity.service.js';
+import {
+	disableUserMfa,
+	revokeUserMfa,
+} from '../mfa/user-mfa.service.js';
 import type { UserSession } from '../users/user.types.js';
 
 export class AdministrationUserError extends Error {
@@ -96,7 +100,7 @@ export const disableAdministrationUserMfa = async (
 	userId: string,
 	currentVisitorId: string,
 ) => {
-	await getAdministrationUser(userId).disableMFA();
+	await disableUserMfa(getAdministrationUser(userId));
 	return getAdministrationUsers(currentVisitorId);
 };
 
@@ -104,7 +108,7 @@ export const revokeAdministrationUserToken = async (
 	userId: string,
 	currentVisitorId: string,
 ) => {
-	await getAdministrationUser(userId).revokeToken();
+	await revokeUserMfa(getAdministrationUser(userId));
 	return getAdministrationUsers(currentVisitorId);
 };
 

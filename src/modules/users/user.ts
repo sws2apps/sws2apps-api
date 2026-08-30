@@ -1,5 +1,4 @@
 import type { AppRoleType } from '../../domain/users/app-role.js';
-import type { OTPSecretType } from '../mfa/user-secret.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import type {
 	UserCongregationAssignParams,
@@ -27,11 +26,7 @@ import {
 	setUserSessions,
 	setUserSettings,
 } from './users.repository.js';
-import {
-	decryptData,
-	encryptData,
-} from '../../platform/encryption/encryption.js';
-import { generateUserMfaSecret } from '../mfa/user-secret.js';
+import { encryptData } from '../../platform/encryption/encryption.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { BackupData } from '../backups/backup.types.js';
 
@@ -138,15 +133,6 @@ export class User {
 		return this.getActiveSessions(revokedSession.visitorid);
 	}
 
-	async enableMFA() {
-		const data = structuredClone(this.profile);
-		data.mfa_enabled = true;
-
-		await this.updateProfile(data);
-
-		this.profile.mfa_enabled = true;
-	}
-
 	async logout(visitorId: string) {
 		const session = this.sessions.find((record) => record.visitorid === visitorId);
 
@@ -157,47 +143,6 @@ export class User {
 
 	async adminLogout() {
 		await this.updateSessions([]);
-	}
-
-	async generateSecret() {
-		if (!this.profile.secret) {
-			const secret = generateUserMfaSecret(this.email!);
-			const encryptedData = encryptData(JSON.stringify(secret));
-
-			const profile = structuredClone(this.profile);
-			profile.secret = encryptedData;
-
-			await this.updateProfile(profile);
-
-			return secret;
-		}
-
-		const decryptedData: OTPSecretType = JSON.parse(decryptData(this.profile.secret)!);
-		return decryptedData;
-	}
-
-	async revokeToken() {
-		const profile = structuredClone(this.profile);
-		profile.secret = undefined;
-		profile.mfa_enabled = false;
-
-		await this.updateProfile(profile);
-
-		await this.updateSessions([]);
-	}
-
-	async disableMFA() {
-		const data = structuredClone(this.profile);
-		data.mfa_enabled = false;
-		data.secret = undefined;
-
-		await this.updateProfile(data);
-	}
-
-	decryptSecret() {
-		const decryptedData = decryptData(this.profile.secret!)!;
-		const secret: OTPSecretType = JSON.parse(decryptedData);
-		return secret;
 	}
 
 	async assignCongregation(params: UserCongregationAssignParams) {
