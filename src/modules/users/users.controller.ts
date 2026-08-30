@@ -26,6 +26,31 @@ import {
 	revokeUserSession,
 	UserAccountError,
 } from './users-account.service.js';
+import {
+	getUserAuxiliaryApplications,
+	submitUserAuxiliaryApplication,
+	submitUserFieldServiceReport,
+	UserCongregationActivityError,
+} from './users-congregation-activity.service.js';
+
+const handleUserCongregationActivityError = (
+	error: unknown,
+	res: Response,
+): boolean => {
+	if (!(error instanceof UserCongregationActivityError)) return false;
+
+	res.locals.type = 'warn';
+
+	if (error.code === 'CONGREGATION_NOT_ASSIGNED') {
+		res.locals.message = 'user does not have an assigned congregation';
+		res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
+		return true;
+	}
+
+	res.locals.message = 'user congregation is invalid';
+	res.status(404).json({ message: 'error_app_congregation_not-found' });
+	return true;
+};
 
 export const validateUser = async (req: Request, res: Response) => {
 	try {
@@ -167,27 +192,14 @@ export const getAuxiliaryApplications = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id)!;
+	let results;
 
-	if (!user.profile.congregation) {
-		res.locals.type = 'warn';
-		res.locals.message = `user does not have an assigned congregation`;
-		res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
-
+	try {
+		results = getUserAuxiliaryApplications(id);
+	} catch (error) {
+		if (!handleUserCongregationActivityError(error, res)) throw error;
 		return;
 	}
-
-	const cong = CongregationsList.findById(user.profile.congregation?.id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user congregation is invalid';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
-		return;
-	}
-
-	const results = user.getApplications();
 
 	res.locals.type = 'info';
 	res.locals.message = `user get submitted auxiliary pioneer application list`;
@@ -219,39 +231,12 @@ export const submitAuxiliaryApplication = async (req: Request, res: Response) =>
 		return;
 	}
 
-	const user = UsersList.findById(id)!;
-
-	if (!user.profile.congregation) {
-		res.locals.type = 'warn';
-		res.locals.message = `user does not have an assigned congregation`;
-		res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
-
+	try {
+		submitUserAuxiliaryApplication(id, req.body.application as StandardRecord);
+	} catch (error) {
+		if (!handleUserCongregationActivityError(error, res)) throw error;
 		return;
 	}
-
-	const cong = CongregationsList.findById(user.profile.congregation?.id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user congregation is invalid';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
-		return;
-	}
-
-	const form = req.body.application as StandardRecord;
-
-	const application = {
-		request_id: crypto.randomUUID().toUpperCase(),
-		person_uid: user.profile.congregation.user_local_uid,
-		months: form.months,
-		continuous: form.continuous,
-		submitted: form.submitted,
-		updatedAt: new Date().toISOString(),
-		expired: null,
-	};
-
-	cong.saveApplication(application);
 
 	res.locals.type = 'info';
 	res.locals.message = `user submitted auxiliary pioneer application`;
@@ -283,28 +268,12 @@ export const postUserReport = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id)!;
-
-	if (!user.profile.congregation) {
-		res.locals.type = 'warn';
-		res.locals.message = `user does not have an assigned congregation`;
-		res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
-
+	try {
+		submitUserFieldServiceReport(id, req.body.report as StandardRecord);
+	} catch (error) {
+		if (!handleUserCongregationActivityError(error, res)) throw error;
 		return;
 	}
-
-	const cong = CongregationsList.findById(user.profile.congregation?.id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user congregation is invalid';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
-		return;
-	}
-
-	const report = req.body.report as StandardRecord;
-	user.postReport(report);
 
 	res.locals.type = 'info';
 	res.locals.message = `user sent report successfully`;
