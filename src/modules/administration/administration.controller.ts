@@ -2,9 +2,15 @@ import { Request, Response } from 'express';
 import { UsersList } from '../users/users.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import {
-	findAdministrationCountry,
+	AdministrationCongregationError,
+	createAdministrationCongregation,
+	deleteAdministrationCongregation,
+	deleteAdministrationSpeakerAccessRequest,
 	getAdministrationCongregation,
 	getAdministrationCongregations,
+	resetAdministrationSpeakersKey,
+	toggleAdministrationCongregationDataSync,
+	updateAdministrationCongregation,
 } from './administration-congregations.service.js';
 import {
 	AdministrationUserError,
@@ -31,7 +37,6 @@ import {
 	toggleUserFlag,
 	updateAdministrationFlag,
 } from './administration-flags.service.js';
-import { saveOutgoingSpeakersState } from '../congregations/outgoing-speakers.service.js';
 import {
 	getMinimumClientVersion,
 	updateMinimumClientVersion,
@@ -56,6 +61,38 @@ const handleAdministrationUserError = (error: unknown, res: Response): boolean =
 
 	res.locals.message = 'user already member of the congregation';
 	res.status(400).json({ message: 'USER_MEMBER_ALREADY' });
+	return true;
+};
+
+const handleAdministrationCongregationError = (
+	error: unknown,
+	res: Response,
+	notFoundCode = 'CONGREGATION_NOT_FOUND',
+): boolean => {
+	if (!(error instanceof AdministrationCongregationError)) return false;
+
+	res.locals.type = 'warn';
+
+	if (error.code === 'CONGREGATION_ACTIVE') {
+		res.locals.message = 'congregation could not be deleted since there are still users inside';
+		res.status(405).json({ message: 'CONG_ACTIVE' });
+		return true;
+	}
+
+	if (error.code === 'CONGREGATION_EXISTS') {
+		res.locals.message = 'custom congregation already exists';
+		res.status(400).json({ message: 'CONG_EXISTS' });
+		return true;
+	}
+
+	if (error.code === 'COUNTRY_FETCH_FAILED') {
+		res.locals.message = 'an error occured while getting list of all countries';
+		res.status(error.statusCode!).json({ message: 'FETCH_FAILED' });
+		return true;
+	}
+
+	res.locals.message = 'no congregation could not be found with the provided id';
+	res.status(404).json({ message: notFoundCode });
 	return true;
 };
 
@@ -96,25 +133,13 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
+	let result;
+	try {
+		result = await deleteAdministrationCongregation(id);
+	} catch (error) {
+		if (!handleAdministrationCongregationError(error, res)) throw error;
 		return;
 	}
-
-	if (cong.members.length > 0) {
-		res.locals.type = 'warn';
-		res.locals.message = 'congregation could not be deleted since there are still users inside';
-		res.status(405).json({ message: 'CONG_ACTIVE' });
-		return;
-	}
-
-	await CongregationsList.delete(id);
-
-	const result = await getAdministrationCongregations();
 
 	res.locals.type = 'info';
 	res.locals.message = `admin deleted congregation ${id}`;
@@ -132,17 +157,13 @@ export const congregationGet = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
+	let result;
+	try {
+		result = getAdministrationCongregation(id);
+	} catch (error) {
+		if (!handleAdministrationCongregationError(error, res, 'error_app_congregation_not-found')) throw error;
 		return;
 	}
-
-	const result = getAdministrationCongregation(id);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin fetched a congergation';
@@ -543,21 +564,13 @@ export const congregationDataSyncToggle = async (req: Request, res: Response) =>
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONG_NOT_FOUND' });
+	let result;
+	try {
+		result = await toggleAdministrationCongregationDataSync(id);
+	} catch (error) {
+		if (!handleAdministrationCongregationError(error, res, 'CONG_NOT_FOUND')) throw error;
 		return;
 	}
-
-	const settings = structuredClone(cong.settings);
-	settings.data_sync = { value: !settings.data_sync.value, updatedAt: new Date().toISOString() };
-
-	await cong.saveSettings(settings);
-
-	const result = getAdministrationCongregation(id);
 
 	res.locals.type = 'info';
 	res.locals.message = `admin updated congregation data sync`;
@@ -580,45 +593,16 @@ export const createCongregation = async (req: Request, res: Response) => {
 
 	const { country, name } = req.body as Record<string, string>;
 
-	const cong = CongregationsList.findByCountryAndName(country, name);
-
-	if (cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'custom congregation already exists';
-		res.status(400).json({ message: 'CONG_EXISTS' });
+	let result;
+	try {
+		result = await createAdministrationCongregation(country, name);
+	} catch (error) {
+		if (!handleAdministrationCongregationError(error, res)) throw error;
 		return;
 	}
-
-	const countryResult = await findAdministrationCountry(country);
-
-	if (countryResult.errorStatusCode) {
-		res.locals.type = 'warn';
-		res.locals.message = 'an error occured while getting list of all countries';
-		res.status(countryResult.errorStatusCode).json({ message: 'FETCH_FAILED' });
-		return;
-	}
-
-	const findCountry = countryResult.country;
-
-	const id = await CongregationsList.create({
-		cong_circuit: '',
-		cong_location: {
-			address: '',
-			lat: 0,
-			lng: 0,
-		},
-		cong_name: name,
-		country_guid: findCountry?.countryGuid || crypto.randomUUID(),
-		cong_guid: '',
-		country_code: country,
-		midweek_meeting: { time: '18:30', weekday: 2 },
-		weekend_meeting: { time: '10:00', weekday: 6 },
-	});
-
-	const result = await getAdministrationCongregations();
 
 	res.locals.type = 'info';
-	res.locals.message = `admin created a custom congregation: ${id}`;
+	res.locals.message = 'admin created a custom congregation';
 	res.status(200).json(result);
 };
 
@@ -676,20 +660,13 @@ export const congregationDeleteRequest = async (req: Request, res: Response) => 
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONG_NOT_FOUND' });
+	let result;
+	try {
+		result = await deleteAdministrationSpeakerAccessRequest(id, request);
+	} catch (error) {
+		if (!handleAdministrationCongregationError(error, res, 'CONG_NOT_FOUND')) throw error;
 		return;
 	}
-
-	cong.outgoing_speakers.access = cong.outgoing_speakers.access.filter((record) => record.request_id !== request);
-
-	await saveOutgoingSpeakersState(id, cong.outgoing_speakers);
-
-	const result = getAdministrationCongregation(id);
 
 	res.locals.type = 'info';
 	res.locals.message = `admin deleted congregation access request`;
@@ -707,26 +684,13 @@ export const congregationResetSpeakersKey = async (req: Request, res: Response) 
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONG_NOT_FOUND' });
+	let result;
+	try {
+		result = await resetAdministrationSpeakersKey(id);
+	} catch (error) {
+		if (!handleAdministrationCongregationError(error, res, 'CONG_NOT_FOUND')) throw error;
 		return;
 	}
-
-	cong.outgoing_speakers = {
-		access: [],
-		list: [],
-		speakers_key: '',
-	};
-
-	await cong.saveSpeakersKey('');
-
-	await saveOutgoingSpeakersState(id, cong.outgoing_speakers);
-
-	const result = getAdministrationCongregation(id);
 
 	res.locals.type = 'info';
 	res.locals.message = `admin reset the congregation speakers key`;
@@ -784,36 +748,20 @@ export const updateBasicCongregationInfo = async (req: Request, res: Response) =
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONGREGATION_NOT_FOUND' });
-		return;
-	}
-
-	const settings = structuredClone(cong.settings);
-
 	const congNameNew = req.body.name as string;
 	const congNumberNew = req.body.number as string;
 	const congGuidNew = req.body.guid as string;
-
-	if (congNumberNew !== undefined && congNumberNew !== settings.cong_number?.value) {
-		settings.cong_number = { value: congNumberNew, updatedAt: new Date().toISOString() };
+	let result;
+	try {
+		result = await updateAdministrationCongregation(id, {
+			name: congNameNew,
+			number: congNumberNew,
+			guid: congGuidNew,
+		});
+	} catch (error) {
+		if (!handleAdministrationCongregationError(error, res)) throw error;
+		return;
 	}
-
-	if (congNameNew !== settings.cong_name) {
-		settings.cong_name = congNameNew;
-	}
-
-	if (congGuidNew !== settings.cong_guid) {
-		settings.cong_guid = congGuidNew;
-	}
-
-	await cong.saveSettings(settings);
-
-	const result = await getAdministrationCongregations();
 
 	res.locals.type = 'info';
 	res.locals.message = `admin update basic info for congregation ${id}`;

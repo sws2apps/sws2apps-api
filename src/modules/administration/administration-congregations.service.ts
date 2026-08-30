@@ -3,7 +3,30 @@ import {
 	getCountries,
 } from '../../platform/countries/country-client.js';
 import { CongregationsList } from '../congregations/congregations.js';
+import { saveOutgoingSpeakersState } from '../congregations/outgoing-speakers.service.js';
 import { UsersList } from '../users/users.js';
+
+export type AdministrationCongregationErrorCode =
+	| 'CONGREGATION_NOT_FOUND'
+	| 'CONGREGATION_ACTIVE'
+	| 'CONGREGATION_EXISTS'
+	| 'COUNTRY_FETCH_FAILED';
+
+export class AdministrationCongregationError extends Error {
+	constructor(
+		public readonly code: AdministrationCongregationErrorCode,
+		public readonly statusCode?: number,
+	) {
+		super(code);
+		this.name = 'AdministrationCongregationError';
+	}
+}
+
+const getCongregation = (congregationId: string) => {
+	const congregation = CongregationsList.findById(congregationId);
+	if (!congregation) throw new AdministrationCongregationError('CONGREGATION_NOT_FOUND');
+	return congregation;
+};
 
 export const getAdministrationCongregations = async () => {
 	const countries = await getCountries('E');
@@ -47,7 +70,7 @@ export const findAdministrationCountry = async (countryCode: string) => {
 };
 
 export const getAdministrationCongregation = (congregationId: string) => {
-	const congregation = CongregationsList.findById(congregationId)!;
+	const congregation = getCongregation(congregationId);
 	const congregationMembers = congregation.getMembers('undefined');
 
 	const congregationPersons = congregationMembers.map((person) => {
@@ -97,4 +120,109 @@ export const getAdministrationCongregation = (congregationId: string) => {
 		cong_requests: congregationRequests,
 		has_speakers_key: hasSpeakersKey,
 	};
+};
+
+export const deleteAdministrationCongregation = async (congregationId: string) => {
+	const congregation = getCongregation(congregationId);
+
+	if (congregation.members.length > 0) {
+		throw new AdministrationCongregationError('CONGREGATION_ACTIVE');
+	}
+
+	await CongregationsList.delete(congregationId);
+	return getAdministrationCongregations();
+};
+
+export const toggleAdministrationCongregationDataSync = async (
+	congregationId: string,
+) => {
+	const congregation = getCongregation(congregationId);
+	const settings = structuredClone(congregation.settings);
+	settings.data_sync = {
+		value: !settings.data_sync.value,
+		updatedAt: new Date().toISOString(),
+	};
+
+	await congregation.saveSettings(settings);
+	return getAdministrationCongregation(congregationId);
+};
+
+export const createAdministrationCongregation = async (
+	countryCode: string,
+	congregationName: string,
+) => {
+	if (CongregationsList.findByCountryAndName(countryCode, congregationName)) {
+		throw new AdministrationCongregationError('CONGREGATION_EXISTS');
+	}
+
+	const countryResult = await findAdministrationCountry(countryCode);
+	if (countryResult.errorStatusCode) {
+		throw new AdministrationCongregationError(
+			'COUNTRY_FETCH_FAILED',
+			countryResult.errorStatusCode,
+		);
+	}
+
+	await CongregationsList.create({
+		cong_circuit: '',
+		cong_location: { address: '', lat: 0, lng: 0 },
+		cong_name: congregationName,
+		country_guid: countryResult.country?.countryGuid || crypto.randomUUID(),
+		cong_guid: '',
+		country_code: countryCode,
+		midweek_meeting: { time: '18:30', weekday: 2 },
+		weekend_meeting: { time: '10:00', weekday: 6 },
+	});
+
+	return getAdministrationCongregations();
+};
+
+export const deleteAdministrationSpeakerAccessRequest = async (
+	congregationId: string,
+	requestId: string,
+) => {
+	const congregation = getCongregation(congregationId);
+	congregation.outgoing_speakers.access = congregation.outgoing_speakers.access.filter(
+		(record) => record.request_id !== requestId,
+	);
+
+	await saveOutgoingSpeakersState(congregationId, congregation.outgoing_speakers);
+	return getAdministrationCongregation(congregationId);
+};
+
+export const resetAdministrationSpeakersKey = async (congregationId: string) => {
+	const congregation = getCongregation(congregationId);
+	congregation.outgoing_speakers = { access: [], list: [], speakers_key: '' };
+
+	await congregation.saveSpeakersKey('');
+	await saveOutgoingSpeakersState(congregationId, congregation.outgoing_speakers);
+
+	return getAdministrationCongregation(congregationId);
+};
+
+type UpdateAdministrationCongregationInput = {
+	name: string;
+	number: string;
+	guid: string;
+};
+
+export const updateAdministrationCongregation = async (
+	congregationId: string,
+	input: UpdateAdministrationCongregationInput,
+) => {
+	const congregation = getCongregation(congregationId);
+	const settings = structuredClone(congregation.settings);
+
+	if (input.number !== undefined && input.number !== settings.cong_number?.value) {
+		settings.cong_number = {
+			value: input.number,
+			updatedAt: new Date().toISOString(),
+		};
+	}
+
+	if (input.name !== settings.cong_name) settings.cong_name = input.name;
+	if (input.guid !== settings.cong_guid) settings.cong_guid = input.guid;
+
+	await congregation.saveSettings(settings);
+	return getAdministrationCongregations();
 };
