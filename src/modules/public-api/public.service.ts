@@ -5,6 +5,7 @@ import type { CongregationByCountry } from '../congregations/congregations.types
 import { CongregationsList } from '../congregations/congregations.js';
 import { Flags } from '../feature-flags/flags.js';
 import { InstallationsList } from '../installations/installation-list.js';
+import { registerInstallation } from '../installations/installations.service.js';
 import { UsersList } from '../users/users.js';
 import {
 	assignFeatureFlag,
@@ -208,26 +209,7 @@ export const getPublicFeatureFlags = async (
 		}
 	}
 
-	const installation = InstallationsList.find(installationId);
-	const registration = { id: installationId, registered: new Date().toISOString() };
-
-	if (!installation && userId) {
-		InstallationsList.linked.push({ user: userId, installations: [registration] });
-		await InstallationsList.save();
-	}
-
-	if (!installation && !userId) {
-		InstallationsList.pending.push(registration);
-		await InstallationsList.save();
-	}
-
-	if (installation?.status === 'pending' && userId) {
-		InstallationsList.pending = InstallationsList.pending.filter(
-			(record) => record.id !== installationId,
-		);
-		InstallationsList.linked.push({ user: userId, installations: [registration] });
-		await InstallationsList.save();
-	}
+	await registerInstallation(installationId, userId);
 
 	return enabledFeatureFlags;
 };

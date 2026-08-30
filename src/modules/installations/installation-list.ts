@@ -4,7 +4,6 @@ import {
 } from './installation.js';
 import {
 	loadInstallations,
-	saveInstallations,
 } from './installations.repository.js';
 
 export class Installation {
@@ -46,9 +45,6 @@ export class Installation {
 		return this.list.find((record) => record.id === installation);
 	}
 
-	async save() {
-		await saveInstallations({ linked: this.linked, pending: this.pending });
-	}
 }
 
 export const InstallationsList = new Installation();
