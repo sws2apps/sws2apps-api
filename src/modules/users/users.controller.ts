@@ -5,10 +5,12 @@ import type { StandardRecord } from '../../types/standard-record.js';
 import type { BackupData } from '../backups/backup.types.js';
 import {
 	retrieveUserBackup as retrieveUserBackupData,
-	saveUserBackup as saveUserBackupData,
-	saveUserChunkedBackup as saveUserChunkedBackupData,
 	UserBackupError,
 } from './users-backup.service.js';
+import {
+	saveUserBackup as saveUserBackupData,
+	saveUserChunkedBackup as saveUserChunkedBackupData,
+} from './user-backup-upload.service.js';
 import {
 	deleteUserAccount,
 	disableUserMfa,

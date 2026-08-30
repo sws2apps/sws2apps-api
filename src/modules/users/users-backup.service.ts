@@ -1,12 +1,6 @@
 import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 import type { StandardRecord } from '../../types/standard-record.js';
-import {
-	findBackupUploadByCongregation,
-	recordBackupUploadChunk,
-} from '../backups/backup-upload-tracker.js';
-import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
-import { saveUserBackupAsync } from '../backups/backup-persistence.service.js';
 import { BackupData } from '../backups/backup.types.js';
 import type { Congregation } from '../congregations/congregation.js';
 import { CongregationsList } from '../congregations/congregations.js';
@@ -23,7 +17,7 @@ export class UserBackupError extends Error {
 	}
 }
 
-const getUserBackupContext = (userId: string): {
+export const getUserBackupContext = (userId: string): {
 	user: User;
 	congregation: Congregation;
 } => {
@@ -395,135 +389,4 @@ export const retrieveUserBackup = async (
 	}
 
 	return result;
-};
-
-export type SaveUserBackupOutcome =
-	| { status: 'saved' }
-	| { status: 'conflict'; key: string; currentValue: string; incomingValue: string };
-
-export const saveUserBackup = async (
-	userId: string,
-	cong_backup: BackupData,
-): Promise<SaveUserBackupOutcome> => {
-	const { user, congregation } = getUserBackupContext(userId);
-	const incomingMetadata = cong_backup.metadata;
-	const currentMetadata = { ...congregation.metadata, ...user.metadata };
-
-	// remove all metadata when data sync is disabled
-	if (!congregation.settings.data_sync.value) {
-		const keys = Object.keys(incomingMetadata);
-		const invalidKeys = keys.filter((key) => key !== 'user_settings' && key !== 'cong_settings');
-
-		for (const key of invalidKeys) {
-			delete incomingMetadata[key];
-		}
-	}
-
-	const metadataConflict = findBackupMetadataConflict(currentMetadata, incomingMetadata);
-
-	if (metadataConflict) {
-		if (cong_backup.app_settings?.cong_settings?.data_sync.value) {
-			const settings = structuredClone(congregation.settings);
-			settings.data_sync = cong_backup.app_settings.cong_settings.data_sync;
-
-			await congregation.saveSettings(settings);
-		}
-
-		return {
-			status: 'conflict',
-			key: metadataConflict.key,
-			currentValue: metadataConflict.currentValue,
-			incomingValue: metadataConflict.incomingValue,
-		};
-	}
-
-	const userRole = user.profile.congregation!.cong_role;
-
-	saveUserBackupAsync({ congId: congregation.id, userId: user.id, cong_backup, userRole });
-
-	return { status: 'saved' };
-};
-
-export type SaveUserChunkedBackupOutcome =
-	| { status: 'saved' }
-	| { status: 'chunk_received' }
-	| { status: 'metadata_conflict'; key: string; currentValue: string; incomingValue: string }
-	| { status: 'backup_in_progress' };
-
-type SaveUserChunkedBackupChunk = {
-	uploadId: string;
-	chunkIndex: number;
-	totalChunks: number;
-	chunkData: string;
-};
-
-export const saveUserChunkedBackup = async (
-	userId: string,
-	metadataHeader: string,
-	chunk: SaveUserChunkedBackupChunk,
-): Promise<SaveUserChunkedBackupOutcome> => {
-	const { user, congregation } = getUserBackupContext(userId);
-	const incomingMetadata = JSON.parse(metadataHeader) as Record<string, string>;
-	const currentMetadata = { ...congregation.metadata, ...user.metadata };
-
-	// remove all metadata when data sync is disabled
-	if (!congregation.settings.data_sync.value) {
-		const keys = Object.keys(incomingMetadata);
-		const invalidKeys = keys.filter((key) => key !== 'user_settings' && key !== 'cong_settings');
-
-		for (const key of invalidKeys) {
-			delete incomingMetadata[key];
-		}
-	}
-
-	const metadataConflict = findBackupMetadataConflict(currentMetadata, incomingMetadata);
-
-	if (metadataConflict) {
-		return {
-			status: 'metadata_conflict',
-			key: metadataConflict.key,
-			currentValue: metadataConflict.currentValue,
-			incomingValue: metadataConflict.incomingValue,
-		};
-	}
-
-	const currentBackup = findBackupUploadByCongregation(congregation.id);
-
-	if (currentBackup) {
-		const anotherUser = currentBackup.record.userId !== user.id;
-		const anotherDevice = currentBackup.record.userId === user.id && currentBackup.uploadId !== chunk.uploadId;
-
-		// reject if upload from another user or another device
-		if (anotherUser || anotherDevice) {
-			return { status: 'backup_in_progress' };
-		}
-	}
-
-	const { uploadId, chunkIndex, totalChunks, chunkData } = chunk;
-
-	const completedBackup = recordBackupUploadChunk({
-		uploadId,
-		chunkIndex,
-		totalChunks,
-		chunkData,
-		userId: user.id,
-		congregationId: congregation.id,
-	});
-
-	if (completedBackup) {
-		const congregationBackup = JSON.parse(completedBackup) as BackupData;
-
-		const userRole = user.profile.congregation!.cong_role;
-
-		saveUserBackupAsync({
-			congId: congregation.id,
-			userId: user.id,
-			userRole,
-			cong_backup: congregationBackup,
-		});
-
-		return { status: 'saved' };
-	}
-
-	return { status: 'chunk_received' };
 };
