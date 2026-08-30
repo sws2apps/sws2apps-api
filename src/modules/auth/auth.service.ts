@@ -4,16 +4,28 @@ import {
 	verifyFirebaseIdToken,
 } from '../../platform/firebase/authentication.js';
 import type { IncomingHttpHeaders } from 'node:http';
+import { env } from '../../config/env.js';
 import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
 import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import type { User } from '../users/user.js';
 import type { UserAuthResponse } from '../users/user.types.js';
 import { UsersList } from '../users/users.js';
+import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
 import {
 	isPasswordlessEmailEnabled,
 	sendPasswordlessLoginEmail,
 } from './auth-notifications.service.js';
+import { isEmailOneTimePasswordValid } from './email-otp.js';
+
+export type AuthenticationErrorCode = 'USER_NOT_FOUND' | 'OTP_NOT_FOUND' | 'INVALID_OTP';
+
+export class AuthenticationError extends Error {
+	constructor(public readonly code: AuthenticationErrorCode) {
+		super(code);
+		this.name = 'AuthenticationError';
+	}
+}
 
 export const verifyAuthenticationToken = async (
 	idToken: string,
@@ -95,6 +107,94 @@ export const createAuthenticationSession = async (input: CreateAuthenticationSes
 	});
 
 	await user.updateSessions(sessions);
+};
+
+type CompleteAuthenticationInput = {
+	authenticationUserId: string;
+	visitorId: string;
+	visitorIp: string;
+	headers: IncomingHttpHeaders;
+	createUserWhenMissing?: boolean;
+};
+
+export const completeAuthentication = async (input: CompleteAuthenticationInput) => {
+	let user = UsersList.findByAuthUid(input.authenticationUserId);
+
+	if (!user && input.createUserWhenMissing) {
+		const displayName = await getAuthenticationUserDisplayName(input.authenticationUserId);
+		const names = displayName.length > 0 ? displayName.split(' ') : [];
+		const lastname = names.pop() || '';
+		const firstname = names.join(' ');
+
+		user = await UsersList.create({
+			auth_uid: input.authenticationUserId,
+			firstname,
+			lastname,
+		});
+	}
+
+	if (!user) throw new AuthenticationError('USER_NOT_FOUND');
+
+	await createAuthenticationSession({
+		userId: user.id,
+		visitorId: input.visitorId,
+		visitorIp: input.visitorIp,
+		headers: input.headers,
+		mfaVerified: false,
+	});
+
+	if (user.profile.mfa_enabled) {
+		const developmentMfaCode = env.isDevelopment
+			? generateDevelopmentMfaToken(user.email!, user.profile.secret!)
+			: undefined;
+
+		return {
+			requiresMfa: true as const,
+			developmentMfaCode,
+		};
+	}
+
+	return {
+		requiresMfa: false as const,
+		userInfo: buildUserAuthenticationResponse({ authUser: user }),
+	};
+};
+
+type CompleteEmailOtpAuthenticationInput = {
+	email: string;
+	oneTimePassword: string;
+	visitorId: string;
+	visitorIp: string;
+	headers: IncomingHttpHeaders;
+};
+
+export const completeEmailOtpAuthentication = async (
+	input: CompleteEmailOtpAuthenticationInput,
+) => {
+	const user = UsersList.findByEmail(input.email);
+	if (!user) throw new AuthenticationError('USER_NOT_FOUND');
+	if (!user.profile.email_otp) throw new AuthenticationError('OTP_NOT_FOUND');
+
+	if (!isEmailOneTimePasswordValid(user.profile.email_otp, input.oneTimePassword)) {
+		throw new AuthenticationError('INVALID_OTP');
+	}
+
+	const profile = structuredClone(user.profile);
+	delete profile.email_otp;
+	await user.updateProfile(profile);
+
+	await createAuthenticationSession({
+		userId: user.id,
+		visitorId: input.visitorId,
+		visitorIp: input.visitorIp,
+		headers: input.headers,
+		mfaVerified: true,
+	});
+
+	const userInfo = buildUserAuthenticationResponse({ authUser: user });
+	userInfo.custom_token = await createAuthenticationToken(user.profile.auth_uid!);
+
+	return userInfo;
 };
 
 type BuildUserAuthenticationResponseInput = {

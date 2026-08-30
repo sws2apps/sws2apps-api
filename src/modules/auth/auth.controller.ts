@@ -1,26 +1,67 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
-import { UsersList } from '../users/users.js';
 import { formatError } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import {
-	createAuthenticationSession,
 	createPasswordlessSignIn,
-	createAuthenticationToken,
-	buildUserAuthenticationResponse,
-	getAuthenticationUserDisplayName,
+	AuthenticationError,
+	completeAuthentication,
+	completeEmailOtpAuthentication,
 	verifyAuthenticationToken,
 } from './auth.service.js';
-import { env } from '../../config/env.js';
-import { isEmailOneTimePasswordValid } from './email-otp.js';
 import { isPasswordlessEmailEnabled } from './auth-notifications.service.js';
 
-const isDev = env.isDevelopment;
+const completeTokenAuthentication = async (
+	req: Request,
+	res: Response,
+	createUserWhenMissing: boolean,
+) => {
+	const idToken = req.headers.authorization!.split('Bearer ')[1];
+	const authenticationUserId = await verifyAuthenticationToken(idToken);
+
+	if (!authenticationUserId) {
+		res.locals.type = 'warn';
+		res.locals.message = 'the idToken received is invalid';
+		res.status(404).json({ message: 'error_auth_invalid-token' });
+		return;
+	}
+
+	const visitorId: string = req.signedCookies.visitorid || crypto.randomUUID();
+
+	try {
+		const authentication = await completeAuthentication({
+			authenticationUserId,
+			visitorId,
+			visitorIp: req.clientIp!,
+			headers: req.headers,
+			createUserWhenMissing,
+		});
+
+		res.cookie('visitorid', visitorId, getSessionCookieOptions(req));
+
+		if (authentication.requiresMfa) {
+			res.locals.type = 'info';
+			res.locals.message = 'user required to verify mfa';
+			res.status(200).json({
+				message: 'MFA_VERIFY',
+				code: authentication.developmentMfaCode,
+			});
+			return;
+		}
+
+		res.locals.type = 'info';
+		res.locals.message = 'user successfully logged in without MFA';
+		res.status(200).json(authentication.userInfo);
+	} catch (error) {
+		if (!(error instanceof AuthenticationError) || error.code !== 'USER_NOT_FOUND') throw error;
+
+		res.locals.type = 'warn';
+		res.locals.message = 'user record not found';
+		res.status(404).json({ message: 'USER_NOT_FOUND' });
+	}
+};
 
 export const loginUser = async (req: Request, res: Response) => {
-	const userIP = req.clientIp!;
-
 	// validate through express middleware
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
@@ -34,68 +75,7 @@ export const loginUser = async (req: Request, res: Response) => {
 		return;
 	}
 
-	// decode authorization
-	const idToken = req.headers.authorization!.split('Bearer ')[1];
-	const uid = await verifyAuthenticationToken(idToken);
-
-	if (!uid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'the idToken received is invalid';
-		res.status(404).json({ message: 'error_auth_invalid-token' });
-		return;
-	}
-
-	const visitorid: string = req.signedCookies.visitorid || crypto.randomUUID();
-	let authUser = UsersList.findByAuthUid(uid);
-
-	if (!authUser) {
-		const displayName = await getAuthenticationUserDisplayName(uid);
-		let firstname = '';
-		let lastname = '';
-
-		if (displayName.length > 0) {
-			const names = displayName.split(' ');
-			lastname = names.pop()!;
-			firstname = names.join(' ');
-		}
-
-		authUser = await UsersList.create({ auth_uid: uid, firstname, lastname });
-	}
-
-	await createAuthenticationSession({
-		userId: authUser.id,
-		visitorId: visitorid,
-		visitorIp: userIP,
-		headers: req.headers,
-		mfaVerified: false,
-	});
-
-	if (authUser.profile.mfa_enabled) {
-		res.locals.type = 'info';
-		res.locals.message = 'user required to verify mfa';
-
-		res.cookie('visitorid', visitorid, getSessionCookieOptions(req));
-
-		if (isDev) {
-			const tokenDev = generateDevelopmentMfaToken(
-				authUser.email!,
-				authUser.profile.secret!,
-			);
-			res.status(200).json({ message: 'MFA_VERIFY', code: tokenDev });
-		} else {
-			res.status(200).json({ message: 'MFA_VERIFY' });
-		}
-
-		return;
-	}
-
-	const userInfo = buildUserAuthenticationResponse({ authUser });
-
-	res.locals.type = 'info';
-	res.locals.message = 'user successfully logged in without MFA';
-
-	res.cookie('visitorid', visitorid, getSessionCookieOptions(req));
-	res.status(200).json(userInfo);
+	await completeTokenAuthentication(req, res, true);
 };
 
 export const createSignInLink = async (req: Request, res: Response) => {
@@ -144,9 +124,6 @@ export const createSignInLink = async (req: Request, res: Response) => {
 };
 
 export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
-	const userIP = req.clientIp!;
-	const isDev = env.isDevelopment;
-
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
 		const msg = formatError(errors);
@@ -159,59 +136,10 @@ export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
 		return;
 	}
 
-	// decode authorization
-	const idToken = req.headers.authorization!.split('Bearer ')[1];
-	const uid = await verifyAuthenticationToken(idToken);
-
-	if (!uid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'the idToken received is invalid';
-		res.status(404).json({ message: 'error_auth_invalid-token' });
-		return;
-	}
-
-	const authUser = UsersList.findByAuthUid(uid)!;
-
-	const visitorid = req.signedCookies.visitorid || crypto.randomUUID();
-
-	await createAuthenticationSession({
-		userId: authUser.id,
-		visitorId: visitorid,
-		visitorIp: userIP,
-		headers: req.headers,
-		mfaVerified: false,
-	});
-
-	if (authUser.profile.mfa_enabled) {
-		res.locals.type = 'info';
-		res.locals.message = 'user required to verify mfa';
-
-		res.cookie('visitorid', visitorid, getSessionCookieOptions(req));
-		if (isDev) {
-			const tokenDev = generateDevelopmentMfaToken(
-				authUser.email!,
-				authUser.profile.secret!,
-			);
-			res.status(200).json({ message: 'MFA_VERIFY', code: tokenDev });
-		} else {
-			res.status(200).json({ message: 'MFA_VERIFY' });
-		}
-
-		return;
-	}
-
-	const userInfo = buildUserAuthenticationResponse({ authUser });
-
-	res.locals.type = 'info';
-	res.locals.message = 'user successfully logged in without MFA';
-
-	res.cookie('visitorid', visitorid, getSessionCookieOptions(req));
-	res.status(200).json(userInfo);
+	await completeTokenAuthentication(req, res, false);
 };
 
 export const verifyEmailToken = async (req: Request, res: Response) => {
-	const userIP = req.clientIp!;
-
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
 		const msg = formatError(errors);
@@ -224,57 +152,36 @@ export const verifyEmailToken = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const email = req.body.email as string;
-	const token = req.body.token as string;
+	const visitorId = req.signedCookies.visitorid || crypto.randomUUID();
 
-	const authUser = UsersList.findByEmail(email);
+	try {
+		const userInfo = await completeEmailOtpAuthentication({
+			email: req.body.email as string,
+			oneTimePassword: String(req.body.token),
+			visitorId,
+			visitorIp: req.clientIp!,
+			headers: req.headers,
+		});
 
-	if (!authUser) {
+		res.locals.type = 'info';
+		res.locals.message = 'user successfully logged with email OTP';
+		res.cookie('visitorid', visitorId, getSessionCookieOptions(req));
+		res.status(200).json(userInfo);
+	} catch (error) {
+		if (!(error instanceof AuthenticationError)) throw error;
+
 		res.locals.type = 'warn';
-		res.locals.message = 'user record not found';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
-		return;
+		if (error.code === 'USER_NOT_FOUND') {
+			res.locals.message = 'user record not found';
+			res.status(404).json({ message: 'USER_NOT_FOUND' });
+			return;
+		}
+
+		res.locals.message = error.code === 'OTP_NOT_FOUND'
+			? 'user email otp not found in records'
+			: 'email otp is invalid';
+		res.status(error.code === 'OTP_NOT_FOUND' ? 404 : 403).json({
+			message: 'error_auth_invalid-token',
+		});
 	}
-
-	if (!authUser.profile.email_otp) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user email otp not found in records';
-		res.status(404).json({ message: 'error_auth_invalid-token' });
-		return;
-	}
-
-	if (!isEmailOneTimePasswordValid(authUser.profile.email_otp, String(token))) {
-		res.locals.type = 'warn';
-		res.locals.message = 'email otp is invalid';
-		res.status(403).json({ message: 'error_auth_invalid-token' });
-		return;
-	}
-
-	const profile = structuredClone(authUser.profile);
-
-	delete profile.email_otp;
-
-	await authUser.updateProfile(profile);
-
-	const visitorid = req.signedCookies.visitorid || crypto.randomUUID();
-
-	await createAuthenticationSession({
-		userId: authUser.id,
-		visitorId: visitorid,
-		visitorIp: userIP,
-		headers: req.headers,
-		mfaVerified: true,
-	});
-
-	const userInfo = buildUserAuthenticationResponse({ authUser });
-
-	res.locals.type = 'info';
-	res.locals.message = 'user successfully logged with email OTP';
-
-	const customToken = await createAuthenticationToken(authUser.profile.auth_uid!);
-
-	userInfo.custom_token = customToken;
-
-	res.cookie('visitorid', visitorid, getSessionCookieOptions(req));
-	res.status(200).json(userInfo);
 };
