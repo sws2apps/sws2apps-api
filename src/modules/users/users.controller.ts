@@ -4,7 +4,6 @@ import sanitizeHtml from 'sanitize-html';
 
 import { UsersList } from './users.js';
 import { CongregationsList } from '../congregations/congregations.js';
-import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
 import { formatError } from '../../http/validation-errors.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import type { BackupData } from '../backups/backup.types.js';
@@ -16,44 +15,34 @@ import {
 	saveUserBackup as saveUserBackupData,
 	saveUserChunkedBackup as saveUserChunkedBackupData,
 } from './users-backup.service.js';
-import { env } from '../../config/env.js';
 import { sendFeedbackEmail } from './user-notifications.service.js';
-
-const isDev = env.isDevelopment;
+import {
+	deleteUserAccount,
+	disableUserMfa,
+	getUserActiveSessions,
+	getUserMfaEnrollment,
+	getValidatedUserAccount,
+	logoutUserSession,
+	revokeUserSession,
+	UserAccountError,
+} from './users-account.service.js';
 
 export const validateUser = async (req: Request, res: Response) => {
-	const user = res.locals.currentUser;
+	try {
+		const account = getValidatedUserAccount(res.locals.currentUser.id);
 
-	if (!user.profile.congregation) {
+		res.locals.type = 'info';
+		res.locals.message = 'visitor id has been validated';
+		res.status(200).json(account);
+	} catch (error) {
+		if (!(error instanceof UserAccountError)) throw error;
+
 		res.locals.type = 'warn';
-		res.locals.message = 'email address not associated with a congregation';
+		res.locals.message = error.code === 'CONGREGATION_NOT_ASSIGNED'
+			? 'email address not associated with a congregation'
+			: 'user congregation is invalid';
 		res.status(404).json({ message: 'CONG_NOT_FOUND' });
-		return;
 	}
-
-	const cong = CongregationsList.findById(user.profile.congregation.id)!;
-
-	const userRole = user.profile.congregation.cong_role;
-	const masterKeyNeeded = canAccessCongregationMasterKey(userRole);
-
-	const obj = {
-		id: user.id,
-		mfa: user.profile.mfa_enabled,
-		cong_id: cong.id,
-		country_code: cong.settings.country_code,
-		cong_name: cong.settings.cong_name,
-		cong_prefix: cong.settings.cong_prefix,
-		cong_number: cong.settings.cong_number,
-		cong_role: user.profile.congregation.cong_role,
-		user_local_uid: user.profile.congregation.user_local_uid,
-		user_delegates: user.profile.congregation.user_members_delegate,
-		cong_master_key: masterKeyNeeded ? cong.settings.cong_master_key : undefined,
-		cong_access_code: cong.settings.cong_access_code,
-	};
-
-	res.locals.type = 'info';
-	res.locals.message = 'visitor id has been validated';
-	res.status(200).json(obj);
 };
 
 export const getUserSecretToken = async (req: Request, res: Response) => {
@@ -67,23 +56,12 @@ export const getUserSecretToken = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id)!;
-	await user.generateSecret();
-	const { secret, uri } = user.decryptSecret();
+	const enrollment = await getUserMfaEnrollment(id);
 
 	res.locals.type = 'info';
 	res.locals.message = `the user has fetched 2fa successfully`;
 
-	if (!user.profile.mfa_enabled && isDev) {
-		const tokenDev = generateDevelopmentMfaToken(user.email!, user.profile.secret!);
-		res.status(200).json({ secret: secret, qrCode: uri, mfaEnabled: user.profile.mfa_enabled, MFA_CODE: tokenDev });
-	} else {
-		res.status(200).json({
-			secret: secret,
-			qrCode: uri,
-			mfaEnabled: user.profile.mfa_enabled,
-		});
-	}
+	res.status(200).json(enrollment);
 };
 
 export const getUserSessions = async (req: Request, res: Response) => {
@@ -95,8 +73,7 @@ export const getUserSessions = async (req: Request, res: Response) => {
 		res.status(400).json({ message: 'USER_ID_INVALID' });
 	}
 
-	const user = UsersList.findById(id)!;
-	const sessions = user.getActiveSessions(req.signedCookies.visitorid);
+	const sessions = getUserActiveSessions(id, req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = `the user has fetched sessions successfully`;
@@ -128,16 +105,7 @@ export const deleteUserSession = async (req: Request, res: Response) => {
 
 	const identifier = req.body.identifier as string;
 
-	const user = UsersList.findById(id)!;
-	const sessions = await user.revokeSession(identifier);
-
-	if (user.profile.congregation && user.profile.congregation.id.length > 0) {
-		const cong = CongregationsList.findById(user.profile.congregation.id);
-
-		if (cong) {
-			cong.reloadMembers();
-		}
-	}
+	const sessions = await revokeUserSession(id, identifier);
 
 	res.locals.type = 'info';
 	res.locals.message = `the user has revoked session successfully`;
@@ -147,11 +115,7 @@ export const deleteUserSession = async (req: Request, res: Response) => {
 export const userLogout = async (req: Request, res: Response) => {
 	const visitorid = req.headers.visitorid as string;
 
-	const user = res.locals.currentUser;
-
-	if (user) {
-		await user.revokeSession(visitorid);
-	}
+	await logoutUserSession(res.locals.currentUser?.id, visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = `the current user has logged out`;
@@ -171,8 +135,7 @@ export const disableUser2FA = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id)!;
-	await user.disableMFA();
+	await disableUserMfa(id);
 
 	res.locals.type = 'info';
 	res.locals.message = `the user disabled 2fa successfully`;
@@ -646,15 +609,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id)!;
-	const congId = user.profile.congregation?.id;
-
-	await UsersList.delete(id);
-
-	if (congId) {
-		const cong = CongregationsList.findById(congId);
-		cong?.reloadMembers();
-	}
+	await deleteUserAccount(id);
 
 	res.locals.type = 'info';
 	res.locals.message = 'user deleted account successfully';
