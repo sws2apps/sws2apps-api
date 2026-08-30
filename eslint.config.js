@@ -163,8 +163,13 @@ export default [
 				{
 					patterns: [
 						{
-							group: ['**/platform/firebase/**', 'firebase-admin', 'firebase-admin/*'],
-							message: 'Authentication middleware must use the authentication service for Firebase operations.',
+							group: [
+								'**/platform/firebase/**',
+								'**/users/users.js',
+								'firebase-admin',
+								'firebase-admin/*',
+							],
+							message: 'Authentication middleware must use authentication services for user and Firebase operations.',
 						},
 					],
 				},

@@ -1,11 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import { header, validationResult } from 'express-validator';
-import { UsersList } from '../../modules/users/users.js';
 import { formatError } from '../validation-errors.js';
 import {
 	refreshAuthenticationSession,
 	verifyAuthenticationToken,
 } from '../../modules/auth/auth.service.js';
+import {
+	resolveAuthenticatedSession,
+	resolvePocketSessionUser,
+} from '../../modules/auth/session-resolution.service.js';
 import {
 	extractBearerToken,
 	validateBearerAuthorization,
@@ -54,22 +57,16 @@ export const requireAuthenticatedSession = () => {
 				return;
 			}
 
-			const user = UsersList.findByAuthUid(authenticatedUserId);
+			const sessionResolution = resolveAuthenticatedSession(authenticatedUserId, visitorId);
 
-			if (!user) {
+			if (sessionResolution.status === 'user-not-found') {
 				res.locals.type = 'warn';
 				res.locals.message = 'this user account no longer exists';
 				res.status(403).json({ message: 'ACCOUNT_NOT_FOUND' });
 				return;
 			}
 
-			// get user session
-			const userSessions = user.sessions;
-
-			// find if visitor id has valid session
-			const activeSession = userSessions!.find((session) => session.visitorid === visitorId);
-
-			if (!activeSession) {
+			if (sessionResolution.status === 'session-not-found') {
 				res.locals.type = 'warn';
 				res.locals.message = 'the visitor id is invalid or does not have an active session';
 
@@ -77,6 +74,8 @@ export const requireAuthenticatedSession = () => {
 				res.status(403).json({ message: 'SESSION_REVOKED' });
 				return;
 			}
+
+			const { user, session: activeSession } = sessionResolution;
 
 			// assign local vars for current user in next route
 			res.locals.currentUser = user;
@@ -135,7 +134,7 @@ export const requirePocketSession = () => {
 				return;
 			}
 
-			const user = UsersList.findByVisitorId(visitorId);
+			const user = resolvePocketSessionUser(visitorId);
 
 			if (!user) {
 				res.locals.type = 'warn';
