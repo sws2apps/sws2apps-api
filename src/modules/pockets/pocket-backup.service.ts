@@ -1,5 +1,9 @@
 import type { BackupData } from '../backups/backup.types.js';
-import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
+import {
+	BackupMetadataError,
+	findBackupMetadataConflict,
+	parseBackupMetadata,
+} from '../backups/backup-metadata.js';
 import { savePocketBackupAsync } from '../backups/backup-persistence.service.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { isCongregationMember } from '../congregations/congregation-members.service.js';
@@ -22,21 +26,9 @@ export class PocketBackupError extends Error {
 
 export const parsePocketBackupMetadata = (metadataHeader: string): Record<string, string> => {
 	try {
-		const metadata: unknown = JSON.parse(metadataHeader);
-
-		if (!metadata || Array.isArray(metadata) || typeof metadata !== 'object') {
-			throw new PocketBackupError('INVALID_METADATA');
-		}
-
-		const entries = Object.entries(metadata);
-
-		if (entries.some(([, value]) => typeof value !== 'string')) {
-			throw new PocketBackupError('INVALID_METADATA');
-		}
-
-		return Object.fromEntries(entries) as Record<string, string>;
+		return parseBackupMetadata(metadataHeader);
 	} catch (error) {
-		if (error instanceof PocketBackupError) throw error;
+		if (!(error instanceof BackupMetadataError)) throw error;
 		throw new PocketBackupError('INVALID_METADATA');
 	}
 };

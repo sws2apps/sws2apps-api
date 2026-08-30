@@ -5,7 +5,10 @@ import {
 import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
 import { saveUserBackupAsync } from '../backups/backup-persistence.service.js';
 import type { BackupData } from '../backups/backup.types.js';
-import { getUserBackupContext } from './users-backup.service.js';
+import {
+	getUserBackupContext,
+	parseUserBackupMetadata,
+} from './user-backup-context.js';
 
 export const filterBackupMetadata = (
 	metadata: Record<string, string>,
@@ -89,7 +92,7 @@ export const saveUserChunkedBackup = async (
 ): Promise<SaveUserChunkedBackupOutcome> => {
 	const { user, congregation } = getUserBackupContext(userId);
 	const incomingMetadata = filterBackupMetadata(
-		JSON.parse(metadataHeader) as Record<string, string>,
+		parseUserBackupMetadata(metadataHeader),
 		congregation.settings.data_sync.value,
 	);
 	const currentMetadata = { ...congregation.metadata, ...user.metadata };

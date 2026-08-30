@@ -3,10 +3,8 @@ import { validationResult } from 'express-validator';
 import { formatError } from '../../http/validation-errors.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import type { BackupData } from '../backups/backup.types.js';
-import {
-	retrieveUserBackup as retrieveUserBackupData,
-	UserBackupError,
-} from './users-backup.service.js';
+import { retrieveUserBackup as retrieveUserBackupData } from './users-backup.service.js';
+import { UserBackupError } from './user-backup-context.js';
 import {
 	saveUserBackup as saveUserBackupData,
 	saveUserChunkedBackup as saveUserChunkedBackupData,
@@ -58,6 +56,12 @@ const handleUserBackupError = (error: unknown, res: Response): boolean => {
 	if (error.code === 'CONGREGATION_NOT_ASSIGNED') {
 		res.locals.message = 'user does not have an assigned congregation';
 		res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
+		return true;
+	}
+
+	if (error.code === 'INVALID_METADATA') {
+		res.locals.message = 'backup metadata is invalid';
+		res.status(400).json({ message: 'BACKUP_METADATA_INVALID' });
 		return true;
 	}
 

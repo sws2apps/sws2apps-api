@@ -1,7 +1,35 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { findBackupMetadataConflict } from '../../../src/modules/backups/backup-metadata.js';
+import {
+	BackupMetadataError,
+	findBackupMetadataConflict,
+	parseBackupMetadata,
+} from '../../../src/modules/backups/backup-metadata.js';
+
+describe('backup metadata parsing', () => {
+	it('accepts a JSON object containing string timestamps', () => {
+		assert.deepEqual(
+			parseBackupMetadata('{"user_settings":"2026-08-30T10:00:00.000Z"}'),
+			{ user_settings: '2026-08-30T10:00:00.000Z' },
+		);
+	});
+
+	it('rejects malformed JSON and non-string metadata values', () => {
+		assert.throws(
+			() => parseBackupMetadata('{invalid-json'),
+			BackupMetadataError,
+		);
+		assert.throws(
+			() => parseBackupMetadata('{"user_settings":123}'),
+			BackupMetadataError,
+		);
+		assert.throws(
+			() => parseBackupMetadata('[]'),
+			BackupMetadataError,
+		);
+	});
+});
 
 describe('backup metadata conflicts', () => {
 	it('returns the first server value newer than the incoming value', () => {
