@@ -1,8 +1,11 @@
 import {
+	createFirebaseAuthenticationUser,
 	createFirebaseCustomToken,
+	findFirebaseAuthenticationUserIdByEmail,
 	getFirebaseUserDisplayName,
 	verifyFirebaseIdToken,
 } from '../../platform/firebase/authentication.js';
+import randomstring from 'randomstring';
 import type { IncomingHttpHeaders } from 'node:http';
 import { env } from '../../config/env.js';
 import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
@@ -68,22 +71,54 @@ type PasswordlessSignInRequest = {
 };
 
 export const createPasswordlessSignIn = async (request: PasswordlessSignInRequest) => {
-	const { link, otp } = await UsersList.generatePasswordLessLink({
-		email: request.email,
-		origin: request.origin,
-	});
+	let authenticationUserId = await findFirebaseAuthenticationUserIdByEmail(request.email);
+	let user = UsersList.findByEmail(request.email);
+
+	if (!user && !authenticationUserId) {
+		authenticationUserId = await createFirebaseAuthenticationUser(request.email);
+		user = await UsersList.create({
+			auth_uid: authenticationUserId,
+			firstname: '',
+			lastname: '',
+			email: request.email,
+		});
+	}
+
+	if (!user || !authenticationUserId) {
+		throw new AuthenticationError('USER_NOT_FOUND');
+	}
+
+	let oneTimePassword = user.profile.email_otp?.code;
+	const oneTimePasswordExpired = user.profile.email_otp
+		? Date.now() > user.profile.email_otp.expiredAt
+		: true;
+
+	if (oneTimePasswordExpired) {
+		oneTimePassword = randomstring.generate({ length: 6, charset: ['numeric'] });
+
+		const profile = structuredClone(user.profile);
+		profile.email_otp = {
+			code: oneTimePassword,
+			expiredAt: Date.now() + 5 * 60 * 1000,
+		};
+
+		await user.updateProfile(profile);
+	}
+
+	const token = await createAuthenticationToken(authenticationUserId);
+	const link = `${request.origin}/#/?code=${token}`;
 	const emailEnabled = isPasswordlessEmailEnabled();
 
 	if (emailEnabled) {
 		sendPasswordlessLoginEmail({
 			recipient: request.email,
 			loginLink: link,
-			oneTimePassword: otp,
+			oneTimePassword,
 			...request.emailContent,
 		});
 	}
 
-	return { emailEnabled, link, otp };
+	return { emailEnabled, link, otp: oneTimePassword };
 };
 
 type CreateAuthenticationSessionInput = {

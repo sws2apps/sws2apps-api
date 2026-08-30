@@ -55,6 +55,22 @@ export const createFirebaseCustomToken = async (
 	return getAuth().createCustomToken(authenticationUserId);
 };
 
+export const findFirebaseAuthenticationUserIdByEmail = async (
+	email: string,
+): Promise<string | undefined> => {
+	const result = await getAuth().getUsers([{ email }]);
+
+	return result.users[0]?.uid;
+};
+
+export const createFirebaseAuthenticationUser = async (
+	email: string,
+): Promise<string> => {
+	const user = await getAuth().createUser({ email });
+
+	return user.uid;
+};
+
 export const deleteFirebaseAuthUser = async (
 	authenticationUserId: string,
 ): Promise<void> => {

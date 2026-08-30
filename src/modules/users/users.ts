@@ -1,8 +1,6 @@
-import randomstring from 'randomstring';
 import { LogLevel } from '@logtail/types';
 import type {
 	PocketNewParams,
-	RequestPasswordLessLinkParams,
 	UserNewParams,
 } from './user.types.js';
 import { User } from './user.js';
@@ -14,7 +12,6 @@ import {
 } from './users.repository.js';
 import { deleteFirebaseAuthUser } from '../../platform/firebase/authentication.js';
 import { deleteFileFromStorage } from '../../platform/firebase/storage.js';
-import { getAuth } from 'firebase-admin/auth';
 import { logger } from '../../platform/logging/logger.js';
 
 class Users {
@@ -72,57 +69,6 @@ class Users {
 
 		const user = await this.#add(id);
 		return user;
-	}
-
-	async generatePasswordLessLink({ email, origin }: RequestPasswordLessLinkParams) {
-		const localUser = UsersList.findByEmail(email);
-
-		if (!localUser) {
-			const results = await getAuth().getUsers([{ email }]);
-
-			if (results.users.length === 0) {
-				const user = await getAuth().createUser({ email });
-
-				await this.create({ auth_uid: user.uid, firstname: '', lastname: '', email });
-			}
-		}
-
-		const foundUser = UsersList.findByEmail(email)!;
-
-		let createOTP = false;
-		let emailOTP: string | undefined = undefined;
-
-		if (!foundUser.profile.email_otp) {
-			createOTP = true;
-		}
-
-		if (foundUser.profile.email_otp) {
-			const isExpired = Date.now() > foundUser.profile.email_otp.expiredAt;
-
-			if (isExpired) {
-				createOTP = true;
-			}
-
-			if (!isExpired) {
-				emailOTP = foundUser.profile.email_otp.code;
-			}
-		}
-
-		if (createOTP) {
-			emailOTP = randomstring.generate({ length: 6, charset: ['numeric'] });
-
-			const profile = structuredClone(foundUser.profile);
-			profile.email_otp = { code: emailOTP, expiredAt: Date.now() + 5 * 60 * 1000 };
-
-			await foundUser.updateProfile(profile);
-		}
-
-		const user = await getAuth().getUserByEmail(email);
-		const token = await getAuth().createCustomToken(user.uid);
-
-		const link = `${origin}/#/?code=${token}`;
-
-		return { link, otp: emailOTP };
 	}
 
 	async createPocket(params: PocketNewParams) {

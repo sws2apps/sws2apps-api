@@ -28,11 +28,6 @@ export type CongregationUserParams = {
 	cong_person_uid: string;
 };
 
-export type RequestPasswordLessLinkParams = {
-	email: string;
-	origin: string;
-};
-
 export type UserCongregationAssignParams = {
 	congId: string;
 	role: AppRoleType[];
