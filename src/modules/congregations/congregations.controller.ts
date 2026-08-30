@@ -2,9 +2,7 @@ import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { CongregationsList } from './congregations.js';
 import { formatError } from '../../http/validation-errors.js';
-import type { StandardRecord } from '../../types/standard-record.js';
 import { toMondayFirstWeekday } from './meeting-weekday.js';
-import { canManageCongregationApplications } from './congregation-permissions.js';
 import {
 	getAvailableCountries,
 	searchCongregationDirectory,
@@ -14,6 +12,29 @@ import {
 	isWelcomeEmailEnabled,
 	sendWelcomeEmail,
 } from './congregation-notifications.service.js';
+import {
+	CongregationApplicationError,
+	deleteCongregationApplication,
+	updateCongregationApplication,
+} from './congregation-applications.service.js';
+
+const handleCongregationApplicationError = (error: unknown, res: Response): boolean => {
+	if (!(error instanceof CongregationApplicationError)) return false;
+
+	res.locals.type = 'warn';
+
+	if (error.code === 'CONGREGATION_NOT_FOUND') {
+		res.locals.message = 'no congregation could not be found with the provided id';
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
+		return true;
+	}
+
+	res.locals.message = error.code === 'MEMBERSHIP_REQUIRED'
+		? 'user not authorized to access the provided congregation'
+		: 'user not authorized to process this application';
+	res.status(403).json({ message: 'error_api_unauthorized-request' });
+	return true;
+};
 
 export const getCountries = async (req: Request, res: Response) => {
 	const errors = validationResult(req);
@@ -234,40 +255,20 @@ export const updateApplicationApproval = async (req: Request, res: Response) => 
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-		return;
-	}
-
-	const isValid = cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
 	const user = res.locals.currentUser;
-
 	const roles = user.profile.congregation!.cong_role;
-
-	if (!canManageCongregationApplications(roles)) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to process this application';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
+	let result;
+	try {
+		result = await updateCongregationApplication(
+			id,
+			user.id,
+			roles,
+			req.body.application,
+		);
+	} catch (error) {
+		if (!handleCongregationApplicationError(error, res)) throw error;
 		return;
 	}
-
-	const application = req.body.application as StandardRecord;
-
-	await cong.saveApplication(application);
-
-	const result = cong.ap_applications;
 
 	res.locals.type = 'info';
 	res.locals.message = 'user updated application approval';
@@ -291,36 +292,15 @@ export const deleteApplication = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-		return;
-	}
-
-	const isValid = cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
 	const user = res.locals.currentUser;
-
 	const roles = user.profile.congregation!.cong_role;
-
-	if (!canManageCongregationApplications(roles)) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to process this application';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
+	let result;
+	try {
+		result = await deleteCongregationApplication(id, user.id, roles, request);
+	} catch (error) {
+		if (!handleCongregationApplicationError(error, res)) throw error;
 		return;
 	}
-
-	const result = await cong.deleteApplication(request);
 
 	res.locals.type = 'info';
 	res.locals.message = 'user deleted application';
