@@ -34,7 +34,6 @@ import {
 	setCongFieldServiceGroups,
 	setCongFieldServiceReports,
 	setCongFlags,
-	setCongJoinRequests,
 	setCongOutgoingSpeakers,
 	setCongPersons,
 	setCongPublicOutgoingTalks,
@@ -55,7 +54,6 @@ import { User } from '../users/user.js';
 import { UsersList } from '../users/users.js';
 import { mergeIncomingData } from '../backups/incoming-data-merge.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
-import { assignUserToCongregation } from '../users/user-congregation-membership.service.js';
 
 export class Congregation {
 	id: string;
@@ -537,50 +535,6 @@ export class Congregation {
 	async saveFlags(flags: string[]) {
 		await setCongFlags(this.id, flags);
 		this.flags = flags;
-	}
-
-	async join(user: string) {
-		const requests = this.join_requests.filter((record) => UsersList.list.some((user) => user.id === record.user));
-
-		const request = requests.find((record) => record.user === user);
-
-		if (request) {
-			request.request_date = new Date().toISOString();
-		}
-
-		if (!request) {
-			requests.push({ user, request_date: new Date().toISOString() });
-		}
-
-		await setCongJoinRequests(this.id, requests);
-
-		this.join_requests = requests;
-	}
-
-	async declineJoinRequest(user: string) {
-		const requests = this.join_requests.filter(
-			(record) => record.user !== user && UsersList.list.some((user) => user.id === record.user),
-		);
-
-		await setCongJoinRequests(this.id, requests);
-
-		this.join_requests = requests;
-	}
-
-	async acceptJoinRequest(
-		user: string,
-		params: { role: AppRoleType[]; person_uid: string; firstname?: string; lastname?: string },
-	) {
-		const foundUser = UsersList.findById(user)!;
-		await assignUserToCongregation(foundUser, this, params);
-
-		const requests = this.join_requests.filter(
-			(record) => record.user !== user && UsersList.list.some((user) => user.id === record.user),
-		);
-
-		await setCongJoinRequests(this.id, requests);
-
-		this.join_requests = requests;
 	}
 
 	async getPublicSources() {

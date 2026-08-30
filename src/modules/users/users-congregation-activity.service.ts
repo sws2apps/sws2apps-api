@@ -1,7 +1,10 @@
 import sanitizeHtml from 'sanitize-html';
 import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
 import type { StandardRecord } from '../../types/standard-record.js';
-import { getCongregationJoinRequests } from '../congregations/congregation-join-requests.service.js';
+import {
+	getCongregationJoinRequests,
+	requestCongregationMembership as saveCongregationMembershipRequest,
+} from '../congregations/congregation-join-requests.service.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import type { CongregationUpdatesType } from '../congregations/congregations.types.js';
 import { sendFeedbackEmail } from './user-notifications.service.js';
@@ -226,6 +229,6 @@ export const requestCongregationMembership = async (
 		await user.updateProfile(profile);
 	}
 
-	await congregation.join(userId);
+	await saveCongregationMembershipRequest(congregation, userId);
 	return 'request_sent';
 };

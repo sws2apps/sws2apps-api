@@ -1,5 +1,9 @@
 import type { AppRoleType } from '../../domain/users/app-role.js';
-import { getCongregationJoinRequests } from '../congregations/congregation-join-requests.service.js';
+import {
+	approveCongregationMembership,
+	declineCongregationMembership,
+	getCongregationJoinRequests,
+} from '../congregations/congregation-join-requests.service.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
 
@@ -31,7 +35,7 @@ export const declineCongregationJoinRequest = async (
 	userId: string,
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
-	await congregation.declineJoinRequest(userId);
+	await declineCongregationMembership(congregation, userId);
 	return getCongregationJoinRequests(congregation);
 };
 
@@ -55,7 +59,7 @@ export const approveCongregationJoinRequest = async (
 		throw new CongregationJoinRequestError('USER_ALREADY_ASSIGNED');
 	}
 
-	await congregation.acceptJoinRequest(userId, {
+	await approveCongregationMembership(congregation, userId, {
 		person_uid: input.personUid,
 		role: input.roles,
 		firstname: input.firstname,
