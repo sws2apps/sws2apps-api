@@ -7,6 +7,5 @@ token is accepted for the current 30-second time step or either adjacent time st
 Successful verification marks the current session as MFA-verified and returns the
 existing authenticated-user response.
 
-The module temporarily depends on legacy user and congregation collections. These
-dependencies should move behind MFA service interfaces as the authentication domain
-is migrated.
+The controller translates the authenticated HTTP request. MFA services validate the
+token, update the user's session, and assemble the authenticated-user result.

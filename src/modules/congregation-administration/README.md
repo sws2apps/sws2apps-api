@@ -8,5 +8,5 @@ role. The module manages congregation keys, members, Pocket invitations, session
 join requests, and congregation deletion.
 
 Role arrays are validated against the complete known congregation-role vocabulary
-before reaching the controller. The large legacy controller should be decomposed by
-use case only after characterization coverage is added.
+before reaching the controller. Business use cases are separated into security,
+user-management, join-request, and notification services.

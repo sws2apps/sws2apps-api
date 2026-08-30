@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { validationResult } from 'express-validator';
-import { formatError } from '../../http/validation-errors.js';
+import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import {
 	createPasswordlessSignIn,
@@ -62,34 +61,13 @@ const completeTokenAuthentication = async (
 };
 
 export const loginUser = async (req: Request, res: Response) => {
-	// validate through express middleware
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	await completeTokenAuthentication(req, res, true);
 };
 
 export const createSignInLink = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const email = req.body.email as string;
 	const origin = req.headers.origin as string;
@@ -124,33 +102,13 @@ export const createSignInLink = async (req: Request, res: Response) => {
 };
 
 export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	await completeTokenAuthentication(req, res, false);
 };
 
 export const verifyEmailToken = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const visitorId = req.signedCookies.visitorid || crypto.randomUUID();
 

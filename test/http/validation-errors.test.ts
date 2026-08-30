@@ -1,8 +1,12 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { Result, ValidationError } from 'express-validator';
+import type { Request, Response } from 'express';
+import { body, Result, ValidationError } from 'express-validator';
 
-import { formatError } from '../../src/http/validation-errors.js';
+import {
+	formatError,
+	rejectInvalidRequest,
+} from '../../src/http/validation-errors.js';
 
 describe('validation error formatting', () => {
 	it('joins field validation messages in their existing order', () => {
@@ -23,5 +27,53 @@ describe('validation error formatting', () => {
 		const errors = { array: () => [] } as unknown as Result<ValidationError>;
 
 		assert.equal(formatError(errors), '');
+	});
+});
+
+describe('invalid request responses', () => {
+	const createResponse = () => {
+		let statusCode: number | undefined;
+		let responseBody: unknown;
+		const response = {
+			locals: {},
+			status(code: number) {
+				statusCode = code;
+				return this;
+			},
+			json(body: unknown) {
+				responseBody = body;
+				return this;
+			},
+		} as unknown as Response;
+
+		return {
+			response,
+			getStatusCode: () => statusCode,
+			getResponseBody: () => responseBody,
+		};
+	};
+
+	it('returns the existing public error response for invalid input', async () => {
+		const request = { body: { email: 'not-an-email' } } as Request;
+		await body('email').isEmail().run(request);
+		const result = createResponse();
+
+		assert.equal(rejectInvalidRequest(request, result.response), true);
+		assert.equal(result.getStatusCode(), 400);
+		assert.deepEqual(result.getResponseBody(), {
+			message: 'error_api_bad-request',
+		});
+		assert.equal(result.response.locals.type, 'warn');
+		assert.match(result.response.locals.message, /^invalid input: email:/);
+	});
+
+	it('leaves the response untouched when input is valid', async () => {
+		const request = { body: { email: 'person@example.com' } } as Request;
+		await body('email').isEmail().run(request);
+		const result = createResponse();
+
+		assert.equal(rejectInvalidRequest(request, result.response), false);
+		assert.equal(result.getStatusCode(), undefined);
+		assert.equal(result.getResponseBody(), undefined);
 	});
 });

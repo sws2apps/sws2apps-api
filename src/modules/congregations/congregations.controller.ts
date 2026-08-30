@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { validationResult } from 'express-validator';
-import { formatError } from '../../http/validation-errors.js';
+import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import {
 	getAvailableCountries,
 	searchCongregationDirectory,
@@ -38,18 +37,7 @@ const handleCongregationApplicationError = (error: unknown, res: Response): bool
 };
 
 export const getCountries = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const language = (req.query.language as string) || 'E';
 
@@ -68,17 +56,7 @@ export const getCountries = async (req: Request, res: Response) => {
 };
 
 export const getCongregations = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const language = (req.query.language as string) || 'E';
 	const name = req.query.name as string;
@@ -116,17 +94,7 @@ export const getCongregations = async (req: Request, res: Response) => {
 };
 
 export const createCongregation = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { country_code, country_guid, cong_name, firstname, lastname } = req.body as Record<string, string>;
 	const language = (req.headers.language as string) || 'eng';

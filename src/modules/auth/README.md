@@ -8,10 +8,6 @@ under `/api/v3`:
 - `POST /user-passwordless-verify`
 - `POST /verify-email-token`
 
-Routes validate credentials at the HTTP boundary. The controller manages Firebase
-identity verification, signed session cookies, passwordless email delivery, and the
-existing authenticated-user response.
-
-The controller temporarily depends on legacy user and congregation collections.
-Those dependencies should move behind authentication services and repositories in
-smaller, behavior-tested chunks.
+Routes validate credentials at the HTTP boundary. The controller translates HTTP
+input and manages the signed session cookie. Authentication services own identity
+verification, passwordless sign-in, notifications, and authenticated-user results.

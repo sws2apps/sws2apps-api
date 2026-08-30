@@ -1,7 +1,5 @@
 import { Request, Response } from 'express';
-import { validationResult } from 'express-validator';
-
-import { formatError } from '../../http/validation-errors.js';
+import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import type { OutgoingTalkScheduleType } from '../congregations/congregations.types.js';
 import {
 	approveVisitingSpeakerAccess,
@@ -16,15 +14,7 @@ import {
 } from './meetings.service.js';
 
 const getValidatedCongregationId = (req: Request, res: Response): string | undefined => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const message = formatError(errors);
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${message}`;
-		res.status(400).json({ message: 'error_api_bad-request' });
-		return undefined;
-	}
+	if (rejectInvalidRequest(req, res)) return undefined;
 
 	const { id } = req.params;
 
