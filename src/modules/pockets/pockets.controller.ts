@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { formatError } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
-import { CongregationsList } from '../congregations/congregations.js';
 import { BackupData } from '../backups/backup.types.js';
 import { CongSettingsType } from '../congregations/congregations.types.js';
 import type { StandardRecord } from '../../types/standard-record.js';
@@ -21,7 +20,7 @@ import {
 	submitPocketReport,
 } from './pocket-user.service.js';
 import {
-	parsePocketBackupMetadata,
+	getPocketBackupContext,
 	PocketBackupError,
 	submitPocketBackup,
 } from './pocket-backup.service.js';
@@ -108,36 +107,19 @@ export const validatePocket = async (req: Request, res: Response) => {
 };
 
 export const retrieveUserBackup = async (req: Request, res: Response) => {
-	const user = res.locals.currentUser;
-	const congId = user.profile.congregation?.id;
-	const cong = CongregationsList.findById(congId!);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not associated to any congregation';
-
-		res.clearCookie('visitorid');
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-		return;
-	}
-
-	const isValid = cong.hasMember(user.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	let metadata: Record<string, string>;
+	let backupContext: ReturnType<typeof getPocketBackupContext>;
 
 	try {
-		metadata = parsePocketBackupMetadata(req.headers.metadata!.toString());
+		backupContext = getPocketBackupContext(
+			res.locals.currentUser.id,
+			req.headers.metadata!.toString(),
+		);
 	} catch (error) {
 		if (!handlePocketBackupError(error, res)) throw error;
 		return;
 	}
+
+	const { user, congregation: cong, metadata } = backupContext;
 
 	const result = {} as BackupData;
 

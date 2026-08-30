@@ -38,11 +38,7 @@ export const parsePocketBackupMetadata = (metadataHeader: string): Record<string
 	}
 };
 
-export const submitPocketBackup = (
-	userId: string,
-	metadataHeader: string,
-	congregationBackup: BackupData,
-) => {
+export const getPocketBackupContext = (userId: string, metadataHeader: string) => {
 	const user = UsersList.findById(userId)!;
 	const congregationId = user.profile.congregation?.id;
 	const congregation = congregationId ? CongregationsList.findById(congregationId) : undefined;
@@ -50,7 +46,19 @@ export const submitPocketBackup = (
 	if (!congregation) throw new PocketBackupError('CONGREGATION_NOT_FOUND');
 	if (!congregation.hasMember(user.id)) throw new PocketBackupError('MEMBERSHIP_REQUIRED');
 
-	const incomingMetadata = parsePocketBackupMetadata(metadataHeader);
+	return {
+		user,
+		congregation,
+		metadata: parsePocketBackupMetadata(metadataHeader),
+	};
+};
+
+export const submitPocketBackup = (
+	userId: string,
+	metadataHeader: string,
+	congregationBackup: BackupData,
+) => {
+	const { user, congregation, metadata: incomingMetadata } = getPocketBackupContext(userId, metadataHeader);
 	const currentMetadata = { ...congregation.metadata, ...user.metadata };
 
 	if (findBackupMetadataConflict(currentMetadata, incomingMetadata)) {
