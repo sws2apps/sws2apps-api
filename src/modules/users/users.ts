@@ -1,18 +1,8 @@
-import type {
-	PocketNewParams,
-	UserNewParams,
-} from './user.types.js';
 import { User } from './user.js';
 import {
-	loadUserIdentity,
 	loadUserIdentities,
-	synchronizeAuthenticationEmail,
 } from './user-identity.service.js';
-import {
-	createPocketUser,
-	createUser,
-	loadAllUsers,
-} from './users.repository.js';
+import { loadAllUsers } from './users.repository.js';
 
 class Users {
 	list: User[];
@@ -25,14 +15,9 @@ class Users {
 		this.list.sort((a, b) => a.profile.lastname.value.localeCompare(b.profile.lastname.value));
 	}
 
-	async #add(id: string) {
-		const user = new User(id);
-		await user.loadDetails();
-		await loadUserIdentity(user);
+	add(user: User) {
 		this.list.push(user);
 		this.#sort();
-
-		return this.list.find((record) => record.id === id)!;
 	}
 
 	async load() {
@@ -63,24 +48,6 @@ class Users {
 
 	findByVisitorId(visitorId: string) {
 		const user = this.list.find((record) => record.sessions.find((session) => session.visitorid === visitorId));
-		return user;
-	}
-
-	async create(params: UserNewParams) {
-		if (params.email) {
-			await synchronizeAuthenticationEmail(params.auth_uid, params.email);
-		}
-
-		const id = await createUser(params);
-
-		const user = await this.#add(id);
-		return user;
-	}
-
-	async createPocket(params: PocketNewParams) {
-		const id = await createPocketUser(params);
-
-		const user = await this.#add(id);
 		return user;
 	}
 

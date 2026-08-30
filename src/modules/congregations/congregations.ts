@@ -1,8 +1,4 @@
-import { CongregationCreateInfoType } from './congregations.types.js';
-import {
-	createCongregation,
-	loadAllCongs,
-} from './congregations.repository.js';
+import { loadAllCongs } from './congregations.repository.js';
 import { initializeIncomingTalks } from './incoming-talks.service.js';
 import { Congregation } from './congregation.js';
 import { refreshCongregationMembers } from './congregation-members.service.js';
@@ -18,6 +14,11 @@ class Congregations {
 		this.list.sort((a, b) => {
 			return a.settings.cong_name > b.settings.cong_name ? 1 : -1;
 		});
+	}
+
+	add(congregation: Congregation) {
+		this.list.push(congregation);
+		this.#sort();
 	}
 
 	async load() {
@@ -50,19 +51,6 @@ class Congregations {
 				(cong.settings.country_code === country || cong.settings.country_guid === country) &&
 				cong.settings.cong_prefix === cong_prefix,
 		);
-	}
-
-	async create(data: CongregationCreateInfoType) {
-		const congId = await createCongregation(data);
-
-		const cong = new Congregation(congId);
-		await cong.loadDetails();
-		refreshCongregationMembers(cong);
-
-		this.list.push(cong);
-		this.#sort();
-
-		return congId;
 	}
 
 	removeById(id: string) {

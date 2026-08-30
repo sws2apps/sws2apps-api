@@ -3,6 +3,7 @@ import {
 	getCountries,
 } from '../../platform/countries/country-client.js';
 import { CongregationsList } from '../congregations/congregations.js';
+import { createApplicationCongregation } from '../congregations/congregation-creation.service.js';
 import { getCongregationMembers } from '../congregations/congregation-members.service.js';
 import { deleteCongregation } from '../congregations/congregation-lifecycle.service.js';
 import { saveOutgoingSpeakersState } from '../congregations/outgoing-speakers.service.js';
@@ -165,7 +166,7 @@ export const createAdministrationCongregation = async (
 		);
 	}
 
-	await CongregationsList.create({
+	await createApplicationCongregation({
 		cong_circuit: '',
 		cong_location: { address: '', lat: 0, lng: 0 },
 		cong_name: congregationName,

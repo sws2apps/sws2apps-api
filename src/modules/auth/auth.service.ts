@@ -14,6 +14,7 @@ import { CongregationsList } from '../congregations/congregations.js';
 import type { User } from '../users/user.js';
 import type { UserAuthResponse } from '../users/user.types.js';
 import { UsersList } from '../users/users.js';
+import { createApplicationUser } from '../users/user-creation.service.js';
 import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
 import {
 	isPasswordlessEmailEnabled,
@@ -76,7 +77,7 @@ export const createPasswordlessSignIn = async (request: PasswordlessSignInReques
 
 	if (!user && !authenticationUserId) {
 		authenticationUserId = await createFirebaseAuthenticationUser(request.email);
-		user = await UsersList.create({
+		user = await createApplicationUser({
 			auth_uid: authenticationUserId,
 			firstname: '',
 			lastname: '',
@@ -181,7 +182,7 @@ export const completeAuthentication = async (input: CompleteAuthenticationInput)
 		const lastname = names.pop() || '';
 		const firstname = names.join(' ');
 
-		user = await UsersList.create({
+		user = await createApplicationUser({
 			auth_uid: input.authenticationUserId,
 			firstname,
 			lastname,

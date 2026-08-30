@@ -1,6 +1,7 @@
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
+import { createPocketApplicationUser } from '../users/user-creation.service.js';
 import { revokeSessionForUser } from '../users/users-account.service.js';
 import { deleteUser } from '../users/user-lifecycle.service.js';
 import {
@@ -74,7 +75,7 @@ export const createCongregationPocketUser = async (
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
 
-	await UsersList.createPocket({
+	await createPocketApplicationUser({
 		cong_id: congregationId,
 		cong_person_uid: input.personUid,
 		cong_role: input.roles,

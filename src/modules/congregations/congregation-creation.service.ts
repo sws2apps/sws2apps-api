@@ -3,6 +3,10 @@ import { verifyCongregationDirectoryRecord } from './congregation-directory.serv
 import { CongregationsList } from './congregations.js';
 import { assignUserToCongregation } from '../users/user-congregation-membership.service.js';
 import { toMondayFirstWeekday } from './meeting-weekday.js';
+import type { CongregationCreateInfoType } from './congregations.types.js';
+import { createCongregation as persistCongregation } from './congregations.repository.js';
+import { Congregation } from './congregation.js';
+import { refreshCongregationMembers } from './congregation-members.service.js';
 
 export type CongregationCreationErrorCode =
 	| 'CONGREGATION_EXISTS'
@@ -27,6 +31,19 @@ type CreateCongregationInput = {
 	firstname: string;
 	lastname: string;
 	language: string;
+};
+
+export const createApplicationCongregation = async (
+	data: CongregationCreateInfoType,
+): Promise<Congregation> => {
+	const congregationId = await persistCongregation(data);
+	const congregation = new Congregation(congregationId);
+
+	await congregation.loadDetails();
+	refreshCongregationMembers(congregation);
+	CongregationsList.add(congregation);
+
+	return congregation;
 };
 
 export const createVerifiedCongregation = async (input: CreateCongregationInput) => {
@@ -68,7 +85,7 @@ export const createVerifiedCongregation = async (input: CreateCongregationInput)
 	profile.lastname = { value: input.lastname, updatedAt };
 	await user.updateProfile(profile);
 
-	const congregationId = await CongregationsList.create({
+	const congregation = await createApplicationCongregation({
 		cong_name: input.congregationName,
 		country_guid: input.countryGuid,
 		country_code: input.countryCode,
@@ -89,7 +106,6 @@ export const createVerifiedCongregation = async (input: CreateCongregationInput)
 		},
 	});
 
-	const congregation = CongregationsList.findById(congregationId)!;
 	await assignUserToCongregation(user, congregation, {
 		role: ['admin'],
 	});
