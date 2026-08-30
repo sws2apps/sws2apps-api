@@ -8,10 +8,12 @@ import {
 } from './administration-congregations.service.js';
 import {
 	AdministrationUserError,
+	assignAdministrationUserCongregation,
 	deleteAdministrationUser,
 	disableAdministrationUserMfa,
 	getAdministrationUsers,
 	logoutAdministrationUser,
+	removeAdministrationUserCongregation,
 	revokeAdministrationUserSession,
 	revokeAdministrationUserToken,
 	updateAdministrationUser,
@@ -39,8 +41,21 @@ const handleAdministrationUserError = (error: unknown, res: Response): boolean =
 	if (!(error instanceof AdministrationUserError)) return false;
 
 	res.locals.type = 'warn';
-	res.locals.message = 'no user could not be found with the provided id';
-	res.status(404).json({ message: 'USER_NOT_FOUND' });
+
+	if (error.code === 'USER_NOT_FOUND') {
+		res.locals.message = 'no user could not be found with the provided id';
+		res.status(404).json({ message: 'USER_NOT_FOUND' });
+		return true;
+	}
+
+	if (error.code === 'CONGREGATION_NOT_FOUND') {
+		res.locals.message = 'no congregation could not found with the provided id';
+		res.status(404).json({ message: 'CONG_NOT_FOUND' });
+		return true;
+	}
+
+	res.locals.message = 'user already member of the congregation';
+	res.status(400).json({ message: 'USER_MEMBER_ALREADY' });
 	return true;
 };
 
@@ -633,39 +648,17 @@ export const userAssignCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id);
-
-	if (!user) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no user could not found with the provided id';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
-
+	let result;
+	try {
+		result = await assignAdministrationUserCongregation(
+			id,
+			req.body.congregation as string,
+			req.signedCookies.visitorid,
+		);
+	} catch (error) {
+		if (!handleAdministrationUserError(error, res)) throw error;
 		return;
 	}
-
-	const congregation = req.body.congregation as string;
-	const cong = CongregationsList.findById(congregation);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not found with the provided id';
-		res.status(404).json({ message: 'CONG_NOT_FOUND' });
-
-		return;
-	}
-
-	const isValid = cong.hasMember(user.id);
-
-	if (isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user already member of the congregation';
-		res.status(400).json({ message: 'USER_MEMBER_ALREADY' });
-		return;
-	}
-
-	await user.assignCongregation({ congId: congregation, role: ['admin'] });
-
-	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin assigned an user to a congregation';
@@ -751,34 +744,16 @@ export const userRemoveCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id);
-
-	if (!user) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no user could not be found with the provided id';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
+	let result;
+	try {
+		result = await removeAdministrationUserCongregation(
+			id,
+			req.signedCookies.visitorid,
+		);
+	} catch (error) {
+		if (!handleAdministrationUserError(error, res)) throw error;
 		return;
 	}
-
-	const userCong = user.profile.congregation?.id;
-
-	if (user.profile.role === 'vip') {
-		await user.removeCongregation();
-	}
-
-	if (user.profile.role === 'pocket') {
-		await UsersList.delete(user.id);
-	}
-
-	if (userCong) {
-		const cong = CongregationsList.findById(userCong);
-
-		if (cong) {
-			cong.reloadMembers();
-		}
-	}
-
-	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin removed a user from a congregation';

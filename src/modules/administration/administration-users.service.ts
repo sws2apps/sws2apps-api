@@ -4,7 +4,12 @@ import { UsersList } from '../users/users.js';
 import type { UserSession } from '../users/user.types.js';
 
 export class AdministrationUserError extends Error {
-	constructor(public readonly code: 'USER_NOT_FOUND') {
+	constructor(
+		public readonly code:
+			| 'USER_NOT_FOUND'
+			| 'CONGREGATION_NOT_FOUND'
+			| 'USER_ALREADY_MEMBER',
+	) {
 		super(code);
 		this.name = 'AdministrationUserError';
 	}
@@ -151,5 +156,44 @@ export const revokeAdministrationUserSession = async (
 	if (typeof session === 'object') await user.updateSessions([]);
 
 	reloadUserCongregation(user.profile.congregation?.id);
+	return getAdministrationUsers(currentVisitorId);
+};
+
+export const assignAdministrationUserCongregation = async (
+	userId: string,
+	congregationId: string,
+	currentVisitorId: string,
+) => {
+	const user = getAdministrationUser(userId);
+	const congregation = CongregationsList.findById(congregationId);
+
+	if (!congregation) {
+		throw new AdministrationUserError('CONGREGATION_NOT_FOUND');
+	}
+
+	if (congregation.hasMember(user.id)) {
+		throw new AdministrationUserError('USER_ALREADY_MEMBER');
+	}
+
+	await user.assignCongregation({ congId: congregationId, role: ['admin'] });
+	return getAdministrationUsers(currentVisitorId);
+};
+
+export const removeAdministrationUserCongregation = async (
+	userId: string,
+	currentVisitorId: string,
+) => {
+	const user = getAdministrationUser(userId);
+	const congregationId = user.profile.congregation?.id;
+
+	if (user.profile.role === 'vip') {
+		await user.removeCongregation();
+	}
+
+	if (user.profile.role === 'pocket') {
+		await UsersList.delete(user.id);
+	}
+
+	reloadUserCongregation(congregationId);
 	return getAdministrationUsers(currentVisitorId);
 };
