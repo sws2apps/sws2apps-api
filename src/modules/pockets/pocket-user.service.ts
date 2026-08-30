@@ -3,6 +3,10 @@ import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
 import { deleteUser } from '../users/user-lifecycle.service.js';
 import {
+	projectUserSessions,
+	revokeSessionForUser,
+} from '../users/users-account.service.js';
+import {
 	getUserAuxiliaryApplications,
 	submitUserAuxiliaryApplication,
 	submitUserFieldServiceReport,
@@ -23,12 +27,12 @@ export class PocketUserError extends Error {
 
 export const getPocketUserSessions = (userId: string, visitorId: string) => {
 	const user = UsersList.findById(userId)!;
-	return user.getActiveSessions(visitorId);
+	return projectUserSessions(user.sessions, visitorId);
 };
 
 export const revokePocketUserSession = async (userId: string, identifier: string) => {
 	const user = UsersList.findById(userId)!;
-	const sessions = await user.revokeSession(identifier);
+	const sessions = await revokeSessionForUser(user, identifier);
 	const congregationId = user.profile.congregation?.id;
 
 	if (congregationId) {

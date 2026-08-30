@@ -91,52 +91,11 @@ export class User {
 		this.metadata.user_settings = await getUserSettingsMetadata(this.id);
 	}
 
-	getActiveSessions(visitorid: string) {
-		const result = this.sessions?.map((session) => {
-			return {
-				identifier: session.identifier,
-				isSelf: session.visitorid === visitorid,
-				ip: session.visitor_details.ip,
-				country_name: session.visitor_details.ipLocation.country_name,
-				device: {
-					browserName: session.visitor_details.browser,
-					os: session.visitor_details.os,
-					isMobile: session.visitor_details.isMobile,
-				},
-				last_seen: session.last_seen,
-			};
-		});
-
-		return result;
-	}
-
 	async updateSessions(sessions: UserSession[]) {
 		await setUserSessions(this.id, sessions);
 
 		this.sessions = sessions;
 		this.metadata.sessions = await getUserSessionsMetadata(this.id);
-	}
-
-	async revokeSession(identifier: string) {
-		const revokedSession = this.sessions.find((record) => record.identifier === identifier)!;
-
-		const sessions = this.sessions.filter((record) => record.identifier !== identifier);
-
-		await this.updateSessions(sessions);
-
-		return this.getActiveSessions(revokedSession.visitorid);
-	}
-
-	async logout(visitorId: string) {
-		const session = this.sessions.find((record) => record.visitorid === visitorId);
-
-		if (session) {
-			await this.revokeSession(session.identifier);
-		}
-	}
-
-	async adminLogout() {
-		await this.updateSessions([]);
 	}
 
 	async saveFieldServiceReports(reports: StandardRecord[]) {

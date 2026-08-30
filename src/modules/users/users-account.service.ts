@@ -10,6 +10,8 @@ import {
 	ensureUserMfaSecret,
 } from '../mfa/user-mfa.service.js';
 import { refreshCongregationMembers } from '../congregations/congregation-members.service.js';
+import type { User } from './user.js';
+import type { UserSession } from './user.types.js';
 
 export type UserAccountErrorCode = 'CONGREGATION_NOT_ASSIGNED' | 'CONGREGATION_NOT_FOUND';
 
@@ -19,6 +21,42 @@ export class UserAccountError extends Error {
 		this.name = 'UserAccountError';
 	}
 }
+
+export const projectUserSessions = (
+	sessions: UserSession[],
+	currentVisitorId: string,
+) => {
+	return sessions.map((session) => {
+		return {
+			identifier: session.identifier,
+			isSelf: session.visitorid === currentVisitorId,
+			ip: session.visitor_details.ip,
+			country_name: session.visitor_details.ipLocation.country_name,
+			device: {
+				browserName: session.visitor_details.browser,
+				os: session.visitor_details.os,
+				isMobile: session.visitor_details.isMobile,
+			},
+			last_seen: session.last_seen,
+		};
+	});
+};
+
+export const revokeSessionForUser = async (
+	user: User,
+	sessionIdentifier: string,
+) => {
+	const revokedSession = user.sessions.find(
+		(session) => session.identifier === sessionIdentifier,
+	)!;
+	const remainingSessions = user.sessions.filter(
+		(session) => session.identifier !== sessionIdentifier,
+	);
+
+	await user.updateSessions(remainingSessions);
+
+	return projectUserSessions(user.sessions, revokedSession.visitorid);
+};
 
 export const getValidatedUserAccount = (userId: string) => {
 	const user = UsersList.findById(userId)!;
@@ -67,12 +105,13 @@ export const getUserMfaEnrollment = async (userId: string) => {
 };
 
 export const getUserActiveSessions = (userId: string, currentVisitorId: string) => {
-	return UsersList.findById(userId)!.getActiveSessions(currentVisitorId);
+	const user = UsersList.findById(userId)!;
+	return projectUserSessions(user.sessions, currentVisitorId);
 };
 
 export const revokeUserSession = async (userId: string, sessionIdentifier: string) => {
 	const user = UsersList.findById(userId)!;
-	const sessions = await user.revokeSession(sessionIdentifier);
+	const sessions = await revokeSessionForUser(user, sessionIdentifier);
 	const congregationId = user.profile.congregation?.id;
 
 	const congregation = congregationId ? CongregationsList.findById(congregationId) : undefined;
@@ -83,7 +122,12 @@ export const revokeUserSession = async (userId: string, sessionIdentifier: strin
 
 export const logoutUserSession = async (userId: string | undefined, visitorId: string) => {
 	if (!userId) return;
-	await UsersList.findById(userId)?.revokeSession(visitorId);
+	const user = UsersList.findById(userId);
+	if (user) await revokeSessionForUser(user, visitorId);
+};
+
+export const clearUserSessions = async (userId: string): Promise<void> => {
+	await UsersList.findById(userId)?.updateSessions([]);
 };
 
 export const disableUserMfa = async (userId: string) => {

@@ -1,6 +1,7 @@
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
+import { revokeSessionForUser } from '../users/users-account.service.js';
 import { deleteUser } from '../users/user-lifecycle.service.js';
 import {
 	assignUserToCongregation,
@@ -134,7 +135,7 @@ export const revokeCongregationUserSession = async (
 	sessionIdentifier: string,
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
-	await getUser(targetUserId).revokeSession(sessionIdentifier);
+	await revokeSessionForUser(getUser(targetUserId), sessionIdentifier);
 	return buildCongregationMemberList(congregation, currentVisitorId);
 };
 

@@ -5,6 +5,10 @@ import {
 	refreshCongregationMembers,
 } from '../congregations/congregation-members.service.js';
 import { UsersList } from '../users/users.js';
+import {
+	clearUserSessions,
+	revokeSessionForUser,
+} from '../users/users-account.service.js';
 import { deleteUser } from '../users/user-lifecycle.service.js';
 import { updateUserAuthenticationEmail } from '../users/user-identity.service.js';
 import {
@@ -88,8 +92,7 @@ export const getAdministrationUsers = (currentVisitorId: string) => {
 };
 
 export const logoutAdministrationUser = async (userId: string) => {
-	const administrator = UsersList.findById(userId);
-	if (administrator) await administrator.adminLogout();
+	await clearUserSessions(userId);
 };
 
 export const deleteAdministrationUser = async (
@@ -167,7 +170,7 @@ export const revokeAdministrationUserSession = async (
 	const user = getAdministrationUser(userId);
 	const session = identifiers.length === 0 ? [] : identifiers.at(0);
 
-	if (typeof session === 'string') await user.revokeSession(session);
+	if (typeof session === 'string') await revokeSessionForUser(user, session);
 	if (typeof session === 'object') await user.updateSessions([]);
 
 	reloadUserCongregation(user.profile.congregation?.id);
