@@ -2,10 +2,8 @@ import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 
 import { formatError } from '../../http/validation-errors.js';
-import {
-	getPublicFeatureFlags,
-	getPublicStats,
-} from './public.service.js';
+import { getPublicFeatureFlags } from '../feature-flags/feature-flag-rollout.service.js';
+import { getPublicStats } from './public.service.js';
 
 export const getStats = async (req: Request, res: Response) => {
 	const publicStats = await getPublicStats();
