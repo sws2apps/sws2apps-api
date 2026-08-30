@@ -6,7 +6,16 @@ import {
 	getAdministrationCongregation,
 	getAdministrationCongregations,
 } from './administration-congregations.service.js';
-import { getAdministrationUsers } from './administration-users.service.js';
+import {
+	AdministrationUserError,
+	deleteAdministrationUser,
+	disableAdministrationUserMfa,
+	getAdministrationUsers,
+	logoutAdministrationUser,
+	revokeAdministrationUserSession,
+	revokeAdministrationUserToken,
+	updateAdministrationUser,
+} from './administration-users.service.js';
 import { validationResult } from 'express-validator';
 import { formatError } from '../../http/validation-errors.js';
 import type { AppRoleType } from '../../domain/users/app-role.js';
@@ -26,6 +35,15 @@ import {
 	updateMinimumClientVersion,
 } from './administration-settings.service.js';
 
+const handleAdministrationUserError = (error: unknown, res: Response): boolean => {
+	if (!(error instanceof AdministrationUserError)) return false;
+
+	res.locals.type = 'warn';
+	res.locals.message = 'no user could not be found with the provided id';
+	res.status(404).json({ message: 'USER_NOT_FOUND' });
+	return true;
+};
+
 export const validateAdmin = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
 	res.locals.message = 'administrator successfully logged in';
@@ -35,9 +53,7 @@ export const validateAdmin = async (req: Request, res: Response) => {
 export const logoutAdmin = async (req: Request, res: Response) => {
 	// remove all sessions
 	const { id } = res.locals.currentUser;
-	const admin = UsersList.findById(id);
-
-	if (admin) await admin.adminLogout();
+	await logoutAdministrationUser(id);
 
 	res.locals.type = 'info';
 	res.locals.message = 'administrator successfully logged out';
@@ -137,28 +153,13 @@ export const userDelete = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id);
-
-	if (!user) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no user could not be found with the provided id';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
+	let result;
+	try {
+		result = await deleteAdministrationUser(id, req.signedCookies.visitorid);
+	} catch (error) {
+		if (!handleAdministrationUserError(error, res)) throw error;
 		return;
 	}
-
-	const userCong = user.profile.congregation?.id;
-
-	await UsersList.delete(id);
-
-	if (userCong) {
-		const cong = CongregationsList.findById(userCong);
-
-		if (cong) {
-			cong.reloadMembers();
-		}
-	}
-
-	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin deleted an user';
@@ -176,18 +177,13 @@ export const userDisable2FA = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id);
-
-	if (!user) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no user could not be found with the provided id';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
+	let result;
+	try {
+		result = await disableAdministrationUserMfa(id, req.signedCookies.visitorid);
+	} catch (error) {
+		if (!handleAdministrationUserError(error, res)) throw error;
 		return;
 	}
-
-	await user.disableMFA();
-
-	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin disabled user 2fa';
@@ -205,18 +201,13 @@ export const userRevokeToken = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id);
-
-	if (!user) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no user could not be found with the provided id';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
+	let result;
+	try {
+		result = await revokeAdministrationUserToken(id, req.signedCookies.visitorid);
+	} catch (error) {
+		if (!handleAdministrationUserError(error, res)) throw error;
 		return;
 	}
-
-	await user.revokeToken();
-
-	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin revoked user token';
@@ -247,53 +238,22 @@ export const userUpdate = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id);
-
-	if (!user) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no user could not be found with the provided id';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
-		return;
-	}
-
 	const lastname = req.body.lastname as string;
 	const firstname = req.body.firstname as string;
 	const email = req.body.email as string;
 	const roles = req.body.roles as AppRoleType[];
 
-	const lastnameSaved = user.profile.lastname.value;
-	const firstnameSaved = user.profile.firstname.value;
-	const rolesSave = user.profile.congregation?.cong_role || [];
-
-	const roleUpdate = roles.length === rolesSave.length && roles.every((record) => rolesSave.some((role) => role === record));
-
-	if (lastnameSaved !== lastname || firstnameSaved !== firstname || !roleUpdate) {
-		const profile = structuredClone(user.profile);
-		profile.firstname.value = firstname;
-		profile.lastname.value = lastname;
-
-		if (profile.congregation) {
-			profile.congregation.cong_role = roles;
-		}
-
-		await user.updateProfile(profile);
+	let result;
+	try {
+		result = await updateAdministrationUser(
+			id,
+			{ firstname, lastname, email, roles },
+			req.signedCookies.visitorid,
+		);
+	} catch (error) {
+		if (!handleAdministrationUserError(error, res)) throw error;
+		return;
 	}
-
-	if (email.length > 0 && email !== user.email && user.profile.auth_uid) {
-		await user.updateEmailAuth(user.profile.auth_uid, email);
-	}
-
-	const userCong = user.profile.congregation?.id;
-
-	if (userCong) {
-		const cong = CongregationsList.findById(userCong);
-
-		if (cong) {
-			cong.reloadMembers();
-		}
-	}
-
-	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated user details';
@@ -311,38 +271,18 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id);
-
-	if (!user) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no user could not be found with the provided id';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
+	const identifiers = req.body.identifiers as string | [];
+	let result;
+	try {
+		result = await revokeAdministrationUserSession(
+			id,
+			identifiers,
+			req.signedCookies.visitorid,
+		);
+	} catch (error) {
+		if (!handleAdministrationUserError(error, res)) throw error;
 		return;
 	}
-
-	const identifiers = req.body.identifiers as string | [];
-
-	const session = identifiers.length === 0 ? [] : identifiers.at(0);
-
-	if (typeof session === 'string') {
-		await user.revokeSession(session);
-	}
-
-	if (typeof session === 'object') {
-		await user.updateSessions([]);
-	}
-
-	const userCong = user.profile.congregation?.id;
-
-	if (userCong) {
-		const cong = CongregationsList.findById(userCong);
-
-		if (cong) {
-			cong.reloadMembers();
-		}
-	}
-
-	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'admin revoked an user session';

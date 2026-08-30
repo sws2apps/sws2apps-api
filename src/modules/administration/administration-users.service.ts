@@ -1,6 +1,24 @@
+import type { AppRoleType } from '../../domain/users/app-role.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
 import type { UserSession } from '../users/user.types.js';
+
+export class AdministrationUserError extends Error {
+	constructor(public readonly code: 'USER_NOT_FOUND') {
+		super(code);
+		this.name = 'AdministrationUserError';
+	}
+}
+
+const getAdministrationUser = (userId: string) => {
+	const user = UsersList.findById(userId);
+	if (!user) throw new AdministrationUserError('USER_NOT_FOUND');
+	return user;
+};
+
+const reloadUserCongregation = (congregationId: string | undefined) => {
+	if (congregationId) void CongregationsList.findById(congregationId)?.reloadMembers();
+};
 
 export const formatAdministrationSession = (
 	session: UserSession,
@@ -47,4 +65,91 @@ export const getAdministrationUsers = (currentVisitorId: string) => {
 			},
 		};
 	});
+};
+
+export const logoutAdministrationUser = async (userId: string) => {
+	const administrator = UsersList.findById(userId);
+	if (administrator) await administrator.adminLogout();
+};
+
+export const deleteAdministrationUser = async (
+	userId: string,
+	currentVisitorId: string,
+) => {
+	const user = getAdministrationUser(userId);
+	const congregationId = user.profile.congregation?.id;
+
+	await UsersList.delete(userId);
+	reloadUserCongregation(congregationId);
+
+	return getAdministrationUsers(currentVisitorId);
+};
+
+export const disableAdministrationUserMfa = async (
+	userId: string,
+	currentVisitorId: string,
+) => {
+	await getAdministrationUser(userId).disableMFA();
+	return getAdministrationUsers(currentVisitorId);
+};
+
+export const revokeAdministrationUserToken = async (
+	userId: string,
+	currentVisitorId: string,
+) => {
+	await getAdministrationUser(userId).revokeToken();
+	return getAdministrationUsers(currentVisitorId);
+};
+
+type UpdateAdministrationUserInput = {
+	firstname: string;
+	lastname: string;
+	email: string;
+	roles: AppRoleType[];
+};
+
+export const updateAdministrationUser = async (
+	userId: string,
+	input: UpdateAdministrationUserInput,
+	currentVisitorId: string,
+) => {
+	const user = getAdministrationUser(userId);
+	const savedRoles = user.profile.congregation?.cong_role || [];
+	const rolesUnchanged =
+		input.roles.length === savedRoles.length &&
+		input.roles.every((role) => savedRoles.includes(role));
+	const nameChanged =
+		user.profile.firstname.value !== input.firstname ||
+		user.profile.lastname.value !== input.lastname;
+
+	if (nameChanged || !rolesUnchanged) {
+		const profile = structuredClone(user.profile);
+		profile.firstname.value = input.firstname;
+		profile.lastname.value = input.lastname;
+
+		if (profile.congregation) profile.congregation.cong_role = input.roles;
+		await user.updateProfile(profile);
+	}
+
+	if (input.email.length > 0 && input.email !== user.email && user.profile.auth_uid) {
+		await user.updateEmailAuth(user.profile.auth_uid, input.email);
+	}
+
+	reloadUserCongregation(user.profile.congregation?.id);
+	return getAdministrationUsers(currentVisitorId);
+};
+
+export const revokeAdministrationUserSession = async (
+	userId: string,
+	identifiers: string | [],
+	currentVisitorId: string,
+) => {
+	const user = getAdministrationUser(userId);
+	const session = identifiers.length === 0 ? [] : identifiers.at(0);
+
+	if (typeof session === 'string') await user.revokeSession(session);
+	if (typeof session === 'object') await user.updateSessions([]);
+
+	reloadUserCongregation(user.profile.congregation?.id);
+	return getAdministrationUsers(currentVisitorId);
 };
