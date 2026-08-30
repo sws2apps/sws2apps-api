@@ -10,9 +10,11 @@ import {
 	OutgoingTalkScheduleType,
 	UserRequestAccess,
 } from './congregations.types.js';
-import { decryptData } from '../../platform/encryption/encryption.js';
 import {
-	approveCongAccess,
+	decryptData,
+	encryptData,
+} from '../../platform/encryption/encryption.js';
+import {
 	deleteAPApplication,
 	getBranchCongAnalysisMetadata,
 	getBranchFieldServiceReportsMetadata,
@@ -30,8 +32,6 @@ import {
 	getSpeakersCongregationsMetadata,
 	getUpcomingEventsMetadata,
 	getVisitingSpeakersMetadata,
-	rejectCongAccess,
-	requestCongAccess,
 	saveAPApplication,
 	setBranchCongAnalysis,
 	setBranchFieldServiceReports,
@@ -63,6 +63,7 @@ import {
 } from '../../platform/firebase/storage.js';
 import { mergeIncomingData } from '../backups/incoming-data-merge.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
+import { saveOutgoingSpeakersState } from './outgoing-speakers.service.js';
 
 export class Congregation {
 	id: string;
@@ -436,7 +437,22 @@ export class Congregation {
 	}
 
 	async requestAccessCongregation(cong_id: string, key: string, request_id: string) {
-		await requestCongAccess(this.id, cong_id, key, request_id);
+		const requestedCongregation = CongregationsList.findById(cong_id)!;
+
+		requestedCongregation.outgoing_speakers.access = requestedCongregation.outgoing_speakers.access.filter(
+			(record) => record.cong_id !== this.id,
+		);
+
+		requestedCongregation.outgoing_speakers.access.push({
+			cong_id: this.id,
+			key: '',
+			status: 'pending',
+			updatedAt: new Date().toISOString(),
+			temp_key: key,
+			request_id,
+		});
+
+		await saveOutgoingSpeakersState(this.id, requestedCongregation.outgoing_speakers);
 	}
 
 	getPendingVisitingSpeakersAccessList() {
@@ -458,11 +474,24 @@ export class Congregation {
 	}
 
 	async approveCongregationRequest(request_id: string, key: string) {
-		await approveCongAccess(this.id, request_id, key);
+		const request = this.outgoing_speakers.access.find((record) => record.request_id === request_id)!;
+
+		request.key = encryptData(JSON.stringify(key), request.temp_key);
+		request.status = 'approved';
+		request.updatedAt = new Date().toISOString();
+		delete request.temp_key;
+
+		await saveOutgoingSpeakersState(this.id, this.outgoing_speakers);
 	}
 
 	async rejectCongregationRequest(request_id: string) {
-		await rejectCongAccess(this.id, request_id);
+		const request = this.outgoing_speakers.access.find((record) => record.request_id === request_id)!;
+
+		request.status = 'disapproved';
+		request.updatedAt = new Date().toISOString();
+		delete request.temp_key;
+
+		await saveOutgoingSpeakersState(this.id, this.outgoing_speakers);
 	}
 
 	getRemoteCongregationsList() {

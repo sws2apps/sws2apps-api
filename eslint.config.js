@@ -60,4 +60,20 @@ export default [
 			],
 		},
 	},
+	{
+		files: ['src/modules/**/*.repository.ts'],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							group: ['**/users/users.js', '**/congregations/congregations.js'],
+							message: 'Repositories must persist supplied data instead of reading application collections.',
+						},
+					],
+				},
+			],
+		},
+	},
 ];

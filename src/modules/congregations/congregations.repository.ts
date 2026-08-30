@@ -15,11 +15,7 @@ import {
 	getFileMetadata,
 	uploadFileToStorage,
 } from '../../platform/firebase/storage.js';
-import { CongregationsList } from './congregations.js';
-import {
-	decryptData,
-	encryptData,
-} from '../../platform/encryption/encryption.js';
+import { decryptData } from '../../platform/encryption/encryption.js';
 import { Congregation } from './congregation.js';
 import { logger } from '../../platform/logging/logger.js';
 
@@ -434,65 +430,6 @@ export const createCongregation = async (data: CongregationCreateInfoType) => {
 	await setCongCreatedAt(id, new Date().toISOString());
 
 	return id;
-};
-
-export const requestCongAccess = async (congId: string, requestCongId: string, key: string, requestId: string) => {
-	const requestCong = CongregationsList.findById(requestCongId)!;
-
-	requestCong.outgoing_speakers.access = requestCong.outgoing_speakers.access.filter((record) => record.cong_id !== congId);
-
-	requestCong.outgoing_speakers.access.push({
-		cong_id: congId,
-		key: '',
-		status: 'pending',
-		updatedAt: new Date().toISOString(),
-		temp_key: key,
-		request_id: requestId,
-	});
-
-	const data = JSON.stringify({
-		list: requestCong.outgoing_speakers.list,
-		access: requestCong.outgoing_speakers.access,
-	});
-
-	await setCongOutgoingSpeakers(congId, data);
-};
-
-export const approveCongAccess = async (congId: string, request_id: string, speakers_key: string) => {
-	const cong = CongregationsList.findById(congId)!;
-
-	const request = cong.outgoing_speakers.access.find((record) => record.request_id === request_id)!;
-
-	request.key = encryptData(JSON.stringify(speakers_key), request.temp_key);
-	request.status = 'approved';
-	request.updatedAt = new Date().toISOString();
-
-	delete request.temp_key;
-
-	const data = JSON.stringify({
-		list: cong.outgoing_speakers.list,
-		access: cong.outgoing_speakers.access,
-	});
-
-	await setCongOutgoingSpeakers(congId, data);
-};
-
-export const rejectCongAccess = async (congId: string, requestId: string) => {
-	const cong = CongregationsList.findById(congId)!;
-
-	const request = cong.outgoing_speakers.access.find((record) => record.request_id === requestId)!;
-
-	request.status = 'disapproved';
-	request.updatedAt = new Date().toISOString();
-
-	if (request.temp_key) delete request.temp_key;
-
-	const data = JSON.stringify({
-		list: cong.outgoing_speakers.list,
-		access: cong.outgoing_speakers.access,
-	});
-
-	await setCongOutgoingSpeakers(congId, data);
 };
 
 export const saveAPApplication = async (congId: string, application: StandardRecord) => {
