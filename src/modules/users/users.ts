@@ -4,6 +4,11 @@ import type {
 } from './user.types.js';
 import { User } from './user.js';
 import {
+	loadUserIdentity,
+	loadUserIdentities,
+	synchronizeAuthenticationEmail,
+} from './user-identity.service.js';
+import {
 	createPocketUser,
 	createUser,
 	loadAllUsers,
@@ -23,6 +28,7 @@ class Users {
 	async #add(id: string) {
 		const user = new User(id);
 		await user.loadDetails();
+		await loadUserIdentity(user);
 		this.list.push(user);
 		this.#sort();
 
@@ -31,6 +37,7 @@ class Users {
 
 	async load() {
 		this.list = await loadAllUsers();
+		await loadUserIdentities(this.list);
 		this.#sort();
 	}
 
@@ -60,6 +67,10 @@ class Users {
 	}
 
 	async create(params: UserNewParams) {
+		if (params.email) {
+			await synchronizeAuthenticationEmail(params.auth_uid, params.email);
+		}
+
 		const id = await createUser(params);
 
 		const user = await this.#add(id);

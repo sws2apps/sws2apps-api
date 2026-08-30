@@ -15,7 +15,6 @@ import {
 import { User } from './user.js';
 import { encryptData } from '../../platform/encryption/encryption.js';
 import { schemaUserProfile } from './default-user-profile.js';
-import { updateFirebaseUserEmail } from '../../platform/firebase/authentication.js';
 
 export const getUsersID = async () => {
 	const pattern = '^v3\\/users\\/(.+?)\\/';
@@ -247,10 +246,6 @@ export const setUserSessions = async (id: string, sessions: UserSession[]) => {
 };
 
 export const createUser = async (params: UserNewParams) => {
-	if (params.email) {
-		await updateFirebaseUserEmail(params.auth_uid, params.email);
-	}
-
 	const id = crypto.randomUUID().toUpperCase();
 
 	const profile: UserProfile = {

@@ -28,10 +28,6 @@ import {
 	setUserSettings,
 } from './users.repository.js';
 import {
-	getFirebaseUserDetails,
-	updateFirebaseUserEmail,
-} from '../../platform/firebase/authentication.js';
-import {
 	decryptData,
 	encryptData,
 } from '../../platform/encryption/encryption.js';
@@ -85,30 +81,11 @@ export class User {
 		this.sessions = data.sessions;
 		this.profile = data.profile;
 
-		if (this.profile.role !== 'pocket') {
-			const data = await getFirebaseUserDetails(this.profile.auth_uid!);
-
-			if (data) {
-				this.email = data.email;
-				this.auth_provider = data.auth_provider;
-
-				if (!this.profile.createdAt) {
-					this.profile.createdAt = data.createdAt;
-				}
-			}
-		}
-
 		if (this.profile.role === 'pocket' && !this.profile.createdAt) {
 			this.profile.createdAt = await getUserProfileCreatedAt(this.id);
 		}
 
 		this.flags = data.flags;
-	}
-
-	async updateEmailAuth(auth_uid: string, email: string) {
-		await updateFirebaseUserEmail(auth_uid, email);
-
-		this.email = email;
 	}
 
 	async updateProfile(profile: UserProfile) {

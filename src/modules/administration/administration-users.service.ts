@@ -2,6 +2,7 @@ import type { AppRoleType } from '../../domain/users/app-role.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
 import { deleteUser } from '../users/user-lifecycle.service.js';
+import { updateUserAuthenticationEmail } from '../users/user-identity.service.js';
 import type { UserSession } from '../users/user.types.js';
 
 export class AdministrationUserError extends Error {
@@ -138,7 +139,7 @@ export const updateAdministrationUser = async (
 	}
 
 	if (input.email.length > 0 && input.email !== user.email && user.profile.auth_uid) {
-		await user.updateEmailAuth(user.profile.auth_uid, input.email);
+		await updateUserAuthenticationEmail(user, input.email);
 	}
 
 	reloadUserCongregation(user.profile.congregation?.id);

@@ -68,8 +68,12 @@ export default [
 				{
 					patterns: [
 						{
-							group: ['**/users/users.js', '**/congregations/congregations.js'],
-							message: 'Repositories must persist supplied data instead of reading application collections.',
+							group: [
+								'**/users/users.js',
+								'**/congregations/congregations.js',
+								'**/platform/firebase/authentication.js',
+							],
+							message: 'Repositories must persist supplied data instead of coordinating collections or authentication.',
 						},
 					],
 				},
@@ -120,7 +124,7 @@ export default [
 					patterns: [
 						{
 							group: [
-								'**/platform/firebase/storage.js',
+								'**/platform/firebase/**',
 								'**/platform/visitor-details/**',
 								'express',
 								'express/*',
