@@ -14,6 +14,7 @@ import {
 	retrieveUserBackup as retrieveUserBackupData,
 	saveUserBackup as saveUserBackupData,
 	saveUserChunkedBackup as saveUserChunkedBackupData,
+	UserBackupError,
 } from './users-backup.service.js';
 import { sendFeedbackEmail } from './user-notifications.service.js';
 import {
@@ -38,6 +39,22 @@ const handleUserCongregationActivityError = (
 	res: Response,
 ): boolean => {
 	if (!(error instanceof UserCongregationActivityError)) return false;
+
+	res.locals.type = 'warn';
+
+	if (error.code === 'CONGREGATION_NOT_ASSIGNED') {
+		res.locals.message = 'user does not have an assigned congregation';
+		res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
+		return true;
+	}
+
+	res.locals.message = 'user congregation is invalid';
+	res.status(404).json({ message: 'error_app_congregation_not-found' });
+	return true;
+};
+
+const handleUserBackupError = (error: unknown, res: Response): boolean => {
+	if (!(error instanceof UserBackupError)) return false;
 
 	res.locals.type = 'warn';
 
@@ -305,27 +322,14 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id)!;
+	let result: BackupData;
 
-	if (!user.profile.congregation) {
-		res.locals.type = 'warn';
-		res.locals.message = `user does not have an assigned congregation`;
-		res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
-
+	try {
+		result = await retrieveUserBackupData(id, req.headers.metadata!.toString());
+	} catch (error) {
+		if (!handleUserBackupError(error, res)) throw error;
 		return;
 	}
-
-	const cong = CongregationsList.findById(user.profile.congregation?.id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user congregation is invalid';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
-		return;
-	}
-
-	const result = await retrieveUserBackupData(user, cong, req.headers.metadata!.toString());
 
 	res.locals.type = 'info';
 	res.locals.message = 'user retrieve backup successfully';
@@ -357,29 +361,15 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id)!;
-
-	if (!user.profile.congregation) {
-		res.locals.type = 'warn';
-		res.locals.message = `user does not have an assigned congregation`;
-		res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
-
-		return;
-	}
-
-	const cong = CongregationsList.findById(user.profile.congregation?.id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user congregation is invalid';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
-		return;
-	}
-
 	const cong_backup = req.body.cong_backup as BackupData;
+	let outcome;
 
-	const outcome = await saveUserBackupData(user, cong, cong_backup);
+	try {
+		outcome = await saveUserBackupData(id, cong_backup);
+	} catch (error) {
+		if (!handleUserBackupError(error, res)) throw error;
+		return;
+	}
 
 	if (outcome.status === 'conflict') {
 		res.locals.message = JSON.stringify({
@@ -684,26 +674,6 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id)!;
-
-	if (!user.profile.congregation) {
-		res.locals.type = 'warn';
-		res.locals.message = `user does not have an assigned congregation`;
-		res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
-
-		return;
-	}
-
-	const cong = CongregationsList.findById(user.profile.congregation?.id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user congregation is invalid';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
-		return;
-	}
-
 	const uploadId = req.body.uploadId as string;
 	const chunkIndex = req.body.chunkIndex as number;
 	const chunkData = req.body.chunkData as string;
@@ -716,12 +686,19 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const outcome = await saveUserChunkedBackupData(user, cong, req.headers.metadata!.toString(), {
-		uploadId,
-		chunkIndex,
-		chunkData,
-		totalChunks,
-	});
+	let outcome;
+
+	try {
+		outcome = await saveUserChunkedBackupData(id, req.headers.metadata!.toString(), {
+			uploadId,
+			chunkIndex,
+			chunkData,
+			totalChunks,
+		});
+	} catch (error) {
+		if (!handleUserBackupError(error, res)) throw error;
+		return;
+	}
 
 	if (outcome.status === 'metadata_conflict') {
 		res.locals.message = JSON.stringify({

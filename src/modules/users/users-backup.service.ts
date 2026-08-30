@@ -9,14 +9,40 @@ import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
 import { saveUserBackupAsync } from '../backups/backup-persistence.service.js';
 import { BackupData } from '../backups/backup.types.js';
 import type { Congregation } from '../congregations/congregation.js';
+import { CongregationsList } from '../congregations/congregations.js';
 import type { CongSettingsType } from '../congregations/congregations.types.js';
 import type { User } from './user.js';
+import { UsersList } from './users.js';
+
+export type UserBackupErrorCode = 'CONGREGATION_NOT_ASSIGNED' | 'CONGREGATION_NOT_FOUND';
+
+export class UserBackupError extends Error {
+	constructor(public readonly code: UserBackupErrorCode) {
+		super(code);
+		this.name = 'UserBackupError';
+	}
+}
+
+const getUserBackupContext = (userId: string): {
+	user: User;
+	congregation: Congregation;
+} => {
+	const user = UsersList.findById(userId)!;
+	const congregationId = user.profile.congregation?.id;
+
+	if (!congregationId) throw new UserBackupError('CONGREGATION_NOT_ASSIGNED');
+
+	const congregation = CongregationsList.findById(congregationId);
+	if (!congregation) throw new UserBackupError('CONGREGATION_NOT_FOUND');
+
+	return { user, congregation };
+};
 
 export const retrieveUserBackup = async (
-	user: User,
-	congregation: Congregation,
+	userId: string,
 	metadataHeader: string,
 ): Promise<BackupData> => {
+	const { user, congregation } = getUserBackupContext(userId);
 	const metadata = JSON.parse(metadataHeader) as Record<string, string>;
 
 	const result = {} as BackupData;
@@ -376,10 +402,10 @@ export type SaveUserBackupOutcome =
 	| { status: 'conflict'; key: string; currentValue: string; incomingValue: string };
 
 export const saveUserBackup = async (
-	user: User,
-	congregation: Congregation,
+	userId: string,
 	cong_backup: BackupData,
 ): Promise<SaveUserBackupOutcome> => {
+	const { user, congregation } = getUserBackupContext(userId);
 	const incomingMetadata = cong_backup.metadata;
 	const currentMetadata = { ...congregation.metadata, ...user.metadata };
 
@@ -432,11 +458,11 @@ type SaveUserChunkedBackupChunk = {
 };
 
 export const saveUserChunkedBackup = async (
-	user: User,
-	congregation: Congregation,
+	userId: string,
 	metadataHeader: string,
 	chunk: SaveUserChunkedBackupChunk,
 ): Promise<SaveUserChunkedBackupOutcome> => {
+	const { user, congregation } = getUserBackupContext(userId);
 	const incomingMetadata = JSON.parse(metadataHeader) as Record<string, string>;
 	const currentMetadata = { ...congregation.metadata, ...user.metadata };
 
