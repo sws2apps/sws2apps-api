@@ -28,8 +28,16 @@ export default [
 				{
 					patterns: [
 						{
-							group: ['**/platform/**', '**/*.repository.js', 'firebase-admin', 'firebase-admin/*'],
-							message: 'Controllers must use a service instead of platform or repository code.',
+							group: [
+								'**/platform/**',
+								'**/*.repository.js',
+								'**/users/users.js',
+								'**/congregations/congregations.js',
+								'firebase-admin',
+								'firebase-admin/*',
+							],
+							message:
+								'Controllers must use a service instead of platform, repository, or collection code.',
 						},
 					],
 				},
