@@ -1,4 +1,5 @@
 import { decryptData } from '../../platform/encryption/encryption.js';
+import type { CongSettingsType } from '../congregations/congregations.types.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { deleteUser } from '../users/user-lifecycle.service.js';
 import { deleteCongregation } from '../congregations/congregation-lifecycle.service.js';
@@ -45,13 +46,32 @@ export const isCongregationMasterKeyValid = (
 	return Boolean(decryptedMasterKey);
 };
 
+type SecuritySetting = 'cong_access_code' | 'cong_master_key';
+
+export const updateCongregationSecuritySetting = (
+	settings: CongSettingsType,
+	setting: SecuritySetting,
+	value: string,
+): CongSettingsType => {
+	const updatedSettings = structuredClone(settings);
+	updatedSettings[setting] = value;
+
+	return updatedSettings;
+};
+
 export const saveCongregationMasterKey = async (
 	congregationId: string,
 	administratorId: string,
 	masterKey: string,
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
-	await congregation.saveMasterKey(masterKey);
+	const settings = updateCongregationSecuritySetting(
+		congregation.settings,
+		'cong_master_key',
+		masterKey,
+	);
+
+	await congregation.saveSettings(settings);
 };
 
 export const saveCongregationAccessCode = async (
@@ -60,7 +80,13 @@ export const saveCongregationAccessCode = async (
 	accessCode: string,
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
-	await congregation.saveAccessCode(accessCode);
+	const settings = updateCongregationSecuritySetting(
+		congregation.settings,
+		'cong_access_code',
+		accessCode,
+	);
+
+	await congregation.saveSettings(settings);
 };
 
 export const getCongregationMasterKey = (

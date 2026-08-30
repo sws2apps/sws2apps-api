@@ -245,20 +245,6 @@ export class Congregation {
 		this.metadata.upcoming_events = await getUpcomingEventsMetadata(this.id);
 	}
 
-	async saveMasterKey(key: string) {
-		const settings = structuredClone(this.settings);
-		settings.cong_master_key = key;
-
-		await this.saveSettings(settings);
-	}
-
-	async saveAccessCode(code: string) {
-		const settings = structuredClone(this.settings);
-		settings.cong_access_code = code;
-
-		await this.saveSettings(settings);
-	}
-
 	async getPublicOutgoingTalks(): Promise<OutgoingTalkScheduleType[]> {
 		return getCongregationData(this.id, 'publicOutgoingTalks');
 	}
