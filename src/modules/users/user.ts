@@ -1,7 +1,6 @@
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import type {
-	UserCongregationAssignParams,
 	UserProfile,
 	UserSession,
 	UserSettings,
@@ -26,7 +25,6 @@ import {
 	setUserSessions,
 	setUserSettings,
 } from './users.repository.js';
-import { encryptData } from '../../platform/encryption/encryption.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { BackupData } from '../backups/backup.types.js';
 
@@ -143,105 +141,6 @@ export class User {
 
 	async adminLogout() {
 		await this.updateSessions([]);
-	}
-
-	async assignCongregation(params: UserCongregationAssignParams) {
-		const profile = structuredClone(this.profile);
-
-		profile.congregation = {
-			id: params.congId,
-			cong_role: params.role,
-			account_type: 'vip',
-		};
-
-		if (params.firstname) {
-			profile.firstname = { value: params.firstname, updatedAt: new Date().toISOString() };
-		}
-
-		if (params.lastname) {
-			profile.lastname = { value: params.lastname, updatedAt: new Date().toISOString() };
-		}
-
-		if (params.person_uid) {
-			profile.congregation.user_local_uid = params.person_uid;
-		}
-
-		await this.updateProfile(profile);
-
-		const cong = CongregationsList.findById(params.congId)!;
-		await cong.reloadMembers();
-
-		return cong;
-	}
-
-	async updateCongregationDetails(
-		cong_role: AppRoleType[],
-		cong_person_uid?: string,
-		cong_person_delegates?: string[],
-		cong_pocket?: string
-	) {
-		const profile = structuredClone(this.profile);
-
-		profile.congregation!.cong_role = cong_role;
-
-		if (cong_person_uid) {
-			profile.congregation!.user_local_uid = cong_person_uid;
-		}
-
-		if (cong_person_delegates) {
-			profile.congregation!.user_members_delegate = cong_person_delegates;
-		}
-
-		if (cong_pocket) {
-			profile.congregation!.pocket_invitation_code = encryptData(cong_pocket);
-		}
-
-		await this.updateProfile(profile);
-
-		const cong = CongregationsList.findById(profile.congregation!.id)!;
-
-		cong.reloadMembers();
-	}
-
-	async deletePocketCode() {
-		const profile = structuredClone(this.profile);
-
-		profile.congregation!.pocket_invitation_code = undefined;
-
-		await this.updateProfile(profile);
-
-		const cong = CongregationsList.findById(profile.congregation!.id)!;
-
-		cong.reloadMembers();
-
-		return cong;
-	}
-
-	async removeCongregation() {
-		const cong = CongregationsList.findById(this.profile.congregation!.id);
-
-		const profile = structuredClone(this.profile);
-		profile.congregation = undefined;
-		await this.updateProfile(profile);
-
-		const settings = structuredClone(this.settings);
-		settings.backup_automatic = '';
-		settings.data_view = '';
-		settings.hour_credits_enabled = '';
-		settings.theme_follow_os_enabled = '';
-		await this.updateSettings(settings);
-
-		await this.updateSessions([]);
-
-		await this.saveFieldServiceReports([]);
-
-		await this.saveBibleStudies([]);
-
-		await this.saveDelegatedFieldServiceReports([]);
-
-		if (cong) {
-			await cong.reloadMembers();
-		}
 	}
 
 	async saveFieldServiceReports(reports: StandardRecord[]) {

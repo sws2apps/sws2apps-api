@@ -2,6 +2,12 @@ import type { AppRoleType } from '../../domain/users/app-role.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
 import { deleteUser } from '../users/user-lifecycle.service.js';
+import {
+	assignUserToCongregation,
+	removeUserFromCongregation,
+	removeUserPocketInvitation,
+	updateUserCongregationMembership,
+} from '../users/user-congregation-membership.service.js';
 
 export type CongregationAdministrationUserErrorCode =
 	| 'CONGREGATION_NOT_FOUND'
@@ -94,12 +100,12 @@ export const updateCongregationUser = async (
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
 	const user = getUser(targetUserId);
 
-	await user.updateCongregationDetails(
-		input.roles,
-		input.personUid,
-		input.personDelegates,
-		input.secretCode,
-	);
+	await updateUserCongregationMembership(user, congregation, {
+		roles: input.roles,
+		personUid: input.personUid,
+		personDelegates: input.personDelegates,
+		pocketInvitationCode: input.secretCode,
+	});
 
 	if (
 		input.firstname !== user.profile.firstname.value ||
@@ -134,7 +140,7 @@ export const deleteCongregationUserPocketCode = async (
 	currentVisitorId: string,
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
-	await getUser(targetUserId).deletePocketCode();
+	await removeUserPocketInvitation(getUser(targetUserId), congregation);
 	return congregation.getMembers(currentVisitorId);
 };
 
@@ -170,8 +176,7 @@ export const addCongregationUser = async (
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
 	const user = getUser(input.userId);
 
-	await user.assignCongregation({
-		congId: congregationId,
+	await assignUserToCongregation(user, congregation, {
 		role: input.roles,
 		firstname: input.firstname,
 		lastname: input.lastname,
@@ -190,7 +195,7 @@ export const removeCongregationUser = async (
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
 	const user = getUser(targetUserId);
 
-	if (user.profile.role === 'vip') await user.removeCongregation();
+	if (user.profile.role === 'vip') await removeUserFromCongregation(user, congregation);
 	if (user.profile.role === 'pocket') await deleteUser(user.id);
 
 	return congregation.getMembers(currentVisitorId);

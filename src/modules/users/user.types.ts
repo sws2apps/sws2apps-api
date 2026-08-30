@@ -28,18 +28,6 @@ export type CongregationUserParams = {
 	cong_person_uid: string;
 };
 
-export type UserCongregationAssignParams = {
-	congId: string;
-	role: AppRoleType[];
-	firstname?: string;
-	lastname?: string;
-	person_uid?: string;
-};
-
-export type UserCongregationAssignDbParams = UserCongregationAssignParams & {
-	userId: string;
-};
-
 export type UserCongregationDetailsType = {
 	userId: string;
 	cong_role: AppRoleType[];

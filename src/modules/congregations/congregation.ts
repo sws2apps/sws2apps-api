@@ -62,6 +62,7 @@ import { UsersList } from '../users/users.js';
 import { mergeIncomingData } from '../backups/incoming-data-merge.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 import { saveOutgoingSpeakersState } from './outgoing-speakers.service.js';
+import { assignUserToCongregation } from '../users/user-congregation-membership.service.js';
 
 export class Congregation {
 	id: string;
@@ -726,7 +727,7 @@ export class Congregation {
 		params: { role: AppRoleType[]; person_uid: string; firstname?: string; lastname?: string },
 	) {
 		const foundUser = UsersList.findById(user)!;
-		await foundUser.assignCongregation({ congId: this.id, ...params });
+		await assignUserToCongregation(foundUser, this, params);
 
 		const requests = this.join_requests.filter(
 			(record) => record.user !== user && UsersList.list.some((user) => user.id === record.user),

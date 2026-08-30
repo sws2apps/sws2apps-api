@@ -125,6 +125,7 @@ export default [
 						{
 							group: [
 								'**/platform/firebase/**',
+								'**/platform/encryption/**',
 								'**/platform/visitor-details/**',
 								'express',
 								'express/*',

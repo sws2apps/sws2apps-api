@@ -7,6 +7,10 @@ import {
 	disableUserMfa,
 	revokeUserMfa,
 } from '../mfa/user-mfa.service.js';
+import {
+	assignUserToCongregation,
+	removeUserFromCongregation,
+} from '../users/user-congregation-membership.service.js';
 import type { UserSession } from '../users/user.types.js';
 
 export class AdministrationUserError extends Error {
@@ -181,7 +185,7 @@ export const assignAdministrationUserCongregation = async (
 		throw new AdministrationUserError('USER_ALREADY_MEMBER');
 	}
 
-	await user.assignCongregation({ congId: congregationId, role: ['admin'] });
+	await assignUserToCongregation(user, congregation, { role: ['admin'] });
 	return getAdministrationUsers(currentVisitorId);
 };
 
@@ -193,7 +197,10 @@ export const removeAdministrationUserCongregation = async (
 	const congregationId = user.profile.congregation?.id;
 
 	if (user.profile.role === 'vip') {
-		await user.removeCongregation();
+		await removeUserFromCongregation(
+			user,
+			congregationId ? CongregationsList.findById(congregationId) : undefined,
+		);
 	}
 
 	if (user.profile.role === 'pocket') {

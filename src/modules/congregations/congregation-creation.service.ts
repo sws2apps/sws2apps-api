@@ -1,6 +1,7 @@
 import { UsersList } from '../users/users.js';
 import { verifyCongregationDirectoryRecord } from './congregation-directory.service.js';
 import { CongregationsList } from './congregations.js';
+import { assignUserToCongregation } from '../users/user-congregation-membership.service.js';
 import { toMondayFirstWeekday } from './meeting-weekday.js';
 
 export type CongregationCreationErrorCode =
@@ -88,8 +89,8 @@ export const createVerifiedCongregation = async (input: CreateCongregationInput)
 		},
 	});
 
-	const congregation = await user.assignCongregation({
-		congId: congregationId,
+	const congregation = CongregationsList.findById(congregationId)!;
+	await assignUserToCongregation(user, congregation, {
 		role: ['admin'],
 	});
 
