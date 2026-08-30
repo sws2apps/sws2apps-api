@@ -3,7 +3,6 @@ import { validationResult } from 'express-validator';
 import { CongregationsList } from '../congregations/congregations.js';
 import { formatError } from '../../http/validation-errors.js';
 import { UsersList } from '../users/users.js';
-import { getCongregationJoinRequests } from '../congregations/congregation-join-requests.service.js';
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import {
 	isJoinRequestApprovalEmailEnabled,
@@ -29,6 +28,11 @@ import {
 	setCongregationAdministratorPersonUid,
 	updateCongregationUser,
 } from './congregation-administration-users.service.js';
+import {
+	approveCongregationJoinRequest,
+	CongregationJoinRequestError,
+	declineCongregationJoinRequest,
+} from './congregation-administration-join-requests.service.js';
 
 const handleCongregationSecurityError = (error: unknown, res: Response): boolean => {
 	if (!(error instanceof CongregationAdministrationSecurityError)) return false;
@@ -65,6 +69,27 @@ const handleCongregationUserError = (error: unknown, res: Response): boolean => 
 
 	res.locals.message = 'no user could found with the provided id';
 	res.status(404).json({ message: 'USER_NOT_FOUND' });
+	return true;
+};
+
+const handleJoinRequestError = (error: unknown, res: Response): boolean => {
+	if (!(error instanceof CongregationJoinRequestError)) return false;
+	res.locals.type = 'warn';
+
+	if (error.code === 'CONGREGATION_NOT_FOUND') {
+		res.locals.message = 'no congregation could not be found with the provided id';
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
+	} else if (error.code === 'MEMBERSHIP_REQUIRED') {
+		res.locals.message = 'user not authorized to access the provided congregation';
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
+	} else if (error.code === 'USER_NOT_FOUND') {
+		res.locals.message = 'no user record found with the provided id';
+		res.status(404).json({ message: 'error_app_join-requests-user-not-found' });
+	} else {
+		res.locals.message = 'user already have a congregation';
+		res.status(400).json({ message: 'error_app_join-requests-invalid' });
+	}
+
 	return true;
 };
 
@@ -750,30 +775,14 @@ export const deleteJoinRequest = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
-		return;
-	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
 	const userId = req.headers.user as string;
-
-	await cong.declineJoinRequest(userId);
-
-	const result = getCongregationJoinRequests(cong);
+	let result;
+	try {
+		result = await declineCongregationJoinRequest(id, res.locals.currentUser.id, userId);
+	} catch (error) {
+		if (!handleJoinRequestError(error, res)) throw error;
+		return;
+	}
 
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin declined a join request';
@@ -806,65 +815,37 @@ export const acceptJoinRequest = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
-		return;
-	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
 	const userId = req.headers.user as string;
-
-	const user = UsersList.findById(userId);
-
-	if (!user) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no user record found with the provided id';
-		res.status(404).json({ message: 'error_app_join-requests-user-not-found' });
-		return;
-	}
-
-	if (user.profile.congregation) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user already have a congregation';
-		res.status(400).json({ message: 'error_app_join-requests-invalid' });
-		return;
-	}
-
 	const role = req.body.role as AppRoleType[];
 	const person_uid = req.body.person_uid as string;
 	const firstname = req.body.firstname as string;
 	const lastname = req.body.lastname as string;
 
-	await cong.acceptJoinRequest(userId, { person_uid, role, firstname, lastname });
+	let approval;
+	try {
+		approval = await approveCongregationJoinRequest(
+			id,
+			res.locals.currentUser.id,
+			userId,
+			{ roles: role, personUid: person_uid, firstname, lastname },
+		);
+	} catch (error) {
+		if (!handleJoinRequestError(error, res)) throw error;
+		return;
+	}
 
-	const result = getCongregationJoinRequests(cong);
-
-	const userEmail = user.email;
+	const { recipient: userEmail, requestorName, congregationName, countryCode } = approval.notification;
 
 	if (isJoinRequestApprovalEmailEnabled() && userEmail) {
 		const language = (req.headers?.applanguage as string) || 'eng';
 		req.i18n.changeLanguage(language);
 
-		const congregation = `${cong.settings.cong_name} (${cong.settings.country_code})`;
-		const requestor = user.profile.firstname.value;
+		const congregation = `${congregationName} (${countryCode})`;
 
 		sendJoinRequestApprovalEmail({
 			recipient: userEmail,
 			subject: req.t('tr_joinRequestApprovedSubject', { congregation }),
-			greeting: req.t('tr_greetings', { name: requestor }),
+			greeting: req.t('tr_greetings', { name: requestorName }),
 			title: req.t('tr_joinRequestApprovedTitle'),
 			message: req.t('tr_joinRequestApprovedDesc', {
 				congregation,
@@ -875,5 +856,5 @@ export const acceptJoinRequest = async (req: Request, res: Response) => {
 
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin accepted a join request';
-	res.status(200).json(result);
+	res.status(200).json(approval.requests);
 };
