@@ -148,6 +148,15 @@ export const getUserProfileMetadata = async (user_id: string) => {
 	return userProfile?.updated || '';
 };
 
+export const getUserProfileCreatedAt = async (userId: string) => {
+	const userProfile = await getFileMetadata({
+		type: 'user',
+		path: `${userId}/profile.txt`,
+	});
+
+	return userProfile?.timeCreated;
+};
+
 export const getUserSessionsMetadata = async (user_id: string) => {
 	const userSessions = await getFileMetadata({ type: 'user', path: `${user_id}/sessions.txt` });
 

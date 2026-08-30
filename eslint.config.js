@@ -111,4 +111,20 @@ export default [
 			],
 		},
 	},
+	{
+		files: ['src/modules/users/user.ts'],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							group: ['**/platform/firebase/storage.js', 'firebase-admin/storage'],
+							message: 'The user aggregate must use its repository for Firebase persistence.',
+						},
+					],
+				},
+			],
+		},
+	},
 ];

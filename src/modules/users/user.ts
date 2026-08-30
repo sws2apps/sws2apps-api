@@ -10,9 +10,13 @@ import type {
 } from './user.types.js';
 import {
 	getBibleStudiesMetadata,
+	getDelegatedFieldServiceReports,
 	getDelegatedFieldServiceReportsMetadata,
+	getUserBibleStudies,
 	getFieldServiceReportsMetadata,
 	getUserDetails,
+	getUserFieldServiceReports,
+	getUserProfileCreatedAt,
 	getUserProfileMetadata,
 	getUserSessionsMetadata,
 	getUserSettingsMetadata,
@@ -35,10 +39,6 @@ import {
 import { generateUserMfaSecret } from '../mfa/user-secret.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { BackupData } from '../backups/backup.types.js';
-import {
-	getFileFromStorage,
-	getFileMetadata,
-} from '../../platform/firebase/storage.js';
 import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
 
 export class User {
@@ -101,10 +101,7 @@ export class User {
 		}
 
 		if (this.profile.role === 'pocket' && !this.profile.createdAt) {
-			const path = `${this.id}/profile.txt`;
-			const data = await getFileMetadata({ type: 'user', path });
-
-			this.profile.createdAt = data?.timeCreated;
+			this.profile.createdAt = await getUserProfileCreatedAt(this.id);
 		}
 
 		this.flags = data.flags;
@@ -456,38 +453,14 @@ export class User {
 	}
 
 	async getFieldServiceReports() {
-		const path = `${this.id}/field_service_reports.txt`;
-		const data = await getFileFromStorage({ type: 'user', path });
-
-		if (data) {
-			const reports = JSON.parse(data) as StandardRecord[];
-			return reports;
-		}
-
-		return [];
+		return getUserFieldServiceReports(this.id);
 	}
 
 	async getBibleStudies() {
-		const path = `${this.id}/bible_studies.txt`;
-		const data = await getFileFromStorage({ type: 'user', path });
-
-		if (data) {
-			const studies = JSON.parse(data) as StandardRecord[];
-			return studies;
-		}
-
-		return [];
+		return getUserBibleStudies(this.id);
 	}
 
 	async getDelegatedFieldServiceReports() {
-		const path = `${this.id}/delegated_field_service_reports.txt`;
-		const data = await getFileFromStorage({ type: 'user', path });
-
-		if (data) {
-			const reports = JSON.parse(data) as StandardRecord[];
-			return reports;
-		}
-
-		return [];
+		return getDelegatedFieldServiceReports(this.id);
 	}
 }
