@@ -1,13 +1,10 @@
-import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
-import { BackupData } from '../backups/backup.types.js';
 import {
 	CongSettingsType,
 	OutgoingSpeakersRecordType,
 	OutgoingTalkScheduleType,
 	UserRequestAccess,
 } from './congregations.types.js';
-import { decryptData } from '../../platform/encryption/encryption.js';
 import {
 	deleteAPApplication,
 	getBranchCongAnalysisMetadata,
@@ -51,9 +48,6 @@ import {
 	setUpcomingEvents,
 } from './congregations.repository.js';
 import { User } from '../users/user.js';
-import { UsersList } from '../users/users.js';
-import { mergeIncomingData } from '../backups/incoming-data-merge.js';
-import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 
 export class Congregation {
 	id: string;
@@ -258,103 +252,6 @@ export class Congregation {
 		this.metadata.upcoming_events = await getUpcomingEventsMetadata(this.id);
 	}
 
-	async saveBackup(cong_backup: BackupData, userRole: AppRoleType[]) {
-		const {
-			reportEditorRole,
-			publicTalkEditor,
-			adminRole,
-			scheduleEditor,
-			secretaryRole,
-			serviceCommiteeRole,
-			attendanceTracker,
-		} = getUserCapabilities(userRole);
-
-		if (scheduleEditor && cong_backup.app_settings?.cong_settings) {
-			const accessCode = this.settings.cong_access_code;
-			const masterKey = this.settings.cong_master_key;
-
-			cong_backup.app_settings.cong_settings.cong_access_code = accessCode;
-			cong_backup.app_settings.cong_settings.cong_master_key = masterKey;
-
-			const newSettings = structuredClone(this.settings);
-
-			mergeIncomingData(newSettings, cong_backup.app_settings.cong_settings);
-
-			await this.saveSettings(newSettings);
-		}
-
-		if (this.settings.data_sync.value) {
-			if (scheduleEditor && cong_backup.persons) {
-				await this.savePersons(cong_backup.persons);
-			}
-
-			if (publicTalkEditor && cong_backup.speakers_congregations) {
-				await this.saveSpeakersCongregations(cong_backup.speakers_congregations);
-			}
-
-			if (publicTalkEditor && cong_backup.visiting_speakers) {
-				await this.saveVisitingSpeakers(cong_backup.visiting_speakers);
-			}
-
-			if (publicTalkEditor && cong_backup.speakers_key) {
-				await this.saveSpeakersKey(cong_backup.speakers_key);
-			}
-
-			if (adminRole && cong_backup.branch_cong_analysis) {
-				await this.saveBranchCongAnalysis(cong_backup.branch_cong_analysis);
-			}
-
-			if (adminRole && cong_backup.branch_field_service_reports) {
-				await this.saveBranchFieldServiceReports(cong_backup.branch_field_service_reports);
-			}
-
-			if (serviceCommiteeRole && cong_backup.field_service_groups) {
-				await this.saveFieldServiceGroups(cong_backup.field_service_groups);
-			}
-
-			if (scheduleEditor && cong_backup.sched) {
-				await this.saveSchedules(cong_backup.sched);
-			}
-
-			if (scheduleEditor && cong_backup.sources) {
-				await this.saveSources(cong_backup.sources);
-			}
-
-			if (reportEditorRole && cong_backup.cong_field_service_reports) {
-				await this.saveFieldServiceReports(cong_backup.cong_field_service_reports);
-			}
-
-			if (attendanceTracker && cong_backup.meeting_attendance) {
-				await this.saveMeetingAttendance(cong_backup.meeting_attendance);
-			}
-
-			if (adminRole && cong_backup.upcoming_events) {
-				await this.saveUpcomingEvents(cong_backup.upcoming_events);
-			}
-
-			if (publicTalkEditor && cong_backup.outgoing_speakers) {
-				await this.saveOutgoingSpeakers(cong_backup.outgoing_speakers);
-			}
-
-			if (secretaryRole && cong_backup.incoming_reports) {
-				await this.saveIncomingReports(cong_backup.incoming_reports);
-			}
-		}
-
-		if (adminRole && cong_backup.cong_users) {
-			for await (const user of cong_backup.cong_users) {
-				const findUser = UsersList.findById(user.id);
-
-				if (!findUser) continue;
-
-				const profile = structuredClone(findUser.profile);
-				profile.congregation!.cong_role = user?.role || [];
-
-				await findUser.updateProfile(profile);
-			}
-		}
-	}
-
 	async saveMasterKey(key: string) {
 		const settings = structuredClone(this.settings);
 		settings.cong_master_key = key;
@@ -454,23 +351,6 @@ export class Congregation {
 
 		this.ap_applications = this.ap_applications.filter((record) => record.request_id !== request_id);
 		return this.ap_applications;
-	}
-
-	findPocketUser(token: string, accessCode: string) {
-		for (const user of this.members) {
-			const userToken = user.profile.congregation?.pocket_invitation_code;
-
-			if (!userToken) continue;
-
-			const decryptedToken1 = decryptData(userToken)!;
-			const decryptedToken2 = decryptData(decryptedToken1, accessCode);
-
-			if (!decryptedToken2) continue;
-
-			if (token === JSON.parse(decryptedToken2)) {
-				return user;
-			}
-		}
 	}
 
 	async saveFlags(flags: string[]) {

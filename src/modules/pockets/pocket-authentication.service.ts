@@ -9,6 +9,7 @@ import type { UserAuthResponse, UserSession } from '../users/user.types.js';
 import { UsersList } from '../users/users.js';
 import { parsePocketInvitationCode } from './invitation-code.js';
 import { decryptPocketAccessCode } from './pocket-invitation.service.js';
+import { decryptData } from '../../platform/encryption/encryption.js';
 
 export type PocketAuthenticationErrorCode = 'INVALID_INVITATION' | 'CONGREGATION_NOT_FOUND';
 
@@ -69,6 +70,25 @@ type AuthenticatePocketInvitationInput = {
 	headers: IncomingHttpHeaders;
 };
 
+const findPocketInvitationUser = (
+	congregation: Congregation,
+	invitationCode: string,
+	accessCode: string,
+) => {
+	return congregation.members.find((member) => {
+		const encryptedInvitation = member.profile.congregation?.pocket_invitation_code;
+		if (!encryptedInvitation) return false;
+
+		const invitation = decryptData(encryptedInvitation);
+		if (!invitation) return false;
+
+		const invitationCodeData = decryptData(invitation, accessCode);
+		if (!invitationCodeData) return false;
+
+		return invitationCode === JSON.parse(invitationCodeData);
+	});
+};
+
 export const authenticatePocketInvitation = async ({
 	invitationCode,
 	visitorId,
@@ -93,7 +113,7 @@ export const authenticatePocketInvitation = async ({
 
 	if (!decryptedInvitation) throw new PocketAuthenticationError('INVALID_INVITATION');
 
-	const user = congregation.findPocketUser(invitationCode, decryptedInvitation.accessCode);
+	const user = findPocketInvitationUser(congregation, invitationCode, decryptedInvitation.accessCode);
 
 	if (!user) throw new PocketAuthenticationError('INVALID_INVITATION');
 

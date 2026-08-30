@@ -9,6 +9,7 @@ import type { StandardRecord } from '../../types/standard-record.js';
 import { BackupData } from './backup.types.js';
 import { findBackupUploadByCongregation } from './backup-upload-tracker.js';
 import { updateUserCongregationPersonData } from '../users/users-congregation-activity.service.js';
+import { saveCongregationBackup } from './congregation-backup.service.js';
 
 export const saveUserBackupAsync = async ({
 	congId,
@@ -35,7 +36,7 @@ export const saveUserBackupAsync = async ({
 		const congregation = CongregationsList.findById(congId)!;
 		const user = UsersList.findById(userId)!;
 
-		await congregation.saveBackup(cong_backup, userRole);
+		await saveCongregationBackup(congregation, cong_backup, userRole);
 
 		const userPerson = cong_backup.persons?.at(0);
 

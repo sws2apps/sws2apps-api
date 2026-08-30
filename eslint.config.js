@@ -109,7 +109,9 @@ export default [
 						{
 							group: [
 								'**/platform/firebase/**',
+								'**/platform/encryption/**',
 								'**/congregations/congregations.js',
+								'**/users/users.js',
 								'firebase-admin',
 								'firebase-admin/*',
 							],
