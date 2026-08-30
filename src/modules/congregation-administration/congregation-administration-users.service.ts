@@ -1,6 +1,7 @@
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
+import { deleteUser } from '../users/user-lifecycle.service.js';
 
 export type CongregationAdministrationUserErrorCode =
 	| 'CONGREGATION_NOT_FOUND'
@@ -190,7 +191,7 @@ export const removeCongregationUser = async (
 	const user = getUser(targetUserId);
 
 	if (user.profile.role === 'vip') await user.removeCongregation();
-	if (user.profile.role === 'pocket') await UsersList.delete(user.id);
+	if (user.profile.role === 'pocket') await deleteUser(user.id);
 
 	return congregation.getMembers(currentVisitorId);
 };

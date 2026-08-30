@@ -1,18 +1,13 @@
-import { LogLevel } from '@logtail/types';
 import type {
 	PocketNewParams,
 	UserNewParams,
 } from './user.types.js';
 import { User } from './user.js';
-import { CongregationsList } from '../congregations/congregations.js';
 import {
 	createPocketUser,
 	createUser,
 	loadAllUsers,
 } from './users.repository.js';
-import { deleteFirebaseAuthUser } from '../../platform/firebase/authentication.js';
-import { deleteFileFromStorage } from '../../platform/firebase/storage.js';
-import { logger } from '../../platform/logging/logger.js';
 
 class Users {
 	list: User[];
@@ -78,50 +73,8 @@ class Users {
 		return user;
 	}
 
-	async delete(id: string) {
-		await deleteFileFromStorage({ type: 'user', path: id });
-
-		const user = this.findById(id);
-
-		if (user?.profile.auth_uid) {
-			await deleteFirebaseAuthUser(user.profile.auth_uid);
-		}
-
+	removeById(id: string) {
 		this.list = this.list.filter((record) => record.id !== id);
-
-		if (user?.profile.congregation?.id) {
-			const cong = CongregationsList.findById(user.profile.congregation.id);
-
-			if (cong) {
-				cong.reloadMembers();
-			}
-		}
-	}
-
-	async removeOutdatedSessions() {
-		logger(LogLevel.Info, `cleaning outdated user sessions ...`);
-
-		try {
-			const validMonth = new Date();
-			validMonth.setMonth(validMonth.getMonth() - 6);
-
-			for (const User of this.list) {
-				const sessions = User.sessions;
-
-				const validSessions = sessions.filter((record) => {
-					const { last_seen } = record;
-					return !last_seen || new Date(last_seen) > validMonth;
-				});
-
-				if (validSessions.length !== sessions.length) {
-					await User.updateSessions(validSessions);
-				}
-			}
-
-			logger(LogLevel.Info, `outdated sessions cleanup completed.`);
-		} catch {
-			logger(LogLevel.Warn, `an error occured while removing outdated session`);
-		}
 	}
 }
 

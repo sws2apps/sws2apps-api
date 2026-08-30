@@ -12,6 +12,7 @@ import { InstallationsList } from './modules/installations/installation-list.js'
 import { initializeMinimumClientVersion } from './modules/administration/administration-settings.service.js';
 import { createDevelopmentUsers } from './bootstrap/development-users.js';
 import { serverState } from './platform/runtime/server-state.js';
+import { removeOutdatedUserSessions } from './modules/users/user-lifecycle.service.js';
 
 await initializeMinimumClientVersion();
 await createDevelopmentUsers();
@@ -32,7 +33,7 @@ app.listen(env.port, async () => {
 	await InstallationsList.load();
 
 	// non-blocking calls
-	UsersList.removeOutdatedSessions();
+	removeOutdatedUserSessions();
 
 	const end = performance.now();
 	const durationMs = Math.round(end - start);

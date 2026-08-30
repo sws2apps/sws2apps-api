@@ -3,6 +3,7 @@ import { canAccessCongregationMasterKey } from '../../domain/users/master-key-ro
 import { CongregationsList } from '../congregations/congregations.js';
 import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
 import { UsersList } from './users.js';
+import { deleteUser } from './user-lifecycle.service.js';
 
 export type UserAccountErrorCode = 'CONGREGATION_NOT_ASSIGNED' | 'CONGREGATION_NOT_FOUND';
 
@@ -83,8 +84,5 @@ export const disableUserMfa = async (userId: string) => {
 };
 
 export const deleteUserAccount = async (userId: string) => {
-	const congregationId = UsersList.findById(userId)!.profile.congregation?.id;
-	await UsersList.delete(userId);
-
-	if (congregationId) CongregationsList.findById(congregationId)?.reloadMembers();
+	await deleteUser(userId);
 };

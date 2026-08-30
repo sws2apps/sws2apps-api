@@ -1,6 +1,7 @@
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
+import { deleteUser } from '../users/user-lifecycle.service.js';
 import type { UserSession } from '../users/user.types.js';
 
 export class AdministrationUserError extends Error {
@@ -84,7 +85,7 @@ export const deleteAdministrationUser = async (
 	const user = getAdministrationUser(userId);
 	const congregationId = user.profile.congregation?.id;
 
-	await UsersList.delete(userId);
+	await deleteUser(userId);
 	reloadUserCongregation(congregationId);
 
 	return getAdministrationUsers(currentVisitorId);
@@ -191,7 +192,7 @@ export const removeAdministrationUserCongregation = async (
 	}
 
 	if (user.profile.role === 'pocket') {
-		await UsersList.delete(user.id);
+		await deleteUser(user.id);
 	}
 
 	reloadUserCongregation(congregationId);
