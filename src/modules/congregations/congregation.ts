@@ -2,17 +2,12 @@ import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import { BackupData } from '../backups/backup.types.js';
 import {
-	CongregationUpdatesType,
-	CongRequestPendingType,
 	CongSettingsType,
 	OutgoingSpeakersRecordType,
 	OutgoingTalkScheduleType,
 	UserRequestAccess,
 } from './congregations.types.js';
-import {
-	decryptData,
-	encryptData,
-} from '../../platform/encryption/encryption.js';
+import { decryptData } from '../../platform/encryption/encryption.js';
 import {
 	deleteAPApplication,
 	getBranchCongAnalysisMetadata,
@@ -56,12 +51,10 @@ import {
 	setSpeakersCongregations,
 	setUpcomingEvents,
 } from './congregations.repository.js';
-import { CongregationsList } from './congregations.js';
 import { User } from '../users/user.js';
 import { UsersList } from '../users/users.js';
 import { mergeIncomingData } from '../backups/incoming-data-merge.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
-import { saveOutgoingSpeakersState } from './outgoing-speakers.service.js';
 import { assignUserToCongregation } from '../users/user-congregation-membership.service.js';
 
 export class Congregation {
@@ -399,136 +392,6 @@ export class Congregation {
 		this.members = cong_members;
 	}
 
-	getVisitingSpeakersAccessList() {
-		const approvedCong = this.outgoing_speakers.access.filter((record) => record.status === 'approved');
-
-		const validCongs = approvedCong.filter((cong) => {
-			const foundCong = CongregationsList.findById(cong.cong_id);
-
-			if (!foundCong) return false;
-
-			return true;
-		});
-
-		const result = validCongs.map((cong) => {
-			const foundCong = CongregationsList.findById(cong.cong_id)!;
-
-			return {
-				cong_id: cong.cong_id,
-				request_id: cong.request_id,
-				cong_name: foundCong.settings.cong_name,
-			};
-		});
-
-		return result;
-	}
-
-	async requestAccessCongregation(cong_id: string, key: string, request_id: string) {
-		const requestedCongregation = CongregationsList.findById(cong_id)!;
-
-		requestedCongregation.outgoing_speakers.access = requestedCongregation.outgoing_speakers.access.filter(
-			(record) => record.cong_id !== this.id,
-		);
-
-		requestedCongregation.outgoing_speakers.access.push({
-			cong_id: this.id,
-			key: '',
-			status: 'pending',
-			updatedAt: new Date().toISOString(),
-			temp_key: key,
-			request_id,
-		});
-
-		await saveOutgoingSpeakersState(this.id, requestedCongregation.outgoing_speakers);
-	}
-
-	getPendingVisitingSpeakersAccessList() {
-		const pendingCong = this.outgoing_speakers.access.filter((record) => record.status === 'pending');
-
-		const result: CongRequestPendingType[] = pendingCong.map((cong) => {
-			const foundCong = CongregationsList.findById(cong.cong_id)!;
-
-			return {
-				cong_id: cong.cong_id,
-				updatedAt: cong.updatedAt,
-				cong_name: foundCong.settings.cong_name,
-				country_code: foundCong.settings.country_code,
-				request_id: cong.request_id,
-			};
-		});
-
-		return result;
-	}
-
-	async approveCongregationRequest(request_id: string, key: string) {
-		const request = this.outgoing_speakers.access.find((record) => record.request_id === request_id)!;
-
-		request.key = encryptData(JSON.stringify(key), request.temp_key);
-		request.status = 'approved';
-		request.updatedAt = new Date().toISOString();
-		delete request.temp_key;
-
-		await saveOutgoingSpeakersState(this.id, this.outgoing_speakers);
-	}
-
-	async rejectCongregationRequest(request_id: string) {
-		const request = this.outgoing_speakers.access.find((record) => record.request_id === request_id)!;
-
-		request.status = 'disapproved';
-		request.updatedAt = new Date().toISOString();
-		delete request.temp_key;
-
-		await saveOutgoingSpeakersState(this.id, this.outgoing_speakers);
-	}
-
-	getRemoteCongregationsList() {
-		const approvedRequests = CongregationsList.list.filter((record) =>
-			record.outgoing_speakers.access.find((access) => access.cong_id === this.id && access.status === 'approved'),
-		);
-
-		const congs = approvedRequests.map((cong) => {
-			const requestDetails = cong.outgoing_speakers.access.find(
-				(access) => access.cong_id === this.id && access.status === 'approved',
-			)!;
-
-			return {
-				list: cong.outgoing_speakers.list,
-				cong_id: cong.id,
-				key: requestDetails.key,
-				status: 'approved',
-				updatedAt: requestDetails.updatedAt,
-				cong_name: cong.settings.cong_name,
-				country_code: cong.settings.country_code,
-				request_id: requestDetails.request_id,
-			};
-		});
-
-		return congs as CongregationUpdatesType['remote_congregations'];
-	}
-
-	getRejectedRequests() {
-		const disapprovedRequests = CongregationsList.list.filter((record) =>
-			record.outgoing_speakers.access.find((access) => access.cong_id === this.id && access.status === 'disapproved'),
-		);
-
-		const congs = disapprovedRequests.map((cong) => {
-			const requestDetails = cong.outgoing_speakers.access.find(
-				(access) => access.cong_id === this.id && access.status === 'disapproved',
-			)!;
-
-			return {
-				cong_id: cong.id,
-				status: 'disapproved',
-				updatedAt: requestDetails.updatedAt,
-				cong_name: cong.settings.cong_name,
-				country_code: cong.settings.country_code,
-				request_id: requestDetails.request_id,
-			};
-		});
-
-		return congs as CongregationUpdatesType['rejected_requests'];
-	}
-
 	getMembers(visitorid: string) {
 		const members = this.members.map((member) => {
 			return {
@@ -605,24 +468,6 @@ export class Congregation {
 
 	async savePublicIncomingTalks(schedules: OutgoingTalkScheduleType[]) {
 		await setPublicIncomingTalks(this.id, schedules);
-	}
-
-	async copyOutgoingTalkSchedule(talks: OutgoingTalkScheduleType[]) {
-		if (talks.length > 0) {
-			const congregations = CongregationsList.list.filter((record) =>
-				record.outgoing_speakers.access.find((cong) => cong.cong_id === this.id && cong.status === 'approved'),
-			);
-
-			for await (const congregation of congregations) {
-				let schedules = await congregation.getPublicIncomingTalks();
-				schedules = schedules.filter((record) => record.sender !== this.id);
-
-				const newSchedule = talks.filter((record) => record.recipient === congregation.id);
-				schedules.push(...newSchedule);
-
-				await congregation.savePublicIncomingTalks(schedules);
-			}
-		}
 	}
 
 	async saveApplication(application: StandardRecord) {

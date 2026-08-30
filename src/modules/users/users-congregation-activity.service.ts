@@ -6,6 +6,11 @@ import { CongregationsList } from '../congregations/congregations.js';
 import type { CongregationUpdatesType } from '../congregations/congregations.types.js';
 import { sendFeedbackEmail } from './user-notifications.service.js';
 import { UsersList } from './users.js';
+import {
+	getPendingOutgoingSpeakerAccess,
+	getRejectedSpeakerRequests,
+	getRemoteSpeakerCongregations,
+} from '../congregations/outgoing-speakers.service.js';
 
 export type UserCongregationActivityErrorCode =
 	| 'CONGREGATION_NOT_ASSIGNED'
@@ -157,9 +162,9 @@ export const getUserCongregationUpdates = async (
 
 	if (canEditPublicTalks && congregation.settings.data_sync.value) {
 		updates.speakers_key = congregation.outgoing_speakers.speakers_key;
-		updates.pending_speakers_requests = congregation.getPendingVisitingSpeakersAccessList();
-		updates.remote_congregations = congregation.getRemoteCongregationsList();
-		updates.rejected_requests = congregation.getRejectedRequests();
+		updates.pending_speakers_requests = getPendingOutgoingSpeakerAccess(congregation, CongregationsList.list);
+		updates.remote_congregations = getRemoteSpeakerCongregations(congregation, CongregationsList.list);
+		updates.rejected_requests = getRejectedSpeakerRequests(congregation, CongregationsList.list);
 	}
 
 	if (isSecretary) {

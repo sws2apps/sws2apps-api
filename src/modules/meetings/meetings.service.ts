@@ -1,6 +1,14 @@
 import type { OutgoingTalkScheduleType } from '../congregations/congregations.types.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { prepareSchedulePublication } from './schedule-publication.js';
+import {
+	approveOutgoingSpeakerAccess,
+	copyOutgoingTalkSchedule,
+	getApprovedVisitingSpeakerCongregations,
+	getPendingOutgoingSpeakerAccess,
+	rejectOutgoingSpeakerAccess,
+	requestOutgoingSpeakerAccess,
+} from '../congregations/outgoing-speakers.service.js';
 
 export type MeetingAccessErrorCode = 'CONGREGATION_NOT_FOUND' | 'MEMBERSHIP_REQUIRED';
 
@@ -22,7 +30,7 @@ const getAuthorizedCongregation = async (congregationId: string, userId: string)
 
 export const getApprovedVisitingSpeakerAccess = async (congregationId: string, userId: string) => {
 	const congregation = await getAuthorizedCongregation(congregationId, userId);
-	return congregation.getVisitingSpeakersAccessList();
+	return getApprovedVisitingSpeakerCongregations(congregation, CongregationsList.list);
 };
 
 export const searchVisitingSpeakerCongregations = async (congregationId: string, userId: string, name: string) => {
@@ -38,14 +46,15 @@ export const requestVisitingSpeakerAccess = async (
 	requestId: string,
 ) => {
 	const congregation = await getAuthorizedCongregation(congregationId, userId);
-	await congregation.requestAccessCongregation(targetCongregationId, key, requestId);
+	const targetCongregation = CongregationsList.findById(targetCongregationId)!;
+	await requestOutgoingSpeakerAccess(congregation, targetCongregation, key, requestId);
 };
 
 export const getPendingVisitingSpeakerAccess = async (congregationId: string, userId: string) => {
 	const congregation = await getAuthorizedCongregation(congregationId, userId);
 
 	return {
-		congregations: congregation.getPendingVisitingSpeakersAccessList(),
+		congregations: getPendingOutgoingSpeakerAccess(congregation, CongregationsList.list),
 		speakers_key: congregation.outgoing_speakers.speakers_key,
 		cong_master_key: congregation.settings.cong_master_key,
 	};
@@ -58,14 +67,14 @@ export const approveVisitingSpeakerAccess = async (
 	key: string,
 ) => {
 	const congregation = await getAuthorizedCongregation(congregationId, userId);
-	await congregation.approveCongregationRequest(requestId, key);
-	return congregation.getPendingVisitingSpeakersAccessList();
+	await approveOutgoingSpeakerAccess(congregation, requestId, key);
+	return getPendingOutgoingSpeakerAccess(congregation, CongregationsList.list);
 };
 
 export const rejectVisitingSpeakerAccess = async (congregationId: string, userId: string, requestId: string) => {
 	const congregation = await getAuthorizedCongregation(congregationId, userId);
-	await congregation.rejectCongregationRequest(requestId);
-	return congregation.getPendingVisitingSpeakersAccessList();
+	await rejectOutgoingSpeakerAccess(congregation, requestId);
+	return getPendingOutgoingSpeakerAccess(congregation, CongregationsList.list);
 };
 
 type PublishMeetingSchedulesInput = {
@@ -86,7 +95,9 @@ export const publishMeetingSchedules = async (input: PublishMeetingSchedulesInpu
 		publication.serializedTalks,
 	);
 
-	if (input.talks) await congregation.copyOutgoingTalkSchedule(input.talks);
+	if (input.talks) {
+		await copyOutgoingTalkSchedule(congregation, CongregationsList.list, input.talks);
+	}
 };
 
 export const getMeetingSchedules = async (congregationId: string, userId: string) => {

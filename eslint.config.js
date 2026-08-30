@@ -107,8 +107,13 @@ export default [
 				{
 					patterns: [
 						{
-							group: ['**/platform/firebase/**', 'firebase-admin', 'firebase-admin/*'],
-							message: 'The congregation aggregate must use its repository for Firebase persistence.',
+							group: [
+								'**/platform/firebase/**',
+								'**/congregations/congregations.js',
+								'firebase-admin',
+								'firebase-admin/*',
+							],
+							message: 'The congregation aggregate must use repositories and services instead of Firebase or global collections.',
 						},
 					],
 				},
