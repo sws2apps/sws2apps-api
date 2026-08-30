@@ -7,5 +7,8 @@ All routes require an authenticated congregation meeting editor. Visiting-speake
 access routes additionally require the public-talk coordinator role. Keeping those
 permission transitions visible in the router is a security invariant.
 
-The controller temporarily uses the legacy congregation collection. Persistence
-should move behind a meetings repository after controller behavior is covered.
+The controller is HTTP-only. `meetings.service` owns authorization and use-case
+coordination, `schedule-publication` owns public schedule persistence, and
+`visiting-speaker-directory` owns discoverable congregation filtering and public
+projection. Outgoing-speaker access state remains in the congregations service
+boundary because it is shared with user updates and startup synchronization.

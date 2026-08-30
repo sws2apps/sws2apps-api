@@ -9,5 +9,12 @@ are validated as non-empty strings at the route boundary.
 
 The controller is a thin HTTP layer: routes validate input, and handlers delegate
 use cases to services (`users-account.service`, `users-backup.service`,
-`users-congregation-activity.service`, `user-lifecycle.service`) and map their
-outcomes and typed errors to HTTP responses.
+`users-congregation-activity.service`, `user-creation.service`,
+`user-backup-application.service`, `user-congregation-membership.service`, and
+`user-lifecycle.service`) and map their outcomes and typed errors to HTTP
+responses.
+
+`User` retains persistence-oriented state operations. Session projection and
+revocation, entity creation, backup application, identity operations, membership,
+and lifecycle workflows are service-owned. `UsersList` is the startup cache and
+lookup index; it does not create or delete accounts.
