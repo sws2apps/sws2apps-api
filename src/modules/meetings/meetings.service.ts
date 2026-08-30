@@ -1,6 +1,9 @@
 import type { OutgoingTalkScheduleType } from '../congregations/congregations.types.js';
 import { CongregationsList } from '../congregations/congregations.js';
-import { prepareSchedulePublication } from './schedule-publication.js';
+import {
+	prepareSchedulePublication,
+	saveSchedulePublication,
+} from './schedule-publication.js';
 import {
 	approveOutgoingSpeakerAccess,
 	copyOutgoingTalkSchedule,
@@ -90,11 +93,7 @@ export const publishMeetingSchedules = async (input: PublishMeetingSchedulesInpu
 	const congregation = await getAuthorizedCongregation(input.congregationId, input.userId);
 	const publication = prepareSchedulePublication(input);
 
-	await congregation.publishSchedules(
-		publication.serializedSources,
-		publication.serializedSchedules,
-		publication.serializedTalks,
-	);
+	await saveSchedulePublication(congregation, publication);
 
 	if (input.talks) {
 		await copyOutgoingTalkSchedule(congregation, CongregationsList.list, input.talks);

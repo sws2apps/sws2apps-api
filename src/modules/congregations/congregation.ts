@@ -16,8 +16,6 @@ import {
 	getIncomingReportsMetadata,
 	getMeetingAttendanceMetadata,
 	getPersonsMetadata,
-	getPublicSchedulesMetadata,
-	getPublicSourcesMetadata,
 	getSchedulesMetadata,
 	getSettingsMetadata,
 	getSourcesMetadata,
@@ -31,9 +29,6 @@ import {
 	setCongFlags,
 	setCongOutgoingSpeakers,
 	setCongPersons,
-	setCongPublicOutgoingTalks,
-	setCongPublicSchedules,
-	setCongPublicSources,
 	setPublicIncomingTalks,
 	setCongSchedules,
 	setCongSettings,
@@ -262,34 +257,6 @@ export class Congregation {
 		settings.cong_access_code = code;
 
 		await this.saveSettings(settings);
-	}
-
-	async savePublicSchedules(schedules: string) {
-		await setCongPublicSchedules(this.id, schedules);
-		this.metadata.public_schedules = await getPublicSchedulesMetadata(this.id);
-	}
-
-	async savePublicSources(sources: string) {
-		await setCongPublicSources(this.id, sources);
-		this.metadata.public_sources = await getPublicSourcesMetadata(this.id);
-	}
-
-	async savePublicOutgoingTalks(talks: string) {
-		await setCongPublicOutgoingTalks(this.id, talks);
-	}
-
-	async publishSchedules(sources?: string, schedules?: string, talks?: string) {
-		if (sources) {
-			await this.savePublicSources(sources);
-		}
-
-		if (schedules) {
-			await this.savePublicSchedules(schedules);
-		}
-
-		if (talks) {
-			await this.savePublicOutgoingTalks(talks);
-		}
 	}
 
 	async getPublicOutgoingTalks(): Promise<OutgoingTalkScheduleType[]> {
