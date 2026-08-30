@@ -11,6 +11,7 @@ import {
 	saveCongregationFeatureFlags,
 	saveUserFeatureFlags,
 } from '../feature-flags/feature-flag-assignments.service.js';
+import { registerFeatureFlagInstallation } from '../feature-flags/feature-flags.service.js';
 
 type CongregationSummary = {
 	settings: {
@@ -119,12 +120,10 @@ export const getPublicFeatureFlags = async (
 
 				if (currentCoverage < flag.coverage) {
 					enabledFeatureFlags[flag.name] = flag.status;
-					flag.installations.push({
+					await registerFeatureFlagInstallation(flag, {
 						id: installationId,
 						registered: new Date().toISOString(),
 					});
-
-					await Flags.save();
 				}
 			}
 

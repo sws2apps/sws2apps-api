@@ -1,6 +1,4 @@
 import { FeatureFlag } from './feature-flag.js';
-import { saveFeatureFlags } from './feature-flags.repository.js';
-import { Flags } from './flags.js';
 
 export class Flag {
 	id: string;
@@ -21,16 +19,4 @@ export class Flag {
 		this.installations = [];
 	}
 
-	async update(name: string, description: string, coverage: number) {
-		this.name = name;
-		this.description = description;
-		this.coverage = coverage;
-
-		await saveFeatureFlags(Flags.list);
-	}
-
-	async toggle() {
-		this.status = !this.status;
-		await saveFeatureFlags(Flags.list);
-	}
 }

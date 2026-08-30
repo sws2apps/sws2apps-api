@@ -5,6 +5,12 @@ import {
 	saveUserFeatureFlags,
 	toggleFeatureFlagAssignment,
 } from '../feature-flags/feature-flag-assignments.service.js';
+import {
+	createFeatureFlag,
+	deleteFeatureFlag,
+	toggleFeatureFlag,
+	updateFeatureFlag,
+} from '../feature-flags/feature-flags.service.js';
 import { Flags } from '../feature-flags/flags.js';
 import { FeatureFlag } from '../feature-flags/feature-flag.js';
 
@@ -93,12 +99,12 @@ export const createAdministrationFlag = async (
 	description: string,
 	availability: FeatureFlag['availability'],
 ) => {
-	await Flags.create(name, description, availability);
+	await createFeatureFlag(name, description, availability);
 	return getAdministrationFlags();
 };
 
 export const deleteAdministrationFlag = async (flagId: string) => {
-	await Flags.delete(flagId);
+	await deleteFeatureFlag(flagId);
 	return getAdministrationFlags();
 };
 
@@ -113,7 +119,7 @@ export const updateAdministrationFlag = async (
 	if (!flag) return undefined;
 
 	if (name !== flag.name || description !== flag.description || coverage !== flag.coverage) {
-		await flag.update(name, description, coverage);
+		await updateFeatureFlag(flag, name, description, coverage);
 	}
 
 	return getAdministrationFlags();
@@ -124,7 +130,7 @@ export const toggleAdministrationFlag = async (flagId: string) => {
 
 	if (!flag) return undefined;
 
-	await flag.toggle();
+	await toggleFeatureFlag(flag);
 	return getAdministrationFlags();
 };
 

@@ -1,16 +1,5 @@
-import { FeatureFlag } from './feature-flag.js';
-import {
-	loadFeatureFlags,
-	saveFeatureFlags,
-} from './feature-flags.repository.js';
-import { CongregationsList } from '../congregations/congregations.js';
+import { loadFeatureFlags } from './feature-flags.repository.js';
 import { Flag } from './flag.js';
-import { UsersList } from '../users/users.js';
-import {
-	removeFeatureFlagAssignment,
-	saveCongregationFeatureFlags,
-	saveUserFeatureFlags,
-} from './feature-flag-assignments.service.js';
 
 class _Flags {
 	list: Flag[];
@@ -28,53 +17,6 @@ class _Flags {
 		return this.list.find((record) => record.id === id);
 	}
 
-	async create(name: string, desc: string, availability: FeatureFlag['availability']) {
-		const flag = new Flag({
-			id: crypto.randomUUID(),
-			availability,
-			coverage: 0,
-			description: desc,
-			name: name.toUpperCase(),
-			status: false,
-			installations: [],
-		});
-
-		this.list.push(flag);
-
-		await this.save();
-	}
-
-	async delete(id: string) {
-		// find and delete flag in users
-		const users = UsersList.list.filter((record) => record.flags.some((flag) => flag === id));
-
-		for await (const user of users) {
-			const flags = removeFeatureFlagAssignment(user.flags, id);
-
-			const foundUser = UsersList.findById(user.id);
-			if (foundUser) await saveUserFeatureFlags(foundUser, flags);
-		}
-
-		// find and delete flag in congregations
-		const congs = CongregationsList.list.filter((record) => record.flags.some((flag) => flag === id));
-
-		for await (const cong of congs) {
-			const flags = removeFeatureFlagAssignment(cong.flags, id);
-
-			const foundCong = CongregationsList.findById(cong.id);
-			if (foundCong) await saveCongregationFeatureFlags(foundCong, flags);
-		}
-
-		// delete master record
-		const flags = this.list.filter((record) => record.id !== id);
-		await saveFeatureFlags(flags);
-
-		this.list = flags;
-	}
-
-	async save() {
-		await saveFeatureFlags(this.list);
-	}
 }
 
 export const Flags = new _Flags();
