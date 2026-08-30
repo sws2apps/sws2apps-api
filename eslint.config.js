@@ -126,6 +126,7 @@ export default [
 							group: [
 								'**/platform/firebase/**',
 								'**/platform/encryption/**',
+								'**/congregations/congregations.js',
 								'**/platform/visitor-details/**',
 								'express',
 								'express/*',

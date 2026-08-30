@@ -8,6 +8,7 @@ import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import { BackupData } from './backup.types.js';
 import { findBackupUploadByCongregation } from './backup-upload-tracker.js';
+import { updateUserCongregationPersonData } from '../users/users-congregation-activity.service.js';
 
 export const saveUserBackupAsync = async ({
 	congId,
@@ -40,7 +41,8 @@ export const saveUserBackupAsync = async ({
 
 		if (!adminRole && !scheduleEditor && userPerson) {
 			const personData = userPerson.person_data as StandardRecord;
-			await user.updatePersonData(
+			await updateUserCongregationPersonData(
+				user.id,
 				personData.timeAway as string,
 				personData.emergency_contacts as string,
 			);
@@ -75,7 +77,8 @@ export const savePocketBackupAsync = async ({
 
 		if (userPerson) {
 			const personData = userPerson.person_data as StandardRecord;
-			await user.updatePersonData(
+			await updateUserCongregationPersonData(
+				user.id,
 				personData.timeAway as string,
 				personData.emergency_contacts as string,
 			);

@@ -35,8 +35,10 @@ const getUserCongregation = (userId: string) => {
 };
 
 export const getUserAuxiliaryApplications = (userId: string) => {
-	const { user } = getUserCongregation(userId);
-	return user.getApplications();
+	const { user, congregation } = getUserCongregation(userId);
+	const personId = user.profile.congregation!.user_local_uid;
+
+	return congregation.ap_applications.filter((application) => application.person_uid === personId);
 };
 
 export const submitUserAuxiliaryApplication = (
@@ -61,8 +63,66 @@ export const submitUserFieldServiceReport = (
 	userId: string,
 	report: StandardRecord,
 ) => {
-	const { user } = getUserCongregation(userId);
-	void user.postReport(report);
+	const { congregation } = getUserCongregation(userId);
+	void saveIncomingFieldServiceReport(congregation, report);
+};
+
+const saveIncomingFieldServiceReport = async (
+	congregation: ReturnType<typeof getUserCongregation>['congregation'],
+	report: StandardRecord,
+): Promise<void> => {
+	const incomingReports = mergeIncomingFieldServiceReport(
+		congregation.incoming_reports,
+		report,
+	);
+
+	congregation.incoming_reports = incomingReports;
+	await congregation.saveIncomingReports(incomingReports);
+};
+
+export const mergeIncomingFieldServiceReport = (
+	currentReports: StandardRecord[],
+	report: StandardRecord,
+	createReportId: () => string = () => crypto.randomUUID(),
+): StandardRecord[] => {
+	const incomingReports = structuredClone(currentReports);
+	const currentReport = incomingReports.find((record) => {
+		return record.report_month === report.report_month && record.person_uid === report.person_uid;
+	});
+
+	if (!currentReport) {
+		incomingReports.push({ ...report, report_id: createReportId() });
+	} else {
+		currentReport._deleted = report._deleted;
+		currentReport.updatedAt = report.updatedAt;
+		currentReport.shared_ministry = report.shared_ministry;
+		currentReport.hours = report.hours;
+		currentReport.hours_credits = report.hours;
+		currentReport.bible_studies = report.bible_studies;
+		currentReport.comments = report.comments;
+	}
+
+	return incomingReports;
+};
+
+export const updateUserCongregationPersonData = async (
+	userId: string,
+	timeAway: string,
+	emergencyContacts: string,
+): Promise<void> => {
+	const { user, congregation } = getUserCongregation(userId);
+	const persons = await congregation.getPersons();
+	const person = persons.find((record) => {
+		return record.person_uid === user.profile.congregation!.user_local_uid;
+	});
+
+	if (!person) return;
+
+	const personData = person.person_data as StandardRecord;
+	personData.timeAway = timeAway;
+	personData.emergency_contacts = emergencyContacts;
+
+	await congregation.savePersons(persons);
 };
 
 export const getUserCongregationUpdates = async (

@@ -2,6 +2,10 @@ import type { StandardRecord } from '../../types/standard-record.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
 import { deleteUser } from '../users/user-lifecycle.service.js';
+import {
+	getUserAuxiliaryApplications,
+	submitUserFieldServiceReport,
+} from '../users/users-congregation-activity.service.js';
 
 export type PocketUserErrorCode = 'CONGREGATION_NOT_FOUND' | 'MEMBERSHIP_REQUIRED';
 
@@ -41,13 +45,12 @@ const getAuthorizedPocketUser = (userId: string) => {
 };
 
 export const submitPocketReport = (userId: string, report: StandardRecord) => {
-	const { user } = getAuthorizedPocketUser(userId);
-	void user.postReport(report);
+	getAuthorizedPocketUser(userId);
+	submitUserFieldServiceReport(userId, report);
 };
 
 export const getPocketApplications = (userId: string) => {
-	const user = UsersList.findById(userId)!;
-	return user.getApplications();
+	return getUserAuxiliaryApplications(userId);
 };
 
 export const submitPocketApplication = (userId: string, form: StandardRecord) => {

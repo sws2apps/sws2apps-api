@@ -25,7 +25,6 @@ import {
 	setUserSessions,
 	setUserSettings,
 } from './users.repository.js';
-import { CongregationsList } from '../congregations/congregations.js';
 import { BackupData } from '../backups/backup.types.js';
 
 export class User {
@@ -196,60 +195,6 @@ export class User {
 		if (isPublisher && delegatedFieldServiceReports) {
 			await this.saveDelegatedFieldServiceReports(delegatedFieldServiceReports);
 		}
-	}
-
-	getApplications() {
-		const cong = CongregationsList.findById(this.profile.congregation!.id)!;
-		const person_uid = this.profile.congregation!.user_local_uid;
-
-		return cong.ap_applications.filter((record) => record.person_uid === person_uid);
-	}
-
-	async updatePersonData(timeAway: string, emergency: string) {
-		const cong = CongregationsList.findById(this.profile.congregation!.id);
-
-		if (!cong) return;
-
-		const persons = await cong.getPersons();
-		const person = persons.find((record) => record.person_uid === this.profile.congregation!.user_local_uid);
-
-		if (!person) return;
-
-		const personData = person.person_data as StandardRecord;
-		personData.timeAway = timeAway;
-		personData.emergency_contacts = emergency;
-
-		await cong.savePersons(persons);
-	}
-
-	async postReport(report: StandardRecord) {
-		const cong = CongregationsList.findById(this.profile.congregation!.id);
-
-		if (!cong) return;
-
-		const incoming_reports = structuredClone(cong.incoming_reports);
-
-		const findReport = incoming_reports.find(
-			(record) => record.report_month === report.report_month && record.person_uid === report.person_uid
-		);
-
-		if (!findReport) {
-			incoming_reports.push({ ...report, report_id: crypto.randomUUID() });
-		}
-
-		if (findReport) {
-			findReport._deleted = report._deleted;
-			findReport.updatedAt = report.updatedAt;
-			findReport.shared_ministry = report.shared_ministry;
-			findReport.hours = report.hours;
-			findReport.hours_credits = report.hours;
-			findReport.bible_studies = report.bible_studies;
-			findReport.comments = report.comments;
-		}
-
-		cong.incoming_reports = incoming_reports;
-
-		await cong.saveIncomingReports(incoming_reports);
 	}
 
 	async updateFlags(flags: string[]) {
