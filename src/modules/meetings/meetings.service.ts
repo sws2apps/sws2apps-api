@@ -13,6 +13,7 @@ import {
 	requestOutgoingSpeakerAccess,
 } from '../congregations/outgoing-speakers.service.js';
 import { isCongregationMember } from '../congregations/congregation-members.service.js';
+import { findVisitingSpeakerCongregations } from './visiting-speaker-directory.js';
 
 export type MeetingAccessErrorCode = 'CONGREGATION_NOT_FOUND' | 'MEMBERSHIP_REQUIRED';
 
@@ -39,7 +40,11 @@ export const getApprovedVisitingSpeakerAccess = async (congregationId: string, u
 
 export const searchVisitingSpeakerCongregations = async (congregationId: string, userId: string, name: string) => {
 	const congregation = await getAuthorizedCongregation(congregationId, userId);
-	return CongregationsList.findVisitingSpeakersCongregations(congregation.id, name);
+	return findVisitingSpeakerCongregations(
+		CongregationsList.list,
+		congregation.id,
+		name,
+	);
 };
 
 export const requestVisitingSpeakerAccess = async (
