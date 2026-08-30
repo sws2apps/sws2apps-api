@@ -95,4 +95,20 @@ export default [
 			],
 		},
 	},
+	{
+		files: ['src/modules/congregations/congregation.ts'],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							group: ['**/platform/firebase/**', 'firebase-admin', 'firebase-admin/*'],
+							message: 'The congregation aggregate must use its repository for Firebase persistence.',
+						},
+					],
+				},
+			],
+		},
+	},
 ];

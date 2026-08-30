@@ -1,4 +1,3 @@
-import { getStorage } from 'firebase-admin/storage';
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import { BackupData } from '../backups/backup.types.js';
@@ -19,6 +18,8 @@ import {
 	getBranchCongAnalysisMetadata,
 	getBranchFieldServiceReportsMetadata,
 	getCongDetails,
+	getCongPersons,
+	getCongregationData,
 	getFieldServiceGroupsMetadata,
 	getFieldServiceReportsMetadata,
 	getIncomingReportsMetadata,
@@ -44,6 +45,7 @@ import {
 	setCongPublicOutgoingTalks,
 	setCongPublicSchedules,
 	setCongPublicSources,
+	setPublicIncomingTalks,
 	setCongSchedules,
 	setCongSettings,
 	setCongSources,
@@ -57,10 +59,6 @@ import {
 import { CongregationsList } from './congregations.js';
 import { User } from '../users/user.js';
 import { UsersList } from '../users/users.js';
-import {
-	getFileFromStorage,
-	uploadFileToStorage,
-} from '../../platform/firebase/storage.js';
 import { mergeIncomingData } from '../backups/incoming-data-merge.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 import { saveOutgoingSpeakersState } from './outgoing-speakers.service.js';
@@ -188,19 +186,7 @@ export class Congregation {
 	}
 
 	async getPersons() {
-		const storageBucket = getStorage().bucket();
-		const [files] = await storageBucket.getFiles({ prefix: `v3/congregations/${this.id}/persons` });
-
-		const cong_persons: StandardRecord[] = [];
-
-		for await (const file of files) {
-			const contents = await file.download();
-			const person = decryptData(contents.toString())!;
-
-			cong_persons.push(JSON.parse(person));
-		}
-
-		return cong_persons;
+		return getCongPersons(this.id);
 	}
 
 	async saveSettings(settings: CongSettingsType) {
@@ -609,19 +595,15 @@ export class Congregation {
 	}
 
 	async getPublicOutgoingTalks(): Promise<OutgoingTalkScheduleType[]> {
-		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/public/outgoing_talks.txt` });
-		return data && data.length > 0 ? JSON.parse(data) : [];
+		return getCongregationData(this.id, 'publicOutgoingTalks');
 	}
 
 	async getPublicIncomingTalks(): Promise<OutgoingTalkScheduleType[]> {
-		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/public/incoming_talks.txt` });
-		return data && data.length > 0 ? JSON.parse(data) : [];
+		return getCongregationData(this.id, 'publicIncomingTalks');
 	}
 
 	async savePublicIncomingTalks(schedules: OutgoingTalkScheduleType[]) {
-		const data = JSON.stringify(schedules);
-		const path = `${this.id}/public/incoming_talks.txt`;
-		await uploadFileToStorage(data, { type: 'congregation', path });
+		await setPublicIncomingTalks(this.id, schedules);
 	}
 
 	async copyOutgoingTalkSchedule(talks: OutgoingTalkScheduleType[]) {
@@ -756,62 +738,50 @@ export class Congregation {
 	}
 
 	async getPublicSources() {
-		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/public/sources.txt` });
-		return data && data.length > 0 ? JSON.parse(data) : [];
+		return getCongregationData(this.id, 'publicSources');
 	}
 
 	async getPublicSchedules() {
-		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/public/schedules.txt` });
-		return data && data.length > 0 ? JSON.parse(data) : [];
+		return getCongregationData(this.id, 'publicSchedules');
 	}
 
 	async getFieldServiceGroups() {
-		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/field_service_groups/main.txt` });
-		return data && data.length > 0 ? JSON.parse(data) : [];
+		return getCongregationData(this.id, 'fieldServiceGroups');
 	}
 
 	async getFieldServiceReports(): Promise<StandardRecord[]> {
-		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/field_service_reports/main.txt` });
-		return data && data.length > 0 ? JSON.parse(data) : [];
+		return getCongregationData(this.id, 'fieldServiceReports');
 	}
 
 	async getSpeakersCongregations(): Promise<StandardRecord[]> {
-		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/speakers_congregations/main.txt` });
-		return data && data.length > 0 ? JSON.parse(data) : [];
+		return getCongregationData(this.id, 'speakersCongregations');
 	}
 
 	async getVisitingSpeakers(): Promise<StandardRecord[]> {
-		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/visiting_speakers/main.txt` });
-		return data && data.length > 0 ? JSON.parse(data) : [];
+		return getCongregationData(this.id, 'visitingSpeakers');
 	}
 
 	async getSources(): Promise<StandardRecord[]> {
-		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/sources/main.txt` });
-		return data && data.length > 0 ? JSON.parse(data) : [];
+		return getCongregationData(this.id, 'sources');
 	}
 
 	async getSchedules(): Promise<StandardRecord[]> {
-		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/schedules/main.txt` });
-		return data && data.length > 0 ? JSON.parse(data) : [];
+		return getCongregationData(this.id, 'schedules');
 	}
 
 	async getMeetingAttendance(): Promise<StandardRecord[]> {
-		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/meeting_attendance/main.txt` });
-		return data && data.length > 0 ? JSON.parse(data) : [];
+		return getCongregationData(this.id, 'meetingAttendance');
 	}
 
 	async getBranchCongAnalysis(): Promise<StandardRecord[]> {
-		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/branch_cong_analysis/main.txt` });
-		return data && data.length > 0 ? JSON.parse(data) : [];
+		return getCongregationData(this.id, 'branchCongAnalysis');
 	}
 
 	async getBranchFieldServiceReports(): Promise<StandardRecord[]> {
-		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/branch_field_service_reports/main.txt` });
-		return data && data.length > 0 ? JSON.parse(data) : [];
+		return getCongregationData(this.id, 'branchFieldServiceReports');
 	}
 
 	async getUpcomingEvents(): Promise<StandardRecord[]> {
-		const data = await getFileFromStorage({ type: 'congregation', path: `${this.id}/upcoming_events/main.txt` });
-		return data && data.length > 0 ? JSON.parse(data) : [];
+		return getCongregationData(this.id, 'upcomingEvents');
 	}
 }

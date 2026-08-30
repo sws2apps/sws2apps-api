@@ -56,6 +56,57 @@ export const getCongPersons = async (cong_id: string) => {
 	return cong_persons;
 };
 
+const congregationDataPaths = {
+	publicOutgoingTalks: 'public/outgoing_talks.txt',
+	publicIncomingTalks: 'public/incoming_talks.txt',
+	publicSources: 'public/sources.txt',
+	publicSchedules: 'public/schedules.txt',
+	fieldServiceGroups: 'field_service_groups/main.txt',
+	fieldServiceReports: 'field_service_reports/main.txt',
+	speakersCongregations: 'speakers_congregations/main.txt',
+	visitingSpeakers: 'visiting_speakers/main.txt',
+	sources: 'sources/main.txt',
+	schedules: 'schedules/main.txt',
+	meetingAttendance: 'meeting_attendance/main.txt',
+	branchCongAnalysis: 'branch_cong_analysis/main.txt',
+	branchFieldServiceReports: 'branch_field_service_reports/main.txt',
+	upcomingEvents: 'upcoming_events/main.txt',
+} as const;
+
+type CongregationDataKey = keyof typeof congregationDataPaths;
+
+type CongregationData = {
+	publicOutgoingTalks: OutgoingTalkScheduleType[];
+	publicIncomingTalks: OutgoingTalkScheduleType[];
+	publicSources: StandardRecord[];
+	publicSchedules: StandardRecord[];
+	fieldServiceGroups: StandardRecord[];
+	fieldServiceReports: StandardRecord[];
+	speakersCongregations: StandardRecord[];
+	visitingSpeakers: StandardRecord[];
+	sources: StandardRecord[];
+	schedules: StandardRecord[];
+	meetingAttendance: StandardRecord[];
+	branchCongAnalysis: StandardRecord[];
+	branchFieldServiceReports: StandardRecord[];
+	upcomingEvents: StandardRecord[];
+};
+
+export const getCongregationData = async <Key extends CongregationDataKey>(
+	congregationId: string,
+	dataKey: Key,
+): Promise<CongregationData[Key]> => {
+	const relativePath = congregationDataPaths[dataKey];
+	const data = await getFileFromStorage({
+		type: 'congregation',
+		path: `${congregationId}/${relativePath}`,
+	});
+
+	return data && data.length > 0
+		? JSON.parse(data) as CongregationData[Key]
+		: [];
+};
+
 export const getCongSettings = async (cong_id: string) => {
 	const data = await getFileFromStorage({ type: 'congregation', path: `${cong_id}/settings/main.txt` });
 
