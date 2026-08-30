@@ -1,4 +1,3 @@
-import { Request } from 'express';
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { OTPSecretType } from '../mfa/user-secret.js';
 import type { StandardRecord } from '../../types/standard-record.js';
@@ -39,7 +38,6 @@ import {
 import { generateUserMfaSecret } from '../mfa/user-secret.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { BackupData } from '../backups/backup.types.js';
-import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
 
 export class User {
 	id: string;
@@ -209,20 +207,6 @@ export class User {
 		await this.updateProfile(profile);
 
 		await this.updateSessions([]);
-	}
-
-	async updateSessionLastSeen(visitorId: string, req: Request) {
-		const userIP = req.clientIp!;
-
-		const last_seen = new Date().toISOString();
-
-		const newSessions = structuredClone(this.sessions!);
-		const findSession = newSessions.find((session) => session.visitorid === visitorId)!;
-
-		findSession.last_seen = last_seen;
-		findSession.visitor_details = await retrieveVisitorDetails(userIP, req.headers);
-
-		await this.updateSessions(newSessions);
 	}
 
 	async disableMFA() {

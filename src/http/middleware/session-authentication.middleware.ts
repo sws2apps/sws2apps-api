@@ -2,7 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 import { header, validationResult } from 'express-validator';
 import { UsersList } from '../../modules/users/users.js';
 import { formatError } from '../validation-errors.js';
-import { verifyFirebaseIdToken } from '../../platform/firebase/authentication.js';
+import {
+	refreshAuthenticationSession,
+	verifyAuthenticationToken,
+} from '../../modules/auth/auth.service.js';
 import {
 	extractBearerToken,
 	validateBearerAuthorization,
@@ -33,7 +36,7 @@ export const requireAuthenticatedSession = () => {
 
 			// decode authorization
 			const idToken = extractBearerToken(req.headers.authorization!)!;
-			const authenticatedUserId = await verifyFirebaseIdToken(idToken);
+			const authenticatedUserId = await verifyAuthenticationToken(idToken);
 
 			if (!authenticatedUserId) {
 				res.locals.type = 'warn';
@@ -83,7 +86,12 @@ export const requireAuthenticatedSession = () => {
 
 				if (mfaVerified) {
 					// update last seen
-					await user.updateSessionLastSeen(visitorId, req);
+					await refreshAuthenticationSession({
+						userId: user.id,
+						visitorId,
+						visitorIp: req.clientIp!,
+						headers: req.headers,
+					});
 					next();
 				} else {
 					// allow verify token to pass this middleware
@@ -99,7 +107,12 @@ export const requireAuthenticatedSession = () => {
 				// update last seen
 				const lastSeenUpdatePaths = ['/validate-me'];
 				if (lastSeenUpdatePaths.includes(req.path)) {
-					await user.updateSessionLastSeen(visitorId, req);
+					await refreshAuthenticationSession({
+						userId: user.id,
+						visitorId,
+						visitorIp: req.clientIp!,
+						headers: req.headers,
+					});
 				}
 
 				next();
@@ -139,7 +152,12 @@ export const requirePocketSession = () => {
 			// ignore path that update last seen
 			const lastSeenUpdatePaths = ['/validate-me'];
 			if (lastSeenUpdatePaths.includes(req.path)) {
-				await user.updateSessionLastSeen(visitorId, req);
+				await refreshAuthenticationSession({
+					userId: user.id,
+					visitorId,
+					visitorIp: req.clientIp!,
+					headers: req.headers,
+				});
 			}
 
 			next();

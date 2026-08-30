@@ -129,6 +129,26 @@ type CreateAuthenticationSessionInput = {
 	mfaVerified: boolean;
 };
 
+type RefreshAuthenticationSessionInput = {
+	userId: string;
+	visitorId: string;
+	visitorIp: string;
+	headers: IncomingHttpHeaders;
+};
+
+export const refreshAuthenticationSession = async (
+	input: RefreshAuthenticationSessionInput,
+): Promise<void> => {
+	const user = UsersList.findById(input.userId)!;
+	const sessions = structuredClone(user.sessions);
+	const session = sessions.find((record) => record.visitorid === input.visitorId)!;
+
+	session.last_seen = new Date().toISOString();
+	session.visitor_details = await getVisitorSessionDetails(input.visitorIp, input.headers);
+
+	await user.updateSessions(sessions);
+};
+
 export const createAuthenticationSession = async (input: CreateAuthenticationSessionInput): Promise<void> => {
 	const user = UsersList.findById(input.userId)!;
 	const sessions = user.sessions?.filter((session) => session.visitorid !== input.visitorId) || [];

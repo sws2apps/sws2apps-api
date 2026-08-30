@@ -119,8 +119,30 @@ export default [
 				{
 					patterns: [
 						{
-							group: ['**/platform/firebase/storage.js', 'firebase-admin/storage'],
-							message: 'The user aggregate must use its repository for Firebase persistence.',
+							group: [
+								'**/platform/firebase/storage.js',
+								'**/platform/visitor-details/**',
+								'express',
+								'express/*',
+								'firebase-admin/storage',
+							],
+							message: 'The user aggregate must use repositories and services instead of HTTP or platform details.',
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		files: ['src/http/middleware/session-authentication.middleware.ts'],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							group: ['**/platform/firebase/**', 'firebase-admin', 'firebase-admin/*'],
+							message: 'Authentication middleware must use the authentication service for Firebase operations.',
 						},
 					],
 				},
