@@ -17,6 +17,14 @@ import {
 	saveCongregationAccessCode,
 	saveCongregationMasterKey,
 } from './congregation-administration-security.service.js';
+import {
+	CongregationAdministrationUserError,
+	createCongregationPocketUser,
+	deleteCongregationUserPocketCode,
+	getCongregationMembers,
+	revokeCongregationUserSession,
+	updateCongregationUser,
+} from './congregation-administration-users.service.js';
 
 const handleCongregationSecurityError = (error: unknown, res: Response): boolean => {
 	if (!(error instanceof CongregationAdministrationSecurityError)) return false;
@@ -31,6 +39,28 @@ const handleCongregationSecurityError = (error: unknown, res: Response): boolean
 
 	res.locals.message = 'user not authorized to access the provided congregation';
 	res.status(403).json({ message: 'error_api_unauthorized-request' });
+	return true;
+};
+
+const handleCongregationUserError = (error: unknown, res: Response): boolean => {
+	if (!(error instanceof CongregationAdministrationUserError)) return false;
+
+	res.locals.type = 'warn';
+
+	if (error.code === 'CONGREGATION_NOT_FOUND') {
+		res.locals.message = 'no congregation could not be found with the provided id';
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
+		return true;
+	}
+
+	if (error.code === 'MEMBERSHIP_REQUIRED') {
+		res.locals.message = 'user not authorized to access the provided congregation';
+		res.status(403).json({ message: 'error_api_unauthorized-request' });
+		return true;
+	}
+
+	res.locals.message = 'no user could found with the provided id';
+	res.status(404).json({ message: 'USER_NOT_FOUND' });
 	return true;
 };
 
@@ -212,43 +242,29 @@ export const pocketUserAdd = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
-		return;
-	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
 	const { user_firstname, user_lastname, cong_role, cong_person_uid, user_secret_code } = req.body;
-
-	await UsersList.createPocket({
-		cong_id: id,
-		cong_person_uid,
-		cong_role,
-		user_firstname,
-		user_lastname,
-		user_secret_code,
-	});
-
-	cong.reloadMembers();
-
-	const cong_members = cong.getMembers(req.signedCookies.visitorid);
+	let congregationMembers;
+	try {
+		congregationMembers = await createCongregationPocketUser(
+			id,
+			res.locals.currentUser.id,
+			req.signedCookies.visitorid,
+			{
+				firstname: user_firstname,
+				lastname: user_lastname,
+				roles: cong_role,
+				personUid: cong_person_uid,
+				secretCode: user_secret_code,
+			},
+		);
+	} catch (error) {
+		if (!handleCongregationUserError(error, res)) throw error;
+		return;
+	}
 
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin added pocket user';
-	res.status(200).json(cong_members);
+	res.status(200).json(congregationMembers);
 };
 
 export const congregationGetUsers = async (req: Request, res: Response) => {
@@ -275,30 +291,21 @@ export const congregationGetUsers = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
+	let congregationMembers;
+	try {
+		congregationMembers = getCongregationMembers(
+			id,
+			res.locals.currentUser.id,
+			req.signedCookies.visitorid,
+		);
+	} catch (error) {
+		if (!handleCongregationUserError(error, res)) throw error;
 		return;
 	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	const cong_members = cong.getMembers(req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin fetched all users';
-	res.status(200).json(cong_members);
+	res.status(200).json(congregationMembers);
 };
 
 export const userDetailsUpdate = async (req: Request, res: Response) => {
@@ -325,25 +332,6 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
-		return;
-	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
 	if (!user) {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation user params is undefined';
@@ -352,33 +340,31 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const foundUser = UsersList.findById(user);
-
-	if (!foundUser) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no user could found with the provided id';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
-
+	const { user_secret_code, cong_role, cong_person_uid, cong_person_delegates, first_name, last_name } = req.body;
+	let congregationMembers;
+	try {
+		congregationMembers = await updateCongregationUser(
+			id,
+			res.locals.currentUser.id,
+			user,
+			req.signedCookies.visitorid,
+			{
+				secretCode: user_secret_code,
+				roles: cong_role,
+				personUid: cong_person_uid,
+				personDelegates: cong_person_delegates,
+				firstname: first_name,
+				lastname: last_name,
+			},
+		);
+	} catch (error) {
+		if (!handleCongregationUserError(error, res)) throw error;
 		return;
 	}
 
-	const { user_secret_code, cong_role, cong_person_uid, cong_person_delegates, first_name, last_name } = req.body;
-
-	await foundUser.updateCongregationDetails(cong_role, cong_person_uid, cong_person_delegates, user_secret_code);
-
-	if (first_name !== foundUser.profile.firstname.value || last_name !== foundUser.profile.lastname.value) {
-		const profile = structuredClone(foundUser.profile);
-		profile.firstname = { value: first_name, updatedAt: new Date().toISOString() };
-		profile.lastname = { value: last_name, updatedAt: new Date().toISOString() };
-
-		await foundUser.updateProfile(profile);
-	}
-
-	const cong_members = cong.getMembers(req.signedCookies.visitorid);
-
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin updated user details';
-	res.status(200).json(cong_members);
+	res.status(200).json(congregationMembers);
 };
 
 export const userSessionDelete = async (req: Request, res: Response) => {
@@ -405,25 +391,6 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
-		return;
-	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
 	if (!user) {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation user params is undefined';
@@ -432,24 +399,24 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const foundUser = UsersList.findById(user);
-
-	if (!foundUser) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no user could found with the provided id';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
-
+	const identifier = req.body.identifier as string;
+	let congregationMembers;
+	try {
+		congregationMembers = await revokeCongregationUserSession(
+			id,
+			res.locals.currentUser.id,
+			user,
+			req.signedCookies.visitorid,
+			identifier,
+		);
+	} catch (error) {
+		if (!handleCongregationUserError(error, res)) throw error;
 		return;
 	}
 
-	const identifier = req.body.identifier as string;
-	await foundUser.revokeSession(identifier);
-
-	const cong_members = cong.getMembers(req.signedCookies.visitorid);
-
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin terminated user session';
-	res.status(200).json(cong_members);
+	res.status(200).json(congregationMembers);
 };
 
 export const pocketCodeDelete = async (req: Request, res: Response) => {
@@ -476,25 +443,6 @@ export const pocketCodeDelete = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
-		return;
-	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
 	if (!user) {
 		res.locals.type = 'warn';
 		res.locals.message = 'the congregation user params is undefined';
@@ -503,23 +451,22 @@ export const pocketCodeDelete = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const foundUser = UsersList.findById(user);
-
-	if (!foundUser) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no user could found with the provided id';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
-
+	let congregationMembers;
+	try {
+		congregationMembers = await deleteCongregationUserPocketCode(
+			id,
+			res.locals.currentUser.id,
+			user,
+			req.signedCookies.visitorid,
+		);
+	} catch (error) {
+		if (!handleCongregationUserError(error, res)) throw error;
 		return;
 	}
 
-	await foundUser.deletePocketCode();
-
-	const cong_members = cong.getMembers(req.signedCookies.visitorid);
-
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin deleted user invitation code';
-	res.status(200).json(cong_members);
+	res.status(200).json(congregationMembers);
 };
 
 export const globalSearchUser = async (req: Request, res: Response) => {
