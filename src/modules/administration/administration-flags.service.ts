@@ -3,6 +3,18 @@ import { UsersList } from '../users/users.js';
 import { Flags } from '../feature-flags/flags.js';
 import { FeatureFlag } from '../feature-flags/feature-flag.js';
 
+export type AdministrationFlagErrorCode =
+	| 'USER_NOT_FOUND'
+	| 'CONGREGATION_NOT_FOUND'
+	| 'FLAG_NOT_FOUND';
+
+export class AdministrationFlagError extends Error {
+	constructor(public readonly code: AdministrationFlagErrorCode) {
+		super(code);
+		this.name = 'AdministrationFlagError';
+	}
+}
+
 type AdministrationFlagSource = Pick<
 	FeatureFlag,
 	'availability' | 'coverage' | 'description' | 'id' | 'name' | 'status'
@@ -113,12 +125,10 @@ export const toggleAdministrationFlag = async (flagId: string) => {
 
 export const toggleUserFlag = async (userId: string, flagId: string) => {
 	const user = UsersList.findById(userId);
-
-	if (!user) return undefined;
+	if (!user) throw new AdministrationFlagError('USER_NOT_FOUND');
 
 	const flag = Flags.findById(flagId);
-
-	if (!flag) return undefined;
+	if (!flag) throw new AdministrationFlagError('FLAG_NOT_FOUND');
 
 	let userFlags = structuredClone(user.flags);
 
@@ -136,12 +146,12 @@ export const toggleUserFlag = async (userId: string, flagId: string) => {
 
 export const toggleCongregationFlag = async (congregationId: string, flagId: string) => {
 	const congregation = CongregationsList.findById(congregationId);
-
-	if (!congregation) return undefined;
+	if (!congregation) {
+		throw new AdministrationFlagError('CONGREGATION_NOT_FOUND');
+	}
 
 	const flag = Flags.findById(flagId);
-
-	if (!flag) return undefined;
+	if (!flag) throw new AdministrationFlagError('FLAG_NOT_FOUND');
 
 	let congregationFlags = structuredClone(congregation.flags);
 

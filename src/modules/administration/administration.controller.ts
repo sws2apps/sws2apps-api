@@ -1,6 +1,4 @@
 import { Request, Response } from 'express';
-import { UsersList } from '../users/users.js';
-import { CongregationsList } from '../congregations/congregations.js';
 import {
 	AdministrationCongregationError,
 	createAdministrationCongregation,
@@ -30,6 +28,7 @@ import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { FeatureFlag } from '../feature-flags/feature-flag.js';
 import {
 	createAdministrationFlag,
+	AdministrationFlagError,
 	deleteAdministrationFlag,
 	getAdministrationFlags,
 	toggleAdministrationFlag,
@@ -93,6 +92,28 @@ const handleAdministrationCongregationError = (
 
 	res.locals.message = 'no congregation could not be found with the provided id';
 	res.status(404).json({ message: notFoundCode });
+	return true;
+};
+
+const handleAdministrationFlagError = (error: unknown, res: Response): boolean => {
+	if (!(error instanceof AdministrationFlagError)) return false;
+
+	res.locals.type = 'warn';
+
+	if (error.code === 'USER_NOT_FOUND') {
+		res.locals.message = 'no user could not be found with the provided id';
+		res.status(404).json({ message: 'USER_NOT_FOUND' });
+		return true;
+	}
+
+	if (error.code === 'CONGREGATION_NOT_FOUND') {
+		res.locals.message = 'no congregation could not be found with the provided id';
+		res.status(404).json({ message: 'CONG_NOT_FOUND' });
+		return true;
+	}
+
+	res.locals.message = 'no flag could not be found with the provided id';
+	res.status(404).json({ message: 'FLAG_NOT_FOUND' });
 	return true;
 };
 
@@ -479,23 +500,12 @@ export const userFlagToggle = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id);
-
-	if (!user) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no user could not be found with the provided id';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
-		return;
-	}
-
 	const flagid = req.body.flagid as string;
-
-	const result = await toggleUserFlag(id, flagid);
-
-	if (!result) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no flag could not be found with the provided id';
-		res.status(404).json({ message: 'FLAG_NOT_FOUND' });
+	let result;
+	try {
+		result = await toggleUserFlag(id, flagid);
+	} catch (error) {
+		if (!handleAdministrationFlagError(error, res)) throw error;
 		return;
 	}
 
@@ -528,23 +538,12 @@ export const congregationFlagToggle = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONG_NOT_FOUND' });
-		return;
-	}
-
 	const flagid = req.body.flagid as string;
-
-	const result = await toggleCongregationFlag(id, flagid);
-
-	if (!result) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no flag could not be found with the provided id';
-		res.status(404).json({ message: 'FLAG_NOT_FOUND' });
+	let result;
+	try {
+		result = await toggleCongregationFlag(id, flagid);
+	} catch (error) {
+		if (!handleAdministrationFlagError(error, res)) throw error;
 		return;
 	}
 
