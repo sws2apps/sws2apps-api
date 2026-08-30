@@ -1,4 +1,3 @@
-import { loadFeatureFlags } from './feature-flags.repository.js';
 import { Flag } from './flag.js';
 
 class _Flags {
@@ -8,9 +7,8 @@ class _Flags {
 		this.list = [];
 	}
 
-	async load() {
-		this.list = await loadFeatureFlags();
-		return this.list;
+	replace(flags: Flag[]) {
+		this.list = flags;
 	}
 
 	findById(id: string) {

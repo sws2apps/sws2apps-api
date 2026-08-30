@@ -1,8 +1,4 @@
 import { User } from './user.js';
-import {
-	loadUserIdentities,
-} from './user-identity.service.js';
-import { loadAllUsers } from './users.repository.js';
 
 class Users {
 	list: User[];
@@ -20,9 +16,8 @@ class Users {
 		this.#sort();
 	}
 
-	async load() {
-		this.list = await loadAllUsers();
-		await loadUserIdentities(this.list);
+	replace(users: User[]) {
+		this.list = users;
 		this.#sort();
 	}
 

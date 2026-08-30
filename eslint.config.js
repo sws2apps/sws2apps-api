@@ -84,6 +84,8 @@ export default [
 		files: [
 			'src/modules/users/users.ts',
 			'src/modules/congregations/congregations.ts',
+			'src/modules/feature-flags/flags.ts',
+			'src/modules/installations/installation-list.ts',
 		],
 		rules: {
 			'no-restricted-imports': [
@@ -91,8 +93,14 @@ export default [
 				{
 					patterns: [
 						{
-							group: ['**/platform/**', 'firebase-admin', 'firebase-admin/*'],
-							message: 'Application collections must delegate platform work to a lifecycle service or repository.',
+							group: [
+								'**/platform/**',
+								'**/*.repository.js',
+								'**/*.service.js',
+								'firebase-admin',
+								'firebase-admin/*',
+							],
+							message: 'Application caches must contain only state and lookup operations.',
 						},
 					],
 				},

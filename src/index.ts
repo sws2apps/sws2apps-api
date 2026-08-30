@@ -5,10 +5,10 @@ import app from './app.js';
 import { env } from './config/env.js';
 
 import { logger } from './platform/logging/logger.js';
-import { UsersList } from './modules/users/users.js';
-import { CongregationsList } from './modules/congregations/congregations.js';
-import { Flags } from './modules/feature-flags/flags.js';
-import { InstallationsList } from './modules/installations/installation-list.js';
+import { initializeUsers } from './modules/users/user-initialization.service.js';
+import { initializeCongregations } from './modules/congregations/congregation-initialization.service.js';
+import { initializeFeatureFlags } from './modules/feature-flags/feature-flag-initialization.service.js';
+import { initializeInstallations } from './modules/installations/installation-initialization.service.js';
 import { initializeMinimumClientVersion } from './modules/administration/administration-settings.service.js';
 import { createDevelopmentUsers } from './bootstrap/development-users.js';
 import { serverState } from './platform/runtime/server-state.js';
@@ -27,11 +27,11 @@ app.listen(env.port, async () => {
 
 	logger(LogLevel.Info, `loading firebase data`, { service: 'firebase' });
 
-	await UsersList.load();
-	await CongregationsList.load();
+	await initializeUsers();
+	await initializeCongregations();
 	await cleanUpLegacyCongregationSettings();
-	await Flags.load();
-	await InstallationsList.load();
+	await initializeFeatureFlags();
+	await initializeInstallations();
 
 	// non-blocking calls
 	removeOutdatedUserSessions();

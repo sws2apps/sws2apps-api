@@ -1,7 +1,4 @@
-import { loadAllCongs } from './congregations.repository.js';
-import { initializeIncomingTalks } from './incoming-talks.service.js';
 import { Congregation } from './congregation.js';
-import { refreshCongregationMembers } from './congregation-members.service.js';
 
 class Congregations {
 	list: Congregation[];
@@ -21,14 +18,9 @@ class Congregations {
 		this.#sort();
 	}
 
-	async load() {
-		this.list = await loadAllCongs();
-		this.list.forEach((congregation) => refreshCongregationMembers(congregation));
-
-		await initializeIncomingTalks(this.list);
-
+	replace(congregations: Congregation[]) {
+		this.list = congregations;
 		this.#sort();
-		return this.list;
 	}
 
 	findById(id: string) {

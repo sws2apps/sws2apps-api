@@ -2,9 +2,6 @@ import {
 	AppInstallation,
 	InstallationItem,
 } from './installation.js';
-import {
-	loadInstallations,
-} from './installations.repository.js';
 
 export class Installation {
 	linked: AppInstallation['linked'];
@@ -17,9 +14,7 @@ export class Installation {
 		this.list = [];
 	}
 
-	async load() {
-		const data = await loadInstallations();
-
+	replace(data: AppInstallation) {
 		this.linked = data.linked;
 		this.pending = data.pending;
 		this.list = this.#allInstallations();
