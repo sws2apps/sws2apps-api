@@ -42,6 +42,13 @@ export const projectUserSessions = (
 	});
 };
 
+export const findSessionIdentifierByVisitorId = (
+	sessions: UserSession[],
+	visitorId: string,
+): string | undefined => {
+	return sessions.find((session) => session.visitorid === visitorId)?.identifier;
+};
+
 export const revokeSessionForUser = async (
 	user: User,
 	sessionIdentifier: string,
@@ -123,7 +130,16 @@ export const revokeUserSession = async (userId: string, sessionIdentifier: strin
 export const logoutUserSession = async (userId: string | undefined, visitorId: string) => {
 	if (!userId) return;
 	const user = UsersList.findById(userId);
-	if (user) await revokeSessionForUser(user, visitorId);
+	if (!user) return;
+
+	const sessionIdentifier = findSessionIdentifierByVisitorId(
+		user.sessions,
+		visitorId,
+	);
+
+	if (sessionIdentifier) {
+		await revokeSessionForUser(user, sessionIdentifier);
+	}
 };
 
 export const clearUserSessions = async (userId: string): Promise<void> => {

@@ -150,9 +150,9 @@ export const deleteUserSession = async (req: Request, res: Response) => {
 };
 
 export const userLogout = async (req: Request, res: Response) => {
-	const visitorid = req.headers.visitorid as string;
+	const visitorId = req.signedCookies.visitorid as string;
 
-	await logoutUserSession(res.locals.currentUser?.id, visitorid);
+	await logoutUserSession(res.locals.currentUser?.id, visitorId);
 
 	res.locals.type = 'info';
 	res.locals.message = `the current user has logged out`;

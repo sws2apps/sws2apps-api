@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import type { UserSession } from '../../../src/modules/users/user.types.js';
-import { projectUserSessions } from '../../../src/modules/users/users-account.service.js';
+import {
+	findSessionIdentifierByVisitorId,
+	projectUserSessions,
+} from '../../../src/modules/users/users-account.service.js';
 
 describe('user account sessions', () => {
 	it('projects session details without exposing the visitor identifier', () => {
@@ -36,5 +39,27 @@ describe('user account sessions', () => {
 			os: 'Windows',
 			isMobile: false,
 		});
+	});
+
+	it('resolves the authenticated visitor to its revocable session identifier', () => {
+		const sessions = [
+			{
+				identifier: 'session-1',
+				visitorid: 'visitor-1',
+			},
+			{
+				identifier: 'session-2',
+				visitorid: 'visitor-2',
+			},
+		] as UserSession[];
+
+		assert.equal(
+			findSessionIdentifierByVisitorId(sessions, 'visitor-2'),
+			'session-2',
+		);
+		assert.equal(
+			findSessionIdentifierByVisitorId(sessions, 'unknown-visitor'),
+			undefined,
+		);
 	});
 });
