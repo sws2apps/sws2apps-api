@@ -52,6 +52,11 @@ import {
 } from './congregations.repository.js';
 import { User } from '../users/user.js';
 import { UsersList } from '../users/users.js';
+import {
+	getCongregationMembers,
+	isCongregationMember,
+	refreshCongregationMembers,
+} from './congregation-members.service.js';
 import { mergeIncomingData } from '../backups/incoming-data-merge.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 
@@ -169,7 +174,7 @@ export class Congregation {
 			this.incoming_reports = JSON.parse(data.incoming_reports);
 		}
 
-		this.reloadMembers();
+		refreshCongregationMembers(this);
 	}
 
 	async savePersons(persons: StandardRecord[]) {
@@ -370,62 +375,16 @@ export class Congregation {
 		await this.saveSettings(settings);
 	}
 
-	hasMember(id: string) {
-		const user = UsersList.findById(id);
-
-		if (!user) return false;
-
-		return user.profile.congregation?.id === this.id;
+	hasMember(userId: string) {
+		return isCongregationMember(this, userId);
 	}
 
 	reloadMembers() {
-		const cong_members: User[] = [];
-
-		for (const user of UsersList.list) {
-			if (user.profile.congregation?.id === this.id) {
-				cong_members.push(user);
-			}
-		}
-
-		this.members = cong_members;
+		refreshCongregationMembers(this);
 	}
 
-	getMembers(visitorid: string) {
-		const members = this.members.map((member) => {
-			return {
-				id: member.id,
-				profile: {
-					createdAt: member.profile.createdAt,
-					global_role: member.profile.role,
-					firstname: member.profile.firstname,
-					lastname: member.profile.lastname,
-					cong_role: member.profile.congregation?.cong_role,
-					user_local_uid: member.profile.congregation?.user_local_uid,
-					user_members_delegate: member.profile.congregation?.user_members_delegate || [],
-					pocket_invitation_code:
-						typeof member.profile.congregation?.pocket_invitation_code === 'string'
-							? decryptData(member.profile.congregation.pocket_invitation_code)
-							: undefined,
-				},
-				sessions:
-					member.sessions?.map((session) => {
-						return {
-							identifier: session.identifier,
-							isSelf: session.visitorid === visitorid,
-							ip: session.visitor_details.ip,
-							country_name: session.visitor_details.ipLocation.country_name,
-							device: {
-								browserName: session.visitor_details.browser,
-								os: session.visitor_details.os,
-								isMobile: session.visitor_details.isMobile,
-							},
-							last_seen: session.last_seen,
-						};
-					}) || [],
-			};
-		});
-
-		return members;
+	getMembers(currentVisitorId: string) {
+		return getCongregationMembers(this, currentVisitorId);
 	}
 
 	async savePublicSchedules(schedules: string) {
