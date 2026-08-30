@@ -1,5 +1,10 @@
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
+import {
+	saveCongregationFeatureFlags,
+	saveUserFeatureFlags,
+	toggleFeatureFlagAssignment,
+} from '../feature-flags/feature-flag-assignments.service.js';
 import { Flags } from '../feature-flags/flags.js';
 import { FeatureFlag } from '../feature-flags/feature-flag.js';
 
@@ -130,17 +135,8 @@ export const toggleUserFlag = async (userId: string, flagId: string) => {
 	const flag = Flags.findById(flagId);
 	if (!flag) throw new AdministrationFlagError('FLAG_NOT_FOUND');
 
-	let userFlags = structuredClone(user.flags);
-
-	const userFlag = userFlags.find((record) => record === flagId);
-
-	if (userFlag) {
-		userFlags = userFlags.filter((record) => record !== flagId);
-	} else {
-		userFlags.push(flagId);
-	}
-
-	await user.updateFlags(userFlags);
+	const userFlags = toggleFeatureFlagAssignment(user.flags, flagId);
+	await saveUserFeatureFlags(user, userFlags);
 	return getAdministrationFlags();
 };
 
@@ -153,16 +149,10 @@ export const toggleCongregationFlag = async (congregationId: string, flagId: str
 	const flag = Flags.findById(flagId);
 	if (!flag) throw new AdministrationFlagError('FLAG_NOT_FOUND');
 
-	let congregationFlags = structuredClone(congregation.flags);
-
-	const congregationFlag = congregationFlags.find((record) => record === flagId);
-
-	if (congregationFlag) {
-		congregationFlags = congregationFlags.filter((record) => record !== flagId);
-	} else {
-		congregationFlags.push(flagId);
-	}
-
-	await congregation.saveFlags(congregationFlags);
+	const congregationFlags = toggleFeatureFlagAssignment(
+		congregation.flags,
+		flagId,
+	);
+	await saveCongregationFeatureFlags(congregation, congregationFlags);
 	return getAdministrationFlags();
 };

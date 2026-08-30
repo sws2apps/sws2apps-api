@@ -19,7 +19,6 @@ import {
 	setDelegatedFieldServiceReports,
 	setUserBibleStudies,
 	setUserFieldServiceReports,
-	setUserFlags,
 	setUserProfile,
 	setUserSessions,
 	setUserSettings,
@@ -153,11 +152,6 @@ export class User {
 	async saveDelegatedFieldServiceReports(reports: StandardRecord[]) {
 		await setDelegatedFieldServiceReports(this.id, reports);
 		this.metadata.delegated_field_service_reports = await getDelegatedFieldServiceReportsMetadata(this.id);
-	}
-
-	async updateFlags(flags: string[]) {
-		await setUserFlags(this.id, flags);
-		this.flags = flags;
 	}
 
 	async getFieldServiceReports() {

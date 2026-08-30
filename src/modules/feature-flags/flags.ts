@@ -6,6 +6,11 @@ import {
 import { CongregationsList } from '../congregations/congregations.js';
 import { Flag } from './flag.js';
 import { UsersList } from '../users/users.js';
+import {
+	removeFeatureFlagAssignment,
+	saveCongregationFeatureFlags,
+	saveUserFeatureFlags,
+} from './feature-flag-assignments.service.js';
 
 class _Flags {
 	list: Flag[];
@@ -44,20 +49,20 @@ class _Flags {
 		const users = UsersList.list.filter((record) => record.flags.some((flag) => flag === id));
 
 		for await (const user of users) {
-			const flags = user.flags.filter((record) => record !== id);
+			const flags = removeFeatureFlagAssignment(user.flags, id);
 
 			const foundUser = UsersList.findById(user.id);
-			await foundUser?.updateFlags(flags);
+			if (foundUser) await saveUserFeatureFlags(foundUser, flags);
 		}
 
 		// find and delete flag in congregations
 		const congs = CongregationsList.list.filter((record) => record.flags.some((flag) => flag === id));
 
 		for await (const cong of congs) {
-			const flags = cong.flags.filter((record) => record !== id);
+			const flags = removeFeatureFlagAssignment(cong.flags, id);
 
 			const foundCong = CongregationsList.findById(cong.id);
-			await foundCong?.saveFlags(flags);
+			if (foundCong) await saveCongregationFeatureFlags(foundCong, flags);
 		}
 
 		// delete master record

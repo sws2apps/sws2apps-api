@@ -6,6 +6,11 @@ import { CongregationsList } from '../congregations/congregations.js';
 import { Flags } from '../feature-flags/flags.js';
 import { InstallationsList } from '../installations/installation-list.js';
 import { UsersList } from '../users/users.js';
+import {
+	assignFeatureFlag,
+	saveCongregationFeatureFlags,
+	saveUserFeatureFlags,
+} from '../feature-flags/feature-flag-assignments.service.js';
 
 type CongregationSummary = {
 	settings: {
@@ -149,9 +154,8 @@ export const getPublicFeatureFlags = async (
 			if (!congregationHasFlag && flag.coverage === 100) {
 				enabledFeatureFlags[flag.name] = true;
 
-				const assignedFlags = structuredClone(congregation.flags);
-				assignedFlags.push(flag.id);
-				await congregation.saveFlags(assignedFlags);
+				const assignedFlags = assignFeatureFlag(congregation.flags, flag.id);
+				await saveCongregationFeatureFlags(congregation, assignedFlags);
 			}
 
 			if (!congregationHasFlag && flag.coverage > 0 && flag.coverage < 100) {
@@ -163,9 +167,8 @@ export const getPublicFeatureFlags = async (
 				if (currentCoverage < flag.coverage) {
 					enabledFeatureFlags[flag.name] = flag.status;
 
-					const assignedFlags = structuredClone(congregation.flags);
-					assignedFlags.push(flag.id);
-					await congregation.saveFlags(assignedFlags);
+					const assignedFlags = assignFeatureFlag(congregation.flags, flag.id);
+					await saveCongregationFeatureFlags(congregation, assignedFlags);
 				}
 			}
 		}
@@ -186,9 +189,8 @@ export const getPublicFeatureFlags = async (
 			if (!userHasFlag && flag.coverage === 100) {
 				enabledFeatureFlags[flag.name] = true;
 
-				const assignedFlags = structuredClone(user.flags);
-				assignedFlags.push(flag.id);
-				await user.updateFlags(assignedFlags);
+				const assignedFlags = assignFeatureFlag(user.flags, flag.id);
+				await saveUserFeatureFlags(user, assignedFlags);
 			}
 
 			if (!userHasFlag && flag.coverage > 0 && flag.coverage < 100) {
@@ -200,9 +202,8 @@ export const getPublicFeatureFlags = async (
 				if (currentCoverage < flag.coverage) {
 					enabledFeatureFlags[flag.name] = flag.status;
 
-					const assignedFlags = structuredClone(user.flags);
-					assignedFlags.push(flag.id);
-					await user.updateFlags(assignedFlags);
+					const assignedFlags = assignFeatureFlag(user.flags, flag.id);
+					await saveUserFeatureFlags(user, assignedFlags);
 				}
 			}
 		}

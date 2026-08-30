@@ -26,7 +26,6 @@ import {
 	setBranchFieldServiceReports,
 	setCongFieldServiceGroups,
 	setCongFieldServiceReports,
-	setCongFlags,
 	setCongOutgoingSpeakers,
 	setCongPersons,
 	setPublicIncomingTalks,
@@ -255,11 +254,6 @@ export class Congregation {
 
 	async savePublicIncomingTalks(schedules: OutgoingTalkScheduleType[]) {
 		await setPublicIncomingTalks(this.id, schedules);
-	}
-
-	async saveFlags(flags: string[]) {
-		await setCongFlags(this.id, flags);
-		this.flags = flags;
 	}
 
 	async getPublicSources() {
