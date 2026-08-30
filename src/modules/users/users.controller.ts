@@ -71,6 +71,12 @@ const handleUserBackupError = (error: unknown, res: Response): boolean => {
 		return true;
 	}
 
+	if (error.code === 'INVALID_CHUNK') {
+		res.locals.message = 'backup chunk is invalid';
+		res.status(400).json({ message: 'BACKUP_CHUNK_INVALID' });
+		return true;
+	}
+
 	res.locals.message = 'user congregation is invalid';
 	res.status(404).json({ message: 'error_app_congregation_not-found' });
 	return true;

@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import {
+	BackupUploadChunkError,
 	findBackupUploadByCongregation,
+	MAX_BACKUP_CHUNKS,
 	recordBackupUploadChunk,
 } from '../../../src/modules/backups/backup-upload-tracker.js';
 import { BackupForStorage } from '../../../src/modules/backups/backup.types.js';
@@ -71,5 +73,74 @@ describe('backup upload tracker', () => {
 		assert.equal(uploads.get('upload-1')?.received, 2);
 
 		clearTimeout(uploads.get('upload-1')?.timeout);
+	});
+
+	it('rejects unsafe coordinates and duplicate chunks', () => {
+		const uploads = new Map<string, BackupForStorage>();
+		const log = () => undefined;
+		const chunk = {
+			uploadId: 'upload-1',
+			chunkIndex: 0,
+			totalChunks: 2,
+			chunkData: 'first',
+			userId: 'user-1',
+			congregationId: 'congregation-1',
+		};
+
+		assert.throws(
+			() => recordBackupUploadChunk(
+				{ ...chunk, totalChunks: MAX_BACKUP_CHUNKS + 1 },
+				{ uploads, log },
+			),
+			BackupUploadChunkError,
+		);
+		assert.throws(
+			() => recordBackupUploadChunk(
+				{ ...chunk, chunkIndex: 2 },
+				{ uploads, log },
+			),
+			BackupUploadChunkError,
+		);
+
+		recordBackupUploadChunk(chunk, { uploads, log });
+
+		assert.throws(
+			() => recordBackupUploadChunk(chunk, { uploads, log }),
+			BackupUploadChunkError,
+		);
+		assert.equal(uploads.get('upload-1')?.received, 1);
+
+		clearTimeout(uploads.get('upload-1')?.timeout);
+	});
+
+	it('rejects chunks that do not match the existing upload owner or size', () => {
+		const upload = createUpload('congregation-1');
+		upload.chunks = ['', ''];
+		const uploads = new Map([['upload-1', upload]]);
+		const baseChunk = {
+			uploadId: 'upload-1',
+			chunkIndex: 0,
+			totalChunks: 2,
+			chunkData: 'data',
+			userId: 'user-1',
+			congregationId: 'congregation-1',
+		};
+
+		assert.throws(
+			() => recordBackupUploadChunk(
+				{ ...baseChunk, userId: 'user-2' },
+				{ uploads, log: () => undefined },
+			),
+			BackupUploadChunkError,
+		);
+		assert.throws(
+			() => recordBackupUploadChunk(
+				{ ...baseChunk, totalChunks: 3 },
+				{ uploads, log: () => undefined },
+			),
+			BackupUploadChunkError,
+		);
+
+		clearTimeout(upload.timeout);
 	});
 });

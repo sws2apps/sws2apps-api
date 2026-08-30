@@ -20,6 +20,42 @@ type BackupUploadTrackerDependencies = {
 	log?: typeof logger;
 };
 
+export const MAX_BACKUP_CHUNKS = 1_000;
+
+export class BackupUploadChunkError extends Error {
+	constructor() {
+		super('INVALID_BACKUP_CHUNK');
+		this.name = 'BackupUploadChunkError';
+	}
+}
+
+const validateBackupUploadChunk = (
+	chunk: BackupUploadChunk,
+	existingUpload: BackupForStorage | undefined,
+): void => {
+	const coordinatesAreValid =
+		Number.isInteger(chunk.chunkIndex) &&
+		Number.isInteger(chunk.totalChunks) &&
+		chunk.totalChunks > 0 &&
+		chunk.totalChunks <= MAX_BACKUP_CHUNKS &&
+		chunk.chunkIndex >= 0 &&
+		chunk.chunkIndex < chunk.totalChunks &&
+		chunk.chunkData.length > 0;
+
+	if (!coordinatesAreValid) throw new BackupUploadChunkError();
+	if (!existingUpload) return;
+
+	const uploadMatches =
+		existingUpload.totalChunks === chunk.totalChunks &&
+		existingUpload.userId === chunk.userId &&
+		existingUpload.congregationId === chunk.congregationId;
+	const chunkAlreadyReceived = existingUpload.chunks[chunk.chunkIndex].length > 0;
+
+	if (!uploadMatches || chunkAlreadyReceived) {
+		throw new BackupUploadChunkError();
+	}
+};
+
 export const findBackupUploadByCongregation = (
 	congregationId: string,
 	uploads: ReadonlyMap<string, BackupForStorage> = backupUploadsInProgress,
@@ -47,6 +83,7 @@ export const recordBackupUploadChunk = (
 	};
 
 	let upload = uploads.get(chunk.uploadId);
+	validateBackupUploadChunk(chunk, upload);
 
 	if (!upload) {
 		upload = {

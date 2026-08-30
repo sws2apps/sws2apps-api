@@ -1,4 +1,5 @@
 import {
+	BackupUploadChunkError,
 	findBackupUploadByCongregation,
 	recordBackupUploadChunk,
 } from '../backups/backup-upload-tracker.js';
@@ -141,14 +142,24 @@ export const saveUserChunkedBackup = async (
 	}
 
 	const { uploadId, chunkIndex, totalChunks, chunkData } = chunk;
-	const completedBackup = recordBackupUploadChunk({
-		uploadId,
-		chunkIndex,
-		totalChunks,
-		chunkData,
-		userId: user.id,
-		congregationId: congregation.id,
-	});
+	let completedBackup: string | undefined;
+
+	try {
+		completedBackup = recordBackupUploadChunk({
+			uploadId,
+			chunkIndex,
+			totalChunks,
+			chunkData,
+			userId: user.id,
+			congregationId: congregation.id,
+		});
+	} catch (error) {
+		if (error instanceof BackupUploadChunkError) {
+			throw new UserBackupError('INVALID_CHUNK');
+		}
+
+		throw error;
+	}
 
 	if (!completedBackup) return { status: 'chunk_received' };
 
