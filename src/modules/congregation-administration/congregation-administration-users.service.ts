@@ -136,3 +136,75 @@ export const deleteCongregationUserPocketCode = async (
 	await getUser(targetUserId).deletePocketCode();
 	return congregation.getMembers(currentVisitorId);
 };
+
+export const findEligibleCongregationUser = (
+	congregationId: string,
+	administratorId: string,
+	email: string,
+) => {
+	getAuthorizedCongregation(congregationId, administratorId);
+	const user = UsersList.findByEmail(email);
+
+	if (!user || user.profile.congregation?.id) {
+		throw new CongregationAdministrationUserError('USER_NOT_FOUND');
+	}
+
+	return user;
+};
+
+type AddCongregationUserInput = {
+	userId: string;
+	firstname: string;
+	lastname: string;
+	roles: AppRoleType[];
+	personUid: string;
+};
+
+export const addCongregationUser = async (
+	congregationId: string,
+	administratorId: string,
+	currentVisitorId: string,
+	input: AddCongregationUserInput,
+) => {
+	const congregation = getAuthorizedCongregation(congregationId, administratorId);
+	const user = getUser(input.userId);
+
+	await user.assignCongregation({
+		congId: congregationId,
+		role: input.roles,
+		firstname: input.firstname,
+		lastname: input.lastname,
+		person_uid: input.personUid,
+	});
+
+	return congregation.getMembers(currentVisitorId);
+};
+
+export const removeCongregationUser = async (
+	congregationId: string,
+	administratorId: string,
+	targetUserId: string,
+	currentVisitorId: string,
+) => {
+	const congregation = getAuthorizedCongregation(congregationId, administratorId);
+	const user = getUser(targetUserId);
+
+	if (user.profile.role === 'vip') await user.removeCongregation();
+	if (user.profile.role === 'pocket') await UsersList.delete(user.id);
+
+	return congregation.getMembers(currentVisitorId);
+};
+
+export const setCongregationAdministratorPersonUid = async (
+	congregationId: string,
+	administratorId: string,
+	personUid: string,
+) => {
+	const congregation = getAuthorizedCongregation(congregationId, administratorId);
+	const administrator = getUser(administratorId);
+	const profile = structuredClone(administrator.profile);
+	profile.congregation!.user_local_uid = personUid;
+
+	await administrator.updateProfile(profile);
+	void congregation.reloadMembers();
+};
