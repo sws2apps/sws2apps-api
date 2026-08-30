@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { validationResult } from 'express-validator';
-import { formatError } from '../../http/validation-errors.js';
+import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { BackupData } from '../backups/backup.types.js';
 import type { StandardRecord } from '../../types/standard-record.js';
@@ -55,17 +54,7 @@ const handlePocketBackupError = (error: unknown, res: Response): boolean => {
 
 export const validateInvitation = async (req: Request, res: Response) => {
 	// validate through express middleware
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	try {
 		const authentication = await authenticatePocketInvitation({
@@ -121,19 +110,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 };
 
 export const saveUserBackup = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	try {
 		submitPocketBackup(
@@ -160,19 +137,7 @@ export const getPocketSessions = async (req: Request, res: Response) => {
 };
 
 export const deletePocketSession = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const identifier = req.body.identifier as string;
 
@@ -184,19 +149,7 @@ export const deletePocketSession = async (req: Request, res: Response) => {
 };
 
 export const postPocketReport = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	try {
 		submitPocketReport(res.locals.currentUser.id, req.body.report as StandardRecord);

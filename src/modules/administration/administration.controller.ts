@@ -22,8 +22,7 @@ import {
 	revokeAdministrationUserToken,
 	updateAdministrationUser,
 } from './administration-users.service.js';
-import { validationResult } from 'express-validator';
-import { formatError } from '../../http/validation-errors.js';
+import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { FeatureFlag } from '../feature-flags/feature-flag.js';
 import {
@@ -272,18 +271,7 @@ export const userRevokeToken = async (req: Request, res: Response) => {
 };
 
 export const userUpdate = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -355,18 +343,7 @@ export const flagsGet = async (req: Request, res: Response) => {
 };
 
 export const flagsCreate = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const name = req.body.name as string;
 	const desc = req.body.desc as string;
@@ -398,18 +375,7 @@ export const flagDelete = async (req: Request, res: Response) => {
 };
 
 export const flagUpdate = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -439,18 +405,7 @@ export const flagUpdate = async (req: Request, res: Response) => {
 };
 
 export const flagToggle = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -477,18 +432,7 @@ export const flagToggle = async (req: Request, res: Response) => {
 };
 
 export const userFlagToggle = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -515,18 +459,7 @@ export const userFlagToggle = async (req: Request, res: Response) => {
 };
 
 export const congregationFlagToggle = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -577,18 +510,7 @@ export const congregationDataSyncToggle = async (req: Request, res: Response) =>
 };
 
 export const createCongregation = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { country, name } = req.body as Record<string, string>;
 
@@ -606,20 +528,7 @@ export const createCongregation = async (req: Request, res: Response) => {
 };
 
 export const userAssignCongregation = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -724,18 +633,7 @@ export const userRemoveCongregation = async (req: Request, res: Response) => {
 };
 
 export const updateBasicCongregationInfo = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -774,18 +672,7 @@ export const getClientVersion = async (req: Request, res: Response) => {
 };
 
 export const updateClientVersion = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const version = req.body.version as string;
 

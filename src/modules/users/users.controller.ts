@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { validationResult } from 'express-validator';
-import { formatError } from '../../http/validation-errors.js';
+import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import type { BackupData } from '../backups/backup.types.js';
 import { retrieveUserBackup as retrieveUserBackupData } from './users-backup.service.js';
@@ -144,19 +143,7 @@ export const deleteUserSession = async (req: Request, res: Response) => {
 		res.status(400).json({ message: 'USER_ID_INVALID' });
 	}
 
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const identifier = req.body.identifier as string;
 
@@ -198,19 +185,7 @@ export const disableUser2FA = async (req: Request, res: Response) => {
 };
 
 export const getAuxiliaryApplications = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -237,19 +212,7 @@ export const getAuxiliaryApplications = async (req: Request, res: Response) => {
 };
 
 export const submitAuxiliaryApplication = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -274,19 +237,7 @@ export const submitAuxiliaryApplication = async (req: Request, res: Response) =>
 };
 
 export const postUserReport = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -311,19 +262,7 @@ export const postUserReport = async (req: Request, res: Response) => {
 };
 
 export const retrieveUserBackup = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -350,19 +289,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 };
 
 export const saveUserBackup = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -403,19 +330,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 };
 
 export const getUserUpdates = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -452,19 +367,7 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 };
 
 export const userPostFeedback = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -501,19 +404,7 @@ export const userPostFeedback = async (req: Request, res: Response) => {
 };
 
 export const deleteUser = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -533,19 +424,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 };
 
 export const joinCongregation = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -575,17 +454,7 @@ export const joinCongregation = async (req: Request, res: Response) => {
 };
 
 export const saveUserChunkedBackup = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 

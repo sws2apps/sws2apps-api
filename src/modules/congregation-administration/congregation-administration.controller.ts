@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { validationResult } from 'express-validator';
-import { formatError } from '../../http/validation-errors.js';
+import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import {
 	isJoinRequestApprovalEmailEnabled,
@@ -98,18 +97,7 @@ const handleJoinRequestError = (error: unknown, res: Response): boolean => {
 };
 
 export const setCongregationMasterKey = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -138,18 +126,7 @@ export const setCongregationMasterKey = async (req: Request, res: Response) => {
 };
 
 export const setCongregationAccessCode = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -178,18 +155,7 @@ export const setCongregationAccessCode = async (req: Request, res: Response) => 
 };
 
 export const congregationMasterKeyGet = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -215,18 +181,7 @@ export const congregationMasterKeyGet = async (req: Request, res: Response) => {
 };
 
 export const congregationAccessCodeGet = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -252,18 +207,7 @@ export const congregationAccessCodeGet = async (req: Request, res: Response) => 
 };
 
 export const pocketUserAdd = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -301,18 +245,7 @@ export const pocketUserAdd = async (req: Request, res: Response) => {
 };
 
 export const congregationGetUsers = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -342,18 +275,7 @@ export const congregationGetUsers = async (req: Request, res: Response) => {
 };
 
 export const userDetailsUpdate = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id, user } = req.params;
 
@@ -401,18 +323,7 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 };
 
 export const userSessionDelete = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id, user } = req.params;
 
@@ -453,18 +364,7 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 };
 
 export const pocketCodeDelete = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id, user } = req.params;
 
@@ -503,18 +403,7 @@ export const pocketCodeDelete = async (req: Request, res: Response) => {
 };
 
 export const globalSearchUser = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -541,18 +430,7 @@ export const globalSearchUser = async (req: Request, res: Response) => {
 };
 
 export const congregationUserAdd = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -590,18 +468,7 @@ export const congregationUserAdd = async (req: Request, res: Response) => {
 };
 
 export const congregationDeleteUser = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({ message: 'error_api_bad-request' });
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id, user } = req.params;
 
@@ -640,20 +507,7 @@ export const congregationDeleteUser = async (req: Request, res: Response) => {
 };
 
 export const setAdminUserUid = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -682,20 +536,7 @@ export const setAdminUserUid = async (req: Request, res: Response) => {
 };
 
 export const deleteCongregation = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -724,20 +565,7 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 };
 
 export const deleteJoinRequest = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 
@@ -764,20 +592,7 @@ export const deleteJoinRequest = async (req: Request, res: Response) => {
 };
 
 export const acceptJoinRequest = async (req: Request, res: Response) => {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		const msg = formatError(errors);
-
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: ${msg}`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
-
-		return;
-	}
+	if (rejectInvalidRequest(req, res)) return;
 
 	const { id } = req.params;
 

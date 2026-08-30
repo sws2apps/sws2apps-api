@@ -33,11 +33,12 @@ export default [
 								'**/*.repository.js',
 								'**/users/users.js',
 								'**/congregations/congregations.js',
+								'express-validator',
 								'firebase-admin',
 								'firebase-admin/*',
 							],
 							message:
-								'Controllers must use a service instead of platform, repository, or collection code.',
+								'Controllers must use HTTP helpers and services instead of validation, platform, repository, or collection code.',
 						},
 					],
 				},
