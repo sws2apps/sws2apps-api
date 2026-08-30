@@ -9,7 +9,30 @@ import {
 	isJoinRequestApprovalEmailEnabled,
 	sendJoinRequestApprovalEmail,
 } from './congregation-administration-notifications.service.js';
-import { isCongregationMasterKeyValid } from './congregation-administration-security.service.js';
+import {
+	CongregationAdministrationSecurityError,
+	getCongregationAccessCode,
+	getCongregationMasterKey,
+	isCongregationMasterKeyValid,
+	saveCongregationAccessCode,
+	saveCongregationMasterKey,
+} from './congregation-administration-security.service.js';
+
+const handleCongregationSecurityError = (error: unknown, res: Response): boolean => {
+	if (!(error instanceof CongregationAdministrationSecurityError)) return false;
+
+	res.locals.type = 'warn';
+
+	if (error.code === 'CONGREGATION_NOT_FOUND') {
+		res.locals.message = 'no congregation could not be found with the provided id';
+		res.status(404).json({ message: 'error_app_congregation_not-found' });
+		return true;
+	}
+
+	res.locals.message = 'user not authorized to access the provided congregation';
+	res.status(403).json({ message: 'error_api_unauthorized-request' });
+	return true;
+};
 
 export const setCongregationMasterKey = async (req: Request, res: Response) => {
 	const errors = validationResult(req);
@@ -35,27 +58,16 @@ export const setCongregationMasterKey = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
+	try {
+		await saveCongregationMasterKey(
+			id,
+			res.locals.currentUser.id,
+			req.body.cong_master_key as string,
+		);
+	} catch (error) {
+		if (!handleCongregationSecurityError(error, res)) throw error;
 		return;
 	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	const key: string = req.body.cong_master_key;
-	await cong.saveMasterKey(key);
 
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin set master key';
@@ -86,27 +98,16 @@ export const setCongregationAccessCode = async (req: Request, res: Response) => 
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
+	try {
+		await saveCongregationAccessCode(
+			id,
+			res.locals.currentUser.id,
+			req.body.cong_access_code as string,
+		);
+	} catch (error) {
+		if (!handleCongregationSecurityError(error, res)) throw error;
 		return;
 	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	const accesCode: string = req.body.cong_access_code;
-	await cong.saveAccessCode(accesCode);
 
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin set password';
@@ -137,30 +138,17 @@ export const congregationMasterKeyGet = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
+	let masterKey;
+	try {
+		masterKey = getCongregationMasterKey(id, res.locals.currentUser.id);
+	} catch (error) {
+		if (!handleCongregationSecurityError(error, res)) throw error;
 		return;
 	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	const master_key = cong.settings.cong_master_key;
 
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin get master key';
-	res.status(200).json({ message: master_key });
+	res.status(200).json({ message: masterKey });
 };
 
 export const congregationAccessCodeGet = async (req: Request, res: Response) => {
@@ -187,30 +175,17 @@ export const congregationAccessCodeGet = async (req: Request, res: Response) => 
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
+	let accessCode;
+	try {
+		accessCode = getCongregationAccessCode(id, res.locals.currentUser.id);
+	} catch (error) {
+		if (!handleCongregationSecurityError(error, res)) throw error;
 		return;
 	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	const access_code = cong.settings.cong_access_code;
 
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin get access code';
-	res.status(200).json({ message: access_code });
+	res.status(200).json({ message: accessCode });
 };
 
 export const pocketUserAdd = async (req: Request, res: Response) => {
