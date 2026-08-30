@@ -1,22 +1,14 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import sanitizeHtml from 'sanitize-html';
-
-import { UsersList } from './users.js';
-import { CongregationsList } from '../congregations/congregations.js';
 import { formatError } from '../../http/validation-errors.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import type { BackupData } from '../backups/backup.types.js';
-import { CongregationUpdatesType } from '../congregations/congregations.types.js';
-import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
-import { getCongregationJoinRequests } from '../congregations/congregation-join-requests.service.js';
 import {
 	retrieveUserBackup as retrieveUserBackupData,
 	saveUserBackup as saveUserBackupData,
 	saveUserChunkedBackup as saveUserChunkedBackupData,
 	UserBackupError,
 } from './users-backup.service.js';
-import { sendFeedbackEmail } from './user-notifications.service.js';
 import {
 	deleteUserAccount,
 	disableUserMfa,
@@ -29,7 +21,10 @@ import {
 } from './users-account.service.js';
 import {
 	getUserAuxiliaryApplications,
+	getUserCongregationUpdates,
+	requestCongregationMembership,
 	submitUserAuxiliaryApplication,
+	submitUserFeedback,
 	submitUserFieldServiceReport,
 	UserCongregationActivityError,
 } from './users-congregation-activity.service.js';
@@ -414,67 +409,23 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id)!;
+	let result;
 
-	if (!user.profile.congregation) {
+	try {
+		result = await getUserCongregationUpdates(id);
+	} catch (error) {
+		if (!(error instanceof UserCongregationActivityError)) throw error;
+
 		res.locals.type = 'warn';
-		res.locals.message = `user does not have an assigned congregation`;
-		res.status(403).json({ message: 'CONG_NOT_ASSIGNED' });
-
+		res.locals.message = error.code === 'CONGREGATION_NOT_ASSIGNED'
+			? 'user does not have an assigned congregation'
+			: 'user congregation is invalid';
+		res.status(403).json({
+			message: error.code === 'CONGREGATION_NOT_ASSIGNED'
+				? 'CONG_NOT_ASSIGNED'
+				: 'error_app_congregation_not-found',
+		});
 		return;
-	}
-
-	const cong = CongregationsList.findById(user.profile.congregation?.id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user congregation is invalid';
-		res.status(403).json({ message: 'error_app_congregation_not-found' });
-
-		return;
-	}
-
-	const roles = user.profile.congregation!.cong_role;
-	const masterKeyNeed = canAccessCongregationMasterKey(roles);
-
-	const adminRole = roles.includes('admin');
-	const secretaryRole = roles.includes('secretary');
-	const elderRole = roles.includes('elder');
-	const coordinatorRole = roles.includes('coordinator');
-	const serviceOverseerRole = roles.includes('service_overseer');
-	const serviceCommittee = adminRole || coordinatorRole || secretaryRole || serviceOverseerRole;
-	const languageGroupOverseerRole = adminRole || roles.includes('language_group_overseers');
-	const publicTalkEditor = languageGroupOverseerRole || roles.includes('public_talk_schedule');
-
-	const result: CongregationUpdatesType = {
-		cong_access_code: cong.settings.cong_access_code,
-	};
-
-	if (masterKeyNeed) {
-		result.cong_master_key = cong.settings.cong_master_key;
-	}
-
-	if (serviceCommittee || elderRole) {
-		result.applications = cong.ap_applications;
-	}
-
-	if (publicTalkEditor && cong.settings.data_sync.value) {
-		result.speakers_key = cong.outgoing_speakers.speakers_key;
-		result.pending_speakers_requests = cong.getPendingVisitingSpeakersAccessList();
-		result.remote_congregations = cong.getRemoteCongregationsList();
-		result.rejected_requests = cong.getRejectedRequests();
-	}
-
-	if (secretaryRole) {
-		result.incoming_reports = cong.incoming_reports;
-
-		if (result.incoming_reports.length > 0) {
-			await cong.saveIncomingReports([]);
-		}
-	}
-
-	if (adminRole) {
-		result.join_requests = getCongregationJoinRequests(cong);
 	}
 
 	res.locals.type = 'info';
@@ -507,36 +458,24 @@ export const userPostFeedback = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const user = UsersList.findById(id)!;
-
-	if (!user.profile.congregation) {
-		res.locals.type = 'warn';
-		res.locals.message = `user does not have an assigned congregation`;
-		res.status(403).json({ message: 'CONG_NOT_ASSIGNED' });
-
-		return;
-	}
-
-	const cong = CongregationsList.findById(user.profile.congregation?.id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user congregation is invalid';
-		res.status(403).json({ message: 'error_app_congregation_not-found' });
-
-		return;
-	}
-
 	const { subject, message } = req.body;
 
-	const cleanSubject = sanitizeHtml(subject);
-	const cleanMessage = sanitizeHtml(message);
+	try {
+		submitUserFeedback(id, subject as string, message as string);
+	} catch (error) {
+		if (!(error instanceof UserCongregationActivityError)) throw error;
 
-	sendFeedbackEmail({
-		replyTo: user.email,
-		subject: cleanSubject,
-		message: cleanMessage,
-	});
+		res.locals.type = 'warn';
+		res.locals.message = error.code === 'CONGREGATION_NOT_ASSIGNED'
+			? 'user does not have an assigned congregation'
+			: 'user congregation is invalid';
+		res.status(403).json({
+			message: error.code === 'CONGREGATION_NOT_ASSIGNED'
+				? 'CONG_NOT_ASSIGNED'
+				: 'error_app_congregation_not-found',
+		});
+		return;
+	}
 
 	res.locals.type = 'info';
 	res.locals.message = 'user sent feedback successfully';
@@ -598,53 +537,19 @@ export const joinCongregation = async (req: Request, res: Response) => {
 		res.status(400).json({ message: 'USER_ID_INVALID' });
 	}
 
-	const user = UsersList.findById(id)!;
+	const outcome = await requestCongregationMembership(id, {
+		countryCode: req.body.country_code as string,
+		congregationName: req.body.cong_name as string,
+		firstname: req.body.firstname as string,
+		lastname: (req.body.lastname || '') as string,
+	});
 
-	if (!user) {
-		res.locals.type = 'warn';
-		res.locals.message = `no user account found with the provided id`;
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
-
-		return;
-	}
-
-	const country_code = req.body.country_code as string;
-	const cong_name = req.body.cong_name as string;
-	const firstname = req.body.firstname as string;
-	const lastname = (req.body.lastname || '') as string;
-
-	const cong = CongregationsList.findByCountryAndName(country_code, cong_name);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = `congregation not yet available in the records`;
-		res.status(200).json({ message: 'REQUEST_SENT' });
-
-		return;
-	}
-
-	const isMember = cong.hasMember(id);
-
-	if (isMember) {
+	if (outcome === 'already_member') {
 		res.locals.type = 'warn';
 		res.locals.message = `user already member of the congregation`;
 		res.status(400).json({ message: 'ALREADY_MEMBER' });
-
 		return;
 	}
-
-	const userFirstname = user.profile.firstname.value;
-	const userLastname = user.profile.lastname.value;
-
-	if (firstname !== userFirstname || lastname !== userLastname) {
-		const profile = structuredClone(user.profile);
-		profile.lastname.value = lastname;
-		profile.firstname.value = firstname;
-
-		await user.updateProfile(profile);
-	}
-
-	await cong.join(id);
 
 	res.locals.type = 'info';
 	res.locals.message = `user request to join a congregation`;

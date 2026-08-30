@@ -1,5 +1,10 @@
+import sanitizeHtml from 'sanitize-html';
+import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
 import type { StandardRecord } from '../../types/standard-record.js';
+import { getCongregationJoinRequests } from '../congregations/congregation-join-requests.service.js';
 import { CongregationsList } from '../congregations/congregations.js';
+import type { CongregationUpdatesType } from '../congregations/congregations.types.js';
+import { sendFeedbackEmail } from './user-notifications.service.js';
 import { UsersList } from './users.js';
 
 export type UserCongregationActivityErrorCode =
@@ -58,4 +63,104 @@ export const submitUserFieldServiceReport = (
 ) => {
 	const { user } = getUserCongregation(userId);
 	void user.postReport(report);
+};
+
+export const getUserCongregationUpdates = async (
+	userId: string,
+): Promise<CongregationUpdatesType> => {
+	const { user, congregation } = getUserCongregation(userId);
+	const roles = user.profile.congregation!.cong_role;
+	const isAdmin = roles.includes('admin');
+	const isSecretary = roles.includes('secretary');
+	const isElder = roles.includes('elder');
+	const isServiceCommitteeMember =
+		isAdmin ||
+		roles.includes('coordinator') ||
+		isSecretary ||
+		roles.includes('service_overseer');
+	const canEditPublicTalks =
+		isAdmin ||
+		roles.includes('language_group_overseers') ||
+		roles.includes('public_talk_schedule');
+
+	const updates: CongregationUpdatesType = {
+		cong_access_code: congregation.settings.cong_access_code,
+	};
+
+	if (canAccessCongregationMasterKey(roles)) {
+		updates.cong_master_key = congregation.settings.cong_master_key;
+	}
+
+	if (isServiceCommitteeMember || isElder) {
+		updates.applications = congregation.ap_applications;
+	}
+
+	if (canEditPublicTalks && congregation.settings.data_sync.value) {
+		updates.speakers_key = congregation.outgoing_speakers.speakers_key;
+		updates.pending_speakers_requests = congregation.getPendingVisitingSpeakersAccessList();
+		updates.remote_congregations = congregation.getRemoteCongregationsList();
+		updates.rejected_requests = congregation.getRejectedRequests();
+	}
+
+	if (isSecretary) {
+		updates.incoming_reports = congregation.incoming_reports;
+
+		if (updates.incoming_reports.length > 0) {
+			await congregation.saveIncomingReports([]);
+		}
+	}
+
+	if (isAdmin) {
+		updates.join_requests = getCongregationJoinRequests(congregation);
+	}
+
+	return updates;
+};
+
+export const submitUserFeedback = (
+	userId: string,
+	subject: string,
+	message: string,
+) => {
+	const { user } = getUserCongregation(userId);
+
+	sendFeedbackEmail({
+		replyTo: user.email,
+		subject: sanitizeHtml(subject),
+		message: sanitizeHtml(message),
+	});
+};
+
+type JoinCongregationRequest = {
+	countryCode: string;
+	congregationName: string;
+	firstname: string;
+	lastname: string;
+};
+
+export const requestCongregationMembership = async (
+	userId: string,
+	request: JoinCongregationRequest,
+): Promise<'request_sent' | 'already_member'> => {
+	const user = UsersList.findById(userId)!;
+	const congregation = CongregationsList.findByCountryAndName(
+		request.countryCode,
+		request.congregationName,
+	);
+
+	if (!congregation) return 'request_sent';
+	if (congregation.hasMember(userId)) return 'already_member';
+
+	const currentFirstname = user.profile.firstname.value;
+	const currentLastname = user.profile.lastname.value;
+
+	if (request.firstname !== currentFirstname || request.lastname !== currentLastname) {
+		const profile = structuredClone(user.profile);
+		profile.firstname.value = request.firstname;
+		profile.lastname.value = request.lastname;
+		await user.updateProfile(profile);
+	}
+
+	await congregation.join(userId);
+	return 'request_sent';
 };
