@@ -10,7 +10,8 @@ import { UsersList } from './users.js';
 export type UserBackupErrorCode =
 	| 'CONGREGATION_NOT_ASSIGNED'
 	| 'CONGREGATION_NOT_FOUND'
-	| 'INVALID_METADATA';
+	| 'INVALID_METADATA'
+	| 'INVALID_BACKUP';
 
 export class UserBackupError extends Error {
 	constructor(public readonly code: UserBackupErrorCode) {

@@ -6,8 +6,13 @@ import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
 import { saveUserBackupAsync } from '../backups/backup-persistence.service.js';
 import type { BackupData } from '../backups/backup.types.js';
 import {
+	BackupPayloadError,
+	parseBackupPayload,
+} from '../backups/backup-payload.js';
+import {
 	getUserBackupContext,
 	parseUserBackupMetadata,
+	UserBackupError,
 } from './user-backup-context.js';
 
 export const filterBackupMetadata = (
@@ -31,9 +36,21 @@ export type SaveUserBackupOutcome =
 
 export const saveUserBackup = async (
 	userId: string,
-	congregationBackup: BackupData,
+	backupPayload: unknown,
 ): Promise<SaveUserBackupOutcome> => {
 	const { user, congregation } = getUserBackupContext(userId);
+	let congregationBackup: BackupData;
+
+	try {
+		congregationBackup = parseBackupPayload(backupPayload);
+	} catch (error) {
+		if (error instanceof BackupPayloadError) {
+			throw new UserBackupError('INVALID_BACKUP');
+		}
+
+		throw error;
+	}
+
 	const incomingMetadata = filterBackupMetadata(
 		congregationBackup.metadata,
 		congregation.settings.data_sync.value,
@@ -135,7 +152,17 @@ export const saveUserChunkedBackup = async (
 
 	if (!completedBackup) return { status: 'chunk_received' };
 
-	const congregationBackup = JSON.parse(completedBackup) as BackupData;
+	let congregationBackup: BackupData;
+
+	try {
+		congregationBackup = parseBackupPayload(completedBackup);
+	} catch (error) {
+		if (error instanceof BackupPayloadError) {
+			throw new UserBackupError('INVALID_BACKUP');
+		}
+
+		throw error;
+	}
 	const userRole = user.profile.congregation!.cong_role;
 
 	saveUserBackupAsync({
