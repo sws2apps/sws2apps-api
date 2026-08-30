@@ -6,7 +6,6 @@ import {
 	UserRequestAccess,
 } from './congregations.types.js';
 import {
-	deleteAPApplication,
 	getBranchCongAnalysisMetadata,
 	getBranchFieldServiceReportsMetadata,
 	getCongDetails,
@@ -25,7 +24,6 @@ import {
 	getSpeakersCongregationsMetadata,
 	getUpcomingEventsMetadata,
 	getVisitingSpeakersMetadata,
-	saveAPApplication,
 	setBranchCongAnalysis,
 	setBranchFieldServiceReports,
 	setCongFieldServiceGroups,
@@ -304,53 +302,6 @@ export class Congregation {
 
 	async savePublicIncomingTalks(schedules: OutgoingTalkScheduleType[]) {
 		await setPublicIncomingTalks(this.id, schedules);
-	}
-
-	async saveApplication(application: StandardRecord) {
-		await saveAPApplication(this.id, application);
-
-		let current = this.ap_applications.find((record) => record.request_id === application.request_id);
-
-		if (!current) {
-			this.ap_applications.push({ request_id: application.request_id });
-		}
-
-		current = this.ap_applications.find((record) => record.request_id === application.request_id)!;
-
-		current.person_uid = application.person_uid;
-		current.months = application.months;
-		current.continuous = application.continuous;
-		current.submitted = application.submitted;
-		current.status = application.status;
-		current.coordinator = application.coordinator;
-		current.secretary = application.secretary;
-		current.service_overseer = application.service_overseer;
-		current.notified = application.notified;
-		current.expired = application.expired;
-		current.updatedAt = application.updatedAt;
-
-		// remove expired records
-		const expiredAPs = this.ap_applications.filter((record) => {
-			if (!record.expired) return false;
-
-			const expired = record.expired as string;
-			const now = new Date().toISOString();
-
-			return expired < now;
-		});
-
-		for await (const form of expiredAPs) {
-			await deleteAPApplication(this.id, form.request_id as string);
-
-			this.ap_applications = this.ap_applications.filter((record) => record.request_id !== form.request_id);
-		}
-	}
-
-	async deleteApplication(request_id: string) {
-		await deleteAPApplication(this.id, request_id);
-
-		this.ap_applications = this.ap_applications.filter((record) => record.request_id !== request_id);
-		return this.ap_applications;
 	}
 
 	async saveFlags(flags: string[]) {

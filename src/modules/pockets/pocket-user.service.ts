@@ -4,6 +4,7 @@ import { UsersList } from '../users/users.js';
 import { deleteUser } from '../users/user-lifecycle.service.js';
 import {
 	getUserAuxiliaryApplications,
+	submitUserAuxiliaryApplication,
 	submitUserFieldServiceReport,
 } from '../users/users-congregation-activity.service.js';
 import {
@@ -59,19 +60,7 @@ export const getPocketApplications = (userId: string) => {
 };
 
 export const submitPocketApplication = (userId: string, form: StandardRecord) => {
-	const user = UsersList.findById(userId)!;
-	const congregation = CongregationsList.findById(user.profile.congregation!.id)!;
-	const application = {
-		request_id: crypto.randomUUID().toUpperCase(),
-		person_uid: user.profile.congregation!.user_local_uid,
-		months: form.months,
-		continuous: form.continuous,
-		submitted: form.submitted,
-		updatedAt: new Date().toISOString(),
-		expired: null,
-	};
-
-	void congregation.saveApplication(application);
+	submitUserAuxiliaryApplication(userId, form);
 };
 
 export const deletePocketAccount = async (userId: string) => {

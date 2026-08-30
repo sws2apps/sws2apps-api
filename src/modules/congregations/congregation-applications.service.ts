@@ -1,8 +1,13 @@
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
+import type { Congregation } from './congregation.js';
 import { canManageCongregationApplications } from './congregation-permissions.js';
 import { CongregationsList } from './congregations.js';
 import { isCongregationMember } from './congregation-members.service.js';
+import {
+	deleteAPApplication,
+	saveAPApplication,
+} from './congregations.repository.js';
 
 export type CongregationApplicationErrorCode =
 	| 'CONGREGATION_NOT_FOUND'
@@ -32,6 +37,78 @@ const getAuthorizedApplicationCongregation = (
 	return congregation;
 };
 
+export const synchronizeCongregationApplication = (
+	applications: StandardRecord[],
+	application: StandardRecord,
+): StandardRecord[] => {
+	const synchronizedApplications = structuredClone(applications);
+	let currentApplication = synchronizedApplications.find(
+		(record) => record.request_id === application.request_id,
+	);
+
+	if (!currentApplication) {
+		currentApplication = { request_id: application.request_id };
+		synchronizedApplications.push(currentApplication);
+	}
+
+	Object.assign(currentApplication, {
+		person_uid: application.person_uid,
+		months: application.months,
+		continuous: application.continuous,
+		submitted: application.submitted,
+		status: application.status,
+		coordinator: application.coordinator,
+		secretary: application.secretary,
+		service_overseer: application.service_overseer,
+		notified: application.notified,
+		expired: application.expired,
+		updatedAt: application.updatedAt,
+	});
+
+	return synchronizedApplications;
+};
+
+export const saveCongregationApplication = async (
+	congregation: Congregation,
+	application: StandardRecord,
+): Promise<void> => {
+	await saveAPApplication(congregation.id, application);
+
+	congregation.ap_applications = synchronizeCongregationApplication(
+		congregation.ap_applications,
+		application,
+	);
+
+	const currentDate = new Date().toISOString();
+	const expiredApplications = congregation.ap_applications.filter((record) => {
+		return typeof record.expired === 'string' && record.expired < currentDate;
+	});
+
+	for (const expiredApplication of expiredApplications) {
+		await deleteAPApplication(
+			congregation.id,
+			expiredApplication.request_id as string,
+		);
+
+		congregation.ap_applications = congregation.ap_applications.filter(
+			(record) => record.request_id !== expiredApplication.request_id,
+		);
+	}
+};
+
+export const removeCongregationApplication = async (
+	congregation: Congregation,
+	requestId: string,
+): Promise<StandardRecord[]> => {
+	await deleteAPApplication(congregation.id, requestId);
+
+	congregation.ap_applications = congregation.ap_applications.filter(
+		(record) => record.request_id !== requestId,
+	);
+
+	return congregation.ap_applications;
+};
+
 export const updateCongregationApplication = async (
 	congregationId: string,
 	userId: string,
@@ -39,7 +116,7 @@ export const updateCongregationApplication = async (
 	application: StandardRecord,
 ) => {
 	const congregation = getAuthorizedApplicationCongregation(congregationId, userId, roles);
-	await congregation.saveApplication(application);
+	await saveCongregationApplication(congregation, application);
 	return congregation.ap_applications;
 };
 
@@ -50,5 +127,5 @@ export const deleteCongregationApplication = async (
 	requestId: string,
 ) => {
 	const congregation = getAuthorizedApplicationCongregation(congregationId, userId, roles);
-	return congregation.deleteApplication(requestId);
+	return removeCongregationApplication(congregation, requestId);
 };

@@ -6,6 +6,7 @@ import {
 	requestCongregationMembership as saveCongregationMembershipRequest,
 } from '../congregations/congregation-join-requests.service.js';
 import { CongregationsList } from '../congregations/congregations.js';
+import { saveCongregationApplication } from '../congregations/congregation-applications.service.js';
 import type { CongregationUpdatesType } from '../congregations/congregations.types.js';
 import { sendFeedbackEmail } from './user-notifications.service.js';
 import { UsersList } from './users.js';
@@ -65,7 +66,7 @@ export const submitUserAuxiliaryApplication = (
 		expired: null,
 	};
 
-	void congregation.saveApplication(application);
+	void saveCongregationApplication(congregation, application);
 };
 
 export const submitUserFieldServiceReport = (
