@@ -1,9 +1,11 @@
 import { decryptData } from '../../platform/encryption/encryption.js';
 import { CongregationsList } from '../congregations/congregations.js';
+import { UsersList } from '../users/users.js';
 
 export type CongregationAdministrationSecurityErrorCode =
 	| 'CONGREGATION_NOT_FOUND'
-	| 'MEMBERSHIP_REQUIRED';
+	| 'MEMBERSHIP_REQUIRED'
+	| 'INVALID_MASTER_KEY';
 
 export class CongregationAdministrationSecurityError extends Error {
 	constructor(public readonly code: CongregationAdministrationSecurityErrorCode) {
@@ -71,4 +73,25 @@ export const getCongregationAccessCode = (
 	administratorId: string,
 ) => {
 	return getAuthorizedCongregation(congregationId, administratorId).settings.cong_access_code;
+};
+
+export const deleteAuthorizedCongregation = async (
+	congregationId: string,
+	administratorId: string,
+	providedMasterKey: string,
+) => {
+	const congregation = getAuthorizedCongregation(congregationId, administratorId);
+	const encryptedMasterKey = congregation.settings.cong_master_key!;
+
+	if (!isCongregationMasterKeyValid(encryptedMasterKey, providedMasterKey)) {
+		throw new CongregationAdministrationSecurityError('INVALID_MASTER_KEY');
+	}
+
+	const memberIds = congregation.members.map((member) => member.id);
+
+	for (const memberId of memberIds) {
+		await UsersList.delete(memberId);
+	}
+
+	await CongregationsList.delete(congregationId);
 };

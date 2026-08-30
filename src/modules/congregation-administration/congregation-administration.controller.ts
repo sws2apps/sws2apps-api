@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { CongregationsList } from '../congregations/congregations.js';
 import { formatError } from '../../http/validation-errors.js';
-import { UsersList } from '../users/users.js';
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import {
 	isJoinRequestApprovalEmailEnabled,
@@ -10,9 +8,9 @@ import {
 } from './congregation-administration-notifications.service.js';
 import {
 	CongregationAdministrationSecurityError,
+	deleteAuthorizedCongregation,
 	getCongregationAccessCode,
 	getCongregationMasterKey,
-	isCongregationMasterKeyValid,
 	saveCongregationAccessCode,
 	saveCongregationMasterKey,
 } from './congregation-administration-security.service.js';
@@ -42,6 +40,12 @@ const handleCongregationSecurityError = (error: unknown, res: Response): boolean
 	if (error.code === 'CONGREGATION_NOT_FOUND') {
 		res.locals.message = 'no congregation could not be found with the provided id';
 		res.status(404).json({ message: 'error_app_congregation_not-found' });
+		return true;
+	}
+
+	if (error.code === 'INVALID_MASTER_KEY') {
+		res.locals.message = 'congregation admin provided invalid master key for deletion';
+		res.status(403).json({ message: 'error_app_security_invalid-master-key' });
 		return true;
 	}
 
@@ -703,46 +707,16 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const cong = CongregationsList.findById(id);
-
-	if (!cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
-
+	try {
+		await deleteAuthorizedCongregation(
+			id,
+			res.locals.currentUser.id,
+			req.body.key as string,
+		);
+	} catch (error) {
+		if (!handleCongregationSecurityError(error, res)) throw error;
 		return;
 	}
-
-	const isValid = await cong.hasMember(res.locals.currentUser.id);
-
-	if (!isValid) {
-		res.locals.type = 'warn';
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
-		return;
-	}
-
-	const { key } = req.body;
-
-	const passed = isCongregationMasterKeyValid(
-		cong.settings.cong_master_key!,
-		key,
-	);
-
-	if (!passed) {
-		res.locals.type = 'warn';
-		res.locals.message = 'congregation admin provided invalid master key for deletion';
-		res.status(403).json({ message: 'error_app_security_invalid-master-key' });
-		return;
-	}
-
-	const usersIds = cong.members.map((user) => user.id);
-
-	for await (const userId of usersIds) {
-		await UsersList.delete(userId);
-	}
-
-	await CongregationsList.delete(id);
 
 	res.locals.type = 'info';
 	res.locals.message = 'congregation admin deleted congregation';
