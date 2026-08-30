@@ -16,6 +16,7 @@ describe('email one-time password validation', () => {
 
 	it('rejects an incorrect code', () => {
 		assert.equal(isEmailOneTimePasswordValid(oneTimePassword, '654321', 1_999), false);
+		assert.equal(isEmailOneTimePasswordValid(oneTimePassword, '1234567', 1_999), false);
 	});
 
 	it('rejects an expired code even when its value matches', () => {

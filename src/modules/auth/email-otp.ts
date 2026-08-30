@@ -1,3 +1,5 @@
+import { areSecretValuesEqual } from '../../platform/security/secret-comparison.js';
+
 type EmailOneTimePassword = {
 	code: string;
 	expiredAt: number;
@@ -11,5 +13,5 @@ export const isEmailOneTimePasswordValid = (
 	const isExpired = currentTime > oneTimePassword.expiredAt;
 	if (isExpired) return false;
 
-	return oneTimePassword.code === submittedCode;
+	return areSecretValuesEqual(oneTimePassword.code, submittedCode);
 };
