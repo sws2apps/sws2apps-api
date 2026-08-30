@@ -76,4 +76,23 @@ export default [
 			],
 		},
 	},
+	{
+		files: [
+			'src/modules/users/users.ts',
+			'src/modules/congregations/congregations.ts',
+		],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							group: ['**/platform/**', 'firebase-admin', 'firebase-admin/*'],
+							message: 'Application collections must delegate platform work to a lifecycle service or repository.',
+						},
+					],
+				},
+			],
+		},
+	},
 ];

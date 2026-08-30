@@ -1,6 +1,7 @@
 import { decryptData } from '../../platform/encryption/encryption.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { deleteUser } from '../users/user-lifecycle.service.js';
+import { deleteCongregation } from '../congregations/congregation-lifecycle.service.js';
 
 export type CongregationAdministrationSecurityErrorCode =
 	| 'CONGREGATION_NOT_FOUND'
@@ -93,5 +94,5 @@ export const deleteAuthorizedCongregation = async (
 		await deleteUser(memberId);
 	}
 
-	await CongregationsList.delete(congregationId);
+	await deleteCongregation(congregationId);
 };

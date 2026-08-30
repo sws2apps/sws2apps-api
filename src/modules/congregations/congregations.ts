@@ -1,11 +1,8 @@
-import { LogLevel } from '@logtail/types';
 import { CongregationCreateInfoType } from './congregations.types.js';
 import {
 	createCongregation,
 	loadAllCongs,
 } from './congregations.repository.js';
-import { deleteFileFromStorage } from '../../platform/firebase/storage.js';
-import { logger } from '../../platform/logging/logger.js';
 import { initializeIncomingTalks } from './incoming-talks.service.js';
 import { Congregation } from './congregation.js';
 
@@ -65,9 +62,7 @@ class Congregations {
 		return congId;
 	}
 
-	async delete(id: string) {
-		await deleteFileFromStorage({ type: 'congregation', path: id });
-
+	removeById(id: string) {
 		this.list = this.list.filter((cong) => cong.id !== id);
 	}
 
@@ -97,28 +92,6 @@ class Congregations {
 		return result;
 	}
 
-	async cleanupTasks() {
-		try {
-			for (const Congregation of this.list) {
-				const { settings } = Congregation;
-
-				if (!settings.group_publishers_sort) {
-					continue;
-				}
-
-				if (typeof settings.group_publishers_sort === 'string') {
-					continue;
-				}
-
-				const newSettings = structuredClone(Congregation.settings);
-				delete newSettings.group_publishers_sort;
-
-				await Congregation.saveSettings(newSettings);
-			}
-			} catch {
-				logger(LogLevel.Warn, 'invalid congregation setting cleanup failed');
-		}
-	}
 }
 
 export const CongregationsList = new Congregations();

@@ -13,6 +13,7 @@ import { initializeMinimumClientVersion } from './modules/administration/adminis
 import { createDevelopmentUsers } from './bootstrap/development-users.js';
 import { serverState } from './platform/runtime/server-state.js';
 import { removeOutdatedUserSessions } from './modules/users/user-lifecycle.service.js';
+import { cleanUpLegacyCongregationSettings } from './modules/congregations/congregation-lifecycle.service.js';
 
 await initializeMinimumClientVersion();
 await createDevelopmentUsers();
@@ -28,7 +29,7 @@ app.listen(env.port, async () => {
 
 	await UsersList.load();
 	await CongregationsList.load();
-	await CongregationsList.cleanupTasks();
+	await cleanUpLegacyCongregationSettings();
 	await Flags.load();
 	await InstallationsList.load();
 

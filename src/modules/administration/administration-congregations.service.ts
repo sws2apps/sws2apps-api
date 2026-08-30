@@ -3,6 +3,7 @@ import {
 	getCountries,
 } from '../../platform/countries/country-client.js';
 import { CongregationsList } from '../congregations/congregations.js';
+import { deleteCongregation } from '../congregations/congregation-lifecycle.service.js';
 import { saveOutgoingSpeakersState } from '../congregations/outgoing-speakers.service.js';
 import { UsersList } from '../users/users.js';
 
@@ -129,7 +130,7 @@ export const deleteAdministrationCongregation = async (congregationId: string) =
 		throw new AdministrationCongregationError('CONGREGATION_ACTIVE');
 	}
 
-	await CongregationsList.delete(congregationId);
+	await deleteCongregation(congregationId);
 	return getAdministrationCongregations();
 };
 
