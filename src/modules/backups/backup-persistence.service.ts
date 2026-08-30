@@ -9,6 +9,7 @@ import type { StandardRecord } from '../../types/standard-record.js';
 import { BackupData } from './backup.types.js';
 import { findBackupUploadByCongregation } from './backup-upload-tracker.js';
 import { updateUserCongregationPersonData } from '../users/users-congregation-activity.service.js';
+import { applyUserBackup } from '../users/user-backup-application.service.js';
 import { saveCongregationBackup } from './congregation-backup.service.js';
 
 export const saveUserBackupAsync = async ({
@@ -49,7 +50,7 @@ export const saveUserBackupAsync = async ({
 			);
 		}
 
-		await user.saveBackup(cong_backup, userRole);
+		await applyUserBackup(user, cong_backup, userRole);
 
 		const currentUpload = findBackupUploadByCongregation(congId);
 
@@ -85,7 +86,7 @@ export const savePocketBackupAsync = async ({
 			);
 		}
 
-		await user.saveBackup(cong_backup, userRole);
+		await applyUserBackup(user, cong_backup, userRole);
 	} catch {
 		logger(LogLevel.Error, 'Pocket backup could not be saved');
 	}

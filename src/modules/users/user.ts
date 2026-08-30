@@ -1,4 +1,3 @@
-import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import type {
 	UserProfile,
@@ -25,7 +24,6 @@ import {
 	setUserSessions,
 	setUserSettings,
 } from './users.repository.js';
-import { BackupData } from '../backups/backup.types.js';
 
 export class User {
 	id: string;
@@ -155,46 +153,6 @@ export class User {
 	async saveDelegatedFieldServiceReports(reports: StandardRecord[]) {
 		await setDelegatedFieldServiceReports(this.id, reports);
 		this.metadata.delegated_field_service_reports = await getDelegatedFieldServiceReportsMetadata(this.id);
-	}
-
-	async saveBackup(cong_backup: BackupData, userRole: AppRoleType[]) {
-		const userSettings = cong_backup.app_settings?.user_settings;
-
-		if (userSettings) {
-			const data = userSettings as Record<string, object | string>;
-
-			const profile = structuredClone(this.profile);
-			profile.firstname = data['firstname'] as UserProfile['firstname'];
-			profile.lastname = data['lastname'] as UserProfile['lastname'];
-
-			await this.updateProfile(profile);
-
-			const settings = structuredClone(this.settings);
-			settings.backup_automatic = data['backup_automatic'] as string;
-			settings.data_view = data['data_view'] as string;
-			settings.hour_credits_enabled = data['hour_credits_enabled'] as string;
-			settings.theme_follow_os_enabled = data['theme_follow_os_enabled'] as string;
-
-			await this.updateSettings(settings);
-		}
-
-		const isPublisher = userRole.includes('publisher');
-
-		const userFieldServiceReports = cong_backup.user_field_service_reports;
-		const userBibleStudies = cong_backup.user_bible_studies;
-		const delegatedFieldServiceReports = cong_backup.delegated_field_service_reports;
-
-		if (isPublisher && userBibleStudies) {
-			await this.saveBibleStudies(userBibleStudies);
-		}
-
-		if (isPublisher && userFieldServiceReports) {
-			await this.saveFieldServiceReports(userFieldServiceReports);
-		}
-
-		if (isPublisher && delegatedFieldServiceReports) {
-			await this.saveDelegatedFieldServiceReports(delegatedFieldServiceReports);
-		}
 	}
 
 	async updateFlags(flags: string[]) {
