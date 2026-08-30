@@ -1,12 +1,9 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { CongregationsList } from './congregations.js';
 import { formatError } from '../../http/validation-errors.js';
-import { toMondayFirstWeekday } from './meeting-weekday.js';
 import {
 	getAvailableCountries,
 	searchCongregationDirectory,
-	verifyCongregationDirectoryRecord,
 } from './congregation-directory.service.js';
 import {
 	isWelcomeEmailEnabled,
@@ -17,6 +14,10 @@ import {
 	deleteCongregationApplication,
 	updateCongregationApplication,
 } from './congregation-applications.service.js';
+import {
+	CongregationCreationError,
+	createVerifiedCongregation,
+} from './congregation-creation.service.js';
 
 const handleCongregationApplicationError = (error: unknown, res: Response): boolean => {
 	if (!(error instanceof CongregationApplicationError)) return false;
@@ -128,92 +129,41 @@ export const createCongregation = async (req: Request, res: Response) => {
 	}
 
 	const { country_code, country_guid, cong_name, firstname, lastname } = req.body as Record<string, string>;
-
-	// find congregation
-	const cong = CongregationsList.findByCountryAndName(country_guid, cong_name, country_code);
-
-	if (cong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation requested already exists';
-		res.status(404).json({ message: 'CONG_EXISTS' });
-
-		return;
-	}
-
-	// is congregation authentic
 	const language = (req.headers.language as string) || 'eng';
+	let creation;
 
-	const directoryResult = await verifyCongregationDirectoryRecord(
-		country_guid,
-		language,
-		cong_name,
-	);
+	try {
+		creation = await createVerifiedCongregation({
+			userId: res.locals.currentUser.id,
+			countryCode: country_code,
+			countryGuid: country_guid,
+			congregationName: cong_name,
+			firstname,
+			lastname,
+			language,
+		});
+	} catch (error) {
+		if (!(error instanceof CongregationCreationError)) throw error;
 
-	if ('errorStatusCode' in directoryResult) {
 		res.locals.type = 'warn';
-		res.locals.message = 'an error occured while verifying the congregation data';
-		res.status(directoryResult.errorStatusCode).json({ message: 'REQUEST_NOT_VALIDATED' });
-
-		return;
-	}
-
-	const congsList = directoryResult.congregations;
-
-	let isValidCong = false;
-
-	if (congsList?.length > 0) {
-		const findCong = congsList.find((record) => record.congName === cong_name);
-
-		if (findCong) {
-			isValidCong = true;
+		if (error.code === 'CONGREGATION_EXISTS') {
+			res.locals.message = 'the congregation requested already exists';
+			res.status(404).json({ message: 'CONG_EXISTS' });
+		} else if (error.code === 'DIRECTORY_FETCH_FAILED') {
+			res.locals.message = 'an error occured while verifying the congregation data';
+			res.status(error.statusCode!).json({ message: 'REQUEST_NOT_VALIDATED' });
+		} else {
+			res.locals.message = 'this request does not match any valid congregation';
+			res.status(400).json({ message: 'BAD_REQUEST' });
 		}
-	}
-
-	if (!isValidCong) {
-		res.locals.type = 'warn';
-		res.locals.message = 'this request does not match any valid congregation';
-		res.status(400).json({ message: 'BAD_REQUEST' });
-
 		return;
 	}
-
-	// update user details
-	const user = res.locals.currentUser;
-
-	const profile = structuredClone(user.profile);
-	profile.firstname = { value: firstname, updatedAt: new Date().toISOString() };
-	profile.lastname = { value: lastname, updatedAt: new Date().toISOString() };
-
-	await user.updateProfile(profile);
-
-	// create congregation
-	const congRequest = congsList.find((record) => record.congName === cong_name)!;
-
-	const congId = await CongregationsList.create({
-		cong_name,
-		country_guid,
-		country_code,
-		cong_guid: congRequest.congGuid,
-		cong_circuit: congRequest.circuit,
-		cong_location: { address: congRequest.address, lat: congRequest.location.lat, lng: congRequest.location.lng },
-		midweek_meeting: {
-			time: congRequest.midweekMeetingTime.time.slice(0, -3),
-			weekday: toMondayFirstWeekday(congRequest.midweekMeetingTime.weekday),
-		},
-		weekend_meeting: {
-			time: congRequest.weekendMeetingTime.time.slice(0, -3),
-			weekday: toMondayFirstWeekday(congRequest.weekendMeetingTime.weekday),
-		},
-	});
-
-	// add user to congregation
-	const userCong = await user.assignCongregation({ congId: congId, role: ['admin'] });
 
 	if (isWelcomeEmailEnabled()) {
 		req.i18n.changeLanguage(language);
 
 		sendWelcomeEmail({
-			recipient: user.email!,
+			recipient: creation.notificationRecipient,
 			subject: req.t('tr_welcomeTitle'),
 			welcomeTitle: req.t('tr_welcomeTitle'),
 			welcomeDescription: req.t('tr_welcomeDesc'),
@@ -225,17 +175,9 @@ export const createCongregation = async (req: Request, res: Response) => {
 		});
 	}
 
-	const finalResult = {
-		user_id: user.id,
-		cong_id: userCong.id,
-		firstname: user.profile.firstname.value,
-		lastname: user.profile.lastname.value,
-		cong_settings: userCong.settings,
-	};
-
 	res.locals.type = 'info';
 	res.locals.message = 'congregation created successfully';
-	res.status(200).json(finalResult);
+	res.status(200).json(creation.response);
 };
 
 export const updateApplicationApproval = async (req: Request, res: Response) => {
