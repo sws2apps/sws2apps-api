@@ -2,6 +2,7 @@ import { decryptData } from '../../platform/encryption/encryption.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { deleteUser } from '../users/user-lifecycle.service.js';
 import { deleteCongregation } from '../congregations/congregation-lifecycle.service.js';
+import { isCongregationMember } from '../congregations/congregation-members.service.js';
 
 export type CongregationAdministrationSecurityErrorCode =
 	| 'CONGREGATION_NOT_FOUND'
@@ -25,7 +26,7 @@ const getAuthorizedCongregation = (
 		throw new CongregationAdministrationSecurityError('CONGREGATION_NOT_FOUND');
 	}
 
-	if (!congregation.hasMember(administratorId)) {
+	if (!isCongregationMember(congregation, administratorId)) {
 		throw new CongregationAdministrationSecurityError('MEMBERSHIP_REQUIRED');
 	}
 

@@ -8,6 +8,11 @@ import {
 	removeUserPocketInvitation,
 	updateUserCongregationMembership,
 } from '../users/user-congregation-membership.service.js';
+import {
+	getCongregationMembers as buildCongregationMemberList,
+	isCongregationMember,
+	refreshCongregationMembers,
+} from '../congregations/congregation-members.service.js';
 
 export type CongregationAdministrationUserErrorCode =
 	| 'CONGREGATION_NOT_FOUND'
@@ -30,7 +35,7 @@ const getAuthorizedCongregation = (
 		throw new CongregationAdministrationUserError('CONGREGATION_NOT_FOUND');
 	}
 
-	if (!congregation.hasMember(administratorId)) {
+	if (!isCongregationMember(congregation, administratorId)) {
 		throw new CongregationAdministrationUserError('MEMBERSHIP_REQUIRED');
 	}
 
@@ -49,7 +54,7 @@ export const getCongregationMembers = (
 	currentVisitorId: string,
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
-	return congregation.getMembers(currentVisitorId);
+	return buildCongregationMemberList(congregation, currentVisitorId);
 };
 
 type CreatePocketUserInput = {
@@ -77,8 +82,8 @@ export const createCongregationPocketUser = async (
 		user_secret_code: input.secretCode,
 	});
 
-	void congregation.reloadMembers();
-	return congregation.getMembers(currentVisitorId);
+	refreshCongregationMembers(congregation);
+	return buildCongregationMemberList(congregation, currentVisitorId);
 };
 
 type UpdateCongregationUserInput = {
@@ -118,7 +123,7 @@ export const updateCongregationUser = async (
 		await user.updateProfile(profile);
 	}
 
-	return congregation.getMembers(currentVisitorId);
+	return buildCongregationMemberList(congregation, currentVisitorId);
 };
 
 export const revokeCongregationUserSession = async (
@@ -130,7 +135,7 @@ export const revokeCongregationUserSession = async (
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
 	await getUser(targetUserId).revokeSession(sessionIdentifier);
-	return congregation.getMembers(currentVisitorId);
+	return buildCongregationMemberList(congregation, currentVisitorId);
 };
 
 export const deleteCongregationUserPocketCode = async (
@@ -141,7 +146,7 @@ export const deleteCongregationUserPocketCode = async (
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
 	await removeUserPocketInvitation(getUser(targetUserId), congregation);
-	return congregation.getMembers(currentVisitorId);
+	return buildCongregationMemberList(congregation, currentVisitorId);
 };
 
 export const findEligibleCongregationUser = (
@@ -183,7 +188,7 @@ export const addCongregationUser = async (
 		person_uid: input.personUid,
 	});
 
-	return congregation.getMembers(currentVisitorId);
+	return buildCongregationMemberList(congregation, currentVisitorId);
 };
 
 export const removeCongregationUser = async (
@@ -198,7 +203,7 @@ export const removeCongregationUser = async (
 	if (user.profile.role === 'vip') await removeUserFromCongregation(user, congregation);
 	if (user.profile.role === 'pocket') await deleteUser(user.id);
 
-	return congregation.getMembers(currentVisitorId);
+	return buildCongregationMemberList(congregation, currentVisitorId);
 };
 
 export const setCongregationAdministratorPersonUid = async (
@@ -212,5 +217,5 @@ export const setCongregationAdministratorPersonUid = async (
 	profile.congregation!.user_local_uid = personUid;
 
 	await administrator.updateProfile(profile);
-	void congregation.reloadMembers();
+	refreshCongregationMembers(congregation);
 };

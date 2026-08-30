@@ -2,6 +2,7 @@ import type { AppRoleType } from '../../domain/users/app-role.js';
 import { encryptData } from '../../platform/encryption/encryption.js';
 import type { Congregation } from '../congregations/congregation.js';
 import type { User } from './user.js';
+import { refreshCongregationMembers } from '../congregations/congregation-members.service.js';
 
 type AssignUserToCongregationInput = {
 	role: AppRoleType[];
@@ -36,7 +37,7 @@ export const assignUserToCongregation = async (
 	}
 
 	await user.updateProfile(profile);
-	congregation.reloadMembers();
+	refreshCongregationMembers(congregation);
 };
 
 type UpdateUserCongregationInput = {
@@ -67,7 +68,7 @@ export const updateUserCongregationMembership = async (
 	}
 
 	await user.updateProfile(profile);
-	congregation.reloadMembers();
+	refreshCongregationMembers(congregation);
 };
 
 export const removeUserPocketInvitation = async (
@@ -78,7 +79,7 @@ export const removeUserPocketInvitation = async (
 	profile.congregation!.pocket_invitation_code = undefined;
 
 	await user.updateProfile(profile);
-	congregation.reloadMembers();
+	refreshCongregationMembers(congregation);
 };
 
 export const removeUserFromCongregation = async (
@@ -101,5 +102,5 @@ export const removeUserFromCongregation = async (
 	await user.saveBibleStudies([]);
 	await user.saveDelegatedFieldServiceReports([]);
 
-	congregation?.reloadMembers();
+	if (congregation) refreshCongregationMembers(congregation);
 };

@@ -14,6 +14,7 @@ import {
 	getRejectedSpeakerRequests,
 	getRemoteSpeakerCongregations,
 } from '../congregations/outgoing-speakers.service.js';
+import { isCongregationMember } from '../congregations/congregation-members.service.js';
 
 export type UserCongregationActivityErrorCode =
 	| 'CONGREGATION_NOT_ASSIGNED'
@@ -217,7 +218,7 @@ export const requestCongregationMembership = async (
 	);
 
 	if (!congregation) return 'request_sent';
-	if (congregation.hasMember(userId)) return 'already_member';
+	if (isCongregationMember(congregation, userId)) return 'already_member';
 
 	const currentFirstname = user.profile.firstname.value;
 	const currentLastname = user.profile.lastname.value;

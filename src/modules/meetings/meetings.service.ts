@@ -9,6 +9,7 @@ import {
 	rejectOutgoingSpeakerAccess,
 	requestOutgoingSpeakerAccess,
 } from '../congregations/outgoing-speakers.service.js';
+import { isCongregationMember } from '../congregations/congregation-members.service.js';
 
 export type MeetingAccessErrorCode = 'CONGREGATION_NOT_FOUND' | 'MEMBERSHIP_REQUIRED';
 
@@ -23,7 +24,7 @@ const getAuthorizedCongregation = async (congregationId: string, userId: string)
 	const congregation = CongregationsList.findById(congregationId);
 
 	if (!congregation) throw new MeetingAccessError('CONGREGATION_NOT_FOUND');
-	if (!(await congregation.hasMember(userId))) throw new MeetingAccessError('MEMBERSHIP_REQUIRED');
+	if (!isCongregationMember(congregation, userId)) throw new MeetingAccessError('MEMBERSHIP_REQUIRED');
 
 	return congregation;
 };

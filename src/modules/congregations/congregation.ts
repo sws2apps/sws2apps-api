@@ -52,11 +52,6 @@ import {
 } from './congregations.repository.js';
 import { User } from '../users/user.js';
 import { UsersList } from '../users/users.js';
-import {
-	getCongregationMembers,
-	isCongregationMember,
-	refreshCongregationMembers,
-} from './congregation-members.service.js';
 import { mergeIncomingData } from '../backups/incoming-data-merge.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 
@@ -174,7 +169,6 @@ export class Congregation {
 			this.incoming_reports = JSON.parse(data.incoming_reports);
 		}
 
-		refreshCongregationMembers(this);
 	}
 
 	async savePersons(persons: StandardRecord[]) {
@@ -373,18 +367,6 @@ export class Congregation {
 		settings.cong_access_code = code;
 
 		await this.saveSettings(settings);
-	}
-
-	hasMember(userId: string) {
-		return isCongregationMember(this, userId);
-	}
-
-	reloadMembers() {
-		refreshCongregationMembers(this);
-	}
-
-	getMembers(currentVisitorId: string) {
-		return getCongregationMembers(this, currentVisitorId);
 	}
 
 	async savePublicSchedules(schedules: string) {

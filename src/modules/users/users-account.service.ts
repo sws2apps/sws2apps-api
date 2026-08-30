@@ -9,6 +9,7 @@ import {
 	disableUserMfa as disableMfaForUser,
 	ensureUserMfaSecret,
 } from '../mfa/user-mfa.service.js';
+import { refreshCongregationMembers } from '../congregations/congregation-members.service.js';
 
 export type UserAccountErrorCode = 'CONGREGATION_NOT_ASSIGNED' | 'CONGREGATION_NOT_FOUND';
 
@@ -74,7 +75,8 @@ export const revokeUserSession = async (userId: string, sessionIdentifier: strin
 	const sessions = await user.revokeSession(sessionIdentifier);
 	const congregationId = user.profile.congregation?.id;
 
-	if (congregationId) CongregationsList.findById(congregationId)?.reloadMembers();
+	const congregation = congregationId ? CongregationsList.findById(congregationId) : undefined;
+	if (congregation) refreshCongregationMembers(congregation);
 
 	return sessions;
 };

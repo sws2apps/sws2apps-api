@@ -6,6 +6,10 @@ import {
 	getUserAuxiliaryApplications,
 	submitUserFieldServiceReport,
 } from '../users/users-congregation-activity.service.js';
+import {
+	isCongregationMember,
+	refreshCongregationMembers,
+} from '../congregations/congregation-members.service.js';
 
 export type PocketUserErrorCode = 'CONGREGATION_NOT_FOUND' | 'MEMBERSHIP_REQUIRED';
 
@@ -27,7 +31,8 @@ export const revokePocketUserSession = async (userId: string, identifier: string
 	const congregationId = user.profile.congregation?.id;
 
 	if (congregationId) {
-		void CongregationsList.findById(congregationId)?.reloadMembers();
+		const congregation = CongregationsList.findById(congregationId);
+		if (congregation) refreshCongregationMembers(congregation);
 	}
 
 	return sessions;
@@ -39,7 +44,7 @@ const getAuthorizedPocketUser = (userId: string) => {
 	const congregation = congregationId ? CongregationsList.findById(congregationId) : undefined;
 
 	if (!congregation) throw new PocketUserError('CONGREGATION_NOT_FOUND');
-	if (!congregation.hasMember(user.id)) throw new PocketUserError('MEMBERSHIP_REQUIRED');
+	if (!isCongregationMember(congregation, user.id)) throw new PocketUserError('MEMBERSHIP_REQUIRED');
 
 	return { user, congregation };
 };
@@ -76,6 +81,7 @@ export const deletePocketAccount = async (userId: string) => {
 	await deleteUser(user.id);
 
 	if (congregationId) {
-		void CongregationsList.findById(congregationId)?.reloadMembers();
+		const congregation = CongregationsList.findById(congregationId);
+		if (congregation) refreshCongregationMembers(congregation);
 	}
 };

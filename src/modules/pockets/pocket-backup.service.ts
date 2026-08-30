@@ -2,6 +2,7 @@ import type { BackupData } from '../backups/backup.types.js';
 import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
 import { savePocketBackupAsync } from '../backups/backup-persistence.service.js';
 import { CongregationsList } from '../congregations/congregations.js';
+import { isCongregationMember } from '../congregations/congregation-members.service.js';
 import type { CongSettingsType } from '../congregations/congregations.types.js';
 import { UsersList } from '../users/users.js';
 import type { StandardRecord } from '../../types/standard-record.js';
@@ -46,7 +47,7 @@ export const getPocketBackupContext = (userId: string, metadataHeader: string) =
 	const congregation = congregationId ? CongregationsList.findById(congregationId) : undefined;
 
 	if (!congregation) throw new PocketBackupError('CONGREGATION_NOT_FOUND');
-	if (!congregation.hasMember(user.id)) throw new PocketBackupError('MEMBERSHIP_REQUIRED');
+	if (!isCongregationMember(congregation, user.id)) throw new PocketBackupError('MEMBERSHIP_REQUIRED');
 
 	return {
 		user,

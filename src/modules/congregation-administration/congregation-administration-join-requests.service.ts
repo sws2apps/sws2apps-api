@@ -6,6 +6,7 @@ import {
 } from '../congregations/congregation-join-requests.service.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
+import { isCongregationMember } from '../congregations/congregation-members.service.js';
 
 export type CongregationJoinRequestErrorCode =
 	| 'CONGREGATION_NOT_FOUND'
@@ -23,7 +24,7 @@ export class CongregationJoinRequestError extends Error {
 const getAuthorizedCongregation = (congregationId: string, administratorId: string) => {
 	const congregation = CongregationsList.findById(congregationId);
 	if (!congregation) throw new CongregationJoinRequestError('CONGREGATION_NOT_FOUND');
-	if (!congregation.hasMember(administratorId)) {
+	if (!isCongregationMember(congregation, administratorId)) {
 		throw new CongregationJoinRequestError('MEMBERSHIP_REQUIRED');
 	}
 	return congregation;

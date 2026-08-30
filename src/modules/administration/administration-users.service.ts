@@ -1,5 +1,9 @@
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import { CongregationsList } from '../congregations/congregations.js';
+import {
+	isCongregationMember,
+	refreshCongregationMembers,
+} from '../congregations/congregation-members.service.js';
 import { UsersList } from '../users/users.js';
 import { deleteUser } from '../users/user-lifecycle.service.js';
 import { updateUserAuthenticationEmail } from '../users/user-identity.service.js';
@@ -32,7 +36,8 @@ const getAdministrationUser = (userId: string) => {
 };
 
 const reloadUserCongregation = (congregationId: string | undefined) => {
-	if (congregationId) void CongregationsList.findById(congregationId)?.reloadMembers();
+	const congregation = congregationId ? CongregationsList.findById(congregationId) : undefined;
+	if (congregation) refreshCongregationMembers(congregation);
 };
 
 export const formatAdministrationSession = (
@@ -181,7 +186,7 @@ export const assignAdministrationUserCongregation = async (
 		throw new AdministrationUserError('CONGREGATION_NOT_FOUND');
 	}
 
-	if (congregation.hasMember(user.id)) {
+	if (isCongregationMember(congregation, user.id)) {
 		throw new AdministrationUserError('USER_ALREADY_MEMBER');
 	}
 

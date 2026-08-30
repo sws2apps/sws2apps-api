@@ -5,6 +5,7 @@ import {
 } from './congregations.repository.js';
 import { initializeIncomingTalks } from './incoming-talks.service.js';
 import { Congregation } from './congregation.js';
+import { refreshCongregationMembers } from './congregation-members.service.js';
 
 class Congregations {
 	list: Congregation[];
@@ -21,6 +22,7 @@ class Congregations {
 
 	async load() {
 		this.list = await loadAllCongs();
+		this.list.forEach((congregation) => refreshCongregationMembers(congregation));
 
 		await initializeIncomingTalks(this.list);
 
@@ -55,6 +57,7 @@ class Congregations {
 
 		const cong = new Congregation(congId);
 		await cong.loadDetails();
+		refreshCongregationMembers(cong);
 
 		this.list.push(cong);
 		this.#sort();

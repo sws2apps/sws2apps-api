@@ -2,6 +2,7 @@ import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import { canManageCongregationApplications } from './congregation-permissions.js';
 import { CongregationsList } from './congregations.js';
+import { isCongregationMember } from './congregation-members.service.js';
 
 export type CongregationApplicationErrorCode =
 	| 'CONGREGATION_NOT_FOUND'
@@ -22,7 +23,7 @@ const getAuthorizedApplicationCongregation = (
 ) => {
 	const congregation = CongregationsList.findById(congregationId);
 	if (!congregation) throw new CongregationApplicationError('CONGREGATION_NOT_FOUND');
-	if (!congregation.hasMember(userId)) {
+	if (!isCongregationMember(congregation, userId)) {
 		throw new CongregationApplicationError('MEMBERSHIP_REQUIRED');
 	}
 	if (!canManageCongregationApplications(roles)) {

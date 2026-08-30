@@ -3,6 +3,7 @@ import {
 	getCountries,
 } from '../../platform/countries/country-client.js';
 import { CongregationsList } from '../congregations/congregations.js';
+import { getCongregationMembers } from '../congregations/congregation-members.service.js';
 import { deleteCongregation } from '../congregations/congregation-lifecycle.service.js';
 import { saveOutgoingSpeakersState } from '../congregations/outgoing-speakers.service.js';
 import { UsersList } from '../users/users.js';
@@ -72,7 +73,7 @@ export const findAdministrationCountry = async (countryCode: string) => {
 
 export const getAdministrationCongregation = (congregationId: string) => {
 	const congregation = getCongregation(congregationId);
-	const congregationMembers = congregation.getMembers('undefined');
+	const congregationMembers = getCongregationMembers(congregation, 'undefined');
 
 	const congregationPersons = congregationMembers.map((person) => {
 		const user = UsersList.findById(person.id);

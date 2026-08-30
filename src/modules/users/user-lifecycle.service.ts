@@ -4,6 +4,7 @@ import { deleteFileFromStorage } from '../../platform/firebase/storage.js';
 import { logger } from '../../platform/logging/logger.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from './users.js';
+import { refreshCongregationMembers } from '../congregations/congregation-members.service.js';
 
 export const deleteUser = async (userId: string): Promise<void> => {
 	const user = UsersList.findById(userId);
@@ -18,7 +19,8 @@ export const deleteUser = async (userId: string): Promise<void> => {
 	UsersList.removeById(userId);
 
 	if (congregationId) {
-		CongregationsList.findById(congregationId)?.reloadMembers();
+		const congregation = CongregationsList.findById(congregationId);
+		if (congregation) refreshCongregationMembers(congregation);
 	}
 };
 

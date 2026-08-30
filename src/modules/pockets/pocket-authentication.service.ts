@@ -3,6 +3,7 @@ import type { IncomingHttpHeaders } from 'node:http';
 import { getVisitorSessionDetails } from '../auth/auth.service.js';
 import type { Congregation } from '../congregations/congregation.js';
 import { CongregationsList } from '../congregations/congregations.js';
+import { refreshCongregationMembers } from '../congregations/congregation-members.service.js';
 import type { User } from '../users/user.js';
 import type { UserAuthResponse, UserSession } from '../users/user.types.js';
 import { UsersList } from '../users/users.js';
@@ -112,7 +113,7 @@ export const authenticatePocketInvitation = async ({
 	sessions.push(newSession);
 	await user.updateSessions(sessions);
 
-	void congregation.reloadMembers();
+	refreshCongregationMembers(congregation);
 
 	return {
 		visitorId: authenticatedVisitorId,
