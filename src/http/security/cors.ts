@@ -17,15 +17,19 @@ const normalizePath = (requestUri: string | undefined) => {
 	return requestUri.split(/[?#]/, 1)[0];
 };
 
+export const isTrustedApplicationOrigin = (origin: string | undefined): boolean => {
+	return Boolean(origin && trustedApplicationOrigins.has(origin));
+};
+
 export const isProductionCorsRequestAllowed = (origin: string | undefined, requestPath: string | undefined) => {
 	if (!origin) return false;
-	if (trustedApplicationOrigins.has(origin)) return true;
+	if (isTrustedApplicationOrigin(origin)) return true;
 
 	return crossOriginPublicPaths.has(normalizePath(requestPath));
 };
 
 export const isPasswordlessOriginAllowed = (origin: string, isProduction: boolean): boolean => {
-	if (trustedApplicationOrigins.has(origin)) return true;
+	if (isTrustedApplicationOrigin(origin)) return true;
 	if (isProduction) return false;
 
 	try {

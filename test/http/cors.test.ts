@@ -4,11 +4,14 @@ import { describe, it } from 'node:test';
 import {
 	isPasswordlessOriginAllowed,
 	isProductionCorsRequestAllowed,
+	isTrustedApplicationOrigin,
 } from '../../src/http/security/cors.js';
 
 describe('production CORS policy', () => {
 	it('allows trusted application origins', () => {
 		assert.equal(isProductionCorsRequestAllowed('https://organized-app.com', '/api/v3/users'), true);
+		assert.equal(isTrustedApplicationOrigin('https://organized-app.com'), true);
+		assert.equal(isTrustedApplicationOrigin('https://attacker.example'), false);
 	});
 
 	it('allows the explicitly public cross-origin paths', () => {

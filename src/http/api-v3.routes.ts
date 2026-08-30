@@ -12,6 +12,7 @@ import pocketRoutes from '../modules/pockets/pockets.routes.js';
 import administrationRoutes from '../modules/administration/administration.routes.js';
 
 import { clientVersionChecker } from './middleware/client-version.middleware.js';
+import { requireTrustedBrowserOrigin } from './middleware/trusted-origin.middleware.js';
 import { env } from '../config/env.js';
 
 const apiV3Router = express.Router();
@@ -20,6 +21,9 @@ apiV3Router.use(cookieParser(env.encryptionKey));
 
 // Public endpoints intentionally remain available to clients below the minimum app version.
 apiV3Router.use('/public', publicApiRoutes);
+
+// Public routes stay cross-origin; all session-capable browser routes require a trusted app origin.
+apiV3Router.use(requireTrustedBrowserOrigin());
 
 apiV3Router.use(clientVersionChecker());
 
