@@ -1,6 +1,7 @@
 import express from 'express';
 import { body, header } from 'express-validator';
 import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
+import { requireCurrentUserResource } from '../../http/middleware/user-resource-authorization.middleware.js';
 import {
 	deleteUser,
 	deleteUserSession,
@@ -30,6 +31,9 @@ userRouter.get('/validate-me', validateUser);
 
 // logout current user session
 userRouter.get('/logout', userLogout);
+
+// Every account-scoped endpoint must target the authenticated user.
+userRouter.use('/:id', requireCurrentUserResource);
 
 // request access to a congregation
 userRouter.post(
