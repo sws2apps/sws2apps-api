@@ -1,16 +1,16 @@
 import { LogLevel } from '@logtail/types';
 import { deleteFirebaseAuthUser } from '../../platform/firebase/authentication.js';
-import { deleteFileFromStorage } from '../../platform/firebase/storage.js';
 import { logger } from '../../platform/logging/logger.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from './users.js';
 import { refreshCongregationMembers } from '../congregations/congregation-members.service.js';
+import { deletePersistedUser } from './user-lifecycle.repository.js';
 
 export const deleteUser = async (userId: string): Promise<void> => {
 	const user = UsersList.findById(userId);
 	const congregationId = user?.profile.congregation?.id;
 
-	await deleteFileFromStorage({ type: 'user', path: userId });
+	await deletePersistedUser(userId);
 
 	if (user?.profile.auth_uid) {
 		await deleteFirebaseAuthUser(user.profile.auth_uid);

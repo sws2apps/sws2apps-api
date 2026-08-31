@@ -1,5 +1,8 @@
 import { encryptData } from '../../platform/encryption/encryption.js';
-import { listFilesFromStorage } from '../../platform/firebase/storage.js';
+import {
+	deleteFileFromStorage,
+	listFilesFromStorage,
+} from '../../platform/firebase/storage.js';
 import { User } from './user.js';
 import {
 	getUserFlags,
@@ -21,6 +24,13 @@ import type {
 	UserNewParams,
 	UserProfile,
 } from './user.types.js';
+
+export const deletePersistedUser = async (userId: string): Promise<void> => {
+	await deleteFileFromStorage({
+		type: 'user',
+		path: userId,
+	});
+};
 
 export const getUserIds = async () => {
 	const pattern = '^v3\\/users\\/(.+?)\\/';
@@ -131,4 +141,3 @@ export const createPersistedPocketUser = async ({
 
 	return id;
 };
-

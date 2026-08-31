@@ -1,4 +1,5 @@
 import {
+	deleteFileFromStorage,
 	getFileFromStorage,
 	listFilesFromStorage,
 } from '../../platform/firebase/storage.js';
@@ -26,6 +27,15 @@ import type {
 	CongregationCreateInfoType,
 	CongSettingsType,
 } from './congregations.types.js';
+
+export const deletePersistedCongregation = async (
+	congregationId: string,
+): Promise<void> => {
+	await deleteFileFromStorage({
+		type: 'congregation',
+		path: congregationId,
+	});
+};
 
 export const getCongregationIds = async () => {
 	const pattern = '^v3\\/congregations\\/(.+?)\\/';

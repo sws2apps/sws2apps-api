@@ -1,13 +1,10 @@
 import { LogLevel } from '@logtail/types';
-import { deleteFileFromStorage } from '../../platform/firebase/storage.js';
 import { logger } from '../../platform/logging/logger.js';
 import { CongregationsList } from './congregations.js';
+import { deletePersistedCongregation } from './congregation-lifecycle.repository.js';
 
 export const deleteCongregation = async (congregationId: string): Promise<void> => {
-	await deleteFileFromStorage({
-		type: 'congregation',
-		path: congregationId,
-	});
+	await deletePersistedCongregation(congregationId);
 
 	CongregationsList.removeById(congregationId);
 };
