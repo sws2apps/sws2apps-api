@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
 
 import type { AppRoleType } from '../../domain/users/app-role.js';
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import {
 	AdministrationUserError,
 	assignAdministrationUserCongregation,
@@ -117,8 +116,6 @@ export const userRevokeToken = async (req: Request, res: Response) => {
 };
 
 export const userUpdate = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -181,8 +178,6 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 };
 
 export const userAssignCongregation = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -236,4 +231,5 @@ export const userRemoveCongregation = async (req: Request, res: Response) => {
 	res.locals.message = 'admin removed a user from a congregation';
 	res.status(200).json(result);
 };
+
 

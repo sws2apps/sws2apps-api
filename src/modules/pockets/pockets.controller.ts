@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import { BackupData } from '../backups/backup.types.js';
 import type { StandardRecord } from '../../types/standard-record.js';
@@ -53,9 +52,6 @@ const handlePocketBackupError = (error: unknown, res: Response): boolean => {
 };
 
 export const validateInvitation = async (req: Request, res: Response) => {
-	// validate through express middleware
-	if (rejectInvalidRequest(req, res)) return;
-
 	try {
 		const authentication = await authenticatePocketInvitation({
 			invitationCode: req.body.code as string,
@@ -110,8 +106,6 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 };
 
 export const saveUserBackup = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	try {
 		submitPocketBackup(
 			res.locals.currentUser.id,
@@ -137,8 +131,6 @@ export const getPocketSessions = async (req: Request, res: Response) => {
 };
 
 export const deletePocketSession = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const identifier = req.body.identifier as string;
 
 	const sessions = await revokePocketUserSession(res.locals.currentUser.id, identifier);
@@ -149,8 +141,6 @@ export const deletePocketSession = async (req: Request, res: Response) => {
 };
 
 export const postPocketReport = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	try {
 		submitPocketReport(res.locals.currentUser.id, req.body.report as StandardRecord);
 	} catch (error) {
@@ -198,3 +188,4 @@ export const deletePocketUser = async (req: Request, res: Response) => {
 	res.locals.message = 'user deleted account successfully';
 	res.status(200).json({ message: 'ACCOUNT_DELETED' });
 };
+

@@ -1,13 +1,10 @@
 import { Request, Response } from 'express';
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import {
 	InvalidMfaTokenError,
 	verifyMfaToken,
 } from './mfa.service.js';
 
 export const verifyToken = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	try {
 		const userInfo = await verifyMfaToken({
 			userId: res.locals.currentUser.id,
@@ -27,3 +24,4 @@ export const verifyToken = async (req: Request, res: Response) => {
 		res.status(403).json({ message: 'TOKEN_INVALID' });
 	}
 };
+

@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import {
 	deleteUserAccount,
 	disableUserMfa,
@@ -33,14 +32,6 @@ export const validateUser = async (req: Request, res: Response) => {
 export const getUserSecretToken = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: user id is required`;
-		res.status(400).json({ message: 'USER_ID_INVALID' });
-
-		return;
-	}
-
 	const enrollment = await getUserMfaEnrollment(id);
 
 	res.locals.type = 'info';
@@ -52,12 +43,6 @@ export const getUserSecretToken = async (req: Request, res: Response) => {
 export const getUserSessions = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: user id is required`;
-		res.status(400).json({ message: 'USER_ID_INVALID' });
-	}
-
 	const sessions = getUserActiveSessions(id, req.signedCookies.visitorid);
 
 	res.locals.type = 'info';
@@ -67,15 +52,6 @@ export const getUserSessions = async (req: Request, res: Response) => {
 
 export const deleteUserSession = async (req: Request, res: Response) => {
 	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: user and session id are required`;
-		res.status(400).json({ message: 'USER_ID_INVALID' });
-	}
-
-	if (rejectInvalidRequest(req, res)) return;
-
 	const identifier = req.body.identifier as string;
 
 	const sessions = await revokeUserSession(id, identifier);
@@ -100,14 +76,6 @@ export const userLogout = async (req: Request, res: Response) => {
 export const disableUser2FA = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: user id is required`;
-		res.status(400).json({ message: 'USER_ID_INVALID' });
-
-		return;
-	}
-
 	await disableUserMfa(id);
 
 	res.locals.type = 'info';
@@ -116,17 +84,7 @@ export const disableUser2FA = async (req: Request, res: Response) => {
 };
 
 export const deleteUser = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: user id is required`;
-		res.status(400).json({ message: 'USER_ID_INVALID' });
-
-		return;
-	}
 
 	await deleteUserAccount(id);
 
@@ -134,4 +92,5 @@ export const deleteUser = async (req: Request, res: Response) => {
 	res.locals.message = 'user deleted account successfully';
 	res.status(200).json({ message: 'ACCOUNT_DELETED' });
 };
+
 

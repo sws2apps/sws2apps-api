@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
 
 import type { AppRoleType } from '../../domain/users/app-role.js';
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import {
 	approveCongregationJoinRequest,
 	CongregationJoinRequestError,
@@ -34,8 +33,6 @@ const handleJoinRequestError = (error: unknown, res: Response): boolean => {
 };
 
 export const deleteJoinRequest = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -61,8 +58,6 @@ export const deleteJoinRequest = async (req: Request, res: Response) => {
 };
 
 export const acceptJoinRequest = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -116,4 +111,5 @@ export const acceptJoinRequest = async (req: Request, res: Response) => {
 	res.locals.message = 'congregation admin accepted a join request';
 	res.status(200).json(approval.requests);
 };
+
 

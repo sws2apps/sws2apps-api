@@ -1,6 +1,4 @@
 import type { Request, Response } from 'express';
-
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import {
 	CongregationCreationError,
 	createVerifiedCongregation,
@@ -11,9 +9,8 @@ import {
 } from './congregation-notifications.service.js';
 
 export const createCongregation = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { country_code, country_guid, cong_name, firstname, lastname } = req.body as Record<string, string>;
+
 	const language = (req.headers.language as string) || 'eng';
 	let creation;
 

@@ -3,6 +3,7 @@ import { body } from 'express-validator';
 
 import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
 import { requireGlobalAdministrator } from '../../http/middleware/authorization.middleware.js';
+import { validateRequest } from '../../http/validation-errors.js';
 
 import {
 	congregationDataSyncToggle,
@@ -59,7 +60,7 @@ router.get('/logout', logoutAdmin);
 router.get('/client-version', getClientVersion);
 
 // get minimum client
-router.post('/client-version', body('version').isString().matches(/^\d+(?:\.\d+)*$/), updateClientVersion);
+router.post('/client-version', body('version').isString().matches(/^\d+(?:\.\d+)*$/), validateRequest, updateClientVersion);
 
 // create new congregation
 router.post(
@@ -67,6 +68,7 @@ router.post(
 	body('country').isString(),
 	body('name').notEmpty().isString().notEmpty(),
 	body('number').isNumeric().notEmpty(),
+	validateRequest,
 	createCongregation,
 );
 
@@ -77,7 +79,7 @@ router.get('/congregations', getAllCongregations);
 router.get('/congregations/:id', congregationGet);
 
 // toggle congregation feature flag
-router.patch('/congregations/:id/feature-flags', body('flagid').isString().notEmpty(), congregationFlagToggle);
+router.patch('/congregations/:id/feature-flags', body('flagid').isString().notEmpty(), validateRequest, congregationFlagToggle);
 
 // toggle data sync
 router.patch('/congregations/:id/data-sync', congregationDataSyncToggle);
@@ -88,6 +90,7 @@ router.patch(
 	body('name').notEmpty().isString(),
 	body('number').optional().isString(),
 	body('guid').notEmpty().isString(),
+	validateRequest,
 	updateBasicCongregationInfo,
 );
 
@@ -116,14 +119,15 @@ router.patch(
 	body('firstname').isString(),
 	body('email').isString(),
 	body('roles').isArray({ min: 1 }),
+	validateRequest,
 	userUpdate,
 );
 
 // toggle user feature flag
-router.patch('/users/:id/feature-flags', body('flagid').isString().notEmpty(), userFlagToggle);
+router.patch('/users/:id/feature-flags', body('flagid').isString().notEmpty(), validateRequest, userFlagToggle);
 
 // delete user session
-router.delete('/users/:id/sessions', body('identifiers').isArray({ min: 1 }), userSessionDelete);
+router.delete('/users/:id/sessions', body('identifiers').isArray({ min: 1 }), validateRequest, userSessionDelete);
 
 // remove user congregation
 router.delete('/users/:id/congregation', userRemoveCongregation);
@@ -132,7 +136,7 @@ router.delete('/users/:id/congregation', userRemoveCongregation);
 router.delete('/users/:id', userDelete);
 
 // assign user to congregation
-router.patch('/users/:id/congregation', body('congregation').isString().notEmpty(), userAssignCongregation);
+router.patch('/users/:id/congregation', body('congregation').isString().notEmpty(), validateRequest, userAssignCongregation);
 
 // get all feature flags
 router.get('/flags', flagsGet);
@@ -143,6 +147,7 @@ router.post(
 	body('name').isString().notEmpty(),
 	body('desc').isString().notEmpty(),
 	body('availability').custom(isValidFeatureFlagAvailability),
+	validateRequest,
 	flagsCreate,
 );
 
@@ -155,6 +160,7 @@ router.patch(
 	body('name').isString().notEmpty(),
 	body('description').isString().notEmpty(),
 	body('coverage').isFloat({ min: 0, max: 100 }),
+	validateRequest,
 	flagUpdate,
 );
 
@@ -162,3 +168,4 @@ router.patch(
 router.delete('/flags/:id', flagDelete);
 
 export default router;
+

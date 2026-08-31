@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import {
 	createCongregationPocketUser,
 	deleteCongregationUserPocketCode,
@@ -8,8 +7,6 @@ import {
 import { handleCongregationUserError } from './congregation-administration-user-errors.js';
 
 export const pocketUserAdd = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -46,8 +43,6 @@ export const pocketUserAdd = async (req: Request, res: Response) => {
 };
 
 export const pocketCodeDelete = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id, user } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -83,4 +78,5 @@ export const pocketCodeDelete = async (req: Request, res: Response) => {
 	res.locals.message = 'congregation admin deleted user invitation code';
 	res.status(200).json(congregationMembers);
 };
+
 

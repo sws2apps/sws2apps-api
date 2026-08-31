@@ -6,6 +6,7 @@ import { body, Result, ValidationError } from 'express-validator';
 import {
 	formatError,
 	rejectInvalidRequest,
+	validateRequest,
 } from '../../src/http/validation-errors.js';
 
 describe('validation error formatting', () => {
@@ -76,4 +77,36 @@ describe('invalid request responses', () => {
 		assert.equal(result.getStatusCode(), undefined);
 		assert.equal(result.getResponseBody(), undefined);
 	});
+
+	it('stops middleware chain and sends 400 when validation fails', async () => {
+		const request = { body: { email: 'not-an-email' } } as Request;
+		await body('email').isEmail().run(request);
+		const result = createResponse();
+		let nextCalled = false;
+
+		validateRequest(request, result.response, () => {
+			nextCalled = true;
+		});
+
+		assert.equal(nextCalled, false);
+		assert.equal(result.getStatusCode(), 400);
+		assert.deepEqual(result.getResponseBody(), {
+			message: 'error_api_bad-request',
+		});
+	});
+
+	it('calls next when validation succeeds', async () => {
+		const request = { body: { email: 'person@example.com' } } as Request;
+		await body('email').isEmail().run(request);
+		const result = createResponse();
+		let nextCalled = false;
+
+		validateRequest(request, result.response, () => {
+			nextCalled = true;
+		});
+
+		assert.equal(nextCalled, true);
+		assert.equal(result.getStatusCode(), undefined);
+	});
 });
+

@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import type { BackupData } from '../backups/backup.types.js';
 import { UserBackupError } from './user-backup-context.js';
 import {
@@ -44,17 +43,7 @@ const handleUserBackupError = (error: unknown, res: Response): boolean => {
 };
 
 export const retrieveUserBackup = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: user id is required`;
-		res.status(400).json({ message: 'USER_ID_INVALID' });
-
-		return;
-	}
 
 	let result: BackupData;
 
@@ -71,17 +60,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 };
 
 export const saveUserBackup = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: user id is required`;
-		res.status(400).json({ message: 'USER_ID_INVALID' });
-
-		return;
-	}
 
 	const cong_backup = req.body.cong_backup as BackupData;
 	let outcome;
@@ -112,17 +91,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 };
 
 export const saveUserChunkedBackup = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: user id is required`;
-		res.status(400).json({ message: 'USER_ID_INVALID' });
-
-		return;
-	}
 
 	const uploadId = req.body.uploadId as string;
 	const chunkIndex = req.body.chunkIndex as number;
@@ -181,4 +150,5 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 	res.locals.message = 'congregation backup chunk processed';
 	res.status(200).json({ message: 'BACKUP_CHUNK_RECEIVED' });
 };
+
 

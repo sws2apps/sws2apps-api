@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import {
 	addCongregationUser,
 	findEligibleCongregationUser,
@@ -12,8 +11,6 @@ import {
 import { handleCongregationUserError } from './congregation-administration-user-errors.js';
 
 export const congregationGetUsers = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -42,8 +39,6 @@ export const congregationGetUsers = async (req: Request, res: Response) => {
 };
 
 export const userDetailsUpdate = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id, user } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -90,8 +85,6 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 };
 
 export const globalSearchUser = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -117,8 +110,6 @@ export const globalSearchUser = async (req: Request, res: Response) => {
 };
 
 export const congregationUserAdd = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -155,8 +146,6 @@ export const congregationUserAdd = async (req: Request, res: Response) => {
 };
 
 export const congregationDeleteUser = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id, user } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -194,8 +183,6 @@ export const congregationDeleteUser = async (req: Request, res: Response) => {
 };
 
 export const setAdminUserUid = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -221,4 +208,5 @@ export const setAdminUserUid = async (req: Request, res: Response) => {
 	res.locals.message = 'congregation admin set his user uid';
 	res.status(200).json({ message: 'USER_UID_SET' });
 };
+
 

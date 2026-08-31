@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { FieldValidationError, Result, ValidationError } from 'express-validator';
 
@@ -24,3 +24,9 @@ export const rejectInvalidRequest = (req: Request, res: Response): boolean => {
 
 	return true;
 };
+
+export const validateRequest = (req: Request, res: Response, next: NextFunction): void => {
+	if (rejectInvalidRequest(req, res)) return;
+	next();
+};
+

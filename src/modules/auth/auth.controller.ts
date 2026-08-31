@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import {
 	completeAuthentication,
@@ -65,14 +64,10 @@ const completeTokenAuthentication = async (
 };
 
 export const loginUser = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	await completeTokenAuthentication(req, res, true);
 };
 
 export const createSignInLink = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const email = req.body.email as string;
 	const origin = req.headers.origin as string;
 	const language = (req.headers?.applanguage as string) || 'eng';
@@ -106,14 +101,10 @@ export const createSignInLink = async (req: Request, res: Response) => {
 };
 
 export const verifyPasswordlessInfo = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	await completeTokenAuthentication(req, res, false);
 };
 
 export const verifyEmailToken = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const visitorId = req.signedCookies.visitorid || crypto.randomUUID();
 
 	try {

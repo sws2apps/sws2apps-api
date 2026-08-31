@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import type { OutgoingTalkScheduleType } from '../congregations/congregations.types.js';
 import {
 	approveVisitingSpeakerAccess,
@@ -14,8 +13,6 @@ import {
 } from './meetings.service.js';
 
 const getValidatedCongregationId = (req: Request, res: Response): string | undefined => {
-	if (rejectInvalidRequest(req, res)) return undefined;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -27,6 +24,7 @@ const getValidatedCongregationId = (req: Request, res: Response): string | undef
 
 	return id;
 };
+
 
 const handleMeetingAccessError = (error: unknown, res: Response): boolean => {
 	if (!(error instanceof MeetingAccessError)) return false;

@@ -2,6 +2,7 @@ import express from 'express';
 import { body, header } from 'express-validator';
 import { requirePocketSession } from '../../http/middleware/session-authentication.middleware.js';
 import { REQUEST_LIMITS } from '../../http/request-limits.js';
+import { validateRequest } from '../../http/validation-errors.js';
 import {
 	deletePocketSession,
 	deletePocketUser,
@@ -24,6 +25,7 @@ pocketRouter.post(
 		.isString()
 		.notEmpty()
 		.isLength({ max: REQUEST_LIMITS.securityValue }),
+	validateRequest,
 	validateInvitation,
 );
 
@@ -34,10 +36,16 @@ pocketRouter.use(requirePocketSession());
 pocketRouter.get('/validate-me', validatePocket);
 
 // retrieve user backup
-pocketRouter.get('/backup', header('metadata').isString().notEmpty(), retrieveUserBackup);
+pocketRouter.get('/backup', header('metadata').isString().notEmpty(), validateRequest, retrieveUserBackup);
 
 // send user backup
-pocketRouter.post('/backup', header('metadata').isString().notEmpty(), body('cong_backup').isObject(), saveUserBackup);
+pocketRouter.post(
+	'/backup',
+	header('metadata').isString().notEmpty(),
+	body('cong_backup').isObject(),
+	validateRequest,
+	saveUserBackup,
+);
 
 // get user sessions
 pocketRouter.get('/sessions', getPocketSessions);
@@ -49,19 +57,21 @@ pocketRouter.delete(
 		.isString()
 		.notEmpty()
 		.isLength({ max: REQUEST_LIMITS.identifier }),
+	validateRequest,
 	deletePocketSession,
 );
 
 // post field service report
-pocketRouter.post('/field-service-reports', body('report').isObject().notEmpty(), postPocketReport);
+pocketRouter.post('/field-service-reports', body('report').isObject().notEmpty(), validateRequest, postPocketReport);
 
 // get auxiliary pioneer applications
 pocketRouter.get('/applications', getPocketAuxiliaryApplications);
 
 // submit auxiliary pioneer application
-pocketRouter.post('/applications', body('application').isObject().notEmpty(), submitPocketAuxiliaryApplications);
+pocketRouter.post('/applications', body('application').isObject().notEmpty(), validateRequest, submitPocketAuxiliaryApplications);
 
 // delete pocket user
 pocketRouter.delete('/erase', deletePocketUser);
 
 export default pocketRouter;
+

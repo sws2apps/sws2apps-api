@@ -3,6 +3,7 @@ import { body, header } from 'express-validator';
 import { requireCongregationAdministrator } from '../../http/middleware/authorization.middleware.js';
 import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
 import { REQUEST_LIMITS } from '../../http/request-limits.js';
+import { validateRequest } from '../../http/validation-errors.js';
 import {
 	acceptJoinRequest,
 	deleteJoinRequest,
@@ -37,7 +38,7 @@ congregationAdministrationRouter.use(requireAuthenticatedSession());
 congregationAdministrationRouter.use(requireCongregationAdministrator());
 
 // set congregation master key
-congregationAdministrationRouter.post('/:id/local-uid', body('user_uid').isString().notEmpty(), setAdminUserUid);
+congregationAdministrationRouter.post('/:id/local-uid', body('user_uid').isString().notEmpty(), validateRequest, setAdminUserUid);
 
 // set congregation master key
 congregationAdministrationRouter.post(
@@ -46,6 +47,7 @@ congregationAdministrationRouter.post(
 		min: 16,
 		max: REQUEST_LIMITS.securityValue,
 	}),
+	validateRequest,
 	setCongregationMasterKey,
 );
 
@@ -56,6 +58,7 @@ congregationAdministrationRouter.post(
 		min: 8,
 		max: REQUEST_LIMITS.securityValue,
 	}),
+	validateRequest,
 	setCongregationAccessCode,
 );
 
@@ -76,6 +79,7 @@ congregationAdministrationRouter.post(
 	body('user_id').notEmpty().isString(),
 	body('cong_role').custom(isValidCongregationRoleList),
 	body('cong_person_uid').isString(),
+	validateRequest,
 	congregationUserAdd,
 );
 
@@ -93,6 +97,7 @@ congregationAdministrationRouter.post(
 		.isLength({ max: REQUEST_LIMITS.securityValue }),
 	body('cong_role').custom(isValidCongregationRoleList),
 	body('cong_person_uid').notEmpty().isString(),
+	validateRequest,
 	pocketUserAdd,
 );
 
@@ -104,6 +109,7 @@ congregationAdministrationRouter.patch(
 	body('cong_person_delegates').isArray(),
 	body('first_name').isString(),
 	body('last_name').isString(),
+	validateRequest,
 	userDetailsUpdate,
 );
 
@@ -114,6 +120,7 @@ congregationAdministrationRouter.delete(
 		.isString()
 		.notEmpty()
 		.isLength({ max: REQUEST_LIMITS.identifier }),
+	validateRequest,
 	userSessionDelete,
 );
 
@@ -130,6 +137,7 @@ congregationAdministrationRouter.delete(
 		min: 16,
 		max: REQUEST_LIMITS.securityValue,
 	}),
+	validateRequest,
 	deleteCongregation,
 );
 
@@ -141,6 +149,7 @@ congregationAdministrationRouter.patch(
 	body('person_uid').isString().notEmpty(),
 	body('firstname').isString(),
 	body('lastname').isString(),
+	validateRequest,
 	acceptJoinRequest,
 );
 
@@ -148,7 +157,9 @@ congregationAdministrationRouter.patch(
 congregationAdministrationRouter.delete(
 	'/:id/join-requests',
 	header('user').isString().notEmpty(),
+	validateRequest,
 	deleteJoinRequest,
 );
 
 export default congregationAdministrationRouter;
+

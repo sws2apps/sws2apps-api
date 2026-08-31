@@ -4,6 +4,7 @@ import { MAX_BACKUP_CHUNKS } from '../backups/backup-upload-tracker.js';
 import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
 import { requireCurrentUserResource } from '../../http/middleware/user-resource-authorization.middleware.js';
 import { REQUEST_LIMITS } from '../../http/request-limits.js';
+import { validateRequest } from '../../http/validation-errors.js';
 import {
 	deleteUser,
 	deleteUserSession,
@@ -48,6 +49,7 @@ userRouter.post(
 	body('cong_name').isString().notEmpty(),
 	body('firstname').isString().notEmpty(),
 	body('lastname').isString(),
+	validateRequest,
 	joinCongregation,
 );
 
@@ -67,6 +69,7 @@ userRouter.delete(
 		.isString()
 		.notEmpty()
 		.isLength({ max: REQUEST_LIMITS.identifier }),
+	validateRequest,
 	deleteUserSession,
 );
 
@@ -74,13 +77,13 @@ userRouter.delete(
 userRouter.get('/:id/applications', getAuxiliaryApplications);
 
 // submit auxiliary pioneer application
-userRouter.post('/:id/applications', body('application').isObject().notEmpty(), submitAuxiliaryApplication);
+userRouter.post('/:id/applications', body('application').isObject().notEmpty(), validateRequest, submitAuxiliaryApplication);
 
 // post field service report
-userRouter.post('/:id/field-service-reports', body('report').isObject().notEmpty(), postUserReport);
+userRouter.post('/:id/field-service-reports', body('report').isObject().notEmpty(), validateRequest, postUserReport);
 
 // retrieve congregation backup
-userRouter.get('/:id/backup', header('metadata').isString().notEmpty(), retrieveUserBackup);
+userRouter.get('/:id/backup', header('metadata').isString().notEmpty(), validateRequest, retrieveUserBackup);
 
 // save congregation backup in chunk
 userRouter.post(
@@ -93,11 +96,12 @@ userRouter.post(
 	body('chunkIndex').isInt({ min: 0 }).toInt(),
 	body('totalChunks').isInt({ min: 1, max: MAX_BACKUP_CHUNKS }).toInt(),
 	body('chunkData').isString().notEmpty(),
+	validateRequest,
 	saveUserChunkedBackup,
 );
 
 // save congregation backup
-userRouter.post('/:id/backup', body('cong_backup').isObject(), saveUserBackup);
+userRouter.post('/:id/backup', body('cong_backup').isObject(), validateRequest, saveUserBackup);
 
 // get user updates
 userRouter.get('/:id/updates-routine', getUserUpdates);
@@ -113,6 +117,7 @@ userRouter.post(
 		.isString()
 		.notEmpty()
 		.isLength({ max: REQUEST_LIMITS.messageBody }),
+	validateRequest,
 	userPostFeedback,
 );
 
@@ -120,3 +125,4 @@ userRouter.post(
 userRouter.delete('/:id/erase', deleteUser);
 
 export default userRouter;
+

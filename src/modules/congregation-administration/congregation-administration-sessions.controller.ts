@@ -1,13 +1,11 @@
 import type { Request, Response } from 'express';
 
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import { revokeCongregationUserSession } from './congregation-administration-users.service.js';
 import { handleCongregationUserError } from './congregation-administration-user-errors.js';
 
 export const userSessionDelete = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id, user } = req.params;
+
 
 	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';

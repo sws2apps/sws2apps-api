@@ -2,6 +2,7 @@ import express from 'express';
 import { body } from 'express-validator';
 import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
 import { REQUEST_LIMITS } from '../../http/request-limits.js';
+import { validateRequest } from '../../http/validation-errors.js';
 import {
 	requireMeetingEditor,
 	requirePublicTalkCoordinator,
@@ -27,6 +28,7 @@ meetingRouter.post(
 	body('sources').isArray().notEmpty(),
 	body('schedules').isArray().notEmpty(),
 	body('talks').optional().isArray(),
+	validateRequest,
 	publishSchedules,
 );
 
@@ -49,6 +51,7 @@ meetingRouter.post(
 		.isString()
 		.notEmpty()
 		.isLength({ max: REQUEST_LIMITS.securityValue }),
+	validateRequest,
 	requestAccessSpeakersCongregation,
 );
 
@@ -64,6 +67,7 @@ meetingRouter.post(
 		.isString()
 		.notEmpty()
 		.isLength({ max: REQUEST_LIMITS.securityValue }),
+	validateRequest,
 	approveVisitingSpeakersAccess,
 );
 
@@ -73,7 +77,9 @@ meetingRouter.post(
 		.isString()
 		.notEmpty()
 		.isLength({ max: REQUEST_LIMITS.identifier }),
+	validateRequest,
 	rejectVisitingSpeakersAccess,
 );
 
 export default meetingRouter;
+

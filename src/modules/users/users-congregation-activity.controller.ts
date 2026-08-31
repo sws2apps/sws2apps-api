@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import {
 	getUserAuxiliaryApplications,
@@ -32,17 +31,7 @@ const handleUserCongregationActivityError = (
 };
 
 export const getAuxiliaryApplications = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: user id is required`;
-		res.status(400).json({ message: 'USER_ID_INVALID' });
-
-		return;
-	}
 
 	let results;
 
@@ -59,17 +48,7 @@ export const getAuxiliaryApplications = async (req: Request, res: Response) => {
 };
 
 export const submitAuxiliaryApplication = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: user id is required`;
-		res.status(400).json({ message: 'USER_ID_INVALID' });
-
-		return;
-	}
 
 	try {
 		submitUserAuxiliaryApplication(id, req.body.application as StandardRecord);
@@ -84,17 +63,7 @@ export const submitAuxiliaryApplication = async (req: Request, res: Response) =>
 };
 
 export const postUserReport = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: user id is required`;
-		res.status(400).json({ message: 'USER_ID_INVALID' });
-
-		return;
-	}
 
 	try {
 		submitUserFieldServiceReport(id, req.body.report as StandardRecord);
@@ -109,17 +78,7 @@ export const postUserReport = async (req: Request, res: Response) => {
 };
 
 export const getUserUpdates = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: user id is required`;
-		res.status(400).json({ message: 'USER_ID_INVALID' });
-
-		return;
-	}
 
 	let result;
 
@@ -146,18 +105,7 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 };
 
 export const userPostFeedback = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: user id is required`;
-		res.status(400).json({ message: 'USER_ID_INVALID' });
-
-		return;
-	}
-
 	const { subject, message } = req.body;
 
 	try {
@@ -183,15 +131,7 @@ export const userPostFeedback = async (req: Request, res: Response) => {
 };
 
 export const joinCongregation = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = `invalid input: user id are required`;
-		res.status(400).json({ message: 'USER_ID_INVALID' });
-	}
 
 	const outcome = await requestCongregationMembership(id, {
 		countryCode: req.body.country_code as string,
@@ -211,4 +151,5 @@ export const joinCongregation = async (req: Request, res: Response) => {
 	res.locals.message = `user request to join a congregation`;
 	res.status(200).json({ message: 'REQUEST_SENT' });
 };
+
 

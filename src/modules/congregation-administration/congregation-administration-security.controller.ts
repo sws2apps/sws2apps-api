@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import {
 	CongregationAdministrationSecurityError,
 	deleteAuthorizedCongregation,
@@ -33,8 +32,6 @@ const handleCongregationSecurityError = (error: unknown, res: Response): boolean
 };
 
 export const setCongregationMasterKey = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -62,8 +59,6 @@ export const setCongregationMasterKey = async (req: Request, res: Response) => {
 };
 
 export const setCongregationAccessCode = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -91,8 +86,6 @@ export const setCongregationAccessCode = async (req: Request, res: Response) => 
 };
 
 export const congregationMasterKeyGet = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -117,8 +110,6 @@ export const congregationMasterKeyGet = async (req: Request, res: Response) => {
 };
 
 export const congregationAccessCodeGet = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -143,8 +134,6 @@ export const congregationAccessCodeGet = async (req: Request, res: Response) => 
 };
 
 export const deleteCongregation = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -170,4 +159,5 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 	res.locals.message = 'congregation admin deleted congregation';
 	res.status(200).json({ message: 'CONGREGATION_DELETED' });
 };
+
 

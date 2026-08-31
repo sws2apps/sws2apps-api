@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import type { FeatureFlag } from '../feature-flags/feature-flag.js';
 import {
 	AdministrationFlagError,
@@ -44,8 +43,6 @@ export const flagsGet = async (_req: Request, res: Response) => {
 };
 
 export const flagsCreate = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const name = req.body.name as string;
 	const description = req.body.desc as string;
 	const availability = req.body.availability as FeatureFlag['availability'];
@@ -74,8 +71,6 @@ export const flagDelete = async (req: Request, res: Response) => {
 };
 
 export const flagUpdate = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
@@ -104,8 +99,6 @@ export const flagUpdate = async (req: Request, res: Response) => {
 };
 
 export const flagToggle = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
@@ -128,8 +121,6 @@ export const flagToggle = async (req: Request, res: Response) => {
 };
 
 export const userFlagToggle = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
@@ -152,8 +143,6 @@ export const userFlagToggle = async (req: Request, res: Response) => {
 };
 
 export const congregationFlagToggle = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 	if (!id || id === 'undefined') {
 		res.locals.type = 'warn';
@@ -174,3 +163,4 @@ export const congregationFlagToggle = async (req: Request, res: Response) => {
 	res.locals.message = 'admin updated congregation feature toggle';
 	res.status(200).json(result);
 };
+

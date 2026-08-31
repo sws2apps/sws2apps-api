@@ -5,12 +5,14 @@ import { validateBearerAuthorization } from '../../http/security/bearer-token.js
 import { isPasswordlessOriginAllowed } from '../../http/security/cors.js';
 import { env } from '../../config/env.js';
 import { REQUEST_LIMITS } from '../../http/request-limits.js';
+import { validateRequest } from '../../http/validation-errors.js';
 
 const authRouter = express.Router();
 
 authRouter.get(
 	'/user-login',
 	header('Authorization').exists().notEmpty().isString().custom(validateBearerAuthorization),
+	validateRequest,
 	loginUser,
 );
 
@@ -23,12 +25,14 @@ authRouter.post(
 		require_tld: false,
 	}).custom((origin: string) => isPasswordlessOriginAllowed(origin, env.isProduction)),
 	header('applanguage').optional().isString().isLength({ min: 2, max: 10 }),
+	validateRequest,
 	createSignInLink,
 );
 
 authRouter.post(
 	'/user-passwordless-verify',
 	header('Authorization').exists().notEmpty().isString().custom(validateBearerAuthorization),
+	validateRequest,
 	verifyPasswordlessInfo,
 );
 
@@ -36,7 +40,9 @@ authRouter.post(
 	'/verify-email-token',
 	body('email').isEmail().isLength({ max: REQUEST_LIMITS.email }),
 	body('token').isNumeric().isLength({ min: 6, max: 6 }),
+	validateRequest,
 	verifyEmailToken,
 );
 
 export default authRouter;
+

@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 
-import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import {
 	AdministrationCongregationError,
 	createAdministrationCongregation,
@@ -126,8 +125,6 @@ export const congregationDataSyncToggle = async (req: Request, res: Response) =>
 };
 
 export const createCongregation = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { country, name } = req.body as Record<string, string>;
 
 	let result;
@@ -192,8 +189,6 @@ export const congregationResetSpeakersKey = async (req: Request, res: Response) 
 };
 
 export const updateBasicCongregationInfo = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
@@ -223,4 +218,5 @@ export const updateBasicCongregationInfo = async (req: Request, res: Response) =
 	res.locals.message = 'admin updated basic congregation information';
 	res.status(200).json(result);
 };
+
 
