@@ -3,6 +3,8 @@ import type { OutgoingTalkScheduleType } from '../congregations/congregations.ty
 import {
 	getPublicSchedulesMetadata,
 	getPublicSourcesMetadata,
+} from '../congregations/congregation-metadata.repository.js';
+import {
 	setCongPublicOutgoingTalks,
 	setCongPublicSchedules,
 	setCongPublicSources,

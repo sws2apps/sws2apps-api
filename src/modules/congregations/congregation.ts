@@ -8,9 +8,6 @@ import {
 import {
 	getBranchCongAnalysisMetadata,
 	getBranchFieldServiceReportsMetadata,
-	getCongDetails,
-	getCongPersons,
-	getCongregationData,
 	getFieldServiceGroupsMetadata,
 	getFieldServiceReportsMetadata,
 	getIncomingReportsMetadata,
@@ -22,6 +19,11 @@ import {
 	getSpeakersCongregationsMetadata,
 	getUpcomingEventsMetadata,
 	getVisitingSpeakersMetadata,
+} from './congregation-metadata.repository.js';
+import {
+	getCongDetails,
+	getCongPersons,
+	getCongregationData,
 	setBranchCongAnalysis,
 	setBranchFieldServiceReports,
 	setCongFieldServiceGroups,
