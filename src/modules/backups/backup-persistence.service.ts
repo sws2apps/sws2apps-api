@@ -1,13 +1,12 @@
 import { LogLevel } from '@logtail/types';
 
 import { logger } from '../../platform/logging/logger.js';
-import { backupUploadsInProgress } from '../../platform/runtime/backup-uploads.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { UsersList } from '../users/users.js';
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import { BackupData } from './backup.types.js';
-import { findBackupUploadByCongregation } from './backup-upload-tracker.js';
+import { discardBackupUpload } from './backup-upload-tracker.js';
 import { updateUserCongregationPersonData } from '../users/users-congregation-activity.service.js';
 import { applyUserBackup } from '../users/user-backup-application.service.js';
 import { saveCongregationBackup } from './congregation-backup.service.js';
@@ -17,11 +16,13 @@ export const saveUserBackupAsync = async ({
 	cong_backup,
 	userId,
 	userRole,
+	uploadId,
 }: {
 	congId: string;
 	userId: string;
 	userRole: AppRoleType[];
 	cong_backup: BackupData;
+	uploadId?: string;
 }) => {
 	try {
 		const adminRole = userRole.some(
@@ -52,14 +53,10 @@ export const saveUserBackupAsync = async ({
 
 		await applyUserBackup(user, cong_backup, userRole);
 
-		const currentUpload = findBackupUploadByCongregation(congId);
-
-		if (currentUpload) {
-			clearTimeout(currentUpload.record.timeout);
-			backupUploadsInProgress.delete(currentUpload.uploadId);
-		}
 	} catch {
 		logger(LogLevel.Error, 'congregation backup could not be saved');
+	} finally {
+		if (uploadId) discardBackupUpload(uploadId);
 	}
 };
 

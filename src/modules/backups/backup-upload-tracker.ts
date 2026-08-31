@@ -82,6 +82,17 @@ export const findBackupUploadByCongregation = (
 	return undefined;
 };
 
+export const discardBackupUpload = (
+	uploadId: string,
+	uploads: Map<string, BackupForStorage> = backupUploadsInProgress,
+): boolean => {
+	const upload = uploads.get(uploadId);
+	if (!upload) return false;
+
+	clearTimeout(upload.timeout);
+	return uploads.delete(uploadId);
+};
+
 export const recordBackupUploadChunk = (
 	chunk: BackupUploadChunk,
 	dependencies: BackupUploadTrackerDependencies = {},

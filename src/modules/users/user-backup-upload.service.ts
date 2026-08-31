@@ -1,5 +1,6 @@
 import {
 	BackupUploadChunkError,
+	discardBackupUpload,
 	findBackupUploadByCongregation,
 	recordBackupUploadChunk,
 } from '../backups/backup-upload-tracker.js';
@@ -168,6 +169,8 @@ export const saveUserChunkedBackup = async (
 	try {
 		congregationBackup = parseBackupPayload(completedBackup);
 	} catch (error) {
+		discardBackupUpload(chunk.uploadId);
+
 		if (error instanceof BackupPayloadError) {
 			throw new UserBackupError('INVALID_BACKUP');
 		}
@@ -181,6 +184,7 @@ export const saveUserChunkedBackup = async (
 		userId: user.id,
 		userRole,
 		cong_backup: congregationBackup,
+		uploadId: chunk.uploadId,
 	});
 
 	return { status: 'saved' };

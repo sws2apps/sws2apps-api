@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 
 import {
 	BackupUploadChunkError,
+	discardBackupUpload,
 	findBackupUploadByCongregation,
 	MAX_BACKUP_CHUNKS,
 	recordBackupUploadChunk,
@@ -48,6 +49,15 @@ describe('backup upload tracker', () => {
 		const result = findBackupUploadByCongregation('congregation-1', new Map());
 
 		assert.equal(result, undefined);
+	});
+
+	it('discards an upload and cancels its expiry timer', () => {
+		const upload = createUpload('congregation-1');
+		const uploads = new Map([['upload-1', upload]]);
+
+		assert.equal(discardBackupUpload('upload-1', uploads), true);
+		assert.equal(uploads.has('upload-1'), false);
+		assert.equal(discardBackupUpload('upload-1', uploads), false);
 	});
 
 	it('tracks chunks and returns the assembled backup when complete', () => {
