@@ -24,21 +24,6 @@ import {
 } from './administration-users.service.js';
 import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import type { AppRoleType } from '../../domain/users/app-role.js';
-import type { FeatureFlag } from '../feature-flags/feature-flag.js';
-import {
-	createAdministrationFlag,
-	AdministrationFlagError,
-	deleteAdministrationFlag,
-	getAdministrationFlags,
-	toggleAdministrationFlag,
-	toggleCongregationFlag,
-	toggleUserFlag,
-	updateAdministrationFlag,
-} from './administration-flags.service.js';
-import {
-	getMinimumClientVersion,
-	updateMinimumClientVersion,
-} from './administration-settings.service.js';
 
 const handleAdministrationUserError = (error: unknown, res: Response): boolean => {
 	if (!(error instanceof AdministrationUserError)) return false;
@@ -94,27 +79,6 @@ const handleAdministrationCongregationError = (
 	return true;
 };
 
-const handleAdministrationFlagError = (error: unknown, res: Response): boolean => {
-	if (!(error instanceof AdministrationFlagError)) return false;
-
-	res.locals.type = 'warn';
-
-	if (error.code === 'USER_NOT_FOUND') {
-		res.locals.message = 'no user could not be found with the provided id';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
-		return true;
-	}
-
-	if (error.code === 'CONGREGATION_NOT_FOUND') {
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'CONG_NOT_FOUND' });
-		return true;
-	}
-
-	res.locals.message = 'no flag could not be found with the provided id';
-	res.status(404).json({ message: 'FLAG_NOT_FOUND' });
-	return true;
-};
 
 export const validateAdmin = async (req: Request, res: Response) => {
 	res.locals.type = 'info';
@@ -334,156 +298,6 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 	res.status(200).json(result);
 };
 
-export const flagsGet = async (req: Request, res: Response) => {
-        const result = getAdministrationFlags();
-
-	res.locals.type = 'info';
-	res.locals.message = 'admin fetched all feature flags';
-	res.status(200).json(result);
-};
-
-export const flagsCreate = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
-	const name = req.body.name as string;
-	const desc = req.body.desc as string;
-	const availability = req.body.availability as FeatureFlag['availability'];
-
-	const result = await createAdministrationFlag(name, desc, availability);
-
-	res.locals.type = 'info';
-	res.locals.message = 'admin created new feature flag';
-	res.status(200).json(result);
-};
-
-export const flagDelete = async (req: Request, res: Response) => {
-	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the flag request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
-
-		return;
-	}
-
-	const result = await deleteAdministrationFlag(id);
-
-	res.locals.type = 'info';
-	res.locals.message = 'admin deleted a feature flag';
-	res.status(200).json(result);
-};
-
-export const flagUpdate = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
-	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the flag request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
-
-		return;
-	}
-
-	const name = req.body.name as string;
-	const description = req.body.description as string;
-	const coverage = req.body.coverage as number;
-	const result = await updateAdministrationFlag(id, name, description, coverage);
-
-	if (!result) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no flag could not be found with the provided id';
-		res.status(404).json({ message: 'FLAG_NOT_FOUND' });
-		return;
-	}
-
-	res.locals.type = 'info';
-	res.locals.message = 'admin updated a feature flag';
-	res.status(200).json(result);
-};
-
-export const flagToggle = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
-	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the flag request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
-
-		return;
-	}
-
-	const result = await toggleAdministrationFlag(id);
-
-	if (!result) {
-		res.locals.type = 'warn';
-		res.locals.message = 'no flag could not be found with the provided id';
-		res.status(404).json({ message: 'FLAG_NOT_FOUND' });
-		return;
-	}
-
-	res.locals.type = 'info';
-	res.locals.message = 'admin updated feature flag status';
-	res.status(200).json(result);
-};
-
-export const userFlagToggle = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
-	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the user request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
-
-		return;
-	}
-
-	const flagid = req.body.flagid as string;
-	let result;
-	try {
-		result = await toggleUserFlag(id, flagid);
-	} catch (error) {
-		if (!handleAdministrationFlagError(error, res)) throw error;
-		return;
-	}
-
-	res.locals.type = 'info';
-	res.locals.message = 'admin updated user feature toggle';
-	res.status(200).json(result);
-};
-
-export const congregationFlagToggle = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
-	const { id } = req.params;
-
-	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the user request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
-
-		return;
-	}
-
-	const flagid = req.body.flagid as string;
-	let result;
-	try {
-		result = await toggleCongregationFlag(id, flagid);
-	} catch (error) {
-		if (!handleAdministrationFlagError(error, res)) throw error;
-		return;
-	}
-
-	res.locals.type = 'info';
-	res.locals.message = 'admin updated congregation feature toggle';
-	res.status(200).json(result);
-};
 
 export const congregationDataSyncToggle = async (req: Request, res: Response) => {
 	const { id } = req.params;
@@ -663,22 +477,4 @@ export const updateBasicCongregationInfo = async (req: Request, res: Response) =
 	res.locals.type = 'info';
 	res.locals.message = 'admin updated basic congregation information';
 	res.status(200).json(result);
-};
-
-export const getClientVersion = async (req: Request, res: Response) => {
-	res.locals.type = 'info';
-	res.locals.message = 'admin fetched minimum client';
-	res.status(200).json({ version: getMinimumClientVersion() });
-};
-
-export const updateClientVersion = async (req: Request, res: Response) => {
-	if (rejectInvalidRequest(req, res)) return;
-
-	const version = req.body.version as string;
-
-	const updatedVersion = await updateMinimumClientVersion(version);
-
-	res.locals.type = 'info';
-	res.locals.message = 'admin updated minimum client';
-	res.status(200).json({ version: updatedVersion });
 };

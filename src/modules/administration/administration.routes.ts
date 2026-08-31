@@ -7,25 +7,16 @@ import { requireGlobalAdministrator } from '../../http/middleware/authorization.
 import {
 	congregationDataSyncToggle,
 	congregationDeleteRequest,
-	congregationFlagToggle,
 	congregationGet,
 	congregationResetSpeakersKey,
 	createCongregation,
 	deleteCongregation,
-	flagDelete,
-	flagsCreate,
-	flagsGet,
-	flagToggle,
-	flagUpdate,
 	getAllCongregations,
-	getClientVersion,
 	logoutAdmin,
 	updateBasicCongregationInfo,
-	updateClientVersion,
 	userAssignCongregation,
 	userDelete,
 	userDisable2FA,
-	userFlagToggle,
 	userRemoveCongregation,
 	userRevokeToken,
 	userSessionDelete,
@@ -33,6 +24,19 @@ import {
 	userUpdate,
 	validateAdmin,
 } from './administration.controller.js';
+import {
+	congregationFlagToggle,
+	flagDelete,
+	flagsCreate,
+	flagsGet,
+	flagToggle,
+	flagUpdate,
+	userFlagToggle,
+} from './administration-flags.controller.js';
+import {
+	getClientVersion,
+	updateClientVersion,
+} from './administration-settings.controller.js';
 import { isValidFeatureFlagAvailability } from './feature-flag-validation.js';
 
 const router = express.Router();
