@@ -1,7 +1,18 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { isEmailOneTimePasswordValid } from '../../../src/modules/auth/email-otp.js';
+import {
+	generateEmailOneTimePassword,
+	isEmailOneTimePasswordValid,
+} from '../../../src/modules/auth/email-otp.js';
+
+describe('email one-time password generation', () => {
+	it('generates fixed-length numeric codes', () => {
+		for (let attempt = 0; attempt < 100; attempt++) {
+			assert.match(generateEmailOneTimePassword(), /^\d{6}$/);
+		}
+	});
+});
 
 describe('email one-time password validation', () => {
 	const oneTimePassword = {

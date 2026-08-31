@@ -5,7 +5,6 @@ import {
 	getFirebaseUserDisplayName,
 	verifyFirebaseIdToken,
 } from '../../platform/firebase/authentication.js';
-import randomstring from 'randomstring';
 import type { IncomingHttpHeaders } from 'node:http';
 import { env } from '../../config/env.js';
 import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
@@ -20,7 +19,10 @@ import {
 	isPasswordlessEmailEnabled,
 	sendPasswordlessLoginEmail,
 } from './auth-notifications.service.js';
-import { isEmailOneTimePasswordValid } from './email-otp.js';
+import {
+	generateEmailOneTimePassword,
+	isEmailOneTimePasswordValid,
+} from './email-otp.js';
 
 export type AuthenticationErrorCode = 'USER_NOT_FOUND' | 'OTP_NOT_FOUND' | 'INVALID_OTP';
 
@@ -95,7 +97,7 @@ export const createPasswordlessSignIn = async (request: PasswordlessSignInReques
 		: true;
 
 	if (oneTimePasswordExpired) {
-		oneTimePassword = randomstring.generate({ length: 6, charset: ['numeric'] });
+		oneTimePassword = generateEmailOneTimePassword();
 
 		const profile = structuredClone(user.profile);
 		profile.email_otp = {

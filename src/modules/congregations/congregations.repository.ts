@@ -1,5 +1,4 @@
 import { getStorage } from 'firebase-admin/storage';
-import randomstring from 'randomstring';
 import { LogLevel } from '@logtail/types';
 import type { StandardRecord } from '../../types/standard-record.js';
 import {
@@ -18,6 +17,10 @@ import {
 import { decryptData } from '../../platform/encryption/encryption.js';
 import { Congregation } from './congregation.js';
 import { logger } from '../../platform/logging/logger.js';
+import {
+	generateSecureRandomString,
+	UPPERCASE_ALPHANUMERIC_CHARACTERS,
+} from '../../platform/security/secure-random-string.js';
 
 export const getCongsID = async () => {
 	const pattern = '^v3\\/congregations\\/(.+?)\\/';
@@ -423,7 +426,7 @@ export const createCongregation = async (data: CongregationCreateInfoType) => {
 		country_code: data.country_code,
 		country_guid: data.country_guid,
 		cong_guid: data.cong_guid,
-		cong_prefix: randomstring.generate(8).toUpperCase(),
+		cong_prefix: generateSecureRandomString(8, UPPERCASE_ALPHANUMERIC_CHARACTERS),
 		cong_name: data.cong_name,
 		cong_number: { value: '', updatedAt: '' },
 		cong_discoverable: { value: false, updatedAt: new Date().toISOString() },
