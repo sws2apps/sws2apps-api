@@ -17,6 +17,7 @@ const createUpload = (congregationId: string): BackupForStorage => {
 		chunks: [],
 		totalChunks: 2,
 		received: 1,
+		receivedBytes: 0,
 		timeout,
 		userId: 'user-1',
 		congregationId,
@@ -71,6 +72,7 @@ describe('backup upload tracker', () => {
 		assert.equal(firstResult, undefined);
 		assert.equal(completedResult, '{"value":true}');
 		assert.equal(uploads.get('upload-1')?.received, 2);
+		assert.equal(uploads.get('upload-1')?.receivedBytes, 14);
 
 		clearTimeout(uploads.get('upload-1')?.timeout);
 	});
@@ -142,5 +144,63 @@ describe('backup upload tracker', () => {
 		);
 
 		clearTimeout(upload.timeout);
+	});
+
+	it('rejects chunks and uploads that exceed their byte budgets', () => {
+		const uploads = new Map<string, BackupForStorage>();
+		const log = () => undefined;
+		const chunk = {
+			uploadId: 'upload-1',
+			chunkIndex: 0,
+			totalChunks: 2,
+			chunkData: '12345',
+			userId: 'user-1',
+			congregationId: 'congregation-1',
+		};
+
+		assert.throws(
+			() => recordBackupUploadChunk(chunk, { uploads, log, maxChunkBytes: 4 }),
+			BackupUploadChunkError,
+		);
+
+		recordBackupUploadChunk(chunk, {
+			uploads,
+			log,
+			maxChunkBytes: 5,
+			maxUploadBytes: 8,
+		});
+
+		assert.throws(
+			() => recordBackupUploadChunk(
+				{ ...chunk, chunkIndex: 1, chunkData: '6789' },
+				{ uploads, log, maxChunkBytes: 5, maxUploadBytes: 8 },
+			),
+			BackupUploadChunkError,
+		);
+		assert.equal(uploads.get('upload-1')?.receivedBytes, 5);
+
+		clearTimeout(uploads.get('upload-1')?.timeout);
+	});
+
+	it('limits the number of uploads retained at the same time', () => {
+		const existingUpload = createUpload('congregation-1');
+		const uploads = new Map([['existing-upload', existingUpload]]);
+
+		assert.throws(
+			() => recordBackupUploadChunk(
+				{
+					uploadId: 'new-upload',
+					chunkIndex: 0,
+					totalChunks: 1,
+					chunkData: '{}',
+					userId: 'user-2',
+					congregationId: 'congregation-2',
+				},
+				{ uploads, log: () => undefined, maxActiveUploads: 1 },
+			),
+			BackupUploadChunkError,
+		);
+
+		clearTimeout(existingUpload.timeout);
 	});
 });

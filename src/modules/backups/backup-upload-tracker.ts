@@ -17,10 +17,16 @@ type BackupUploadChunk = {
 type BackupUploadTrackerDependencies = {
 	uploads?: Map<string, BackupForStorage>;
 	uploadExpiry?: number;
+	maxChunkBytes?: number;
+	maxUploadBytes?: number;
+	maxActiveUploads?: number;
 	log?: typeof logger;
 };
 
 export const MAX_BACKUP_CHUNKS = 1_000;
+export const MAX_BACKUP_CHUNK_BYTES = 2_621_440;
+export const MAX_BACKUP_UPLOAD_BYTES = 104_857_600;
+export const MAX_ACTIVE_BACKUP_UPLOADS = 10;
 
 export class BackupUploadChunkError extends Error {
 	constructor() {
@@ -32,6 +38,9 @@ export class BackupUploadChunkError extends Error {
 const validateBackupUploadChunk = (
 	chunk: BackupUploadChunk,
 	existingUpload: BackupForStorage | undefined,
+	chunkBytes: number,
+	maxChunkBytes: number,
+	maxUploadBytes: number,
 ): void => {
 	const coordinatesAreValid =
 		Number.isInteger(chunk.chunkIndex) &&
@@ -40,9 +49,13 @@ const validateBackupUploadChunk = (
 		chunk.totalChunks <= MAX_BACKUP_CHUNKS &&
 		chunk.chunkIndex >= 0 &&
 		chunk.chunkIndex < chunk.totalChunks &&
-		chunk.chunkData.length > 0;
+		chunkBytes > 0 &&
+		chunkBytes <= maxChunkBytes;
 
 	if (!coordinatesAreValid) throw new BackupUploadChunkError();
+	if ((existingUpload?.receivedBytes ?? 0) + chunkBytes > maxUploadBytes) {
+		throw new BackupUploadChunkError();
+	}
 	if (!existingUpload) return;
 
 	const uploadMatches =
@@ -75,6 +88,9 @@ export const recordBackupUploadChunk = (
 ): string | undefined => {
 	const uploads = dependencies.uploads ?? backupUploadsInProgress;
 	const uploadExpiry = dependencies.uploadExpiry ?? BACKUP_EXPIRY;
+	const maxChunkBytes = dependencies.maxChunkBytes ?? MAX_BACKUP_CHUNK_BYTES;
+	const maxUploadBytes = dependencies.maxUploadBytes ?? MAX_BACKUP_UPLOAD_BYTES;
+	const maxActiveUploads = dependencies.maxActiveUploads ?? MAX_ACTIVE_BACKUP_UPLOADS;
 	const log = dependencies.log ?? logger;
 
 	const expireUpload = () => {
@@ -83,13 +99,23 @@ export const recordBackupUploadChunk = (
 	};
 
 	let upload = uploads.get(chunk.uploadId);
-	validateBackupUploadChunk(chunk, upload);
+	const chunkBytes = Buffer.byteLength(chunk.chunkData, 'utf8');
+	validateBackupUploadChunk(
+		chunk,
+		upload,
+		chunkBytes,
+		maxChunkBytes,
+		maxUploadBytes,
+	);
 
 	if (!upload) {
+		if (uploads.size >= maxActiveUploads) throw new BackupUploadChunkError();
+
 		upload = {
 			chunks: new Array<string>(chunk.totalChunks).fill(''),
 			totalChunks: chunk.totalChunks,
 			received: 0,
+			receivedBytes: 0,
 			userId: chunk.userId,
 			congregationId: chunk.congregationId,
 			timeout: setTimeout(expireUpload, uploadExpiry),
@@ -103,6 +129,7 @@ export const recordBackupUploadChunk = (
 
 	upload.chunks[chunk.chunkIndex] = chunk.chunkData;
 	upload.received++;
+	upload.receivedBytes += chunkBytes;
 
 	log(
 		LogLevel.Info,

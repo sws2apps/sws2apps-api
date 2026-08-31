@@ -36,6 +36,7 @@ export type BackupForStorage = {
 	chunks: string[];
 	totalChunks: number;
 	received: number;
+	receivedBytes: number;
 	timeout: NodeJS.Timeout;
 	userId: string;
 	congregationId: string;
