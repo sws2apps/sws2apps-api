@@ -2,6 +2,7 @@ import express from 'express';
 import { body, header } from 'express-validator';
 import { requireCongregationAdministrator } from '../../http/middleware/authorization.middleware.js';
 import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
+import { REQUEST_LIMITS } from '../../http/request-limits.js';
 import {
 	setCongregationMasterKey,
 	setCongregationAccessCode,
@@ -33,14 +34,20 @@ congregationAdministrationRouter.post('/:id/local-uid', body('user_uid').isStrin
 // set congregation master key
 congregationAdministrationRouter.post(
 	'/:id/master-key',
-	body('cong_master_key').isString().notEmpty().isLength({ min: 16 }),
+	body('cong_master_key').isString().notEmpty().isLength({
+		min: 16,
+		max: REQUEST_LIMITS.securityValue,
+	}),
 	setCongregationMasterKey,
 );
 
 // set congregation access_code
 congregationAdministrationRouter.post(
 	'/:id/access-code',
-	body('cong_access_code').isString().notEmpty().isLength({ min: 8 }),
+	body('cong_access_code').isString().notEmpty().isLength({
+		min: 8,
+		max: REQUEST_LIMITS.securityValue,
+	}),
 	setCongregationAccessCode,
 );
 
@@ -72,7 +79,10 @@ congregationAdministrationRouter.post(
 	'/:id/pocket-user',
 	body('user_firstname').notEmpty().isString(),
 	body('user_lastname').notEmpty().isString(),
-	body('user_secret_code').notEmpty().isString(),
+	body('user_secret_code')
+		.notEmpty()
+		.isString()
+		.isLength({ max: REQUEST_LIMITS.securityValue }),
 	body('cong_role').custom(isValidCongregationRoleList),
 	body('cong_person_uid').notEmpty().isString(),
 	pocketUserAdd,
@@ -92,7 +102,10 @@ congregationAdministrationRouter.patch(
 // delete congregation user session
 congregationAdministrationRouter.delete(
 	'/:id/users/:user/sessions',
-	body('identifier').isString().notEmpty(),
+	body('identifier')
+		.isString()
+		.notEmpty()
+		.isLength({ max: REQUEST_LIMITS.identifier }),
 	userSessionDelete,
 );
 
@@ -105,7 +118,10 @@ congregationAdministrationRouter.get('/:id/users/global', globalSearchUser);
 // delete a congregation
 congregationAdministrationRouter.delete(
 	'/:id/erase',
-	body('key').isString().notEmpty().isLength({ min: 16 }),
+	body('key').isString().notEmpty().isLength({
+		min: 16,
+		max: REQUEST_LIMITS.securityValue,
+	}),
 	deleteCongregation,
 );
 

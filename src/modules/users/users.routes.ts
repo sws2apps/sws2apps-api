@@ -3,6 +3,7 @@ import { body, header } from 'express-validator';
 import { MAX_BACKUP_CHUNKS } from '../backups/backup-upload-tracker.js';
 import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
 import { requireCurrentUserResource } from '../../http/middleware/user-resource-authorization.middleware.js';
+import { REQUEST_LIMITS } from '../../http/request-limits.js';
 import {
 	deleteUser,
 	deleteUserSession,
@@ -56,7 +57,14 @@ userRouter.get('/:id/2fa/disable', disableUser2FA);
 userRouter.get('/:id/sessions', getUserSessions);
 
 // delete user session
-userRouter.delete('/:id/sessions', body('identifier').isString().notEmpty(), deleteUserSession);
+userRouter.delete(
+	'/:id/sessions',
+	body('identifier')
+		.isString()
+		.notEmpty()
+		.isLength({ max: REQUEST_LIMITS.identifier }),
+	deleteUserSession,
+);
 
 // get auxiliary pioneer applications
 userRouter.get('/:id/applications', getAuxiliaryApplications);
@@ -74,7 +82,10 @@ userRouter.get('/:id/backup', header('metadata').isString().notEmpty(), retrieve
 userRouter.post(
 	'/:id/backup/chunked',
 	header('metadata').isString().notEmpty(),
-	body('uploadId').isString().notEmpty(),
+	body('uploadId')
+		.isString()
+		.notEmpty()
+		.isLength({ max: REQUEST_LIMITS.identifier }),
 	body('chunkIndex').isInt({ min: 0 }).toInt(),
 	body('totalChunks').isInt({ min: 1, max: MAX_BACKUP_CHUNKS }).toInt(),
 	body('chunkData').isString().notEmpty(),
@@ -90,8 +101,14 @@ userRouter.get('/:id/updates-routine', getUserUpdates);
 // get user updates
 userRouter.post(
 	'/:id/feedback',
-	body('subject').isString().notEmpty(),
-	body('message').isString().notEmpty(),
+	body('subject')
+		.isString()
+		.notEmpty()
+		.isLength({ max: REQUEST_LIMITS.messageSubject }),
+	body('message')
+		.isString()
+		.notEmpty()
+		.isLength({ max: REQUEST_LIMITS.messageBody }),
 	userPostFeedback,
 );
 

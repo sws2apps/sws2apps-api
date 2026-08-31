@@ -4,6 +4,7 @@ import { createSignInLink, loginUser, verifyEmailToken, verifyPasswordlessInfo }
 import { validateBearerAuthorization } from '../../http/security/bearer-token.js';
 import { isPasswordlessOriginAllowed } from '../../http/security/cors.js';
 import { env } from '../../config/env.js';
+import { REQUEST_LIMITS } from '../../http/request-limits.js';
 
 const authRouter = express.Router();
 
@@ -15,7 +16,7 @@ authRouter.get(
 
 authRouter.post(
 	'/user-passwordless-login',
-	body('email').isEmail(),
+	body('email').isEmail().isLength({ max: REQUEST_LIMITS.email }),
 	header('Origin').isURL({
 		protocols: ['http', 'https'],
 		require_protocol: true,
@@ -33,7 +34,7 @@ authRouter.post(
 
 authRouter.post(
 	'/verify-email-token',
-	body('email').isEmail(),
+	body('email').isEmail().isLength({ max: REQUEST_LIMITS.email }),
 	body('token').isNumeric().isLength({ min: 6, max: 6 }),
 	verifyEmailToken,
 );

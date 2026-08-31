@@ -1,6 +1,7 @@
 import express from 'express';
 import { body } from 'express-validator';
 import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
+import { REQUEST_LIMITS } from '../../http/request-limits.js';
 import {
 	requireMeetingEditor,
 	requirePublicTalkCoordinator,
@@ -40,8 +41,14 @@ meetingRouter.get('/:id/visiting-speakers/access', getApprovedVisitingSpeakersAc
 meetingRouter.post(
 	'/:id/visiting-speakers/request',
 	body('cong_id').isString().notEmpty(),
-	body('request_id').isString().notEmpty(),
-	body('key').isString().notEmpty(),
+	body('request_id')
+		.isString()
+		.notEmpty()
+		.isLength({ max: REQUEST_LIMITS.identifier }),
+	body('key')
+		.isString()
+		.notEmpty()
+		.isLength({ max: REQUEST_LIMITS.securityValue }),
 	requestAccessSpeakersCongregation,
 );
 
@@ -49,14 +56,23 @@ meetingRouter.get('/:id/visiting-speakers/pending-access', getPendingVisitingSpe
 
 meetingRouter.post(
 	'/:id/visiting-speakers/request/approve',
-	body('request_id').isString().notEmpty(),
-	body('key').isString().notEmpty(),
+	body('request_id')
+		.isString()
+		.notEmpty()
+		.isLength({ max: REQUEST_LIMITS.identifier }),
+	body('key')
+		.isString()
+		.notEmpty()
+		.isLength({ max: REQUEST_LIMITS.securityValue }),
 	approveVisitingSpeakersAccess,
 );
 
 meetingRouter.post(
 	'/:id/visiting-speakers/request/reject',
-	body('request_id').isString().notEmpty(),
+	body('request_id')
+		.isString()
+		.notEmpty()
+		.isLength({ max: REQUEST_LIMITS.identifier }),
 	rejectVisitingSpeakersAccess,
 );
 

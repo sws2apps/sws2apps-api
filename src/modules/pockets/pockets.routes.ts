@@ -1,6 +1,7 @@
 import express from 'express';
 import { body, header } from 'express-validator';
 import { requirePocketSession } from '../../http/middleware/session-authentication.middleware.js';
+import { REQUEST_LIMITS } from '../../http/request-limits.js';
 import {
 	deletePocketSession,
 	deletePocketUser,
@@ -17,7 +18,14 @@ import {
 const pocketRouter = express.Router();
 
 // signup by validating invitation code
-pocketRouter.post('/signup', body('code').isString().notEmpty(), validateInvitation);
+pocketRouter.post(
+	'/signup',
+	body('code')
+		.isString()
+		.notEmpty()
+		.isLength({ max: REQUEST_LIMITS.securityValue }),
+	validateInvitation,
+);
 
 // activate middleware at this point
 pocketRouter.use(requirePocketSession());
@@ -35,7 +43,14 @@ pocketRouter.post('/backup', header('metadata').isString().notEmpty(), body('con
 pocketRouter.get('/sessions', getPocketSessions);
 
 // delete user session
-pocketRouter.delete('/sessions', body('identifier').isString().notEmpty(), deletePocketSession);
+pocketRouter.delete(
+	'/sessions',
+	body('identifier')
+		.isString()
+		.notEmpty()
+		.isLength({ max: REQUEST_LIMITS.identifier }),
+	deletePocketSession,
+);
 
 // post field service report
 pocketRouter.post('/field-service-reports', body('report').isObject().notEmpty(), postPocketReport);
