@@ -1,52 +1,23 @@
-import {
-	createFirebaseAuthenticationUser,
-	createFirebaseCustomToken,
-	findFirebaseAuthenticationUserIdByEmail,
-	getFirebaseUserDisplayName,
-	verifyFirebaseIdToken,
-} from '../../platform/firebase/authentication.js';
 import type { IncomingHttpHeaders } from 'node:http';
-import { env } from '../../config/env.js';
-import { UsersList } from '../users/users.js';
+
 import { createApplicationUser } from '../users/user-creation.service.js';
-import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
+import { UsersList } from '../users/users.js';
+import { AuthenticationError } from './authentication-error.js';
+import {
+	createAuthenticationToken,
+	createAuthenticationUser,
+	findAuthenticationUserIdByEmail,
+} from './authentication-identity.service.js';
 import {
 	isPasswordlessEmailEnabled,
 	sendPasswordlessLoginEmail,
 } from './auth-notifications.service.js';
+import { buildUserAuthenticationResponse } from './authentication-response.js';
+import { createAuthenticationSession } from './authentication-session.service.js';
 import {
 	generateEmailOneTimePassword,
 	isEmailOneTimePasswordValid,
 } from './email-otp.js';
-import { buildUserAuthenticationResponse } from './authentication-response.js';
-import { createAuthenticationSession } from './authentication-session.service.js';
-
-export type AuthenticationErrorCode = 'USER_NOT_FOUND' | 'OTP_NOT_FOUND' | 'INVALID_OTP';
-
-export class AuthenticationError extends Error {
-	constructor(public readonly code: AuthenticationErrorCode) {
-		super(code);
-		this.name = 'AuthenticationError';
-	}
-}
-
-export const verifyAuthenticationToken = async (
-	idToken: string,
-): Promise<string | undefined> => {
-	return verifyFirebaseIdToken(idToken);
-};
-
-export const getAuthenticationUserDisplayName = async (
-	authenticationUserId: string,
-): Promise<string> => {
-	return getFirebaseUserDisplayName(authenticationUserId);
-};
-
-export const createAuthenticationToken = async (
-	authenticationUserId: string,
-): Promise<string> => {
-	return createFirebaseCustomToken(authenticationUserId);
-};
 
 type PasswordlessSignInRequest = {
 	email: string;
@@ -64,11 +35,11 @@ type PasswordlessSignInRequest = {
 };
 
 export const createPasswordlessSignIn = async (request: PasswordlessSignInRequest) => {
-	let authenticationUserId = await findFirebaseAuthenticationUserIdByEmail(request.email);
+	let authenticationUserId = await findAuthenticationUserIdByEmail(request.email);
 	let user = UsersList.findByEmail(request.email);
 
 	if (!user && !authenticationUserId) {
-		authenticationUserId = await createFirebaseAuthenticationUser(request.email);
+		authenticationUserId = await createAuthenticationUser(request.email);
 		user = await createApplicationUser({
 			auth_uid: authenticationUserId,
 			firstname: '',
@@ -114,57 +85,6 @@ export const createPasswordlessSignIn = async (request: PasswordlessSignInReques
 	return { emailEnabled, link, otp: oneTimePassword };
 };
 
-type CompleteAuthenticationInput = {
-	authenticationUserId: string;
-	visitorId: string;
-	visitorIp: string;
-	headers: IncomingHttpHeaders;
-	createUserWhenMissing?: boolean;
-};
-
-export const completeAuthentication = async (input: CompleteAuthenticationInput) => {
-	let user = UsersList.findByAuthUid(input.authenticationUserId);
-
-	if (!user && input.createUserWhenMissing) {
-		const displayName = await getAuthenticationUserDisplayName(input.authenticationUserId);
-		const names = displayName.length > 0 ? displayName.split(' ') : [];
-		const lastname = names.pop() || '';
-		const firstname = names.join(' ');
-
-		user = await createApplicationUser({
-			auth_uid: input.authenticationUserId,
-			firstname,
-			lastname,
-		});
-	}
-
-	if (!user) throw new AuthenticationError('USER_NOT_FOUND');
-
-	await createAuthenticationSession({
-		userId: user.id,
-		visitorId: input.visitorId,
-		visitorIp: input.visitorIp,
-		headers: input.headers,
-		mfaVerified: false,
-	});
-
-	if (user.profile.mfa_enabled) {
-		const developmentMfaCode = env.isDevelopment
-			? generateDevelopmentMfaToken(user.email!, user.profile.secret!)
-			: undefined;
-
-		return {
-			requiresMfa: true as const,
-			developmentMfaCode,
-		};
-	}
-
-	return {
-		requiresMfa: false as const,
-		userInfo: buildUserAuthenticationResponse({ authUser: user }),
-	};
-};
-
 type CompleteEmailOtpAuthenticationInput = {
 	email: string;
 	oneTimePassword: string;
@@ -201,3 +121,4 @@ export const completeEmailOtpAuthentication = async (
 
 	return userInfo;
 };
+

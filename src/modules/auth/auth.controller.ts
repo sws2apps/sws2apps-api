@@ -2,12 +2,16 @@ import { Request, Response } from 'express';
 import { rejectInvalidRequest } from '../../http/validation-errors.js';
 import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
 import {
-	createPasswordlessSignIn,
-	AuthenticationError,
 	completeAuthentication,
-	completeEmailOtpAuthentication,
+} from './authentication-completion.service.js';
+import { AuthenticationError } from './authentication-error.js';
+import {
 	verifyAuthenticationToken,
-} from './auth.service.js';
+} from './authentication-identity.service.js';
+import {
+	completeEmailOtpAuthentication,
+	createPasswordlessSignIn,
+} from './passwordless-authentication.service.js';
 import { isPasswordlessEmailEnabled } from './auth-notifications.service.js';
 
 const completeTokenAuthentication = async (

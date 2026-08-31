@@ -3,7 +3,7 @@ import { header, validationResult } from 'express-validator';
 import { formatError } from '../validation-errors.js';
 import {
 	verifyAuthenticationToken,
-} from '../../modules/auth/auth.service.js';
+} from '../../modules/auth/authentication-identity.service.js';
 import {
 	refreshAuthenticationSession,
 } from '../../modules/auth/authentication-session.service.js';

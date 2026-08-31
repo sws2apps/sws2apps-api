@@ -13,3 +13,5 @@ input and manages the signed session cookie. Authentication services own identit
 verification, passwordless sign-in, notifications, and authenticated-user results.
 Session creation and refresh are isolated from login orchestration, while response
 projection owns the client-facing authenticated-user shape.
+Identity-provider access, token-login completion, and passwordless authentication
+also have dedicated services.
