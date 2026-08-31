@@ -12,5 +12,9 @@ applications, members, join requests, outgoing-speaker access, lifecycle, and
 security-sensitive settings are service-owned. `CongregationsList` is the startup
 cache and lookup index; it does not create or delete congregations.
 
+Persistence is separated by stored resource: congregation data, metadata,
+settings, applications, join requests, and lifecycle loading each have a focused
+repository.
+
 Administrative and meeting-editor congregation endpoints remain separate modules
 because they have different permission boundaries.

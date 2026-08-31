@@ -8,7 +8,7 @@ import {
 	setCongPublicOutgoingTalks,
 	setCongPublicSchedules,
 	setCongPublicSources,
-} from '../congregations/congregations.repository.js';
+} from '../congregations/congregation-data.repository.js';
 
 type SchedulePublicationInput = {
 	sources: unknown[];

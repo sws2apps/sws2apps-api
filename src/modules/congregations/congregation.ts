@@ -21,7 +21,6 @@ import {
 	getVisitingSpeakersMetadata,
 } from './congregation-metadata.repository.js';
 import {
-	getCongDetails,
 	getCongPersons,
 	getCongregationData,
 	setBranchCongAnalysis,
@@ -32,7 +31,6 @@ import {
 	setCongPersons,
 	setPublicIncomingTalks,
 	setCongSchedules,
-	setCongSettings,
 	setCongSources,
 	setCongSpeakersKey,
 	setCongVisitingSpeakers,
@@ -40,7 +38,13 @@ import {
 	setMeetingAttendance,
 	setSpeakersCongregations,
 	setUpcomingEvents,
-} from './congregations.repository.js';
+} from './congregation-data.repository.js';
+import {
+	getCongregationDetails,
+} from './congregation-lifecycle.repository.js';
+import {
+	setCongregationSettings,
+} from './congregation-settings.repository.js';
 import { User } from '../users/user.js';
 
 export class Congregation {
@@ -139,7 +143,7 @@ export class Congregation {
 	}
 
 	async loadDetails() {
-		const data = await getCongDetails(this.id);
+		const data = await getCongregationDetails(this.id);
 
 		this.createdAt = data.createdAt || '';
 		this.metadata = data.metadata;
@@ -169,7 +173,7 @@ export class Congregation {
 	}
 
 	async saveSettings(settings: CongSettingsType) {
-		await setCongSettings(this.id, settings);
+		await setCongregationSettings(this.id, settings);
 		this.settings = settings;
 		this.metadata.cong_settings = await getSettingsMetadata(this.id);
 	}

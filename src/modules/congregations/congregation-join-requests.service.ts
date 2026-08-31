@@ -2,7 +2,7 @@ import type { AppRoleType } from '../../domain/users/app-role.js';
 import type { Congregation } from './congregation.js';
 import { UsersList } from '../users/users.js';
 import { UserRequestAccess } from './congregations.types.js';
-import { setCongJoinRequests } from './congregations.repository.js';
+import { setCongregationJoinRequests } from './congregation-join-requests.repository.js';
 import { assignUserToCongregation } from '../users/user-congregation-membership.service.js';
 
 type JoinRequestUser = {
@@ -45,7 +45,7 @@ const saveJoinRequests = async (
 	congregation: Congregation,
 	requests: UserRequestAccess[],
 ): Promise<void> => {
-	await setCongJoinRequests(congregation.id, requests);
+	await setCongregationJoinRequests(congregation.id, requests);
 	congregation.join_requests = requests;
 };
 

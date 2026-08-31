@@ -4,7 +4,7 @@ import { CongregationsList } from './congregations.js';
 import { assignUserToCongregation } from '../users/user-congregation-membership.service.js';
 import { toMondayFirstWeekday } from './meeting-weekday.js';
 import type { CongregationCreateInfoType } from './congregations.types.js';
-import { createCongregation as persistCongregation } from './congregations.repository.js';
+import { createPersistedCongregation } from './congregation-lifecycle.repository.js';
 import { Congregation } from './congregation.js';
 import { refreshCongregationMembers } from './congregation-members.service.js';
 
@@ -36,7 +36,7 @@ type CreateCongregationInput = {
 export const createApplicationCongregation = async (
 	data: CongregationCreateInfoType,
 ): Promise<Congregation> => {
-	const congregationId = await persistCongregation(data);
+	const congregationId = await createPersistedCongregation(data);
 	const congregation = new Congregation(congregationId);
 
 	await congregation.loadDetails();

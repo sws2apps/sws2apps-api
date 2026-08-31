@@ -1,5 +1,5 @@
 import type { Congregation } from '../congregations/congregation.js';
-import { setCongFlags } from '../congregations/congregations.repository.js';
+import { setCongregationFlags } from '../congregations/congregation-settings.repository.js';
 import type { User } from '../users/user.js';
 import { setUserFlags } from '../users/users.repository.js';
 
@@ -42,6 +42,6 @@ export const saveCongregationFeatureFlags = async (
 	congregation: Congregation,
 	flags: string[],
 ): Promise<void> => {
-	await setCongFlags(congregation.id, flags);
+	await setCongregationFlags(congregation.id, flags);
 	congregation.flags = flags;
 };

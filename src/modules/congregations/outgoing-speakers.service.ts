@@ -6,7 +6,7 @@ import type {
 	OutgoingSpeakersRecordType,
 	OutgoingTalkScheduleType,
 } from './congregations.types.js';
-import { setCongOutgoingSpeakers } from './congregations.repository.js';
+import { setCongOutgoingSpeakers } from './congregation-data.repository.js';
 
 export const saveOutgoingSpeakersState = async (
 	congregationId: string,

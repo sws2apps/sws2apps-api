@@ -5,9 +5,9 @@ import { canManageCongregationApplications } from './congregation-permissions.js
 import { CongregationsList } from './congregations.js';
 import { isCongregationMember } from './congregation-members.service.js';
 import {
-	deleteAPApplication,
-	saveAPApplication,
-} from './congregations.repository.js';
+	deleteCongregationApplicationRecord,
+	saveCongregationApplicationRecord,
+} from './congregation-applications.repository.js';
 
 export type CongregationApplicationErrorCode =
 	| 'CONGREGATION_NOT_FOUND'
@@ -72,7 +72,7 @@ export const saveCongregationApplication = async (
 	congregation: Congregation,
 	application: StandardRecord,
 ): Promise<void> => {
-	await saveAPApplication(congregation.id, application);
+	await saveCongregationApplicationRecord(congregation.id, application);
 
 	congregation.ap_applications = synchronizeCongregationApplication(
 		congregation.ap_applications,
@@ -85,7 +85,7 @@ export const saveCongregationApplication = async (
 	});
 
 	for (const expiredApplication of expiredApplications) {
-		await deleteAPApplication(
+		await deleteCongregationApplicationRecord(
 			congregation.id,
 			expiredApplication.request_id as string,
 		);
@@ -100,7 +100,7 @@ export const removeCongregationApplication = async (
 	congregation: Congregation,
 	requestId: string,
 ): Promise<StandardRecord[]> => {
-	await deleteAPApplication(congregation.id, requestId);
+	await deleteCongregationApplicationRecord(congregation.id, requestId);
 
 	congregation.ap_applications = congregation.ap_applications.filter(
 		(record) => record.request_id !== requestId,
