@@ -10,3 +10,5 @@ join requests, and congregation deletion.
 Role arrays are validated against the complete known congregation-role vocabulary
 before reaching the controller. Security, user-management, and join-request HTTP
 handlers have dedicated controllers backed by matching business services.
+Member management, Pocket invitations, and session revocation are also separated
+at the HTTP boundary.

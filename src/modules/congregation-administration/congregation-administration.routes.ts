@@ -19,12 +19,16 @@ import {
 	congregationGetUsers,
 	congregationUserAdd,
 	globalSearchUser,
-	pocketCodeDelete,
-	pocketUserAdd,
 	setAdminUserUid,
 	userDetailsUpdate,
+} from './congregation-administration-members.controller.js';
+import {
+	pocketCodeDelete,
+	pocketUserAdd,
+} from './congregation-administration-pocket-users.controller.js';
+import {
 	userSessionDelete,
-} from './congregation-administration-users.controller.js';
+} from './congregation-administration-sessions.controller.js';
 import { isValidCongregationRoleList } from './role-validation.js';
 
 const congregationAdministrationRouter = express.Router();
