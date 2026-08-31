@@ -5,24 +5,28 @@ import type {
 	UserSettings,
 } from './user.types.js';
 import {
-	getBibleStudiesMetadata,
+	setUserProfile,
+	setUserSessions,
+	setUserSettings,
+} from './user-account.repository.js';
+import {
 	getDelegatedFieldServiceReports,
-	getDelegatedFieldServiceReportsMetadata,
 	getUserBibleStudies,
-	getFieldServiceReportsMetadata,
-	getUserDetails,
 	getUserFieldServiceReports,
+	setDelegatedFieldServiceReports,
+	setUserBibleStudies,
+	setUserFieldServiceReports,
+} from './user-activity.repository.js';
+import {
+	getBibleStudiesMetadata,
+	getDelegatedFieldServiceReportsMetadata,
+	getFieldServiceReportsMetadata,
 	getUserProfileCreatedAt,
 	getUserProfileMetadata,
 	getUserSessionsMetadata,
 	getUserSettingsMetadata,
-	setDelegatedFieldServiceReports,
-	setUserBibleStudies,
-	setUserFieldServiceReports,
-	setUserProfile,
-	setUserSessions,
-	setUserSettings,
-} from './users.repository.js';
+} from './user-metadata.repository.js';
+import { getUserDetails } from './user-lifecycle.repository.js';
 
 export class User {
 	id: string;

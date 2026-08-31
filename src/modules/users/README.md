@@ -15,3 +15,6 @@ services and map their outcomes and typed errors to HTTP responses.
 revocation, entity creation, backup application, identity operations, membership,
 and lifecycle workflows are service-owned. `UsersList` is the startup cache and
 lookup index; it does not create or delete accounts.
+
+Persistence is separated into account, activity-data, metadata, and lifecycle
+repositories. Feature modules do not import the Firebase SDK directly.

@@ -6,9 +6,9 @@ import type { PocketNewParams, UserNewParams } from './user.types.js';
 import { User } from './user.js';
 import { UsersList } from './users.js';
 import {
-	createPocketUser as persistPocketUser,
-	createUser as persistUser,
-} from './users.repository.js';
+	createPersistedPocketUser,
+	createPersistedUser,
+} from './user-lifecycle.repository.js';
 
 const hydrateCreatedUser = async (userId: string): Promise<User> => {
 	const user = new User(userId);
@@ -26,13 +26,13 @@ export const createApplicationUser = async (
 		await synchronizeAuthenticationEmail(params.auth_uid, params.email);
 	}
 
-	const userId = await persistUser(params);
+	const userId = await createPersistedUser(params);
 	return hydrateCreatedUser(userId);
 };
 
 export const createPocketApplicationUser = async (
 	params: PocketNewParams,
 ): Promise<User> => {
-	const userId = await persistPocketUser(params);
+	const userId = await createPersistedPocketUser(params);
 	return hydrateCreatedUser(userId);
 };

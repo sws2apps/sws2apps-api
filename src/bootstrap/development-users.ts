@@ -5,7 +5,7 @@ import type {
 	UserGlobalRoleType,
 	UserProfile,
 } from '../modules/users/user.types.js';
-import { setUserProfile } from '../modules/users/users.repository.js';
+import { setUserProfile } from '../modules/users/user-account.repository.js';
 import { env } from '../config/env.js';
 
 export const createDevelopmentUsers = async () => {
