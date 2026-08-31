@@ -11,3 +11,5 @@ under `/api/v3`:
 Routes validate credentials at the HTTP boundary. The controller translates HTTP
 input and manages the signed session cookie. Authentication services own identity
 verification, passwordless sign-in, notifications, and authenticated-user results.
+Session creation and refresh are isolated from login orchestration, while response
+projection owns the client-facing authenticated-user shape.

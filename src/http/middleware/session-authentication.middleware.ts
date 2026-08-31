@@ -2,9 +2,11 @@ import { NextFunction, Request, Response } from 'express';
 import { header, validationResult } from 'express-validator';
 import { formatError } from '../validation-errors.js';
 import {
-	refreshAuthenticationSession,
 	verifyAuthenticationToken,
 } from '../../modules/auth/auth.service.js';
+import {
+	refreshAuthenticationSession,
+} from '../../modules/auth/authentication-session.service.js';
 import {
 	resolveAuthenticatedSession,
 	resolvePocketSessionUser,

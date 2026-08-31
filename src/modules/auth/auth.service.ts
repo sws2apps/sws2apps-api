@@ -7,11 +7,6 @@ import {
 } from '../../platform/firebase/authentication.js';
 import type { IncomingHttpHeaders } from 'node:http';
 import { env } from '../../config/env.js';
-import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
-import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
-import { CongregationsList } from '../congregations/congregations.js';
-import type { User } from '../users/user.js';
-import type { UserAuthResponse } from '../users/user.types.js';
 import { UsersList } from '../users/users.js';
 import { createApplicationUser } from '../users/user-creation.service.js';
 import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
@@ -23,6 +18,8 @@ import {
 	generateEmailOneTimePassword,
 	isEmailOneTimePasswordValid,
 } from './email-otp.js';
+import { buildUserAuthenticationResponse } from './authentication-response.js';
+import { createAuthenticationSession } from './authentication-session.service.js';
 
 export type AuthenticationErrorCode = 'USER_NOT_FOUND' | 'OTP_NOT_FOUND' | 'INVALID_OTP';
 
@@ -49,13 +46,6 @@ export const createAuthenticationToken = async (
 	authenticationUserId: string,
 ): Promise<string> => {
 	return createFirebaseCustomToken(authenticationUserId);
-};
-
-export const getVisitorSessionDetails = async (
-	visitorIp: string,
-	requestHeaders: IncomingHttpHeaders,
-) => {
-	return retrieveVisitorDetails(visitorIp, requestHeaders);
 };
 
 type PasswordlessSignInRequest = {
@@ -122,49 +112,6 @@ export const createPasswordlessSignIn = async (request: PasswordlessSignInReques
 	}
 
 	return { emailEnabled, link, otp: oneTimePassword };
-};
-
-type CreateAuthenticationSessionInput = {
-	userId: string;
-	visitorId: string;
-	visitorIp: string;
-	headers: IncomingHttpHeaders;
-	mfaVerified: boolean;
-};
-
-type RefreshAuthenticationSessionInput = {
-	userId: string;
-	visitorId: string;
-	visitorIp: string;
-	headers: IncomingHttpHeaders;
-};
-
-export const refreshAuthenticationSession = async (
-	input: RefreshAuthenticationSessionInput,
-): Promise<void> => {
-	const user = UsersList.findById(input.userId)!;
-	const sessions = structuredClone(user.sessions);
-	const session = sessions.find((record) => record.visitorid === input.visitorId)!;
-
-	session.last_seen = new Date().toISOString();
-	session.visitor_details = await getVisitorSessionDetails(input.visitorIp, input.headers);
-
-	await user.updateSessions(sessions);
-};
-
-export const createAuthenticationSession = async (input: CreateAuthenticationSessionInput): Promise<void> => {
-	const user = UsersList.findById(input.userId)!;
-	const sessions = user.sessions?.filter((session) => session.visitorid !== input.visitorId) || [];
-
-	sessions.push({
-		mfaVerified: input.mfaVerified,
-		last_seen: new Date().toISOString(),
-		visitorid: input.visitorId,
-		visitor_details: await getVisitorSessionDetails(input.visitorIp, input.headers),
-		identifier: crypto.randomUUID(),
-	});
-
-	await user.updateSessions(sessions);
 };
 
 type CompleteAuthenticationInput = {
@@ -251,75 +198,6 @@ export const completeEmailOtpAuthentication = async (
 
 	const userInfo = buildUserAuthenticationResponse({ authUser: user });
 	userInfo.custom_token = await createAuthenticationToken(user.profile.auth_uid!);
-
-	return userInfo;
-};
-
-type BuildUserAuthenticationResponseInput = {
-	authUser: User;
-	mfaStatus?: 'not_enabled' | 'enabled';
-};
-
-export const buildUserAuthenticationResponse = ({
-	authUser,
-	mfaStatus = 'not_enabled',
-}: BuildUserAuthenticationResponseInput): UserAuthResponse => {
-	const userInfo: UserAuthResponse = {
-		message: 'TOKEN_VALID',
-		id: authUser.id,
-		app_settings: {
-			user_settings: {
-				firstname: authUser.profile.firstname,
-				lastname: authUser.profile.lastname,
-				role: authUser.profile.role,
-				mfa: mfaStatus,
-			},
-		},
-	};
-
-	const congregationId = authUser.profile.congregation?.id;
-
-	if (!congregationId) {
-		return userInfo;
-	}
-
-	const congregation = CongregationsList.findById(congregationId);
-
-	if (!congregation) {
-		return userInfo;
-	}
-
-	const userRole = authUser.profile.congregation!.cong_role;
-	const masterKeyNeeded = canAccessCongregationMasterKey(userRole);
-
-	userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation!.user_local_uid;
-	userInfo.app_settings.user_settings.user_members_delegate = authUser.profile.congregation!.user_members_delegate;
-	userInfo.app_settings.user_settings.cong_role = userRole;
-
-	const midweek = congregation.settings.midweek_meeting.map(({ type, time, weekday }) => ({
-		type,
-		time,
-		weekday,
-	}));
-	const weekend = congregation.settings.weekend_meeting.map(({ type, time, weekday }) => ({
-		type,
-		time,
-		weekday,
-	}));
-
-	userInfo.app_settings.cong_settings = {
-		id: congregationId,
-		cong_circuit: congregation.settings.cong_circuit,
-		cong_name: congregation.settings.cong_name,
-		cong_prefix: congregation.settings.cong_prefix,
-		cong_number: congregation.settings.cong_number,
-		country_code: congregation.settings.country_code,
-		cong_access_code: congregation.settings.cong_access_code,
-		cong_master_key: masterKeyNeeded ? congregation.settings.cong_master_key : undefined,
-		cong_location: congregation.settings.cong_location,
-		midweek_meeting: midweek,
-		weekend_meeting: weekend,
-	};
 
 	return userInfo;
 };

@@ -1,6 +1,6 @@
 import type { IncomingHttpHeaders } from 'node:http';
 
-import { getVisitorSessionDetails } from '../auth/auth.service.js';
+import { getVisitorSessionDetails } from '../auth/authentication-session.service.js';
 import type { Congregation } from '../congregations/congregation.js';
 import { CongregationsList } from '../congregations/congregations.js';
 import { refreshCongregationMembers } from '../congregations/congregation-members.service.js';
