@@ -3,6 +3,39 @@ import { getAuth } from 'firebase-admin/auth';
 
 import { logger } from '../logging/logger.js';
 
+type ImportedFirebaseUser = {
+	uid: string;
+	email: string;
+	displayName: string;
+};
+
+export const importFirebaseAuthenticationUserIfMissing = async (
+	user: ImportedFirebaseUser,
+): Promise<boolean> => {
+	try {
+		await getAuth().getUser(user.uid);
+		return false;
+	} catch {
+		await getAuth().importUsers([
+			{
+				uid: user.uid,
+				email: user.email,
+				displayName: user.displayName,
+				providerData: [
+					{
+						providerId: 'google.com',
+						uid: user.uid,
+						email: user.email,
+						displayName: user.displayName,
+					},
+				],
+			},
+		]);
+
+		return true;
+	}
+};
+
 export const getFirebaseUserDetails = async (authenticationUserId: string) => {
 	try {
 		const userRecord = await getAuth().getUser(authenticationUserId);

@@ -1,6 +1,6 @@
-import { getAuth } from 'firebase-admin/auth';
 import { LogLevel } from '@logtail/types';
 import { logger } from '../platform/logging/logger.js';
+import { importFirebaseAuthenticationUserIfMissing } from '../platform/firebase/authentication.js';
 import type {
 	UserGlobalRoleType,
 	UserProfile,
@@ -30,35 +30,15 @@ export const createDevelopmentUsers = async () => {
 		];
 
 		for (const user of users) {
-			// STEP 1: Check and create the user
-			let isCreate = false;
+			const displayName = `${user.firstname} ${user.lastname}`;
+			const userWasCreated = await importFirebaseAuthenticationUserIfMissing({
+				uid: user.uid,
+				email: user.email,
+				displayName,
+			});
 
-			try {
-				await getAuth().getUser(user.uid);
-			} catch {
+			if (userWasCreated) {
 				logger(LogLevel.Info, `creating ${user.role} for firebase emulators`);
-
-				await getAuth().importUsers([
-					{
-						uid: user.uid,
-						email: user.email,
-						displayName: `${user.firstname} ${user.lastname}`,
-						providerData: [
-							{
-								providerId: 'google.com',
-								uid: user.uid,
-								email: user.email,
-								displayName: `${user.firstname} ${user.lastname}`,
-							},
-						],
-					},
-				]);
-
-				isCreate = true;
-			}
-
-			if (isCreate) {
-				// STEP 2: Create user record for app
 
 				const id = crypto.randomUUID().toUpperCase();
 

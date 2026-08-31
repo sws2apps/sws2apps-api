@@ -1,23 +1,23 @@
-import { getApp } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import {
+	addCollectionRecord,
+	getCollectionRecords,
+	getFirstCollectionRecord,
+	updateCollectionRecord,
+} from '../../platform/firebase/document-store.js';
 
 const apiSettingsCollection = 'api_settings_v3';
 const defaultMinimumClientVersion = '1.0.0';
 
 export const loadOrCreateMinimumClientVersionRecord = async (): Promise<string> => {
-	const database = getFirestore(getApp());
-	const apiSettings = database.collection(apiSettingsCollection);
-	const snapshot = await apiSettings.get();
-	let settingsDocumentFound = false;
+	const settingsRecords = await getCollectionRecords(apiSettingsCollection);
 	let minimumVersion: string | undefined;
 
-	snapshot.forEach((document) => {
-		settingsDocumentFound = true;
-		minimumVersion = document.data().minimum_version;
-	});
+	for (const settingsRecord of settingsRecords) {
+		minimumVersion = settingsRecord.data.minimum_version as string | undefined;
+	}
 
-	if (!settingsDocumentFound) {
-		await apiSettings.add({
+	if (settingsRecords.length === 0) {
+		await addCollectionRecord(apiSettingsCollection, {
 			minimum_version: defaultMinimumClientVersion,
 		});
 
@@ -30,12 +30,13 @@ export const loadOrCreateMinimumClientVersionRecord = async (): Promise<string> 
 export const updateMinimumClientVersionRecord = async (
 	minimumVersion: string,
 ): Promise<void> => {
-	const database = getFirestore(getApp());
-	const apiSettings = database.collection(apiSettingsCollection);
-	const snapshot = await apiSettings.limit(1).get();
-	const settingsDocument = snapshot.docs[0];
+	const settingsRecord = await getFirstCollectionRecord(apiSettingsCollection);
 
-	await settingsDocument.ref.update({
+	if (!settingsRecord) {
+		throw new Error('API settings record was not initialized');
+	}
+
+	await updateCollectionRecord(apiSettingsCollection, settingsRecord.id, {
 		minimum_version: minimumVersion,
 	});
 };
