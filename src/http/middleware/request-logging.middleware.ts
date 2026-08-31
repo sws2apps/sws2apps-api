@@ -5,6 +5,7 @@ import geoip from 'geoip-lite';
 import { serverState } from '../../platform/runtime/server-state.js';
 import { logger } from '../../platform/logging/logger.js';
 import { calculateJsonSize } from '../request-size.js';
+import { getRequestLogPath } from '../request-log-path.js';
 
 export const logRequestCompletion = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
@@ -52,7 +53,7 @@ export const logRequestCompletion = () => {
 				const context = {
 					method: req.method,
 					status: res.statusCode,
-					path: req.path,
+					path: getRequestLogPath(req),
 					duration: ms,
 					request_size: requestSize,
 					response_size: responseSize,

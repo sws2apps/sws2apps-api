@@ -162,7 +162,7 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 	}
 
 	res.locals.type = 'info';
-	res.locals.message = `admin deleted congregation ${id}`;
+	res.locals.message = 'admin deleted a congregation';
 	res.status(200).json(result);
 };
 
@@ -661,7 +661,7 @@ export const updateBasicCongregationInfo = async (req: Request, res: Response) =
 	}
 
 	res.locals.type = 'info';
-	res.locals.message = `admin update basic info for congregation ${id}`;
+	res.locals.message = 'admin updated basic congregation information';
 	res.status(200).json(result);
 };
 
