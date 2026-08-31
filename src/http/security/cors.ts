@@ -12,6 +12,18 @@ const trustedApplicationOrigins = new Set([
 
 const crossOriginPublicPaths = new Set(['/app-version', '/api/public/source-material']);
 
+const allowedBrowserRequestHeaders = [
+	'Authorization',
+	'Content-Type',
+	'AppClient',
+	'AppVersion',
+	'AppLanguage',
+	'Language',
+	'Metadata',
+	'Installation',
+	'User',
+];
+
 const normalizePath = (requestUri: string | undefined) => {
 	if (!requestUri) return '';
 	return requestUri.split(/[?#]/, 1)[0];
@@ -51,7 +63,7 @@ export const createCorsOptions = (request: Request, isProduction: boolean): Cors
 		origin: isProduction ? isProductionCorsRequestAllowed(origin, originalRequestUri) : true,
 		credentials: true,
 		methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-		allowedHeaders: ['Content-Type', 'Authorization'],
+		allowedHeaders: allowedBrowserRequestHeaders,
 		maxAge: 86400,
 	};
 };

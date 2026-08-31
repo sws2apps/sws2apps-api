@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { Request } from 'express';
 
 import {
+	createCorsOptions,
 	isPasswordlessOriginAllowed,
 	isProductionCorsRequestAllowed,
 	isTrustedApplicationOrigin,
@@ -29,6 +31,29 @@ describe('production CORS policy', () => {
 
 	it('rejects requests without an Origin header', () => {
 		assert.equal(isProductionCorsRequestAllowed(undefined, '/app-version'), false);
+	});
+
+	it('allows every custom header consumed by browser API routes', () => {
+		const request = {
+			originalUrl: '/api/v3/users/user-1/backup',
+			header: (name: string) => name === 'Origin'
+				? 'https://organized-app.com'
+				: undefined,
+		} as Request;
+
+		const options = createCorsOptions(request, true);
+
+		assert.deepEqual(options.allowedHeaders, [
+			'Authorization',
+			'Content-Type',
+			'AppClient',
+			'AppVersion',
+			'AppLanguage',
+			'Language',
+			'Metadata',
+			'Installation',
+			'User',
+		]);
 	});
 });
 
