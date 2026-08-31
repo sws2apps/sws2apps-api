@@ -7,6 +7,9 @@ All routes require an authenticated session. Request bodies are validated at the
 route boundary, and controllers delegate persistence and domain workflows to
 services.
 
+Directory lookup, verified creation, and application-review endpoints have
+dedicated controllers backed by their matching services.
+
 `Congregation` retains persistence-oriented record operations. Creation,
 applications, members, join requests, outgoing-speaker access, lifecycle, and
 security-sensitive settings are service-owned. `CongregationsList` is the startup

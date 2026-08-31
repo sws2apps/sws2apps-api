@@ -2,12 +2,16 @@ import express from 'express';
 import { body, query } from 'express-validator';
 import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
 import {
-	createCongregation,
 	deleteApplication,
+	updateApplicationApproval,
+} from './congregation-applications.controller.js';
+import {
+	createCongregation,
+} from './congregation-creation.controller.js';
+import {
 	getCongregations,
 	getCountries,
-	updateApplicationApproval,
-} from './congregations.controller.js';
+} from './congregation-directory.controller.js';
 
 const congregationRouter = express.Router();
 
