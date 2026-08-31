@@ -4,23 +4,27 @@ import { requireCongregationAdministrator } from '../../http/middleware/authoriz
 import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
 import { REQUEST_LIMITS } from '../../http/request-limits.js';
 import {
-	setCongregationMasterKey,
-	setCongregationAccessCode,
-	congregationMasterKeyGet,
+	acceptJoinRequest,
+	deleteJoinRequest,
+} from './congregation-administration-join-requests.controller.js';
+import {
 	congregationAccessCodeGet,
-	pocketUserAdd,
+	congregationMasterKeyGet,
+	deleteCongregation,
+	setCongregationAccessCode,
+	setCongregationMasterKey,
+} from './congregation-administration-security.controller.js';
+import {
+	congregationDeleteUser,
 	congregationGetUsers,
+	congregationUserAdd,
+	globalSearchUser,
+	pocketCodeDelete,
+	pocketUserAdd,
+	setAdminUserUid,
 	userDetailsUpdate,
 	userSessionDelete,
-	pocketCodeDelete,
-	globalSearchUser,
-	congregationUserAdd,
-	congregationDeleteUser,
-	setAdminUserUid,
-	deleteCongregation,
-	deleteJoinRequest,
-	acceptJoinRequest,
-} from './congregation-administration.controller.js';
+} from './congregation-administration-users.controller.js';
 import { isValidCongregationRoleList } from './role-validation.js';
 
 const congregationAdministrationRouter = express.Router();

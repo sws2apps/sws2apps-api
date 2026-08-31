@@ -8,5 +8,5 @@ role. The module manages congregation keys, members, Pocket invitations, session
 join requests, and congregation deletion.
 
 Role arrays are validated against the complete known congregation-role vocabulary
-before reaching the controller. Business use cases are separated into security,
-user-management, join-request, and notification services.
+before reaching the controller. Security, user-management, and join-request HTTP
+handlers have dedicated controllers backed by matching business services.
