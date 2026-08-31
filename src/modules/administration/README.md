@@ -7,6 +7,5 @@ The module manages client-version enforcement, congregations, users, sessions, a
 feature flags.
 
 Feature-flag availability and coverage are validated at the route boundary.
-Feature-flag and API-setting endpoints have dedicated controllers and services;
-user and congregation workflows remain grouped in the primary administration
-controller until their next behavior-preserving decomposition.
+Session, user, congregation, feature-flag, and API-setting endpoints each have
+dedicated controllers and services.

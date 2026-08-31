@@ -12,8 +12,13 @@ import {
 	createCongregation,
 	deleteCongregation,
 	getAllCongregations,
-	logoutAdmin,
 	updateBasicCongregationInfo,
+} from './administration-congregations.controller.js';
+import {
+	logoutAdmin,
+	validateAdmin,
+} from './administration-session.controller.js';
+import {
 	userAssignCongregation,
 	userDelete,
 	userDisable2FA,
@@ -22,8 +27,7 @@ import {
 	userSessionDelete,
 	usersGetAll,
 	userUpdate,
-	validateAdmin,
-} from './administration.controller.js';
+} from './administration-users.controller.js';
 import {
 	congregationFlagToggle,
 	flagDelete,
