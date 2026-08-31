@@ -8,20 +8,24 @@ import {
 	deleteUser,
 	deleteUserSession,
 	disableUser2FA,
-	getAuxiliaryApplications,
 	getUserSecretToken,
 	getUserSessions,
-	getUserUpdates,
-	joinCongregation,
-	postUserReport,
+	userLogout,
+	validateUser,
+} from './users-account.controller.js';
+import {
 	retrieveUserBackup,
 	saveUserBackup,
 	saveUserChunkedBackup,
+} from './users-backup.controller.js';
+import {
+	getAuxiliaryApplications,
+	getUserUpdates,
+	joinCongregation,
+	postUserReport,
 	submitAuxiliaryApplication,
-	userLogout,
 	userPostFeedback,
-	validateUser,
-} from './users.controller.js';
+} from './users-congregation-activity.controller.js';
 
 const userRouter = express.Router();
 
