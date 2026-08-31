@@ -3,10 +3,45 @@ import isOnline from 'is-online';
 import { LogLevel } from '@logtail/types';
 import { logger } from '../../platform/logging/logger.js';
 
-export const requireInternetConnection = () => {
+type InternetCheck = () => Promise<boolean>;
+
+export const createCachedInternetCheck = (
+	checkInternetConnection: InternetCheck,
+	cacheDurationMs = 30_000,
+	getCurrentTime = Date.now,
+): InternetCheck => {
+	let cachedResult: boolean | undefined;
+	let cachedAt = 0;
+	let pendingCheck: Promise<boolean> | undefined;
+
+	return async () => {
+		if (cachedResult !== undefined) {
+			const cacheAge = getCurrentTime() - cachedAt;
+			if (cacheAge < cacheDurationMs) return cachedResult;
+		}
+
+		if (!pendingCheck) {
+			pendingCheck = checkInternetConnection()
+				.then((isConnected) => {
+					cachedResult = isConnected;
+					cachedAt = getCurrentTime();
+					return isConnected;
+				})
+				.finally(() => {
+					pendingCheck = undefined;
+				});
+		}
+
+		return pendingCheck;
+	};
+};
+
+export const requireInternetConnection = (
+	checkInternetConnection: InternetCheck = createCachedInternetCheck(isOnline),
+) => {
 	return async (_request: Request, response: Response, next: NextFunction) => {
 		try {
-			const isConnected = await isOnline();
+			const isConnected = await checkInternetConnection();
 
 			if (isConnected) {
 				next();

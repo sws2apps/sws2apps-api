@@ -42,16 +42,22 @@ app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(cors(corsOptionsDelegate));
 
 app.use(compression());
+app.use(requestIp.mw()); // get IP address middleware
+app.use(rateLimit({
+	windowMs: 1000,
+	max: 20,
+	message: { message: 'TOO_MANY_REQUESTS' },
+	standardHeaders: 'draft-8',
+	legacyHeaders: false,
+}));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-app.use(requestIp.mw()); // get IP address middleware
 app.use(requireInternetConnection());
 app.use(trackRequestState());
 app.use(logRequestCompletion());
 app.use(serverReadyChecker());
-
-app.use(rateLimit({ windowMs: 1000, max: 20, message: JSON.stringify({ message: 'TOO_MANY_REQUESTS' }) }));
 
 i18next.init({
 	preload: ['eng'],
