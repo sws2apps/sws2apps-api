@@ -6,6 +6,11 @@ import { serverState } from '../../platform/runtime/server-state.js';
 import { logger } from '../../platform/logging/logger.js';
 import { calculateJsonSize } from '../request-size.js';
 import { getRequestLogPath } from '../request-log-path.js';
+import {
+	findRequestTrackerEntry,
+	removeRequestTrackerEntry,
+	setRequestTrackerEntry,
+} from '../../platform/runtime/request-tracker.js';
 
 export const logRequestCompletion = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
@@ -16,8 +21,6 @@ export const logRequestCompletion = () => {
 			const clientIp = req.clientIp!;
 			const geo = geoip.lookup(clientIp);
 			const reqCity = geo ? `${geo.city} (${geo.country})` : 'Unknown';
-			const ipIndex = requestTracker.findIndex((client) => client.ip === clientIp);
-
 			const requestSize = calculateJsonSize(req.body);
 
 			// Initialize response size counter
@@ -67,11 +70,10 @@ export const logRequestCompletion = () => {
 
 				if (res.writableEnded) {
 					if (res.locals.failedLoginAttempt) {
-						const reqTrackRef = requestTracker.find((client) => client.ip === clientIp);
+						const reqTrackRef = findRequestTrackerEntry(requestTracker, clientIp);
 						failedLoginAttempt = (reqTrackRef?.failedLoginAttempt ?? 0) + 1;
 
-						requestTracker.splice(ipIndex, 1);
-						requestTracker.push({
+						setRequestTrackerEntry(requestTracker, {
 							ip: clientIp,
 							city: reqCity,
 							reqInProgress: false,
@@ -79,7 +81,7 @@ export const logRequestCompletion = () => {
 							retryOn: undefined,
 						});
 					} else {
-						requestTracker.splice(ipIndex, 1);
+						removeRequestTrackerEntry(requestTracker, clientIp);
 					}
 
 					logger(res.locals.type as LogLevel, message, {
@@ -87,9 +89,7 @@ export const logRequestCompletion = () => {
 						failed_attempt: failedLoginAttempt,
 					});
 				} else {
-					if (ipIndex >= 0) {
-							requestTracker.splice(ipIndex, 1);
-					}
+					removeRequestTrackerEntry(requestTracker, clientIp);
 
 					res.status(400);
 					logger(LogLevel.Warn, 'request aborted and cannot be completed', context);

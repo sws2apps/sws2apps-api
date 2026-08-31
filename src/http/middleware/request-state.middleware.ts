@@ -1,7 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import geoip from 'geoip-lite';
 import { serverState } from '../../platform/runtime/server-state.js';
-import type { RequestTrackerType } from '../../platform/runtime/request-tracker.js';
+import {
+	findRequestTrackerEntry,
+	hasReachedFailedRequestLimit,
+	removeRequestTrackerEntry,
+	setRequestTrackerEntry,
+	type RequestTrackerType,
+} from '../../platform/runtime/request-tracker.js';
 
 export const trackRequestState = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
@@ -13,12 +19,10 @@ export const trackRequestState = () => {
 
 			const reqCity = geo === null ? 'Unknown' : `${geo.city} (${geo.country})`;
 
-			const reqTrackRef = requestTracker.find((client) => client.ip === clientIp);
+			const reqTrackRef = findRequestTrackerEntry(requestTracker, clientIp);
 
 			if (reqTrackRef) {
 				const { retryOn, failedLoginAttempt } = reqTrackRef;
-
-				const ipIndex = requestTracker.findIndex((client) => client.ip === clientIp);
 
 				if (retryOn) {
 					const currentDate = new Date().getTime();
@@ -27,11 +31,11 @@ export const trackRequestState = () => {
 						res.locals.message = 'login from this IP address has been blocked temporarily due to many failed attempts';
 						res.status(403).json({ message: 'BLOCKED_TEMPORARILY_TRY_AGAIN' });
 					} else {
-						requestTracker.splice(ipIndex, 1);
+						removeRequestTrackerEntry(requestTracker, clientIp);
 						next();
 					}
 				} else {
-					if (failedLoginAttempt === 3) {
+					if (hasReachedFailedRequestLimit(failedLoginAttempt)) {
 						res.locals.type = 'warn';
 						res.locals.message = 'login from this IP address has been blocked temporarily due to many failed attempts';
 						res.status(403).json({ message: 'BLOCKED_TEMPORARILY' });
@@ -39,10 +43,6 @@ export const trackRequestState = () => {
 						res.on('finish', async () => {
 							const currentD = new Date();
 							const retryDate = currentD.getTime() + 15 * 60000;
-
-							const ipIndex = requestTracker.findIndex((client) => client.ip === clientIp);
-
-							requestTracker.splice(ipIndex, 1);
 
 							const obj: RequestTrackerType = {
 								ip: clientIp,
@@ -52,11 +52,9 @@ export const trackRequestState = () => {
 								retryOn: retryDate,
 							};
 
-							requestTracker.push(obj);
+							setRequestTrackerEntry(requestTracker, obj);
 						});
 					} else {
-						requestTracker.splice(ipIndex, 1);
-
 						const obj: RequestTrackerType = {
 							ip: clientIp,
 							city: reqCity,
@@ -65,7 +63,7 @@ export const trackRequestState = () => {
 							retryOn: undefined,
 						};
 
-						requestTracker.push(obj);
+						setRequestTrackerEntry(requestTracker, obj);
 						next();
 					}
 				}
@@ -78,7 +76,7 @@ export const trackRequestState = () => {
 					retryOn: undefined,
 				};
 
-				requestTracker.push(obj);
+				setRequestTrackerEntry(requestTracker, obj);
 
 				next();
 			}
