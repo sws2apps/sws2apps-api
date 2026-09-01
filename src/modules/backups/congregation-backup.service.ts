@@ -1,6 +1,14 @@
 import type { AppRoleType } from '#domain/users/app-role.js';
 import { getUserCapabilities } from '#domain/users/user-capabilities.js';
-import type { Congregation } from '#modules/congregations/index.js';
+import {
+	type Congregation,
+	saveCongregationIncomingReports,
+	saveCongregationOutgoingSpeakers,
+	saveCongregationPersons,
+	saveCongregationSettings,
+	saveCongregationSpeakersKey,
+	saveCongregationStandardData,
+} from '#modules/congregations/index.js';
 import { UsersList } from '#modules/users/index.js';
 import type { BackupData } from './backup.types.js';
 import { mergeIncomingData } from './incoming-data-merge.js';
@@ -18,64 +26,64 @@ export const saveCongregationBackup = async (
 
 		const settings = structuredClone(congregation.settings);
 		mergeIncomingData(settings, backup.app_settings.cong_settings);
-		await congregation.saveSettings(settings);
+		await saveCongregationSettings(congregation, settings);
 	}
 
 	if (congregation.settings.data_sync.value) {
 		if (capabilities.scheduleEditor && backup.persons) {
-			await congregation.savePersons(backup.persons);
+			await saveCongregationPersons(congregation, backup.persons);
 		}
 
 		if (capabilities.publicTalkEditor && backup.speakers_congregations) {
-			await congregation.saveSpeakersCongregations(backup.speakers_congregations);
+			await saveCongregationStandardData(congregation, 'speakers_congregations', backup.speakers_congregations);
 		}
 
 		if (capabilities.publicTalkEditor && backup.visiting_speakers) {
-			await congregation.saveVisitingSpeakers(backup.visiting_speakers);
+			await saveCongregationStandardData(congregation, 'visiting_speakers', backup.visiting_speakers);
 		}
 
 		if (capabilities.publicTalkEditor && backup.speakers_key) {
-			await congregation.saveSpeakersKey(backup.speakers_key);
+			await saveCongregationSpeakersKey(congregation, backup.speakers_key);
 		}
 
 		if (capabilities.adminRole && backup.branch_cong_analysis) {
-			await congregation.saveBranchCongAnalysis(backup.branch_cong_analysis);
+			await saveCongregationStandardData(congregation, 'branch_cong_analysis', backup.branch_cong_analysis);
 		}
 
 		if (capabilities.adminRole && backup.branch_field_service_reports) {
-			await congregation.saveBranchFieldServiceReports(backup.branch_field_service_reports);
+			await saveCongregationStandardData(congregation, 'branch_field_service_reports', backup.branch_field_service_reports);
 		}
 
 		if (capabilities.serviceCommiteeRole && backup.field_service_groups) {
-			await congregation.saveFieldServiceGroups(backup.field_service_groups);
+			await saveCongregationStandardData(congregation, 'field_service_groups', backup.field_service_groups);
 		}
 
 		if (capabilities.scheduleEditor && backup.sched) {
-			await congregation.saveSchedules(backup.sched);
+			await saveCongregationStandardData(congregation, 'schedules', backup.sched);
 		}
 
 		if (capabilities.scheduleEditor && backup.sources) {
-			await congregation.saveSources(backup.sources);
+			await saveCongregationStandardData(congregation, 'sources', backup.sources);
 		}
 
 		if (capabilities.reportEditorRole && backup.cong_field_service_reports) {
-			await congregation.saveFieldServiceReports(backup.cong_field_service_reports);
+			await saveCongregationStandardData(congregation, 'cong_field_service_reports', backup.cong_field_service_reports);
 		}
 
 		if (capabilities.attendanceTracker && backup.meeting_attendance) {
-			await congregation.saveMeetingAttendance(backup.meeting_attendance);
+			await saveCongregationStandardData(congregation, 'meeting_attendance', backup.meeting_attendance);
 		}
 
 		if (capabilities.adminRole && backup.upcoming_events) {
-			await congregation.saveUpcomingEvents(backup.upcoming_events);
+			await saveCongregationStandardData(congregation, 'upcoming_events', backup.upcoming_events);
 		}
 
 		if (capabilities.publicTalkEditor && backup.outgoing_speakers) {
-			await congregation.saveOutgoingSpeakers(backup.outgoing_speakers);
+			await saveCongregationOutgoingSpeakers(congregation, backup.outgoing_speakers);
 		}
 
 		if (capabilities.secretaryRole && backup.incoming_reports) {
-			await congregation.saveIncomingReports(backup.incoming_reports);
+			await saveCongregationIncomingReports(congregation, backup.incoming_reports);
 		}
 	}
 

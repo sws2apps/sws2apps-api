@@ -7,6 +7,10 @@ import type {
 	OutgoingTalkScheduleType,
 } from '../types/congregations.types.js';
 import { setCongOutgoingSpeakers } from '../repositories/congregation-data.repository.js';
+import {
+	getPublicIncomingTalks,
+	saveCongregationPublicIncomingTalks,
+} from './congregation-data.service.js';
 
 export const saveOutgoingSpeakersState = async (
 	congregationId: string,
@@ -174,10 +178,10 @@ export const copyOutgoingTalkSchedule = async (
 	});
 
 	for (const approvedCongregation of approvedCongregations) {
-		let schedules = await approvedCongregation.getPublicIncomingTalks();
+		let schedules = await getPublicIncomingTalks(approvedCongregation.id);
 		schedules = schedules.filter((record) => record.sender !== congregation.id);
 		schedules.push(...talks.filter((record) => record.recipient === approvedCongregation.id));
 
-		await approvedCongregation.savePublicIncomingTalks(schedules);
+		await saveCongregationPublicIncomingTalks(approvedCongregation.id, schedules);
 	}
 };

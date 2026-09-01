@@ -7,7 +7,6 @@ import {
 	generateSecureRandomString,
 	UPPERCASE_ALPHANUMERIC_CHARACTERS,
 } from '#platform/security/secure-random-string.js';
-import { Congregation } from '../congregation.js';
 import { getCongregationApplications } from './congregation-applications.repository.js';
 import {
 	getOutgoingSpeakersAccessList,
@@ -72,29 +71,6 @@ export const getCongregationDetails = async (cong_id: string) => {
 		incoming_reports: await getFileFromStorage({ type: 'congregation', path: `${cong_id}/field_service_reports/incoming.txt` }),
 		applications: await getCongregationApplications(cong_id),
 	};
-};
-
-export const loadAllCongregations = async (batchSize = 10) => {
-	const congs = await getCongregationIds();
-	const result: Congregation[] = [];
-
-	// Process in batches
-	for (let i = 0; i < congs.length; i += batchSize) {
-		const batch = congs.slice(i, i + batchSize);
-
-		// Run all in parallel for this batch
-		const loadedBatch = await Promise.all(
-			batch.map(async (record) => {
-				const cong = new Congregation(record);
-				await cong.loadDetails();
-				return cong;
-			}),
-		);
-
-		result.push(...loadedBatch);
-	}
-
-	return result;
 };
 
 export const createPersistedCongregation = async (data: CongregationCreateInfoType) => {

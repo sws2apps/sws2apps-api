@@ -1,20 +1,30 @@
 import { OutgoingTalkScheduleType } from '../types/congregations.types.js';
+import type { Congregation } from '../congregation.js';
+import {
+	getPublicIncomingTalks,
+	getPublicOutgoingTalks,
+	saveCongregationPublicIncomingTalks,
+} from './congregation-data.service.js';
 
 type SpeakerAccess = {
 	cong_id: string;
 	status: string;
 };
 
-export type IncomingTalksCongregation = {
-	id: string;
-	outgoing_speakers: {
-		access: SpeakerAccess[];
-	};
-	getPublicIncomingTalks: () => Promise<OutgoingTalkScheduleType[]>;
-	getPublicOutgoingTalks: () => Promise<OutgoingTalkScheduleType[]>;
-	savePublicIncomingTalks: (
-		talks: OutgoingTalkScheduleType[],
-	) => Promise<void>;
+export type IncomingTalksCongregation = Pick<Congregation, 'id'> & {
+	outgoing_speakers: { access: SpeakerAccess[] };
+};
+
+export type IncomingTalksDataAccess = {
+	getIncomingTalks: (congregationId: string) => Promise<OutgoingTalkScheduleType[]>;
+	getOutgoingTalks: (congregationId: string) => Promise<OutgoingTalkScheduleType[]>;
+	saveIncomingTalks: (congregationId: string, talks: OutgoingTalkScheduleType[]) => Promise<void>;
+};
+
+const defaultDataAccess: IncomingTalksDataAccess = {
+	getIncomingTalks: getPublicIncomingTalks,
+	getOutgoingTalks: getPublicOutgoingTalks,
+	saveIncomingTalks: saveCongregationPublicIncomingTalks,
 };
 
 /**
@@ -23,13 +33,14 @@ export type IncomingTalksCongregation = {
  */
 export const initializeIncomingTalks = async (
 	congregations: IncomingTalksCongregation[],
+	dataAccess: IncomingTalksDataAccess = defaultDataAccess,
 ): Promise<void> => {
 	const congregationsById = new Map(
 		congregations.map((congregation) => [congregation.id, congregation]),
 	);
 
 	for (const congregation of congregations) {
-		const existingTalks = await congregation.getPublicIncomingTalks();
+		const existingTalks = await dataAccess.getIncomingTalks(congregation.id);
 
 		if (existingTalks.length > 0) {
 			continue;
@@ -47,7 +58,7 @@ export const initializeIncomingTalks = async (
 				continue;
 			}
 
-			const outgoingTalks = await sourceCongregation.getPublicOutgoingTalks();
+			const outgoingTalks = await dataAccess.getOutgoingTalks(sourceCongregation.id);
 			availableTalks.push(...outgoingTalks);
 		}
 
@@ -55,6 +66,6 @@ export const initializeIncomingTalks = async (
 			(talk) => talk.recipient === congregation.id,
 		);
 
-		await congregation.savePublicIncomingTalks(incomingTalks);
+		await dataAccess.saveIncomingTalks(congregation.id, incomingTalks);
 	}
 };

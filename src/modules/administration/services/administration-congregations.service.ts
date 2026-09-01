@@ -7,6 +7,10 @@ import { createApplicationCongregation } from '#modules/congregations/index.js';
 import { getCongregationMembers } from '#modules/congregations/index.js';
 import { deleteCongregation } from '#modules/congregations/index.js';
 import { saveOutgoingSpeakersState } from '#modules/congregations/index.js';
+import {
+	saveCongregationSettings,
+	saveCongregationSpeakersKey,
+} from '#modules/congregations/index.js';
 import { UsersList } from '#modules/users/index.js';
 
 export type AdministrationCongregationErrorCode =
@@ -146,7 +150,7 @@ export const toggleAdministrationCongregationDataSync = async (
 		updatedAt: new Date().toISOString(),
 	};
 
-	await congregation.saveSettings(settings);
+	await saveCongregationSettings(congregation, settings);
 	return getAdministrationCongregation(congregationId);
 };
 
@@ -197,7 +201,7 @@ export const resetAdministrationSpeakersKey = async (congregationId: string) => 
 	const congregation = getCongregation(congregationId);
 	congregation.outgoing_speakers = { access: [], list: [], speakers_key: '' };
 
-	await congregation.saveSpeakersKey('');
+	await saveCongregationSpeakersKey(congregation, '');
 	await saveOutgoingSpeakersState(congregationId, congregation.outgoing_speakers);
 
 	return getAdministrationCongregation(congregationId);
@@ -226,6 +230,6 @@ export const updateAdministrationCongregation = async (
 	if (input.name !== settings.cong_name) settings.cong_name = input.name;
 	if (input.guid !== settings.cong_guid) settings.cong_guid = input.guid;
 
-	await congregation.saveSettings(settings);
+	await saveCongregationSettings(congregation, settings);
 	return getAdministrationCongregations();
 };

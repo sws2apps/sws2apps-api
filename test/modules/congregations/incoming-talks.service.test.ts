@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 
 import {
 	IncomingTalksCongregation,
+	type IncomingTalksDataAccess,
 	initializeIncomingTalks,
 } from '#modules/congregations/services/incoming-talks.service.js';
 import { OutgoingTalkScheduleType } from '#modules/congregations/types/congregations.types.js';
@@ -29,20 +30,36 @@ const createCongregation = ({
 				status: 'approved',
 			})),
 		},
-		getPublicIncomingTalks: async () => incomingTalks,
-		getPublicOutgoingTalks: async () => {
-			outgoingTalkReads += 1;
-			return outgoingTalks;
-		},
-		savePublicIncomingTalks: async (talks) => {
-			savedIncomingTalks.push(talks);
-		},
 	};
 
 	return {
 		congregation,
+		getIncomingTalks: async () => incomingTalks,
+		getOutgoingTalks: async () => {
+			outgoingTalkReads += 1;
+			return outgoingTalks;
+		},
+		saveIncomingTalks: async (talks: OutgoingTalkScheduleType[]) => {
+			savedIncomingTalks.push(talks);
+		},
 		savedIncomingTalks,
 		getOutgoingTalkReads: () => outgoingTalkReads,
+	};
+};
+
+type CongregationFixture = ReturnType<typeof createCongregation>;
+
+const createDataAccess = (fixtures: CongregationFixture[]): IncomingTalksDataAccess => {
+	const fixturesById = new Map(
+		fixtures.map((fixture) => [fixture.congregation.id, fixture]),
+	);
+
+	return {
+		getIncomingTalks: (congregationId) => fixturesById.get(congregationId)!.getIncomingTalks(),
+		getOutgoingTalks: (congregationId) => fixturesById.get(congregationId)!.getOutgoingTalks(),
+		saveIncomingTalks: (congregationId, talks) => {
+			return fixturesById.get(congregationId)!.saveIncomingTalks(talks);
+		},
 	};
 };
 
@@ -59,10 +76,10 @@ describe('incoming talk initialization', () => {
 			outgoingTalks: [matchingTalk, unrelatedTalk],
 		});
 
-		await initializeIncomingTalks([
-			target.congregation,
-			source.congregation,
-		]);
+		await initializeIncomingTalks(
+			[target.congregation, source.congregation],
+			createDataAccess([target, source]),
+		);
 
 		assert.deepEqual(target.savedIncomingTalks, [[matchingTalk]]);
 		assert.equal(source.getOutgoingTalkReads(), 1);
@@ -77,10 +94,10 @@ describe('incoming talk initialization', () => {
 		});
 		const source = createCongregation({ id: 'source' });
 
-		await initializeIncomingTalks([
-			target.congregation,
-			source.congregation,
-		]);
+		await initializeIncomingTalks(
+			[target.congregation, source.congregation],
+			createDataAccess([target, source]),
+		);
 
 		assert.deepEqual(target.savedIncomingTalks, []);
 		assert.equal(source.getOutgoingTalkReads(), 0);

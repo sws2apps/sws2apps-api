@@ -7,6 +7,7 @@ import type { CongregationCreateInfoType } from '../types/congregations.types.js
 import { createPersistedCongregation } from '../repositories/congregation-lifecycle.repository.js';
 import { Congregation } from '../congregation.js';
 import { refreshCongregationMembers } from './congregation-members.service.js';
+import { hydrateCongregation } from './congregation-hydration.service.js';
 
 export type CongregationCreationErrorCode =
 	| 'CONGREGATION_EXISTS'
@@ -39,7 +40,7 @@ export const createApplicationCongregation = async (
 	const congregationId = await createPersistedCongregation(data);
 	const congregation = new Congregation(congregationId);
 
-	await congregation.loadDetails();
+	await hydrateCongregation(congregation);
 	refreshCongregationMembers(congregation);
 	CongregationsList.add(congregation);
 

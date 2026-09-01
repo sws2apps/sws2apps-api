@@ -14,6 +14,10 @@ import {
 } from '#modules/congregations/index.js';
 import { isCongregationMember } from '#modules/congregations/index.js';
 import { findVisitingSpeakerCongregations } from './visiting-speaker-directory.js';
+import {
+	getPublicSchedules,
+	getPublicSources,
+} from '#modules/congregations/index.js';
 
 export type MeetingAccessErrorCode = 'CONGREGATION_NOT_FOUND' | 'MEMBERSHIP_REQUIRED';
 
@@ -107,8 +111,8 @@ export const publishMeetingSchedules = async (input: PublishMeetingSchedulesInpu
 
 export const getMeetingSchedules = async (congregationId: string, userId: string) => {
 	const congregation = await getAuthorizedCongregation(congregationId, userId);
-	const sources = await congregation.getPublicSources();
-	const schedules = await congregation.getPublicSchedules();
+	const sources = await getPublicSources(congregation.id);
+	const schedules = await getPublicSchedules(congregation.id);
 
 	return { sources, schedules };
 };

@@ -16,6 +16,7 @@ import {
 	parseUserBackupMetadata,
 	UserBackupError,
 } from '../user-backup-context.js';
+import { saveCongregationSettings } from '#modules/congregations/index.js';
 
 export const filterBackupMetadata = (
 	metadata: Record<string, string>,
@@ -68,7 +69,7 @@ export const saveUserBackup = async (
 			const settings = structuredClone(congregation.settings);
 			settings.data_sync = congregationBackup.app_settings.cong_settings.data_sync;
 
-			await congregation.saveSettings(settings);
+			await saveCongregationSettings(congregation, settings);
 		}
 
 		return {

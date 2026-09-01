@@ -4,6 +4,22 @@ import type { StandardRecord } from '../../../types/standard-record.js';
 import { BackupData } from '#modules/backups/index.js';
 import type { CongSettingsType } from '#modules/congregations/index.js';
 import {
+	getBranchCongAnalysis,
+	getBranchFieldServiceReports,
+	getCongregationPersons,
+	getFieldServiceGroups,
+	getFieldServiceReports,
+	getMeetingAttendance,
+	getPublicIncomingTalks,
+	getPublicSchedules,
+	getPublicSources,
+	getSchedules,
+	getSources,
+	getSpeakersCongregations,
+	getUpcomingEvents,
+	getVisitingSpeakers,
+} from '#modules/congregations/index.js';
+import {
 	getUserBackupContext,
 	parseUserBackupMetadata,
 } from '../user-backup-context.js';
@@ -94,7 +110,7 @@ export const retrieveUserBackup = async (
 		incomingDate = metadata.field_service_groups;
 
 		if (localDate !== incomingDate) {
-			result.field_service_groups = await congregation.getFieldServiceGroups();
+			result.field_service_groups = await getFieldServiceGroups(congregation.id);
 			result.metadata.field_service_groups = localDate;
 		}
 
@@ -102,7 +118,7 @@ export const retrieveUserBackup = async (
 		incomingDate = metadata.upcoming_events;
 
 		if (localDate !== incomingDate) {
-			result.upcoming_events = await congregation.getUpcomingEvents();
+			result.upcoming_events = await getUpcomingEvents(congregation.id);
 			result.metadata.upcoming_events = localDate;
 		}
 
@@ -111,7 +127,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.persons;
 
 			if (localDate !== incomingDate) {
-				result.persons = await congregation.getPersons();
+				result.persons = await getCongregationPersons(congregation.id);
 				result.metadata.persons = localDate;
 			}
 		}
@@ -121,7 +137,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.speakers_congregations;
 
 			if (localDate !== incomingDate) {
-				result.speakers_congregations = await congregation.getSpeakersCongregations();
+				result.speakers_congregations = await getSpeakersCongregations(congregation.id);
 				result.metadata.speakers_congregations = localDate;
 			}
 
@@ -129,7 +145,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.visiting_speakers;
 
 			if (localDate !== incomingDate) {
-				result.visiting_speakers = await congregation.getVisitingSpeakers();
+				result.visiting_speakers = await getVisitingSpeakers(congregation.id);
 				result.metadata.visiting_speakers = localDate;
 			}
 		}
@@ -139,14 +155,14 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.cong_field_service_reports;
 
 			if (localDate !== incomingDate) {
-				result.cong_field_service_reports = await congregation.getFieldServiceReports();
+				result.cong_field_service_reports = await getFieldServiceReports(congregation.id);
 				result.metadata.cong_field_service_reports = localDate;
 			}
 		}
 
 		if (publicTalkEditor) {
 			result.speakers_key = congregation.outgoing_speakers.speakers_key;
-			result.outgoing_talks = await congregation.getPublicIncomingTalks();
+			result.outgoing_talks = await getPublicIncomingTalks(congregation.id);
 		}
 
 		if (adminRole || isPublisher) {
@@ -179,7 +195,7 @@ export const retrieveUserBackup = async (
 				incomingDate = metadata.cong_field_service_reports;
 
 				if (localDate !== incomingDate) {
-					const reports = await congregation.getFieldServiceReports();
+					const reports = await getFieldServiceReports(congregation.id);
 
 					const congUserReports = reports.filter((record) => {
 						const data = record.report_data as StandardRecord;
@@ -198,7 +214,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.persons;
 
 			if (localDate !== incomingDate) {
-				const persons = await congregation.getPersons();
+				const persons = await getCongregationPersons(congregation.id);
 
 				const minimalPersons = persons.map((record) => {
 					const includeTimeAway = congregation.settings.time_away_public?.value;
@@ -234,7 +250,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.public_sources;
 
 			if (localDate !== incomingDate) {
-				result.public_sources = await congregation.getPublicSources();
+				result.public_sources = await getPublicSources(congregation.id);
 				result.metadata.public_sources = localDate;
 			}
 
@@ -242,7 +258,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.public_schedules;
 
 			if (localDate !== incomingDate) {
-				result.public_schedules = await congregation.getPublicSchedules();
+				result.public_schedules = await getPublicSchedules(congregation.id);
 				result.metadata.public_schedules = localDate;
 			}
 		}
@@ -252,7 +268,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.sources;
 
 			if (localDate !== incomingDate) {
-				result.sources = await congregation.getSources();
+				result.sources = await getSources(congregation.id);
 				result.metadata.sources = localDate;
 			}
 
@@ -260,7 +276,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.schedules;
 
 			if (localDate !== incomingDate) {
-				result.sched = await congregation.getSchedules();
+				result.sched = await getSchedules(congregation.id);
 				result.metadata.schedules = localDate;
 			}
 		}
@@ -270,7 +286,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.meeting_attendance;
 
 			if (localDate !== incomingDate) {
-				result.meeting_attendance = await congregation.getMeetingAttendance();
+				result.meeting_attendance = await getMeetingAttendance(congregation.id);
 				result.metadata.meeting_attendance = localDate;
 			}
 		}
@@ -290,7 +306,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.branch_cong_analysis;
 
 			if (localDate !== incomingDate) {
-				result.branch_cong_analysis = await congregation.getBranchCongAnalysis();
+				result.branch_cong_analysis = await getBranchCongAnalysis(congregation.id);
 				result.metadata.branch_cong_analysis = localDate;
 			}
 
@@ -298,7 +314,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.branch_field_service_reports;
 
 			if (localDate !== incomingDate) {
-				result.branch_field_service_reports = await congregation.getBranchFieldServiceReports();
+				result.branch_field_service_reports = await getBranchFieldServiceReports(congregation.id);
 				result.metadata.branch_field_service_reports = localDate;
 			}
 

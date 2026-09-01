@@ -8,6 +8,14 @@ import { savePocketBackupAsync } from '#modules/backups/index.js';
 import { CongregationsList } from '#modules/congregations/index.js';
 import { isCongregationMember } from '#modules/congregations/index.js';
 import type { CongSettingsType } from '#modules/congregations/index.js';
+import {
+	getCongregationPersons,
+	getFieldServiceGroups,
+	getFieldServiceReports,
+	getPublicSchedules,
+	getPublicSources,
+	getUpcomingEvents,
+} from '#modules/congregations/index.js';
 import { UsersList } from '#modules/users/index.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 
@@ -156,7 +164,7 @@ const addPrivateBackupChanges = async (
 	visiblePersonIds: string[],
 ) => {
 	if (congregation.metadata.persons !== metadata.persons) {
-		const persons = await congregation.getPersons();
+		const persons = await getCongregationPersons(congregation.id);
 		const includeTimeAway = congregation.settings.time_away_public?.value;
 
 		backup.persons = persons.map((record) => {
@@ -187,12 +195,12 @@ const addPrivateBackupChanges = async (
 	}
 
 	if (congregation.metadata.field_service_groups !== metadata.field_service_groups) {
-		backup.field_service_groups = await congregation.getFieldServiceGroups();
+		backup.field_service_groups = await getFieldServiceGroups(congregation.id);
 		backup.metadata.field_service_groups = congregation.metadata.field_service_groups;
 	}
 
 	if (congregation.metadata.upcoming_events !== metadata.upcoming_events) {
-		backup.upcoming_events = await congregation.getUpcomingEvents();
+		backup.upcoming_events = await getUpcomingEvents(congregation.id);
 		backup.metadata.upcoming_events = congregation.metadata.upcoming_events;
 	}
 
@@ -217,7 +225,7 @@ const addPrivateBackupChanges = async (
 		congregation.metadata.cong_field_service_reports !== metadata.cong_field_service_reports &&
 		user.profile.congregation?.user_local_uid
 	) {
-		const reports = await congregation.getFieldServiceReports();
+		const reports = await getFieldServiceReports(congregation.id);
 		backup.cong_field_service_reports = reports.filter((record) => {
 			const report = record.report_data as StandardRecord;
 			return visiblePersonIds.includes(String(report.person_uid));
@@ -232,12 +240,12 @@ const addPublicBackupChanges = async (
 	metadata: Record<string, string>,
 ) => {
 	if (congregation.metadata.public_sources !== metadata.public_sources) {
-		backup.public_sources = await congregation.getPublicSources();
+		backup.public_sources = await getPublicSources(congregation.id);
 		backup.metadata.public_sources = congregation.metadata.public_sources;
 	}
 
 	if (congregation.metadata.public_schedules !== metadata.public_schedules) {
-		backup.public_schedules = await congregation.getPublicSchedules();
+		backup.public_schedules = await getPublicSchedules(congregation.id);
 		backup.metadata.public_schedules = congregation.metadata.public_schedules;
 	}
 };

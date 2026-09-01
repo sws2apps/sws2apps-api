@@ -16,6 +16,11 @@ import {
 	getRemoteSpeakerCongregations,
 } from '#modules/congregations/index.js';
 import { isCongregationMember } from '#modules/congregations/index.js';
+import {
+	getCongregationPersons,
+	saveCongregationIncomingReports,
+	saveCongregationPersons,
+} from '#modules/congregations/index.js';
 
 export type UserCongregationActivityErrorCode =
 	| 'CONGREGATION_NOT_ASSIGNED'
@@ -87,7 +92,7 @@ const saveIncomingFieldServiceReport = async (
 	);
 
 	congregation.incoming_reports = incomingReports;
-	await congregation.saveIncomingReports(incomingReports);
+	await saveCongregationIncomingReports(congregation, incomingReports);
 };
 
 export const mergeIncomingFieldServiceReport = (
@@ -121,7 +126,7 @@ export const updateUserCongregationPersonData = async (
 	emergencyContacts: string,
 ): Promise<void> => {
 	const { user, congregation } = getUserCongregation(userId);
-	const persons = await congregation.getPersons();
+	const persons = await getCongregationPersons(congregation.id);
 	const person = persons.find((record) => {
 		return record.person_uid === user.profile.congregation!.user_local_uid;
 	});
@@ -132,7 +137,7 @@ export const updateUserCongregationPersonData = async (
 	personData.timeAway = timeAway;
 	personData.emergency_contacts = emergencyContacts;
 
-	await congregation.savePersons(persons);
+	await saveCongregationPersons(congregation, persons);
 };
 
 export const getUserCongregationUpdates = async (
@@ -176,7 +181,7 @@ export const getUserCongregationUpdates = async (
 		updates.incoming_reports = congregation.incoming_reports;
 
 		if (updates.incoming_reports.length > 0) {
-			await congregation.saveIncomingReports([]);
+			await saveCongregationIncomingReports(congregation, []);
 		}
 	}
 

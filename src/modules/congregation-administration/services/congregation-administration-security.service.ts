@@ -4,6 +4,7 @@ import { CongregationsList } from '#modules/congregations/index.js';
 import { deleteUser } from '#modules/users/index.js';
 import { deleteCongregation } from '#modules/congregations/index.js';
 import { isCongregationMember } from '#modules/congregations/index.js';
+import { saveCongregationSettings } from '#modules/congregations/index.js';
 
 export type CongregationAdministrationSecurityErrorCode =
 	| 'CONGREGATION_NOT_FOUND'
@@ -71,7 +72,7 @@ export const saveCongregationMasterKey = async (
 		masterKey,
 	);
 
-	await congregation.saveSettings(settings);
+	await saveCongregationSettings(congregation, settings);
 };
 
 export const saveCongregationAccessCode = async (
@@ -86,7 +87,7 @@ export const saveCongregationAccessCode = async (
 		accessCode,
 	);
 
-	await congregation.saveSettings(settings);
+	await saveCongregationSettings(congregation, settings);
 };
 
 export const getCongregationMasterKey = (
