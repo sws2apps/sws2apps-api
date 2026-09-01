@@ -1,5 +1,6 @@
 import type {
 	UserProfile,
+	UserMetadata,
 	UserSession,
 	UserSettings,
 } from './types/user.types.js';
@@ -11,7 +12,7 @@ export class User {
 	profile: UserProfile;
 	sessions: UserSession[];
 	settings: UserSettings;
-	metadata: Record<string, string>;
+	metadata: UserMetadata;
 	flags: string[];
 
 	constructor(id: string) {

@@ -1,6 +1,14 @@
 import type { AppRoleType } from '#domain/users/app-role.js';
 import type { CircuitRecordType } from '#modules/congregations/index.js';
 
+export type UserMetadata = {
+	user_bible_studies: string;
+	user_field_service_reports: string;
+	delegated_field_service_reports: string;
+	user_settings: string;
+	sessions: string;
+};
+
 export type UserGlobalRoleType = 'vip' | 'pocket' | 'admin';
 
 export type UserNewParams = {

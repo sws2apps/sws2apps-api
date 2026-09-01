@@ -2,6 +2,7 @@ import type { StandardRecord } from '../../types/standard-record.js';
 import type { User } from '#modules/users/index.js';
 import type {
 	CongSettingsType,
+	CongregationMetadata,
 	OutgoingSpeakersRecordType,
 	UserRequestAccess,
 } from './types/congregations.types.js';
@@ -12,7 +13,7 @@ export class Congregation {
 	members: User[];
 	settings: CongSettingsType;
 	outgoing_speakers: OutgoingSpeakersRecordType;
-	metadata: Record<string, string>;
+	metadata: CongregationMetadata;
 	flags: string[];
 	join_requests: UserRequestAccess[];
 	ap_applications: StandardRecord[];
@@ -34,6 +35,9 @@ export class Congregation {
 			speakers_congregations: '',
 			cong_field_service_reports: '',
 			upcoming_events: '',
+			incoming_reports: '',
+			public_sources: '',
+			public_schedules: '',
 		};
 		this.settings = {
 			attendance_online_record: '',

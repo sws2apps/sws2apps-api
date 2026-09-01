@@ -35,6 +35,7 @@ const createDataSource = (ids = ['congregation-1']): CongregationHydrationDataSo
 					incoming_reports: '',
 					public_sources: '',
 					public_schedules: '',
+					upcoming_events: 'upcoming-events-date',
 				},
 				flags: ['flag-1'],
 				join_requests: [],
@@ -54,6 +55,7 @@ describe('congregation hydration', () => {
 		assert.equal(congregation.createdAt, '2026-09-01T10:00:00.000Z');
 		assert.equal(congregation.settings.cong_name, 'Congregation congregation-1');
 		assert.equal(congregation.metadata.persons, 'metadata-date');
+		assert.equal(congregation.metadata.upcoming_events, 'upcoming-events-date');
 		assert.deepEqual(congregation.incoming_reports, [{ report_id: 'report-1' }]);
 		assert.deepEqual(congregation.flags, ['flag-1']);
 	});

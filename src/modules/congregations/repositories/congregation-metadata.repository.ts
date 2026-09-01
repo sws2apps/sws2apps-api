@@ -121,6 +121,7 @@ export const getCongregationMetadata = async (cong_id: string) => {
 		incoming_reports: await getIncomingReportsMetadata(cong_id),
 		public_sources: await getPublicSourcesMetadata(cong_id),
 		public_schedules: await getPublicSchedulesMetadata(cong_id),
+		upcoming_events: await getUpcomingEventsMetadata(cong_id),
 	};
 };
 
