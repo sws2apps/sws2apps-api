@@ -2,14 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 import { header, validationResult } from 'express-validator';
 import { formatError } from '#http/validation-errors.js';
 import {
-	verifyAuthenticationToken,
-} from '#modules/auth/index.js';
-import {
 	refreshAuthenticationSession,
-} from '#modules/auth/index.js';
-import {
 	resolveAuthenticatedSession,
 	resolvePocketSessionUser,
+	verifyAuthenticationToken,
 } from '#modules/auth/index.js';
 import {
 	extractBearerToken,
