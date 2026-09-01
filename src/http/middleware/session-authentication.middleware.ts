@@ -13,7 +13,23 @@ import {
 } from '#http/security/bearer-token.js';
 import { sendClientError } from '#http/responses.js';
 
-export const requireAuthenticatedSession = () => {
+export type SessionAuthenticationDependencies = {
+	refreshSession: typeof refreshAuthenticationSession;
+	resolveSession: typeof resolveAuthenticatedSession;
+	resolvePocketUser: typeof resolvePocketSessionUser;
+	verifyToken: typeof verifyAuthenticationToken;
+};
+
+const defaultDependencies: SessionAuthenticationDependencies = {
+	refreshSession: refreshAuthenticationSession,
+	resolveSession: resolveAuthenticatedSession,
+	resolvePocketUser: resolvePocketSessionUser,
+	verifyToken: verifyAuthenticationToken,
+};
+
+export const requireAuthenticatedSession = (
+	dependencies: SessionAuthenticationDependencies = defaultDependencies,
+) => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			await header('Authorization')
@@ -35,7 +51,7 @@ export const requireAuthenticatedSession = () => {
 
 			// decode authorization
 			const idToken = extractBearerToken(req.headers.authorization!)!;
-			const authenticatedUserId = await verifyAuthenticationToken(idToken);
+			const authenticatedUserId = await dependencies.verifyToken(idToken);
 
 			if (!authenticatedUserId) {
 				sendClientError(res, 403, 'LOGIN_FIRST', 'this user is not yet authenticated');
@@ -49,7 +65,7 @@ export const requireAuthenticatedSession = () => {
 				return;
 			}
 
-			const sessionResolution = resolveAuthenticatedSession(authenticatedUserId, visitorId);
+			const sessionResolution = dependencies.resolveSession(authenticatedUserId, visitorId);
 
 			if (sessionResolution.status === 'user-not-found') {
 				sendClientError(res, 403, 'ACCOUNT_NOT_FOUND', 'this user account no longer exists');
@@ -77,7 +93,7 @@ export const requireAuthenticatedSession = () => {
 
 				if (mfaVerified) {
 					// update last seen
-					await refreshAuthenticationSession({
+					await dependencies.refreshSession({
 						userId: user.id,
 						visitorId,
 						visitorIp: req.clientIp!,
@@ -96,7 +112,7 @@ export const requireAuthenticatedSession = () => {
 				// update last seen
 				const lastSeenUpdatePaths = ['/validate-me'];
 				if (lastSeenUpdatePaths.includes(req.path)) {
-					await refreshAuthenticationSession({
+					await dependencies.refreshSession({
 						userId: user.id,
 						visitorId,
 						visitorIp: req.clientIp!,
@@ -112,7 +128,9 @@ export const requireAuthenticatedSession = () => {
 	};
 };
 
-export const requirePocketSession = () => {
+export const requirePocketSession = (
+	dependencies: SessionAuthenticationDependencies = defaultDependencies,
+) => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			// get visitorid signed
@@ -122,7 +140,7 @@ export const requirePocketSession = () => {
 				return;
 			}
 
-			const user = resolvePocketSessionUser(visitorId);
+			const user = dependencies.resolvePocketUser(visitorId);
 
 			if (!user) {
 				res.clearCookie('visitorid');
@@ -136,7 +154,7 @@ export const requirePocketSession = () => {
 			// ignore path that update last seen
 			const lastSeenUpdatePaths = ['/validate-me'];
 			if (lastSeenUpdatePaths.includes(req.path)) {
-				await refreshAuthenticationSession({
+				await dependencies.refreshSession({
 					userId: user.id,
 					visitorId,
 					visitorIp: req.clientIp!,
