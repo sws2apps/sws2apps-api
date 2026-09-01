@@ -4,6 +4,7 @@ import type { NextFunction, Request, Response } from 'express';
 
 import {
 	requireAuthenticatedSession,
+	requirePocketSession,
 	type SessionAuthenticationDependencies,
 } from '#http/middleware/session-authentication.middleware.js';
 import { User } from '#modules/users/user.js';
@@ -45,8 +46,14 @@ const createDependencies = (
 	};
 };
 
-const runAuthentication = async (
-	dependencies: SessionAuthenticationDependencies,
+type SessionMiddleware = (
+	request: Request,
+	response: Response,
+	next: NextFunction,
+) => Promise<void>;
+
+const runSessionMiddleware = async (
+	middleware: SessionMiddleware,
 	options: {
 		authorization?: string;
 		visitorId?: string;
@@ -93,9 +100,19 @@ const runAuthentication = async (
 		state.nextError = error;
 	}) as NextFunction;
 
-	await requireAuthenticatedSession(dependencies)(request, response, next);
+	await middleware(request, response, next);
 	return state;
 };
+
+const runAuthentication = (
+	dependencies: SessionAuthenticationDependencies,
+	options: Parameters<typeof runSessionMiddleware>[1] = {},
+) => runSessionMiddleware(requireAuthenticatedSession(dependencies), options);
+
+const runPocketAuthentication = (
+	dependencies: SessionAuthenticationDependencies,
+	options: Parameters<typeof runSessionMiddleware>[1] = {},
+) => runSessionMiddleware(requirePocketSession(dependencies), options);
 
 describe('session authentication middleware', () => {
 	it('rejects a missing bearer token before authentication', async () => {
@@ -170,6 +187,53 @@ describe('session authentication middleware', () => {
 
 		assert.equal(state.continued, true);
 		assert.equal(state.nextError, undefined);
+		assert.equal(state.locals.currentUser, context.user);
+		assert.equal(context.getRefreshCount(), 1);
+	});
+});
+
+describe('Pocket session authentication middleware', () => {
+	it('rejects a request without a signed visitor cookie', async () => {
+		const { dependencies } = createDependencies();
+		const state = await runPocketAuthentication(dependencies);
+
+		assert.equal(state.statusCode, 403);
+		assert.deepEqual(state.body, { message: 'DEVICE_REVOKED' });
+		assert.equal(state.continued, false);
+	});
+
+	it('clears the visitor cookie when its Pocket account no longer exists', async () => {
+		const { dependencies } = createDependencies({
+			resolvePocketUser: () => undefined,
+		});
+		const state = await runPocketAuthentication(dependencies, {
+			visitorId: 'visitor-1',
+		});
+
+		assert.equal(state.statusCode, 403);
+		assert.deepEqual(state.body, { message: 'ACCOUNT_NOT_FOUND' });
+		assert.deepEqual(state.clearedCookies, ['visitorid']);
+	});
+
+	it('attaches the Pocket user and continues ordinary requests', async () => {
+		const context = createDependencies();
+		const state = await runPocketAuthentication(context.dependencies, {
+			visitorId: 'visitor-1',
+		});
+
+		assert.equal(state.continued, true);
+		assert.equal(state.locals.currentUser, context.user);
+		assert.equal(context.getRefreshCount(), 0);
+	});
+
+	it('refreshes the Pocket session during validation', async () => {
+		const context = createDependencies();
+		const state = await runPocketAuthentication(context.dependencies, {
+			visitorId: 'visitor-1',
+			path: '/validate-me',
+		});
+
+		assert.equal(state.continued, true);
 		assert.equal(state.locals.currentUser, context.user);
 		assert.equal(context.getRefreshCount(), 1);
 	});
