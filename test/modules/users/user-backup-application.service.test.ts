@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import type { BackupData } from '#modules/backups/backup.types.js';
 import type { User } from '#modules/users/user.js';
-import { applyUserBackup } from '#modules/users/user-backup-application.service.js';
+import { applyUserBackup } from '#modules/users/services/user-backup-application.service.js';
 
 const createUser = () => {
 	const savedData: string[] = [];

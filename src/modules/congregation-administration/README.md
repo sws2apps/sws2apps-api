@@ -12,3 +12,9 @@ before reaching the controller. Security, user-management, and join-request HTTP
 handlers have dedicated controllers backed by matching business services.
 Member management, Pocket invitations, and session revocation are also separated
 at the HTTP boundary.
+
+## Layout
+
+- `controllers/` translates privileged congregation HTTP requests and responses.
+- `services/` owns administration workflows and notification coordination.
+- Root files expose routes, public exports, and role validation.

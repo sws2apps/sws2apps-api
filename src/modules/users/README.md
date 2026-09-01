@@ -18,3 +18,11 @@ lookup index; it does not create or delete accounts.
 
 Persistence is separated into account, activity-data, metadata, and lifecycle
 repositories. Feature modules do not import the Firebase SDK directly.
+
+## Layout
+
+- `controllers/` translates authenticated HTTP requests and responses.
+- `services/` owns user workflows and application use cases.
+- `repositories/` owns persisted user data.
+- `types/` contains the module's shared data contracts.
+- Root files expose routes, public exports, the `User` aggregate, and `UsersList` cache.

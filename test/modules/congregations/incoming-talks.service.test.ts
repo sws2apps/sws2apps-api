@@ -4,8 +4,8 @@ import { describe, it } from 'node:test';
 import {
 	IncomingTalksCongregation,
 	initializeIncomingTalks,
-} from '#modules/congregations/incoming-talks.service.js';
-import { OutgoingTalkScheduleType } from '#modules/congregations/congregations.types.js';
+} from '#modules/congregations/services/incoming-talks.service.js';
+import { OutgoingTalkScheduleType } from '#modules/congregations/types/congregations.types.js';
 
 const createCongregation = ({
 	id,

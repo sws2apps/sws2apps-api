@@ -14,11 +14,11 @@ import {
 	deleteCongregation,
 	getAllCongregations,
 	updateBasicCongregationInfo,
-} from './administration-congregations.controller.js';
+} from './controllers/administration-congregations.controller.js';
 import {
 	logoutAdmin,
 	validateAdmin,
-} from './administration-session.controller.js';
+} from './controllers/administration-session.controller.js';
 import {
 	userAssignCongregation,
 	userDelete,
@@ -28,7 +28,7 @@ import {
 	userSessionDelete,
 	usersGetAll,
 	userUpdate,
-} from './administration-users.controller.js';
+} from './controllers/administration-users.controller.js';
 import {
 	congregationFlagToggle,
 	flagDelete,
@@ -37,11 +37,11 @@ import {
 	flagToggle,
 	flagUpdate,
 	userFlagToggle,
-} from './administration-flags.controller.js';
+} from './controllers/administration-flags.controller.js';
 import {
 	getClientVersion,
 	updateClientVersion,
-} from './administration-settings.controller.js';
+} from './controllers/administration-settings.controller.js';
 import { isValidFeatureFlagAvailability } from './feature-flag-validation.js';
 
 const router = express.Router();

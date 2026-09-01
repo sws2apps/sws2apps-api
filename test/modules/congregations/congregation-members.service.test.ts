@@ -7,7 +7,7 @@ import {
 	getCongregationMembers,
 	isCongregationMember,
 	refreshCongregationMembers,
-} from '#modules/congregations/congregation-members.service.js';
+} from '#modules/congregations/services/congregation-members.service.js';
 import { User } from '#modules/users/user.js';
 import { UsersList } from '#modules/users/users.js';
 

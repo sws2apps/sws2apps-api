@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import type { User } from '#modules/users/user.js';
-import type { UserSession } from '#modules/users/user.types.js';
+import type { UserSession } from '#modules/users/types/user.types.js';
 import {
 	resolveAuthenticatedSession,
 	resolvePocketSessionUser,

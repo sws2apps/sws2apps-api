@@ -13,12 +13,12 @@ import {
 	getUserSessions,
 	userLogout,
 	validateUser,
-} from './users-account.controller.js';
+} from './controllers/users-account.controller.js';
 import {
 	retrieveUserBackup,
 	saveUserBackup,
 	saveUserChunkedBackup,
-} from './users-backup.controller.js';
+} from './controllers/users-backup.controller.js';
 import {
 	getAuxiliaryApplications,
 	getUserUpdates,
@@ -26,7 +26,7 @@ import {
 	postUserReport,
 	submitAuxiliaryApplication,
 	userPostFeedback,
-} from './users-congregation-activity.controller.js';
+} from './controllers/users-congregation-activity.controller.js';
 
 const userRouter = express.Router();
 

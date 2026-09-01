@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import type { UserSession } from '#modules/users/user.types.js';
+import type { UserSession } from '#modules/users/types/user.types.js';
 import {
 	findSessionIdentifierByVisitorId,
 	projectUserSessions,
-} from '#modules/users/users-account.service.js';
+} from '#modules/users/services/users-account.service.js';
 
 describe('user account sessions', () => {
 	it('projects session details without exposing the visitor identifier', () => {

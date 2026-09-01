@@ -5,14 +5,14 @@ import { validateRequest } from '#http/validation-errors.js';
 import {
 	deleteApplication,
 	updateApplicationApproval,
-} from './congregation-applications.controller.js';
+} from './controllers/congregation-applications.controller.js';
 import {
 	createCongregation,
-} from './congregation-creation.controller.js';
+} from './controllers/congregation-creation.controller.js';
 import {
 	getCongregations,
 	getCountries,
-} from './congregation-directory.controller.js';
+} from './controllers/congregation-directory.controller.js';
 
 const congregationRouter = express.Router();
 

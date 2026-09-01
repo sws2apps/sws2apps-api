@@ -4,7 +4,7 @@ import {
 	OutgoingSpeakersRecordType,
 	OutgoingTalkScheduleType,
 	UserRequestAccess,
-} from './congregations.types.js';
+} from './types/congregations.types.js';
 import {
 	getBranchCongAnalysisMetadata,
 	getBranchFieldServiceReportsMetadata,
@@ -19,7 +19,7 @@ import {
 	getSpeakersCongregationsMetadata,
 	getUpcomingEventsMetadata,
 	getVisitingSpeakersMetadata,
-} from './congregation-metadata.repository.js';
+} from './repositories/congregation-metadata.repository.js';
 import {
 	getCongPersons,
 	getCongregationData,
@@ -38,13 +38,13 @@ import {
 	setMeetingAttendance,
 	setSpeakersCongregations,
 	setUpcomingEvents,
-} from './congregation-data.repository.js';
+} from './repositories/congregation-data.repository.js';
 import {
 	getCongregationDetails,
-} from './congregation-lifecycle.repository.js';
+} from './repositories/congregation-lifecycle.repository.js';
 import {
 	setCongregationSettings,
-} from './congregation-settings.repository.js';
+} from './repositories/congregation-settings.repository.js';
 import { User } from '#modules/users/index.js';
 
 export class Congregation {

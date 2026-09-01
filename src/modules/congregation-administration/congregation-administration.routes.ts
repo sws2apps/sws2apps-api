@@ -7,14 +7,14 @@ import { validateRequest } from '#http/validation-errors.js';
 import {
 	acceptJoinRequest,
 	deleteJoinRequest,
-} from './congregation-administration-join-requests.controller.js';
+} from './controllers/congregation-administration-join-requests.controller.js';
 import {
 	congregationAccessCodeGet,
 	congregationMasterKeyGet,
 	deleteCongregation,
 	setCongregationAccessCode,
 	setCongregationMasterKey,
-} from './congregation-administration-security.controller.js';
+} from './controllers/congregation-administration-security.controller.js';
 import {
 	congregationDeleteUser,
 	congregationGetUsers,
@@ -22,14 +22,14 @@ import {
 	globalSearchUser,
 	setAdminUserUid,
 	userDetailsUpdate,
-} from './congregation-administration-members.controller.js';
+} from './controllers/congregation-administration-members.controller.js';
 import {
 	pocketCodeDelete,
 	pocketUserAdd,
-} from './congregation-administration-pocket-users.controller.js';
+} from './controllers/congregation-administration-pocket-users.controller.js';
 import {
 	userSessionDelete,
-} from './congregation-administration-sessions.controller.js';
+} from './controllers/congregation-administration-sessions.controller.js';
 import { isValidCongregationRoleList } from './role-validation.js';
 
 const congregationAdministrationRouter = express.Router();

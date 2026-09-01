@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { buildCongregationJoinRequests } from '#modules/congregations/congregation-join-requests.service.js';
+import { buildCongregationJoinRequests } from '#modules/congregations/services/congregation-join-requests.service.js';
 
 describe('congregation join requests', () => {
 	it('adds the requesting user name', () => {

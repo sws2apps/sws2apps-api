@@ -1,1 +1,1 @@
-export { initializeMinimumClientVersion } from './administration-settings.service.js';
+export { initializeMinimumClientVersion } from './services/administration-settings.service.js';

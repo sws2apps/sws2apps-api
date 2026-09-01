@@ -5,7 +5,7 @@ import { Congregation } from '#modules/congregations/congregation.js';
 import {
 	getApprovedVisitingSpeakerCongregations,
 	getPendingOutgoingSpeakerAccess,
-} from '#modules/congregations/outgoing-speakers.service.js';
+} from '#modules/congregations/services/outgoing-speakers.service.js';
 
 const createCongregation = (id: string, name: string, countryCode: string) => {
 	const congregation = new Congregation(id);

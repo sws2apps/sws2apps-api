@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { formatAdministrationSession } from '#modules/administration/administration-users.service.js';
-import type { UserSession } from '#modules/users/user.types.js';
+import { formatAdministrationSession } from '#modules/administration/services/administration-users.service.js';
+import type { UserSession } from '#modules/users/types/user.types.js';
 
 const session: UserSession = {
 	identifier: 'session-1',

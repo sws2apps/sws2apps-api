@@ -21,3 +21,11 @@ repository.
 
 Administrative and meeting-editor congregation endpoints remain separate modules
 because they have different permission boundaries.
+
+## Layout
+
+- `controllers/` translates congregation HTTP requests and responses.
+- `services/` owns congregation workflows and application use cases.
+- `repositories/` owns persisted congregation data.
+- `types/` contains the module's shared data contracts.
+- Root files expose routes, public exports, the aggregate, cache, and domain helpers.
