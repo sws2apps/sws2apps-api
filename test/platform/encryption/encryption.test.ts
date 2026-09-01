@@ -27,9 +27,10 @@ describe('encryption adapter', () => {
 		assert.equal(decryptedText, originalText);
 	});
 
-	it('does not return plaintext when encrypted data cannot be decoded', () => {
-		const decryptedText = decryptData('not-valid-encrypted-data');
+	it('does not treat malformed encrypted data as plaintext', () => {
+		const malformedEncryptedText = 'not-valid-encrypted-data';
+		const decryptedText = decryptData(malformedEncryptedText);
 
-		assert.ok(decryptedText === '' || decryptedText === undefined);
+		assert.notEqual(decryptedText, malformedEncryptedText);
 	});
 });

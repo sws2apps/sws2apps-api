@@ -8,8 +8,7 @@ import rateLimit from 'express-rate-limit';
 import requestIp from 'request-ip';
 import compression from 'compression';
 import i18next from 'i18next';
-
-import '#platform/firebase/firebase-app.js';
+import type { RequestHandler } from 'express';
 
 import { requireInternetConnection } from '#http/middleware/internet-connection.middleware.js';
 import { trackRequestState } from '#http/middleware/request-state.middleware.js';
@@ -28,59 +27,72 @@ const corsOptionsDelegate = (request: express.Request, callback: (_error: null, 
 	callback(null, createCorsOptions(request, env.isProduction));
 };
 
-const app = express();
+type ApplicationMiddlewareOverrides = {
+	internetConnection?: RequestHandler;
+	requestState?: RequestHandler;
+	requestLogging?: RequestHandler;
+	serverReady?: RequestHandler;
+};
 
-app.set('trust proxy', 1);
+export const createApp = (middlewareOverrides: ApplicationMiddlewareOverrides = {}) => {
+	const app = express();
 
-app.use(helmet());
+	app.set('trust proxy', 1);
 
-app.use(express.static('public'));
+	app.use(helmet());
 
-const __dirname = path.resolve();
+	app.use(express.static('public'));
 
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+	const applicationRoot = path.resolve();
 
-app.use(cors(corsOptionsDelegate));
+	app.use(favicon(path.join(applicationRoot, 'public', 'favicon.ico')));
 
-app.use(compression());
-app.use(requestIp.mw()); // get IP address middleware
-app.use(rateLimit({
-	windowMs: serverConfig.rateLimit.windowMilliseconds,
-	max: serverConfig.rateLimit.maximumRequestsPerWindow,
-	message: { message: 'TOO_MANY_REQUESTS' },
-	standardHeaders: 'draft-8',
-	legacyHeaders: false,
-}));
+	app.use(cors(corsOptionsDelegate));
 
-app.use(express.json({ limit: serverConfig.requestBodySizeLimit }));
-app.use(express.urlencoded({
-	limit: serverConfig.requestBodySizeLimit,
-	extended: true,
-}));
+	app.use(compression());
+	app.use(requestIp.mw()); // get IP address middleware
+	app.use(rateLimit({
+		windowMs: serverConfig.rateLimit.windowMilliseconds,
+		max: serverConfig.rateLimit.maximumRequestsPerWindow,
+		message: { message: 'TOO_MANY_REQUESTS' },
+		standardHeaders: 'draft-8',
+		legacyHeaders: false,
+	}));
 
-app.use(requireInternetConnection());
-app.use(trackRequestState());
-app.use(logRequestCompletion());
-app.use(serverReadyChecker());
+	app.use(express.json({ limit: serverConfig.requestBodySizeLimit }));
+	app.use(express.urlencoded({
+		limit: serverConfig.requestBodySizeLimit,
+		extended: true,
+	}));
 
-i18next.init({
-	preload: ['eng'],
-	lng: 'eng',
-	fallbackLng: 'eng',
-	resources: resources,
-});
+	app.use(middlewareOverrides.internetConnection ?? requireInternetConnection());
+	app.use(middlewareOverrides.requestState ?? trackRequestState());
+	app.use(middlewareOverrides.requestLogging ?? logRequestCompletion());
+	app.use(middlewareOverrides.serverReady ?? serverReadyChecker());
 
-app.use(handle(i18next));
+	i18next.init({
+		preload: ['eng'],
+		lng: 'eng',
+		fallbackLng: 'eng',
+		resources: resources,
+	});
 
-app.get('/', getRoot);
+	app.use(handle(i18next));
 
-// load routes
-app.use('/api/v3', apiV3Routes);
+	app.get('/', getRoot);
 
-// Handling invalid routes
-app.use(invalidEndpointHandler);
+	// load routes
+	app.use('/api/v3', apiV3Routes);
 
-// Handling error for all requests
-app.use(errorHandler);
+	// Handling invalid routes
+	app.use(invalidEndpointHandler);
+
+	// Handling error for all requests
+	app.use(errorHandler);
+
+	return app;
+};
+
+const app = createApp();
 
 export default app;

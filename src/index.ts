@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { LogLevel } from '@logtail/types';
 
+import '#platform/firebase/firebase-app.js';
 import app from './app.js';
 import { env } from '#config/env.js';
 
