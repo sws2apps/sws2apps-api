@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { sendClientError, sendSuccess } from '#http/responses.js';
 
 import type { AppRoleType } from '#domain/users/app-role.js';
 import {
@@ -13,20 +14,14 @@ import {
 
 const handleJoinRequestError = (error: unknown, res: Response): boolean => {
 	if (!(error instanceof CongregationJoinRequestError)) return false;
-	res.locals.type = 'warn';
-
 	if (error.code === 'CONGREGATION_NOT_FOUND') {
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
+		sendClientError(res, 404, 'error_app_congregation_not-found', 'no congregation could not be found with the provided id');
 	} else if (error.code === 'MEMBERSHIP_REQUIRED') {
-		res.locals.message = 'user not authorized to access the provided congregation';
-		res.status(403).json({ message: 'error_api_unauthorized-request' });
+		sendClientError(res, 403, 'error_api_unauthorized-request', 'user not authorized to access the provided congregation');
 	} else if (error.code === 'USER_NOT_FOUND') {
-		res.locals.message = 'no user record found with the provided id';
-		res.status(404).json({ message: 'error_app_join-requests-user-not-found' });
+		sendClientError(res, 404, 'error_app_join-requests-user-not-found', 'no user record found with the provided id');
 	} else {
-		res.locals.message = 'user already have a congregation';
-		res.status(400).json({ message: 'error_app_join-requests-invalid' });
+		sendClientError(res, 400, 'error_app_join-requests-invalid', 'user already have a congregation');
 	}
 
 	return true;
@@ -36,9 +31,7 @@ export const deleteJoinRequest = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+		sendClientError(res, 400, 'error_app_congregation_invalid-id', 'the congregation id params is undefined');
 
 		return;
 	}
@@ -52,18 +45,14 @@ export const deleteJoinRequest = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'congregation admin declined a join request';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'congregation admin declined a join request');
 };
 
 export const acceptJoinRequest = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+		sendClientError(res, 400, 'error_app_congregation_invalid-id', 'the congregation id params is undefined');
 
 		return;
 	}
@@ -107,8 +96,5 @@ export const acceptJoinRequest = async (req: Request, res: Response) => {
 		});
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'congregation admin accepted a join request';
-	res.status(200).json(approval.requests);
+	sendSuccess(res, approval.requests, 'congregation admin accepted a join request');
 };
-

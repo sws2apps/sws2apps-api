@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { sendClientError, sendSuccess } from '#http/responses.js';
 
 import {
 	createCongregationPocketUser,
@@ -10,9 +11,7 @@ export const pocketUserAdd = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+		sendClientError(res, 400, 'error_app_congregation_invalid-id', 'the congregation id params is undefined');
 
 		return;
 	}
@@ -37,26 +36,20 @@ export const pocketUserAdd = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'congregation admin added pocket user';
-	res.status(200).json(congregationMembers);
+	sendSuccess(res, congregationMembers, 'congregation admin added pocket user');
 };
 
 export const pocketCodeDelete = async (req: Request, res: Response) => {
 	const { id, user } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
+		sendClientError(res, 400, 'CONG_ID_INVALID', 'the congregation id params is undefined');
 
 		return;
 	}
 
 	if (!user) {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation user params is undefined';
-		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+		sendClientError(res, 400, 'error_app_congregation_invalid-id', 'the congregation user params is undefined');
 
 		return;
 	}
@@ -74,9 +67,6 @@ export const pocketCodeDelete = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'congregation admin deleted user invitation code';
-	res.status(200).json(congregationMembers);
+	sendSuccess(res, congregationMembers, 'congregation admin deleted user invitation code');
 };
-
 

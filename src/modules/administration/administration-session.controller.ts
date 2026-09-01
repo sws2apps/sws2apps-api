@@ -1,11 +1,10 @@
 import type { Request, Response } from 'express';
+import { sendSuccess } from '#http/responses.js';
 
 import { logoutAdministrationUser } from './administration-users.service.js';
 
 export const validateAdmin = async (req: Request, res: Response) => {
-	res.locals.type = 'info';
-	res.locals.message = 'administrator successfully logged in';
-	res.status(200).json({ message: 'OK' });
+	sendSuccess(res, { message: 'OK' }, 'administrator successfully logged in');
 };
 
 export const logoutAdmin = async (req: Request, res: Response) => {
@@ -13,10 +12,6 @@ export const logoutAdmin = async (req: Request, res: Response) => {
 	const { id } = res.locals.currentUser;
 	await logoutAdministrationUser(id);
 
-	res.locals.type = 'info';
-	res.locals.message = 'administrator successfully logged out';
-
 	res.clearCookie('visitorid');
-	res.status(200).json({ message: 'LOGGED_OUT' });
+	sendSuccess(res, { message: 'LOGGED_OUT' }, 'administrator successfully logged out');
 };
-

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { sendClientError, sendSuccess } from '#http/responses.js';
 import { getSessionCookieOptions } from '#http/security/session-cookie-options.js';
 import {
 	completeAuthentication,
@@ -22,9 +23,7 @@ const completeTokenAuthentication = async (
 	const authenticationUserId = await verifyAuthenticationToken(idToken);
 
 	if (!authenticationUserId) {
-		res.locals.type = 'warn';
-		res.locals.message = 'the idToken received is invalid';
-		res.status(404).json({ message: 'error_auth_invalid-token' });
+		sendClientError(res, 404, 'error_auth_invalid-token', 'the idToken received is invalid');
 		return;
 	}
 
@@ -42,24 +41,18 @@ const completeTokenAuthentication = async (
 		res.cookie('visitorid', visitorId, getSessionCookieOptions(req));
 
 		if (authentication.requiresMfa) {
-			res.locals.type = 'info';
-			res.locals.message = 'user required to verify mfa';
-			res.status(200).json({
+			sendSuccess(res, {
 				message: 'MFA_VERIFY',
 				code: authentication.developmentMfaCode,
-			});
+			}, 'user required to verify mfa');
 			return;
 		}
 
-		res.locals.type = 'info';
-		res.locals.message = 'user successfully logged in without MFA';
-		res.status(200).json(authentication.userInfo);
+		sendSuccess(res, authentication.userInfo, 'user successfully logged in without MFA');
 	} catch (error) {
 		if (!(error instanceof AuthenticationError) || error.code !== 'USER_NOT_FOUND') throw error;
 
-		res.locals.type = 'warn';
-		res.locals.message = 'user record not found';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
+		sendClientError(res, 404, 'USER_NOT_FOUND', 'user record not found');
 	}
 };
 
@@ -91,12 +84,12 @@ export const createSignInLink = async (req: Request, res: Response) => {
 		},
 	});
 
-	res.locals.type = 'info';
-	res.locals.message = 'passwordless link will be sent to user';
-	res.status(200).json(
+	sendSuccess(
+		res,
 		signIn.emailEnabled
 			? { message: 'SIGNIN_LINK_SEND' }
 			: { link: signIn.link, otp: signIn.otp },
+		'passwordless link will be sent to user',
 	);
 };
 
@@ -116,25 +109,20 @@ export const verifyEmailToken = async (req: Request, res: Response) => {
 			headers: req.headers,
 		});
 
-		res.locals.type = 'info';
-		res.locals.message = 'user successfully logged with email OTP';
 		res.cookie('visitorid', visitorId, getSessionCookieOptions(req));
-		res.status(200).json(userInfo);
+		sendSuccess(res, userInfo, 'user successfully logged with email OTP');
 	} catch (error) {
 		if (!(error instanceof AuthenticationError)) throw error;
 
-		res.locals.type = 'warn';
 		if (error.code === 'USER_NOT_FOUND') {
-			res.locals.message = 'user record not found';
-			res.status(404).json({ message: 'USER_NOT_FOUND' });
+			sendClientError(res, 404, 'USER_NOT_FOUND', 'user record not found');
 			return;
 		}
 
-		res.locals.message = error.code === 'OTP_NOT_FOUND'
+		const logMessage = error.code === 'OTP_NOT_FOUND'
 			? 'user email otp not found in records'
 			: 'email otp is invalid';
-		res.status(error.code === 'OTP_NOT_FOUND' ? 404 : 403).json({
-			message: 'error_auth_invalid-token',
-		});
+		const statusCode = error.code === 'OTP_NOT_FOUND' ? 404 : 403;
+		sendClientError(res, statusCode, 'error_auth_invalid-token', logMessage);
 	}
 };

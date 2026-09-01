@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { sendClientError, sendSuccess } from '#http/responses.js';
 import {
 	InvalidMfaTokenError,
 	verifyMfaToken,
@@ -13,15 +14,10 @@ export const verifyToken = async (req: Request, res: Response) => {
 			token: req.body.token as string,
 		});
 
-		res.locals.type = 'info';
-		res.locals.message = 'OTP token verification success';
-		res.status(200).json(userInfo);
+		sendSuccess(res, userInfo, 'OTP token verification success');
 	} catch (error) {
 		if (!(error instanceof InvalidMfaTokenError)) throw error;
 
-		res.locals.type = 'warn';
-		res.locals.message = 'OTP token invalid';
-		res.status(403).json({ message: 'TOKEN_INVALID' });
+		sendClientError(res, 403, 'TOKEN_INVALID', 'OTP token invalid');
 	}
 };
-

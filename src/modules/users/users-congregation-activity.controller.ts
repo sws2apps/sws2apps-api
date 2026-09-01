@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { sendClientError, sendSuccess } from '#http/responses.js';
 
 import type { StandardRecord } from '../../types/standard-record.js';
 import {
@@ -17,16 +18,12 @@ const handleUserCongregationActivityError = (
 ): boolean => {
 	if (!(error instanceof UserCongregationActivityError)) return false;
 
-	res.locals.type = 'warn';
-
 	if (error.code === 'CONGREGATION_NOT_ASSIGNED') {
-		res.locals.message = 'user does not have an assigned congregation';
-		res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
+		sendClientError(res, 400, 'CONG_NOT_ASSIGNED', 'user does not have an assigned congregation');
 		return true;
 	}
 
-	res.locals.message = 'user congregation is invalid';
-	res.status(404).json({ message: 'error_app_congregation_not-found' });
+	sendClientError(res, 404, 'error_app_congregation_not-found', 'user congregation is invalid');
 	return true;
 };
 
@@ -42,9 +39,7 @@ export const getAuxiliaryApplications = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = `user get submitted auxiliary pioneer application list`;
-	res.status(200).json(results);
+	sendSuccess(res, results, `user get submitted auxiliary pioneer application list`);
 };
 
 export const submitAuxiliaryApplication = async (req: Request, res: Response) => {
@@ -57,9 +52,7 @@ export const submitAuxiliaryApplication = async (req: Request, res: Response) =>
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = `user submitted auxiliary pioneer application`;
-	res.status(200).json({ message: 'APPLICATION_SENT' });
+	sendSuccess(res, { message: 'APPLICATION_SENT' }, `user submitted auxiliary pioneer application`);
 };
 
 export const postUserReport = async (req: Request, res: Response) => {
@@ -72,9 +65,7 @@ export const postUserReport = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = `user sent report successfully`;
-	res.status(200).json({ message: 'REPORT_SENT' });
+	sendSuccess(res, { message: 'REPORT_SENT' }, `user sent report successfully`);
 };
 
 export const getUserUpdates = async (req: Request, res: Response) => {
@@ -87,21 +78,18 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 	} catch (error) {
 		if (!(error instanceof UserCongregationActivityError)) throw error;
 
-		res.locals.type = 'warn';
-		res.locals.message = error.code === 'CONGREGATION_NOT_ASSIGNED'
+		const congregationNotAssigned = error.code === 'CONGREGATION_NOT_ASSIGNED';
+		const logMessage = congregationNotAssigned
 			? 'user does not have an assigned congregation'
 			: 'user congregation is invalid';
-		res.status(403).json({
-			message: error.code === 'CONGREGATION_NOT_ASSIGNED'
-				? 'CONG_NOT_ASSIGNED'
-				: 'error_app_congregation_not-found',
-		});
+		const publicMessage = congregationNotAssigned
+			? 'CONG_NOT_ASSIGNED'
+			: 'error_app_congregation_not-found';
+		sendClientError(res, 403, publicMessage, logMessage);
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'user retrieve updates successfully';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'user retrieve updates successfully');
 };
 
 export const userPostFeedback = async (req: Request, res: Response) => {
@@ -113,21 +101,18 @@ export const userPostFeedback = async (req: Request, res: Response) => {
 	} catch (error) {
 		if (!(error instanceof UserCongregationActivityError)) throw error;
 
-		res.locals.type = 'warn';
-		res.locals.message = error.code === 'CONGREGATION_NOT_ASSIGNED'
+		const congregationNotAssigned = error.code === 'CONGREGATION_NOT_ASSIGNED';
+		const logMessage = congregationNotAssigned
 			? 'user does not have an assigned congregation'
 			: 'user congregation is invalid';
-		res.status(403).json({
-			message: error.code === 'CONGREGATION_NOT_ASSIGNED'
-				? 'CONG_NOT_ASSIGNED'
-				: 'error_app_congregation_not-found',
-		});
+		const publicMessage = congregationNotAssigned
+			? 'CONG_NOT_ASSIGNED'
+			: 'error_app_congregation_not-found';
+		sendClientError(res, 403, publicMessage, logMessage);
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'user sent feedback successfully';
-	res.status(200).json({ message: 'MESSAGE_SENT' });
+	sendSuccess(res, { message: 'MESSAGE_SENT' }, 'user sent feedback successfully');
 };
 
 export const joinCongregation = async (req: Request, res: Response) => {
@@ -141,15 +126,9 @@ export const joinCongregation = async (req: Request, res: Response) => {
 	});
 
 	if (outcome === 'already_member') {
-		res.locals.type = 'warn';
-		res.locals.message = `user already member of the congregation`;
-		res.status(400).json({ message: 'ALREADY_MEMBER' });
+		sendClientError(res, 400, 'ALREADY_MEMBER', `user already member of the congregation`);
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = `user request to join a congregation`;
-	res.status(200).json({ message: 'REQUEST_SENT' });
+	sendSuccess(res, { message: 'REQUEST_SENT' }, `user request to join a congregation`);
 };
-
-

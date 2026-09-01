@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { sendClientError, sendSuccess } from '#http/responses.js';
 
 import {
 	CongregationAdministrationSecurityError,
@@ -12,22 +13,17 @@ import {
 const handleCongregationSecurityError = (error: unknown, res: Response): boolean => {
 	if (!(error instanceof CongregationAdministrationSecurityError)) return false;
 
-	res.locals.type = 'warn';
-
 	if (error.code === 'CONGREGATION_NOT_FOUND') {
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
+		sendClientError(res, 404, 'error_app_congregation_not-found', 'no congregation could not be found with the provided id');
 		return true;
 	}
 
 	if (error.code === 'INVALID_MASTER_KEY') {
-		res.locals.message = 'congregation admin provided invalid master key for deletion';
-		res.status(403).json({ message: 'error_app_security_invalid-master-key' });
+		sendClientError(res, 403, 'error_app_security_invalid-master-key', 'congregation admin provided invalid master key for deletion');
 		return true;
 	}
 
-	res.locals.message = 'user not authorized to access the provided congregation';
-	res.status(403).json({ message: 'error_api_unauthorized-request' });
+	sendClientError(res, 403, 'error_api_unauthorized-request', 'user not authorized to access the provided congregation');
 	return true;
 };
 
@@ -35,9 +31,7 @@ export const setCongregationMasterKey = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+		sendClientError(res, 400, 'error_app_congregation_invalid-id', 'the congregation id params is undefined');
 
 		return;
 	}
@@ -53,18 +47,14 @@ export const setCongregationMasterKey = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'congregation admin set master key';
-	res.status(200).json({ message: 'MASTER_KEY_SAVED' });
+	sendSuccess(res, { message: 'MASTER_KEY_SAVED' }, 'congregation admin set master key');
 };
 
 export const setCongregationAccessCode = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+		sendClientError(res, 400, 'error_app_congregation_invalid-id', 'the congregation id params is undefined');
 
 		return;
 	}
@@ -80,18 +70,14 @@ export const setCongregationAccessCode = async (req: Request, res: Response) => 
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'congregation admin set password';
-	res.status(200).json({ message: 'PASSWORD_SAVED' });
+	sendSuccess(res, { message: 'PASSWORD_SAVED' }, 'congregation admin set password');
 };
 
 export const congregationMasterKeyGet = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+		sendClientError(res, 400, 'error_app_congregation_invalid-id', 'the congregation id params is undefined');
 
 		return;
 	}
@@ -104,18 +90,14 @@ export const congregationMasterKeyGet = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'congregation admin get master key';
-	res.status(200).json({ message: masterKey });
+	sendSuccess(res, { message: masterKey }, 'congregation admin get master key');
 };
 
 export const congregationAccessCodeGet = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+		sendClientError(res, 400, 'error_app_congregation_invalid-id', 'the congregation id params is undefined');
 
 		return;
 	}
@@ -128,18 +110,14 @@ export const congregationAccessCodeGet = async (req: Request, res: Response) => 
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'congregation admin get access code';
-	res.status(200).json({ message: accessCode });
+	sendSuccess(res, { message: accessCode }, 'congregation admin get access code');
 };
 
 export const deleteCongregation = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+		sendClientError(res, 400, 'error_app_congregation_invalid-id', 'the congregation id params is undefined');
 
 		return;
 	}
@@ -155,9 +133,5 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'congregation admin deleted congregation';
-	res.status(200).json({ message: 'CONGREGATION_DELETED' });
+	sendSuccess(res, { message: 'CONGREGATION_DELETED' }, 'congregation admin deleted congregation');
 };
-
-

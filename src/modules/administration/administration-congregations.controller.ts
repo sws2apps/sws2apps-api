@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { sendClientError, sendSuccess } from '#http/responses.js';
 
 import {
 	AdministrationCongregationError,
@@ -19,46 +20,36 @@ const handleAdministrationCongregationError = (
 ): boolean => {
 	if (!(error instanceof AdministrationCongregationError)) return false;
 
-	res.locals.type = 'warn';
-
 	if (error.code === 'CONGREGATION_ACTIVE') {
-		res.locals.message = 'congregation could not be deleted since there are still users inside';
-		res.status(405).json({ message: 'CONG_ACTIVE' });
+		sendClientError(res, 405, 'CONG_ACTIVE', 'congregation could not be deleted since there are still users inside');
 		return true;
 	}
 
 	if (error.code === 'CONGREGATION_EXISTS') {
-		res.locals.message = 'custom congregation already exists';
-		res.status(400).json({ message: 'CONG_EXISTS' });
+		sendClientError(res, 400, 'CONG_EXISTS', 'custom congregation already exists');
 		return true;
 	}
 
 	if (error.code === 'COUNTRY_FETCH_FAILED') {
-		res.locals.message = 'an error occured while getting list of all countries';
-		res.status(error.statusCode!).json({ message: 'FETCH_FAILED' });
+		sendClientError(res, error.statusCode!, 'FETCH_FAILED', 'an error occured while getting list of all countries');
 		return true;
 	}
 
-	res.locals.message = 'no congregation could not be found with the provided id';
-	res.status(404).json({ message: notFoundCode });
+	sendClientError(res, 404, notFoundCode, 'no congregation could not be found with the provided id');
 	return true;
 };
 
 export const getAllCongregations = async (req: Request, res: Response) => {
 	const result = await getAdministrationCongregations();
 
-	res.locals.type = 'info';
-	res.locals.message = 'admin fetched all congregation';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'admin fetched all congregation');
 };
 
 export const deleteCongregation = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'REQUEST_ID_INVALID', 'the congregation request id params is undefined');
 
 		return;
 	}
@@ -71,18 +62,14 @@ export const deleteCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'admin deleted a congregation';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'admin deleted a congregation');
 };
 
 export const congregationGet = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+		sendClientError(res, 400, 'error_app_congregation_invalid-id', 'the congregation id params is undefined');
 
 		return;
 	}
@@ -95,18 +82,14 @@ export const congregationGet = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'admin fetched a congergation';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'admin fetched a congergation');
 };
 
 export const congregationDataSyncToggle = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'REQUEST_ID_INVALID', 'the congregation request id params is undefined');
 
 		return;
 	}
@@ -119,9 +102,7 @@ export const congregationDataSyncToggle = async (req: Request, res: Response) =>
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = `admin updated congregation data sync`;
-	res.status(200).json(result);
+	sendSuccess(res, result, `admin updated congregation data sync`);
 };
 
 export const createCongregation = async (req: Request, res: Response) => {
@@ -135,18 +116,14 @@ export const createCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'admin created a custom congregation';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'admin created a custom congregation');
 };
 
 export const congregationDeleteRequest = async (req: Request, res: Response) => {
 	const { id, request } = req.params;
 
 	if (!id || id === 'undefined' || !request || request === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation or request id params are undefined';
-		res.status(400).json({ message: 'CONG_REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'CONG_REQUEST_ID_INVALID', 'the congregation or request id params are undefined');
 
 		return;
 	}
@@ -159,18 +136,14 @@ export const congregationDeleteRequest = async (req: Request, res: Response) => 
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = `admin deleted congregation access request`;
-	res.status(200).json(result);
+	sendSuccess(res, result, `admin deleted congregation access request`);
 };
 
 export const congregationResetSpeakersKey = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation or request id params are undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
+		sendClientError(res, 400, 'CONG_ID_INVALID', 'the congregation or request id params are undefined');
 
 		return;
 	}
@@ -183,18 +156,14 @@ export const congregationResetSpeakersKey = async (req: Request, res: Response) 
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = `admin reset the congregation speakers key`;
-	res.status(200).json(result);
+	sendSuccess(res, result, `admin reset the congregation speakers key`);
 };
 
 export const updateBasicCongregationInfo = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'REQUEST_ID_INVALID', 'the congregation request id params is undefined');
 
 		return;
 	}
@@ -214,9 +183,5 @@ export const updateBasicCongregationInfo = async (req: Request, res: Response) =
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'admin updated basic congregation information';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'admin updated basic congregation information');
 };
-
-

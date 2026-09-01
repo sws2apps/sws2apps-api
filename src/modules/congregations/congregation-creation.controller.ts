@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { sendClientError, sendSuccess } from '#http/responses.js';
 import {
 	CongregationCreationError,
 	createVerifiedCongregation,
@@ -27,16 +28,12 @@ export const createCongregation = async (req: Request, res: Response) => {
 	} catch (error) {
 		if (!(error instanceof CongregationCreationError)) throw error;
 
-		res.locals.type = 'warn';
 		if (error.code === 'CONGREGATION_EXISTS') {
-			res.locals.message = 'the congregation requested already exists';
-			res.status(404).json({ message: 'CONG_EXISTS' });
+			sendClientError(res, 404, 'CONG_EXISTS', 'the congregation requested already exists');
 		} else if (error.code === 'DIRECTORY_FETCH_FAILED') {
-			res.locals.message = 'an error occured while verifying the congregation data';
-			res.status(error.statusCode!).json({ message: 'REQUEST_NOT_VALIDATED' });
+			sendClientError(res, error.statusCode!, 'REQUEST_NOT_VALIDATED', 'an error occured while verifying the congregation data');
 		} else {
-			res.locals.message = 'this request does not match any valid congregation';
-			res.status(400).json({ message: 'BAD_REQUEST' });
+			sendClientError(res, 400, 'BAD_REQUEST', 'this request does not match any valid congregation');
 		}
 		return;
 	}
@@ -57,8 +54,5 @@ export const createCongregation = async (req: Request, res: Response) => {
 		});
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'congregation created successfully';
-	res.status(200).json(creation.response);
+	sendSuccess(res, creation.response, 'congregation created successfully');
 };
-

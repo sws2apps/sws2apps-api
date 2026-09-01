@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { sendSuccess } from '#http/responses.js';
 
 import {
 	getMinimumClientVersion,
@@ -6,16 +7,11 @@ import {
 } from './administration-settings.service.js';
 
 export const getClientVersion = async (_req: Request, res: Response) => {
-	res.locals.type = 'info';
-	res.locals.message = 'admin fetched minimum client';
-	res.status(200).json({ version: getMinimumClientVersion() });
+	sendSuccess(res, { version: getMinimumClientVersion() }, 'admin fetched minimum client');
 };
 
 export const updateClientVersion = async (req: Request, res: Response) => {
 	const updatedVersion = await updateMinimumClientVersion(req.body.version as string);
 
-	res.locals.type = 'info';
-	res.locals.message = 'admin updated minimum client';
-	res.status(200).json({ version: updatedVersion });
+	sendSuccess(res, { version: updatedVersion }, 'admin updated minimum client');
 };
-

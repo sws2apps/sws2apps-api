@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { sendClientError, sendSuccess } from '#http/responses.js';
 import type { OutgoingTalkScheduleType } from '#modules/congregations/index.js';
 import {
 	approveVisitingSpeakerAccess,
@@ -16,9 +17,7 @@ const getValidatedCongregationId = (req: Request, res: Response): string | undef
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
+		sendClientError(res, 400, 'CONG_ID_INVALID', 'the congregation id params is undefined');
 		return undefined;
 	}
 
@@ -29,16 +28,12 @@ const getValidatedCongregationId = (req: Request, res: Response): string | undef
 const handleMeetingAccessError = (error: unknown, res: Response): boolean => {
 	if (!(error instanceof MeetingAccessError)) return false;
 
-	res.locals.type = 'warn';
-
 	if (error.code === 'CONGREGATION_NOT_FOUND') {
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
+		sendClientError(res, 404, 'error_app_congregation_not-found', 'no congregation could not be found with the provided id');
 		return true;
 	}
 
-	res.locals.message = 'user not authorized to access the provided congregation';
-	res.status(403).json({ message: 'error_api_unauthorized-request' });
+	sendClientError(res, 403, 'error_api_unauthorized-request', 'user not authorized to access the provided congregation');
 	return true;
 };
 
@@ -53,9 +48,7 @@ export const getApprovedVisitingSpeakersAccess = async (req: Request, res: Respo
 	try {
 		const congregations = await getApprovedVisitingSpeakerAccess(congregationId, res.locals.currentUser.id);
 
-		res.locals.type = 'info';
-		res.locals.message = 'user fetched congregation speakers access';
-		res.status(200).json({ congregations });
+		sendSuccess(res, { congregations }, 'user fetched congregation speakers access');
 	} catch (error) {
 		rethrowUnexpectedError(error, res);
 	}
@@ -72,9 +65,7 @@ export const findVisitingSpeakersCongregations = async (req: Request, res: Respo
 			req.query.name as string,
 		);
 
-		res.locals.type = 'info';
-		res.locals.message = 'user fetched congregations visiting speakers list';
-		res.status(200).json(result);
+		sendSuccess(res, result, 'user fetched congregations visiting speakers list');
 	} catch (error) {
 		rethrowUnexpectedError(error, res);
 	}
@@ -95,9 +86,7 @@ export const requestAccessSpeakersCongregation = async (req: Request, res: Respo
 			req.body.request_id as string,
 		);
 
-		res.locals.type = 'info';
-		res.locals.message = 'user requested access to a congregation outgoing speakers list';
-		res.status(200).json({ cong_id: targetCongregationId });
+		sendSuccess(res, { cong_id: targetCongregationId }, 'user requested access to a congregation outgoing speakers list');
 	} catch (error) {
 		rethrowUnexpectedError(error, res);
 	}
@@ -110,9 +99,7 @@ export const getPendingVisitingSpeakersAccess = async (req: Request, res: Respon
 	try {
 		const result = await getPendingVisitingSpeakerAccess(congregationId, res.locals.currentUser.id);
 
-		res.locals.type = 'info';
-		res.locals.message = 'user fetched congregation speakers pending access';
-		res.status(200).json(result);
+		sendSuccess(res, result, 'user fetched congregation speakers pending access');
 	} catch (error) {
 		rethrowUnexpectedError(error, res);
 	}
@@ -130,9 +117,7 @@ export const approveVisitingSpeakersAccess = async (req: Request, res: Response)
 			req.body.key as string,
 		);
 
-		res.locals.type = 'info';
-		res.locals.message = 'user approved congregation speakers access';
-		res.status(200).json({ congregations });
+		sendSuccess(res, { congregations }, 'user approved congregation speakers access');
 	} catch (error) {
 		rethrowUnexpectedError(error, res);
 	}
@@ -149,9 +134,7 @@ export const rejectVisitingSpeakersAccess = async (req: Request, res: Response) 
 			req.body.request_id as string,
 		);
 
-		res.locals.type = 'info';
-		res.locals.message = 'user rejected congregation speakers access';
-		res.status(200).json({ congregations });
+		sendSuccess(res, { congregations }, 'user rejected congregation speakers access');
 	} catch (error) {
 		rethrowUnexpectedError(error, res);
 	}
@@ -170,9 +153,7 @@ export const publishSchedules = async (req: Request, res: Response) => {
 			talks: req.body.talks as OutgoingTalkScheduleType[] | undefined,
 		});
 
-		res.locals.type = 'info';
-		res.locals.message = 'user published the schedules';
-		res.status(200).json({ message: 'SCHEDULES_PUBLISHED' });
+		sendSuccess(res, { message: 'SCHEDULES_PUBLISHED' }, 'user published the schedules');
 	} catch (error) {
 		rethrowUnexpectedError(error, res);
 	}
@@ -185,9 +166,7 @@ export const getPublicSchedules = async (req: Request, res: Response) => {
 	try {
 		const schedules = await getMeetingSchedules(congregationId, res.locals.currentUser.id);
 
-		res.locals.type = 'info';
-		res.locals.message = 'user fetched congregations public schedules';
-		res.status(200).json(schedules);
+		sendSuccess(res, schedules, 'user fetched congregations public schedules');
 	} catch (error) {
 		rethrowUnexpectedError(error, res);
 	}

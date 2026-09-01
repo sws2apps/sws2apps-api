@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { sendClientError, sendSuccess } from '#http/responses.js';
 
 import { revokeCongregationUserSession } from './congregation-administration-users.service.js';
 import { handleCongregationUserError } from './congregation-administration-user-errors.js';
@@ -8,17 +9,13 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation id params is undefined';
-		res.status(400).json({ message: 'CONG_ID_INVALID' });
+		sendClientError(res, 400, 'CONG_ID_INVALID', 'the congregation id params is undefined');
 
 		return;
 	}
 
 	if (!user) {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation user params is undefined';
-		res.status(400).json({ message: 'error_app_congregation_invalid-id' });
+		sendClientError(res, 400, 'error_app_congregation_invalid-id', 'the congregation user params is undefined');
 
 		return;
 	}
@@ -38,8 +35,5 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'congregation admin terminated user session';
-	res.status(200).json(congregationMembers);
+	sendSuccess(res, congregationMembers, 'congregation admin terminated user session');
 };
-

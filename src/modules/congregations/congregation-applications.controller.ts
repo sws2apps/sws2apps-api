@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { sendClientError, sendSuccess } from '#http/responses.js';
 
 import {
 	CongregationApplicationError,
@@ -9,18 +10,15 @@ import {
 const handleCongregationApplicationError = (error: unknown, res: Response): boolean => {
 	if (!(error instanceof CongregationApplicationError)) return false;
 
-	res.locals.type = 'warn';
-
 	if (error.code === 'CONGREGATION_NOT_FOUND') {
-		res.locals.message = 'no congregation could not be found with the provided id';
-		res.status(404).json({ message: 'error_app_congregation_not-found' });
+		sendClientError(res, 404, 'error_app_congregation_not-found', 'no congregation could not be found with the provided id');
 		return true;
 	}
 
-	res.locals.message = error.code === 'MEMBERSHIP_REQUIRED'
+	const logMessage = error.code === 'MEMBERSHIP_REQUIRED'
 		? 'user not authorized to access the provided congregation'
 		: 'user not authorized to process this application';
-	res.status(403).json({ message: 'error_api_unauthorized-request' });
+	sendClientError(res, 403, 'error_api_unauthorized-request', logMessage);
 	return true;
 };
 
@@ -28,16 +26,12 @@ export const updateApplicationApproval = async (req: Request, res: Response) => 
 	const { id, request } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'REQUEST_ID_INVALID', 'the congregation request id params is undefined');
 		return;
 	}
 
 	if (!request) {
-		res.locals.type = 'warn';
-		res.locals.message = 'the application request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'REQUEST_ID_INVALID', 'the application request id params is undefined');
 		return;
 	}
 
@@ -56,25 +50,19 @@ export const updateApplicationApproval = async (req: Request, res: Response) => 
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'user updated application approval';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'user updated application approval');
 };
 
 export const deleteApplication = async (req: Request, res: Response) => {
 	const { id, request } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the congregation request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'REQUEST_ID_INVALID', 'the congregation request id params is undefined');
 		return;
 	}
 
 	if (!request) {
-		res.locals.type = 'warn';
-		res.locals.message = 'the application request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'REQUEST_ID_INVALID', 'the application request id params is undefined');
 		return;
 	}
 
@@ -88,8 +76,5 @@ export const deleteApplication = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'user deleted application';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'user deleted application');
 };
-

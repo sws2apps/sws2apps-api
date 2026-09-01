@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { sendClientError, sendSuccess } from '#http/responses.js';
 
 import type { BackupData } from '#modules/backups/index.js';
 import { UserBackupError } from './user-backup-context.js';
@@ -11,34 +12,27 @@ import { retrieveUserBackup as retrieveUserBackupData } from './users-backup.ser
 const handleUserBackupError = (error: unknown, res: Response): boolean => {
 	if (!(error instanceof UserBackupError)) return false;
 
-	res.locals.type = 'warn';
-
 	if (error.code === 'CONGREGATION_NOT_ASSIGNED') {
-		res.locals.message = 'user does not have an assigned congregation';
-		res.status(400).json({ message: 'CONG_NOT_ASSIGNED' });
+		sendClientError(res, 400, 'CONG_NOT_ASSIGNED', 'user does not have an assigned congregation');
 		return true;
 	}
 
 	if (error.code === 'INVALID_METADATA') {
-		res.locals.message = 'backup metadata is invalid';
-		res.status(400).json({ message: 'BACKUP_METADATA_INVALID' });
+		sendClientError(res, 400, 'BACKUP_METADATA_INVALID', 'backup metadata is invalid');
 		return true;
 	}
 
 	if (error.code === 'INVALID_BACKUP') {
-		res.locals.message = 'backup payload is invalid';
-		res.status(400).json({ message: 'BACKUP_PAYLOAD_INVALID' });
+		sendClientError(res, 400, 'BACKUP_PAYLOAD_INVALID', 'backup payload is invalid');
 		return true;
 	}
 
 	if (error.code === 'INVALID_CHUNK') {
-		res.locals.message = 'backup chunk is invalid';
-		res.status(400).json({ message: 'BACKUP_CHUNK_INVALID' });
+		sendClientError(res, 400, 'BACKUP_CHUNK_INVALID', 'backup chunk is invalid');
 		return true;
 	}
 
-	res.locals.message = 'user congregation is invalid';
-	res.status(404).json({ message: 'error_app_congregation_not-found' });
+	sendClientError(res, 404, 'error_app_congregation_not-found', 'user congregation is invalid');
 	return true;
 };
 
@@ -54,9 +48,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'user retrieve backup successfully';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'user retrieve backup successfully');
 };
 
 export const saveUserBackup = async (req: Request, res: Response) => {
@@ -73,21 +65,17 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 	}
 
 	if (outcome.status === 'conflict') {
-		res.locals.message = JSON.stringify({
+		const logMessage = JSON.stringify({
 			key: outcome.key,
 			remote_value: outcome.currentValue,
 			incoming_value: outcome.incomingValue,
 		});
-
-		res.locals.type = 'warn';
-		res.status(400).json({ message: 'BACKUP_OUTDATED' });
+		sendClientError(res, 400, 'BACKUP_OUTDATED', logMessage);
 
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'user send backup for congregation successfully';
-	res.status(200).json({ message: 'BACKUP_SENT' });
+	sendSuccess(res, { message: 'BACKUP_SENT' }, 'user send backup for congregation successfully');
 };
 
 export const saveUserChunkedBackup = async (req: Request, res: Response) => {
@@ -99,8 +87,7 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 	const totalChunks = req.body.totalChunks as number;
 
 	if (!uploadId || chunkIndex == null || !chunkData || !totalChunks) {
-		res.locals.type = 'warn';
-		res.status(400).json({ message: 'error_api_bad-request' });
+		sendClientError(res, 400, 'error_api_bad-request', 'backup chunk request is invalid');
 
 		return;
 	}
@@ -120,33 +107,26 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 	}
 
 	if (outcome.status === 'metadata_conflict') {
-		res.locals.message = JSON.stringify({
+		const logMessage = JSON.stringify({
 			key: outcome.key,
 			remote_value: outcome.currentValue,
 			incoming_value: outcome.incomingValue,
 		});
-
-		res.locals.type = 'warn';
-		res.status(409).json({ message: 'error_api_sync-conflict' });
+		sendClientError(res, 409, 'error_api_sync-conflict', logMessage);
 
 		return;
 	}
 
 	if (outcome.status === 'backup_in_progress') {
-		res.locals.type = 'warn';
-		res.locals.message = 'congregation already has a backup in progress';
-		res.status(409).json({ message: 'error_api_sync-conflict' });
+		sendClientError(res, 409, 'error_api_sync-conflict', 'congregation already has a backup in progress');
 
 		return;
 	}
 
-	res.locals.type = 'info';
 	if (outcome.status === 'saved') {
-		res.locals.message = 'user send backup for congregation successfully';
-		res.status(200).json({ message: 'BACKUP_SENT' });
+		sendSuccess(res, { message: 'BACKUP_SENT' }, 'user send backup for congregation successfully');
 		return;
 	}
 
-	res.locals.message = 'congregation backup chunk processed';
-	res.status(200).json({ message: 'BACKUP_CHUNK_RECEIVED' });
+	sendSuccess(res, { message: 'BACKUP_CHUNK_RECEIVED' }, 'congregation backup chunk processed');
 };

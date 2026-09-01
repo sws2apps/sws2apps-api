@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { sendClientError, sendSuccess } from '#http/responses.js';
 
 import type { AppRoleType } from '#domain/users/app-role.js';
 import {
@@ -16,40 +17,31 @@ import {
 const handleAdministrationUserError = (error: unknown, res: Response): boolean => {
 	if (!(error instanceof AdministrationUserError)) return false;
 
-	res.locals.type = 'warn';
-
 	if (error.code === 'USER_NOT_FOUND') {
-		res.locals.message = 'no user could not be found with the provided id';
-		res.status(404).json({ message: 'USER_NOT_FOUND' });
+		sendClientError(res, 404, 'USER_NOT_FOUND', 'no user could not be found with the provided id');
 		return true;
 	}
 
 	if (error.code === 'CONGREGATION_NOT_FOUND') {
-		res.locals.message = 'no congregation could not found with the provided id';
-		res.status(404).json({ message: 'CONG_NOT_FOUND' });
+		sendClientError(res, 404, 'CONG_NOT_FOUND', 'no congregation could not found with the provided id');
 		return true;
 	}
 
-	res.locals.message = 'user already member of the congregation';
-	res.status(400).json({ message: 'USER_MEMBER_ALREADY' });
+	sendClientError(res, 400, 'USER_MEMBER_ALREADY', 'user already member of the congregation');
 	return true;
 };
 
 export const usersGetAll = async (req: Request, res: Response) => {
 	const result = getAdministrationUsers(req.signedCookies.visitorid);
 
-	res.locals.type = 'info';
-	res.locals.message = 'admin fetched all users';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'admin fetched all users');
 };
 
 export const userDelete = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the user request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'REQUEST_ID_INVALID', 'the user request id params is undefined');
 
 		return;
 	}
@@ -62,18 +54,14 @@ export const userDelete = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'admin deleted an user';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'admin deleted an user');
 };
 
 export const userDisable2FA = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the user request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'REQUEST_ID_INVALID', 'the user request id params is undefined');
 
 		return;
 	}
@@ -86,18 +74,14 @@ export const userDisable2FA = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'admin disabled user 2fa';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'admin disabled user 2fa');
 };
 
 export const userRevokeToken = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the user request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'REQUEST_ID_INVALID', 'the user request id params is undefined');
 
 		return;
 	}
@@ -110,18 +94,14 @@ export const userRevokeToken = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'admin revoked user token';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'admin revoked user token');
 };
 
 export const userUpdate = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the user request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'REQUEST_ID_INVALID', 'the user request id params is undefined');
 
 		return;
 	}
@@ -143,18 +123,14 @@ export const userUpdate = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'admin updated user details';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'admin updated user details');
 };
 
 export const userSessionDelete = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the user request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'REQUEST_ID_INVALID', 'the user request id params is undefined');
 
 		return;
 	}
@@ -172,18 +148,14 @@ export const userSessionDelete = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'admin revoked an user session';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'admin revoked an user session');
 };
 
 export const userAssignCongregation = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the user request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'REQUEST_ID_INVALID', 'the user request id params is undefined');
 
 		return;
 	}
@@ -200,18 +172,14 @@ export const userAssignCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'admin assigned an user to a congregation';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'admin assigned an user to a congregation');
 };
 
 export const userRemoveCongregation = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || id === 'undefined') {
-		res.locals.type = 'warn';
-		res.locals.message = 'the user request id params is undefined';
-		res.status(400).json({ message: 'REQUEST_ID_INVALID' });
+		sendClientError(res, 400, 'REQUEST_ID_INVALID', 'the user request id params is undefined');
 
 		return;
 	}
@@ -227,8 +195,5 @@ export const userRemoveCongregation = async (req: Request, res: Response) => {
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'admin removed a user from a congregation';
-	res.status(200).json(result);
+	sendSuccess(res, result, 'admin removed a user from a congregation');
 };
-

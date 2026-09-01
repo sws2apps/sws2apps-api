@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { sendClientError, sendSuccess } from '#http/responses.js';
 import {
 	getAvailableCountries,
 	searchCongregationDirectory,
@@ -10,15 +11,11 @@ export const getCountries = async (req: Request, res: Response) => {
 	const countryResult = await getAvailableCountries(language);
 
 	if (countryResult.errorStatusCode) {
-		res.locals.type = 'warn';
-		res.locals.message = 'an error occured while getting list of all countries';
-		res.status(countryResult.errorStatusCode).json({ message: 'FETCH_FAILED' });
+		sendClientError(res, countryResult.errorStatusCode, 'FETCH_FAILED', 'an error occured while getting list of all countries');
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'user fetched all countries';
-	res.status(200).json(countryResult.countries);
+	sendSuccess(res, countryResult.countries, 'user fetched all countries');
 };
 
 export const getCongregations = async (req: Request, res: Response) => {
@@ -28,12 +25,7 @@ export const getCongregations = async (req: Request, res: Response) => {
 
 
 	if (name.length < 2 || country?.length === 0) {
-		res.locals.type = 'warn';
-		res.locals.message = `country or name is invalid`;
-
-		res.status(400).json({
-			message: 'error_api_bad-request',
-		});
+		sendClientError(res, 400, 'error_api_bad-request', 'country or name is invalid');
 
 		return;
 	}
@@ -47,14 +39,9 @@ export const getCongregations = async (req: Request, res: Response) => {
 	);
 
 	if ('errorStatusCode' in directoryResult) {
-		res.locals.type = 'warn';
-		res.locals.message = 'an error occured while getting congregations list';
-		res.status(directoryResult.errorStatusCode).json({ message: 'FETCH_FAILED' });
+		sendClientError(res, directoryResult.errorStatusCode, 'FETCH_FAILED', 'an error occured while getting congregations list');
 		return;
 	}
 
-	res.locals.type = 'info';
-	res.locals.message = 'user fetched congregations';
-	res.status(200).json(directoryResult.congregations);
+	sendSuccess(res, directoryResult.congregations, 'user fetched congregations');
 };
-
