@@ -21,6 +21,7 @@ import apiV3Routes from '#http/api-v3.routes.js';
 import { errorHandler, getRoot, invalidEndpointHandler } from '#http/app.controller.js';
 import resources from '#platform/localization/resources.js';
 import { env } from '#config/env.js';
+import { serverConfig } from '#config/server.js';
 import { createCorsOptions } from '#http/security/cors.js';
 
 const corsOptionsDelegate = (request: express.Request, callback: (_error: null, options: CorsOptions) => void) => {
@@ -44,15 +45,18 @@ app.use(cors(corsOptionsDelegate));
 app.use(compression());
 app.use(requestIp.mw()); // get IP address middleware
 app.use(rateLimit({
-	windowMs: 1000,
-	max: 20,
+	windowMs: serverConfig.rateLimit.windowMilliseconds,
+	max: serverConfig.rateLimit.maximumRequestsPerWindow,
 	message: { message: 'TOO_MANY_REQUESTS' },
 	standardHeaders: 'draft-8',
 	legacyHeaders: false,
 }));
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(express.json({ limit: serverConfig.requestBodySizeLimit }));
+app.use(express.urlencoded({
+	limit: serverConfig.requestBodySizeLimit,
+	extended: true,
+}));
 
 app.use(requireInternetConnection());
 app.use(trackRequestState());
