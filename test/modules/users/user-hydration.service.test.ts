@@ -55,4 +55,11 @@ describe('user hydration', () => {
 		);
 		assert.equal(users[1]?.profile.firstname.value, 'User user-2');
 	});
+
+	it('rejects an unsafe batch size before loading persisted data', async () => {
+		await assert.rejects(
+			loadAllUsers(Number.NaN, createDataSource()),
+			new RangeError('Batch size must be a positive integer'),
+		);
+	});
 });

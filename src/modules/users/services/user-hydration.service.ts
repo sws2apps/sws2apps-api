@@ -4,6 +4,7 @@ import {
 	getUserIds,
 } from '../repositories/user-lifecycle.repository.js';
 import { getUserProfileCreatedAt } from '../repositories/user-metadata.repository.js';
+import { requirePositiveBatchSize } from '#domain/persistence/batch-size.js';
 
 export type UserHydrationDataSource = {
 	getIds: typeof getUserIds;
@@ -43,6 +44,7 @@ export const loadAllUsers = async (
 	batchSize = 20,
 	dataSource: UserHydrationDataSource = defaultDataSource,
 ): Promise<User[]> => {
+	requirePositiveBatchSize(batchSize);
 	const userIds = await dataSource.getIds();
 	const users: User[] = [];
 

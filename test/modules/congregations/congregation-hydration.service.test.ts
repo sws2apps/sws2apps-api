@@ -72,4 +72,11 @@ describe('congregation hydration', () => {
 		);
 		assert.equal(congregations[1]?.settings.cong_name, 'Congregation congregation-2');
 	});
+
+	it('rejects an unsafe batch size before loading persisted data', async () => {
+		await assert.rejects(
+			loadAllCongregations(0, createDataSource()),
+			new RangeError('Batch size must be a positive integer'),
+		);
+	});
 });

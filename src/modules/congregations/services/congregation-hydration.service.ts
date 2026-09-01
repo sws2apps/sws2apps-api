@@ -3,6 +3,7 @@ import {
 	getCongregationDetails,
 	getCongregationIds,
 } from '../repositories/congregation-lifecycle.repository.js';
+import { requirePositiveBatchSize } from '#domain/persistence/batch-size.js';
 
 export type CongregationHydrationDataSource = {
 	getIds: typeof getCongregationIds;
@@ -40,6 +41,7 @@ export const loadAllCongregations = async (
 	batchSize = 10,
 	dataSource: CongregationHydrationDataSource = defaultDataSource,
 ): Promise<Congregation[]> => {
+	requirePositiveBatchSize(batchSize);
 	const congregationIds = await dataSource.getIds();
 	const congregations: Congregation[] = [];
 
