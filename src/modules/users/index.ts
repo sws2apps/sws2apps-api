@@ -3,6 +3,8 @@ export * from './services/user-backup-application.service.js';
 export * from './services/user-congregation-membership.service.js';
 export * from './services/user-creation.service.js';
 export * from './services/user-identity.service.js';
+export * from './services/user-data.service.js';
+export * from './services/user-hydration.service.js';
 export * from './services/user-initialization.service.js';
 export * from './services/user-lifecycle.service.js';
 export * from './services/users-account.service.js';

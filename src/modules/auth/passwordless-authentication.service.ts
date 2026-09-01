@@ -2,6 +2,7 @@ import type { IncomingHttpHeaders } from 'node:http';
 
 import { createApplicationUser } from '#modules/users/index.js';
 import { UsersList } from '#modules/users/index.js';
+import { updateUserProfile } from '#modules/users/index.js';
 import { AuthenticationError } from './authentication-error.js';
 import {
 	createAuthenticationToken,
@@ -66,7 +67,7 @@ export const createPasswordlessSignIn = async (request: PasswordlessSignInReques
 			expiredAt: Date.now() + 5 * 60 * 1000,
 		};
 
-		await user.updateProfile(profile);
+		await updateUserProfile(user, profile);
 	}
 
 	const token = await createAuthenticationToken(authenticationUserId);
@@ -106,7 +107,7 @@ export const completeEmailOtpAuthentication = async (
 
 	const profile = structuredClone(user.profile);
 	delete profile.email_otp;
-	await user.updateProfile(profile);
+	await updateUserProfile(user, profile);
 
 	await createAuthenticationSession({
 		userId: user.id,

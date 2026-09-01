@@ -23,6 +23,11 @@ import {
 	getUserBackupContext,
 	parseUserBackupMetadata,
 } from '../user-backup-context.js';
+import {
+	getUserStoredBibleStudies,
+	getUserStoredDelegatedFieldServiceReports,
+	getUserStoredFieldServiceReports,
+} from './user-data.service.js';
 
 export const retrieveUserBackup = async (
 	userId: string,
@@ -170,7 +175,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.user_bible_studies;
 
 			if (localDate !== incomingDate) {
-				result.user_bible_studies = await user.getBibleStudies();
+				result.user_bible_studies = await getUserStoredBibleStudies(user.id);
 				result.metadata.user_bible_studies = localDate;
 			}
 
@@ -178,7 +183,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.user_field_service_reports;
 
 			if (localDate !== incomingDate) {
-				result.user_field_service_reports = await user.getFieldServiceReports();
+				result.user_field_service_reports = await getUserStoredFieldServiceReports(user.id);
 				result.metadata.user_field_service_reports = localDate;
 			}
 
@@ -186,7 +191,8 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.delegated_field_service_reports;
 
 			if (localDate !== incomingDate) {
-				result.delegated_field_service_reports = await user.getDelegatedFieldServiceReports();
+				result.delegated_field_service_reports =
+					await getUserStoredDelegatedFieldServiceReports(user.id);
 				result.metadata.delegated_field_service_reports = localDate;
 			}
 

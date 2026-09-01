@@ -5,6 +5,7 @@ import { canAccessCongregationMasterKey } from '#domain/users/master-key-roles.j
 import { CongregationsList } from '#modules/congregations/index.js';
 import type { UserAuthResponse, UserSession } from '#modules/users/index.js';
 import { UsersList } from '#modules/users/index.js';
+import { updateUserSessions } from '#modules/users/index.js';
 import { isTokenWithinAllowedWindow } from './token-validation.js';
 import {
 	decryptUserMfaSecret,
@@ -53,7 +54,7 @@ export const verifyMfaToken = async ({
 	currentSession.mfaVerified = true;
 
 	await enableUserMfa(user);
-	await user.updateSessions(updatedSessions);
+	await updateUserSessions(user, updatedSessions);
 
 	const userInfo: UserAuthResponse = {
 		message: 'TOKEN_VALID',

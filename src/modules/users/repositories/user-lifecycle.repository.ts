@@ -3,7 +3,6 @@ import {
 	deleteFileFromStorage,
 	listFilesFromStorage,
 } from '#platform/firebase/storage.js';
-import { User } from '../user.js';
 import {
 	getUserFlags,
 	getUserProfile,
@@ -72,29 +71,6 @@ export const getUserDetails = async (id: string) => {
 		},
 		flags: await getUserFlags(id),
 	};
-};
-
-export const loadAllUsers = async (batchSize = 20) => {
-	const users = await getUserIds();
-	const result: User[] = [];
-
-	// Process in batches
-	for (let i = 0; i < users.length; i += batchSize) {
-		const batch = users.slice(i, i + batchSize);
-
-		// Run all in parallel for this batch
-		const loadedBatch = await Promise.all(
-			batch.map(async (record) => {
-				const user = new User(record);
-				await user.loadDetails();
-				return user;
-			}),
-		);
-
-		result.push(...loadedBatch);
-	}
-
-	return result;
 };
 
 export const createPersistedUser = async (params: UserNewParams) => {

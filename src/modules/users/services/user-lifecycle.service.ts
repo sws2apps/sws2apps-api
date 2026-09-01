@@ -5,6 +5,7 @@ import { CongregationsList } from '#modules/congregations/index.js';
 import { UsersList } from '../users.js';
 import { refreshCongregationMembers } from '#modules/congregations/index.js';
 import { deletePersistedUser } from '../repositories/user-lifecycle.repository.js';
+import { updateUserSessions } from './user-data.service.js';
 
 export const deleteUser = async (userId: string): Promise<void> => {
 	const user = UsersList.findById(userId);
@@ -37,7 +38,7 @@ export const removeOutdatedUserSessions = async (): Promise<void> => {
 			});
 
 			if (validSessions.length !== user.sessions.length) {
-				await user.updateSessions(validSessions);
+				await updateUserSessions(user, validSessions);
 			}
 		}
 

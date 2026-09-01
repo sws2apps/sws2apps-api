@@ -3,12 +3,16 @@ import { describe, it } from 'node:test';
 
 import type { BackupData } from '#modules/backups/backup.types.js';
 import type { User } from '#modules/users/user.js';
-import { applyUserBackup } from '#modules/users/services/user-backup-application.service.js';
+import {
+	applyUserBackup,
+	type UserBackupDataOperations,
+} from '#modules/users/services/user-backup-application.service.js';
 
 const createUser = () => {
 	const savedData: string[] = [];
 
 	const user = {
+		id: 'user-1',
 		profile: {
 			firstname: { value: 'Old', updatedAt: 'before' },
 			lastname: { value: 'Name', updatedAt: 'before' },
@@ -20,35 +24,32 @@ const createUser = () => {
 			hour_credits_enabled: 'old-credits',
 			theme_follow_os_enabled: 'old-theme',
 		},
-		async updateProfile(
-			this: { profile: User['profile'] },
-			profile: User['profile'],
-		) {
-			this.profile = profile;
+	} as User;
+
+	const dataOperations: UserBackupDataOperations = {
+		updateProfile: async (_user, profile) => {
+			user.profile = profile;
 		},
-		async updateSettings(
-			this: { settings: User['settings'] },
-			settings: User['settings'],
-		) {
-			this.settings = settings;
+		updateSettings: async (_user, settings) => {
+			user.settings = settings;
 		},
-		async saveBibleStudies() {
+		saveBibleStudies: async () => {
 			savedData.push('bible-studies');
 		},
-		async saveFieldServiceReports() {
+		saveFieldServiceReports: async () => {
 			savedData.push('field-service-reports');
 		},
-		async saveDelegatedFieldServiceReports() {
+		saveDelegatedFieldServiceReports: async () => {
 			savedData.push('delegated-field-service-reports');
 		},
-	} as unknown as User;
+	};
 
-	return { user, savedData };
+	return { user, savedData, dataOperations };
 };
 
 describe('user backup application', () => {
 	it('restores profile and user settings from the backup', async () => {
-		const { user } = createUser();
+		const { user, dataOperations } = createUser();
 		const backup = {
 			app_settings: {
 				user_settings: {
@@ -62,7 +63,7 @@ describe('user backup application', () => {
 			},
 		} as BackupData;
 
-		await applyUserBackup(user, backup, []);
+		await applyUserBackup(user, backup, [], dataOperations);
 
 		assert.deepEqual(user.profile.firstname, { value: 'New', updatedAt: 'after' });
 		assert.deepEqual(user.profile.lastname, { value: 'Person', updatedAt: 'after' });
@@ -81,8 +82,8 @@ describe('user backup application', () => {
 		const publisher = createUser();
 		const nonPublisher = createUser();
 
-		await applyUserBackup(publisher.user, backup, ['publisher']);
-		await applyUserBackup(nonPublisher.user, backup, ['admin']);
+		await applyUserBackup(publisher.user, backup, ['publisher'], publisher.dataOperations);
+		await applyUserBackup(nonPublisher.user, backup, ['admin'], nonPublisher.dataOperations);
 
 		assert.deepEqual(publisher.savedData, [
 			'bible-studies',

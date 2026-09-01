@@ -16,6 +16,7 @@ import {
 	getRemoteSpeakerCongregations,
 } from '#modules/congregations/index.js';
 import { isCongregationMember } from '#modules/congregations/index.js';
+import { updateUserProfile } from './user-data.service.js';
 import {
 	getCongregationPersons,
 	saveCongregationIncomingReports,
@@ -233,7 +234,7 @@ export const requestCongregationMembership = async (
 		const profile = structuredClone(user.profile);
 		profile.firstname.value = request.firstname;
 		profile.lastname.value = request.lastname;
-		await user.updateProfile(profile);
+		await updateUserProfile(user, profile);
 	}
 
 	await saveCongregationMembershipRequest(congregation, userId);

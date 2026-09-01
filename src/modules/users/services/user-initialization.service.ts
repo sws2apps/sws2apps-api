@@ -1,6 +1,6 @@
 import { loadUserIdentities } from './user-identity.service.js';
 import { UsersList } from '../users.js';
-import { loadAllUsers } from '../repositories/user-lifecycle.repository.js';
+import { loadAllUsers } from './user-hydration.service.js';
 
 export const initializeUsers = async (): Promise<void> => {
 	const users = await loadAllUsers();

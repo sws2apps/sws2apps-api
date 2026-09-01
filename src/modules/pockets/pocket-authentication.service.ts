@@ -7,6 +7,7 @@ import { refreshCongregationMembers } from '#modules/congregations/index.js';
 import type { User } from '#modules/users/index.js';
 import type { UserAuthResponse, UserSession } from '#modules/users/index.js';
 import { UsersList } from '#modules/users/index.js';
+import { updateUserProfile, updateUserSessions } from '#modules/users/index.js';
 import { parsePocketInvitationCode } from './invitation-code.js';
 import { decryptPocketAccessCode } from './pocket-invitation.service.js';
 import { decryptData } from '#platform/encryption/encryption.js';
@@ -120,7 +121,7 @@ export const authenticatePocketInvitation = async ({
 	const authenticatedVisitorId = visitorId || crypto.randomUUID();
 	const profile = structuredClone(user.profile);
 	profile.congregation!.pocket_invitation_code = undefined;
-	await user.updateProfile(profile);
+	await updateUserProfile(user, profile);
 
 	const sessions = user.sessions?.filter((session) => session.visitorid !== authenticatedVisitorId) || [];
 	const newSession: UserSession = {
@@ -131,7 +132,7 @@ export const authenticatePocketInvitation = async ({
 		identifier: crypto.randomUUID(),
 	};
 	sessions.push(newSession);
-	await user.updateSessions(sessions);
+	await updateUserSessions(user, sessions);
 
 	refreshCongregationMembers(congregation);
 

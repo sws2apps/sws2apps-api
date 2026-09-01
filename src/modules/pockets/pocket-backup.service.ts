@@ -17,6 +17,11 @@ import {
 	getUpcomingEvents,
 } from '#modules/congregations/index.js';
 import { UsersList } from '#modules/users/index.js';
+import {
+	getUserStoredBibleStudies,
+	getUserStoredDelegatedFieldServiceReports,
+	getUserStoredFieldServiceReports,
+} from '#modules/users/index.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 
 export type PocketBackupErrorCode =
@@ -207,17 +212,18 @@ const addPrivateBackupChanges = async (
 	if (!user.profile.congregation!.cong_role.includes('publisher')) return;
 
 	if (user.metadata.user_bible_studies !== metadata.user_bible_studies) {
-		backup.user_bible_studies = await user.getBibleStudies();
+		backup.user_bible_studies = await getUserStoredBibleStudies(user.id);
 		backup.metadata.user_bible_studies = user.metadata.user_bible_studies;
 	}
 
 	if (user.metadata.user_field_service_reports !== metadata.user_field_service_reports) {
-		backup.user_field_service_reports = await user.getFieldServiceReports();
+		backup.user_field_service_reports = await getUserStoredFieldServiceReports(user.id);
 		backup.metadata.user_field_service_reports = user.metadata.user_field_service_reports;
 	}
 
 	if (user.metadata.delegated_field_service_reports !== metadata.delegated_field_service_reports) {
-		backup.delegated_field_service_reports = await user.getDelegatedFieldServiceReports();
+		backup.delegated_field_service_reports =
+			await getUserStoredDelegatedFieldServiceReports(user.id);
 		backup.metadata.delegated_field_service_reports = user.metadata.delegated_field_service_reports;
 	}
 

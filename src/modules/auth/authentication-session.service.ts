@@ -2,6 +2,7 @@ import type { IncomingHttpHeaders } from 'node:http';
 
 import { retrieveVisitorDetails } from '#platform/visitor-details/visitor-details.js';
 import { UsersList } from '#modules/users/index.js';
+import { updateUserSessions } from '#modules/users/index.js';
 
 export const getVisitorSessionDetails = async (
 	visitorIp: string,
@@ -35,7 +36,7 @@ export const refreshAuthenticationSession = async (
 	session.last_seen = new Date().toISOString();
 	session.visitor_details = await getVisitorSessionDetails(input.visitorIp, input.headers);
 
-	await user.updateSessions(sessions);
+	await updateUserSessions(user, sessions);
 };
 
 export const createAuthenticationSession = async (input: CreateAuthenticationSessionInput): Promise<void> => {
@@ -50,5 +51,5 @@ export const createAuthenticationSession = async (input: CreateAuthenticationSes
 		identifier: crypto.randomUUID(),
 	});
 
-	await user.updateSessions(sessions);
+	await updateUserSessions(user, sessions);
 };

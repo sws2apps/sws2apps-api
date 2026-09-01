@@ -4,6 +4,7 @@ import { UsersList } from '#modules/users/index.js';
 import { createPocketApplicationUser } from '#modules/users/index.js';
 import { revokeSessionForUser } from '#modules/users/index.js';
 import { deleteUser } from '#modules/users/index.js';
+import { updateUserProfile } from '#modules/users/index.js';
 import {
 	assignUserToCongregation,
 	removeUserFromCongregation,
@@ -122,7 +123,7 @@ export const updateCongregationUser = async (
 		const updatedAt = new Date().toISOString();
 		profile.firstname = { value: input.firstname, updatedAt };
 		profile.lastname = { value: input.lastname, updatedAt };
-		await user.updateProfile(profile);
+		await updateUserProfile(user, profile);
 	}
 
 	return buildCongregationMemberList(congregation, currentVisitorId);
@@ -218,6 +219,6 @@ export const setCongregationAdministratorPersonUid = async (
 	const profile = structuredClone(administrator.profile);
 	profile.congregation!.user_local_uid = personUid;
 
-	await administrator.updateProfile(profile);
+	await updateUserProfile(administrator, profile);
 	refreshCongregationMembers(congregation);
 };

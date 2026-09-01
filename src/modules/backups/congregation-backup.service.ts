@@ -10,6 +10,7 @@ import {
 	saveCongregationStandardData,
 } from '#modules/congregations/index.js';
 import { UsersList } from '#modules/users/index.js';
+import { updateUserProfile } from '#modules/users/index.js';
 import type { BackupData } from './backup.types.js';
 import { mergeIncomingData } from './incoming-data-merge.js';
 
@@ -94,7 +95,7 @@ export const saveCongregationBackup = async (
 
 			const profile = structuredClone(user.profile);
 			profile.congregation!.cong_role = backupUser.role || [];
-			await user.updateProfile(profile);
+			await updateUserProfile(user, profile);
 		}
 	}
 };

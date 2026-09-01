@@ -12,6 +12,7 @@ import {
 import { refreshCongregationMembers } from '#modules/congregations/index.js';
 import type { User } from '../user.js';
 import type { UserSession } from '../types/user.types.js';
+import { updateUserSessions } from './user-data.service.js';
 
 export type UserAccountErrorCode = 'CONGREGATION_NOT_ASSIGNED' | 'CONGREGATION_NOT_FOUND';
 
@@ -60,7 +61,7 @@ export const revokeSessionForUser = async (
 		(session) => session.identifier !== sessionIdentifier,
 	);
 
-	await user.updateSessions(remainingSessions);
+	await updateUserSessions(user, remainingSessions);
 
 	return projectUserSessions(user.sessions, revokedSession.visitorid);
 };
@@ -143,7 +144,8 @@ export const logoutUserSession = async (userId: string | undefined, visitorId: s
 };
 
 export const clearUserSessions = async (userId: string): Promise<void> => {
-	await UsersList.findById(userId)?.updateSessions([]);
+	const user = UsersList.findById(userId);
+	if (user) await updateUserSessions(user, []);
 };
 
 export const disableUserMfa = async (userId: string) => {

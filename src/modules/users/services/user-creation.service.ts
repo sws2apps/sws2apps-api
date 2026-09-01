@@ -9,10 +9,11 @@ import {
 	createPersistedPocketUser,
 	createPersistedUser,
 } from '../repositories/user-lifecycle.repository.js';
+import { hydrateUser } from './user-hydration.service.js';
 
 const hydrateCreatedUser = async (userId: string): Promise<User> => {
 	const user = new User(userId);
-	await user.loadDetails();
+	await hydrateUser(user);
 	await loadUserIdentity(user);
 	UsersList.add(user);
 

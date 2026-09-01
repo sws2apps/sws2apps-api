@@ -20,6 +20,7 @@ import {
 	removeUserFromCongregation,
 } from '#modules/users/index.js';
 import type { UserSession } from '#modules/users/index.js';
+import { updateUserProfile, updateUserSessions } from '#modules/users/index.js';
 
 export class AdministrationUserError extends Error {
 	constructor(
@@ -151,7 +152,7 @@ export const updateAdministrationUser = async (
 		profile.lastname.value = input.lastname;
 
 		if (profile.congregation) profile.congregation.cong_role = input.roles;
-		await user.updateProfile(profile);
+		await updateUserProfile(user, profile);
 	}
 
 	if (input.email.length > 0 && input.email !== user.email && user.profile.auth_uid) {
@@ -171,7 +172,7 @@ export const revokeAdministrationUserSession = async (
 	const session = identifiers.length === 0 ? [] : identifiers.at(0);
 
 	if (typeof session === 'string') await revokeSessionForUser(user, session);
-	if (typeof session === 'object') await user.updateSessions([]);
+	if (typeof session === 'object') await updateUserSessions(user, []);
 
 	reloadUserCongregation(user.profile.congregation?.id);
 	return getAdministrationUsers(currentVisitorId);

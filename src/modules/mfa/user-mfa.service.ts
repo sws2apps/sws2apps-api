@@ -5,6 +5,7 @@ import {
 	encryptData,
 } from '#platform/encryption/encryption.js';
 import type { User } from '#modules/users/index.js';
+import { updateUserProfile, updateUserSessions } from '#modules/users/index.js';
 
 export const ensureUserMfaSecret = async (user: User): Promise<void> => {
 	if (user.profile.secret) return;
@@ -13,7 +14,7 @@ export const ensureUserMfaSecret = async (user: User): Promise<void> => {
 	const profile = structuredClone(user.profile);
 	profile.secret = encryptData(JSON.stringify(secret));
 
-	await user.updateProfile(profile);
+	await updateUserProfile(user, profile);
 };
 
 export const decryptUserMfaSecret = (user: User): OTPSecretType => {
@@ -26,7 +27,7 @@ export const enableUserMfa = async (user: User): Promise<void> => {
 	const profile = structuredClone(user.profile);
 	profile.mfa_enabled = true;
 
-	await user.updateProfile(profile);
+	await updateUserProfile(user, profile);
 };
 
 export const disableUserMfa = async (user: User): Promise<void> => {
@@ -34,10 +35,10 @@ export const disableUserMfa = async (user: User): Promise<void> => {
 	profile.mfa_enabled = false;
 	profile.secret = undefined;
 
-	await user.updateProfile(profile);
+	await updateUserProfile(user, profile);
 };
 
 export const revokeUserMfa = async (user: User): Promise<void> => {
 	await disableUserMfa(user);
-	await user.updateSessions([]);
+	await updateUserSessions(user, []);
 };

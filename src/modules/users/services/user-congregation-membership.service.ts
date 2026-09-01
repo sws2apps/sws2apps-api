@@ -3,6 +3,14 @@ import { encryptData } from '#platform/encryption/encryption.js';
 import type { Congregation } from '#modules/congregations/index.js';
 import type { User } from '../user.js';
 import { refreshCongregationMembers } from '#modules/congregations/index.js';
+import {
+	saveUserBibleStudies,
+	saveUserDelegatedFieldServiceReports,
+	saveUserFieldServiceReports,
+	updateUserProfile,
+	updateUserSessions,
+	updateUserSettings,
+} from './user-data.service.js';
 
 type AssignUserToCongregationInput = {
 	role: AppRoleType[];
@@ -36,7 +44,7 @@ export const assignUserToCongregation = async (
 		profile.congregation.user_local_uid = input.person_uid;
 	}
 
-	await user.updateProfile(profile);
+	await updateUserProfile(user, profile);
 	refreshCongregationMembers(congregation);
 };
 
@@ -67,7 +75,7 @@ export const updateUserCongregationMembership = async (
 		profile.congregation!.pocket_invitation_code = encryptData(input.pocketInvitationCode);
 	}
 
-	await user.updateProfile(profile);
+	await updateUserProfile(user, profile);
 	refreshCongregationMembers(congregation);
 };
 
@@ -78,7 +86,7 @@ export const removeUserPocketInvitation = async (
 	const profile = structuredClone(user.profile);
 	profile.congregation!.pocket_invitation_code = undefined;
 
-	await user.updateProfile(profile);
+	await updateUserProfile(user, profile);
 	refreshCongregationMembers(congregation);
 };
 
@@ -88,19 +96,19 @@ export const removeUserFromCongregation = async (
 ): Promise<void> => {
 	const profile = structuredClone(user.profile);
 	profile.congregation = undefined;
-	await user.updateProfile(profile);
+	await updateUserProfile(user, profile);
 
 	const settings = structuredClone(user.settings);
 	settings.backup_automatic = '';
 	settings.data_view = '';
 	settings.hour_credits_enabled = '';
 	settings.theme_follow_os_enabled = '';
-	await user.updateSettings(settings);
+	await updateUserSettings(user, settings);
 
-	await user.updateSessions([]);
-	await user.saveFieldServiceReports([]);
-	await user.saveBibleStudies([]);
-	await user.saveDelegatedFieldServiceReports([]);
+	await updateUserSessions(user, []);
+	await saveUserFieldServiceReports(user, []);
+	await saveUserBibleStudies(user, []);
+	await saveUserDelegatedFieldServiceReports(user, []);
 
 	if (congregation) refreshCongregationMembers(congregation);
 };

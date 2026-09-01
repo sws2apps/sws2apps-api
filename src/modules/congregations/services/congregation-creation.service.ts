@@ -8,6 +8,7 @@ import { createPersistedCongregation } from '../repositories/congregation-lifecy
 import { Congregation } from '../congregation.js';
 import { refreshCongregationMembers } from './congregation-members.service.js';
 import { hydrateCongregation } from './congregation-hydration.service.js';
+import { updateUserProfile } from '#modules/users/index.js';
 
 export type CongregationCreationErrorCode =
 	| 'CONGREGATION_EXISTS'
@@ -84,7 +85,7 @@ export const createVerifiedCongregation = async (input: CreateCongregationInput)
 	const updatedAt = new Date().toISOString();
 	profile.firstname = { value: input.firstname, updatedAt };
 	profile.lastname = { value: input.lastname, updatedAt };
-	await user.updateProfile(profile);
+	await updateUserProfile(user, profile);
 
 	const congregation = await createApplicationCongregation({
 		cong_name: input.congregationName,
