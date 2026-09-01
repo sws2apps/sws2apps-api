@@ -28,6 +28,15 @@ export const MAX_BACKUP_CHUNK_BYTES = 2_621_440;
 export const MAX_BACKUP_UPLOAD_BYTES = 104_857_600;
 export const MAX_ACTIVE_BACKUP_UPLOADS = 10;
 
+export const isBackupChunkWithinByteLimit = (
+	chunkData: unknown,
+	maxChunkBytes = MAX_BACKUP_CHUNK_BYTES,
+): chunkData is string => {
+	if (typeof chunkData !== 'string' || chunkData.length === 0) return false;
+
+	return Buffer.byteLength(chunkData, 'utf8') <= maxChunkBytes;
+};
+
 export class BackupUploadChunkError extends Error {
 	constructor() {
 		super('INVALID_BACKUP_CHUNK');

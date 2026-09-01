@@ -1,6 +1,9 @@
 import express from 'express';
 import { body, header } from 'express-validator';
-import { MAX_BACKUP_CHUNKS } from '#modules/backups/index.js';
+import {
+	isBackupChunkWithinByteLimit,
+	MAX_BACKUP_CHUNKS,
+} from '#modules/backups/index.js';
 import { requireAuthenticatedSession } from '#http/middleware/session-authentication.middleware.js';
 import { requireCurrentUserResource } from '#http/middleware/user-resource-authorization.middleware.js';
 import { REQUEST_LIMITS } from '#http/request-limits.js';
@@ -95,7 +98,10 @@ userRouter.post(
 		.isLength({ max: REQUEST_LIMITS.identifier }),
 	body('chunkIndex').isInt({ min: 0 }).toInt(),
 	body('totalChunks').isInt({ min: 1, max: MAX_BACKUP_CHUNKS }).toInt(),
-	body('chunkData').isString().notEmpty(),
+	body('chunkData')
+		.isString()
+		.notEmpty()
+		.custom((chunkData) => isBackupChunkWithinByteLimit(chunkData)),
 	validateRequest,
 	saveUserChunkedBackup,
 );

@@ -5,6 +5,7 @@ import {
 	BackupUploadChunkError,
 	discardBackupUpload,
 	findBackupUploadByCongregation,
+	isBackupChunkWithinByteLimit,
 	MAX_BACKUP_CHUNKS,
 	recordBackupUploadChunk,
 } from '#modules/backups/backup-upload-tracker.js';
@@ -26,6 +27,14 @@ const createUpload = (congregationId: string): BackupForStorage => {
 };
 
 describe('backup upload tracker', () => {
+	it('measures chunk limits using UTF-8 bytes', () => {
+		assert.equal(isBackupChunkWithinByteLimit('plain text', 10), true);
+		assert.equal(isBackupChunkWithinByteLimit('éé', 4), true);
+		assert.equal(isBackupChunkWithinByteLimit('éé', 3), false);
+		assert.equal(isBackupChunkWithinByteLimit('', 10), false);
+		assert.equal(isBackupChunkWithinByteLimit({ chunk: 'data' }, 10), false);
+	});
+
 	it('finds an in-progress upload by congregation', () => {
 		const otherUpload = createUpload('congregation-1');
 		const expectedUpload = createUpload('congregation-2');
