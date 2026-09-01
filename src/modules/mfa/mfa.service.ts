@@ -2,9 +2,9 @@ import * as OTPAuth from 'otpauth';
 
 import { env } from '../../config/env.js';
 import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
-import { CongregationsList } from '../congregations/congregations.js';
-import type { UserAuthResponse, UserSession } from '../users/user.types.js';
-import { UsersList } from '../users/users.js';
+import { CongregationsList } from '../congregations/index.js';
+import type { UserAuthResponse, UserSession } from '../users/index.js';
+import { UsersList } from '../users/index.js';
 import { isTokenWithinAllowedWindow } from './token-validation.js';
 import {
 	decryptUserMfaSecret,

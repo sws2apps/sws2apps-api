@@ -1,7 +1,7 @@
-import { UsersList } from '../users/users.js';
+import { UsersList } from '../users/index.js';
 import { verifyCongregationDirectoryRecord } from './congregation-directory.service.js';
 import { CongregationsList } from './congregations.js';
-import { assignUserToCongregation } from '../users/user-congregation-membership.service.js';
+import { assignUserToCongregation } from '../users/index.js';
 import { toMondayFirstWeekday } from './meeting-weekday.js';
 import type { CongregationCreateInfoType } from './congregations.types.js';
 import { createPersistedCongregation } from './congregation-lifecycle.repository.js';

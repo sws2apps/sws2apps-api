@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import type { FeatureFlag } from '../feature-flags/feature-flag.js';
+import type { FeatureFlag } from '../feature-flags/index.js';
 import {
 	AdministrationFlagError,
 	createAdministrationFlag,
@@ -163,4 +163,3 @@ export const congregationFlagToggle = async (req: Request, res: Response) => {
 	res.locals.message = 'admin updated congregation feature toggle';
 	res.status(200).json(result);
 };
-

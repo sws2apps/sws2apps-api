@@ -4,18 +4,18 @@ import type { StandardRecord } from '../../types/standard-record.js';
 import {
 	getCongregationJoinRequests,
 	requestCongregationMembership as saveCongregationMembershipRequest,
-} from '../congregations/congregation-join-requests.service.js';
-import { CongregationsList } from '../congregations/congregations.js';
-import { saveCongregationApplication } from '../congregations/congregation-applications.service.js';
-import type { CongregationUpdatesType } from '../congregations/congregations.types.js';
+} from '../congregations/index.js';
+import { CongregationsList } from '../congregations/index.js';
+import { saveCongregationApplication } from '../congregations/index.js';
+import type { CongregationUpdatesType } from '../congregations/index.js';
 import { sendFeedbackEmail } from './user-notifications.service.js';
 import { UsersList } from './users.js';
 import {
 	getPendingOutgoingSpeakerAccess,
 	getRejectedSpeakerRequests,
 	getRemoteSpeakerCongregations,
-} from '../congregations/outgoing-speakers.service.js';
-import { isCongregationMember } from '../congregations/congregation-members.service.js';
+} from '../congregations/index.js';
+import { isCongregationMember } from '../congregations/index.js';
 
 export type UserCongregationActivityErrorCode =
 	| 'CONGREGATION_NOT_ASSIGNED'

@@ -3,14 +3,14 @@ import { header, validationResult } from 'express-validator';
 import { formatError } from '../validation-errors.js';
 import {
 	verifyAuthenticationToken,
-} from '../../modules/auth/authentication-identity.service.js';
+} from '../../modules/auth/index.js';
 import {
 	refreshAuthenticationSession,
-} from '../../modules/auth/authentication-session.service.js';
+} from '../../modules/auth/index.js';
 import {
 	resolveAuthenticatedSession,
 	resolvePocketSessionUser,
-} from '../../modules/auth/session-resolution.service.js';
+} from '../../modules/auth/index.js';
 import {
 	extractBearerToken,
 	validateBearerAuthorization,

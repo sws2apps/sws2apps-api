@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import type { OutgoingTalkScheduleType } from '../congregations/congregations.types.js';
+import type { OutgoingTalkScheduleType } from '../congregations/index.js';
 import {
 	approveVisitingSpeakerAccess,
 	getApprovedVisitingSpeakerAccess,

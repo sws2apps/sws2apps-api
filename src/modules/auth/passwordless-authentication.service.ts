@@ -1,7 +1,7 @@
 import type { IncomingHttpHeaders } from 'node:http';
 
-import { createApplicationUser } from '../users/user-creation.service.js';
-import { UsersList } from '../users/users.js';
+import { createApplicationUser } from '../users/index.js';
+import { UsersList } from '../users/index.js';
 import { AuthenticationError } from './authentication-error.js';
 import {
 	createAuthenticationToken,
@@ -121,4 +121,3 @@ export const completeEmailOtpAuthentication = async (
 
 	return userInfo;
 };
-

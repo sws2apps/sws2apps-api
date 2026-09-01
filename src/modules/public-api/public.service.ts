@@ -1,9 +1,9 @@
 import type { Country } from '../../domain/countries/country.js';
 import { getCountries } from '../../platform/countries/country-client.js';
 import { getApplicationLanguageCount } from '../../platform/localization/crowdin-client.js';
-import type { CongregationByCountry } from '../congregations/congregations.types.js';
-import { CongregationsList } from '../congregations/congregations.js';
-import { UsersList } from '../users/users.js';
+import type { CongregationByCountry } from '../congregations/index.js';
+import { CongregationsList } from '../congregations/index.js';
+import { UsersList } from '../users/index.js';
 
 type CongregationSummary = {
 	settings: {

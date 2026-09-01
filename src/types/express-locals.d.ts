@@ -1,4 +1,4 @@
-import type { User } from '../modules/users/user.js';
+import type { User } from '../modules/users/index.js';
 
 declare module 'express-serve-static-core' {
 	interface Locals {

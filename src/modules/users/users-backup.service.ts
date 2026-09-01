@@ -1,8 +1,8 @@
 import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
 import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
 import type { StandardRecord } from '../../types/standard-record.js';
-import { BackupData } from '../backups/backup.types.js';
-import type { CongSettingsType } from '../congregations/congregations.types.js';
+import { BackupData } from '../backups/index.js';
+import type { CongSettingsType } from '../congregations/index.js';
 import {
 	getUserBackupContext,
 	parseUserBackupMetadata,

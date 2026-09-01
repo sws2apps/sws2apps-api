@@ -1,14 +1,14 @@
-import type { BackupData } from '../backups/backup.types.js';
+import type { BackupData } from '../backups/index.js';
 import {
 	BackupMetadataError,
 	findBackupMetadataConflict,
 	parseBackupMetadata,
-} from '../backups/backup-metadata.js';
-import { savePocketBackupAsync } from '../backups/backup-persistence.service.js';
-import { CongregationsList } from '../congregations/congregations.js';
-import { isCongregationMember } from '../congregations/congregation-members.service.js';
-import type { CongSettingsType } from '../congregations/congregations.types.js';
-import { UsersList } from '../users/users.js';
+} from '../backups/index.js';
+import { savePocketBackupAsync } from '../backups/index.js';
+import { CongregationsList } from '../congregations/index.js';
+import { isCongregationMember } from '../congregations/index.js';
+import type { CongSettingsType } from '../congregations/index.js';
+import { UsersList } from '../users/index.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 
 export type PocketBackupErrorCode =

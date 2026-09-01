@@ -3,10 +3,10 @@ import {
 	approveCongregationMembership,
 	declineCongregationMembership,
 	getCongregationJoinRequests,
-} from '../congregations/congregation-join-requests.service.js';
-import { CongregationsList } from '../congregations/congregations.js';
-import { UsersList } from '../users/users.js';
-import { isCongregationMember } from '../congregations/congregation-members.service.js';
+} from '../congregations/index.js';
+import { CongregationsList } from '../congregations/index.js';
+import { UsersList } from '../users/index.js';
+import { isCongregationMember } from '../congregations/index.js';
 
 export type CongregationJoinRequestErrorCode =
 	| 'CONGREGATION_NOT_FOUND'

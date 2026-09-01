@@ -1,25 +1,25 @@
 import type { AppRoleType } from '../../domain/users/app-role.js';
-import { CongregationsList } from '../congregations/congregations.js';
+import { CongregationsList } from '../congregations/index.js';
 import {
 	isCongregationMember,
 	refreshCongregationMembers,
-} from '../congregations/congregation-members.service.js';
-import { UsersList } from '../users/users.js';
+} from '../congregations/index.js';
+import { UsersList } from '../users/index.js';
 import {
 	clearUserSessions,
 	revokeSessionForUser,
-} from '../users/users-account.service.js';
-import { deleteUser } from '../users/user-lifecycle.service.js';
-import { updateUserAuthenticationEmail } from '../users/user-identity.service.js';
+} from '../users/index.js';
+import { deleteUser } from '../users/index.js';
+import { updateUserAuthenticationEmail } from '../users/index.js';
 import {
 	disableUserMfa,
 	revokeUserMfa,
-} from '../mfa/user-mfa.service.js';
+} from '../mfa/index.js';
 import {
 	assignUserToCongregation,
 	removeUserFromCongregation,
-} from '../users/user-congregation-membership.service.js';
-import type { UserSession } from '../users/user.types.js';
+} from '../users/index.js';
+import type { UserSession } from '../users/index.js';
 
 export class AdministrationUserError extends Error {
 	constructor(

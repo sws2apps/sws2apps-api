@@ -45,7 +45,7 @@ import {
 import {
 	setCongregationSettings,
 } from './congregation-settings.repository.js';
-import { User } from '../users/user.js';
+import { User } from '../users/index.js';
 
 export class Congregation {
 	id: string;

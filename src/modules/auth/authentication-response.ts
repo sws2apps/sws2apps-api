@@ -1,7 +1,7 @@
 import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
-import { CongregationsList } from '../congregations/congregations.js';
-import type { User } from '../users/user.js';
-import type { UserAuthResponse } from '../users/user.types.js';
+import { CongregationsList } from '../congregations/index.js';
+import type { User } from '../users/index.js';
+import type { UserAuthResponse } from '../users/index.js';
 
 type BuildUserAuthenticationResponseInput = {
 	authUser: User;
@@ -71,4 +71,3 @@ export const buildUserAuthenticationResponse = ({
 
 	return userInfo;
 };
-

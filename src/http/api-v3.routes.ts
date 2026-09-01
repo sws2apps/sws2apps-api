@@ -1,15 +1,15 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 
-import authRoutes from '../modules/auth/auth.routes.js';
-import congregationRoutes from '../modules/congregations/congregations.routes.js';
-import meetingRoutes from '../modules/meetings/meetings.routes.js';
-import congregationAdministrationRoutes from '../modules/congregation-administration/congregation-administration.routes.js';
-import userRoutes from '../modules/users/users.routes.js';
-import mfaRoutes from '../modules/mfa/mfa.routes.js';
-import publicApiRoutes from '../modules/public-api/public.routes.js';
-import pocketRoutes from '../modules/pockets/pockets.routes.js';
-import administrationRoutes from '../modules/administration/administration.routes.js';
+import authRoutes from '../modules/auth/routes.js';
+import congregationRoutes from '../modules/congregations/routes.js';
+import meetingRoutes from '../modules/meetings/routes.js';
+import congregationAdministrationRoutes from '../modules/congregation-administration/routes.js';
+import userRoutes from '../modules/users/routes.js';
+import mfaRoutes from '../modules/mfa/routes.js';
+import publicApiRoutes from '../modules/public-api/routes.js';
+import pocketRoutes from '../modules/pockets/routes.js';
+import administrationRoutes from '../modules/administration/routes.js';
 
 import { clientVersionChecker } from './middleware/client-version.middleware.js';
 import { requireTrustedBrowserOrigin } from './middleware/trusted-origin.middleware.js';

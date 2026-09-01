@@ -1,7 +1,7 @@
-import { CongregationsList } from '../congregations/congregations.js';
-import { InstallationsList } from '../installations/installation-list.js';
-import { registerInstallation } from '../installations/installations.service.js';
-import { UsersList } from '../users/users.js';
+import { CongregationsList } from '../congregations/index.js';
+import { InstallationsList } from '../installations/index.js';
+import { registerInstallation } from '../installations/index.js';
+import { UsersList } from '../users/index.js';
 import {
 	assignFeatureFlag,
 	saveCongregationFeatureFlags,

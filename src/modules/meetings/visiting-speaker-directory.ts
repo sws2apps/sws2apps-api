@@ -1,4 +1,4 @@
-import type { Congregation } from '../congregations/congregation.js';
+import type { Congregation } from '../congregations/index.js';
 
 export const findVisitingSpeakerCongregations = (
 	congregations: Congregation[],

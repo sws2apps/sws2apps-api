@@ -3,14 +3,14 @@ import {
 	discardBackupUpload,
 	findBackupUploadByCongregation,
 	recordBackupUploadChunk,
-} from '../backups/backup-upload-tracker.js';
-import { findBackupMetadataConflict } from '../backups/backup-metadata.js';
-import { saveUserBackupAsync } from '../backups/backup-persistence.service.js';
-import type { BackupData } from '../backups/backup.types.js';
+} from '../backups/index.js';
+import { findBackupMetadataConflict } from '../backups/index.js';
+import { saveUserBackupAsync } from '../backups/index.js';
+import type { BackupData } from '../backups/index.js';
 import {
 	BackupPayloadError,
 	parseBackupPayload,
-} from '../backups/backup-payload.js';
+} from '../backups/index.js';
 import {
 	getUserBackupContext,
 	parseUserBackupMetadata,

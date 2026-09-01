@@ -5,15 +5,13 @@ import app from './app.js';
 import { env } from './config/env.js';
 
 import { logger } from './platform/logging/logger.js';
-import { initializeUsers } from './modules/users/user-initialization.service.js';
-import { initializeCongregations } from './modules/congregations/congregation-initialization.service.js';
-import { initializeFeatureFlags } from './modules/feature-flags/feature-flag-initialization.service.js';
-import { initializeInstallations } from './modules/installations/installation-initialization.service.js';
-import { initializeMinimumClientVersion } from './modules/administration/administration-settings.service.js';
+import { initializeUsers, removeOutdatedUserSessions } from './modules/users/index.js';
+import { initializeCongregations, cleanUpLegacyCongregationSettings } from './modules/congregations/index.js';
+import { initializeFeatureFlags } from './modules/feature-flags/index.js';
+import { initializeInstallations } from './modules/installations/index.js';
+import { initializeMinimumClientVersion } from './modules/administration/index.js';
 import { createDevelopmentUsers } from './bootstrap/development-users.js';
 import { serverState } from './platform/runtime/server-state.js';
-import { removeOutdatedUserSessions } from './modules/users/user-lifecycle.service.js';
-import { cleanUpLegacyCongregationSettings } from './modules/congregations/congregation-lifecycle.service.js';
 
 await initializeMinimumClientVersion();
 await createDevelopmentUsers();

@@ -1,9 +1,9 @@
 import type { IncomingHttpHeaders } from 'node:http';
 
 import { env } from '../../config/env.js';
-import { generateDevelopmentMfaToken } from '../mfa/development-token.js';
-import { createApplicationUser } from '../users/user-creation.service.js';
-import { UsersList } from '../users/users.js';
+import { generateDevelopmentMfaToken } from '../mfa/index.js';
+import { createApplicationUser } from '../users/index.js';
+import { UsersList } from '../users/index.js';
 import { AuthenticationError } from './authentication-error.js';
 import { getAuthenticationUserDisplayName } from './authentication-identity.service.js';
 import { buildUserAuthenticationResponse } from './authentication-response.js';
@@ -59,4 +59,3 @@ export const completeAuthentication = async (input: CompleteAuthenticationInput)
 		userInfo: buildUserAuthenticationResponse({ authUser: user }),
 	};
 };
-

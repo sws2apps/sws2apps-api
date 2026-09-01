@@ -1,8 +1,8 @@
 import type { AppRoleType } from '../../domain/users/app-role.js';
 import { encryptData } from '../../platform/encryption/encryption.js';
-import type { Congregation } from '../congregations/congregation.js';
+import type { Congregation } from '../congregations/index.js';
 import type { User } from './user.js';
-import { refreshCongregationMembers } from '../congregations/congregation-members.service.js';
+import { refreshCongregationMembers } from '../congregations/index.js';
 
 type AssignUserToCongregationInput = {
 	role: AppRoleType[];

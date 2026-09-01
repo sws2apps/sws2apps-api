@@ -2,6 +2,59 @@ import globals from 'globals';
 import pluginJs from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
+const featureModuleNames = [
+	'administration',
+	'auth',
+	'backups',
+	'congregation-administration',
+	'congregations',
+	'feature-flags',
+	'installations',
+	'meetings',
+	'mfa',
+	'pockets',
+	'public-api',
+	'users',
+];
+
+const escapedModuleNames = featureModuleNames.map((name) => name.replaceAll('-', '\\-')).join('|');
+const relativeFeatureImport = new RegExp(`^(?:\\.\\./)+(${escapedModuleNames})/(.+)$`);
+const applicationFeatureImport = new RegExp(`(?:^|/)modules/(${escapedModuleNames})/(.+)$`);
+
+const moduleBoundaryPlugin = {
+	rules: {
+		'public-entrypoint': {
+			meta: {
+				type: 'problem',
+				docs: {
+					description: 'Require consumers to import feature modules through their public entrypoint.',
+				},
+				schema: [],
+			},
+			create(context) {
+				return {
+					ImportDeclaration(node) {
+						const importPath = node.source.value;
+
+						if (typeof importPath !== 'string') return;
+
+						const featureImport = relativeFeatureImport.exec(importPath) ?? applicationFeatureImport.exec(importPath);
+
+						const isPublicEntrypoint = featureImport?.[2] === 'index.js' || featureImport?.[2] === 'routes.js';
+
+						if (!featureImport || isPublicEntrypoint) return;
+
+						context.report({
+							node: node.source,
+							message: `Import ${featureImport[1]} through its public index.js entrypoint.`,
+						});
+					},
+				};
+			},
+		},
+	},
+};
+
 export default [
 	{ files: ['**/*.{js,mjs,cjs,ts}'] },
 	{ languageOptions: { globals: globals.node } },
@@ -10,8 +63,12 @@ export default [
 	...tseslint.configs.recommended,
 	{
 		files: ['src/**/*.ts'],
+		plugins: {
+			boundaries: moduleBoundaryPlugin,
+		},
 		rules: {
 			'no-console': 'error',
+			'boundaries/public-entrypoint': 'error',
 		},
 	},
 	{

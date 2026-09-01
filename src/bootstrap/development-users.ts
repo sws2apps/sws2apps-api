@@ -4,8 +4,8 @@ import { importFirebaseAuthenticationUserIfMissing } from '../platform/firebase/
 import type {
 	UserGlobalRoleType,
 	UserProfile,
-} from '../modules/users/user.types.js';
-import { setUserProfile } from '../modules/users/user-account.repository.js';
+} from '../modules/users/index.js';
+import { setUserProfile } from '../modules/users/index.js';
 import { env } from '../config/env.js';
 
 export const createDevelopmentUsers = async () => {

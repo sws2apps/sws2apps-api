@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getPublicFeatureFlags } from '../feature-flags/feature-flag-rollout.service.js';
+import { getPublicFeatureFlags } from '../feature-flags/index.js';
 import { getPublicStats } from './public.service.js';
 
 export const getStats = async (req: Request, res: Response) => {
@@ -19,4 +19,3 @@ export const getFeatureFlags = async (req: Request, res: Response) => {
 	res.locals.message = 'app client fetched feature flags';
 	res.status(200).json(featureFlags);
 };
-
