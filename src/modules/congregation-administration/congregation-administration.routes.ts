@@ -1,9 +1,9 @@
 import express from 'express';
 import { body, header } from 'express-validator';
-import { requireCongregationAdministrator } from '../../http/middleware/authorization.middleware.js';
-import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
-import { REQUEST_LIMITS } from '../../http/request-limits.js';
-import { validateRequest } from '../../http/validation-errors.js';
+import { requireCongregationAdministrator } from '#http/middleware/authorization.middleware.js';
+import { requireAuthenticatedSession } from '#http/middleware/session-authentication.middleware.js';
+import { REQUEST_LIMITS } from '#http/request-limits.js';
+import { validateRequest } from '#http/validation-errors.js';
 import {
 	acceptJoinRequest,
 	deleteJoinRequest,
@@ -162,4 +162,3 @@ congregationAdministrationRouter.delete(
 );
 
 export default congregationAdministrationRouter;
-

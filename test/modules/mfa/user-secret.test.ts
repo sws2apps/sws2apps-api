@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { generateUserMfaSecret } from '../../../src/modules/mfa/user-secret.js';
+import { generateUserMfaSecret } from '#modules/mfa/user-secret.js';
 
 describe('user MFA secret generation', () => {
 	it('creates a versioned TOTP provisioning payload', () => {

@@ -4,7 +4,7 @@ import {
 	findFirebaseAuthenticationUserIdByEmail,
 	getFirebaseUserDisplayName,
 	verifyFirebaseIdToken,
-} from '../../platform/firebase/authentication.js';
+} from '#platform/firebase/authentication.js';
 
 export const verifyAuthenticationToken = async (
 	idToken: string,
@@ -35,4 +35,3 @@ export const createAuthenticationUser = async (
 ): Promise<string> => {
 	return createFirebaseAuthenticationUser(email);
 };
-

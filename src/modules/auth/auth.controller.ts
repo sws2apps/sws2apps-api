@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
+import { getSessionCookieOptions } from '#http/security/session-cookie-options.js';
 import {
 	completeAuthentication,
 } from './authentication-completion.service.js';

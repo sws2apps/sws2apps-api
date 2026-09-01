@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import {
 	mapProviderLocation,
 	normalizeIpLocation,
-} from '../../../src/platform/visitor-details/visitor-details.js';
+} from '#platform/visitor-details/visitor-details.js';
 
 describe('visitor location adapter', () => {
 	it('maps provider-specific fields into the application location shape', () => {

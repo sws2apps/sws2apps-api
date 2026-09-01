@@ -1,7 +1,7 @@
 import {
 	getFirebaseUserDetails,
 	updateFirebaseUserEmail,
-} from '../../platform/firebase/authentication.js';
+} from '#platform/firebase/authentication.js';
 import type { User } from './user.js';
 
 export const loadUserIdentity = async (user: User): Promise<void> => {

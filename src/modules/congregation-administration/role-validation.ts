@@ -1,4 +1,4 @@
-import type { AppRoleType } from '../../domain/users/app-role.js';
+import type { AppRoleType } from '#domain/users/app-role.js';
 
 const allowedCongregationRoles = new Set<AppRoleType>([
 	'admin',

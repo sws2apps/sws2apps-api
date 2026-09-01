@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import {
 	decryptData,
 	encryptData,
-} from '../../../src/platform/encryption/encryption.js';
+} from '#platform/encryption/encryption.js';
 
 describe('encryption adapter', () => {
 	it('encrypts and decrypts data with the server passphrase', () => {

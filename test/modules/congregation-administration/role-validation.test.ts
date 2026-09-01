@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { isValidCongregationRoleList } from '../../../src/modules/congregation-administration/role-validation.js';
+import { isValidCongregationRoleList } from '#modules/congregation-administration/role-validation.js';
 
 describe('congregation role input validation', () => {
 	it('accepts non-empty arrays containing known roles', () => {

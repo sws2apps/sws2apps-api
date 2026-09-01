@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { calculateJsonSize } from '../../src/http/request-size.js';
+import { calculateJsonSize } from '#http/request-size.js';
 
 describe('request body size calculation', () => {
 	it('returns the UTF-8 byte size of JSON request data', () => {

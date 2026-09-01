@@ -1,14 +1,14 @@
-import type { Congregation } from '../congregations/index.js';
-import type { OutgoingTalkScheduleType } from '../congregations/index.js';
+import type { Congregation } from '#modules/congregations/index.js';
+import type { OutgoingTalkScheduleType } from '#modules/congregations/index.js';
 import {
 	getPublicSchedulesMetadata,
 	getPublicSourcesMetadata,
-} from '../congregations/index.js';
+} from '#modules/congregations/index.js';
 import {
 	setCongPublicOutgoingTalks,
 	setCongPublicSchedules,
 	setCongPublicSources,
-} from '../congregations/index.js';
+} from '#modules/congregations/index.js';
 
 type SchedulePublicationInput = {
 	sources: unknown[];

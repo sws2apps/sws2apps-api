@@ -1,20 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
 import { header, validationResult } from 'express-validator';
-import { formatError } from '../validation-errors.js';
+import { formatError } from '#http/validation-errors.js';
 import {
 	verifyAuthenticationToken,
-} from '../../modules/auth/index.js';
+} from '#modules/auth/index.js';
 import {
 	refreshAuthenticationSession,
-} from '../../modules/auth/index.js';
+} from '#modules/auth/index.js';
 import {
 	resolveAuthenticatedSession,
 	resolvePocketSessionUser,
-} from '../../modules/auth/index.js';
+} from '#modules/auth/index.js';
 import {
 	extractBearerToken,
 	validateBearerAuthorization,
-} from '../security/bearer-token.js';
+} from '#http/security/bearer-token.js';
 
 export const requireAuthenticatedSession = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {

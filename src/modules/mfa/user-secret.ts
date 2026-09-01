@@ -1,6 +1,6 @@
 import * as OTPAuth from 'otpauth';
 
-import { env } from '../../config/env.js';
+import { env } from '#config/env.js';
 export type OTPSecretType = {
 	secret: string;
 	uri: string;

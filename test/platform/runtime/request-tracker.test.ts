@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import type { RequestTrackerType } from '../../../src/platform/runtime/request-tracker.js';
+import type { RequestTrackerType } from '#platform/runtime/request-tracker.js';
 import {
 	findRequestTrackerEntry,
 	hasReachedFailedRequestLimit,
 	removeRequestTrackerEntry,
 	setRequestTrackerEntry,
-} from '../../../src/platform/runtime/request-tracker.js';
+} from '#platform/runtime/request-tracker.js';
 
 const createEntry = (ip: string, failedLoginAttempt = 0): RequestTrackerType => ({
 	ip,

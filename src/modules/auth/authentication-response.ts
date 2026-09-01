@@ -1,7 +1,7 @@
-import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
-import { CongregationsList } from '../congregations/index.js';
-import type { User } from '../users/index.js';
-import type { UserAuthResponse } from '../users/index.js';
+import { canAccessCongregationMasterKey } from '#domain/users/master-key-roles.js';
+import { CongregationsList } from '#modules/congregations/index.js';
+import type { User } from '#modules/users/index.js';
+import type { UserAuthResponse } from '#modules/users/index.js';
 
 type BuildUserAuthenticationResponseInput = {
 	authUser: User;

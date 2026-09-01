@@ -1,4 +1,4 @@
-import { decryptData } from '../../platform/encryption/encryption.js';
+import { decryptData } from '#platform/encryption/encryption.js';
 
 export const decryptPocketAccessCode = (
 	encryptedAccessCode: string,

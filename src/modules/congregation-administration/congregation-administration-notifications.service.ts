@@ -1,5 +1,5 @@
-import { env } from '../../config/env.js';
-import { mailClient } from '../../platform/email/mail-client.js';
+import { env } from '#config/env.js';
+import { mailClient } from '#platform/email/mail-client.js';
 
 type JoinRequestApprovalEmail = {
 	recipient: string;

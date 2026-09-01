@@ -1,18 +1,18 @@
-import { CongregationsList } from '../congregations/index.js';
-import { UsersList } from '../users/index.js';
+import { CongregationsList } from '#modules/congregations/index.js';
+import { UsersList } from '#modules/users/index.js';
 import {
 	saveCongregationFeatureFlags,
 	saveUserFeatureFlags,
 	toggleFeatureFlagAssignment,
-} from '../feature-flags/index.js';
+} from '#modules/feature-flags/index.js';
 import {
 	createFeatureFlag,
 	deleteFeatureFlag,
 	toggleFeatureFlag,
 	updateFeatureFlag,
-} from '../feature-flags/index.js';
-import { Flags } from '../feature-flags/index.js';
-import { FeatureFlag } from '../feature-flags/index.js';
+} from '#modules/feature-flags/index.js';
+import { Flags } from '#modules/feature-flags/index.js';
+import { FeatureFlag } from '#modules/feature-flags/index.js';
 
 export type AdministrationFlagErrorCode =
 	| 'USER_NOT_FOUND'

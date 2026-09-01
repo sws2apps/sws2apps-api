@@ -1,5 +1,5 @@
-import { CongregationsList } from '../congregations/index.js';
-import { UsersList } from '../users/index.js';
+import { CongregationsList } from '#modules/congregations/index.js';
+import { UsersList } from '#modules/users/index.js';
 import type { FeatureFlag } from './feature-flag.js';
 import {
 	removeFeatureFlagAssignment,

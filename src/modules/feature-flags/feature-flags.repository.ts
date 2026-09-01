@@ -1,4 +1,4 @@
-import { getFileFromStorage, uploadFileToStorage } from '../../platform/firebase/storage.js';
+import { getFileFromStorage, uploadFileToStorage } from '#platform/firebase/storage.js';
 import { Flag } from './flag.js';
 import { FeatureFlag } from './feature-flag.js';
 

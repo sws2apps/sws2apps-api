@@ -1,6 +1,6 @@
 import { Credentials, ProjectsGroups } from '@crowdin/crowdin-api-client';
 
-import { env } from '../../config/env.js';
+import { env } from '#config/env.js';
 
 export const countProjectLanguages = (targetLanguages: readonly unknown[]): number => {
 	const sourceLanguageCount = 1;

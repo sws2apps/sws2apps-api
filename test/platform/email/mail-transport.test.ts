@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { buildMailTransportOptions } from '../../../src/platform/email/mail-transport.js';
+import { buildMailTransportOptions } from '#platform/email/mail-transport.js';
 
 describe('email transport security', () => {
 	it('uses an encrypted SMTP connection with the configured credentials', () => {

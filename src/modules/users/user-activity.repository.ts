@@ -2,7 +2,7 @@ import type { StandardRecord } from '../../types/standard-record.js';
 import {
 	getFileFromStorage,
 	uploadFileToStorage,
-} from '../../platform/firebase/storage.js';
+} from '#platform/firebase/storage.js';
 
 export const getUserBibleStudies = async (id: string) => {
 	const path = `${id}/bible_studies.txt`;
@@ -57,4 +57,3 @@ export const setDelegatedFieldServiceReports = async (id: string, reports: Stand
 	const path = `${id}/delegated_field_service_reports.txt`;
 	await uploadFileToStorage(data, { type: 'user', path });
 };
-

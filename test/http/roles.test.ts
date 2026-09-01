@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { hasAnyCongregationRole } from '../../src/http/security/roles.js';
+import { hasAnyCongregationRole } from '#http/security/roles.js';
 
 describe('congregation role authorization', () => {
 	it('allows a user with at least one required role', () => {

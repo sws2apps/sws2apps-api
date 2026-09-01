@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import {
 	extractBearerToken,
 	validateBearerAuthorization,
-} from '../../src/http/security/bearer-token.js';
+} from '#http/security/bearer-token.js';
 
 describe('Bearer authorization header', () => {
 	it('extracts a token from the expected scheme', () => {

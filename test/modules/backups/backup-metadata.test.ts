@@ -5,7 +5,7 @@ import {
 	BackupMetadataError,
 	findBackupMetadataConflict,
 	parseBackupMetadata,
-} from '../../../src/modules/backups/backup-metadata.js';
+} from '#modules/backups/backup-metadata.js';
 
 describe('backup metadata parsing', () => {
 	it('accepts a JSON object containing string timestamps', () => {

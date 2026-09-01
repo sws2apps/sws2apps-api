@@ -1,5 +1,5 @@
-import type { OutgoingTalkScheduleType } from '../congregations/index.js';
-import { CongregationsList } from '../congregations/index.js';
+import type { OutgoingTalkScheduleType } from '#modules/congregations/index.js';
+import { CongregationsList } from '#modules/congregations/index.js';
 import {
 	prepareSchedulePublication,
 	saveSchedulePublication,
@@ -11,8 +11,8 @@ import {
 	getPendingOutgoingSpeakerAccess,
 	rejectOutgoingSpeakerAccess,
 	requestOutgoingSpeakerAccess,
-} from '../congregations/index.js';
-import { isCongregationMember } from '../congregations/index.js';
+} from '#modules/congregations/index.js';
+import { isCongregationMember } from '#modules/congregations/index.js';
 import { findVisitingSpeakerCongregations } from './visiting-speaker-directory.js';
 
 export type MeetingAccessErrorCode = 'CONGREGATION_NOT_FOUND' | 'MEMBERSHIP_REQUIRED';

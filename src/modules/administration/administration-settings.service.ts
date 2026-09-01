@@ -1,4 +1,4 @@
-import { serverState } from '../../platform/runtime/server-state.js';
+import { serverState } from '#platform/runtime/server-state.js';
 import {
 	loadOrCreateMinimumClientVersionRecord,
 	updateMinimumClientVersionRecord,

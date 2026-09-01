@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { prepareInstallationRegistration } from '../../../src/modules/installations/installations.service.js';
+import { prepareInstallationRegistration } from '#modules/installations/installations.service.js';
 
 const registeredAt = '2026-08-30T10:00:00.000Z';
 

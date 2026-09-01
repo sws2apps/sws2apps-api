@@ -1,15 +1,15 @@
 import type { IncomingHttpHeaders } from 'node:http';
 
-import { getVisitorSessionDetails } from '../auth/index.js';
-import type { Congregation } from '../congregations/index.js';
-import { CongregationsList } from '../congregations/index.js';
-import { refreshCongregationMembers } from '../congregations/index.js';
-import type { User } from '../users/index.js';
-import type { UserAuthResponse, UserSession } from '../users/index.js';
-import { UsersList } from '../users/index.js';
+import { getVisitorSessionDetails } from '#modules/auth/index.js';
+import type { Congregation } from '#modules/congregations/index.js';
+import { CongregationsList } from '#modules/congregations/index.js';
+import { refreshCongregationMembers } from '#modules/congregations/index.js';
+import type { User } from '#modules/users/index.js';
+import type { UserAuthResponse, UserSession } from '#modules/users/index.js';
+import { UsersList } from '#modules/users/index.js';
 import { parsePocketInvitationCode } from './invitation-code.js';
 import { decryptPocketAccessCode } from './pocket-invitation.service.js';
-import { decryptData } from '../../platform/encryption/encryption.js';
+import { decryptData } from '#platform/encryption/encryption.js';
 
 export type PocketAuthenticationErrorCode = 'INVALID_INVITATION' | 'CONGREGATION_NOT_FOUND';
 

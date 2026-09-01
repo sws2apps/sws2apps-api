@@ -1,15 +1,15 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { encryptData } from '../../../src/platform/encryption/encryption.js';
-import { Congregation } from '../../../src/modules/congregations/congregation.js';
+import { encryptData } from '#platform/encryption/encryption.js';
+import { Congregation } from '#modules/congregations/congregation.js';
 import {
 	getCongregationMembers,
 	isCongregationMember,
 	refreshCongregationMembers,
-} from '../../../src/modules/congregations/congregation-members.service.js';
-import { User } from '../../../src/modules/users/user.js';
-import { UsersList } from '../../../src/modules/users/users.js';
+} from '#modules/congregations/congregation-members.service.js';
+import { User } from '#modules/users/user.js';
+import { UsersList } from '#modules/users/users.js';
 
 describe('congregation member state', () => {
 	it('refreshes and projects current members without exposing encrypted invitation data', () => {

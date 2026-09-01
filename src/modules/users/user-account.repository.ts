@@ -2,7 +2,7 @@ import { schemaUserProfile } from './default-user-profile.js';
 import {
 	getFileFromStorage,
 	uploadFileToStorage,
-} from '../../platform/firebase/storage.js';
+} from '#platform/firebase/storage.js';
 import type {
 	UserProfile,
 	UserSession,
@@ -80,4 +80,3 @@ export const setUserFlags = async (id: string, flags: string[]) => {
 
 	await uploadFileToStorage(data, { type: 'user', path });
 };
-

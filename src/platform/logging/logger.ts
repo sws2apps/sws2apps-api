@@ -1,7 +1,7 @@
 import { Logtail } from '@logtail/node';
 import type { Context, LogLevel } from '@logtail/types';
 
-import { env } from '../../config/env.js';
+import { env } from '#config/env.js';
 import { redactLogContext } from './redaction.js';
 
 const remoteLogger = env.logtailSourceToken

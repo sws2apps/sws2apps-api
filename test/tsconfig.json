@@ -4,7 +4,14 @@
 		"rootDir": "..",
 		"outDir": "../.test-dist",
 		"sourceMap": true,
-		"types": ["node"]
+		"types": ["node"],
+		"paths": {
+			"#config/*": ["../src/config/*"],
+			"#domain/*": ["../src/domain/*"],
+			"#http/*": ["../src/http/*"],
+			"#modules/*": ["../src/modules/*"],
+			"#platform/*": ["../src/platform/*"]
+		}
 	},
 	"include": ["../src/**/*.ts", "../src/**/*.js", "./**/*.ts"],
 	"exclude": ["../node_modules", "../dist", "../.test-dist"]

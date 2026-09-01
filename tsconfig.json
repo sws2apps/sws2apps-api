@@ -3,6 +3,13 @@
 		"target": "esnext",
 		"module": "NodeNext",
 		"moduleResolution": "nodenext",
+		"paths": {
+			"#config/*": ["./src/config/*"],
+			"#domain/*": ["./src/domain/*"],
+			"#http/*": ["./src/http/*"],
+			"#modules/*": ["./src/modules/*"],
+			"#platform/*": ["./src/platform/*"]
+		},
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
 		"sourceMap": false,

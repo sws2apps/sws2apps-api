@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { filterBackupMetadata } from '../../../src/modules/users/user-backup-upload.service.js';
+import { filterBackupMetadata } from '#modules/users/user-backup-upload.service.js';
 
 describe('user backup upload metadata', () => {
 	it('keeps only settings metadata when congregation data sync is disabled', () => {

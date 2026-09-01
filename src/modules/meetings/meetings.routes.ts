@@ -1,12 +1,12 @@
 import express from 'express';
 import { body } from 'express-validator';
-import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
-import { REQUEST_LIMITS } from '../../http/request-limits.js';
-import { validateRequest } from '../../http/validation-errors.js';
+import { requireAuthenticatedSession } from '#http/middleware/session-authentication.middleware.js';
+import { REQUEST_LIMITS } from '#http/request-limits.js';
+import { validateRequest } from '#http/validation-errors.js';
 import {
 	requireMeetingEditor,
 	requirePublicTalkCoordinator,
-} from '../../http/middleware/authorization.middleware.js';
+} from '#http/middleware/authorization.middleware.js';
 import {
 	approveVisitingSpeakersAccess,
 	findVisitingSpeakersCongregations,
@@ -82,4 +82,3 @@ meetingRouter.post(
 );
 
 export default meetingRouter;
-

@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
 import type { NextFunction, Request, Response } from 'express';
 
-import { serverReadyChecker } from '../../src/http/middleware/server-ready.middleware.js';
-import { serverState } from '../../src/platform/runtime/server-state.js';
+import { serverReadyChecker } from '#http/middleware/server-ready.middleware.js';
+import { serverState } from '#platform/runtime/server-state.js';
 
 type ResponseState = {
 	statusCode?: number;

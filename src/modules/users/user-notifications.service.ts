@@ -1,4 +1,4 @@
-import { mailClient } from '../../platform/email/mail-client.js';
+import { mailClient } from '#platform/email/mail-client.js';
 
 type FeedbackEmail = {
 	replyTo: string | undefined;

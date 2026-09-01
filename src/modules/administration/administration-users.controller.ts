@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import type { AppRoleType } from '../../domain/users/app-role.js';
+import type { AppRoleType } from '#domain/users/app-role.js';
 import {
 	AdministrationUserError,
 	assignAdministrationUserCongregation,
@@ -231,5 +231,4 @@ export const userRemoveCongregation = async (req: Request, res: Response) => {
 	res.locals.message = 'admin removed a user from a congregation';
 	res.status(200).json(result);
 };
-
 

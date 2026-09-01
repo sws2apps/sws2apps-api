@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { Request, Response } from 'express';
 
-import { applicationVersion } from '../../src/config/application.js';
-import { errorHandler, getRoot, invalidEndpointHandler } from '../../src/http/app.controller.js';
+import { applicationVersion } from '#config/application.js';
+import { errorHandler, getRoot, invalidEndpointHandler } from '#http/app.controller.js';
 
 type ResponseState = {
 	statusCode?: number;

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { mergeIncomingFieldServiceReport } from '../../../src/modules/users/users-congregation-activity.service.js';
+import { mergeIncomingFieldServiceReport } from '#modules/users/users-congregation-activity.service.js';
 
 describe('incoming user field service reports', () => {
 	it('adds a report with a server-generated identity', () => {

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { buildSessionCookieOptions } from '../../src/http/security/cookies.js';
+import { buildSessionCookieOptions } from '#http/security/cookies.js';
 
 describe('session cookie security', () => {
 	it('allows HTTP cookies only for exact local development hosts', () => {

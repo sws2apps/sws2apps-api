@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { buildAdministrationFlagList } from '../../../src/modules/administration/administration-flags.service.js';
+import { buildAdministrationFlagList } from '#modules/administration/administration-flags.service.js';
 
 describe('administration feature flag list', () => {
 	it('includes users and congregations assigned to each flag', () => {

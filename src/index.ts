@@ -2,16 +2,16 @@ import 'dotenv/config';
 import { LogLevel } from '@logtail/types';
 
 import app from './app.js';
-import { env } from './config/env.js';
+import { env } from '#config/env.js';
 
-import { logger } from './platform/logging/logger.js';
-import { initializeUsers, removeOutdatedUserSessions } from './modules/users/index.js';
-import { initializeCongregations, cleanUpLegacyCongregationSettings } from './modules/congregations/index.js';
-import { initializeFeatureFlags } from './modules/feature-flags/index.js';
-import { initializeInstallations } from './modules/installations/index.js';
-import { initializeMinimumClientVersion } from './modules/administration/index.js';
+import { logger } from '#platform/logging/logger.js';
+import { initializeUsers, removeOutdatedUserSessions } from '#modules/users/index.js';
+import { initializeCongregations, cleanUpLegacyCongregationSettings } from '#modules/congregations/index.js';
+import { initializeFeatureFlags } from '#modules/feature-flags/index.js';
+import { initializeInstallations } from '#modules/installations/index.js';
+import { initializeMinimumClientVersion } from '#modules/administration/index.js';
 import { createDevelopmentUsers } from './bootstrap/development-users.js';
-import { serverState } from './platform/runtime/server-state.js';
+import { serverState } from '#platform/runtime/server-state.js';
 
 await initializeMinimumClientVersion();
 await createDevelopmentUsers();

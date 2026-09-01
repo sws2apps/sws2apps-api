@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { updateCongregationSecuritySetting } from '../../../src/modules/congregation-administration/congregation-administration-security.service.js';
-import type { CongSettingsType } from '../../../src/modules/congregations/congregations.types.js';
+import { updateCongregationSecuritySetting } from '#modules/congregation-administration/congregation-administration-security.service.js';
+import type { CongSettingsType } from '#modules/congregations/congregations.types.js';
 
 describe('congregation security settings', () => {
 	it('updates the selected security value without mutating current settings', () => {

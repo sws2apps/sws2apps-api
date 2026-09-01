@@ -1,7 +1,7 @@
 import type { IncomingHttpHeaders } from 'node:http';
 
-import { retrieveVisitorDetails } from '../../platform/visitor-details/visitor-details.js';
-import { UsersList } from '../users/index.js';
+import { retrieveVisitorDetails } from '#platform/visitor-details/visitor-details.js';
+import { UsersList } from '#modules/users/index.js';
 
 export const getVisitorSessionDetails = async (
 	visitorIp: string,

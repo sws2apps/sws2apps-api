@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import {
 	parsePocketBackupMetadata,
 	PocketBackupError,
-} from '../../../src/modules/pockets/pocket-backup.service.js';
+} from '#modules/pockets/pocket-backup.service.js';
 
 describe('Pocket backup metadata', () => {
 	it('accepts a JSON object containing string timestamps', () => {

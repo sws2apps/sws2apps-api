@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
-import { env } from '../../config/env.js';
-import type { Country } from '../../domain/countries/country.js';
+import { env } from '#config/env.js';
+import type { Country } from '#domain/countries/country.js';
 
 export class CountryCatalogRequestError extends Error {
 	readonly statusCode: number;

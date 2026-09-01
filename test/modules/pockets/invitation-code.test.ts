@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { parsePocketInvitationCode } from '../../../src/modules/pockets/invitation-code.js';
+import { parsePocketInvitationCode } from '#modules/pockets/invitation-code.js';
 
 describe('Pocket invitation codes', () => {
 	it('extracts congregation and temporary access details', () => {

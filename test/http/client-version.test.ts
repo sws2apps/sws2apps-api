@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { isClientVersionSupported } from '../../src/http/client-version.js';
+import { isClientVersionSupported } from '#http/client-version.js';
 
 describe('client version compatibility', () => {
 	it('accepts a client at the minimum version', () => {

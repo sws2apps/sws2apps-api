@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import {
 	BackupPayloadError,
 	parseBackupPayload,
-} from '../../../src/modules/backups/backup-payload.js';
+} from '#modules/backups/backup-payload.js';
 
 describe('backup payload parsing', () => {
 	it('accepts object and serialized payloads with valid metadata', () => {

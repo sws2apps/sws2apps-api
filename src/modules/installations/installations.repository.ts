@@ -1,4 +1,4 @@
-import { getFileFromStorage, uploadFileToStorage } from '../../platform/firebase/storage.js';
+import { getFileFromStorage, uploadFileToStorage } from '#platform/firebase/storage.js';
 import { AppInstallation } from './installation.js';
 
 const installationsStoragePath = 'installations.txt';

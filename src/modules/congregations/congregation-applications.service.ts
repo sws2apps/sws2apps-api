@@ -1,4 +1,4 @@
-import type { AppRoleType } from '../../domain/users/app-role.js';
+import type { AppRoleType } from '#domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import type { Congregation } from './congregation.js';
 import { canManageCongregationApplications } from './congregation-permissions.js';

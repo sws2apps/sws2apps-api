@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { buildStoragePath } from '../../../src/platform/firebase/storage.js';
+import { buildStoragePath } from '#platform/firebase/storage.js';
 
 describe('Firebase storage paths', () => {
 	it('places each supported record type under its existing v3 prefix', () => {

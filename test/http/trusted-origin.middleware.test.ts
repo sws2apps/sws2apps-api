@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { NextFunction, Request, Response } from 'express';
 
-import { requireTrustedBrowserOrigin } from '../../src/http/middleware/trusted-origin.middleware.js';
+import { requireTrustedBrowserOrigin } from '#http/middleware/trusted-origin.middleware.js';
 
 const createRequest = (origin?: string) => ({
 	header: (name: string) => name === 'Origin' ? origin : undefined,

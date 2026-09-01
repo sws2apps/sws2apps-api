@@ -1,4 +1,4 @@
-import { encryptData } from '../../platform/encryption/encryption.js';
+import { encryptData } from '#platform/encryption/encryption.js';
 import type { Congregation } from './congregation.js';
 import type {
 	CongregationUpdatesType,

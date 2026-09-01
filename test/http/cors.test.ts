@@ -7,7 +7,7 @@ import {
 	isPasswordlessOriginAllowed,
 	isProductionCorsRequestAllowed,
 	isTrustedApplicationOrigin,
-} from '../../src/http/security/cors.js';
+} from '#http/security/cors.js';
 
 describe('production CORS policy', () => {
 	it('allows trusted application origins', () => {

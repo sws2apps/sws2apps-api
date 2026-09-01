@@ -1,15 +1,15 @@
-import { env } from '../../config/env.js';
-import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
-import { CongregationsList } from '../congregations/index.js';
-import { generateDevelopmentMfaToken } from '../mfa/index.js';
+import { env } from '#config/env.js';
+import { canAccessCongregationMasterKey } from '#domain/users/master-key-roles.js';
+import { CongregationsList } from '#modules/congregations/index.js';
+import { generateDevelopmentMfaToken } from '#modules/mfa/index.js';
 import { UsersList } from './users.js';
 import { deleteUser } from './user-lifecycle.service.js';
 import {
 	decryptUserMfaSecret,
 	disableUserMfa as disableMfaForUser,
 	ensureUserMfaSecret,
-} from '../mfa/index.js';
-import { refreshCongregationMembers } from '../congregations/index.js';
+} from '#modules/mfa/index.js';
+import { refreshCongregationMembers } from '#modules/congregations/index.js';
 import type { User } from './user.js';
 import type { UserSession } from './user.types.js';
 

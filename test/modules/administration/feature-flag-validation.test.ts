@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { isValidFeatureFlagAvailability } from '../../../src/modules/administration/feature-flag-validation.js';
+import { isValidFeatureFlagAvailability } from '#modules/administration/feature-flag-validation.js';
 
 describe('feature flag availability validation', () => {
 	it('accepts every supported target type', () => {

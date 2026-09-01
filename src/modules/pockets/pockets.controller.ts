@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { getSessionCookieOptions } from '../../http/security/session-cookie-options.js';
-import { BackupData } from '../backups/index.js';
+import { getSessionCookieOptions } from '#http/security/session-cookie-options.js';
+import { BackupData } from '#modules/backups/index.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import {
 	authenticatePocketInvitation,

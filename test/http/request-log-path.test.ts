@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { Request } from 'express';
 
-import { getRequestLogPath } from '../../src/http/request-log-path.js';
+import { getRequestLogPath } from '#http/request-log-path.js';
 
 describe('request log paths', () => {
 	it('logs the route pattern without concrete resource identifiers', () => {

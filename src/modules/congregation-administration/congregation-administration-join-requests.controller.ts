@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import type { AppRoleType } from '../../domain/users/app-role.js';
+import type { AppRoleType } from '#domain/users/app-role.js';
 import {
 	approveCongregationJoinRequest,
 	CongregationJoinRequestError,
@@ -111,5 +111,4 @@ export const acceptJoinRequest = async (req: Request, res: Response) => {
 	res.locals.message = 'congregation admin accepted a join request';
 	res.status(200).json(approval.requests);
 };
-
 

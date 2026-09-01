@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getPublicFeatureFlags } from '../feature-flags/index.js';
+import { getPublicFeatureFlags } from '#modules/feature-flags/index.js';
 import { getPublicStats } from './public.service.js';
 
 export const getStats = async (req: Request, res: Response) => {

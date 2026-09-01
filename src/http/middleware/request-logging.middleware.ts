@@ -2,15 +2,15 @@ import { NextFunction, Request, Response } from 'express';
 import { LogLevel } from '@logtail/types';
 import geoip from 'geoip-lite';
 
-import { serverState } from '../../platform/runtime/server-state.js';
-import { logger } from '../../platform/logging/logger.js';
-import { calculateJsonSize } from '../request-size.js';
-import { getRequestLogPath } from '../request-log-path.js';
+import { serverState } from '#platform/runtime/server-state.js';
+import { logger } from '#platform/logging/logger.js';
+import { calculateJsonSize } from '#http/request-size.js';
+import { getRequestLogPath } from '#http/request-log-path.js';
 import {
 	findRequestTrackerEntry,
 	removeRequestTrackerEntry,
 	setRequestTrackerEntry,
-} from '../../platform/runtime/request-tracker.js';
+} from '#platform/runtime/request-tracker.js';
 
 export const logRequestCompletion = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {

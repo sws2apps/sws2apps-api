@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { CongregationsList } from '../../../src/modules/congregations/congregations.js';
+import { CongregationsList } from '#modules/congregations/congregations.js';
 import {
 	getMeetingSchedules,
 	MeetingAccessError,
-} from '../../../src/modules/meetings/meetings.service.js';
+} from '#modules/meetings/meetings.service.js';
 
 describe('meeting congregation access', () => {
 	it('returns a stable error when the congregation does not exist', async () => {

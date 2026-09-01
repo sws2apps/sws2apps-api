@@ -1,14 +1,14 @@
 import { LogLevel } from '@logtail/types';
 
-import { logger } from '../../platform/logging/logger.js';
-import { CongregationsList } from '../congregations/index.js';
-import { UsersList } from '../users/index.js';
-import type { AppRoleType } from '../../domain/users/app-role.js';
+import { logger } from '#platform/logging/logger.js';
+import { CongregationsList } from '#modules/congregations/index.js';
+import { UsersList } from '#modules/users/index.js';
+import type { AppRoleType } from '#domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import { BackupData } from './backup.types.js';
 import { discardBackupUpload } from './backup-upload-tracker.js';
-import { updateUserCongregationPersonData } from '../users/index.js';
-import { applyUserBackup } from '../users/index.js';
+import { updateUserCongregationPersonData } from '#modules/users/index.js';
+import { applyUserBackup } from '#modules/users/index.js';
 import { saveCongregationBackup } from './congregation-backup.service.js';
 
 export const saveUserBackupAsync = async ({

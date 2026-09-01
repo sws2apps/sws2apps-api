@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { redactLogContext } from '../../../src/platform/logging/redaction.js';
+import { redactLogContext } from '#platform/logging/redaction.js';
 
 describe('log context redaction', () => {
 	it('redacts credentials and personal email addresses', () => {

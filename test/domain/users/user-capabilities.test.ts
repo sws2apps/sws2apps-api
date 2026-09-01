@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getUserCapabilities } from '../../../src/domain/users/user-capabilities.js';
+import { getUserCapabilities } from '#domain/users/user-capabilities.js';
 
 describe('user capabilities', () => {
 	it('grants administration capabilities to congregation administrators', () => {

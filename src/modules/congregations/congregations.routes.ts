@@ -1,7 +1,7 @@
 import express from 'express';
 import { body, query } from 'express-validator';
-import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
-import { validateRequest } from '../../http/validation-errors.js';
+import { requireAuthenticatedSession } from '#http/middleware/session-authentication.middleware.js';
+import { validateRequest } from '#http/validation-errors.js';
 import {
 	deleteApplication,
 	updateApplicationApproval,
@@ -50,4 +50,3 @@ congregationRouter.patch(
 congregationRouter.delete('/:id/applications/:request', deleteApplication);
 
 export default congregationRouter;
-

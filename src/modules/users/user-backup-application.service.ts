@@ -1,5 +1,5 @@
-import type { AppRoleType } from '../../domain/users/app-role.js';
-import type { BackupData } from '../backups/index.js';
+import type { AppRoleType } from '#domain/users/app-role.js';
+import type { BackupData } from '#modules/backups/index.js';
 import type { User } from './user.js';
 import type { UserProfile } from './user.types.js';
 

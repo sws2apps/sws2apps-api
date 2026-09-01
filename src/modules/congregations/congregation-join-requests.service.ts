@@ -1,9 +1,9 @@
-import type { AppRoleType } from '../../domain/users/app-role.js';
+import type { AppRoleType } from '#domain/users/app-role.js';
 import type { Congregation } from './congregation.js';
-import { UsersList } from '../users/index.js';
+import { UsersList } from '#modules/users/index.js';
 import { UserRequestAccess } from './congregations.types.js';
 import { setCongregationJoinRequests } from './congregation-join-requests.repository.js';
-import { assignUserToCongregation } from '../users/index.js';
+import { assignUserToCongregation } from '#modules/users/index.js';
 
 type JoinRequestUser = {
 	profile: {

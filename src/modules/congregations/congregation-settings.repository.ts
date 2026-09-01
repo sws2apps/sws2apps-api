@@ -4,8 +4,8 @@ import {
 	getFileFromStorage,
 	getFileMetadata,
 	uploadFileToStorage,
-} from '../../platform/firebase/storage.js';
-import { logger } from '../../platform/logging/logger.js';
+} from '#platform/firebase/storage.js';
+import { logger } from '#platform/logging/logger.js';
 import type { CongSettingsType } from './congregations.types.js';
 
 export const getCongregationSettings = async (cong_id: string) => {
@@ -62,4 +62,3 @@ export const setCongregationCreatedAt = async (id: string, data: string) => {
 	const path = `${id}/settings/created.txt`;
 	await uploadFileToStorage(data, { type: 'congregation', path });
 };
-

@@ -1,5 +1,5 @@
 import { AES, Utf8 } from 'crypto-es';
-import { env } from '../../config/env.js';
+import { env } from '#config/env.js';
 
 const serverPassphrase = `&sws2apps_${env.encryptionKey}`;
 

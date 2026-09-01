@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import type { BackupData } from '../backups/index.js';
+import type { BackupData } from '#modules/backups/index.js';
 import { UserBackupError } from './user-backup-context.js';
 import {
 	saveUserBackup as saveUserBackupData,
@@ -150,4 +150,3 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 	res.locals.message = 'congregation backup chunk processed';
 	res.status(200).json({ message: 'BACKUP_CHUNK_RECEIVED' });
 };
-

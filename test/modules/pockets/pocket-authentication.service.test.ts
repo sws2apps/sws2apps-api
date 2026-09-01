@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import {
 	authenticatePocketInvitation,
 	PocketAuthenticationError,
-} from '../../../src/modules/pockets/pocket-authentication.service.js';
+} from '#modules/pockets/pocket-authentication.service.js';
 
 describe('Pocket authentication service', () => {
 	it('rejects a malformed invitation before creating a session', async () => {

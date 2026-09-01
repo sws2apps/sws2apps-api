@@ -1,9 +1,9 @@
 import express from 'express';
 import { body } from 'express-validator';
 
-import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
-import { requireGlobalAdministrator } from '../../http/middleware/authorization.middleware.js';
-import { validateRequest } from '../../http/validation-errors.js';
+import { requireAuthenticatedSession } from '#http/middleware/session-authentication.middleware.js';
+import { requireGlobalAdministrator } from '#http/middleware/authorization.middleware.js';
+import { validateRequest } from '#http/validation-errors.js';
 
 import {
 	congregationDataSyncToggle,
@@ -168,4 +168,3 @@ router.patch(
 router.delete('/flags/:id', flagDelete);
 
 export default router;
-

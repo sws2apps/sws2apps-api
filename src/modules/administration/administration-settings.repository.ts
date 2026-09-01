@@ -3,7 +3,7 @@ import {
 	getCollectionRecords,
 	getFirstCollectionRecord,
 	updateCollectionRecord,
-} from '../../platform/firebase/document-store.js';
+} from '#platform/firebase/document-store.js';
 
 const apiSettingsCollection = 'api_settings_v3';
 const defaultMinimumClientVersion = '1.0.0';

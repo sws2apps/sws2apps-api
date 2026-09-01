@@ -7,8 +7,8 @@ import {
 	findBackupUploadByCongregation,
 	MAX_BACKUP_CHUNKS,
 	recordBackupUploadChunk,
-} from '../../../src/modules/backups/backup-upload-tracker.js';
-import { BackupForStorage } from '../../../src/modules/backups/backup.types.js';
+} from '#modules/backups/backup-upload-tracker.js';
+import { BackupForStorage } from '#modules/backups/backup.types.js';
 
 const createUpload = (congregationId: string): BackupForStorage => {
 	const timeout = setTimeout(() => undefined, 60_000);

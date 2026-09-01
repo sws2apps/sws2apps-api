@@ -1,5 +1,5 @@
 import { initializeApp, cert, AppOptions } from 'firebase-admin/app';
-import { env } from '../../config/env.js';
+import { env } from '#config/env.js';
 import { decodeServiceAccount } from './service-account.js';
 
 const storageBucket = env.firebaseStorageBucket || `${env.firebaseAppName}.${env.firebaseStorageSuffix}`;

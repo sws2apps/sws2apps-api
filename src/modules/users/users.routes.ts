@@ -1,10 +1,10 @@
 import express from 'express';
 import { body, header } from 'express-validator';
-import { MAX_BACKUP_CHUNKS } from '../backups/index.js';
-import { requireAuthenticatedSession } from '../../http/middleware/session-authentication.middleware.js';
-import { requireCurrentUserResource } from '../../http/middleware/user-resource-authorization.middleware.js';
-import { REQUEST_LIMITS } from '../../http/request-limits.js';
-import { validateRequest } from '../../http/validation-errors.js';
+import { MAX_BACKUP_CHUNKS } from '#modules/backups/index.js';
+import { requireAuthenticatedSession } from '#http/middleware/session-authentication.middleware.js';
+import { requireCurrentUserResource } from '#http/middleware/user-resource-authorization.middleware.js';
+import { REQUEST_LIMITS } from '#http/request-limits.js';
+import { validateRequest } from '#http/validation-errors.js';
 import {
 	deleteUser,
 	deleteUserSession,

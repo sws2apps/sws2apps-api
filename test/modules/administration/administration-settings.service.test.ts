@@ -5,8 +5,8 @@ import {
 	getMinimumClientVersion,
 	initializeMinimumClientVersion,
 	updateMinimumClientVersion,
-} from '../../../src/modules/administration/administration-settings.service.js';
-import { serverState } from '../../../src/platform/runtime/server-state.js';
+} from '#modules/administration/administration-settings.service.js';
+import { serverState } from '#platform/runtime/server-state.js';
 
 describe('administration API settings', () => {
 	it('reads the current minimum version from runtime state', () => {

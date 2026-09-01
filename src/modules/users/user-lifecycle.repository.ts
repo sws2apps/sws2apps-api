@@ -1,8 +1,8 @@
-import { encryptData } from '../../platform/encryption/encryption.js';
+import { encryptData } from '#platform/encryption/encryption.js';
 import {
 	deleteFileFromStorage,
 	listFilesFromStorage,
-} from '../../platform/firebase/storage.js';
+} from '#platform/firebase/storage.js';
 import { User } from './user.js';
 import {
 	getUserFlags,

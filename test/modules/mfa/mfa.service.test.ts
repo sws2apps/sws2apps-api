@@ -4,10 +4,10 @@ import { describe, it } from 'node:test';
 import {
 	InvalidMfaTokenError,
 	verifyMfaToken,
-} from '../../../src/modules/mfa/mfa.service.js';
-import { User } from '../../../src/modules/users/user.js';
-import { UsersList } from '../../../src/modules/users/users.js';
-import { encryptData } from '../../../src/platform/encryption/encryption.js';
+} from '#modules/mfa/mfa.service.js';
+import { User } from '#modules/users/user.js';
+import { UsersList } from '#modules/users/users.js';
+import { encryptData } from '#platform/encryption/encryption.js';
 
 describe('MFA verification service', () => {
 	it('rejects an invalid token before changing user state', async () => {

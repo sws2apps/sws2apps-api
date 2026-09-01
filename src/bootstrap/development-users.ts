@@ -1,12 +1,12 @@
 import { LogLevel } from '@logtail/types';
-import { logger } from '../platform/logging/logger.js';
-import { importFirebaseAuthenticationUserIfMissing } from '../platform/firebase/authentication.js';
+import { logger } from '#platform/logging/logger.js';
+import { importFirebaseAuthenticationUserIfMissing } from '#platform/firebase/authentication.js';
 import type {
 	UserGlobalRoleType,
 	UserProfile,
-} from '../modules/users/index.js';
-import { setUserProfile } from '../modules/users/index.js';
-import { env } from '../config/env.js';
+} from '#modules/users/index.js';
+import { setUserProfile } from '#modules/users/index.js';
+import { env } from '#config/env.js';
 
 export const createDevelopmentUsers = async () => {
 	try {

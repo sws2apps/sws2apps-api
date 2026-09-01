@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import type { FeatureFlag } from '../feature-flags/index.js';
+import type { FeatureFlag } from '#modules/feature-flags/index.js';
 import {
 	AdministrationFlagError,
 	createAdministrationFlag,

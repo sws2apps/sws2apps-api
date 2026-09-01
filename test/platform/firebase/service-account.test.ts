@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { decodeServiceAccount } from '../../../src/platform/firebase/service-account.js';
+import { decodeServiceAccount } from '#platform/firebase/service-account.js';
 
 const encode = (value: unknown) => Buffer.from(JSON.stringify(value), 'utf8').toString('base64');
 

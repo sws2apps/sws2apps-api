@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-import { env } from '../../config/env.js';
+import { env } from '#config/env.js';
 
 export type CongregationDirectoryRecord = {
 	congName: string;

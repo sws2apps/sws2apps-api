@@ -7,7 +7,7 @@ import {
 	formatError,
 	rejectInvalidRequest,
 	validateRequest,
-} from '../../src/http/validation-errors.js';
+} from '#http/validation-errors.js';
 
 describe('validation error formatting', () => {
 	it('joins field validation messages in their existing order', () => {
@@ -109,4 +109,3 @@ describe('invalid request responses', () => {
 		assert.equal(result.getStatusCode(), undefined);
 	});
 });
-

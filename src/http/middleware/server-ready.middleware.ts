@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { serverState } from '../../platform/runtime/server-state.js';
+import { serverState } from '#platform/runtime/server-state.js';
 
 export const serverReadyChecker = () => {
 	return async (_request: Request, response: Response, next: NextFunction) => {

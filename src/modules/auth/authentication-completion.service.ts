@@ -1,9 +1,9 @@
 import type { IncomingHttpHeaders } from 'node:http';
 
-import { env } from '../../config/env.js';
-import { generateDevelopmentMfaToken } from '../mfa/index.js';
-import { createApplicationUser } from '../users/index.js';
-import { UsersList } from '../users/index.js';
+import { env } from '#config/env.js';
+import { generateDevelopmentMfaToken } from '#modules/mfa/index.js';
+import { createApplicationUser } from '#modules/users/index.js';
+import { UsersList } from '#modules/users/index.js';
 import { AuthenticationError } from './authentication-error.js';
 import { getAuthenticationUserDisplayName } from './authentication-identity.service.js';
 import { buildUserAuthenticationResponse } from './authentication-response.js';

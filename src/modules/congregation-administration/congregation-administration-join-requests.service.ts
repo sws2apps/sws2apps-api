@@ -1,12 +1,12 @@
-import type { AppRoleType } from '../../domain/users/app-role.js';
+import type { AppRoleType } from '#domain/users/app-role.js';
 import {
 	approveCongregationMembership,
 	declineCongregationMembership,
 	getCongregationJoinRequests,
-} from '../congregations/index.js';
-import { CongregationsList } from '../congregations/index.js';
-import { UsersList } from '../users/index.js';
-import { isCongregationMember } from '../congregations/index.js';
+} from '#modules/congregations/index.js';
+import { CongregationsList } from '#modules/congregations/index.js';
+import { UsersList } from '#modules/users/index.js';
+import { isCongregationMember } from '#modules/congregations/index.js';
 
 export type CongregationJoinRequestErrorCode =
 	| 'CONGREGATION_NOT_FOUND'

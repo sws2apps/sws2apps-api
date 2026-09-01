@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import type { Congregation } from '../../../src/modules/congregations/congregation.js';
-import { findVisitingSpeakerCongregations } from '../../../src/modules/meetings/visiting-speaker-directory.js';
+import type { Congregation } from '#modules/congregations/congregation.js';
+import { findVisitingSpeakerCongregations } from '#modules/meetings/visiting-speaker-directory.js';
 
 const createCongregation = (
 	id: string,

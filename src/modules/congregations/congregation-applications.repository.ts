@@ -3,7 +3,7 @@ import {
 	deleteFileFromStorage,
 	listFilesFromStorage,
 	uploadFileToStorage,
-} from '../../platform/firebase/storage.js';
+} from '#platform/firebase/storage.js';
 
 export const getCongregationApplications = async (cong_id: string) => {
 	const files = await listFilesFromStorage({
@@ -27,4 +27,3 @@ export const deleteCongregationApplicationRecord = async (congId: string, reques
 	const path = `${congId}/auxiliary_applications/${requestId}.txt`;
 	await deleteFileFromStorage({ type: 'congregation', path });
 };
-

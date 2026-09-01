@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import {
 	generateEmailOneTimePassword,
 	isEmailOneTimePasswordValid,
-} from '../../../src/modules/auth/email-otp.js';
+} from '#modules/auth/email-otp.js';
 
 describe('email one-time password generation', () => {
 	it('generates fixed-length numeric codes', () => {

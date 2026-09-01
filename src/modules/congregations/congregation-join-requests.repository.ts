@@ -1,7 +1,7 @@
 import {
 	getFileFromStorage,
 	uploadFileToStorage,
-} from '../../platform/firebase/storage.js';
+} from '#platform/firebase/storage.js';
 import type { UserRequestAccess } from './congregations.types.js';
 
 export const getCongregationJoinRequests = async (cong_id: string) => {
@@ -20,4 +20,3 @@ export const setCongregationJoinRequests = async (id: string, requests: UserRequ
 	const path = `${id}/users/requests.txt`;
 	await uploadFileToStorage(data, { type: 'congregation', path });
 };
-

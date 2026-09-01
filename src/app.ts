@@ -9,19 +9,19 @@ import requestIp from 'request-ip';
 import compression from 'compression';
 import i18next from 'i18next';
 
-import './platform/firebase/firebase-app.js';
+import '#platform/firebase/firebase-app.js';
 
-import { requireInternetConnection } from './http/middleware/internet-connection.middleware.js';
-import { trackRequestState } from './http/middleware/request-state.middleware.js';
-import { logRequestCompletion } from './http/middleware/request-logging.middleware.js';
-import { serverReadyChecker } from './http/middleware/server-ready.middleware.js';
+import { requireInternetConnection } from '#http/middleware/internet-connection.middleware.js';
+import { trackRequestState } from '#http/middleware/request-state.middleware.js';
+import { logRequestCompletion } from '#http/middleware/request-logging.middleware.js';
+import { serverReadyChecker } from '#http/middleware/server-ready.middleware.js';
 
-import apiV3Routes from './http/api-v3.routes.js';
+import apiV3Routes from '#http/api-v3.routes.js';
 
-import { errorHandler, getRoot, invalidEndpointHandler } from './http/app.controller.js';
-import resources from './platform/localization/resources.js';
-import { env } from './config/env.js';
-import { createCorsOptions } from './http/security/cors.js';
+import { errorHandler, getRoot, invalidEndpointHandler } from '#http/app.controller.js';
+import resources from '#platform/localization/resources.js';
+import { env } from '#config/env.js';
+import { createCorsOptions } from '#http/security/cors.js';
 
 const corsOptionsDelegate = (request: express.Request, callback: (_error: null, options: CorsOptions) => void) => {
 	callback(null, createCorsOptions(request, env.isProduction));

@@ -1,20 +1,20 @@
 import type { StandardRecord } from '../../types/standard-record.js';
-import { CongregationsList } from '../congregations/index.js';
-import { UsersList } from '../users/index.js';
-import { deleteUser } from '../users/index.js';
+import { CongregationsList } from '#modules/congregations/index.js';
+import { UsersList } from '#modules/users/index.js';
+import { deleteUser } from '#modules/users/index.js';
 import {
 	projectUserSessions,
 	revokeSessionForUser,
-} from '../users/index.js';
+} from '#modules/users/index.js';
 import {
 	getUserAuxiliaryApplications,
 	submitUserAuxiliaryApplication,
 	submitUserFieldServiceReport,
-} from '../users/index.js';
+} from '#modules/users/index.js';
 import {
 	isCongregationMember,
 	refreshCongregationMembers,
-} from '../congregations/index.js';
+} from '#modules/congregations/index.js';
 
 export type PocketUserErrorCode = 'CONGREGATION_NOT_FOUND' | 'MEMBERSHIP_REQUIRED';
 

@@ -1,20 +1,20 @@
-import type { AppRoleType } from '../../domain/users/app-role.js';
-import { CongregationsList } from '../congregations/index.js';
-import { UsersList } from '../users/index.js';
-import { createPocketApplicationUser } from '../users/index.js';
-import { revokeSessionForUser } from '../users/index.js';
-import { deleteUser } from '../users/index.js';
+import type { AppRoleType } from '#domain/users/app-role.js';
+import { CongregationsList } from '#modules/congregations/index.js';
+import { UsersList } from '#modules/users/index.js';
+import { createPocketApplicationUser } from '#modules/users/index.js';
+import { revokeSessionForUser } from '#modules/users/index.js';
+import { deleteUser } from '#modules/users/index.js';
 import {
 	assignUserToCongregation,
 	removeUserFromCongregation,
 	removeUserPocketInvitation,
 	updateUserCongregationMembership,
-} from '../users/index.js';
+} from '#modules/users/index.js';
 import {
 	getCongregationMembers as buildCongregationMemberList,
 	isCongregationMember,
 	refreshCongregationMembers,
-} from '../congregations/index.js';
+} from '#modules/congregations/index.js';
 
 export type CongregationAdministrationUserErrorCode =
 	| 'CONGREGATION_NOT_FOUND'

@@ -1,9 +1,9 @@
-import { decryptData } from '../../platform/encryption/encryption.js';
-import type { CongSettingsType } from '../congregations/index.js';
-import { CongregationsList } from '../congregations/index.js';
-import { deleteUser } from '../users/index.js';
-import { deleteCongregation } from '../congregations/index.js';
-import { isCongregationMember } from '../congregations/index.js';
+import { decryptData } from '#platform/encryption/encryption.js';
+import type { CongSettingsType } from '#modules/congregations/index.js';
+import { CongregationsList } from '#modules/congregations/index.js';
+import { deleteUser } from '#modules/users/index.js';
+import { deleteCongregation } from '#modules/congregations/index.js';
+import { isCongregationMember } from '#modules/congregations/index.js';
 
 export type CongregationAdministrationSecurityErrorCode =
 	| 'CONGREGATION_NOT_FOUND'

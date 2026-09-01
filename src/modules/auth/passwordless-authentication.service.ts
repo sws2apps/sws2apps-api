@@ -1,7 +1,7 @@
 import type { IncomingHttpHeaders } from 'node:http';
 
-import { createApplicationUser } from '../users/index.js';
-import { UsersList } from '../users/index.js';
+import { createApplicationUser } from '#modules/users/index.js';
+import { UsersList } from '#modules/users/index.js';
 import { AuthenticationError } from './authentication-error.js';
 import {
 	createAuthenticationToken,

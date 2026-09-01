@@ -4,8 +4,8 @@ import type Mail from 'nodemailer/lib/mailer/index.js';
 import hbs, { NodemailerExpressHandlebarsOptions } from 'nodemailer-express-handlebars';
 import { LogLevel } from '@logtail/types';
 
-import { env } from '../../config/env.js';
-import { logger } from '../logging/logger.js';
+import { env } from '#config/env.js';
+import { logger } from '#platform/logging/logger.js';
 import { buildMailTransportOptions } from './mail-transport.js';
 
 const sender = `${env.mailSenderName} <${env.mailAddress}>`;

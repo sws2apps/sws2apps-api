@@ -1,6 +1,6 @@
-import { decryptData } from '../../platform/encryption/encryption.js';
+import { decryptData } from '#platform/encryption/encryption.js';
 import type { Congregation } from './congregation.js';
-import { UsersList } from '../users/index.js';
+import { UsersList } from '#modules/users/index.js';
 
 export const isCongregationMember = (
 	congregation: Congregation,

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { areSecretValuesEqual } from '../../../src/platform/security/secret-comparison.js';
+import { areSecretValuesEqual } from '#platform/security/secret-comparison.js';
 
 describe('security-sensitive string comparison', () => {
 	it('accepts identical secret values', () => {

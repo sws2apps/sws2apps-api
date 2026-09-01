@@ -1,7 +1,7 @@
 import {
 	getFileMetadata,
 	listFilesFromStorage,
-} from '../../platform/firebase/storage.js';
+} from '#platform/firebase/storage.js';
 
 export const getPersonsMetadata = async (cong_id: string) => {
 	const files = await listFilesFromStorage({
@@ -128,4 +128,3 @@ export const getUpcomingEventsMetadata = async (cong_id: string) => {
 	const record = await getFileMetadata({ type: 'congregation', path: `${cong_id}/upcoming_events/main.txt` });
 	return record?.updated || '';
 };
-

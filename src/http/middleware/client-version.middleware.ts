@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { header, validationResult } from 'express-validator';
 
-import { serverState } from '../../platform/runtime/server-state.js';
-import { formatError } from '../validation-errors.js';
-import { isClientVersionSupported } from '../client-version.js';
+import { serverState } from '#platform/runtime/server-state.js';
+import { formatError } from '#http/validation-errors.js';
+import { isClientVersionSupported } from '#http/client-version.js';
 
 export const clientVersionChecker = () => {
 	return async (request: Request, response: Response, next: NextFunction) => {

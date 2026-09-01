@@ -1,8 +1,8 @@
-import { areSecretValuesEqual } from '../../platform/security/secret-comparison.js';
+import { areSecretValuesEqual } from '#platform/security/secret-comparison.js';
 import {
 	generateSecureRandomString,
 	NUMERIC_CHARACTERS,
-} from '../../platform/security/secure-random-string.js';
+} from '#platform/security/secure-random-string.js';
 
 type EmailOneTimePassword = {
 	code: string;

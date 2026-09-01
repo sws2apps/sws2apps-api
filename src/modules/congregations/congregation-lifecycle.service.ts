@@ -1,5 +1,5 @@
 import { LogLevel } from '@logtail/types';
-import { logger } from '../../platform/logging/logger.js';
+import { logger } from '#platform/logging/logger.js';
 import { CongregationsList } from './congregations.js';
 import { deletePersistedCongregation } from './congregation-lifecycle.repository.js';
 

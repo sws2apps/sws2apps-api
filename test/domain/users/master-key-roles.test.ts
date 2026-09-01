@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { canAccessCongregationMasterKey } from '../../../src/domain/users/master-key-roles.js';
+import { canAccessCongregationMasterKey } from '#domain/users/master-key-roles.js';
 
 describe('congregation master-key access', () => {
 	it('allows roles responsible for congregation administration or schedules', () => {

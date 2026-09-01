@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { prepareSchedulePublication } from '../../../src/modules/meetings/schedule-publication.js';
+import { prepareSchedulePublication } from '#modules/meetings/schedule-publication.js';
 
 describe('meeting schedule publication', () => {
 	it('serializes sources, schedules, and outgoing talks for storage', () => {

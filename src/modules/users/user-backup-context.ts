@@ -1,9 +1,9 @@
 import {
 	BackupMetadataError,
 	parseBackupMetadata,
-} from '../backups/index.js';
-import type { Congregation } from '../congregations/index.js';
-import { CongregationsList } from '../congregations/index.js';
+} from '#modules/backups/index.js';
+import type { Congregation } from '#modules/congregations/index.js';
+import { CongregationsList } from '#modules/congregations/index.js';
 import type { User } from './user.js';
 import { UsersList } from './users.js';
 

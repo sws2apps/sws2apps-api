@@ -1,9 +1,9 @@
 import { LogLevel } from '@logtail/types';
-import { deleteFirebaseAuthUser } from '../../platform/firebase/authentication.js';
-import { logger } from '../../platform/logging/logger.js';
-import { CongregationsList } from '../congregations/index.js';
+import { deleteFirebaseAuthUser } from '#platform/firebase/authentication.js';
+import { logger } from '#platform/logging/logger.js';
+import { CongregationsList } from '#modules/congregations/index.js';
 import { UsersList } from './users.js';
-import { refreshCongregationMembers } from '../congregations/index.js';
+import { refreshCongregationMembers } from '#modules/congregations/index.js';
 import { deletePersistedUser } from './user-lifecycle.repository.js';
 
 export const deleteUser = async (userId: string): Promise<void> => {

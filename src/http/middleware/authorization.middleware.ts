@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
-import type { AppRoleType } from '../../domain/users/app-role.js';
+import type { AppRoleType } from '#domain/users/app-role.js';
 
-import { hasAnyCongregationRole } from '../security/roles.js';
+import { hasAnyCongregationRole } from '#http/security/roles.js';
 
 const denyAccess = (response: Response) => {
 	response.locals.type = 'warn';

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { applicationVersion } from '../config/application.js';
+import { applicationVersion } from '#config/application.js';
 
 type ApiError = Error & {
 	errorInfo?: {

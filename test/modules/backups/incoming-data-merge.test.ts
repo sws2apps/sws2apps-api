@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { mergeIncomingData } from '../../../src/modules/backups/incoming-data-merge.js';
+import { mergeIncomingData } from '#modules/backups/incoming-data-merge.js';
 
 describe('incoming backup data merge', () => {
 	it('replaces a timestamped record when the incoming value is newer', () => {

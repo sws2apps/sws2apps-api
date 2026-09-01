@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 
-import { env } from '../../config/env.js';
-import { isTrustedApplicationOrigin } from '../security/cors.js';
+import { env } from '#config/env.js';
+import { isTrustedApplicationOrigin } from '#http/security/cors.js';
 
 export const requireTrustedBrowserOrigin = (isProduction = env.isProduction) => {
 	return (req: Request, res: Response, next: NextFunction) => {

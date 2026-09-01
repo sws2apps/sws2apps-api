@@ -4,9 +4,9 @@ import { describe, it } from 'node:test';
 import {
 	PocketUserError,
 	submitPocketReport,
-} from '../../../src/modules/pockets/pocket-user.service.js';
-import { User } from '../../../src/modules/users/user.js';
-import { UsersList } from '../../../src/modules/users/users.js';
+} from '#modules/pockets/pocket-user.service.js';
+import { User } from '#modules/users/user.js';
+import { UsersList } from '#modules/users/users.js';
 
 describe('Pocket user service', () => {
 	it('rejects a report when the user has no congregation', () => {

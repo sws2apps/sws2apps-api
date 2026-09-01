@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import geoip from 'geoip-lite';
-import { serverState } from '../../platform/runtime/server-state.js';
+import { serverState } from '#platform/runtime/server-state.js';
 import {
 	findRequestTrackerEntry,
 	hasReachedFailedRequestLimit,
 	removeRequestTrackerEntry,
 	setRequestTrackerEntry,
 	type RequestTrackerType,
-} from '../../platform/runtime/request-tracker.js';
+} from '#platform/runtime/request-tracker.js';
 
 export const trackRequestState = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {

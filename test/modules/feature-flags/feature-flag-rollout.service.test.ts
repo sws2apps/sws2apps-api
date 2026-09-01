@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getPublicFeatureFlags } from '../../../src/modules/feature-flags/feature-flag-rollout.service.js';
-import { Flag } from '../../../src/modules/feature-flags/flag.js';
-import { Flags } from '../../../src/modules/feature-flags/flags.js';
-import { InstallationsList } from '../../../src/modules/installations/installation-list.js';
+import { getPublicFeatureFlags } from '#modules/feature-flags/feature-flag-rollout.service.js';
+import { Flag } from '#modules/feature-flags/flag.js';
+import { Flags } from '#modules/feature-flags/flags.js';
+import { InstallationsList } from '#modules/installations/installation-list.js';
 
 describe('public feature flag rollout', () => {
 	it('returns active application flags with full coverage', async () => {

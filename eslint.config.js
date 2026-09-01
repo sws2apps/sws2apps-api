@@ -19,7 +19,7 @@ const featureModuleNames = [
 
 const escapedModuleNames = featureModuleNames.map((name) => name.replaceAll('-', '\\-')).join('|');
 const relativeFeatureImport = new RegExp(`^(?:\\.\\./)+(${escapedModuleNames})/(.+)$`);
-const applicationFeatureImport = new RegExp(`(?:^|/)modules/(${escapedModuleNames})/(.+)$`);
+const applicationFeatureImport = new RegExp(`(?:^#modules/|(?:^|/)modules/)(${escapedModuleNames})/(.+)$`);
 
 const moduleBoundaryPlugin = {
 	rules: {

@@ -1,7 +1,7 @@
-import type { AppRoleType } from '../../domain/users/app-role.js';
-import { getUserCapabilities } from '../../domain/users/user-capabilities.js';
-import type { Congregation } from '../congregations/index.js';
-import { UsersList } from '../users/index.js';
+import type { AppRoleType } from '#domain/users/app-role.js';
+import { getUserCapabilities } from '#domain/users/user-capabilities.js';
+import type { Congregation } from '#modules/congregations/index.js';
+import { UsersList } from '#modules/users/index.js';
 import type { BackupData } from './backup.types.js';
 import { mergeIncomingData } from './incoming-data-merge.js';
 

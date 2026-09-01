@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { toMondayFirstWeekday } from '../../../src/modules/congregations/meeting-weekday.js';
+import { toMondayFirstWeekday } from '#modules/congregations/meeting-weekday.js';
 
 describe('meeting weekday conversion', () => {
 	it('moves Sunday to the end of a Monday-first week', () => {

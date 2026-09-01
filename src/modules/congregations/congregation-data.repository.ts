@@ -3,7 +3,7 @@ import {
 	getFileFromStorage,
 	listFilesFromStorage,
 	uploadFileToStorage,
-} from '../../platform/firebase/storage.js';
+} from '#platform/firebase/storage.js';
 import type {
 	OutgoingSpeakersRecordType,
 	OutgoingTalkScheduleType,

@@ -3,8 +3,8 @@ import { generateUserMfaSecret } from './user-secret.js';
 import {
 	decryptData,
 	encryptData,
-} from '../../platform/encryption/encryption.js';
-import type { User } from '../users/index.js';
+} from '#platform/encryption/encryption.js';
+import type { User } from '#modules/users/index.js';
 
 export const ensureUserMfaSecret = async (user: User): Promise<void> => {
 	if (user.profile.secret) return;

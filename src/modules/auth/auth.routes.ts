@@ -1,11 +1,11 @@
 import express from 'express';
 import { body, header } from 'express-validator';
 import { createSignInLink, loginUser, verifyEmailToken, verifyPasswordlessInfo } from './auth.controller.js';
-import { validateBearerAuthorization } from '../../http/security/bearer-token.js';
-import { isPasswordlessOriginAllowed } from '../../http/security/cors.js';
-import { env } from '../../config/env.js';
-import { REQUEST_LIMITS } from '../../http/request-limits.js';
-import { validateRequest } from '../../http/validation-errors.js';
+import { validateBearerAuthorization } from '#http/security/bearer-token.js';
+import { isPasswordlessOriginAllowed } from '#http/security/cors.js';
+import { env } from '#config/env.js';
+import { REQUEST_LIMITS } from '#http/request-limits.js';
+import { validateRequest } from '#http/validation-errors.js';
 
 const authRouter = express.Router();
 
@@ -45,4 +45,3 @@ authRouter.post(
 );
 
 export default authRouter;
-

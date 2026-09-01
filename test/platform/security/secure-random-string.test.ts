@@ -5,7 +5,7 @@ import {
 	generateSecureRandomString,
 	NUMERIC_CHARACTERS,
 	UPPERCASE_ALPHANUMERIC_CHARACTERS,
-} from '../../../src/platform/security/secure-random-string.js';
+} from '#platform/security/secure-random-string.js';
 
 describe('secure random strings', () => {
 	it('generates strings from the requested character set', () => {

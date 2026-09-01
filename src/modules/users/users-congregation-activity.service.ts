@@ -1,21 +1,21 @@
 import sanitizeHtml from 'sanitize-html';
-import { canAccessCongregationMasterKey } from '../../domain/users/master-key-roles.js';
+import { canAccessCongregationMasterKey } from '#domain/users/master-key-roles.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import {
 	getCongregationJoinRequests,
 	requestCongregationMembership as saveCongregationMembershipRequest,
-} from '../congregations/index.js';
-import { CongregationsList } from '../congregations/index.js';
-import { saveCongregationApplication } from '../congregations/index.js';
-import type { CongregationUpdatesType } from '../congregations/index.js';
+} from '#modules/congregations/index.js';
+import { CongregationsList } from '#modules/congregations/index.js';
+import { saveCongregationApplication } from '#modules/congregations/index.js';
+import type { CongregationUpdatesType } from '#modules/congregations/index.js';
 import { sendFeedbackEmail } from './user-notifications.service.js';
 import { UsersList } from './users.js';
 import {
 	getPendingOutgoingSpeakerAccess,
 	getRejectedSpeakerRequests,
 	getRemoteSpeakerCongregations,
-} from '../congregations/index.js';
-import { isCongregationMember } from '../congregations/index.js';
+} from '#modules/congregations/index.js';
+import { isCongregationMember } from '#modules/congregations/index.js';
 
 export type UserCongregationActivityErrorCode =
 	| 'CONGREGATION_NOT_ASSIGNED'

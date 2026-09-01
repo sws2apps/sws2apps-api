@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import type { User } from '../../../src/modules/users/user.js';
-import type { UserSession } from '../../../src/modules/users/user.types.js';
+import type { User } from '#modules/users/user.js';
+import type { UserSession } from '#modules/users/user.types.js';
 import {
 	resolveAuthenticatedSession,
 	resolvePocketSessionUser,
-} from '../../../src/modules/auth/session-resolution.service.js';
+} from '#modules/auth/session-resolution.service.js';
 
 const session = { visitorid: 'visitor-1' } as UserSession;
 const user = { id: 'user-1', sessions: [session] } as User;

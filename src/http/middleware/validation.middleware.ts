@@ -1,1 +1,1 @@
-export { rejectInvalidRequest, validateRequest } from '../validation-errors.js';
+export { rejectInvalidRequest, validateRequest } from '#http/validation-errors.js';

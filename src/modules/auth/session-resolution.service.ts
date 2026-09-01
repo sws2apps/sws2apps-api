@@ -1,6 +1,6 @@
-import type { User } from '../users/index.js';
-import type { UserSession } from '../users/index.js';
-import { UsersList } from '../users/index.js';
+import type { User } from '#modules/users/index.js';
+import type { UserSession } from '#modules/users/index.js';
+import { UsersList } from '#modules/users/index.js';
 
 type UserSessionLookup = {
 	findByAuthUid(authenticationUserId: string): User | undefined;

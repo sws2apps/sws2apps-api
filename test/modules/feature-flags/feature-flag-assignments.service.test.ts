@@ -5,7 +5,7 @@ import {
 	assignFeatureFlag,
 	removeFeatureFlagAssignment,
 	toggleFeatureFlagAssignment,
-} from '../../../src/modules/feature-flags/feature-flag-assignments.service.js';
+} from '#modules/feature-flags/feature-flag-assignments.service.js';
 
 describe('feature flag assignments', () => {
 	it('adds and removes a toggled flag without mutating current assignments', () => {

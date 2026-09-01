@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { createCachedInternetCheck } from '../../src/http/middleware/internet-connection.middleware.js';
+import { createCachedInternetCheck } from '#http/middleware/internet-connection.middleware.js';
 
 describe('cached internet connection checks', () => {
 	it('reuses a result until its cache expires', async () => {

@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { Congregation } from '../../../src/modules/congregations/congregation.js';
+import { Congregation } from '#modules/congregations/congregation.js';
 import {
 	getApprovedVisitingSpeakerCongregations,
 	getPendingOutgoingSpeakerAccess,
-} from '../../../src/modules/congregations/outgoing-speakers.service.js';
+} from '#modules/congregations/outgoing-speakers.service.js';
 
 const createCongregation = (id: string, name: string, countryCode: string) => {
 	const congregation = new Congregation(id);

@@ -1,13 +1,13 @@
 import {
 	CountryCatalogRequestError,
 	getCountries,
-} from '../../platform/countries/country-client.js';
-import { CongregationsList } from '../congregations/index.js';
-import { createApplicationCongregation } from '../congregations/index.js';
-import { getCongregationMembers } from '../congregations/index.js';
-import { deleteCongregation } from '../congregations/index.js';
-import { saveOutgoingSpeakersState } from '../congregations/index.js';
-import { UsersList } from '../users/index.js';
+} from '#platform/countries/country-client.js';
+import { CongregationsList } from '#modules/congregations/index.js';
+import { createApplicationCongregation } from '#modules/congregations/index.js';
+import { getCongregationMembers } from '#modules/congregations/index.js';
+import { deleteCongregation } from '#modules/congregations/index.js';
+import { saveOutgoingSpeakersState } from '#modules/congregations/index.js';
+import { UsersList } from '#modules/users/index.js';
 
 export type AdministrationCongregationErrorCode =
 	| 'CONGREGATION_NOT_FOUND'

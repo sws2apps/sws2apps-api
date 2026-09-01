@@ -1,7 +1,7 @@
 import { LogLevel } from '@logtail/types';
 import { getAuth } from 'firebase-admin/auth';
 
-import { logger } from '../logging/logger.js';
+import { logger } from '#platform/logging/logger.js';
 
 type ImportedFirebaseUser = {
 	uid: string;

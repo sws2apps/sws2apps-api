@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { synchronizeCongregationApplication } from '../../../src/modules/congregations/congregation-applications.service.js';
+import { synchronizeCongregationApplication } from '#modules/congregations/congregation-applications.service.js';
 
 describe('congregation application state', () => {
 	it('adds a newly submitted application without mutating current state', () => {

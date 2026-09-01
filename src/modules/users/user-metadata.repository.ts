@@ -1,4 +1,4 @@
-import { getFileMetadata } from '../../platform/firebase/storage.js';
+import { getFileMetadata } from '#platform/firebase/storage.js';
 
 export const getUserSettingsMetadata = async (user_id: string) => {
 	const userSettings = await getFileMetadata({ type: 'user', path: `${user_id}/settings.txt` });
@@ -44,4 +44,3 @@ export const getDelegatedFieldServiceReportsMetadata = async (user_id: string) =
 
 	return fieldServiceReports?.updated || '';
 };
-

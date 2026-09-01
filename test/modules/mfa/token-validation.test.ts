@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { isTokenWithinAllowedWindow } from '../../../src/modules/mfa/token-validation.js';
+import { isTokenWithinAllowedWindow } from '#modules/mfa/token-validation.js';
 
 describe('MFA token time window', () => {
 	it('accepts the current and adjacent time steps', () => {

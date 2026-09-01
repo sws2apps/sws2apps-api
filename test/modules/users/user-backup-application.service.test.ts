@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import type { BackupData } from '../../../src/modules/backups/backup.types.js';
-import type { User } from '../../../src/modules/users/user.js';
-import { applyUserBackup } from '../../../src/modules/users/user-backup-application.service.js';
+import type { BackupData } from '#modules/backups/backup.types.js';
+import type { User } from '#modules/users/user.js';
+import { applyUserBackup } from '#modules/users/user-backup-application.service.js';
 
 const createUser = () => {
 	const savedData: string[] = [];

@@ -1,8 +1,8 @@
 import express from 'express';
 import { body, header } from 'express-validator';
-import { requirePocketSession } from '../../http/middleware/session-authentication.middleware.js';
-import { REQUEST_LIMITS } from '../../http/request-limits.js';
-import { validateRequest } from '../../http/validation-errors.js';
+import { requirePocketSession } from '#http/middleware/session-authentication.middleware.js';
+import { REQUEST_LIMITS } from '#http/request-limits.js';
+import { validateRequest } from '#http/validation-errors.js';
 import {
 	deletePocketSession,
 	deletePocketUser,
@@ -74,4 +74,3 @@ pocketRouter.post('/applications', body('application').isObject().notEmpty(), va
 pocketRouter.delete('/erase', deletePocketUser);
 
 export default pocketRouter;
-

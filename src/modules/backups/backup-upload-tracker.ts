@@ -1,7 +1,7 @@
 import { LogLevel } from '@logtail/types';
 
-import { logger } from '../../platform/logging/logger.js';
-import { backupUploadsInProgress } from '../../platform/runtime/backup-uploads.js';
+import { logger } from '#platform/logging/logger.js';
+import { backupUploadsInProgress } from '#platform/runtime/backup-uploads.js';
 import { BACKUP_EXPIRY } from './backup-upload-expiry.js';
 import { BackupForStorage } from './backup.types.js';
 

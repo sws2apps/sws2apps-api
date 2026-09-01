@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { buildPublicStats } from '../../../src/modules/public-api/public.service.js';
+import { buildPublicStats } from '#modules/public-api/public.service.js';
 
 describe('public API statistics', () => {
 	it('counts congregations by country and excludes administrators from the user count', () => {

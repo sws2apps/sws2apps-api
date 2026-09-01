@@ -2,11 +2,11 @@ import {
 	deleteFileFromStorage,
 	getFileFromStorage,
 	listFilesFromStorage,
-} from '../../platform/firebase/storage.js';
+} from '#platform/firebase/storage.js';
 import {
 	generateSecureRandomString,
 	UPPERCASE_ALPHANUMERIC_CHARACTERS,
-} from '../../platform/security/secure-random-string.js';
+} from '#platform/security/secure-random-string.js';
 import { Congregation } from './congregation.js';
 import { getCongregationApplications } from './congregation-applications.repository.js';
 import {

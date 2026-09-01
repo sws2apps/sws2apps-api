@@ -1,6 +1,6 @@
 import { getStorage } from 'firebase-admin/storage';
 
-import { decryptData, encryptData } from '../encryption/encryption.js';
+import { decryptData, encryptData } from '#platform/encryption/encryption.js';
 import type {
 	StorageBaseType,
 	StorageFileEntry,
