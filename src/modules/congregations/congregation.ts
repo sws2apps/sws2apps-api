@@ -46,6 +46,7 @@ import {
 	setCongregationSettings,
 } from './repositories/congregation-settings.repository.js';
 import { User } from '#modules/users/index.js';
+import { saveAndRefresh } from '#domain/persistence/save-and-refresh.js';
 
 export class Congregation {
 	id: string;
@@ -164,8 +165,12 @@ export class Congregation {
 	}
 
 	async savePersons(persons: StandardRecord[]) {
-		await setCongPersons(this.id, persons);
-		this.metadata.persons = await getPersonsMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setCongPersons(this.id, persons),
+			refreshMetadata: async () => {
+				this.metadata.persons = await getPersonsMetadata(this.id);
+			},
+		});
 	}
 
 	async getPersons() {
@@ -173,54 +178,97 @@ export class Congregation {
 	}
 
 	async saveSettings(settings: CongSettingsType) {
-		await setCongregationSettings(this.id, settings);
-		this.settings = settings;
-		this.metadata.cong_settings = await getSettingsMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setCongregationSettings(this.id, settings),
+			updateLocalState: () => {
+				this.settings = settings;
+			},
+			refreshMetadata: async () => {
+				this.metadata.cong_settings = await getSettingsMetadata(this.id);
+			},
+		});
 	}
 
 	async saveSources(sources: StandardRecord[]) {
-		await setCongSources(this.id, sources);
-		this.metadata.sources = await getSourcesMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setCongSources(this.id, sources),
+			refreshMetadata: async () => {
+				this.metadata.sources = await getSourcesMetadata(this.id);
+			},
+		});
 	}
 
 	async saveSchedules(schedules: StandardRecord[]) {
-		await setCongSchedules(this.id, schedules);
-		this.metadata.schedules = await getSchedulesMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setCongSchedules(this.id, schedules),
+			refreshMetadata: async () => {
+				this.metadata.schedules = await getSchedulesMetadata(this.id);
+			},
+		});
 	}
 
 	async saveFieldServiceReports(reports: StandardRecord[]) {
-		await setCongFieldServiceReports(this.id, reports);
-		this.metadata.cong_field_service_reports = await getFieldServiceReportsMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setCongFieldServiceReports(this.id, reports),
+			refreshMetadata: async () => {
+				this.metadata.cong_field_service_reports = await getFieldServiceReportsMetadata(this.id);
+			},
+		});
 	}
 
 	async saveFieldServiceGroups(groups: StandardRecord[]) {
-		await setCongFieldServiceGroups(this.id, groups);
-		this.metadata.field_service_groups = await getFieldServiceGroupsMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setCongFieldServiceGroups(this.id, groups),
+			refreshMetadata: async () => {
+				this.metadata.field_service_groups = await getFieldServiceGroupsMetadata(this.id);
+			},
+		});
 	}
 
 	async saveVisitingSpeakers(speakers: StandardRecord[]) {
-		await setCongVisitingSpeakers(this.id, speakers);
-		this.metadata.visiting_speakers = await getVisitingSpeakersMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setCongVisitingSpeakers(this.id, speakers),
+			refreshMetadata: async () => {
+				this.metadata.visiting_speakers = await getVisitingSpeakersMetadata(this.id);
+			},
+		});
 	}
 
 	async saveBranchFieldServiceReports(reports: StandardRecord[]) {
-		await setBranchFieldServiceReports(this.id, reports);
-		this.metadata.branch_field_service_reports = await getBranchFieldServiceReportsMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setBranchFieldServiceReports(this.id, reports),
+			refreshMetadata: async () => {
+				this.metadata.branch_field_service_reports =
+					await getBranchFieldServiceReportsMetadata(this.id);
+			},
+		});
 	}
 
 	async saveBranchCongAnalysis(reports: StandardRecord[]) {
-		await setBranchCongAnalysis(this.id, reports);
-		this.metadata.branch_cong_analysis = await getBranchCongAnalysisMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setBranchCongAnalysis(this.id, reports),
+			refreshMetadata: async () => {
+				this.metadata.branch_cong_analysis = await getBranchCongAnalysisMetadata(this.id);
+			},
+		});
 	}
 
 	async saveMeetingAttendance(reports: StandardRecord[]) {
-		await setMeetingAttendance(this.id, reports);
-		this.metadata.meeting_attendance = await getMeetingAttendanceMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setMeetingAttendance(this.id, reports),
+			refreshMetadata: async () => {
+				this.metadata.meeting_attendance = await getMeetingAttendanceMetadata(this.id);
+			},
+		});
 	}
 
 	async saveSpeakersCongregations(congregations: StandardRecord[]) {
-		await setSpeakersCongregations(this.id, congregations);
-		this.metadata.speakers_congregations = await getSpeakersCongregationsMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setSpeakersCongregations(this.id, congregations),
+			refreshMetadata: async () => {
+				this.metadata.speakers_congregations = await getSpeakersCongregationsMetadata(this.id);
+			},
+		});
 	}
 
 	async saveSpeakersKey(key: string) {
@@ -240,14 +288,24 @@ export class Congregation {
 	}
 
 	async saveIncomingReports(reports: StandardRecord[]) {
-		await setIncomingReports(this.id, reports);
-		this.incoming_reports = reports;
-		this.metadata.incoming_reports = await getIncomingReportsMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setIncomingReports(this.id, reports),
+			updateLocalState: () => {
+				this.incoming_reports = reports;
+			},
+			refreshMetadata: async () => {
+				this.metadata.incoming_reports = await getIncomingReportsMetadata(this.id);
+			},
+		});
 	}
 
 	async saveUpcomingEvents(events: StandardRecord[]) {
-		await setUpcomingEvents(this.id, events);
-		this.metadata.upcoming_events = await getUpcomingEventsMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setUpcomingEvents(this.id, events),
+			refreshMetadata: async () => {
+				this.metadata.upcoming_events = await getUpcomingEventsMetadata(this.id);
+			},
+		});
 	}
 
 	async getPublicOutgoingTalks(): Promise<OutgoingTalkScheduleType[]> {

@@ -27,6 +27,7 @@ import {
 	getUserSettingsMetadata,
 } from './repositories/user-metadata.repository.js';
 import { getUserDetails } from './repositories/user-lifecycle.repository.js';
+import { saveAndRefresh } from '#domain/persistence/save-and-refresh.js';
 
 export class User {
 	id: string;
@@ -82,39 +83,67 @@ export class User {
 	}
 
 	async updateProfile(profile: UserProfile) {
-		await setUserProfile(this.id, profile);
-
-		this.profile = profile;
-		this.metadata.user_settings = await getUserProfileMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setUserProfile(this.id, profile),
+			updateLocalState: () => {
+				this.profile = profile;
+			},
+			refreshMetadata: async () => {
+				this.metadata.user_settings = await getUserProfileMetadata(this.id);
+			},
+		});
 	}
 
 	async updateSettings(settings: UserSettings) {
-		await setUserSettings(this.id, settings);
-
-		this.settings = settings;
-		this.metadata.user_settings = await getUserSettingsMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setUserSettings(this.id, settings),
+			updateLocalState: () => {
+				this.settings = settings;
+			},
+			refreshMetadata: async () => {
+				this.metadata.user_settings = await getUserSettingsMetadata(this.id);
+			},
+		});
 	}
 
 	async updateSessions(sessions: UserSession[]) {
-		await setUserSessions(this.id, sessions);
-
-		this.sessions = sessions;
-		this.metadata.sessions = await getUserSessionsMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setUserSessions(this.id, sessions),
+			updateLocalState: () => {
+				this.sessions = sessions;
+			},
+			refreshMetadata: async () => {
+				this.metadata.sessions = await getUserSessionsMetadata(this.id);
+			},
+		});
 	}
 
 	async saveFieldServiceReports(reports: StandardRecord[]) {
-		await setUserFieldServiceReports(this.id, reports);
-		this.metadata.user_field_service_reports = await getFieldServiceReportsMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setUserFieldServiceReports(this.id, reports),
+			refreshMetadata: async () => {
+				this.metadata.user_field_service_reports = await getFieldServiceReportsMetadata(this.id);
+			},
+		});
 	}
 
 	async saveBibleStudies(studies: StandardRecord[]) {
-		await setUserBibleStudies(this.id, studies);
-		this.metadata.user_bible_studies = await getBibleStudiesMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setUserBibleStudies(this.id, studies),
+			refreshMetadata: async () => {
+				this.metadata.user_bible_studies = await getBibleStudiesMetadata(this.id);
+			},
+		});
 	}
 
 	async saveDelegatedFieldServiceReports(reports: StandardRecord[]) {
-		await setDelegatedFieldServiceReports(this.id, reports);
-		this.metadata.delegated_field_service_reports = await getDelegatedFieldServiceReportsMetadata(this.id);
+		await saveAndRefresh({
+			save: () => setDelegatedFieldServiceReports(this.id, reports),
+			refreshMetadata: async () => {
+				this.metadata.delegated_field_service_reports =
+					await getDelegatedFieldServiceReportsMetadata(this.id);
+			},
+		});
 	}
 
 	async getFieldServiceReports() {
