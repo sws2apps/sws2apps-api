@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import { sendClientError } from '#http/responses.js';
 
 export const requireCurrentUserResource = (
 	req: Request,
@@ -13,7 +14,10 @@ export const requireCurrentUserResource = (
 		return;
 	}
 
-	res.locals.type = 'warn';
-	res.locals.message = 'user is not authorized to access the requested account';
-	res.status(403).json({ message: 'error_api_unauthorized-request' });
+	sendClientError(
+		res,
+		403,
+		'error_api_unauthorized-request',
+		'user is not authorized to access the requested account',
+	);
 };

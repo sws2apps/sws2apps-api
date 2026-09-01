@@ -2,12 +2,11 @@ import type { NextFunction, Request, Response } from 'express';
 import type { AppRoleType } from '#domain/users/app-role.js';
 
 import { hasAnyCongregationRole } from '#http/security/roles.js';
+import { sendClientError } from '#http/responses.js';
 
 const denyAccess = (response: Response) => {
-	response.locals.type = 'warn';
-	response.locals.message = 'user does not have the required role';
 	response.locals.failedLoginAttempt = true;
-	response.status(403).json({ message: 'UNAUTHORIZED_ACCESS' });
+	sendClientError(response, 403, 'UNAUTHORIZED_ACCESS', 'user does not have the required role');
 };
 
 const requireCongregationRole = (allowedRoles: readonly AppRoleType[]) => {

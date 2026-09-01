@@ -84,7 +84,7 @@ export const logRequestCompletion = () => {
 						removeRequestTrackerEntry(requestTracker, clientIp);
 					}
 
-					logger(res.locals.type as LogLevel, message, {
+					logger(res.locals.type, message, {
 						...context,
 						failed_attempt: failedLoginAttempt,
 					});

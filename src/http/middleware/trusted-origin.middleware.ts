@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 
 import { env } from '#config/env.js';
 import { isTrustedApplicationOrigin } from '#http/security/cors.js';
+import { sendClientError } from '#http/responses.js';
 
 export const requireTrustedBrowserOrigin = (isProduction = env.isProduction) => {
 	return (req: Request, res: Response, next: NextFunction) => {
@@ -13,8 +14,6 @@ export const requireTrustedBrowserOrigin = (isProduction = env.isProduction) => 
 			return;
 		}
 
-		res.locals.type = 'warn';
-		res.locals.message = 'request origin is not trusted';
-		res.status(403).json({ message: 'ORIGIN_NOT_ALLOWED' });
+		sendClientError(res, 403, 'ORIGIN_NOT_ALLOWED', 'request origin is not trusted');
 	};
 };

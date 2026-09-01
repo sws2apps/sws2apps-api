@@ -4,6 +4,7 @@ import { header, validationResult } from 'express-validator';
 import { serverState } from '#platform/runtime/server-state.js';
 import { formatError } from '#http/validation-errors.js';
 import { isClientVersionSupported } from '#http/client-version.js';
+import { sendClientError } from '#http/responses.js';
 
 export const clientVersionChecker = () => {
 	return async (request: Request, response: Response, next: NextFunction) => {
@@ -16,10 +17,7 @@ export const clientVersionChecker = () => {
 			if (!validationErrors.isEmpty()) {
 				const validationMessage = formatError(validationErrors);
 
-				response.locals.type = 'warn';
-				response.locals.message = `invalid input: ${validationMessage}`;
-
-				response.status(400).json({ message: 'INPUT_INVALID' });
+				sendClientError(response, 400, 'INPUT_INVALID', `invalid input: ${validationMessage}`);
 
 				return;
 			}
@@ -35,9 +33,7 @@ export const clientVersionChecker = () => {
 			const isSupported = isClientVersionSupported(clientVersion, serverState.minimumAppVersion);
 
 			if (!isSupported) {
-				response.locals.type = 'warn';
-				response.locals.message = 'client version outdated';
-				response.status(400).json({ message: 'CLIENT_VERSION_OUTDATED' });
+				sendClientError(response, 400, 'CLIENT_VERSION_OUTDATED', 'client version outdated');
 				return;
 			}
 

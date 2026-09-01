@@ -8,6 +8,10 @@ import {
 	setRequestTrackerEntry,
 	type RequestTrackerType,
 } from '#platform/runtime/request-tracker.js';
+import { sendClientError } from '#http/responses.js';
+
+const blockedRequestLogMessage =
+	'login from this IP address has been blocked temporarily due to many failed attempts';
 
 export const trackRequestState = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
@@ -27,18 +31,24 @@ export const trackRequestState = () => {
 				if (retryOn) {
 					const currentDate = new Date().getTime();
 					if (currentDate < retryOn) {
-						res.locals.type = 'warn';
-						res.locals.message = 'login from this IP address has been blocked temporarily due to many failed attempts';
-						res.status(403).json({ message: 'BLOCKED_TEMPORARILY_TRY_AGAIN' });
+						sendClientError(
+							res,
+							403,
+							'BLOCKED_TEMPORARILY_TRY_AGAIN',
+							blockedRequestLogMessage,
+						);
 					} else {
 						removeRequestTrackerEntry(requestTracker, clientIp);
 						next();
 					}
 				} else {
 					if (hasReachedFailedRequestLimit(failedLoginAttempt)) {
-						res.locals.type = 'warn';
-						res.locals.message = 'login from this IP address has been blocked temporarily due to many failed attempts';
-						res.status(403).json({ message: 'BLOCKED_TEMPORARILY' });
+						sendClientError(
+							res,
+							403,
+							'BLOCKED_TEMPORARILY',
+							blockedRequestLogMessage,
+						);
 
 						res.on('finish', async () => {
 							const currentD = new Date();

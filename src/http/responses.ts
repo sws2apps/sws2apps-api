@@ -1,7 +1,10 @@
 import type { Response } from 'express';
+import { LogLevel } from '@logtail/types';
 
-const setResponseLog = (response: Response, type: 'info' | 'warn', message: string) => {
-	response.locals.type = type;
+type ResponseLogLevel = 'info' | 'warn';
+
+const setResponseLog = (response: Response, type: ResponseLogLevel, message: string) => {
+	response.locals.type = type === 'info' ? LogLevel.Info : LogLevel.Warn;
 	response.locals.message = message;
 };
 
@@ -20,7 +23,7 @@ export const sendClientError = (
 	statusCode: number,
 	publicMessage: string,
 	logMessage: string,
-	logType: 'info' | 'warn' = 'warn',
+	logType: ResponseLogLevel = 'warn',
 ) => {
 	setResponseLog(response, logType, logMessage);
 	return response.status(statusCode).json({ message: publicMessage });

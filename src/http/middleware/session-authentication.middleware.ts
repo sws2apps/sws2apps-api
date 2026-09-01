@@ -11,6 +11,7 @@ import {
 	extractBearerToken,
 	validateBearerAuthorization,
 } from '#http/security/bearer-token.js';
+import { sendClientError } from '#http/responses.js';
 
 export const requireAuthenticatedSession = () => {
 	return async (req: Request, res: Response, next: NextFunction) => {
@@ -27,10 +28,7 @@ export const requireAuthenticatedSession = () => {
 			if (!validationErrors.isEmpty()) {
 				const validationMessage = formatError(validationErrors);
 
-				res.locals.type = 'warn';
-				res.locals.message = `invalid input: ${validationMessage}`;
-
-				res.status(400).json({ message: 'INPUT_INVALID' });
+				sendClientError(res, 400, 'INPUT_INVALID', `invalid input: ${validationMessage}`);
 
 				return;
 			}
@@ -40,36 +38,32 @@ export const requireAuthenticatedSession = () => {
 			const authenticatedUserId = await verifyAuthenticationToken(idToken);
 
 			if (!authenticatedUserId) {
-				res.locals.type = 'warn';
-				res.locals.message = 'this user is not yet authenticated';
-				res.status(403).json({ message: 'LOGIN_FIRST' });
+				sendClientError(res, 403, 'LOGIN_FIRST', 'this user is not yet authenticated');
 				return;
 			}
 
 			// get visitorid signed
 			const visitorId = req.signedCookies.visitorid;
 			if (!visitorId) {
-				res.locals.type = 'warn';
-				res.locals.message = 'the device the user is using was revoked';
-				res.status(403).json({ message: 'DEVICE_REVOKED' });
+				sendClientError(res, 403, 'DEVICE_REVOKED', 'the device the user is using was revoked');
 				return;
 			}
 
 			const sessionResolution = resolveAuthenticatedSession(authenticatedUserId, visitorId);
 
 			if (sessionResolution.status === 'user-not-found') {
-				res.locals.type = 'warn';
-				res.locals.message = 'this user account no longer exists';
-				res.status(403).json({ message: 'ACCOUNT_NOT_FOUND' });
+				sendClientError(res, 403, 'ACCOUNT_NOT_FOUND', 'this user account no longer exists');
 				return;
 			}
 
 			if (sessionResolution.status === 'session-not-found') {
-				res.locals.type = 'warn';
-				res.locals.message = 'the visitor id is invalid or does not have an active session';
-
 				res.clearCookie('visitorid');
-				res.status(403).json({ message: 'SESSION_REVOKED' });
+				sendClientError(
+					res,
+					403,
+					'SESSION_REVOKED',
+					'the visitor id is invalid or does not have an active session',
+				);
 				return;
 			}
 
@@ -95,9 +89,7 @@ export const requireAuthenticatedSession = () => {
 					if (req.path === '/verify-token') {
 						next();
 					} else {
-						res.locals.type = 'warn';
-						res.locals.message = 'two factor authentication required';
-						res.status(401).json({ message: 'LOGIN_FIRST' });
+						sendClientError(res, 401, 'LOGIN_FIRST', 'two factor authentication required');
 					}
 				}
 			} else {
@@ -126,20 +118,15 @@ export const requirePocketSession = () => {
 			// get visitorid signed
 			const visitorId = req.signedCookies.visitorid;
 			if (!visitorId) {
-				res.locals.type = 'warn';
-				res.locals.message = 'the device the user is using was revoked';
-				res.status(403).json({ message: 'DEVICE_REVOKED' });
+				sendClientError(res, 403, 'DEVICE_REVOKED', 'the device the user is using was revoked');
 				return;
 			}
 
 			const user = resolvePocketSessionUser(visitorId);
 
 			if (!user) {
-				res.locals.type = 'warn';
-				res.locals.message = 'this user account no longer exists';
-
 				res.clearCookie('visitorid');
-				res.status(403).json({ message: 'ACCOUNT_NOT_FOUND' });
+				sendClientError(res, 403, 'ACCOUNT_NOT_FOUND', 'this user account no longer exists');
 				return;
 			}
 

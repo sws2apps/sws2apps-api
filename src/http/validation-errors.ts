@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { FieldValidationError, Result, ValidationError } from 'express-validator';
+import { sendClientError } from '#http/responses.js';
 
 export const formatError = (errors: Result<ValidationError>): string => {
 	return errors
@@ -18,9 +19,12 @@ export const rejectInvalidRequest = (req: Request, res: Response): boolean => {
 
 	if (errors.isEmpty()) return false;
 
-	res.locals.type = 'warn';
-	res.locals.message = `invalid input: ${formatError(errors)}`;
-	res.status(400).json({ message: 'error_api_bad-request' });
+	sendClientError(
+		res,
+		400,
+		'error_api_bad-request',
+		`invalid input: ${formatError(errors)}`,
+	);
 
 	return true;
 };
@@ -29,4 +33,3 @@ export const validateRequest = (req: Request, res: Response, next: NextFunction)
 	if (rejectInvalidRequest(req, res)) return;
 	next();
 };
-

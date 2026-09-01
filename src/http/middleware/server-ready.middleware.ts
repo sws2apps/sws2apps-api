@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { serverState } from '#platform/runtime/server-state.js';
+import { sendClientError } from '#http/responses.js';
 
 export const serverReadyChecker = () => {
 	return async (_request: Request, response: Response, next: NextFunction) => {
@@ -9,8 +10,11 @@ export const serverReadyChecker = () => {
 		}
 
 		response.set('Retry-After', '30');
-		response.locals.type = 'warn';
-		response.locals.message = 'the server is not yet ready. try again later';
-		response.status(503).json({ message: 'SERVER_NOT_READY' });
+		sendClientError(
+			response,
+			503,
+			'SERVER_NOT_READY',
+			'the server is not yet ready. try again later',
+		);
 	};
 };
