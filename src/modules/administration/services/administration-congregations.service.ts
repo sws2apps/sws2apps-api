@@ -29,6 +29,13 @@ export class AdministrationCongregationError extends Error {
 	}
 }
 
+type AdministrationCongregationLifecycleDependencies = {
+	createCongregation: typeof createApplicationCongregation;
+	deleteCongregation: typeof deleteCongregation;
+	findCountry: typeof findAdministrationCountry;
+	listCongregations: typeof getAdministrationCongregations;
+};
+
 const getCongregation = (congregationId: string) => {
 	const congregation = CongregationsList.findById(congregationId);
 	if (!congregation) throw new AdministrationCongregationError('CONGREGATION_NOT_FOUND');
@@ -129,15 +136,21 @@ export const getAdministrationCongregation = (congregationId: string) => {
 	};
 };
 
-export const deleteAdministrationCongregation = async (congregationId: string) => {
+export const deleteAdministrationCongregation = async (
+	congregationId: string,
+	dependencies: Partial<AdministrationCongregationLifecycleDependencies> = {},
+) => {
 	const congregation = getCongregation(congregationId);
 
 	if (congregation.members.length > 0) {
 		throw new AdministrationCongregationError('CONGREGATION_ACTIVE');
 	}
 
-	await deleteCongregation(congregationId);
-	return getAdministrationCongregations();
+	const deleteCongregationData = dependencies.deleteCongregation ?? deleteCongregation;
+	const listCongregations = dependencies.listCongregations ?? getAdministrationCongregations;
+
+	await deleteCongregationData(congregationId);
+	return listCongregations();
 };
 
 export const toggleAdministrationCongregationDataSync = async (
@@ -157,12 +170,16 @@ export const toggleAdministrationCongregationDataSync = async (
 export const createAdministrationCongregation = async (
 	countryCode: string,
 	congregationName: string,
+	dependencies: Partial<AdministrationCongregationLifecycleDependencies> = {},
 ) => {
 	if (CongregationsList.findByCountryAndName(countryCode, congregationName)) {
 		throw new AdministrationCongregationError('CONGREGATION_EXISTS');
 	}
 
-	const countryResult = await findAdministrationCountry(countryCode);
+	const findCountry = dependencies.findCountry ?? findAdministrationCountry;
+	const createCongregation = dependencies.createCongregation ?? createApplicationCongregation;
+	const listCongregations = dependencies.listCongregations ?? getAdministrationCongregations;
+	const countryResult = await findCountry(countryCode);
 	if (countryResult.errorStatusCode) {
 		throw new AdministrationCongregationError(
 			'COUNTRY_FETCH_FAILED',
@@ -170,7 +187,7 @@ export const createAdministrationCongregation = async (
 		);
 	}
 
-	await createApplicationCongregation({
+	await createCongregation({
 		cong_circuit: '',
 		cong_location: { address: '', lat: 0, lng: 0 },
 		cong_name: congregationName,
@@ -181,7 +198,7 @@ export const createAdministrationCongregation = async (
 		weekend_meeting: { time: '10:00', weekday: 6 },
 	});
 
-	return getAdministrationCongregations();
+	return listCongregations();
 };
 
 export const deleteAdministrationSpeakerAccessRequest = async (

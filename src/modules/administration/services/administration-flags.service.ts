@@ -26,6 +26,24 @@ export class AdministrationFlagError extends Error {
 	}
 }
 
+type AdministrationFlagDependencies = {
+	createFlag: typeof createFeatureFlag;
+	deleteFlag: typeof deleteFeatureFlag;
+	updateFlag: typeof updateFeatureFlag;
+	toggleFlag: typeof toggleFeatureFlag;
+	saveUserFlags: typeof saveUserFeatureFlags;
+	saveCongregationFlags: typeof saveCongregationFeatureFlags;
+};
+
+const defaultFlagDependencies: AdministrationFlagDependencies = {
+	createFlag: createFeatureFlag,
+	deleteFlag: deleteFeatureFlag,
+	updateFlag: updateFeatureFlag,
+	toggleFlag: toggleFeatureFlag,
+	saveUserFlags: saveUserFeatureFlags,
+	saveCongregationFlags: saveCongregationFeatureFlags,
+};
+
 type AdministrationFlagSource = Pick<
 	FeatureFlag,
 	'availability' | 'coverage' | 'description' | 'id' | 'name' | 'status'
@@ -98,13 +116,19 @@ export const createAdministrationFlag = async (
 	name: string,
 	description: string,
 	availability: FeatureFlag['availability'],
+	dependencies: Partial<AdministrationFlagDependencies> = {},
 ) => {
-	await createFeatureFlag(name, description, availability);
+	const { createFlag } = { ...defaultFlagDependencies, ...dependencies };
+	await createFlag(name, description, availability);
 	return getAdministrationFlags();
 };
 
-export const deleteAdministrationFlag = async (flagId: string) => {
-	await deleteFeatureFlag(flagId);
+export const deleteAdministrationFlag = async (
+	flagId: string,
+	dependencies: Partial<AdministrationFlagDependencies> = {},
+) => {
+	const { deleteFlag } = { ...defaultFlagDependencies, ...dependencies };
+	await deleteFlag(flagId);
 	return getAdministrationFlags();
 };
 
@@ -113,28 +137,38 @@ export const updateAdministrationFlag = async (
 	name: string,
 	description: string,
 	coverage: number,
+	dependencies: Partial<AdministrationFlagDependencies> = {},
 ) => {
 	const flag = Flags.findById(flagId);
 
 	if (!flag) return undefined;
 
 	if (name !== flag.name || description !== flag.description || coverage !== flag.coverage) {
-		await updateFeatureFlag(flag, name, description, coverage);
+		const { updateFlag } = { ...defaultFlagDependencies, ...dependencies };
+		await updateFlag(flag, name, description, coverage);
 	}
 
 	return getAdministrationFlags();
 };
 
-export const toggleAdministrationFlag = async (flagId: string) => {
+export const toggleAdministrationFlag = async (
+	flagId: string,
+	dependencies: Partial<AdministrationFlagDependencies> = {},
+) => {
 	const flag = Flags.findById(flagId);
 
 	if (!flag) return undefined;
 
-	await toggleFeatureFlag(flag);
+	const { toggleFlag } = { ...defaultFlagDependencies, ...dependencies };
+	await toggleFlag(flag);
 	return getAdministrationFlags();
 };
 
-export const toggleUserFlag = async (userId: string, flagId: string) => {
+export const toggleUserFlag = async (
+	userId: string,
+	flagId: string,
+	dependencies: Partial<AdministrationFlagDependencies> = {},
+) => {
 	const user = UsersList.findById(userId);
 	if (!user) throw new AdministrationFlagError('USER_NOT_FOUND');
 
@@ -142,11 +176,16 @@ export const toggleUserFlag = async (userId: string, flagId: string) => {
 	if (!flag) throw new AdministrationFlagError('FLAG_NOT_FOUND');
 
 	const userFlags = toggleFeatureFlagAssignment(user.flags, flagId);
-	await saveUserFeatureFlags(user, userFlags);
+	const { saveUserFlags } = { ...defaultFlagDependencies, ...dependencies };
+	await saveUserFlags(user, userFlags);
 	return getAdministrationFlags();
 };
 
-export const toggleCongregationFlag = async (congregationId: string, flagId: string) => {
+export const toggleCongregationFlag = async (
+	congregationId: string,
+	flagId: string,
+	dependencies: Partial<AdministrationFlagDependencies> = {},
+) => {
 	const congregation = CongregationsList.findById(congregationId);
 	if (!congregation) {
 		throw new AdministrationFlagError('CONGREGATION_NOT_FOUND');
@@ -159,6 +198,7 @@ export const toggleCongregationFlag = async (congregationId: string, flagId: str
 		congregation.flags,
 		flagId,
 	);
-	await saveCongregationFeatureFlags(congregation, congregationFlags);
+	const { saveCongregationFlags } = { ...defaultFlagDependencies, ...dependencies };
+	await saveCongregationFlags(congregation, congregationFlags);
 	return getAdministrationFlags();
 };

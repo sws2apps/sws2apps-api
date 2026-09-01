@@ -34,6 +34,22 @@ export class AdministrationUserError extends Error {
 	}
 }
 
+type AdministrationUserDependencies = {
+	deleteUserAccount: typeof deleteUser;
+	updateProfile: typeof updateUserProfile;
+	updateAuthenticationEmail: typeof updateUserAuthenticationEmail;
+	revokeSession: typeof revokeSessionForUser;
+	updateSessions: typeof updateUserSessions;
+};
+
+const defaultUserDependencies: AdministrationUserDependencies = {
+	deleteUserAccount: deleteUser,
+	updateProfile: updateUserProfile,
+	updateAuthenticationEmail: updateUserAuthenticationEmail,
+	revokeSession: revokeSessionForUser,
+	updateSessions: updateUserSessions,
+};
+
 const getAdministrationUser = (userId: string) => {
 	const user = UsersList.findById(userId);
 	if (!user) throw new AdministrationUserError('USER_NOT_FOUND');
@@ -99,11 +115,13 @@ export const logoutAdministrationUser = async (userId: string) => {
 export const deleteAdministrationUser = async (
 	userId: string,
 	currentVisitorId: string,
+	dependencies: Partial<AdministrationUserDependencies> = {},
 ) => {
 	const user = getAdministrationUser(userId);
 	const congregationId = user.profile.congregation?.id;
+	const { deleteUserAccount } = { ...defaultUserDependencies, ...dependencies };
 
-	await deleteUser(userId);
+	await deleteUserAccount(userId);
 	reloadUserCongregation(congregationId);
 
 	return getAdministrationUsers(currentVisitorId);
@@ -136,8 +154,10 @@ export const updateAdministrationUser = async (
 	userId: string,
 	input: UpdateAdministrationUserInput,
 	currentVisitorId: string,
+	dependencies: Partial<AdministrationUserDependencies> = {},
 ) => {
 	const user = getAdministrationUser(userId);
+	const operations = { ...defaultUserDependencies, ...dependencies };
 	const savedRoles = user.profile.congregation?.cong_role || [];
 	const rolesUnchanged =
 		input.roles.length === savedRoles.length &&
@@ -152,11 +172,11 @@ export const updateAdministrationUser = async (
 		profile.lastname.value = input.lastname;
 
 		if (profile.congregation) profile.congregation.cong_role = input.roles;
-		await updateUserProfile(user, profile);
+		await operations.updateProfile(user, profile);
 	}
 
 	if (input.email.length > 0 && input.email !== user.email && user.profile.auth_uid) {
-		await updateUserAuthenticationEmail(user, input.email);
+		await operations.updateAuthenticationEmail(user, input.email);
 	}
 
 	reloadUserCongregation(user.profile.congregation?.id);
@@ -167,12 +187,14 @@ export const revokeAdministrationUserSession = async (
 	userId: string,
 	identifiers: string | [],
 	currentVisitorId: string,
+	dependencies: Partial<AdministrationUserDependencies> = {},
 ) => {
 	const user = getAdministrationUser(userId);
-	const session = identifiers.length === 0 ? [] : identifiers.at(0);
+	const session = identifiers.length === 0 ? [] : identifiers;
+	const operations = { ...defaultUserDependencies, ...dependencies };
 
-	if (typeof session === 'string') await revokeSessionForUser(user, session);
-	if (typeof session === 'object') await updateUserSessions(user, []);
+	if (typeof session === 'string') await operations.revokeSession(user, session);
+	if (typeof session === 'object') await operations.updateSessions(user, []);
 
 	reloadUserCongregation(user.profile.congregation?.id);
 	return getAdministrationUsers(currentVisitorId);

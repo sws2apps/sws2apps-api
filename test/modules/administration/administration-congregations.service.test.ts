@@ -8,6 +8,7 @@ import {
 } from '#modules/administration/services/administration-congregations.service.js';
 import { Congregation } from '#modules/congregations/congregation.js';
 import { CongregationsList } from '#modules/congregations/index.js';
+import type { CongregationCreateInfoType } from '#modules/congregations/index.js';
 import type { User } from '#modules/users/index.js';
 
 describe('administration congregation lifecycle', () => {
@@ -62,5 +63,57 @@ describe('administration congregation lifecycle', () => {
 				return true;
 			},
 		);
+	});
+
+	it('creates a congregation with the selected country details', async () => {
+		let createdInput: CongregationCreateInfoType | undefined;
+		const expectedList = [{
+			id: 'congregation-1',
+			country_code: 'MG',
+			country_name: 'Madagascar',
+			cong_name: 'Central',
+			cong_prefix: '',
+			cong_number: '',
+			cong_guid: '',
+			createdAt: '',
+			data_sync: false,
+		}];
+
+		const result = await createAdministrationCongregation('MG', 'Central', {
+			findCountry: async () => ({
+				country: {
+					countryCode: 'MG',
+					countryGuid: 'country-guid',
+					countryName: 'Madagascar',
+				},
+			}),
+			createCongregation: async (input) => {
+				createdInput = input;
+				return new Congregation('congregation-1');
+			},
+			listCongregations: async () => expectedList,
+		});
+
+		assert.deepEqual(result, expectedList);
+		assert.ok(createdInput);
+		assert.equal(createdInput.country_guid, 'country-guid');
+		assert.equal(createdInput.cong_name, 'Central');
+	});
+
+	it('deletes an inactive congregation and returns the refreshed list', async () => {
+		const congregation = new Congregation('congregation-1');
+		CongregationsList.add(congregation);
+		let deletedCongregationId: string | undefined;
+
+		const result = await deleteAdministrationCongregation(congregation.id, {
+			deleteCongregation: async (congregationId) => {
+				deletedCongregationId = congregationId;
+				CongregationsList.removeById(congregationId);
+			},
+			listCongregations: async () => [],
+		});
+
+		assert.equal(deletedCongregationId, congregation.id);
+		assert.deepEqual(result, []);
 	});
 });
