@@ -14,9 +14,9 @@ service-account document through `GOOGLE_CONFIG_BASE64`.
 
 ## Firestore integration tests
 
-Run `npm run test:firebase` to start an isolated Firestore emulator and exercise
-the document-store adapter against it. The Firebase CLI and Java must be available
-locally, as they are for the existing emulator commands.
+Run `npm run test:firebase` to start isolated Authentication, Firestore, and
+Storage emulators and exercise their adapters against them. The Firebase CLI and
+Java must be available locally, as they are for the existing emulator commands.
 
 The integration suite requires both an explicit opt-in flag and a localhost
 emulator address. This prevents it from writing test records to a remote Firebase

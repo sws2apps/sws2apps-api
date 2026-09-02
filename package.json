@@ -13,8 +13,8 @@
 		"start:emulators": "firebase emulators:start --project=organized-local",
 		"lint": "eslint src test",
 		"test": "rimraf .test-dist && tsc --project test/tsconfig.json && node --conditions=test --test .test-dist/test/**/*.test.js",
-		"test:firebase": "rimraf .test-dist && tsc --project test/tsconfig.json && cross-env NODE_ENV=test RUN_FIREBASE_EMULATOR_TESTS=true firebase --project=organized-local emulators:exec --only firestore \"npm run test:firebase:compiled\"",
-		"test:firebase:compiled": "node --conditions=test --test .test-dist/test/platform/firebase/document-store.integration.test.js"
+		"test:firebase": "rimraf .test-dist && tsc --project test/tsconfig.json && cross-env NODE_ENV=test RUN_FIREBASE_EMULATOR_TESTS=true firebase --project=organized-local emulators:exec --only firestore,auth,storage \"npm run test:firebase:compiled\"",
+		"test:firebase:compiled": "node --conditions=test --test .test-dist/test/platform/firebase/*.integration.test.js"
 	},
 	"keywords": [],
 	"author": "",
