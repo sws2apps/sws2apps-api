@@ -1,8 +1,12 @@
 import type { IncomingHttpHeaders } from 'node:http';
 
 import { retrieveVisitorDetails } from '#platform/visitor-details/visitor-details.js';
-import { UsersList } from '#modules/users/index.js';
-import { updateUserSessions } from '#modules/users/index.js';
+import {
+	UsersList,
+	updateUserSessions,
+	type User,
+	type UserSession,
+} from '#modules/users/index.js';
 
 export const getVisitorSessionDetails = async (
 	visitorIp: string,
@@ -26,30 +30,71 @@ type RefreshAuthenticationSessionInput = {
 	headers: IncomingHttpHeaders;
 };
 
+type AuthenticationSessionDependencies = {
+	findUserById: (userId: string) => User | undefined;
+	getVisitorDetails: typeof getVisitorSessionDetails;
+	updateSessions: (user: User, sessions: UserSession[]) => Promise<void>;
+	getCurrentTime: () => Date;
+	createSessionIdentifier: () => string;
+};
+
+const defaultAuthenticationSessionDependencies: AuthenticationSessionDependencies = {
+	findUserById: (userId) => UsersList.findById(userId),
+	getVisitorDetails: getVisitorSessionDetails,
+	updateSessions: updateUserSessions,
+	getCurrentTime: () => new Date(),
+	createSessionIdentifier: () => crypto.randomUUID(),
+};
+
 export const refreshAuthenticationSession = async (
 	input: RefreshAuthenticationSessionInput,
+	dependencies: Partial<AuthenticationSessionDependencies> = {},
 ): Promise<void> => {
-	const user = UsersList.findById(input.userId)!;
+	const {
+		findUserById,
+		getVisitorDetails,
+		updateSessions,
+		getCurrentTime,
+	} = {
+		...defaultAuthenticationSessionDependencies,
+		...dependencies,
+	};
+	const user = findUserById(input.userId)!;
 	const sessions = structuredClone(user.sessions);
 	const session = sessions.find((record) => record.visitorid === input.visitorId)!;
 
-	session.last_seen = new Date().toISOString();
-	session.visitor_details = await getVisitorSessionDetails(input.visitorIp, input.headers);
+	session.last_seen = getCurrentTime().toISOString();
+	session.visitor_details = await getVisitorDetails(input.visitorIp, input.headers);
 
-	await updateUserSessions(user, sessions);
+	await updateSessions(user, sessions);
 };
 
-export const createAuthenticationSession = async (input: CreateAuthenticationSessionInput): Promise<void> => {
-	const user = UsersList.findById(input.userId)!;
-	const sessions = user.sessions?.filter((session) => session.visitorid !== input.visitorId) || [];
+export const createAuthenticationSession = async (
+	input: CreateAuthenticationSessionInput,
+	dependencies: Partial<AuthenticationSessionDependencies> = {},
+): Promise<void> => {
+	const {
+		findUserById,
+		getVisitorDetails,
+		updateSessions,
+		getCurrentTime,
+		createSessionIdentifier,
+	} = {
+		...defaultAuthenticationSessionDependencies,
+		...dependencies,
+	};
+	const user = findUserById(input.userId)!;
+	const sessions = user.sessions?.filter(
+		(session) => session.visitorid !== input.visitorId,
+	) || [];
 
 	sessions.push({
 		mfaVerified: input.mfaVerified,
-		last_seen: new Date().toISOString(),
+		last_seen: getCurrentTime().toISOString(),
 		visitorid: input.visitorId,
-		visitor_details: await getVisitorSessionDetails(input.visitorIp, input.headers),
-		identifier: crypto.randomUUID(),
+		visitor_details: await getVisitorDetails(input.visitorIp, input.headers),
+		identifier: createSessionIdentifier(),
 	});
 
-	await updateUserSessions(user, sessions);
+	await updateSessions(user, sessions);
 };
