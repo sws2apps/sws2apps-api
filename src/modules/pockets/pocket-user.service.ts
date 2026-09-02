@@ -54,9 +54,13 @@ const getAuthorizedPocketUser = (userId: string) => {
 	return { user, congregation };
 };
 
-export const submitPocketReport = (userId: string, report: StandardRecord) => {
+export const submitPocketReport = (
+	userId: string,
+	report: StandardRecord,
+	submitReport: typeof submitUserFieldServiceReport = submitUserFieldServiceReport,
+) => {
 	getAuthorizedPocketUser(userId);
-	submitUserFieldServiceReport(userId, report);
+	submitReport(userId, report);
 };
 
 export const getPocketApplications = (userId: string) => {

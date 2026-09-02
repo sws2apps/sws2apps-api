@@ -26,12 +26,27 @@ type VerifyMfaTokenInput = {
 	token: string;
 };
 
+type MfaVerificationDependencies = {
+	enableMfa: typeof enableUserMfa;
+	saveSessions: typeof updateUserSessions;
+	getCurrentTime: () => Date;
+};
+
+const defaultMfaVerificationDependencies: MfaVerificationDependencies = {
+	enableMfa: enableUserMfa,
+	saveSessions: updateUserSessions,
+	getCurrentTime: () => new Date(),
+};
+
 export const verifyMfaToken = async ({
 	userId,
 	sessions,
 	visitorId,
 	token,
-}: VerifyMfaTokenInput): Promise<UserAuthResponse> => {
+}: VerifyMfaTokenInput,
+dependencies: Partial<MfaVerificationDependencies> = {},
+): Promise<UserAuthResponse> => {
+	const operations = { ...defaultMfaVerificationDependencies, ...dependencies };
 	const user = UsersList.findById(userId)!;
 	const encryptedSecret = decryptUserMfaSecret(user);
 	const tokenGenerator = new OTPAuth.TOTP({
@@ -50,11 +65,11 @@ export const verifyMfaToken = async ({
 
 	const updatedSessions = structuredClone(sessions);
 	const currentSession = updatedSessions.find((session) => session.visitorid === visitorId)!;
-	currentSession.last_seen = new Date().toISOString();
+	currentSession.last_seen = operations.getCurrentTime().toISOString();
 	currentSession.mfaVerified = true;
 
-	await enableUserMfa(user);
-	await updateUserSessions(user, updatedSessions);
+	await operations.enableMfa(user);
+	await operations.saveSessions(user, updatedSessions);
 
 	const userInfo: UserAuthResponse = {
 		message: 'TOKEN_VALID',

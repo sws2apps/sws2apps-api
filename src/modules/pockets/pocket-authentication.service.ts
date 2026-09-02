@@ -71,6 +71,22 @@ type AuthenticatePocketInvitationInput = {
 	headers: IncomingHttpHeaders;
 };
 
+type PocketAuthenticationDependencies = {
+	getSessionDetails: typeof getVisitorSessionDetails;
+	updateProfile: typeof updateUserProfile;
+	updateSessions: typeof updateUserSessions;
+	createIdentifier: () => string;
+	getCurrentTime: () => Date;
+};
+
+const defaultPocketAuthenticationDependencies: PocketAuthenticationDependencies = {
+	getSessionDetails: getVisitorSessionDetails,
+	updateProfile: updateUserProfile,
+	updateSessions: updateUserSessions,
+	createIdentifier: () => crypto.randomUUID(),
+	getCurrentTime: () => new Date(),
+};
+
 const findPocketInvitationUser = (
 	congregation: Congregation,
 	invitationCode: string,
@@ -95,7 +111,10 @@ export const authenticatePocketInvitation = async ({
 	visitorId,
 	visitorIp,
 	headers,
-}: AuthenticatePocketInvitationInput) => {
+}: AuthenticatePocketInvitationInput,
+dependencies: Partial<PocketAuthenticationDependencies> = {},
+) => {
+	const operations = { ...defaultPocketAuthenticationDependencies, ...dependencies };
 	const invitation = parsePocketInvitationCode(invitationCode);
 
 	if (!invitation) throw new PocketAuthenticationError('INVALID_INVITATION');
@@ -118,21 +137,21 @@ export const authenticatePocketInvitation = async ({
 
 	if (!user) throw new PocketAuthenticationError('INVALID_INVITATION');
 
-	const authenticatedVisitorId = visitorId || crypto.randomUUID();
+	const authenticatedVisitorId = visitorId || operations.createIdentifier();
 	const profile = structuredClone(user.profile);
 	profile.congregation!.pocket_invitation_code = undefined;
-	await updateUserProfile(user, profile);
+	await operations.updateProfile(user, profile);
 
 	const sessions = user.sessions?.filter((session) => session.visitorid !== authenticatedVisitorId) || [];
 	const newSession: UserSession = {
 		mfaVerified: false,
-		last_seen: new Date().toISOString(),
+		last_seen: operations.getCurrentTime().toISOString(),
 		visitorid: authenticatedVisitorId,
-		visitor_details: await getVisitorSessionDetails(visitorIp, headers),
-		identifier: crypto.randomUUID(),
+		visitor_details: await operations.getSessionDetails(visitorIp, headers),
+		identifier: operations.createIdentifier(),
 	};
 	sessions.push(newSession);
-	await updateUserSessions(user, sessions);
+	await operations.updateSessions(user, sessions);
 
 	refreshCongregationMembers(congregation);
 
