@@ -2,8 +2,12 @@ import type { IncomingHttpHeaders } from 'node:http';
 
 import { env } from '#config/env.js';
 import { generateDevelopmentMfaToken } from '#modules/mfa/index.js';
-import { createApplicationUser } from '#modules/users/index.js';
-import { UsersList } from '#modules/users/index.js';
+import {
+	createApplicationUser,
+	UsersList,
+	type User,
+	type UserNewParams,
+} from '#modules/users/index.js';
 import { AuthenticationError } from './authentication-error.js';
 import { getAuthenticationUserDisplayName } from './authentication-identity.service.js';
 import { buildUserAuthenticationResponse } from './authentication-response.js';
@@ -17,16 +21,50 @@ type CompleteAuthenticationInput = {
 	createUserWhenMissing?: boolean;
 };
 
-export const completeAuthentication = async (input: CompleteAuthenticationInput) => {
-	let user = UsersList.findByAuthUid(input.authenticationUserId);
+type AuthenticationCompletionDependencies = {
+	findUserByAuthenticationId: (authenticationUserId: string) => User | undefined;
+	getAuthenticationDisplayName: typeof getAuthenticationUserDisplayName;
+	createUser: (params: UserNewParams) => Promise<User>;
+	createSession: typeof createAuthenticationSession;
+	createDevelopmentMfaToken: typeof generateDevelopmentMfaToken;
+	isDevelopment: boolean;
+};
+
+const defaultAuthenticationCompletionDependencies: AuthenticationCompletionDependencies = {
+	findUserByAuthenticationId: (authenticationUserId) => {
+		return UsersList.findByAuthUid(authenticationUserId);
+	},
+	getAuthenticationDisplayName: getAuthenticationUserDisplayName,
+	createUser: createApplicationUser,
+	createSession: createAuthenticationSession,
+	createDevelopmentMfaToken: generateDevelopmentMfaToken,
+	isDevelopment: env.isDevelopment,
+};
+
+export const completeAuthentication = async (
+	input: CompleteAuthenticationInput,
+	dependencies: Partial<AuthenticationCompletionDependencies> = {},
+) => {
+	const {
+		findUserByAuthenticationId,
+		getAuthenticationDisplayName,
+		createUser,
+		createSession,
+		createDevelopmentMfaToken,
+		isDevelopment,
+	} = {
+		...defaultAuthenticationCompletionDependencies,
+		...dependencies,
+	};
+	let user = findUserByAuthenticationId(input.authenticationUserId);
 
 	if (!user && input.createUserWhenMissing) {
-		const displayName = await getAuthenticationUserDisplayName(input.authenticationUserId);
+		const displayName = await getAuthenticationDisplayName(input.authenticationUserId);
 		const names = displayName.length > 0 ? displayName.split(' ') : [];
 		const lastname = names.pop() || '';
 		const firstname = names.join(' ');
 
-		user = await createApplicationUser({
+		user = await createUser({
 			auth_uid: input.authenticationUserId,
 			firstname,
 			lastname,
@@ -35,7 +73,7 @@ export const completeAuthentication = async (input: CompleteAuthenticationInput)
 
 	if (!user) throw new AuthenticationError('USER_NOT_FOUND');
 
-	await createAuthenticationSession({
+	await createSession({
 		userId: user.id,
 		visitorId: input.visitorId,
 		visitorIp: input.visitorIp,
@@ -44,8 +82,8 @@ export const completeAuthentication = async (input: CompleteAuthenticationInput)
 	});
 
 	if (user.profile.mfa_enabled) {
-		const developmentMfaCode = env.isDevelopment
-			? generateDevelopmentMfaToken(user.email!, user.profile.secret!)
+		const developmentMfaCode = isDevelopment
+			? createDevelopmentMfaToken(user.email!, user.profile.secret!)
 			: undefined;
 
 		return {
