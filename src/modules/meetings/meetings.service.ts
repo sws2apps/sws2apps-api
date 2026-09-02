@@ -28,6 +28,26 @@ export class MeetingAccessError extends Error {
 	}
 }
 
+type MeetingServiceDependencies = {
+	requestSpeakerAccess: typeof requestOutgoingSpeakerAccess;
+	approveSpeakerAccess: typeof approveOutgoingSpeakerAccess;
+	rejectSpeakerAccess: typeof rejectOutgoingSpeakerAccess;
+	savePublication: typeof saveSchedulePublication;
+	copyTalkSchedule: typeof copyOutgoingTalkSchedule;
+	getSchedules: typeof getPublicSchedules;
+	getSources: typeof getPublicSources;
+};
+
+const defaultMeetingServiceDependencies: MeetingServiceDependencies = {
+	requestSpeakerAccess: requestOutgoingSpeakerAccess,
+	approveSpeakerAccess: approveOutgoingSpeakerAccess,
+	rejectSpeakerAccess: rejectOutgoingSpeakerAccess,
+	savePublication: saveSchedulePublication,
+	copyTalkSchedule: copyOutgoingTalkSchedule,
+	getSchedules: getPublicSchedules,
+	getSources: getPublicSources,
+};
+
 const getAuthorizedCongregation = async (congregationId: string, userId: string) => {
 	const congregation = CongregationsList.findById(congregationId);
 
@@ -57,10 +77,12 @@ export const requestVisitingSpeakerAccess = async (
 	targetCongregationId: string,
 	key: string,
 	requestId: string,
+	dependencies: Partial<MeetingServiceDependencies> = {},
 ) => {
 	const congregation = await getAuthorizedCongregation(congregationId, userId);
 	const targetCongregation = CongregationsList.findById(targetCongregationId)!;
-	await requestOutgoingSpeakerAccess(congregation, targetCongregation, key, requestId);
+	const { requestSpeakerAccess } = { ...defaultMeetingServiceDependencies, ...dependencies };
+	await requestSpeakerAccess(congregation, targetCongregation, key, requestId);
 };
 
 export const getPendingVisitingSpeakerAccess = async (congregationId: string, userId: string) => {
@@ -78,15 +100,23 @@ export const approveVisitingSpeakerAccess = async (
 	userId: string,
 	requestId: string,
 	key: string,
+	dependencies: Partial<MeetingServiceDependencies> = {},
 ) => {
 	const congregation = await getAuthorizedCongregation(congregationId, userId);
-	await approveOutgoingSpeakerAccess(congregation, requestId, key);
+	const { approveSpeakerAccess } = { ...defaultMeetingServiceDependencies, ...dependencies };
+	await approveSpeakerAccess(congregation, requestId, key);
 	return getPendingOutgoingSpeakerAccess(congregation, CongregationsList.list);
 };
 
-export const rejectVisitingSpeakerAccess = async (congregationId: string, userId: string, requestId: string) => {
+export const rejectVisitingSpeakerAccess = async (
+	congregationId: string,
+	userId: string,
+	requestId: string,
+	dependencies: Partial<MeetingServiceDependencies> = {},
+) => {
 	const congregation = await getAuthorizedCongregation(congregationId, userId);
-	await rejectOutgoingSpeakerAccess(congregation, requestId);
+	const { rejectSpeakerAccess } = { ...defaultMeetingServiceDependencies, ...dependencies };
+	await rejectSpeakerAccess(congregation, requestId);
 	return getPendingOutgoingSpeakerAccess(congregation, CongregationsList.list);
 };
 
@@ -98,21 +128,30 @@ type PublishMeetingSchedulesInput = {
 	talks?: OutgoingTalkScheduleType[];
 };
 
-export const publishMeetingSchedules = async (input: PublishMeetingSchedulesInput) => {
+export const publishMeetingSchedules = async (
+	input: PublishMeetingSchedulesInput,
+	dependencies: Partial<MeetingServiceDependencies> = {},
+) => {
 	const congregation = await getAuthorizedCongregation(input.congregationId, input.userId);
 	const publication = prepareSchedulePublication(input);
+	const operations = { ...defaultMeetingServiceDependencies, ...dependencies };
 
-	await saveSchedulePublication(congregation, publication);
+	await operations.savePublication(congregation, publication);
 
 	if (input.talks) {
-		await copyOutgoingTalkSchedule(congregation, CongregationsList.list, input.talks);
+		await operations.copyTalkSchedule(congregation, CongregationsList.list, input.talks);
 	}
 };
 
-export const getMeetingSchedules = async (congregationId: string, userId: string) => {
+export const getMeetingSchedules = async (
+	congregationId: string,
+	userId: string,
+	dependencies: Partial<MeetingServiceDependencies> = {},
+) => {
 	const congregation = await getAuthorizedCongregation(congregationId, userId);
-	const sources = await getPublicSources(congregation.id);
-	const schedules = await getPublicSchedules(congregation.id);
+	const operations = { ...defaultMeetingServiceDependencies, ...dependencies };
+	const sources = await operations.getSources(congregation.id);
+	const schedules = await operations.getSchedules(congregation.id);
 
 	return { sources, schedules };
 };
