@@ -11,29 +11,63 @@ import {
 } from '../repositories/user-lifecycle.repository.js';
 import { hydrateUser } from './user-hydration.service.js';
 
-const hydrateCreatedUser = async (userId: string): Promise<User> => {
+export type UserCreationOperations = {
+	synchronizeEmail: typeof synchronizeAuthenticationEmail;
+	createPersistedUser: typeof createPersistedUser;
+	createPersistedPocketUser: typeof createPersistedPocketUser;
+	hydrateUser: typeof hydrateUser;
+	loadIdentity: typeof loadUserIdentity;
+	addUser: (user: User) => void;
+};
+
+const defaultUserCreationOperations: UserCreationOperations = {
+	synchronizeEmail: (authenticationUserId, email) => {
+		return synchronizeAuthenticationEmail(authenticationUserId, email);
+	},
+	createPersistedUser: (params) => createPersistedUser(params),
+	createPersistedPocketUser: (params) => createPersistedPocketUser(params),
+	hydrateUser: (user) => hydrateUser(user),
+	loadIdentity: (user) => loadUserIdentity(user),
+	addUser: (user) => UsersList.add(user),
+};
+
+const hydrateCreatedUser = async (
+	userId: string,
+	operations: UserCreationOperations,
+): Promise<User> => {
 	const user = new User(userId);
-	await hydrateUser(user);
-	await loadUserIdentity(user);
-	UsersList.add(user);
+	await operations.hydrateUser(user);
+	await operations.loadIdentity(user);
+	operations.addUser(user);
 
 	return user;
 };
 
 export const createApplicationUser = async (
 	params: UserNewParams,
+	operations: Partial<UserCreationOperations> = {},
 ): Promise<User> => {
+	const creation = {
+		...defaultUserCreationOperations,
+		...operations,
+	};
+
 	if (params.email) {
-		await synchronizeAuthenticationEmail(params.auth_uid, params.email);
+		await creation.synchronizeEmail(params.auth_uid, params.email);
 	}
 
-	const userId = await createPersistedUser(params);
-	return hydrateCreatedUser(userId);
+	const userId = await creation.createPersistedUser(params);
+	return hydrateCreatedUser(userId, creation);
 };
 
 export const createPocketApplicationUser = async (
 	params: PocketNewParams,
+	operations: Partial<UserCreationOperations> = {},
 ): Promise<User> => {
-	const userId = await createPersistedPocketUser(params);
-	return hydrateCreatedUser(userId);
+	const creation = {
+		...defaultUserCreationOperations,
+		...operations,
+	};
+	const userId = await creation.createPersistedPocketUser(params);
+	return hydrateCreatedUser(userId, creation);
 };

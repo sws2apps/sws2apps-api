@@ -4,10 +4,33 @@ import {
 } from '#platform/firebase/authentication.js';
 import type { User } from '../user.js';
 
-export const loadUserIdentity = async (user: User): Promise<void> => {
+export type UserIdentityOperations = {
+	getAuthenticationDetails: typeof getFirebaseUserDetails;
+	updateAuthenticationEmail: typeof updateFirebaseUserEmail;
+};
+
+const defaultUserIdentityOperations: UserIdentityOperations = {
+	getAuthenticationDetails: (authenticationUserId) => {
+		return getFirebaseUserDetails(authenticationUserId);
+	},
+	updateAuthenticationEmail: (authenticationUserId, email) => {
+		return updateFirebaseUserEmail(authenticationUserId, email);
+	},
+};
+
+export const loadUserIdentity = async (
+	user: User,
+	operations: Partial<UserIdentityOperations> = {},
+): Promise<void> => {
 	if (user.profile.role === 'pocket') return;
 
-	const authenticationDetails = await getFirebaseUserDetails(user.profile.auth_uid!);
+	const identity = {
+		...defaultUserIdentityOperations,
+		...operations,
+	};
+	const authenticationDetails = await identity.getAuthenticationDetails(
+		user.profile.auth_uid!,
+	);
 	if (!authenticationDetails) return;
 
 	user.email = authenticationDetails.email;
@@ -21,24 +44,36 @@ export const loadUserIdentity = async (user: User): Promise<void> => {
 export const loadUserIdentities = async (
 	users: User[],
 	batchSize = 20,
+	operations: Partial<UserIdentityOperations> = {},
 ): Promise<void> => {
+	if (!Number.isSafeInteger(batchSize) || batchSize < 1) {
+		throw new RangeError('Batch size must be a positive integer');
+	}
+
 	for (let startIndex = 0; startIndex < users.length; startIndex += batchSize) {
 		const batch = users.slice(startIndex, startIndex + batchSize);
-		await Promise.all(batch.map((user) => loadUserIdentity(user)));
+		await Promise.all(batch.map((user) => loadUserIdentity(user, operations)));
 	}
 };
 
 export const synchronizeAuthenticationEmail = async (
 	authenticationUserId: string,
 	email: string,
+	operations: Partial<UserIdentityOperations> = {},
 ): Promise<void> => {
-	await updateFirebaseUserEmail(authenticationUserId, email);
+	const identity = {
+		...defaultUserIdentityOperations,
+		...operations,
+	};
+
+	await identity.updateAuthenticationEmail(authenticationUserId, email);
 };
 
 export const updateUserAuthenticationEmail = async (
 	user: User,
 	email: string,
+	operations: Partial<UserIdentityOperations> = {},
 ): Promise<void> => {
-	await synchronizeAuthenticationEmail(user.profile.auth_uid!, email);
+	await synchronizeAuthenticationEmail(user.profile.auth_uid!, email, operations);
 	user.email = email;
 };
