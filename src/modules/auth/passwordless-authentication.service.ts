@@ -1,8 +1,13 @@
 import type { IncomingHttpHeaders } from 'node:http';
 
-import { createApplicationUser } from '#modules/users/index.js';
-import { UsersList } from '#modules/users/index.js';
-import { updateUserProfile } from '#modules/users/index.js';
+import {
+	createApplicationUser,
+	UsersList,
+	updateUserProfile,
+	type User,
+	type UserNewParams,
+	type UserProfile,
+} from '#modules/users/index.js';
 import { AuthenticationError } from './authentication-error.js';
 import {
 	createAuthenticationToken,
@@ -35,13 +40,57 @@ type PasswordlessSignInRequest = {
 	};
 };
 
-export const createPasswordlessSignIn = async (request: PasswordlessSignInRequest) => {
-	let authenticationUserId = await findAuthenticationUserIdByEmail(request.email);
-	let user = UsersList.findByEmail(request.email);
+type CreatePasswordlessSignInDependencies = {
+	findAuthenticationUserId: typeof findAuthenticationUserIdByEmail;
+	findUserByEmail: (email: string) => User | undefined;
+	createAuthenticationUser: typeof createAuthenticationUser;
+	createUser: (params: UserNewParams) => Promise<User>;
+	updateProfile: (user: User, profile: UserProfile) => Promise<void>;
+	createAuthenticationToken: typeof createAuthenticationToken;
+	isEmailEnabled: typeof isPasswordlessEmailEnabled;
+	sendLoginEmail: typeof sendPasswordlessLoginEmail;
+	generateOneTimePassword: typeof generateEmailOneTimePassword;
+	getCurrentTime: () => number;
+};
+
+const defaultCreatePasswordlessSignInDependencies: CreatePasswordlessSignInDependencies = {
+	findAuthenticationUserId: findAuthenticationUserIdByEmail,
+	findUserByEmail: (email) => UsersList.findByEmail(email),
+	createAuthenticationUser,
+	createUser: createApplicationUser,
+	updateProfile: updateUserProfile,
+	createAuthenticationToken,
+	isEmailEnabled: isPasswordlessEmailEnabled,
+	sendLoginEmail: sendPasswordlessLoginEmail,
+	generateOneTimePassword: generateEmailOneTimePassword,
+	getCurrentTime: Date.now,
+};
+
+export const createPasswordlessSignIn = async (
+	request: PasswordlessSignInRequest,
+	dependencies: Partial<CreatePasswordlessSignInDependencies> = {},
+) => {
+	const {
+		findAuthenticationUserId,
+		findUserByEmail,
+		createAuthenticationUser,
+		createUser,
+		updateProfile,
+		createAuthenticationToken,
+		isEmailEnabled,
+		sendLoginEmail,
+		generateOneTimePassword,
+		getCurrentTime,
+	} = {
+		...defaultCreatePasswordlessSignInDependencies,
+		...dependencies,
+	};
+	let authenticationUserId = await findAuthenticationUserId(request.email);
+	let user = findUserByEmail(request.email);
 
 	if (!user && !authenticationUserId) {
 		authenticationUserId = await createAuthenticationUser(request.email);
-		user = await createApplicationUser({
+		user = await createUser({
 			auth_uid: authenticationUserId,
 			firstname: '',
 			lastname: '',
@@ -55,27 +104,27 @@ export const createPasswordlessSignIn = async (request: PasswordlessSignInReques
 
 	let oneTimePassword = user.profile.email_otp?.code;
 	const oneTimePasswordExpired = user.profile.email_otp
-		? Date.now() > user.profile.email_otp.expiredAt
+		? getCurrentTime() > user.profile.email_otp.expiredAt
 		: true;
 
 	if (oneTimePasswordExpired) {
-		oneTimePassword = generateEmailOneTimePassword();
+		oneTimePassword = generateOneTimePassword();
 
 		const profile = structuredClone(user.profile);
 		profile.email_otp = {
 			code: oneTimePassword,
-			expiredAt: Date.now() + 5 * 60 * 1000,
+			expiredAt: getCurrentTime() + 5 * 60 * 1000,
 		};
 
-		await updateUserProfile(user, profile);
+		await updateProfile(user, profile);
 	}
 
 	const token = await createAuthenticationToken(authenticationUserId);
 	const link = `${request.origin}/#/?code=${token}`;
-	const emailEnabled = isPasswordlessEmailEnabled();
+	const emailEnabled = isEmailEnabled();
 
 	if (emailEnabled) {
-		sendPasswordlessLoginEmail({
+		sendLoginEmail({
 			recipient: request.email,
 			loginLink: link,
 			oneTimePassword,
@@ -94,22 +143,52 @@ type CompleteEmailOtpAuthenticationInput = {
 	headers: IncomingHttpHeaders;
 };
 
+type CompleteEmailOtpAuthenticationDependencies = {
+	findUserByEmail: (email: string) => User | undefined;
+	isOneTimePasswordValid: typeof isEmailOneTimePasswordValid;
+	updateProfile: (user: User, profile: UserProfile) => Promise<void>;
+	createSession: typeof createAuthenticationSession;
+	createUserResponse: typeof buildUserAuthenticationResponse;
+	createAuthenticationToken: typeof createAuthenticationToken;
+};
+
+const defaultCompleteEmailOtpAuthenticationDependencies: CompleteEmailOtpAuthenticationDependencies = {
+	findUserByEmail: (email) => UsersList.findByEmail(email),
+	isOneTimePasswordValid: isEmailOneTimePasswordValid,
+	updateProfile: updateUserProfile,
+	createSession: createAuthenticationSession,
+	createUserResponse: buildUserAuthenticationResponse,
+	createAuthenticationToken,
+};
+
 export const completeEmailOtpAuthentication = async (
 	input: CompleteEmailOtpAuthenticationInput,
+	dependencies: Partial<CompleteEmailOtpAuthenticationDependencies> = {},
 ) => {
-	const user = UsersList.findByEmail(input.email);
+	const {
+		findUserByEmail,
+		isOneTimePasswordValid,
+		updateProfile,
+		createSession,
+		createUserResponse,
+		createAuthenticationToken,
+	} = {
+		...defaultCompleteEmailOtpAuthenticationDependencies,
+		...dependencies,
+	};
+	const user = findUserByEmail(input.email);
 	if (!user) throw new AuthenticationError('USER_NOT_FOUND');
 	if (!user.profile.email_otp) throw new AuthenticationError('OTP_NOT_FOUND');
 
-	if (!isEmailOneTimePasswordValid(user.profile.email_otp, input.oneTimePassword)) {
+	if (!isOneTimePasswordValid(user.profile.email_otp, input.oneTimePassword)) {
 		throw new AuthenticationError('INVALID_OTP');
 	}
 
 	const profile = structuredClone(user.profile);
 	delete profile.email_otp;
-	await updateUserProfile(user, profile);
+	await updateProfile(user, profile);
 
-	await createAuthenticationSession({
+	await createSession({
 		userId: user.id,
 		visitorId: input.visitorId,
 		visitorIp: input.visitorIp,
@@ -117,7 +196,7 @@ export const completeEmailOtpAuthentication = async (
 		mfaVerified: true,
 	});
 
-	const userInfo = buildUserAuthenticationResponse({ authUser: user });
+	const userInfo = createUserResponse({ authUser: user });
 	userInfo.custom_token = await createAuthenticationToken(user.profile.auth_uid!);
 
 	return userInfo;
