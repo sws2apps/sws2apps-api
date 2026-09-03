@@ -1,14 +1,17 @@
-import { UsersList } from '#modules/users/index.js';
+import {
+	UsersList,
+	assignUserToCongregation,
+	updateUserProfile,
+	type User,
+} from '#modules/users/index.js';
 import { verifyCongregationDirectoryRecord } from './congregation-directory.service.js';
 import { CongregationsList } from '../congregations.js';
-import { assignUserToCongregation } from '#modules/users/index.js';
 import { toMondayFirstWeekday } from '../meeting-weekday.js';
 import type { CongregationCreateInfoType } from '../types/congregations.types.js';
 import { createPersistedCongregation } from '../repositories/congregation-lifecycle.repository.js';
 import { Congregation } from '../congregation.js';
 import { refreshCongregationMembers } from './congregation-members.service.js';
 import { hydrateCongregation } from './congregation-hydration.service.js';
-import { updateUserProfile } from '#modules/users/index.js';
 
 export type CongregationCreationErrorCode =
 	| 'CONGREGATION_EXISTS'
@@ -35,21 +38,87 @@ type CreateCongregationInput = {
 	language: string;
 };
 
+export type ApplicationCongregationCreationOperations = {
+	createPersistedCongregation: typeof createPersistedCongregation;
+	hydrateCongregation: typeof hydrateCongregation;
+	refreshMembers: typeof refreshCongregationMembers;
+	addCongregation: (congregation: Congregation) => void;
+};
+
+const defaultApplicationCreationOperations: ApplicationCongregationCreationOperations = {
+	createPersistedCongregation: (data) => createPersistedCongregation(data),
+	hydrateCongregation: (congregation) => hydrateCongregation(congregation),
+	refreshMembers: (congregation) => refreshCongregationMembers(congregation),
+	addCongregation: (congregation) => CongregationsList.add(congregation),
+};
+
+export type VerifiedCongregationCreationOperations = {
+	findExistingCongregation: (
+		countryGuid: string,
+		congregationName: string,
+		countryCode: string,
+	) => Congregation | undefined;
+	verifyDirectoryRecord: typeof verifyCongregationDirectoryRecord;
+	findUserById: (userId: string) => User | undefined;
+	updateProfile: typeof updateUserProfile;
+	createCongregation: (
+		data: CongregationCreateInfoType,
+	) => Promise<Congregation>;
+	assignUser: typeof assignUserToCongregation;
+	getCurrentTimestamp: () => string;
+};
+
+const defaultVerifiedCreationOperations: VerifiedCongregationCreationOperations = {
+	findExistingCongregation: (countryGuid, congregationName, countryCode) => {
+		return CongregationsList.findByCountryAndName(
+			countryGuid,
+			congregationName,
+			countryCode,
+		);
+	},
+	verifyDirectoryRecord: (countryGuid, language, congregationName) => {
+		return verifyCongregationDirectoryRecord(
+			countryGuid,
+			language,
+			congregationName,
+		);
+	},
+	findUserById: (userId) => UsersList.findById(userId),
+	updateProfile: (user, profile) => updateUserProfile(user, profile),
+	createCongregation: (data) => createApplicationCongregation(data),
+	assignUser: (user, congregation, input) => {
+		return assignUserToCongregation(user, congregation, input);
+	},
+	getCurrentTimestamp: () => new Date().toISOString(),
+};
+
 export const createApplicationCongregation = async (
 	data: CongregationCreateInfoType,
+	operations: Partial<ApplicationCongregationCreationOperations> = {},
 ): Promise<Congregation> => {
-	const congregationId = await createPersistedCongregation(data);
+	const creation = {
+		...defaultApplicationCreationOperations,
+		...operations,
+	};
+	const congregationId = await creation.createPersistedCongregation(data);
 	const congregation = new Congregation(congregationId);
 
-	await hydrateCongregation(congregation);
-	refreshCongregationMembers(congregation);
-	CongregationsList.add(congregation);
+	await creation.hydrateCongregation(congregation);
+	creation.refreshMembers(congregation);
+	creation.addCongregation(congregation);
 
 	return congregation;
 };
 
-export const createVerifiedCongregation = async (input: CreateCongregationInput) => {
-	const existingCongregation = CongregationsList.findByCountryAndName(
+export const createVerifiedCongregation = async (
+	input: CreateCongregationInput,
+	operations: Partial<VerifiedCongregationCreationOperations> = {},
+) => {
+	const creation = {
+		...defaultVerifiedCreationOperations,
+		...operations,
+	};
+	const existingCongregation = creation.findExistingCongregation(
 		input.countryGuid,
 		input.congregationName,
 		input.countryCode,
@@ -59,7 +128,7 @@ export const createVerifiedCongregation = async (input: CreateCongregationInput)
 		throw new CongregationCreationError('CONGREGATION_EXISTS');
 	}
 
-	const directoryResult = await verifyCongregationDirectoryRecord(
+	const directoryResult = await creation.verifyDirectoryRecord(
 		input.countryGuid,
 		input.language,
 		input.congregationName,
@@ -80,14 +149,14 @@ export const createVerifiedCongregation = async (input: CreateCongregationInput)
 		throw new CongregationCreationError('DIRECTORY_RECORD_INVALID');
 	}
 
-	const user = UsersList.findById(input.userId)!;
+	const user = creation.findUserById(input.userId)!;
 	const profile = structuredClone(user.profile);
-	const updatedAt = new Date().toISOString();
+	const updatedAt = creation.getCurrentTimestamp();
 	profile.firstname = { value: input.firstname, updatedAt };
 	profile.lastname = { value: input.lastname, updatedAt };
-	await updateUserProfile(user, profile);
+	await creation.updateProfile(user, profile);
 
-	const congregation = await createApplicationCongregation({
+	const congregation = await creation.createCongregation({
 		cong_name: input.congregationName,
 		country_guid: input.countryGuid,
 		country_code: input.countryCode,
@@ -108,7 +177,7 @@ export const createVerifiedCongregation = async (input: CreateCongregationInput)
 		},
 	});
 
-	await assignUserToCongregation(user, congregation, {
+	await creation.assignUser(user, congregation, {
 		role: ['admin'],
 	});
 
