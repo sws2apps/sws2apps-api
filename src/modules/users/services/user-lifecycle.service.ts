@@ -1,49 +1,101 @@
 import { LogLevel } from '@logtail/types';
+
+import {
+	CongregationsList,
+	refreshCongregationMembers,
+	type Congregation,
+} from '#modules/congregations/index.js';
 import { deleteFirebaseAuthUser } from '#platform/firebase/authentication.js';
 import { logger } from '#platform/logging/logger.js';
-import { CongregationsList } from '#modules/congregations/index.js';
-import { UsersList } from '../users.js';
-import { refreshCongregationMembers } from '#modules/congregations/index.js';
 import { deletePersistedUser } from '../repositories/user-lifecycle.repository.js';
+import type { User } from '../user.js';
+import { UsersList } from '../users.js';
 import { updateUserSessions } from './user-data.service.js';
 
-export const deleteUser = async (userId: string): Promise<void> => {
-	const user = UsersList.findById(userId);
+type DeleteUserOperations = {
+	findUserById: (userId: string) => User | undefined;
+	findCongregationById: (congregationId: string) => Congregation | undefined;
+	deletePersistedUser: typeof deletePersistedUser;
+	deleteAuthenticationUser: typeof deleteFirebaseAuthUser;
+	removeUserById: (userId: string) => void;
+	refreshMembers: typeof refreshCongregationMembers;
+};
+
+const defaultDeleteUserOperations: DeleteUserOperations = {
+	findUserById: (userId) => UsersList.findById(userId),
+	findCongregationById: (congregationId) => CongregationsList.findById(congregationId),
+	deletePersistedUser: (userId) => deletePersistedUser(userId),
+	deleteAuthenticationUser: (authenticationUserId) => {
+		return deleteFirebaseAuthUser(authenticationUserId);
+	},
+	removeUserById: (userId) => UsersList.removeById(userId),
+	refreshMembers: (congregation) => refreshCongregationMembers(congregation),
+};
+
+export const deleteUser = async (
+	userId: string,
+	operations: Partial<DeleteUserOperations> = {},
+): Promise<void> => {
+	const lifecycle = {
+		...defaultDeleteUserOperations,
+		...operations,
+	};
+	const user = lifecycle.findUserById(userId);
 	const congregationId = user?.profile.congregation?.id;
 
-	await deletePersistedUser(userId);
+	await lifecycle.deletePersistedUser(userId);
 
 	if (user?.profile.auth_uid) {
-		await deleteFirebaseAuthUser(user.profile.auth_uid);
+		await lifecycle.deleteAuthenticationUser(user.profile.auth_uid);
 	}
 
-	UsersList.removeById(userId);
+	lifecycle.removeUserById(userId);
 
 	if (congregationId) {
-		const congregation = CongregationsList.findById(congregationId);
-		if (congregation) refreshCongregationMembers(congregation);
+		const congregation = lifecycle.findCongregationById(congregationId);
+		if (congregation) lifecycle.refreshMembers(congregation);
 	}
 };
 
-export const removeOutdatedUserSessions = async (): Promise<void> => {
-	logger(LogLevel.Info, 'cleaning outdated user sessions ...');
+type SessionCleanupOperations = {
+	getUsers: () => readonly User[];
+	updateSessions: typeof updateUserSessions;
+	getCurrentTime: () => Date;
+	log: typeof logger;
+};
+
+const defaultSessionCleanupOperations: SessionCleanupOperations = {
+	getUsers: () => UsersList.list,
+	updateSessions: (user, sessions) => updateUserSessions(user, sessions),
+	getCurrentTime: () => new Date(),
+	log: logger,
+};
+
+export const removeOutdatedUserSessions = async (
+	operations: Partial<SessionCleanupOperations> = {},
+): Promise<void> => {
+	const cleanup = {
+		...defaultSessionCleanupOperations,
+		...operations,
+	};
+	cleanup.log(LogLevel.Info, 'cleaning outdated user sessions ...');
 
 	try {
-		const oldestValidSession = new Date();
+		const oldestValidSession = cleanup.getCurrentTime();
 		oldestValidSession.setMonth(oldestValidSession.getMonth() - 6);
 
-		for (const user of UsersList.list) {
+		for (const user of cleanup.getUsers()) {
 			const validSessions = user.sessions.filter((session) => {
 				return !session.last_seen || new Date(session.last_seen) > oldestValidSession;
 			});
 
 			if (validSessions.length !== user.sessions.length) {
-				await updateUserSessions(user, validSessions);
+				await cleanup.updateSessions(user, validSessions);
 			}
 		}
 
-		logger(LogLevel.Info, 'outdated sessions cleanup completed.');
+		cleanup.log(LogLevel.Info, 'outdated sessions cleanup completed.');
 	} catch {
-		logger(LogLevel.Warn, 'an error occured while removing outdated session');
+		cleanup.log(LogLevel.Warn, 'an error occurred while removing outdated sessions');
 	}
 };
