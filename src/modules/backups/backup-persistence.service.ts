@@ -1,29 +1,82 @@
 import { LogLevel } from '@logtail/types';
 
-import { logger } from '#platform/logging/logger.js';
-import { CongregationsList } from '#modules/congregations/index.js';
-import { UsersList } from '#modules/users/index.js';
 import type { AppRoleType } from '#domain/users/app-role.js';
+import {
+	CongregationsList,
+	type Congregation,
+} from '#modules/congregations/index.js';
+import {
+	applyUserBackup,
+	updateUserCongregationPersonData,
+	UsersList,
+	type User,
+} from '#modules/users/index.js';
+import { logger } from '#platform/logging/logger.js';
 import type { StandardRecord } from '../../types/standard-record.js';
-import { BackupData } from './backup.types.js';
+import type { BackupData } from './backup.types.js';
 import { discardBackupUpload } from './backup-upload-tracker.js';
-import { updateUserCongregationPersonData } from '#modules/users/index.js';
-import { applyUserBackup } from '#modules/users/index.js';
 import { saveCongregationBackup } from './congregation-backup.service.js';
 
-export const saveUserBackupAsync = async ({
-	congId,
-	cong_backup,
-	userId,
-	userRole,
-	uploadId,
-}: {
-	congId: string;
-	userId: string;
-	userRole: AppRoleType[];
-	cong_backup: BackupData;
-	uploadId?: string;
-}) => {
+export type BackupPersistenceOperations = {
+	findCongregationById: (congregationId: string) => Congregation | undefined;
+	findUserById: (userId: string) => User | undefined;
+	saveCongregation: typeof saveCongregationBackup;
+	updatePersonData: typeof updateUserCongregationPersonData;
+	applyUserData: typeof applyUserBackup;
+	discardUpload: typeof discardBackupUpload;
+	logError: (message: string) => void;
+};
+
+const defaultBackupPersistenceOperations: BackupPersistenceOperations = {
+	findCongregationById: (congregationId) => CongregationsList.findById(congregationId),
+	findUserById: (userId) => UsersList.findById(userId),
+	saveCongregation: saveCongregationBackup,
+	updatePersonData: updateUserCongregationPersonData,
+	applyUserData: applyUserBackup,
+	discardUpload: discardBackupUpload,
+	logError: (message) => logger(LogLevel.Error, message),
+};
+
+const getUserPersonData = (
+	backup: BackupData,
+	user: User,
+): StandardRecord | undefined => {
+	const localUserId = user.profile.congregation?.user_local_uid;
+	if (!localUserId) return undefined;
+
+	const userPerson = backup.persons?.find((person) => {
+		return String(person.person_uid) === localUserId;
+	});
+	const personData = userPerson?.person_data;
+
+	if (!personData || typeof personData !== 'object' || Array.isArray(personData)) {
+		return undefined;
+	}
+
+	return personData as StandardRecord;
+};
+
+export const saveUserBackupAsync = async (
+	{
+		congId,
+		cong_backup: congregationBackup,
+		userId,
+		userRole,
+		uploadId,
+	}: {
+		congId: string;
+		userId: string;
+		userRole: AppRoleType[];
+		cong_backup: BackupData;
+		uploadId?: string;
+	},
+	operations: Partial<BackupPersistenceOperations> = {},
+) => {
+	const persistence = {
+		...defaultBackupPersistenceOperations,
+		...operations,
+	};
+
 	try {
 		const adminRole = userRole.some(
 			(role) => role === 'admin' || role === 'coordinator' || role === 'secretary',
@@ -35,56 +88,66 @@ export const saveUserBackupAsync = async ({
 				role === 'public_talk_schedule',
 		);
 
-		const congregation = CongregationsList.findById(congId)!;
-		const user = UsersList.findById(userId)!;
+		const congregation = persistence.findCongregationById(congId);
+		const user = persistence.findUserById(userId);
 
-		await saveCongregationBackup(congregation, cong_backup, userRole);
+		if (!congregation || user?.profile.congregation?.id !== congregation.id) {
+			throw new Error('Backup user or congregation context is invalid');
+		}
 
-		const userPerson = cong_backup.persons?.at(0);
+		await persistence.saveCongregation(congregation, congregationBackup, userRole);
 
-		if (!adminRole && !scheduleEditor && userPerson) {
-			const personData = userPerson.person_data as StandardRecord;
-			await updateUserCongregationPersonData(
+		const personData = getUserPersonData(congregationBackup, user);
+
+		if (!adminRole && !scheduleEditor && personData) {
+			await persistence.updatePersonData(
 				user.id,
 				personData.timeAway as string,
 				personData.emergency_contacts as string,
 			);
 		}
 
-		await applyUserBackup(user, cong_backup, userRole);
-
+		await persistence.applyUserData(user, congregationBackup, userRole);
 	} catch {
-		logger(LogLevel.Error, 'congregation backup could not be saved');
+		persistence.logError('congregation backup could not be saved');
 	} finally {
-		if (uploadId) discardBackupUpload(uploadId);
+		if (uploadId) persistence.discardUpload(uploadId);
 	}
 };
 
-export const savePocketBackupAsync = async ({
-	cong_backup,
-	userId,
-	userRole,
-}: {
-	userId: string;
-	userRole: AppRoleType[];
-	cong_backup: BackupData;
-}) => {
-	const user = UsersList.findById(userId)!;
+export const savePocketBackupAsync = async (
+	{
+		cong_backup: congregationBackup,
+		userId,
+		userRole,
+	}: {
+		userId: string;
+		userRole: AppRoleType[];
+		cong_backup: BackupData;
+	},
+	operations: Partial<BackupPersistenceOperations> = {},
+) => {
+	const persistence = {
+		...defaultBackupPersistenceOperations,
+		...operations,
+	};
 
 	try {
-		const userPerson = cong_backup.persons?.at(0);
+		const user = persistence.findUserById(userId);
+		if (!user) throw new Error('Pocket backup user context is invalid');
 
-		if (userPerson) {
-			const personData = userPerson.person_data as StandardRecord;
-			await updateUserCongregationPersonData(
+		const personData = getUserPersonData(congregationBackup, user);
+
+		if (personData) {
+			await persistence.updatePersonData(
 				user.id,
 				personData.timeAway as string,
 				personData.emergency_contacts as string,
 			);
 		}
 
-		await applyUserBackup(user, cong_backup, userRole);
+		await persistence.applyUserData(user, congregationBackup, userRole);
 	} catch {
-		logger(LogLevel.Error, 'Pocket backup could not be saved');
+		persistence.logError('Pocket backup could not be saved');
 	}
 };
