@@ -14,9 +14,33 @@ type CongregationDirectoryResult =
 	| { congregations: CongregationDirectoryRecord[] }
 	| { errorStatusCode: number };
 
-export const getAvailableCountries = async (language: string) => {
+export type CongregationDirectoryOperations = {
+	getCountries: typeof getCountries;
+	searchCongregations: typeof searchCongregations;
+	verifyCongregation: typeof verifyCongregation;
+};
+
+const defaultDirectoryOperations: CongregationDirectoryOperations = {
+	getCountries: (language) => getCountries(language),
+	searchCongregations: (query) => searchCongregations(query),
+	verifyCongregation: (query) => verifyCongregation(query),
+};
+
+const resolveDirectoryOperations = (
+	overrides: Partial<CongregationDirectoryOperations>,
+): CongregationDirectoryOperations => ({
+	...defaultDirectoryOperations,
+	...overrides,
+});
+
+export const getAvailableCountries = async (
+	language: string,
+	operations: Partial<CongregationDirectoryOperations> = {},
+) => {
+	const directory = resolveDirectoryOperations(operations);
+
 	try {
-		return { countries: await getCountries(language) };
+		return { countries: await directory.getCountries(language) };
 	} catch (error) {
 		if (error instanceof CountryCatalogRequestError) {
 			return { errorStatusCode: error.statusCode };
@@ -30,10 +54,13 @@ export const searchCongregationDirectory = async (
 	country: string,
 	language: string,
 	name: string,
+	operations: Partial<CongregationDirectoryOperations> = {},
 ): Promise<CongregationDirectoryResult> => {
+	const directory = resolveDirectoryOperations(operations);
+
 	try {
 		return {
-			congregations: await searchCongregations({ country, language, name }),
+			congregations: await directory.searchCongregations({ country, language, name }),
 		};
 	} catch (error) {
 		if (error instanceof CongregationDirectoryRequestError) {
@@ -48,7 +75,9 @@ export const verifyCongregationDirectoryRecord = async (
 	country: string,
 	requestedLanguage: string,
 	name: string,
+	operations: Partial<CongregationDirectoryOperations> = {},
 ): Promise<CongregationDirectoryResult> => {
+	const directory = resolveDirectoryOperations(operations);
 	const directoryLanguage =
 		ALL_LANGUAGES.find(
 			(language) => language.threeLettersCode === requestedLanguage,
@@ -56,7 +85,7 @@ export const verifyCongregationDirectoryRecord = async (
 
 	try {
 		return {
-			congregations: await verifyCongregation({
+			congregations: await directory.verifyCongregation({
 				country,
 				language: directoryLanguage,
 				name,

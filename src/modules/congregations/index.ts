@@ -3,6 +3,7 @@ export * from './services/congregation-creation.service.js';
 export * from './repositories/congregation-data.repository.js';
 export * from './services/congregation-initialization.service.js';
 export * from './services/congregation-data.service.js';
+export * from './services/congregation-directory.service.js';
 export * from './services/congregation-hydration.service.js';
 export * from './services/congregation-join-requests.service.js';
 export * from './services/congregation-lifecycle.service.js';
