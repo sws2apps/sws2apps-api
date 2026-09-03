@@ -1,5 +1,8 @@
 import { canAccessCongregationMasterKey } from '#domain/users/master-key-roles.js';
-import { CongregationsList } from '#modules/congregations/index.js';
+import {
+	CongregationsList,
+	type Congregation,
+} from '#modules/congregations/index.js';
 import type { User } from '#modules/users/index.js';
 import type { UserAuthResponse } from '#modules/users/index.js';
 
@@ -8,10 +11,27 @@ type BuildUserAuthenticationResponseInput = {
 	mfaStatus?: 'not_enabled' | 'enabled';
 };
 
-export const buildUserAuthenticationResponse = ({
-	authUser,
-	mfaStatus = 'not_enabled',
-}: BuildUserAuthenticationResponseInput): UserAuthResponse => {
+type AuthenticationResponseDependencies = {
+	findCongregationById: (congregationId: string) => Congregation | undefined;
+};
+
+const defaultAuthenticationResponseDependencies: AuthenticationResponseDependencies = {
+	findCongregationById: (congregationId) => {
+		return CongregationsList.findById(congregationId);
+	},
+};
+
+export const buildUserAuthenticationResponse = (
+	{
+		authUser,
+		mfaStatus = 'not_enabled',
+	}: BuildUserAuthenticationResponseInput,
+	dependencies: Partial<AuthenticationResponseDependencies> = {},
+): UserAuthResponse => {
+	const { findCongregationById } = {
+		...defaultAuthenticationResponseDependencies,
+		...dependencies,
+	};
 	const userInfo: UserAuthResponse = {
 		message: 'TOKEN_VALID',
 		id: authUser.id,
@@ -25,23 +45,23 @@ export const buildUserAuthenticationResponse = ({
 		},
 	};
 
-	const congregationId = authUser.profile.congregation?.id;
+	const congregationMembership = authUser.profile.congregation;
 
-	if (!congregationId) {
+	if (!congregationMembership) {
 		return userInfo;
 	}
 
-	const congregation = CongregationsList.findById(congregationId);
+	const congregation = findCongregationById(congregationMembership.id);
 
 	if (!congregation) {
 		return userInfo;
 	}
 
-	const userRole = authUser.profile.congregation!.cong_role;
+	const userRole = congregationMembership.cong_role;
 	const masterKeyNeeded = canAccessCongregationMasterKey(userRole);
 
-	userInfo.app_settings.user_settings.user_local_uid = authUser.profile.congregation!.user_local_uid;
-	userInfo.app_settings.user_settings.user_members_delegate = authUser.profile.congregation!.user_members_delegate;
+	userInfo.app_settings.user_settings.user_local_uid = congregationMembership.user_local_uid;
+	userInfo.app_settings.user_settings.user_members_delegate = congregationMembership.user_members_delegate;
 	userInfo.app_settings.user_settings.cong_role = userRole;
 
 	const midweek = congregation.settings.midweek_meeting.map(({ type, time, weekday }) => ({
@@ -56,7 +76,7 @@ export const buildUserAuthenticationResponse = ({
 	}));
 
 	userInfo.app_settings.cong_settings = {
-		id: congregationId,
+		id: congregationMembership.id,
 		cong_circuit: congregation.settings.cong_circuit,
 		cong_name: congregation.settings.cong_name,
 		cong_prefix: congregation.settings.cong_prefix,
