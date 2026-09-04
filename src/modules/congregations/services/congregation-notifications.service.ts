@@ -13,9 +13,30 @@ type WelcomeEmail = {
 	supportLabel: string;
 };
 
-export const isWelcomeEmailEnabled = (): boolean => env.mailEnabled;
+export type WelcomeEmailOperations = {
+	sendEmail: typeof mailClient.sendEmail;
+	getCurrentYear: () => number;
+};
 
-export const sendWelcomeEmail = (email: WelcomeEmail): void => {
+const defaultWelcomeEmailOperations: WelcomeEmailOperations = {
+	sendEmail: (options, successMessage) => {
+		return mailClient.sendEmail(options, successMessage);
+	},
+	getCurrentYear: () => new Date().getFullYear(),
+};
+
+export const isWelcomeEmailEnabled = (
+	mailEnabled = env.mailEnabled,
+): boolean => mailEnabled;
+
+export const sendWelcomeEmail = (
+	email: WelcomeEmail,
+	operations: Partial<WelcomeEmailOperations> = {},
+): void => {
+	const notification = {
+		...defaultWelcomeEmailOperations,
+		...operations,
+	};
 	const options = {
 		to: email.recipient,
 		subject: email.subject,
@@ -28,9 +49,9 @@ export const sendWelcomeEmail = (email: WelcomeEmail): void => {
 			moreInfoGuideLabel: email.guideLabel,
 			moreInfoBlogLabel: email.blogLabel,
 			moreInfoSupportLabel: email.supportLabel,
-			copyright: new Date().getFullYear(),
+			copyright: notification.getCurrentYear(),
 		},
 	};
 
-	void mailClient.sendEmail(options, 'Welcome message sent to user');
+	void notification.sendEmail(options, 'Welcome message sent to user');
 };

@@ -7,6 +7,7 @@ export * from './services/user-data.service.js';
 export * from './services/user-hydration.service.js';
 export * from './services/user-initialization.service.js';
 export * from './services/user-lifecycle.service.js';
+export * from './services/user-notifications.service.js';
 export * from './services/users-account.service.js';
 export * from './services/users-congregation-activity.service.js';
 export * from './users.js';

@@ -8,6 +8,7 @@ export * from './services/congregation-hydration.service.js';
 export * from './services/congregation-join-requests.service.js';
 export * from './services/congregation-lifecycle.service.js';
 export * from './services/congregation-members.service.js';
+export * from './services/congregation-notifications.service.js';
 export * from './repositories/congregation-metadata.repository.js';
 export * from './repositories/congregation-settings.repository.js';
 export * from './congregations.js';

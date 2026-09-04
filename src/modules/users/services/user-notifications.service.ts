@@ -6,7 +6,24 @@ type FeedbackEmail = {
 	message: string;
 };
 
-export const sendFeedbackEmail = (email: FeedbackEmail): void => {
+export type FeedbackEmailOperations = {
+	sendEmail: typeof mailClient.sendEmail;
+};
+
+const defaultFeedbackEmailOperations: FeedbackEmailOperations = {
+	sendEmail: (options, successMessage) => {
+		return mailClient.sendEmail(options, successMessage);
+	},
+};
+
+export const sendFeedbackEmail = (
+	email: FeedbackEmail,
+	operations: Partial<FeedbackEmailOperations> = {},
+): void => {
+	const notification = {
+		...defaultFeedbackEmailOperations,
+		...operations,
+	};
 	const options = {
 		to: 'support@organized-app.com',
 		replyTo: email.replyTo,
@@ -17,7 +34,7 @@ export const sendFeedbackEmail = (email: FeedbackEmail): void => {
 		},
 	};
 
-	void mailClient.sendEmail(
+	void notification.sendEmail(
 		options,
 		'Feedback sent successfully to support team',
 	);

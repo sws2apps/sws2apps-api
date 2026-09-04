@@ -15,11 +15,30 @@ type PasswordlessLoginEmail = {
 	oneTimePasswordDurationText: string;
 };
 
-export const isPasswordlessEmailEnabled = (): boolean => env.mailEnabled;
+export type PasswordlessEmailOperations = {
+	sendEmail: typeof mailClient.sendEmail;
+	getCurrentYear: () => number;
+};
+
+const defaultPasswordlessEmailOperations: PasswordlessEmailOperations = {
+	sendEmail: (options, successMessage) => {
+		return mailClient.sendEmail(options, successMessage);
+	},
+	getCurrentYear: () => new Date().getFullYear(),
+};
+
+export const isPasswordlessEmailEnabled = (
+	mailEnabled = env.mailEnabled,
+): boolean => mailEnabled;
 
 export const sendPasswordlessLoginEmail = (
 	email: PasswordlessLoginEmail,
+	operations: Partial<PasswordlessEmailOperations> = {},
 ): void => {
+	const notification = {
+		...defaultPasswordlessEmailOperations,
+		...operations,
+	};
 	const options = {
 		to: email.recipient,
 		subject: email.subject,
@@ -34,9 +53,9 @@ export const sendPasswordlessLoginEmail = (
 			loginIgnoreText: email.ignoreRequestText,
 			loginOTP: email.oneTimePasswordLabel,
 			loginOTPDuration: email.oneTimePasswordDurationText,
-			copyright: new Date().getFullYear(),
+			copyright: notification.getCurrentYear(),
 		},
 	};
 
-	void mailClient.sendEmail(options, 'Passwordless link sent to user');
+	void notification.sendEmail(options, 'Passwordless link sent to user');
 };
