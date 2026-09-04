@@ -16,7 +16,7 @@ export class Flag {
 		this.description = flag.description;
 		this.name = flag.name;
 		this.status = flag.status;
-		this.installations = [];
+		this.installations = structuredClone(flag.installations ?? []);
 	}
 
 }

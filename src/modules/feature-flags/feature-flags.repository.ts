@@ -1,16 +1,37 @@
 import { getFileFromStorage, uploadFileToStorage } from '#platform/firebase/storage.js';
+import {
+	isTimestampOnOrAfter,
+	subtractUtcMonths,
+} from '#domain/time/retention-period.js';
 import { Flag } from './flag.js';
 import { FeatureFlag } from './feature-flag.js';
 
 const featureFlagsStoragePath = 'flags.txt';
 
-export const loadFeatureFlags = async (): Promise<Flag[]> => {
-	const storedData = await getFileFromStorage({
+export type FeatureFlagLoadingOperations = {
+	getStoredFile: typeof getFileFromStorage;
+	getCurrentTime: () => Date;
+};
+
+const defaultLoadingOperations: FeatureFlagLoadingOperations = {
+	getStoredFile: (path) => getFileFromStorage(path),
+	getCurrentTime: () => new Date(),
+};
+
+export const loadFeatureFlags = async (
+	operations: Partial<FeatureFlagLoadingOperations> = {},
+): Promise<Flag[]> => {
+	const loading = {
+		...defaultLoadingOperations,
+		...operations,
+	};
+	const storedData = await loading.getStoredFile({
 		type: 'api',
 		path: featureFlagsStoragePath,
 	});
 	const storedFlags = JSON.parse(storedData || '[]');
 	const flags: Flag[] = [];
+	const retentionCutoff = subtractUtcMonths(loading.getCurrentTime(), 3);
 
 	for (const storedFlag of storedFlags) {
 		flags.push(new Flag(storedFlag));
@@ -19,10 +40,7 @@ export const loadFeatureFlags = async (): Promise<Flag[]> => {
 	// Preserve the existing cleanup of old installation assignments.
 	for (const flag of flags) {
 		flag.installations = flag.installations.filter((installation) => {
-			const lastThreeMonths = new Date();
-			lastThreeMonths.setMonth(-3);
-
-			return installation.registered >= lastThreeMonths.toISOString();
+			return isTimestampOnOrAfter(installation.registered, retentionCutoff);
 		});
 	}
 
