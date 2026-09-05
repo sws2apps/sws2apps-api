@@ -44,6 +44,10 @@ jobs:
 
       - name: Run automated tests
         run: npm test
+        env:
+          APP_COUNTRY_API: https://collect-api.sws2apps.com/api/countries?
+          APP_CONGREGATION_API: https://collect-api.sws2apps.com/api/congregations?
+          FIREBASE_APP_NAME: organized-local
 
   firebase-integration:
     name: Verify Firebase adapters
