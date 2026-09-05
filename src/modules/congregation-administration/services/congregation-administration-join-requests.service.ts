@@ -54,6 +54,13 @@ export const approveCongregationJoinRequest = async (
 	input: ApproveJoinRequestInput,
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
+	const hasPendingRequest = congregation.join_requests.some(
+		(request) => request.user === userId,
+	);
+	if (!hasPendingRequest) {
+		throw new CongregationJoinRequestError('USER_NOT_FOUND');
+	}
+
 	const user = UsersList.findById(userId);
 	if (!user) throw new CongregationJoinRequestError('USER_NOT_FOUND');
 	if (user.profile.congregation) {
