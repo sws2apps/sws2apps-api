@@ -86,6 +86,13 @@ describe('OpenAPI contract', () => {
 			'/congregations/search': 'get',
 			'/congregations/{id}/applications/{request}': ['delete', 'patch'],
 			'/mfa/verify-token': 'post',
+			'/pockets/applications': ['get', 'post'],
+			'/pockets/backup': ['get', 'post'],
+			'/pockets/erase': 'delete',
+			'/pockets/field-service-reports': 'post',
+			'/pockets/sessions': ['delete', 'get'],
+			'/pockets/signup': 'post',
+			'/pockets/validate-me': 'get',
 			'/public/feature-flags': 'get',
 			'/public/stats': 'get',
 			'/user-login': 'get',
@@ -179,6 +186,28 @@ describe('OpenAPI contract', () => {
 		for (const [documentedPath, method] of authenticatedOperations) {
 			const operation = contract.paths?.[documentedPath]?.[method];
 			assert.deepEqual(operation?.security, [{ bearerAuth: [], visitorCookie: [] }]);
+		}
+	});
+
+	it('uses only the signed cookie after Pocket invitation authentication', async () => {
+		const contract = await loadContract();
+		const pocketSessionOperations = [
+			['/pockets/applications', 'get'],
+			['/pockets/applications', 'post'],
+			['/pockets/backup', 'get'],
+			['/pockets/backup', 'post'],
+			['/pockets/erase', 'delete'],
+			['/pockets/field-service-reports', 'post'],
+			['/pockets/sessions', 'delete'],
+			['/pockets/sessions', 'get'],
+			['/pockets/validate-me', 'get'],
+		] as const;
+
+		assert.equal(contract.paths?.['/pockets/signup']?.post.security, undefined);
+
+		for (const [documentedPath, method] of pocketSessionOperations) {
+			const operation = contract.paths?.[documentedPath]?.[method];
+			assert.deepEqual(operation?.security, [{ visitorCookie: [] }]);
 		}
 	});
 

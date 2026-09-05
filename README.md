@@ -35,7 +35,8 @@ The dependency-free [OpenAPI 3.1 contract](./docs/openapi/openapi.json) document
 public HTTP interface. It currently covers public access, authentication, MFA, and
 all authenticated user account, congregation activity, and backup workflows. The
 congregation directory, application processing, meeting schedules, and visiting
-speaker workflows are also covered. Remaining feature routes are added in
+speaker workflows are also covered, along with invitation-based Pocket accounts and
+their cookie-authenticated workflows. Remaining feature routes are added in
 independently verifiable groups.
 
 ## API architecture

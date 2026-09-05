@@ -47,6 +47,10 @@
     {
       "name": "Visiting speakers",
       "description": "Congregation speaker-directory access workflows."
+    },
+    {
+      "name": "Pocket",
+      "description": "Invitation-based Pocket accounts using signed cookie sessions."
     }
   ],
   "paths": {
@@ -1668,6 +1672,354 @@
           "503": { "$ref": "#/components/responses/ServerNotReady" }
         }
       }
+    },
+    "/pockets/signup": {
+      "post": {
+        "operationId": "authenticatePocketInvitation",
+        "summary": "Authenticate with a Pocket invitation",
+        "tags": ["Pocket"],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PocketInvitationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The invitation was consumed and a Pocket session was created.",
+            "headers": {
+              "Set-Cookie": {
+                "description": "Sets the signed visitor session cookie.",
+                "schema": { "type": "string" }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PocketAuthentication" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/PocketInvitationRejected" },
+          "403": { "$ref": "#/components/responses/OriginNotAllowed" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/pockets/validate-me": {
+      "get": {
+        "operationId": "validatePocketSession",
+        "summary": "Validate the current Pocket session",
+        "tags": ["Pocket"],
+        "security": [{ "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Pocket account and congregation context.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PocketAuthentication" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/PocketSessionForbidden" },
+          "404": { "$ref": "#/components/responses/PocketResourceNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/pockets/backup": {
+      "get": {
+        "operationId": "retrievePocketBackup",
+        "summary": "Retrieve Pocket backup changes",
+        "tags": ["Pocket"],
+        "security": [{ "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" },
+          { "$ref": "#/components/parameters/BackupMetadataHeader" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pocket-safe backup data filtered to the current user.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BackupData" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/PocketBackupBadRequest" },
+          "403": { "$ref": "#/components/responses/PocketSessionForbidden" },
+          "404": { "$ref": "#/components/responses/PocketResourceNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      },
+      "post": {
+        "operationId": "submitPocketBackup",
+        "summary": "Submit a Pocket backup",
+        "tags": ["Pocket"],
+        "security": [{ "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" },
+          { "$ref": "#/components/parameters/BackupMetadataHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["cong_backup"],
+                "properties": {
+                  "cong_backup": { "$ref": "#/components/schemas/BackupData" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The Pocket backup was saved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SuccessMessage" },
+                "example": { "message": "BACKUP_SENT" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/PocketBackupBadRequest" },
+          "403": { "$ref": "#/components/responses/PocketSessionForbidden" },
+          "404": { "$ref": "#/components/responses/PocketResourceNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/pockets/sessions": {
+      "get": {
+        "operationId": "getPocketSessions",
+        "summary": "List active Pocket sessions",
+        "tags": ["Pocket"],
+        "security": [{ "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Safe projections of active Pocket sessions.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserSessionList" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/PocketSessionForbidden" },
+          "404": { "$ref": "#/components/responses/PocketResourceNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      },
+      "delete": {
+        "operationId": "revokePocketSession",
+        "summary": "Revoke a Pocket session",
+        "tags": ["Pocket"],
+        "security": [{ "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SessionRevocationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The remaining active Pocket sessions.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserSessionList" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/PocketSessionForbidden" },
+          "404": { "$ref": "#/components/responses/PocketResourceNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/pockets/field-service-reports": {
+      "post": {
+        "operationId": "submitPocketFieldServiceReport",
+        "summary": "Submit a Pocket field-service report",
+        "tags": ["Pocket"],
+        "security": [{ "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["report"],
+                "properties": {
+                  "report": { "$ref": "#/components/schemas/FieldServiceReport" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The report was submitted.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SuccessMessage" },
+                "example": { "message": "REPORT_SENT" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/PocketSessionForbidden" },
+          "404": { "$ref": "#/components/responses/PocketResourceNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/pockets/applications": {
+      "get": {
+        "operationId": "getPocketAuxiliaryApplications",
+        "summary": "List Pocket auxiliary applications",
+        "tags": ["Pocket"],
+        "security": [{ "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Auxiliary applications associated with the Pocket user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/AuxiliaryApplication" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/PocketSessionForbidden" },
+          "404": { "$ref": "#/components/responses/PocketResourceNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      },
+      "post": {
+        "operationId": "submitPocketAuxiliaryApplication",
+        "summary": "Submit a Pocket auxiliary application",
+        "tags": ["Pocket"],
+        "security": [{ "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["application"],
+                "properties": {
+                  "application": { "$ref": "#/components/schemas/AuxiliaryApplicationSubmission" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The auxiliary application was submitted.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SuccessMessage" },
+                "example": { "message": "APPLICATION_SENT" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/PocketSessionForbidden" },
+          "404": { "$ref": "#/components/responses/PocketResourceNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/pockets/erase": {
+      "delete": {
+        "operationId": "deletePocketAccount",
+        "summary": "Permanently delete the Pocket account",
+        "tags": ["Pocket"],
+        "security": [{ "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Pocket account was deleted.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SuccessMessage" },
+                "example": { "message": "ACCOUNT_DELETED" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/PocketSessionForbidden" },
+          "404": { "$ref": "#/components/responses/PocketResourceNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
     }
   },
   "components": {
@@ -2055,6 +2407,56 @@
             },
             "example": {
               "message": "ORIGIN_NOT_ALLOWED"
+            }
+          }
+        }
+      },
+      "PocketBackupBadRequest": {
+        "description": "Pocket backup metadata is invalid or older than the server state.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "examples": {
+              "invalid": { "value": { "message": "error_api_bad-request" } },
+              "outdated": { "value": { "message": "BACKUP_OUTDATED" } }
+            }
+          }
+        }
+      },
+      "PocketInvitationRejected": {
+        "description": "The invitation code is missing, malformed, expired, or no longer assigned.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "examples": {
+              "invalidInput": { "value": { "message": "error_api_bad-request" } },
+              "invalidInvitation": { "value": { "message": "error_app_security_invalid-invitation-code" } }
+            }
+          }
+        }
+      },
+      "PocketResourceNotFound": {
+        "description": "The Pocket account, congregation, or requested session does not exist.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "examples": {
+              "account": { "value": { "message": "ACCOUNT_NOT_FOUND" } },
+              "congregation": { "value": { "message": "error_app_congregation_not-found" } },
+              "session": { "value": { "message": "SESSION_NOT_FOUND" } }
+            }
+          }
+        }
+      },
+      "PocketSessionForbidden": {
+        "description": "The Pocket cookie is missing, revoked, or is not authorized for the congregation.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "examples": {
+              "device": { "value": { "message": "DEVICE_REVOKED" } },
+              "account": { "value": { "message": "ACCOUNT_NOT_FOUND" } },
+              "membership": { "value": { "message": "error_api_unauthorized-request" } }
             }
           }
         }
@@ -2467,6 +2869,47 @@
             }
           }
         ]
+      },
+      "PocketAuthentication": {
+        "type": "object",
+        "required": ["id", "app_settings"],
+        "properties": {
+          "message": {
+            "type": "string",
+            "enum": ["TOKEN_VALID"],
+            "description": "Present when a new Pocket session is created."
+          },
+          "id": { "type": "string" },
+          "app_settings": {
+            "type": "object",
+            "required": ["user_settings", "cong_settings"],
+            "properties": {
+              "user_settings": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Pocket user profile and congregation roles."
+              },
+              "cong_settings": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Pocket-safe congregation settings without the congregation master key."
+              }
+            }
+          }
+        }
+      },
+      "PocketInvitationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "One-time encrypted Pocket invitation code."
+          }
+        }
       },
       "PendingVisitingSpeakerAccess": {
         "type": "object",
