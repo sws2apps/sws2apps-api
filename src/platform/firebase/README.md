@@ -15,9 +15,12 @@ service-account document through `GOOGLE_CONFIG_BASE64`.
 ## Firestore integration tests
 
 Run `npm run test:firebase` to start isolated Authentication, Firestore, and
-Storage emulators and exercise their adapters against them. The Firebase CLI and
-Java must be available locally, as they are for the existing emulator commands.
+Storage emulators and exercise their adapters against them. Java 21 must be
+available locally. The npm script downloads the pinned Firebase CLI version, so a
+global CLI installation and Firebase login are not required.
 
 The integration suite requires both an explicit opt-in flag and a localhost
 emulator address. This prevents it from writing test records to a remote Firebase
 project. The regular `npm test` command discovers the suite but safely skips it.
+CI runs the integration suite in a separate job and gates production deployment on
+its result.

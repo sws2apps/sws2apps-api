@@ -19,6 +19,10 @@ Code follows this dependency direction:
 - Platform adapters wrap external systems such as Firebase, email, logging, and
   third-party APIs.
 - Shared code must be domain-neutral. Do not use `shared` as a miscellaneous folder.
+- Keep startup-only support in `src/bootstrap` and validated runtime settings in
+  `src/config`.
+- Keep feature-specific types inside their module. Reserve `src/types` for global
+  declaration augmentation and genuinely cross-cutting structural types.
 
 Feature modules expose business contracts through `src/modules/<feature>/index.ts`
 and their HTTP router through `src/modules/<feature>/routes.ts`. Cross-module
@@ -35,6 +39,16 @@ Use the native Node.js subpath imports configured in `package.json`:
 
 Keep structural refactors separate from behavior changes unless they form one small,
 coherent change that can be reviewed and tested together.
+
+## Code documentation
+
+- Use clear names and TypeScript types as the primary documentation.
+- Add JSDoc when it explains security assumptions, business rules, side effects,
+  required operation order, stable error behavior, or external-system constraints.
+- Do not add comments that merely repeat a function's parameters, return type, or
+  implementation.
+- Keep OpenAPI focused on the public HTTP contract and module READMEs focused on
+  architectural boundaries.
 
 ## Security
 
@@ -60,7 +74,13 @@ npm test
 
 Add focused tests for changed behavior and run the relevant suite before the full
 suite. Run `npm run test:firebase` when a change affects a Firebase adapter or its
-integration behavior and the emulators are available.
+integration behavior. It requires Java 21 and starts isolated local emulators using
+the Firebase CLI version pinned in the npm script; it must not use remote Firebase
+resources or production credentials.
+
+The CI workflow runs build, lint, standard tests, and Firebase integration tests for
+pull requests and pushes to `main`. The production deployment reuses the same CI
+workflow and must remain gated by all of its jobs.
 
 - Update `docs/openapi/openapi.json` whenever a public route or HTTP method changes.
 - Keep route registration paths as string literals so the OpenAPI completeness test

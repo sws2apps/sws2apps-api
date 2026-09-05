@@ -1,5 +1,6 @@
 # Scheduling Workbox System (sws2apps) API
 
+[![CI](https://github.com/sws2apps/sws2apps-api/actions/workflows/ci.yml/badge.svg)](https://github.com/sws2apps/sws2apps-api/actions/workflows/ci.yml)
 [![CD](https://github.com/sws2apps/sws2apps-api/actions/workflows/deploy.yml/badge.svg)](https://github.com/sws2apps/sws2apps-api/actions/workflows/deploy.yml)
 
 Backend service for all sws2apps applications.
@@ -75,6 +76,21 @@ Import feature business contracts through the module's `index.ts` rather than
 reaching into internal files. HTTP composition imports the module router through its
 dedicated `routes.ts` entrypoint.
 
+## Repository layout
+
+- `src/bootstrap`: startup support used only while initializing the application.
+- `src/config`: validated environment and server configuration.
+- `src/domain`: framework-independent rules and reusable domain primitives.
+- `src/http`: Express composition, middleware, validation, and response handling.
+- `src/modules`: feature-owned routes, controllers, services, repositories, and
+  types.
+- `src/platform`: adapters for Firebase, email, logging, localization, encryption,
+  and remote APIs.
+- `src/types`: global declaration augmentation and genuinely cross-cutting record
+  types.
+- `test`: tests organized to mirror the source concerns.
+- `docs`: architecture decisions and the versioned OpenAPI contract.
+
 ## Module map
 
 - `administration`: system administrator operations.
@@ -101,13 +117,17 @@ npm test
 ```
 
 The default test command uses Node.js's built-in test runner and does not require
-Firebase emulators. To run the Firebase integration tests, install the Firebase CLI,
-configure the emulators if needed, and run:
+Firebase emulators. The Firebase integration suite requires Java 21; its script
+downloads the pinned Firebase CLI, starts isolated Authentication, Firestore, and
+Storage emulators for the `organized-local` project, and shuts them down afterward:
 
 ```sh
-npm run setup:emulators
 npm run test:firebase
 ```
+
+No Firebase login or remote project is required for these tests. CI runs the build,
+lint, standard tests, and Firebase integration suite for pull requests and pushes to
+`main`. The same checks must pass before the production deployment can begin.
 
 ## Localization
 

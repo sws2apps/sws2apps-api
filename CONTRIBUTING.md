@@ -1,6 +1,7 @@
 # How to Contribute
 
-`sws2apps-api` is our backend service. But we are also more than happy to receive support from those who are very intersted to assist us. Hopefully this document makes the process for contributing clear and answers some questions that you may have.
+`sws2apps-api` is our backend service, and contributions are welcome. This guide
+explains how to prepare a local environment and submit a change.
 
 Please make sure that you have read the [code of conduct](https://github.com/sws2apps/sws2apps-api/blob/main/CODE_OF_CONDUCT.md) before continuing.
 
@@ -10,7 +11,9 @@ Please make sure that you have read the [code of conduct](https://github.com/sws
 
 ## Branch Organization
 
-We use the `main` branch for the current version (CPE), but for the new Organized version it's important to use `main-e2e` branch. Feature flags are used for new features and major changes.
+The `main` branch contains the current API. Create a focused branch from an
+up-to-date `main` branch for each change. Use feature flags when incomplete behavior
+must be merged without being enabled for every application.
 
 ## Bugs
 
@@ -30,19 +33,29 @@ If you’re only fixing a bug, it’s fine to submit a pull request right away b
 
 ## Contribution Prerequisites
 
-- You have the latest version of [Node](https://nodejs.org), [Git](https://git-scm.com), [OpenJDK](https://www.oracle.com/java/technologies/downloads/) _(to be used for Firebase emulators)_ and [Firebase CLI](https://firebase.google.com/docs/cli) installed
-- You have a dedicated project on Firebase for your local testing.
+- Install Node.js 24, npm 11 or newer, and Git.
+- Install Java 21 when running Firebase emulator integration tests.
 - You will be working on one item at a time.
 - If you do not have it yet, fork the repository. Clone it if you will work locally.
 - If you have already forked and clone the repository, make sure that it is in sync with the upstream repository ([Syncing a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork)).
-- Run `npm i` to install the needed dependencies
+- Run `npm install` to install the dependencies.
 
-### Setup Firebase Emulators
+### Firebase emulator tests
 
-We use Firebase to be our backend. Therefore, during development, Firebase Emulators is used.
+The repository contains the emulator configuration used by the Firebase adapter
+integration suite. Run:
 
-- Run `cp storage.rules.example storage.rules` to copy `storage.rules.example` to `storage.rules`.
-- Run `npm run start:emulators` to start the Firebase Emulators.
+```sh
+npm run test:firebase
+```
+
+The command downloads the pinned Firebase CLI, starts isolated Authentication,
+Firestore, and Storage emulators for `organized-local`, runs the integration tests,
+and then stops the emulators. It does not require a Firebase login or a remote
+Firebase project.
+
+For interactive development with long-running emulators, install the Firebase CLI
+and run `npm run start:emulators` in a separate terminal.
 
 ### Setup Environment Variables
 
@@ -54,7 +67,8 @@ Environment variables are required in order to locally run this API. You can jus
 
 ### Creating Your Congregation Account
 
-As each development server will start with a new and clean Firebase Emulator instance, you have to create your user and congregation account.
+When working with a new emulator data set, create a local user and congregation
+account before testing authenticated workflows.
 
 - When creating user account, the use of authenticator app is optional. When required, the OTP code is printed on the dev console. If you still want to use authenticator app, you have to delete and create a new account each time you run the dev server.
 
@@ -64,7 +78,10 @@ We are monitoring for pull requests. We will review your pull request and either
 
 **Before submitting a PR**, please make sure the following is done:
 
-- Test your changes to make sure that they are working as intended.
+- Run `npm run build`, `npm run lint`, and `npm test`.
+- Run `npm run test:firebase` when changing a Firebase adapter or its integration
+  behavior.
+- Confirm that the public OpenAPI contract remains synchronized with route changes.
 
 **When commiting your changes**, we recommend the following command to be run:
 
