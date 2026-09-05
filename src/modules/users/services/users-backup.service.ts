@@ -29,10 +29,52 @@ import {
 	getUserStoredFieldServiceReports,
 } from './user-data.service.js';
 
+export type UserBackupRetrievalOperations = {
+	getBranchCongAnalysis: typeof getBranchCongAnalysis;
+	getBranchFieldServiceReports: typeof getBranchFieldServiceReports;
+	getCongregationPersons: typeof getCongregationPersons;
+	getFieldServiceGroups: typeof getFieldServiceGroups;
+	getFieldServiceReports: typeof getFieldServiceReports;
+	getMeetingAttendance: typeof getMeetingAttendance;
+	getPublicIncomingTalks: typeof getPublicIncomingTalks;
+	getPublicSchedules: typeof getPublicSchedules;
+	getPublicSources: typeof getPublicSources;
+	getSchedules: typeof getSchedules;
+	getSources: typeof getSources;
+	getSpeakersCongregations: typeof getSpeakersCongregations;
+	getUpcomingEvents: typeof getUpcomingEvents;
+	getUserBibleStudies: typeof getUserStoredBibleStudies;
+	getUserDelegatedFieldServiceReports: typeof getUserStoredDelegatedFieldServiceReports;
+	getUserFieldServiceReports: typeof getUserStoredFieldServiceReports;
+	getVisitingSpeakers: typeof getVisitingSpeakers;
+};
+
+const defaultBackupRetrievalOperations: UserBackupRetrievalOperations = {
+	getBranchCongAnalysis,
+	getBranchFieldServiceReports,
+	getCongregationPersons,
+	getFieldServiceGroups,
+	getFieldServiceReports,
+	getMeetingAttendance,
+	getPublicIncomingTalks,
+	getPublicSchedules,
+	getPublicSources,
+	getSchedules,
+	getSources,
+	getSpeakersCongregations,
+	getUpcomingEvents,
+	getUserBibleStudies: getUserStoredBibleStudies,
+	getUserDelegatedFieldServiceReports: getUserStoredDelegatedFieldServiceReports,
+	getUserFieldServiceReports: getUserStoredFieldServiceReports,
+	getVisitingSpeakers,
+};
+
 export const retrieveUserBackup = async (
 	userId: string,
 	metadataHeader: string,
+	operations: Partial<UserBackupRetrievalOperations> = {},
 ): Promise<BackupData> => {
+	const backupOperations = { ...defaultBackupRetrievalOperations, ...operations };
 	const { user, congregation } = getUserBackupContext(userId);
 	const metadata = parseUserBackupMetadata(metadataHeader);
 
@@ -115,7 +157,7 @@ export const retrieveUserBackup = async (
 		incomingDate = metadata.field_service_groups;
 
 		if (localDate !== incomingDate) {
-			result.field_service_groups = await getFieldServiceGroups(congregation.id);
+			result.field_service_groups = await backupOperations.getFieldServiceGroups(congregation.id);
 			result.metadata.field_service_groups = localDate;
 		}
 
@@ -123,7 +165,7 @@ export const retrieveUserBackup = async (
 		incomingDate = metadata.upcoming_events;
 
 		if (localDate !== incomingDate) {
-			result.upcoming_events = await getUpcomingEvents(congregation.id);
+			result.upcoming_events = await backupOperations.getUpcomingEvents(congregation.id);
 			result.metadata.upcoming_events = localDate;
 		}
 
@@ -132,7 +174,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.persons;
 
 			if (localDate !== incomingDate) {
-				result.persons = await getCongregationPersons(congregation.id);
+				result.persons = await backupOperations.getCongregationPersons(congregation.id);
 				result.metadata.persons = localDate;
 			}
 		}
@@ -142,7 +184,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.speakers_congregations;
 
 			if (localDate !== incomingDate) {
-				result.speakers_congregations = await getSpeakersCongregations(congregation.id);
+				result.speakers_congregations = await backupOperations.getSpeakersCongregations(congregation.id);
 				result.metadata.speakers_congregations = localDate;
 			}
 
@@ -150,7 +192,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.visiting_speakers;
 
 			if (localDate !== incomingDate) {
-				result.visiting_speakers = await getVisitingSpeakers(congregation.id);
+				result.visiting_speakers = await backupOperations.getVisitingSpeakers(congregation.id);
 				result.metadata.visiting_speakers = localDate;
 			}
 		}
@@ -160,14 +202,14 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.cong_field_service_reports;
 
 			if (localDate !== incomingDate) {
-				result.cong_field_service_reports = await getFieldServiceReports(congregation.id);
+				result.cong_field_service_reports = await backupOperations.getFieldServiceReports(congregation.id);
 				result.metadata.cong_field_service_reports = localDate;
 			}
 		}
 
 		if (publicTalkEditor) {
 			result.speakers_key = congregation.outgoing_speakers.speakers_key;
-			result.outgoing_talks = await getPublicIncomingTalks(congregation.id);
+			result.outgoing_talks = await backupOperations.getPublicIncomingTalks(congregation.id);
 		}
 
 		if (adminRole || isPublisher) {
@@ -175,7 +217,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.user_bible_studies;
 
 			if (localDate !== incomingDate) {
-				result.user_bible_studies = await getUserStoredBibleStudies(user.id);
+				result.user_bible_studies = await backupOperations.getUserBibleStudies(user.id);
 				result.metadata.user_bible_studies = localDate;
 			}
 
@@ -183,7 +225,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.user_field_service_reports;
 
 			if (localDate !== incomingDate) {
-				result.user_field_service_reports = await getUserStoredFieldServiceReports(user.id);
+				result.user_field_service_reports = await backupOperations.getUserFieldServiceReports(user.id);
 				result.metadata.user_field_service_reports = localDate;
 			}
 
@@ -192,7 +234,7 @@ export const retrieveUserBackup = async (
 
 			if (localDate !== incomingDate) {
 				result.delegated_field_service_reports =
-					await getUserStoredDelegatedFieldServiceReports(user.id);
+					await backupOperations.getUserDelegatedFieldServiceReports(user.id);
 				result.metadata.delegated_field_service_reports = localDate;
 			}
 
@@ -201,7 +243,7 @@ export const retrieveUserBackup = async (
 				incomingDate = metadata.cong_field_service_reports;
 
 				if (localDate !== incomingDate) {
-					const reports = await getFieldServiceReports(congregation.id);
+					const reports = await backupOperations.getFieldServiceReports(congregation.id);
 
 					const congUserReports = reports.filter((record) => {
 						const data = record.report_data as StandardRecord;
@@ -220,7 +262,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.persons;
 
 			if (localDate !== incomingDate) {
-				const persons = await getCongregationPersons(congregation.id);
+				const persons = await backupOperations.getCongregationPersons(congregation.id);
 
 				const minimalPersons = persons.map((record) => {
 					const includeTimeAway = congregation.settings.time_away_public?.value;
@@ -256,7 +298,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.public_sources;
 
 			if (localDate !== incomingDate) {
-				result.public_sources = await getPublicSources(congregation.id);
+				result.public_sources = await backupOperations.getPublicSources(congregation.id);
 				result.metadata.public_sources = localDate;
 			}
 
@@ -264,7 +306,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.public_schedules;
 
 			if (localDate !== incomingDate) {
-				result.public_schedules = await getPublicSchedules(congregation.id);
+				result.public_schedules = await backupOperations.getPublicSchedules(congregation.id);
 				result.metadata.public_schedules = localDate;
 			}
 		}
@@ -274,7 +316,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.sources;
 
 			if (localDate !== incomingDate) {
-				result.sources = await getSources(congregation.id);
+				result.sources = await backupOperations.getSources(congregation.id);
 				result.metadata.sources = localDate;
 			}
 
@@ -282,7 +324,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.schedules;
 
 			if (localDate !== incomingDate) {
-				result.sched = await getSchedules(congregation.id);
+				result.sched = await backupOperations.getSchedules(congregation.id);
 				result.metadata.schedules = localDate;
 			}
 		}
@@ -292,7 +334,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.meeting_attendance;
 
 			if (localDate !== incomingDate) {
-				result.meeting_attendance = await getMeetingAttendance(congregation.id);
+				result.meeting_attendance = await backupOperations.getMeetingAttendance(congregation.id);
 				result.metadata.meeting_attendance = localDate;
 			}
 		}
@@ -312,7 +354,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.branch_cong_analysis;
 
 			if (localDate !== incomingDate) {
-				result.branch_cong_analysis = await getBranchCongAnalysis(congregation.id);
+				result.branch_cong_analysis = await backupOperations.getBranchCongAnalysis(congregation.id);
 				result.metadata.branch_cong_analysis = localDate;
 			}
 
@@ -320,7 +362,7 @@ export const retrieveUserBackup = async (
 			incomingDate = metadata.branch_field_service_reports;
 
 			if (localDate !== incomingDate) {
-				result.branch_field_service_reports = await getBranchFieldServiceReports(congregation.id);
+				result.branch_field_service_reports = await backupOperations.getBranchFieldServiceReports(congregation.id);
 				result.metadata.branch_field_service_reports = localDate;
 			}
 

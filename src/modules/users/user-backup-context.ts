@@ -8,6 +8,7 @@ import type { User } from './user.js';
 import { UsersList } from './users.js';
 
 export type UserBackupErrorCode =
+	| 'USER_NOT_FOUND'
 	| 'CONGREGATION_NOT_ASSIGNED'
 	| 'CONGREGATION_NOT_FOUND'
 	| 'INVALID_METADATA'
@@ -25,7 +26,9 @@ export const getUserBackupContext = (userId: string): {
 	user: User;
 	congregation: Congregation;
 } => {
-	const user = UsersList.findById(userId)!;
+	const user = UsersList.findById(userId);
+	if (!user) throw new UserBackupError('USER_NOT_FOUND');
+
 	const congregationId = user.profile.congregation?.id;
 
 	if (!congregationId) throw new UserBackupError('CONGREGATION_NOT_ASSIGNED');
