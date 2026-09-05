@@ -38,6 +38,15 @@ type AuthenticationSessionDependencies = {
 	createSessionIdentifier: () => string;
 };
 
+export type AuthenticationSessionErrorCode = 'USER_NOT_FOUND' | 'SESSION_NOT_FOUND';
+
+export class AuthenticationSessionError extends Error {
+	constructor(public readonly code: AuthenticationSessionErrorCode) {
+		super(code);
+		this.name = 'AuthenticationSessionError';
+	}
+}
+
 const defaultAuthenticationSessionDependencies: AuthenticationSessionDependencies = {
 	findUserById: (userId) => UsersList.findById(userId),
 	getVisitorDetails: getVisitorSessionDetails,
@@ -59,9 +68,12 @@ export const refreshAuthenticationSession = async (
 		...defaultAuthenticationSessionDependencies,
 		...dependencies,
 	};
-	const user = findUserById(input.userId)!;
+	const user = findUserById(input.userId);
+	if (!user) throw new AuthenticationSessionError('USER_NOT_FOUND');
+
 	const sessions = structuredClone(user.sessions);
-	const session = sessions.find((record) => record.visitorid === input.visitorId)!;
+	const session = sessions.find((record) => record.visitorid === input.visitorId);
+	if (!session) throw new AuthenticationSessionError('SESSION_NOT_FOUND');
 
 	session.last_seen = getCurrentTime().toISOString();
 	session.visitor_details = await getVisitorDetails(input.visitorIp, input.headers);
@@ -83,7 +95,9 @@ export const createAuthenticationSession = async (
 		...defaultAuthenticationSessionDependencies,
 		...dependencies,
 	};
-	const user = findUserById(input.userId)!;
+	const user = findUserById(input.userId);
+	if (!user) throw new AuthenticationSessionError('USER_NOT_FOUND');
+
 	const sessions = user.sessions?.filter(
 		(session) => session.visitorid !== input.visitorId,
 	) || [];

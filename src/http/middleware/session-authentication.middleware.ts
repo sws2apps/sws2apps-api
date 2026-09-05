@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { header, validationResult } from 'express-validator';
 import { formatError } from '#http/validation-errors.js';
 import {
+	AuthenticationSessionError,
 	refreshAuthenticationSession,
 	resolveAuthenticatedSession,
 	resolvePocketSessionUser,
@@ -25,6 +26,22 @@ const defaultDependencies: SessionAuthenticationDependencies = {
 	resolveSession: resolveAuthenticatedSession,
 	resolvePocketUser: resolvePocketSessionUser,
 	verifyToken: verifyAuthenticationToken,
+};
+
+const handleSessionStateError = (error: unknown, response: Response): boolean => {
+	if (!(error instanceof AuthenticationSessionError)) return false;
+
+	response.clearCookie('visitorid');
+	const publicCode = error.code === 'USER_NOT_FOUND'
+		? 'ACCOUNT_NOT_FOUND'
+		: 'SESSION_REVOKED';
+	sendClientError(
+		response,
+		403,
+		publicCode,
+		'authenticated account or session is no longer active',
+	);
+	return true;
 };
 
 export const requireAuthenticatedSession = (
@@ -123,7 +140,7 @@ export const requireAuthenticatedSession = (
 				next();
 			}
 		} catch (err) {
-			next(err);
+			if (!handleSessionStateError(err, res)) next(err);
 		}
 	};
 };
@@ -164,7 +181,7 @@ export const requirePocketSession = (
 
 			next();
 		} catch (err) {
-			next(err);
+			if (!handleSessionStateError(err, res)) next(err);
 		}
 	};
 };

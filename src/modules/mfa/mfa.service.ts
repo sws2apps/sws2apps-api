@@ -19,6 +19,15 @@ export class InvalidMfaTokenError extends Error {
 	}
 }
 
+export type MfaVerificationContextErrorCode = 'USER_NOT_FOUND' | 'SESSION_NOT_FOUND';
+
+export class MfaVerificationContextError extends Error {
+	constructor(public readonly code: MfaVerificationContextErrorCode) {
+		super(code);
+		this.name = 'MfaVerificationContextError';
+	}
+}
+
 type VerifyMfaTokenInput = {
 	userId: string;
 	sessions: UserSession[];
@@ -27,12 +36,14 @@ type VerifyMfaTokenInput = {
 };
 
 type MfaVerificationDependencies = {
+	findUserById: typeof UsersList.findById;
 	enableMfa: typeof enableUserMfa;
 	saveSessions: typeof updateUserSessions;
 	getCurrentTime: () => Date;
 };
 
 const defaultMfaVerificationDependencies: MfaVerificationDependencies = {
+	findUserById: (userId) => UsersList.findById(userId),
 	enableMfa: enableUserMfa,
 	saveSessions: updateUserSessions,
 	getCurrentTime: () => new Date(),
@@ -47,7 +58,13 @@ export const verifyMfaToken = async ({
 dependencies: Partial<MfaVerificationDependencies> = {},
 ): Promise<UserAuthResponse> => {
 	const operations = { ...defaultMfaVerificationDependencies, ...dependencies };
-	const user = UsersList.findById(userId)!;
+	const user = operations.findUserById(userId);
+	if (!user) throw new MfaVerificationContextError('USER_NOT_FOUND');
+
+	const updatedSessions = structuredClone(sessions);
+	const currentSession = updatedSessions.find((session) => session.visitorid === visitorId);
+	if (!currentSession) throw new MfaVerificationContextError('SESSION_NOT_FOUND');
+
 	const encryptedSecret = decryptUserMfaSecret(user);
 	const tokenGenerator = new OTPAuth.TOTP({
 		issuer: env.isProduction ? 'Organized' : 'Organized-dev',
@@ -63,8 +80,6 @@ dependencies: Partial<MfaVerificationDependencies> = {},
 		throw new InvalidMfaTokenError();
 	}
 
-	const updatedSessions = structuredClone(sessions);
-	const currentSession = updatedSessions.find((session) => session.visitorid === visitorId)!;
 	currentSession.last_seen = operations.getCurrentTime().toISOString();
 	currentSession.mfaVerified = true;
 
@@ -84,7 +99,8 @@ dependencies: Partial<MfaVerificationDependencies> = {},
 		},
 	};
 
-	const congregationId = user.profile.congregation?.id;
+	const membership = user.profile.congregation;
+	const congregationId = membership?.id;
 
 	if (!congregationId) {
 		return userInfo;
@@ -96,7 +112,7 @@ dependencies: Partial<MfaVerificationDependencies> = {},
 		return userInfo;
 	}
 
-	const congregationRoles = user.profile.congregation!.cong_role;
+	const congregationRoles = membership.cong_role;
 	const needsMasterKey = canAccessCongregationMasterKey(congregationRoles);
 	const midweekMeeting = congregation.settings.midweek_meeting.map(({ type, time, weekday }) => ({
 		type,
@@ -109,8 +125,8 @@ dependencies: Partial<MfaVerificationDependencies> = {},
 		weekday,
 	}));
 
-	userInfo.app_settings.user_settings.user_local_uid = user.profile.congregation!.user_local_uid;
-	userInfo.app_settings.user_settings.user_members_delegate = user.profile.congregation!.user_members_delegate;
+	userInfo.app_settings.user_settings.user_local_uid = membership.user_local_uid;
+	userInfo.app_settings.user_settings.user_members_delegate = membership.user_members_delegate;
 	userInfo.app_settings.user_settings.cong_role = congregationRoles;
 	userInfo.app_settings.cong_settings = {
 		id: congregationId,

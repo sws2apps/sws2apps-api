@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 import type { User } from '#modules/users/index.js';
 import type { UserSession } from '#modules/users/index.js';
 import {
+	AuthenticationSessionError,
 	createAuthenticationSession,
 	refreshAuthenticationSession,
 } from '#modules/auth/index.js';
@@ -43,6 +44,64 @@ const otherSession: UserSession = {
 };
 
 describe('authentication session management', () => {
+	it('rejects session creation before external work when the user is missing', async () => {
+		let visitorDetailsRequested = false;
+
+		await assert.rejects(
+			createAuthenticationSession(
+				{
+					userId: 'missing-user',
+					visitorId: 'visitor-1',
+					visitorIp: '192.0.2.1',
+					headers: {},
+					mfaVerified: false,
+				},
+				{
+					findUserById: () => undefined,
+					getVisitorDetails: async () => {
+						visitorDetailsRequested = true;
+						return originalVisitorDetails;
+					},
+				},
+			),
+			(error: unknown) => {
+				return error instanceof AuthenticationSessionError
+					&& error.code === 'USER_NOT_FOUND';
+			},
+		);
+
+		assert.equal(visitorDetailsRequested, false);
+	});
+
+	it('rejects a missing session before refreshing visitor details', async () => {
+		const user = { id: 'user-1', sessions: [] } as unknown as User;
+		let visitorDetailsRequested = false;
+
+		await assert.rejects(
+			refreshAuthenticationSession(
+				{
+					userId: user.id,
+					visitorId: 'missing-visitor',
+					visitorIp: '192.0.2.1',
+					headers: {},
+				},
+				{
+					findUserById: () => user,
+					getVisitorDetails: async () => {
+						visitorDetailsRequested = true;
+						return originalVisitorDetails;
+					},
+				},
+			),
+			(error: unknown) => {
+				return error instanceof AuthenticationSessionError
+					&& error.code === 'SESSION_NOT_FOUND';
+			},
+		);
+
+		assert.equal(visitorDetailsRequested, false);
+	});
+
 	it('replaces the visitor session and records its current security context', async () => {
 		const user = {
 			id: 'user-1',

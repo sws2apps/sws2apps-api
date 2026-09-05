@@ -7,6 +7,7 @@ import {
 	requirePocketSession,
 	type SessionAuthenticationDependencies,
 } from '#http/middleware/session-authentication.middleware.js';
+import { AuthenticationSessionError } from '#modules/auth/index.js';
 import { User } from '#modules/users/user.js';
 import type { UserSession } from '#modules/users/types/user.types.js';
 
@@ -189,6 +190,24 @@ describe('session authentication middleware', () => {
 		assert.equal(state.nextError, undefined);
 		assert.equal(state.locals.currentUser, context.user);
 		assert.equal(context.getRefreshCount(), 1);
+	});
+
+	it('treats a session removed during refresh as revoked', async () => {
+		const { dependencies } = createDependencies({
+			refreshSession: async () => {
+				throw new AuthenticationSessionError('SESSION_NOT_FOUND');
+			},
+		});
+		const state = await runAuthentication(dependencies, {
+			authorization: 'Bearer valid-token',
+			visitorId: 'visitor-1',
+			path: '/validate-me',
+		});
+
+		assert.equal(state.statusCode, 403);
+		assert.deepEqual(state.body, { message: 'SESSION_REVOKED' });
+		assert.deepEqual(state.clearedCookies, ['visitorid']);
+		assert.equal(state.nextError, undefined);
 	});
 });
 
