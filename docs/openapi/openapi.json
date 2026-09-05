@@ -19,6 +19,10 @@
     {
       "name": "Authentication",
       "description": "Account authentication and passwordless sign-in."
+    },
+    {
+      "name": "User account",
+      "description": "Authenticated account, MFA, and session management."
     }
   ],
   "paths": {
@@ -275,6 +279,482 @@
           }
         }
       }
+    },
+    "/mfa/verify-token": {
+      "post": {
+        "operationId": "verifyMfaToken",
+        "summary": "Verify an MFA token",
+        "description": "Verifies the active session and enables MFA for the account when needed.",
+        "tags": ["Authentication"],
+        "security": [
+          {
+            "bearerAuth": [],
+            "visitorCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppClientHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppVersionHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MfaTokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MFA verification succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAuthentication"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthenticatedRequestForbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServerNotReady"
+          }
+        }
+      }
+    },
+    "/users/validate-me": {
+      "get": {
+        "operationId": "validateCurrentUser",
+        "summary": "Validate the current account and congregation",
+        "tags": ["User account"],
+        "security": [
+          {
+            "bearerAuth": [],
+            "visitorCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppClientHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppVersionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The active account and congregation summary.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidatedUserAccount"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/MfaRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthenticatedRequestForbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/AccountContextNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServerNotReady"
+          }
+        }
+      }
+    },
+    "/users/logout": {
+      "get": {
+        "operationId": "logoutCurrentUser",
+        "summary": "Log out the current session",
+        "tags": ["User account"],
+        "security": [
+          {
+            "bearerAuth": [],
+            "visitorCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppClientHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppVersionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The active session was revoked.",
+            "headers": {
+              "Set-Cookie": {
+                "description": "Clears the visitor session cookie.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "OK"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/MfaRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthenticatedRequestForbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServerNotReady"
+          }
+        }
+      }
+    },
+    "/users/{id}/2fa": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/UserIdPath"
+        }
+      ],
+      "get": {
+        "operationId": "getUserMfaEnrollment",
+        "summary": "Get MFA enrollment details",
+        "tags": ["User account"],
+        "security": [
+          {
+            "bearerAuth": [],
+            "visitorCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppClientHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppVersionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The account's MFA enrollment details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MfaEnrollment"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/MfaRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthenticatedRequestForbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/AccountContextNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServerNotReady"
+          }
+        }
+      }
+    },
+    "/users/{id}/2fa/disable": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/UserIdPath"
+        }
+      ],
+      "get": {
+        "operationId": "disableUserMfa",
+        "summary": "Disable MFA and revoke active sessions",
+        "tags": ["User account"],
+        "security": [
+          {
+            "bearerAuth": [],
+            "visitorCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppClientHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppVersionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MFA was disabled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "MFA_DISABLED"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/MfaRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthenticatedRequestForbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/AccountContextNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServerNotReady"
+          }
+        }
+      }
+    },
+    "/users/{id}/sessions": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/UserIdPath"
+        }
+      ],
+      "get": {
+        "operationId": "getUserSessions",
+        "summary": "List active account sessions",
+        "tags": ["User account"],
+        "security": [
+          {
+            "bearerAuth": [],
+            "visitorCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppClientHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppVersionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Safe projections of the account's active sessions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSessionList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/MfaRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthenticatedRequestForbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/AccountContextNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServerNotReady"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "revokeUserSession",
+        "summary": "Revoke an account session",
+        "tags": ["User account"],
+        "security": [
+          {
+            "bearerAuth": [],
+            "visitorCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppClientHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppVersionHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionRevocationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The remaining active account sessions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSessionList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/MfaRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthenticatedRequestForbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/AccountContextNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServerNotReady"
+          }
+        }
+      }
+    },
+    "/users/{id}/erase": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/UserIdPath"
+        }
+      ],
+      "delete": {
+        "operationId": "deleteUserAccount",
+        "summary": "Permanently delete the current account",
+        "tags": ["User account"],
+        "security": [
+          {
+            "bearerAuth": [],
+            "visitorCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppClientHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppVersionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The account was deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "ACCOUNT_DELETED"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/MfaRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthenticatedRequestForbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServerNotReady"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -353,9 +833,88 @@
         "schema": {
           "type": "string"
         }
+      },
+      "UserIdPath": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Authenticated user's account identifier. Must match the current account.",
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "responses": {
+      "AccountContextNotFound": {
+        "description": "The account, session, or congregation context no longer exists.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "account": {
+                "value": {
+                  "message": "ACCOUNT_NOT_FOUND"
+                }
+              },
+              "session": {
+                "value": {
+                  "message": "SESSION_NOT_FOUND"
+                }
+              },
+              "congregation": {
+                "value": {
+                  "message": "CONG_NOT_FOUND"
+                }
+              }
+            }
+          }
+        }
+      },
+      "AuthenticatedRequestForbidden": {
+        "description": "Authentication or ownership checks rejected the request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "loginRequired": {
+                "value": {
+                  "message": "LOGIN_FIRST"
+                }
+              },
+              "deviceRevoked": {
+                "value": {
+                  "message": "DEVICE_REVOKED"
+                }
+              },
+              "sessionRevoked": {
+                "value": {
+                  "message": "SESSION_REVOKED"
+                }
+              },
+              "accountMissing": {
+                "value": {
+                  "message": "ACCOUNT_NOT_FOUND"
+                }
+              },
+              "wrongAccount": {
+                "value": {
+                  "message": "error_api_unauthorized-request"
+                }
+              },
+              "invalidMfaToken": {
+                "value": {
+                  "message": "TOKEN_INVALID"
+                }
+              }
+            }
+          }
+        }
+      },
       "AuthenticationResult": {
         "description": "Authentication succeeded or requires MFA verification.",
         "headers": {
@@ -452,6 +1011,19 @@
             },
             "example": {
               "message": "error_auth_invalid-token"
+            }
+          }
+        }
+      },
+      "MfaRequired": {
+        "description": "The active session must complete MFA verification.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "message": "LOGIN_FIRST"
             }
           }
         }
@@ -561,6 +1133,48 @@
           }
         }
       },
+      "MfaEnrollment": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["secret", "qrCode"],
+        "properties": {
+          "secret": {
+            "type": "string"
+          },
+          "qrCode": {
+            "type": "string",
+            "description": "An otpauth provisioning URI suitable for a QR code."
+          },
+          "mfaEnabled": {
+            "type": "boolean"
+          },
+          "MFA_CODE": {
+            "type": "string",
+            "pattern": "^\\d{6}$",
+            "description": "Development-only token; omitted in production."
+          }
+        }
+      },
+      "MfaTokenRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["token"],
+        "properties": {
+          "token": {
+            "oneOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{6}$"
+              },
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 999999
+              }
+            ]
+          }
+        }
+      },
       "PasswordlessSignInRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -652,6 +1266,28 @@
           }
         }
       },
+      "SessionRevocationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["identifier"],
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        }
+      },
+      "SuccessMessage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["message"],
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
       "TimestampedString": {
         "type": "object",
         "additionalProperties": false,
@@ -663,6 +1299,108 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "UserSession": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["identifier", "isSelf", "ip", "country_name", "device", "last_seen"],
+        "properties": {
+          "identifier": {
+            "type": "string"
+          },
+          "isSelf": {
+            "type": "boolean"
+          },
+          "ip": {
+            "type": "string"
+          },
+          "country_name": {
+            "type": "string"
+          },
+          "device": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["browserName", "os", "isMobile"],
+            "properties": {
+              "browserName": {
+                "type": "string"
+              },
+              "os": {
+                "type": "string"
+              },
+              "isMobile": {
+                "type": "boolean"
+              }
+            }
+          },
+          "last_seen": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UserSessionList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/UserSession"
+        }
+      },
+      "ValidatedUserAccount": {
+        "type": "object",
+        "required": [
+          "id",
+          "cong_id",
+          "country_code",
+          "cong_name",
+          "cong_prefix",
+          "cong_role",
+          "cong_access_code"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "mfa": {
+            "type": "boolean"
+          },
+          "cong_id": {
+            "type": "string"
+          },
+          "country_code": {
+            "type": "string"
+          },
+          "cong_name": {
+            "type": "string"
+          },
+          "cong_prefix": {
+            "type": "string"
+          },
+          "cong_number": {
+            "$ref": "#/components/schemas/TimestampedString"
+          },
+          "cong_role": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "user_local_uid": {
+            "type": "string"
+          },
+          "user_delegates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cong_master_key": {
+            "type": "string",
+            "description": "Returned only for roles allowed to use the congregation master key."
+          },
+          "cong_access_code": {
+            "type": "string"
           }
         }
       },

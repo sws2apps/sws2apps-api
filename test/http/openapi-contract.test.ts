@@ -6,6 +6,7 @@ import { describe, it } from 'node:test';
 type OpenApiOperation = {
 	operationId?: string;
 	parameters?: { $ref?: string }[];
+	security?: Record<string, unknown[]>[];
 };
 
 type OpenApiDocument = {
@@ -73,20 +74,28 @@ describe('OpenAPI contract', () => {
 	it('documents the public and authentication foundation', async () => {
 		const contract = await loadContract();
 		const expectedOperations = {
+			'/mfa/verify-token': 'post',
 			'/public/feature-flags': 'get',
 			'/public/stats': 'get',
 			'/user-login': 'get',
 			'/user-passwordless-login': 'post',
 			'/user-passwordless-verify': 'post',
+			'/users/logout': 'get',
+			'/users/validate-me': 'get',
+			'/users/{id}/2fa': 'get',
+			'/users/{id}/2fa/disable': 'get',
+			'/users/{id}/erase': 'delete',
+			'/users/{id}/sessions': ['delete', 'get'],
 			'/verify-email-token': 'post',
-		};
+		} satisfies Record<string, string | string[]>;
 
 		assert.deepEqual(Object.keys(contract.paths ?? {}).sort(), Object.keys(expectedOperations).sort());
 
 		for (const [documentedPath, expectedMethod] of Object.entries(expectedOperations)) {
 			const pathItem = contract.paths?.[documentedPath];
 			assert.ok(pathItem, `${documentedPath} is missing`);
-			assert.deepEqual(getDocumentedMethods(pathItem), [expectedMethod]);
+			const expectedMethods = Array.isArray(expectedMethod) ? expectedMethod : [expectedMethod];
+			assert.deepEqual(getDocumentedMethods(pathItem).sort(), expectedMethods.sort());
 		}
 	});
 
@@ -112,6 +121,25 @@ describe('OpenAPI contract', () => {
 
 		assert.ok('bearerAuth' in securitySchemes);
 		assert.ok('visitorCookie' in securitySchemes);
+	});
+
+	it('requires both credentials for authenticated account operations', async () => {
+		const contract = await loadContract();
+		const authenticatedOperations = [
+			['/mfa/verify-token', 'post'],
+			['/users/logout', 'get'],
+			['/users/validate-me', 'get'],
+			['/users/{id}/2fa', 'get'],
+			['/users/{id}/2fa/disable', 'get'],
+			['/users/{id}/erase', 'delete'],
+			['/users/{id}/sessions', 'delete'],
+			['/users/{id}/sessions', 'get'],
+		] as const;
+
+		for (const [documentedPath, method] of authenticatedOperations) {
+			const operation = contract.paths?.[documentedPath]?.[method];
+			assert.deepEqual(operation?.security, [{ bearerAuth: [], visitorCookie: [] }]);
+		}
 	});
 
 	it('does not contain dangling local references', async () => {
