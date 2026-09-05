@@ -121,7 +121,7 @@ export const deletePocketSession = async (req: Request, res: Response) => {
 
 export const postPocketReport = async (req: Request, res: Response) => {
 	try {
-		submitPocketReport(res.locals.currentUser.id, req.body.report as StandardRecord);
+		await submitPocketReport(res.locals.currentUser.id, req.body.report as StandardRecord);
 	} catch (error) {
 		if (!(error instanceof PocketUserError)) throw error;
 
@@ -145,7 +145,7 @@ export const getPocketAuxiliaryApplications = async (req: Request, res: Response
 };
 
 export const submitPocketAuxiliaryApplications = async (req: Request, res: Response) => {
-	submitPocketApplication(res.locals.currentUser.id, req.body.application as StandardRecord);
+	await submitPocketApplication(res.locals.currentUser.id, req.body.application as StandardRecord);
 
 	sendSuccess(res, { message: 'APPLICATION_SENT' }, `user submitted auxiliary pioneer application`);
 };

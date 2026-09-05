@@ -24,6 +24,7 @@ import {
 } from '#modules/congregations/index.js';
 
 export type UserCongregationActivityErrorCode =
+	| 'USER_NOT_FOUND'
 	| 'CONGREGATION_NOT_ASSIGNED'
 	| 'CONGREGATION_NOT_FOUND';
 
@@ -34,9 +35,30 @@ export class UserCongregationActivityError extends Error {
 	}
 }
 
+export type UserCongregationSubmissionOperations = {
+	saveApplication: typeof saveCongregationApplication;
+	saveIncomingReports: typeof saveCongregationIncomingReports;
+	createRequestId: () => string;
+	getCurrentTimestamp: () => string;
+};
+
+const defaultSubmissionOperations: UserCongregationSubmissionOperations = {
+	saveApplication: (congregation, application) => {
+		return saveCongregationApplication(congregation, application);
+	},
+	saveIncomingReports: (congregation, reports) => {
+		return saveCongregationIncomingReports(congregation, reports);
+	},
+	createRequestId: () => crypto.randomUUID().toUpperCase(),
+	getCurrentTimestamp: () => new Date().toISOString(),
+};
+
 const getUserCongregation = (userId: string) => {
-	const user = UsersList.findById(userId)!;
-	const congregationId = user.profile.congregation?.id;
+	const user = UsersList.findById(userId);
+	if (!user) throw new UserCongregationActivityError('USER_NOT_FOUND');
+
+	const membership = user.profile.congregation;
+	const congregationId = membership?.id;
 
 	if (!congregationId) {
 		throw new UserCongregationActivityError('CONGREGATION_NOT_ASSIGNED');
@@ -47,53 +69,57 @@ const getUserCongregation = (userId: string) => {
 		throw new UserCongregationActivityError('CONGREGATION_NOT_FOUND');
 	}
 
-	return { user, congregation };
+	return { user, congregation, membership };
 };
 
 export const getUserAuxiliaryApplications = (userId: string) => {
-	const { user, congregation } = getUserCongregation(userId);
-	const personId = user.profile.congregation!.user_local_uid;
+	const { congregation, membership } = getUserCongregation(userId);
+	const personId = membership.user_local_uid;
 
 	return congregation.ap_applications.filter((application) => application.person_uid === personId);
 };
 
-export const submitUserAuxiliaryApplication = (
+export const submitUserAuxiliaryApplication = async (
 	userId: string,
 	applicationForm: StandardRecord,
-) => {
-	const { user, congregation } = getUserCongregation(userId);
+	operations: Partial<UserCongregationSubmissionOperations> = {},
+): Promise<void> => {
+	const submission = { ...defaultSubmissionOperations, ...operations };
+	const { congregation, membership } = getUserCongregation(userId);
 	const application = {
-		request_id: crypto.randomUUID().toUpperCase(),
-		person_uid: user.profile.congregation!.user_local_uid,
+		request_id: submission.createRequestId(),
+		person_uid: membership.user_local_uid,
 		months: applicationForm.months,
 		continuous: applicationForm.continuous,
 		submitted: applicationForm.submitted,
-		updatedAt: new Date().toISOString(),
+		updatedAt: submission.getCurrentTimestamp(),
 		expired: null,
 	};
 
-	void saveCongregationApplication(congregation, application);
+	await submission.saveApplication(congregation, application);
 };
 
-export const submitUserFieldServiceReport = (
+export const submitUserFieldServiceReport = async (
 	userId: string,
 	report: StandardRecord,
-) => {
+	operations: Pick<Partial<UserCongregationSubmissionOperations>, 'saveIncomingReports'> = {},
+): Promise<void> => {
 	const { congregation } = getUserCongregation(userId);
-	void saveIncomingFieldServiceReport(congregation, report);
+	await saveIncomingFieldServiceReport(congregation, report, operations);
 };
 
 const saveIncomingFieldServiceReport = async (
 	congregation: ReturnType<typeof getUserCongregation>['congregation'],
 	report: StandardRecord,
+	operations: Pick<Partial<UserCongregationSubmissionOperations>, 'saveIncomingReports'> = {},
 ): Promise<void> => {
+	const { saveIncomingReports } = { ...defaultSubmissionOperations, ...operations };
 	const incomingReports = mergeIncomingFieldServiceReport(
 		congregation.incoming_reports,
 		report,
 	);
 
-	congregation.incoming_reports = incomingReports;
-	await saveCongregationIncomingReports(congregation, incomingReports);
+	await saveIncomingReports(congregation, incomingReports);
 };
 
 export const mergeIncomingFieldServiceReport = (
@@ -126,10 +152,10 @@ export const updateUserCongregationPersonData = async (
 	timeAway: string,
 	emergencyContacts: string,
 ): Promise<void> => {
-	const { user, congregation } = getUserCongregation(userId);
+	const { congregation, membership } = getUserCongregation(userId);
 	const persons = await getCongregationPersons(congregation.id);
 	const person = persons.find((record) => {
-		return record.person_uid === user.profile.congregation!.user_local_uid;
+		return record.person_uid === membership.user_local_uid;
 	});
 
 	if (!person) return;
@@ -144,8 +170,8 @@ export const updateUserCongregationPersonData = async (
 export const getUserCongregationUpdates = async (
 	userId: string,
 ): Promise<CongregationUpdatesType> => {
-	const { user, congregation } = getUserCongregation(userId);
-	const roles = user.profile.congregation!.cong_role;
+	const { congregation, membership } = getUserCongregation(userId);
+	const roles = membership.cong_role;
 	const isAdmin = roles.includes('admin');
 	const isSecretary = roles.includes('secretary');
 	const isElder = roles.includes('elder');
@@ -218,7 +244,9 @@ export const requestCongregationMembership = async (
 	userId: string,
 	request: JoinCongregationRequest,
 ): Promise<'request_sent' | 'already_member'> => {
-	const user = UsersList.findById(userId)!;
+	const user = UsersList.findById(userId);
+	if (!user) throw new UserCongregationActivityError('USER_NOT_FOUND');
+
 	const congregation = CongregationsList.findByCountryAndName(
 		request.countryCode,
 		request.congregationName,

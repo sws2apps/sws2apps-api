@@ -54,21 +54,21 @@ const getAuthorizedPocketUser = (userId: string) => {
 	return { user, congregation };
 };
 
-export const submitPocketReport = (
+export const submitPocketReport = async (
 	userId: string,
 	report: StandardRecord,
 	submitReport: typeof submitUserFieldServiceReport = submitUserFieldServiceReport,
-) => {
+): Promise<void> => {
 	getAuthorizedPocketUser(userId);
-	submitReport(userId, report);
+	await submitReport(userId, report);
 };
 
 export const getPocketApplications = (userId: string) => {
 	return getUserAuxiliaryApplications(userId);
 };
 
-export const submitPocketApplication = (userId: string, form: StandardRecord) => {
-	submitUserAuxiliaryApplication(userId, form);
+export const submitPocketApplication = async (userId: string, form: StandardRecord) => {
+	await submitUserAuxiliaryApplication(userId, form);
 };
 
 export const deletePocketAccount = async (userId: string) => {

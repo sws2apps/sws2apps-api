@@ -11,14 +11,14 @@ import { User } from '#modules/users/user.js';
 import { UsersList } from '#modules/users/users.js';
 
 describe('Pocket user service', () => {
-	it('rejects a report when the user has no congregation', () => {
+	it('rejects a report when the user has no congregation', async () => {
 		const originalUsers = UsersList.list;
 		const user = new User('user-1');
 		UsersList.list = [user];
 
 		try {
-			assert.throws(
-				() => submitPocketReport(user.id, { report_month: '2026/08' }),
+			await assert.rejects(
+				submitPocketReport(user.id, { report_month: '2026/08' }),
 				(error: unknown) =>
 					error instanceof PocketUserError && error.code === 'CONGREGATION_NOT_FOUND',
 			);
@@ -27,7 +27,7 @@ describe('Pocket user service', () => {
 		}
 	});
 
-	it('submits a report for a user assigned to an existing congregation', () => {
+	it('submits a report for a user assigned to an existing congregation', async () => {
 		const originalUsers = UsersList.list;
 		const originalCongregations = CongregationsList.list;
 		const user = new User('user-1');
@@ -43,12 +43,38 @@ describe('Pocket user service', () => {
 		let submittedReport;
 
 		try {
-			submitPocketReport(user.id, report, (userId, submittedData) => {
+			await submitPocketReport(user.id, report, async (userId, submittedData) => {
 				assert.equal(userId, user.id);
 				submittedReport = submittedData;
 			});
 
 			assert.equal(submittedReport, report);
+		} finally {
+			UsersList.list = originalUsers;
+			CongregationsList.list = originalCongregations;
+		}
+	});
+
+	it('propagates report persistence failures', async () => {
+		const originalUsers = UsersList.list;
+		const originalCongregations = CongregationsList.list;
+		const user = new User('user-1');
+		const congregation = new Congregation('congregation-1');
+		user.profile.congregation = {
+			id: congregation.id,
+			cong_role: ['publisher'],
+			account_type: 'pocket',
+		};
+		UsersList.list = [user];
+		CongregationsList.list = [congregation];
+
+		try {
+			await assert.rejects(
+				submitPocketReport(user.id, {}, async () => {
+					throw new Error('storage unavailable');
+				}),
+				/storage unavailable/,
+			);
 		} finally {
 			UsersList.list = originalUsers;
 			CongregationsList.list = originalCongregations;

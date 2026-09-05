@@ -17,6 +17,10 @@ const handleUserCongregationActivityError = (
 	res: Response,
 ): boolean => {
 	if (!(error instanceof UserCongregationActivityError)) return false;
+	if (error.code === 'USER_NOT_FOUND') {
+		sendClientError(res, 404, 'ACCOUNT_NOT_FOUND', 'user account does not exist');
+		return true;
+	}
 
 	if (error.code === 'CONGREGATION_NOT_ASSIGNED') {
 		sendClientError(res, 400, 'CONG_NOT_ASSIGNED', 'user does not have an assigned congregation');
@@ -46,7 +50,7 @@ export const submitAuxiliaryApplication = async (req: Request, res: Response) =>
 	const { id } = req.params;
 
 	try {
-		submitUserAuxiliaryApplication(id, req.body.application as StandardRecord);
+		await submitUserAuxiliaryApplication(id, req.body.application as StandardRecord);
 	} catch (error) {
 		if (!handleUserCongregationActivityError(error, res)) throw error;
 		return;
@@ -59,7 +63,7 @@ export const postUserReport = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	try {
-		submitUserFieldServiceReport(id, req.body.report as StandardRecord);
+		await submitUserFieldServiceReport(id, req.body.report as StandardRecord);
 	} catch (error) {
 		if (!handleUserCongregationActivityError(error, res)) throw error;
 		return;
@@ -77,6 +81,10 @@ export const getUserUpdates = async (req: Request, res: Response) => {
 		result = await getUserCongregationUpdates(id);
 	} catch (error) {
 		if (!(error instanceof UserCongregationActivityError)) throw error;
+		if (error.code === 'USER_NOT_FOUND') {
+			handleUserCongregationActivityError(error, res);
+			return;
+		}
 
 		const congregationNotAssigned = error.code === 'CONGREGATION_NOT_ASSIGNED';
 		const logMessage = congregationNotAssigned
@@ -100,6 +108,10 @@ export const userPostFeedback = async (req: Request, res: Response) => {
 		submitUserFeedback(id, subject as string, message as string);
 	} catch (error) {
 		if (!(error instanceof UserCongregationActivityError)) throw error;
+		if (error.code === 'USER_NOT_FOUND') {
+			handleUserCongregationActivityError(error, res);
+			return;
+		}
 
 		const congregationNotAssigned = error.code === 'CONGREGATION_NOT_ASSIGNED';
 		const logMessage = congregationNotAssigned
@@ -118,12 +130,19 @@ export const userPostFeedback = async (req: Request, res: Response) => {
 export const joinCongregation = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	const outcome = await requestCongregationMembership(id, {
-		countryCode: req.body.country_code as string,
-		congregationName: req.body.cong_name as string,
-		firstname: req.body.firstname as string,
-		lastname: (req.body.lastname || '') as string,
-	});
+	let outcome;
+
+	try {
+		outcome = await requestCongregationMembership(id, {
+			countryCode: req.body.country_code as string,
+			congregationName: req.body.cong_name as string,
+			firstname: req.body.firstname as string,
+			lastname: (req.body.lastname || '') as string,
+		});
+	} catch (error) {
+		if (!handleUserCongregationActivityError(error, res)) throw error;
+		return;
+	}
 
 	if (outcome === 'already_member') {
 		sendClientError(res, 400, 'ALREADY_MEMBER', `user already member of the congregation`);
