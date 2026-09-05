@@ -7,8 +7,15 @@ permissions:
   contents: read
 
 jobs:
+  verify:
+    name: Verify production candidate
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
   deploy:
     name: Deploy API to Production
+    needs: verify
     if: ${{ github.repository == 'sws2apps/sws2apps-api' && github.ref == 'refs/heads/main' }}
     environment:
       name: Prod.env
@@ -19,22 +26,19 @@ jobs:
       id-token: write
 
     steps:
-      - name: Install Koyeb CLI
-        run: |
-          curl -fsSL https://raw.githubusercontent.com/koyeb/koyeb-cli/master/install.sh | sh
-
       - name: Checkout for release preparation
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: main
           persist-credentials: false
 
-      - name: Use Node.js LTS version
+      - name: Use the project Node.js version
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
-          node-version: lts/Krypton
+          node-version-file: package.json
+          cache: npm
 
-      - name: Install dependencies
+      - name: Install dependencies from the lockfile
         run: npm ci
 
       - name: Semantic Release
@@ -43,7 +47,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npx semantic-release
 
-      - name: Deploy API to Koeyb
+      - name: Install Koyeb CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/koyeb/koyeb-cli/master/install.sh | sh
+
+      - name: Deploy API to Koyeb
         env:
           KOEYB_SERVICE_NAME: ${{ vars.KOEYB_SERVICE_NAME }}
           KOEYB_API_TOKEN: ${{ secrets.KOEYB_API_TOKEN }}
