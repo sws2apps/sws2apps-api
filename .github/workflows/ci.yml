@@ -34,7 +34,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies from the lockfile
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Build TypeScript
         run: npm run build
@@ -73,7 +73,7 @@ jobs:
           java-version: '21'
 
       - name: Install dependencies from the lockfile
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Prepare Firebase Storage rules
         run: cp storage.rules.example storage.rules
