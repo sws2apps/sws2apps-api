@@ -94,6 +94,17 @@ describe('OpenAPI contract', () => {
 			'/admin/users/{id}/revoke-token': 'get',
 			'/admin/users/{id}/sessions': 'delete',
 			'/congregations': 'put',
+			'/congregations/admin/{id}/access-code': ['get', 'post'],
+			'/congregations/admin/{id}/erase': 'delete',
+			'/congregations/admin/{id}/join-requests': ['delete', 'patch'],
+			'/congregations/admin/{id}/local-uid': 'post',
+			'/congregations/admin/{id}/master-key': ['get', 'post'],
+			'/congregations/admin/{id}/pocket-user': 'post',
+			'/congregations/admin/{id}/pocket-user/{user}': 'delete',
+			'/congregations/admin/{id}/users': ['get', 'post'],
+			'/congregations/admin/{id}/users/global': 'get',
+			'/congregations/admin/{id}/users/{user}': ['delete', 'patch'],
+			'/congregations/admin/{id}/users/{user}/sessions': 'delete',
 			'/congregations/countries': 'get',
 			'/congregations/meeting/{id}/schedules': ['get', 'post'],
 			'/congregations/meeting/{id}/visiting-speakers/access': 'get',
@@ -245,6 +256,26 @@ describe('OpenAPI contract', () => {
 					operation.security,
 					[{ bearerAuth: [], visitorCookie: [] }],
 					`${method.toUpperCase()} ${documentedPath} must require the complete administrator session`,
+				);
+			}
+		}
+	});
+
+	it('requires both credentials for every congregation administration operation', async () => {
+		const contract = await loadContract();
+		const administrationPaths = Object.entries(contract.paths ?? {}).filter(([documentedPath]) => {
+			return documentedPath.startsWith('/congregations/admin/');
+		});
+
+		assert.ok(administrationPaths.length > 0);
+
+		for (const [documentedPath, pathItem] of administrationPaths) {
+			for (const method of getDocumentedMethods(pathItem)) {
+				const operation = pathItem[method];
+				assert.deepEqual(
+					operation.security,
+					[{ bearerAuth: [], visitorCookie: [] }],
+					`${method.toUpperCase()} ${documentedPath} must require the complete congregation administrator session`,
 				);
 			}
 		}

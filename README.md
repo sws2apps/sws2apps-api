@@ -36,8 +36,8 @@ public HTTP interface. It currently covers public access, authentication, MFA, a
 all authenticated user account, congregation activity, and backup workflows. The
 congregation directory, application processing, meeting schedules, and visiting
 speaker workflows are also covered, along with invitation-based Pocket accounts,
-their cookie-authenticated workflows, and global administration. Remaining feature
-routes are added in independently verifiable groups.
+their cookie-authenticated workflows, global administration, and congregation
+administration. Remaining feature routes are added in independently verifiable groups.
 
 ## API architecture
 
