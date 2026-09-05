@@ -1,52 +1,60 @@
 # API architecture
 
-## Migration goals
+## Current structure
 
-The API is being migrated from a layer-oriented `src/v3` tree to feature modules.
-The migration must preserve routes, payloads, status codes, cookies, authentication
-behavior, and Firebase data formats.
+The feature-oriented migration from the former `src/v3` tree is complete. Version 3
+keeps its existing HTTP and persistence contracts while application code is grouped
+by business capability.
 
-The target layout is:
+The source layout is:
 
 ```text
 src/
-  main.ts
   app.ts
+  index.ts
+  bootstrap/
   config/
+  domain/
   http/
-    errors/
     middleware/
-    responses/
+    security/
   modules/
+    administration/
     auth/
-    users/
+    backups/
+    congregation-administration/
     congregations/
-    meetings/
-    pockets/
     feature-flags/
     installations/
-    administration/
+    meetings/
+    mfa/
+    pockets/
+    public-api/
+    users/
   platform/
-    authentication/
-    database/
+    congregation-directory/
+    countries/
     email/
     encryption/
-    external-api/
+    firebase/
+    localization/
     logging/
-    storage/
-  shared/
-    constants/
-    types/
-    utilities/
+    runtime/
+    security/
+    visitor-details/
+  types/
 ```
 
 ## Dependency rules
 
-Feature modules expose a small public API and own their routes, controllers,
-services, repositories, schemas, and types. Dependencies point inward from HTTP and
-platform concerns toward business services. A feature must not import another
-feature's controller or repository; cross-feature behavior goes through an exported
-service contract.
+Feature modules expose business contracts through `index.ts` and HTTP routers through
+`routes.ts`. They own their controllers, services, repositories, validation, and
+types. A feature must not import another feature's controller or repository;
+cross-feature behavior goes through an exported service contract.
+
+Application imports use the native Node.js subpath aliases `#config`, `#domain`,
+`#http`, `#modules`, and `#platform`. Relative imports are reserved for files inside
+the same architectural boundary.
 
 Express objects end at the controller boundary. Firebase objects end at repository
 or platform boundaries. This makes business behavior independently testable and
@@ -56,15 +64,13 @@ ESLint enforces established boundaries: controllers cannot import repositories,
 Firebase packages, or platform adapters; services cannot import Express; and cache
 models cannot import services, repositories, or platform adapters.
 
-## Migration process
+## Change process
 
-1. Add shared configuration, HTTP, observability, and test foundations.
-2. Characterize the behavior of a route group before changing it.
-3. Refine one feature at a time without changing its external contract.
-4. Keep direct Firebase calls inside repository and platform boundaries.
-5. Remove transitional code only after build, lint, and behavior checks pass.
-
-Structural and behavioral changes should be separate commits whenever practical.
+1. Characterize existing behavior before changing a public workflow.
+2. Keep direct Firebase calls inside repository and platform boundaries.
+3. Add focused tests for changed behavior.
+4. Run build, lint, and the full test suite before committing.
+5. Keep structural and behavioral changes separate whenever practical.
 
 ## API compatibility
 

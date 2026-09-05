@@ -58,8 +58,9 @@ Source imports use the native Node.js subpath aliases defined in `package.json`:
 - `#modules/*` for feature-module public APIs.
 - `#platform/*` for external-system adapters.
 
-Import a feature through its module `index.ts` rather than reaching into its
-internal files from another module.
+Import feature business contracts through the module's `index.ts` rather than
+reaching into internal files. HTTP composition imports the module router through its
+dedicated `routes.ts` entrypoint.
 
 ## Module map
 

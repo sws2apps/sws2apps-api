@@ -20,8 +20,9 @@ Code follows this dependency direction:
   third-party APIs.
 - Shared code must be domain-neutral. Do not use `shared` as a miscellaneous folder.
 
-Feature modules expose their supported public API through `src/modules/<feature>/index.ts`.
-Cross-module consumers must import from that entrypoint rather than reaching into a
+Feature modules expose business contracts through `src/modules/<feature>/index.ts`
+and their HTTP router through `src/modules/<feature>/routes.ts`. Cross-module
+consumers must use the appropriate public entrypoint rather than reaching into a
 module's internal files.
 
 Use the native Node.js subpath imports configured in `package.json`:

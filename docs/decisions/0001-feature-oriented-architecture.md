@@ -3,6 +3,11 @@
 - Status: Accepted
 - Date: 2026-08-28
 
+## Implementation status
+
+Completed on 2026-09-05. The legacy `src/v3` tree has been removed, and the feature
+modules and dependency boundaries described by this decision are now established.
+
 ## Context
 
 The current API groups most code by technical role. As the API grows, a single
@@ -21,5 +26,6 @@ Migrate incrementally while keeping `/api/v3` compatible.
 ## Consequences
 
 Feature behavior becomes easier to locate, review, test, and describe to automated
-tools. Dependency rules become explicit. During migration, the old and new layouts
-will coexist and require discipline to prevent new dependencies on legacy internals.
+tools. Dependency rules become explicit. During implementation, the old and new
+layouts temporarily coexisted and required discipline to prevent new dependencies
+on legacy internals.
