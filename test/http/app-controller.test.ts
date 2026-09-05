@@ -53,34 +53,45 @@ describe('application HTTP handlers', () => {
 
 	it('does not expose an unexpected internal error', () => {
 		const { response, state } = createResponse();
-		const originalConsoleError = console.error;
-		console.error = () => undefined;
 
-		try {
-			errorHandler(new Error('sensitive detail') as never, request, response, () => undefined);
-		} finally {
-			console.error = originalConsoleError;
-		}
+		errorHandler(new Error('sensitive detail'), request, response, () => undefined);
 
 		assert.equal(state.statusCode, 500);
 		assert.deepEqual(state.body, { message: 'error_api_internal-error' });
 	});
 
+	it('handles non-Error values without failing again', () => {
+		for (const thrownValue of [null, 'unexpected failure', { reason: 'unknown' }]) {
+			const { response, state } = createResponse();
+
+			errorHandler(thrownValue, request, response, () => undefined);
+
+			assert.equal(state.statusCode, 500);
+			assert.deepEqual(state.body, { message: 'error_api_internal-error' });
+		}
+	});
+
 	it('preserves the existing normalized Firebase error code', () => {
 		const { response, state } = createResponse();
-		const originalConsoleError = console.error;
-		console.error = () => undefined;
 		const error = Object.assign(new Error('authentication failed'), {
 			errorInfo: { code: 'auth/id-token-expired' },
 		});
 
-		try {
-			errorHandler(error as never, request, response, () => undefined);
-		} finally {
-			console.error = originalConsoleError;
-		}
+		errorHandler(error, request, response, () => undefined);
 
 		assert.equal(state.statusCode, 500);
 		assert.deepEqual(state.body, { message: 'error_auth_id-token-expired' });
+	});
+
+	it('does not reflect malformed provider error codes', () => {
+		const { response, state } = createResponse();
+		const error = {
+			errorInfo: { code: 'auth/private/detail/that-should-not-be-public' },
+		};
+
+		errorHandler(error, request, response, () => undefined);
+
+		assert.equal(state.statusCode, 500);
+		assert.deepEqual(state.body, { message: 'error_api_internal-error' });
 	});
 });

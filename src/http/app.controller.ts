@@ -2,10 +2,24 @@ import { NextFunction, Request, Response } from 'express';
 import { sendClientError, sendServerError, sendSuccess } from '#http/responses.js';
 import { applicationVersion } from '#config/application.js';
 
-type ApiError = Error & {
-	errorInfo?: {
-		code?: string;
-	};
+const firebaseErrorCodePattern = /^[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*$/;
+
+const getFirebaseErrorCode = (error: unknown) => {
+	if (typeof error !== 'object' || error === null || !('errorInfo' in error)) {
+		return undefined;
+	}
+
+	const errorInfo = error.errorInfo;
+	if (typeof errorInfo !== 'object' || errorInfo === null || !('code' in errorInfo)) {
+		return undefined;
+	}
+
+	const errorCode = errorInfo.code;
+	if (typeof errorCode !== 'string' || !firebaseErrorCodePattern.test(errorCode)) {
+		return undefined;
+	}
+
+	return errorCode;
 };
 
 export const getRoot = async (_request: Request, response: Response) => {
@@ -18,10 +32,10 @@ export const invalidEndpointHandler = async (_request: Request, response: Respon
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const errorHandler = (error: unknown, _request: Request, response: Response, _next: NextFunction) => {
-	const apiError = error as ApiError;
+	const firebaseErrorCode = getFirebaseErrorCode(error);
 
-	if (apiError.errorInfo?.code) {
-		const publicErrorCode = apiError.errorInfo.code.replace('/', '_');
+	if (firebaseErrorCode) {
+		const publicErrorCode = firebaseErrorCode.replace('/', '_');
 
 		sendServerError(response, `error_${publicErrorCode}`, 'request failed with an internal error');
 		return;
