@@ -71,9 +71,20 @@ describe('OpenAPI contract', () => {
 		assert.equal(contract.servers?.[0]?.url, '/api/v3');
 	});
 
-	it('documents the public and authentication foundation', async () => {
+	it('documents every completed contract group', async () => {
 		const contract = await loadContract();
 		const expectedOperations = {
+			'/congregations': 'put',
+			'/congregations/countries': 'get',
+			'/congregations/meeting/{id}/schedules': ['get', 'post'],
+			'/congregations/meeting/{id}/visiting-speakers/access': 'get',
+			'/congregations/meeting/{id}/visiting-speakers/congregations': 'get',
+			'/congregations/meeting/{id}/visiting-speakers/pending-access': 'get',
+			'/congregations/meeting/{id}/visiting-speakers/request': 'post',
+			'/congregations/meeting/{id}/visiting-speakers/request/approve': 'post',
+			'/congregations/meeting/{id}/visiting-speakers/request/reject': 'post',
+			'/congregations/search': 'get',
+			'/congregations/{id}/applications/{request}': ['delete', 'patch'],
 			'/mfa/verify-token': 'post',
 			'/public/feature-flags': 'get',
 			'/public/stats': 'get',
@@ -133,6 +144,19 @@ describe('OpenAPI contract', () => {
 	it('requires both credentials for authenticated account operations', async () => {
 		const contract = await loadContract();
 		const authenticatedOperations = [
+			['/congregations', 'put'],
+			['/congregations/countries', 'get'],
+			['/congregations/meeting/{id}/schedules', 'get'],
+			['/congregations/meeting/{id}/schedules', 'post'],
+			['/congregations/meeting/{id}/visiting-speakers/access', 'get'],
+			['/congregations/meeting/{id}/visiting-speakers/congregations', 'get'],
+			['/congregations/meeting/{id}/visiting-speakers/pending-access', 'get'],
+			['/congregations/meeting/{id}/visiting-speakers/request', 'post'],
+			['/congregations/meeting/{id}/visiting-speakers/request/approve', 'post'],
+			['/congregations/meeting/{id}/visiting-speakers/request/reject', 'post'],
+			['/congregations/search', 'get'],
+			['/congregations/{id}/applications/{request}', 'delete'],
+			['/congregations/{id}/applications/{request}', 'patch'],
 			['/mfa/verify-token', 'post'],
 			['/users/logout', 'get'],
 			['/users/validate-me', 'get'],

@@ -31,6 +31,22 @@
     {
       "name": "User backups",
       "description": "Role-filtered synchronization and backup uploads."
+    },
+    {
+      "name": "Congregations",
+      "description": "Congregation directory discovery and verified creation."
+    },
+    {
+      "name": "Congregation applications",
+      "description": "Authorized processing of congregation auxiliary applications."
+    },
+    {
+      "name": "Meetings",
+      "description": "Meeting source and schedule publication."
+    },
+    {
+      "name": "Visiting speakers",
+      "description": "Congregation speaker-directory access workflows."
     }
   ],
   "paths": {
@@ -1145,6 +1161,513 @@
           "503": { "$ref": "#/components/responses/ServerNotReady" }
         }
       }
+    },
+    "/congregations/countries": {
+      "get": {
+        "operationId": "getAvailableCountries",
+        "summary": "List available countries",
+        "tags": ["Congregations"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" },
+          {
+            "name": "language",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "default": "E" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Countries available in the congregation directory.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Country" } }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/AuthenticatedRequestForbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/DirectoryFetchFailed" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" },
+          "default": { "$ref": "#/components/responses/DirectoryFetchFailed" }
+        }
+      }
+    },
+    "/congregations/search": {
+      "get": {
+        "operationId": "searchCongregationDirectory",
+        "summary": "Search the congregation directory",
+        "tags": ["Congregations"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" },
+          {
+            "name": "country",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "minLength": 1 }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "minLength": 2 }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "default": "E" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching directory congregations.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CongregationDirectoryRecord" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/AuthenticatedRequestForbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/DirectoryFetchFailed" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" },
+          "default": { "$ref": "#/components/responses/DirectoryFetchFailed" }
+        }
+      }
+    },
+    "/congregations": {
+      "put": {
+        "operationId": "createCongregation",
+        "summary": "Create a verified congregation",
+        "tags": ["Congregations"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" },
+          {
+            "name": "language",
+            "in": "header",
+            "required": false,
+            "schema": { "type": "string", "default": "eng" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CongregationCreationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The verified congregation was created and assigned to the user.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CongregationCreationResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/CongregationCreationRejected" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/AuthenticatedRequestForbidden" },
+          "404": { "$ref": "#/components/responses/CongregationCreationRejected" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/CongregationCreationRejected" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" },
+          "default": { "$ref": "#/components/responses/CongregationCreationRejected" }
+        }
+      }
+    },
+    "/congregations/{id}/applications/{request}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/CongregationIdPath" },
+        { "$ref": "#/components/parameters/ApplicationRequestIdPath" }
+      ],
+      "patch": {
+        "operationId": "updateCongregationApplication",
+        "summary": "Update an auxiliary application decision",
+        "tags": ["Congregation applications"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["application"],
+                "properties": {
+                  "application": { "$ref": "#/components/schemas/AuxiliaryApplication" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated congregation application list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/AuxiliaryApplication" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/CongregationAccessForbidden" },
+          "404": { "$ref": "#/components/responses/CongregationNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      },
+      "delete": {
+        "operationId": "deleteCongregationApplication",
+        "summary": "Delete an auxiliary application",
+        "tags": ["Congregation applications"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "responses": {
+          "200": {
+            "description": "The remaining congregation application list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/AuxiliaryApplication" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/CongregationAccessForbidden" },
+          "404": { "$ref": "#/components/responses/CongregationNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/congregations/meeting/{id}/schedules": {
+      "parameters": [{ "$ref": "#/components/parameters/CongregationIdPath" }],
+      "get": {
+        "operationId": "getMeetingSchedules",
+        "summary": "Get public meeting sources and schedules",
+        "tags": ["Meetings"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Public sources and schedules.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MeetingScheduleData" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/CongregationAccessForbidden" },
+          "404": { "$ref": "#/components/responses/CongregationNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      },
+      "post": {
+        "operationId": "publishMeetingSchedules",
+        "summary": "Publish meeting schedules",
+        "tags": ["Meetings"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/MeetingSchedulePublication" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The schedules were published.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SuccessMessage" },
+                "example": { "message": "SCHEDULES_PUBLISHED" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/CongregationAccessForbidden" },
+          "404": { "$ref": "#/components/responses/CongregationNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/congregations/meeting/{id}/visiting-speakers/congregations": {
+      "parameters": [{ "$ref": "#/components/parameters/CongregationIdPath" }],
+      "get": {
+        "operationId": "searchVisitingSpeakerCongregations",
+        "summary": "Find congregations sharing visiting speakers",
+        "tags": ["Visiting speakers"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" },
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Discoverable congregations matching the supplied name.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/VisitingSpeakerCongregation" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/CongregationAccessForbidden" },
+          "404": { "$ref": "#/components/responses/CongregationNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/congregations/meeting/{id}/visiting-speakers/access": {
+      "parameters": [{ "$ref": "#/components/parameters/CongregationIdPath" }],
+      "get": {
+        "operationId": "getApprovedVisitingSpeakerAccess",
+        "summary": "Get approved visiting-speaker access",
+        "tags": ["Visiting speakers"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Approved congregation access records.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["congregations"],
+                  "properties": {
+                    "congregations": { "$ref": "#/components/schemas/RecordList" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/CongregationAccessForbidden" },
+          "404": { "$ref": "#/components/responses/CongregationNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/congregations/meeting/{id}/visiting-speakers/request": {
+      "parameters": [{ "$ref": "#/components/parameters/CongregationIdPath" }],
+      "post": {
+        "operationId": "requestVisitingSpeakerAccess",
+        "summary": "Request access to another congregation's speakers",
+        "tags": ["Visiting speakers"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/VisitingSpeakerAccessRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The access request was saved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["cong_id"],
+                  "properties": { "cong_id": { "type": "string" } }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/CongregationAccessForbidden" },
+          "404": { "$ref": "#/components/responses/CongregationNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/congregations/meeting/{id}/visiting-speakers/pending-access": {
+      "parameters": [{ "$ref": "#/components/parameters/CongregationIdPath" }],
+      "get": {
+        "operationId": "getPendingVisitingSpeakerAccess",
+        "summary": "Get pending visiting-speaker requests",
+        "tags": ["Visiting speakers"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pending requests and the keys needed to process them.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PendingVisitingSpeakerAccess" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/CongregationAccessForbidden" },
+          "404": { "$ref": "#/components/responses/CongregationNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/congregations/meeting/{id}/visiting-speakers/request/approve": {
+      "parameters": [{ "$ref": "#/components/parameters/CongregationIdPath" }],
+      "post": {
+        "operationId": "approveVisitingSpeakerAccess",
+        "summary": "Approve a visiting-speaker request",
+        "tags": ["Visiting speakers"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/VisitingSpeakerApprovalRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The remaining pending requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["congregations"],
+                  "properties": { "congregations": { "$ref": "#/components/schemas/RecordList" } }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/CongregationAccessForbidden" },
+          "404": { "$ref": "#/components/responses/MeetingResourceNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/congregations/meeting/{id}/visiting-speakers/request/reject": {
+      "parameters": [{ "$ref": "#/components/parameters/CongregationIdPath" }],
+      "post": {
+        "operationId": "rejectVisitingSpeakerAccess",
+        "summary": "Reject a visiting-speaker request",
+        "tags": ["Visiting speakers"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/VisitingSpeakerDecisionRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The remaining pending requests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["congregations"],
+                  "properties": { "congregations": { "$ref": "#/components/schemas/RecordList" } }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/CongregationAccessForbidden" },
+          "404": { "$ref": "#/components/responses/MeetingResourceNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
     }
   },
   "components": {
@@ -1205,6 +1728,20 @@
           "minLength": 2
         },
         "example": "{\"user_settings\":\"2026-09-05T10:00:00.000Z\"}"
+      },
+      "ApplicationRequestIdPath": {
+        "name": "request",
+        "in": "path",
+        "required": true,
+        "description": "Auxiliary application request identifier.",
+        "schema": { "type": "string", "minLength": 1 }
+      },
+      "CongregationIdPath": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Congregation identifier.",
+        "schema": { "type": "string", "minLength": 1 }
       },
       "InstallationHeader": {
         "name": "installation",
@@ -1414,6 +1951,50 @@
           }
         }
       },
+      "CongregationAccessForbidden": {
+        "description": "The active account is not a member or lacks the required congregation role.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "examples": {
+              "membership": { "value": { "message": "error_api_unauthorized-request" } },
+              "role": { "value": { "message": "UNAUTHORIZED_ACCESS" } },
+              "session": { "value": { "message": "SESSION_REVOKED" } }
+            }
+          }
+        }
+      },
+      "CongregationCreationRejected": {
+        "description": "The congregation could not be validated or already exists.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "examples": {
+              "invalid": { "value": { "message": "BAD_REQUEST" } },
+              "existing": { "value": { "message": "CONG_EXISTS" } },
+              "directory": { "value": { "message": "REQUEST_NOT_VALIDATED" } }
+            }
+          }
+        }
+      },
+      "CongregationNotFound": {
+        "description": "The congregation does not exist.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "message": "error_app_congregation_not-found" }
+          }
+        }
+      },
+      "DirectoryFetchFailed": {
+        "description": "The external congregation directory request failed.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "message": "FETCH_FAILED" }
+          }
+        }
+      },
       "InternalError": {
         "description": "The request could not be completed because of an internal failure.",
         "content": {
@@ -1449,6 +2030,18 @@
             },
             "example": {
               "message": "LOGIN_FIRST"
+            }
+          }
+        }
+      },
+      "MeetingResourceNotFound": {
+        "description": "The congregation or visiting-speaker access request does not exist.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "examples": {
+              "congregation": { "value": { "message": "error_app_congregation_not-found" } },
+              "request": { "value": { "message": "error_app_speaker-access-request-not-found" } }
             }
           }
         }
@@ -1618,6 +2211,84 @@
         },
         "additionalProperties": false
       },
+      "CongregationCreationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["country_code", "country_guid", "cong_name", "firstname", "lastname"],
+        "properties": {
+          "country_code": { "type": "string", "minLength": 1 },
+          "country_guid": { "type": "string", "minLength": 1 },
+          "cong_name": { "type": "string", "minLength": 1 },
+          "firstname": { "type": "string", "minLength": 1 },
+          "lastname": { "type": "string" }
+        }
+      },
+      "CongregationCreationResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["user_id", "cong_id", "firstname", "lastname", "cong_settings"],
+        "properties": {
+          "user_id": { "type": "string" },
+          "cong_id": { "type": "string" },
+          "firstname": { "type": "string" },
+          "lastname": { "type": "string" },
+          "cong_settings": {
+            "type": "object",
+            "description": "The complete version 3 congregation settings record.",
+            "additionalProperties": true
+          }
+        }
+      },
+      "CongregationDirectoryRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "congName",
+          "congGuid",
+          "address",
+          "location",
+          "midweekMeetingTime",
+          "weekendMeetingTime",
+          "circuit"
+        ],
+        "properties": {
+          "congName": { "type": "string" },
+          "congGuid": { "type": "string" },
+          "address": { "type": "string" },
+          "location": { "$ref": "#/components/schemas/Coordinates" },
+          "midweekMeetingTime": { "$ref": "#/components/schemas/DirectoryMeetingTime" },
+          "weekendMeetingTime": { "$ref": "#/components/schemas/DirectoryMeetingTime" },
+          "circuit": { "type": "string" }
+        }
+      },
+      "Coordinates": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["lat", "lng"],
+        "properties": {
+          "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+          "lng": { "type": "number", "minimum": -180, "maximum": 180 }
+        }
+      },
+      "Country": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["countryGuid", "countryCode", "countryName"],
+        "properties": {
+          "countryGuid": { "type": "string" },
+          "countryCode": { "type": "string" },
+          "countryName": { "type": "string" }
+        }
+      },
+      "DirectoryMeetingTime": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["weekday", "time"],
+        "properties": {
+          "weekday": { "type": "integer", "minimum": 0, "maximum": 6 },
+          "time": { "type": "string" }
+        }
+      },
       "EmailTokenRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -1673,6 +2344,31 @@
           "cong_name": { "type": "string", "minLength": 1 },
           "firstname": { "type": "string", "minLength": 1 },
           "lastname": { "type": "string" }
+        }
+      },
+      "MeetingScheduleData": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sources", "schedules"],
+        "properties": {
+          "sources": { "$ref": "#/components/schemas/RecordList" },
+          "schedules": { "$ref": "#/components/schemas/RecordList" }
+        }
+      },
+      "MeetingSchedulePublication": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sources", "schedules"],
+        "properties": {
+          "sources": {
+            "allOf": [{ "$ref": "#/components/schemas/RecordList" }],
+            "minItems": 1
+          },
+          "schedules": {
+            "allOf": [{ "$ref": "#/components/schemas/RecordList" }],
+            "minItems": 1
+          },
+          "talks": { "$ref": "#/components/schemas/RecordList" }
         }
       },
       "MfaChallenge": {
@@ -1771,6 +2467,16 @@
             }
           }
         ]
+      },
+      "PendingVisitingSpeakerAccess": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["congregations", "cong_master_key"],
+        "properties": {
+          "congregations": { "$ref": "#/components/schemas/RecordList" },
+          "speakers_key": { "type": "string" },
+          "cong_master_key": { "type": "string" }
+        }
       },
       "PublicStats": {
         "type": "object",
@@ -2034,6 +2740,54 @@
         "properties": {
           "subject": { "type": "string", "minLength": 1, "maxLength": 200 },
           "message": { "type": "string", "minLength": 1, "maxLength": 5000 }
+        }
+      },
+      "VisitingSpeakerAccessRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["cong_id", "request_id", "key"],
+        "properties": {
+          "cong_id": { "type": "string", "minLength": 1 },
+          "request_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "key": { "type": "string", "minLength": 1, "maxLength": 4096 }
+        }
+      },
+      "VisitingSpeakerApprovalRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["request_id", "key"],
+        "properties": {
+          "request_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "key": { "type": "string", "minLength": 1, "maxLength": 4096 }
+        }
+      },
+      "VisitingSpeakerDecisionRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["request_id"],
+        "properties": {
+          "request_id": { "type": "string", "minLength": 1, "maxLength": 256 }
+        }
+      },
+      "VisitingSpeakerCongregation": {
+        "type": "object",
+        "required": [
+          "cong_id",
+          "cong_name",
+          "country_code",
+          "cong_location",
+          "cong_circuit",
+          "midweek_meeting",
+          "weekend_meeting"
+        ],
+        "properties": {
+          "cong_id": { "type": "string" },
+          "cong_name": { "type": "string" },
+          "country_code": { "type": "string" },
+          "cong_location": { "type": "object", "additionalProperties": true },
+          "cong_circuit": { "type": "string" },
+          "midweek_meeting": { "type": "object", "additionalProperties": true },
+          "weekend_meeting": { "type": "object", "additionalProperties": true }
         }
       }
     }
