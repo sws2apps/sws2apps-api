@@ -126,7 +126,7 @@ export const savePocketBackupAsync = async (
 		cong_backup: BackupData;
 	},
 	operations: Partial<BackupPersistenceOperations> = {},
-) => {
+): Promise<{ status: 'saved' } | { status: 'failed' }> => {
 	const persistence = {
 		...defaultBackupPersistenceOperations,
 		...operations,
@@ -147,7 +147,9 @@ export const savePocketBackupAsync = async (
 		}
 
 		await persistence.applyUserData(user, congregationBackup, userRole);
+		return { status: 'saved' };
 	} catch {
 		persistence.logError('Pocket backup could not be saved');
+		return { status: 'failed' };
 	}
 };

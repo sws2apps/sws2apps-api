@@ -25,10 +25,12 @@ import {
 import type { StandardRecord } from '../../types/standard-record.js';
 
 export type PocketBackupErrorCode =
+	| 'USER_NOT_FOUND'
 	| 'INVALID_METADATA'
 	| 'CONGREGATION_NOT_FOUND'
 	| 'MEMBERSHIP_REQUIRED'
-	| 'BACKUP_OUTDATED';
+	| 'BACKUP_OUTDATED'
+	| 'PERSISTENCE_FAILED';
 
 export class PocketBackupError extends Error {
 	constructor(public readonly code: PocketBackupErrorCode) {
@@ -47,16 +49,22 @@ export const parsePocketBackupMetadata = (metadataHeader: string): Record<string
 };
 
 export const getPocketBackupContext = (userId: string, metadataHeader: string) => {
-	const user = UsersList.findById(userId)!;
-	const congregationId = user.profile.congregation?.id;
+	const user = UsersList.findById(userId);
+	if (!user) throw new PocketBackupError('USER_NOT_FOUND');
+
+	const membership = user.profile.congregation;
+	const congregationId = membership?.id;
 	const congregation = congregationId ? CongregationsList.findById(congregationId) : undefined;
 
-	if (!congregation) throw new PocketBackupError('CONGREGATION_NOT_FOUND');
+	if (!membership || !congregation) {
+		throw new PocketBackupError('CONGREGATION_NOT_FOUND');
+	}
 	if (!isCongregationMember(congregation, user.id)) throw new PocketBackupError('MEMBERSHIP_REQUIRED');
 
 	return {
 		user,
 		congregation,
+		membership,
 		metadata: parsePocketBackupMetadata(metadataHeader),
 	};
 };
@@ -69,10 +77,13 @@ export const retrievePocketBackup = async (
 	userId: string,
 	metadataHeader: string,
 ): Promise<BackupData> => {
-	const { user, congregation, metadata } = getPocketBackupContext(userId, metadataHeader);
+	const { user, congregation, membership, metadata } = getPocketBackupContext(
+		userId,
+		metadataHeader,
+	);
 	const backup = {} as BackupData;
-	const localUserId = user.profile.congregation!.user_local_uid;
-	const delegatedUserIds = user.profile.congregation!.user_members_delegate;
+	const localUserId = membership.user_local_uid;
+	const delegatedUserIds = membership.user_members_delegate;
 	const visiblePersonIds = delegatedUserIds ? structuredClone(delegatedUserIds) : [];
 
 	if (localUserId && localUserId.length > 0) visiblePersonIds.push(localUserId);
@@ -153,7 +164,14 @@ export const retrievePocketBackup = async (
 	}
 
 	if (congregation.settings.data_sync.value) {
-		await addPrivateBackupChanges(backup, user, congregation, metadata, visiblePersonIds);
+		await addPrivateBackupChanges(
+			backup,
+			user,
+			congregation,
+			metadata,
+			visiblePersonIds,
+			membership.cong_role,
+		);
 	}
 
 	await addPublicBackupChanges(backup, congregation, metadata);
@@ -167,6 +185,7 @@ const addPrivateBackupChanges = async (
 	congregation: PocketCongregation,
 	metadata: Record<string, string>,
 	visiblePersonIds: string[],
+	userRoles: PocketBackupContext['membership']['cong_role'],
 ) => {
 	if (congregation.metadata.persons !== metadata.persons) {
 		const persons = await getCongregationPersons(congregation.id);
@@ -209,7 +228,7 @@ const addPrivateBackupChanges = async (
 		backup.metadata.upcoming_events = congregation.metadata.upcoming_events;
 	}
 
-	if (!user.profile.congregation!.cong_role.includes('publisher')) return;
+	if (!userRoles.includes('publisher')) return;
 
 	if (user.metadata.user_bible_studies !== metadata.user_bible_studies) {
 		backup.user_bible_studies = await getUserStoredBibleStudies(user.id);
@@ -256,21 +275,40 @@ const addPublicBackupChanges = async (
 	}
 };
 
-export const submitPocketBackup = (
+export type PocketBackupSubmissionOperations = {
+	saveBackup: typeof savePocketBackupAsync;
+};
+
+const defaultPocketBackupSubmissionOperations: PocketBackupSubmissionOperations = {
+	saveBackup: (input) => savePocketBackupAsync(input),
+};
+
+export const submitPocketBackup = async (
 	userId: string,
 	metadataHeader: string,
 	congregationBackup: BackupData,
-) => {
-	const { user, congregation, metadata: incomingMetadata } = getPocketBackupContext(userId, metadataHeader);
+	operations: Partial<PocketBackupSubmissionOperations> = {},
+): Promise<void> => {
+	const submission = { ...defaultPocketBackupSubmissionOperations, ...operations };
+	const {
+		user,
+		congregation,
+		membership,
+		metadata: incomingMetadata,
+	} = getPocketBackupContext(userId, metadataHeader);
 	const currentMetadata = { ...congregation.metadata, ...user.metadata };
 
 	if (findBackupMetadataConflict(currentMetadata, incomingMetadata)) {
 		throw new PocketBackupError('BACKUP_OUTDATED');
 	}
 
-	savePocketBackupAsync({
+	const outcome = await submission.saveBackup({
 		userId: user.id,
-		userRole: user.profile.congregation!.cong_role,
+		userRole: membership.cong_role,
 		cong_backup: congregationBackup,
 	});
+
+	if (outcome.status === 'failed') {
+		throw new PocketBackupError('PERSISTENCE_FAILED');
+	}
 };

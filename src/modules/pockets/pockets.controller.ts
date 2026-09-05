@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { sendClientError, sendSuccess } from '#http/responses.js';
+import { sendClientError, sendServerError, sendSuccess } from '#http/responses.js';
 import { getSessionCookieOptions } from '#http/security/session-cookie-options.js';
 import { BackupData } from '#modules/backups/index.js';
 import type { StandardRecord } from '../../types/standard-record.js';
@@ -25,6 +25,11 @@ import {
 
 const handlePocketBackupError = (error: unknown, res: Response): boolean => {
 	if (!(error instanceof PocketBackupError)) return false;
+	if (error.code === 'USER_NOT_FOUND') {
+		res.clearCookie('visitorid');
+		sendClientError(res, 404, 'ACCOUNT_NOT_FOUND', 'Pocket user account does not exist');
+		return true;
+	}
 
 	if (error.code === 'INVALID_METADATA') {
 		sendClientError(res, 400, 'error_api_bad-request', 'invalid backup metadata');
@@ -39,6 +44,11 @@ const handlePocketBackupError = (error: unknown, res: Response): boolean => {
 
 	if (error.code === 'MEMBERSHIP_REQUIRED') {
 		sendClientError(res, 403, 'error_api_unauthorized-request', 'user not authorized to access the provided congregation');
+		return true;
+	}
+
+	if (error.code === 'PERSISTENCE_FAILED') {
+		sendServerError(res, 'error_api_internal-error', 'Pocket backup could not be saved');
 		return true;
 	}
 
@@ -92,7 +102,7 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 
 export const saveUserBackup = async (req: Request, res: Response) => {
 	try {
-		submitPocketBackup(
+		await submitPocketBackup(
 			res.locals.currentUser.id,
 			req.headers.metadata!.toString(),
 			req.body.cong_backup as BackupData,

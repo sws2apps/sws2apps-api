@@ -172,7 +172,7 @@ describe('Pocket backup persistence orchestration', () => {
 		const user = createUser();
 		const operations: string[] = [];
 
-		await savePocketBackupAsync(
+		const outcome = await savePocketBackupAsync(
 			{
 				userId: user.id,
 				userRole: ['publisher'],
@@ -195,12 +195,13 @@ describe('Pocket backup persistence orchestration', () => {
 		);
 
 		assert.deepEqual(operations, ['person', 'user']);
+		assert.deepEqual(outcome, { status: 'saved' });
 	});
 
 	it('contains a missing Pocket user instead of rejecting asynchronously', async () => {
 		const errors: string[] = [];
 
-		await savePocketBackupAsync(
+		const outcome = await savePocketBackupAsync(
 			{
 				userId: 'missing-user',
 				userRole: ['publisher'],
@@ -215,5 +216,6 @@ describe('Pocket backup persistence orchestration', () => {
 		);
 
 		assert.deepEqual(errors, ['Pocket backup could not be saved']);
+		assert.deepEqual(outcome, { status: 'failed' });
 	});
 });
