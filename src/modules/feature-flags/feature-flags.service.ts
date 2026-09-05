@@ -10,13 +10,29 @@ import { saveFeatureFlags } from './feature-flags.repository.js';
 import { Flag } from './flag.js';
 import { Flags } from './flags.js';
 
+export type FeatureFlagWriteOperations = {
+	saveFlags: typeof saveFeatureFlags;
+	createId: () => string;
+};
+
+const defaultWriteOperations: FeatureFlagWriteOperations = {
+	saveFlags: saveFeatureFlags,
+	createId: () => crypto.randomUUID(),
+};
+
+const replaceFlag = (flags: Flag[], updatedFlag: Flag): Flag[] => {
+	return flags.map((flag) => flag.id === updatedFlag.id ? updatedFlag : flag);
+};
+
 export const createFeatureFlag = async (
 	name: string,
 	description: string,
 	availability: FeatureFlag['availability'],
+	operations: Partial<FeatureFlagWriteOperations> = {},
 ): Promise<void> => {
+	const writeOperations = { ...defaultWriteOperations, ...operations };
 	const flag = new Flag({
-		id: crypto.randomUUID(),
+		id: writeOperations.createId(),
 		availability,
 		coverage: 0,
 		description,
@@ -25,8 +41,9 @@ export const createFeatureFlag = async (
 		installations: [],
 	});
 
+	const updatedFlags = [...Flags.list, flag];
+	await writeOperations.saveFlags(updatedFlags);
 	Flags.list.push(flag);
-	await saveFeatureFlags(Flags.list);
 };
 
 export const updateFeatureFlag = async (
@@ -34,25 +51,47 @@ export const updateFeatureFlag = async (
 	name: string,
 	description: string,
 	coverage: number,
+	operations: Partial<FeatureFlagWriteOperations> = {},
 ): Promise<void> => {
-	flag.name = name;
-	flag.description = description;
-	flag.coverage = coverage;
+	const writeOperations = { ...defaultWriteOperations, ...operations };
+	const updatedFlag = new Flag({
+		...flag,
+		name,
+		description,
+		coverage,
+	});
+	const updatedFlags = replaceFlag(Flags.list, updatedFlag);
 
-	await saveFeatureFlags(Flags.list);
+	await writeOperations.saveFlags(updatedFlags);
+	flag.name = updatedFlag.name;
+	flag.description = updatedFlag.description;
+	flag.coverage = updatedFlag.coverage;
 };
 
-export const toggleFeatureFlag = async (flag: Flag): Promise<void> => {
-	flag.status = !flag.status;
-	await saveFeatureFlags(Flags.list);
+export const toggleFeatureFlag = async (
+	flag: Flag,
+	operations: Partial<FeatureFlagWriteOperations> = {},
+): Promise<void> => {
+	const writeOperations = { ...defaultWriteOperations, ...operations };
+	const updatedFlag = new Flag({ ...flag, status: !flag.status });
+	const updatedFlags = replaceFlag(Flags.list, updatedFlag);
+
+	await writeOperations.saveFlags(updatedFlags);
+	flag.status = updatedFlag.status;
 };
 
 export const registerFeatureFlagInstallation = async (
 	flag: Flag,
 	installation: FeatureFlag['installations'][number],
+	operations: Partial<FeatureFlagWriteOperations> = {},
 ): Promise<void> => {
-	flag.installations.push(installation);
-	await saveFeatureFlags(Flags.list);
+	const writeOperations = { ...defaultWriteOperations, ...operations };
+	const installations = [...flag.installations, structuredClone(installation)];
+	const updatedFlag = new Flag({ ...flag, installations });
+	const updatedFlags = replaceFlag(Flags.list, updatedFlag);
+
+	await writeOperations.saveFlags(updatedFlags);
+	flag.installations = installations;
 };
 
 export const deleteFeatureFlag = async (flagId: string): Promise<void> => {
