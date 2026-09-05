@@ -16,6 +16,11 @@ const redactValue = (value: unknown): unknown => {
 	);
 };
 
+/**
+ * Recursively removes known credential and personal-data fields from logging
+ * context. This is a final safety boundary, not permission to log raw request
+ * bodies or arbitrary objects upstream.
+ */
 export const redactLogContext = (context: Context | undefined) => {
 	if (!context) return;
 	return redactValue(context) as Context;

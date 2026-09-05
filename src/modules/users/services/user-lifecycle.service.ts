@@ -32,6 +32,11 @@ const defaultDeleteUserOperations: DeleteUserOperations = {
 	refreshMembers: (congregation) => refreshCongregationMembers(congregation),
 };
 
+/**
+ * Removes persisted application data and the external identity before evicting
+ * the user from the cache. Congregation membership is refreshed only after the
+ * destructive operations succeed.
+ */
 export const deleteUser = async (
 	userId: string,
 	operations: Partial<DeleteUserOperations> = {},

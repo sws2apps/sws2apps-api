@@ -92,6 +92,11 @@ const defaultVerifiedCreationOperations: VerifiedCongregationCreationOperations 
 	getCurrentTimestamp: () => new Date().toISOString(),
 };
 
+/**
+ * Creates and fully hydrates a congregation before publishing it to the
+ * application cache. A hydration failure therefore cannot expose partial
+ * congregation state to concurrent requests.
+ */
 export const createApplicationCongregation = async (
 	data: CongregationCreateInfoType,
 	operations: Partial<ApplicationCongregationCreationOperations> = {},
@@ -110,6 +115,11 @@ export const createApplicationCongregation = async (
 	return congregation;
 };
 
+/**
+ * Verifies a congregation against the external directory, creates it, and
+ * assigns its creator as administrator. Directory failures retain their status
+ * for translation at the HTTP boundary.
+ */
 export const createVerifiedCongregation = async (
 	input: CreateCongregationInput,
 	operations: Partial<VerifiedCongregationCreationOperations> = {},

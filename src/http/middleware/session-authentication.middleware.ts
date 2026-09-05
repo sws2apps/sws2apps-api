@@ -44,6 +44,11 @@ const handleSessionStateError = (error: unknown, response: Response): boolean =>
 	return true;
 };
 
+/**
+ * Requires both a valid Firebase identity token and a matching signed visitor
+ * session. The resolved user is exposed only through `res.locals.currentUser`;
+ * provider errors are translated into stable public account/session states.
+ */
 export const requireAuthenticatedSession = (
 	dependencies: SessionAuthenticationDependencies = defaultDependencies,
 ) => {
@@ -145,6 +150,11 @@ export const requireAuthenticatedSession = (
 	};
 };
 
+/**
+ * Authenticates Pocket clients through their signed visitor cookie. Missing or
+ * stale sessions clear the cookie so a revoked device cannot keep presenting
+ * an invalid credential.
+ */
 export const requirePocketSession = (
 	dependencies: SessionAuthenticationDependencies = defaultDependencies,
 ) => {

@@ -102,6 +102,12 @@ export const discardBackupUpload = (
 	return uploads.delete(uploadId);
 };
 
+/**
+ * Adds one validated chunk to an in-memory upload and returns the assembled
+ * payload only when every chunk is present. Chunk ownership, coordinates,
+ * duplication, byte limits, and concurrent-upload limits are checked before
+ * the tracker is mutated.
+ */
 export const recordBackupUploadChunk = (
 	chunk: BackupUploadChunk,
 	dependencies: BackupUploadTrackerDependencies = {},

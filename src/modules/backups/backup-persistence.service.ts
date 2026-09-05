@@ -56,6 +56,11 @@ const getUserPersonData = (
 	return personData as StandardRecord;
 };
 
+/**
+ * Applies an Organized backup within the authenticated congregation and role
+ * scope. Failures are contained for the asynchronous HTTP workflow, and the
+ * upload buffer is always discarded when an upload identifier is supplied.
+ */
 export const saveUserBackupAsync = async (
 	{
 		congId,
@@ -115,6 +120,10 @@ export const saveUserBackupAsync = async (
 	}
 };
 
+/**
+ * Applies only the Pocket user's permitted backup data. The explicit result
+ * lets the caller report persistence failure without leaking its cause.
+ */
 export const savePocketBackupAsync = async (
 	{
 		cong_backup: congregationBackup,

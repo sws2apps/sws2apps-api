@@ -34,6 +34,10 @@ const resolveLifecycleOperations = (
 	...overrides,
 });
 
+/**
+ * Deletes persisted congregation data before evicting the cached entity. This
+ * ordering keeps the live cache intact if persistence fails.
+ */
 export const deleteCongregation = async (
 	congregationId: string,
 	operations: Partial<CongregationLifecycleOperations> = {},

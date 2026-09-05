@@ -43,6 +43,11 @@ const hydrateCreatedUser = async (
 	return user;
 };
 
+/**
+ * Synchronizes identity data, persists the account, and fully hydrates it
+ * before publication to the application cache. Earlier failures cannot expose
+ * a partially initialized user to concurrent requests.
+ */
 export const createApplicationUser = async (
 	params: UserNewParams,
 	operations: Partial<UserCreationOperations> = {},

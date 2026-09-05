@@ -40,6 +40,11 @@ const defaultCongregationBackupOperations: CongregationBackupOperations = {
 	updateProfile: updateUserProfile,
 };
 
+/**
+ * Restores congregation data according to the caller's capabilities and the
+ * congregation's data-sync setting. Server-owned access credentials are
+ * preserved, and user-role updates are restricted to current members.
+ */
 export const saveCongregationBackup = async (
 	congregation: Congregation,
 	backup: BackupData,
