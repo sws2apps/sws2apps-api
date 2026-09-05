@@ -4,6 +4,7 @@ export const buildMailTransportOptions = (emailAddress: string | undefined, pass
 	const transportOptions: SMTPTransport.Options = {
 		service: 'gmail',
 		secure: true,
+		requireTLS: true,
 		auth: {
 			user: emailAddress,
 			pass: password,
