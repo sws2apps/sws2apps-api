@@ -1,5 +1,9 @@
 import type { OTPSecretType } from './user-secret.js';
-import { generateUserMfaSecret } from './user-secret.js';
+import {
+	generateUserMfaSecret,
+	MfaSecretError,
+	parseUserMfaSecret,
+} from './user-secret.js';
 import {
 	decryptData,
 	encryptData,
@@ -7,38 +11,75 @@ import {
 import type { User } from '#modules/users/index.js';
 import { updateUserProfile, updateUserSessions } from '#modules/users/index.js';
 
-export const ensureUserMfaSecret = async (user: User): Promise<void> => {
+export type UserMfaOperations = {
+	generateSecret: typeof generateUserMfaSecret;
+	encrypt: typeof encryptData;
+	decrypt: typeof decryptData;
+	updateProfile: typeof updateUserProfile;
+	updateSessions: typeof updateUserSessions;
+};
+
+const defaultUserMfaOperations: UserMfaOperations = {
+	generateSecret: generateUserMfaSecret,
+	encrypt: encryptData,
+	decrypt: decryptData,
+	updateProfile: updateUserProfile,
+	updateSessions: updateUserSessions,
+};
+
+export const ensureUserMfaSecret = async (
+	user: User,
+	operations: Partial<UserMfaOperations> = {},
+): Promise<void> => {
 	if (user.profile.secret) return;
+	if (!user.email) throw new MfaSecretError('USER_EMAIL_REQUIRED');
 
-	const secret = generateUserMfaSecret(user.email!);
+	const mfaOperations = { ...defaultUserMfaOperations, ...operations };
+	const secret = mfaOperations.generateSecret(user.email);
 	const profile = structuredClone(user.profile);
-	profile.secret = encryptData(JSON.stringify(secret));
+	profile.secret = mfaOperations.encrypt(JSON.stringify(secret));
 
-	await updateUserProfile(user, profile);
+	await mfaOperations.updateProfile(user, profile);
 };
 
-export const decryptUserMfaSecret = (user: User): OTPSecretType => {
-	const decryptedSecret = decryptData(user.profile.secret!)!;
+export const decryptUserMfaSecret = (
+	user: User,
+	operations: Pick<Partial<UserMfaOperations>, 'decrypt'> = {},
+): OTPSecretType => {
+	if (!user.profile.secret) throw new MfaSecretError('SECRET_MISSING');
 
-	return JSON.parse(decryptedSecret) as OTPSecretType;
+	const { decrypt } = { ...defaultUserMfaOperations, ...operations };
+	return parseUserMfaSecret(decrypt(user.profile.secret));
 };
 
-export const enableUserMfa = async (user: User): Promise<void> => {
+export const enableUserMfa = async (
+	user: User,
+	operations: Pick<Partial<UserMfaOperations>, 'updateProfile'> = {},
+): Promise<void> => {
+	const { updateProfile } = { ...defaultUserMfaOperations, ...operations };
 	const profile = structuredClone(user.profile);
 	profile.mfa_enabled = true;
 
-	await updateUserProfile(user, profile);
+	await updateProfile(user, profile);
 };
 
-export const disableUserMfa = async (user: User): Promise<void> => {
+export const disableUserMfa = async (
+	user: User,
+	operations: Pick<Partial<UserMfaOperations>, 'updateProfile'> = {},
+): Promise<void> => {
+	const { updateProfile } = { ...defaultUserMfaOperations, ...operations };
 	const profile = structuredClone(user.profile);
 	profile.mfa_enabled = false;
 	profile.secret = undefined;
 
-	await updateUserProfile(user, profile);
+	await updateProfile(user, profile);
 };
 
-export const revokeUserMfa = async (user: User): Promise<void> => {
-	await disableUserMfa(user);
-	await updateUserSessions(user, []);
+export const revokeUserMfa = async (
+	user: User,
+	operations: Pick<Partial<UserMfaOperations>, 'updateProfile' | 'updateSessions'> = {},
+): Promise<void> => {
+	const mfaOperations = { ...defaultUserMfaOperations, ...operations };
+	await disableUserMfa(user, mfaOperations);
+	await mfaOperations.updateSessions(user, []);
 };

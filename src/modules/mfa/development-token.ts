@@ -1,13 +1,14 @@
 import * as OTPAuth from 'otpauth';
 
 import { decryptData } from '#platform/encryption/encryption.js';
+import { parseUserMfaSecret } from './user-secret.js';
 
 export const generateDevelopmentMfaToken = (
 	userIdentifier: string,
 	encryptedUserSecret: string,
 ): string => {
-	const decryptedSecret = decryptData(encryptedUserSecret)!;
-	const { secret } = JSON.parse(decryptedSecret);
+	const decryptedSecret = decryptData(encryptedUserSecret);
+	const { secret } = parseUserMfaSecret(decryptedSecret);
 
 	const tokenGenerator = new OTPAuth.TOTP({
 		issuer: 'sws2apps-test',
