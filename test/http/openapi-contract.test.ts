@@ -3,6 +3,8 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 
+import { discoverApiRoutes } from './openapi-route-inventory.js';
+
 type OpenApiOperation = {
 	operationId?: string;
 	parameters?: { $ref?: string }[];
@@ -71,87 +73,19 @@ describe('OpenAPI contract', () => {
 		assert.equal(contract.servers?.[0]?.url, '/api/v3');
 	});
 
-	it('documents every completed contract group', async () => {
+	it('matches every implemented API route and method', async () => {
 		const contract = await loadContract();
-		const expectedOperations = {
-			'/admin': 'get',
-			'/admin/client-version': ['get', 'post'],
-			'/admin/congregations': ['get', 'post'],
-			'/admin/congregations/{id}': ['delete', 'get', 'patch'],
-			'/admin/congregations/{id}/data-sync': 'patch',
-			'/admin/congregations/{id}/feature-flags': 'patch',
-			'/admin/congregations/{id}/requests/{request}': 'delete',
-			'/admin/congregations/{id}/speakers-key': 'delete',
-			'/admin/flags': ['get', 'post'],
-			'/admin/flags/{id}': ['delete', 'patch'],
-			'/admin/flags/{id}/toggle': 'get',
-			'/admin/logout': 'get',
-			'/admin/users': 'get',
-			'/admin/users/{id}': ['delete', 'patch'],
-			'/admin/users/{id}/congregation': ['delete', 'patch'],
-			'/admin/users/{id}/disable-2fa': 'get',
-			'/admin/users/{id}/feature-flags': 'patch',
-			'/admin/users/{id}/revoke-token': 'get',
-			'/admin/users/{id}/sessions': 'delete',
-			'/congregations': 'put',
-			'/congregations/admin/{id}/access-code': ['get', 'post'],
-			'/congregations/admin/{id}/erase': 'delete',
-			'/congregations/admin/{id}/join-requests': ['delete', 'patch'],
-			'/congregations/admin/{id}/local-uid': 'post',
-			'/congregations/admin/{id}/master-key': ['get', 'post'],
-			'/congregations/admin/{id}/pocket-user': 'post',
-			'/congregations/admin/{id}/pocket-user/{user}': 'delete',
-			'/congregations/admin/{id}/users': ['get', 'post'],
-			'/congregations/admin/{id}/users/global': 'get',
-			'/congregations/admin/{id}/users/{user}': ['delete', 'patch'],
-			'/congregations/admin/{id}/users/{user}/sessions': 'delete',
-			'/congregations/countries': 'get',
-			'/congregations/meeting/{id}/schedules': ['get', 'post'],
-			'/congregations/meeting/{id}/visiting-speakers/access': 'get',
-			'/congregations/meeting/{id}/visiting-speakers/congregations': 'get',
-			'/congregations/meeting/{id}/visiting-speakers/pending-access': 'get',
-			'/congregations/meeting/{id}/visiting-speakers/request': 'post',
-			'/congregations/meeting/{id}/visiting-speakers/request/approve': 'post',
-			'/congregations/meeting/{id}/visiting-speakers/request/reject': 'post',
-			'/congregations/search': 'get',
-			'/congregations/{id}/applications/{request}': ['delete', 'patch'],
-			'/mfa/verify-token': 'post',
-			'/pockets/applications': ['get', 'post'],
-			'/pockets/backup': ['get', 'post'],
-			'/pockets/erase': 'delete',
-			'/pockets/field-service-reports': 'post',
-			'/pockets/sessions': ['delete', 'get'],
-			'/pockets/signup': 'post',
-			'/pockets/validate-me': 'get',
-			'/public/feature-flags': 'get',
-			'/public/stats': 'get',
-			'/user-login': 'get',
-			'/user-passwordless-login': 'post',
-			'/user-passwordless-verify': 'post',
-			'/users/logout': 'get',
-			'/users/validate-me': 'get',
-			'/users/{id}/2fa': 'get',
-			'/users/{id}/2fa/disable': 'get',
-			'/users/{id}/applications': ['get', 'post'],
-			'/users/{id}/backup': ['get', 'post'],
-			'/users/{id}/backup/chunked': 'post',
-			'/users/{id}/erase': 'delete',
-			'/users/{id}/feedback': 'post',
-			'/users/{id}/field-service-reports': 'post',
-			'/users/{id}/join-congregation': 'post',
-			'/users/{id}/sessions': ['delete', 'get'],
-			'/users/{id}/updates-routine': 'get',
-			'/verify-email-token': 'post',
-		} satisfies Record<string, string | string[]>;
+		const implementedRoutes = await discoverApiRoutes();
+		const documentedRoutes = Object.fromEntries(
+			Object.entries(contract.paths ?? {})
+				.sort(([leftPath], [rightPath]) => leftPath.localeCompare(rightPath))
+				.map(([documentedPath, pathItem]) => [
+					documentedPath,
+					getDocumentedMethods(pathItem).sort(),
+				]),
+		);
 
-		assert.deepEqual(Object.keys(contract.paths ?? {}).sort(), Object.keys(expectedOperations).sort());
-
-		for (const [documentedPath, expectedMethod] of Object.entries(expectedOperations)) {
-			const pathItem = contract.paths?.[documentedPath];
-			assert.ok(pathItem, `${documentedPath} is missing`);
-			const expectedMethods = Array.isArray(expectedMethod) ? expectedMethod : [expectedMethod];
-			assert.deepEqual(getDocumentedMethods(pathItem).sort(), expectedMethods.sort());
-		}
+		assert.deepEqual(documentedRoutes, implementedRoutes);
 	});
 
 	it('assigns a unique operation ID to every documented operation', async () => {

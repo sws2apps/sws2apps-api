@@ -62,6 +62,10 @@ Add focused tests for changed behavior and run the relevant suite before the ful
 suite. Run `npm run test:firebase` when a change affects a Firebase adapter or its
 integration behavior and the emulators are available.
 
+- Update `docs/openapi/openapi.json` whenever a public route or HTTP method changes.
+- Keep route registration paths as string literals so the OpenAPI completeness test
+  can derive the live `/api/v3` route inventory.
+
 ## Change workflow
 
 - Keep each implementation chunk coherent and independently reviewable.

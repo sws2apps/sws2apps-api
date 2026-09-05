@@ -37,7 +37,8 @@ all authenticated user account, congregation activity, and backup workflows. The
 congregation directory, application processing, meeting schedules, and visiting
 speaker workflows are also covered, along with invitation-based Pocket accounts,
 their cookie-authenticated workflows, global administration, and congregation
-administration. Remaining feature routes are added in independently verifiable groups.
+administration. A contract test derives the route inventory from the Express route
+sources and fails when an implemented path or method differs from the documentation.
 
 ## API architecture
 
