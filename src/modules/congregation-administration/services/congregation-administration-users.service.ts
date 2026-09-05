@@ -1,21 +1,21 @@
 import type { AppRoleType } from '#domain/users/app-role.js';
-import { CongregationsList } from '#modules/congregations/index.js';
-import { UsersList } from '#modules/users/index.js';
-import { createPocketApplicationUser } from '#modules/users/index.js';
-import { revokeSessionForUser } from '#modules/users/index.js';
-import { deleteUser } from '#modules/users/index.js';
-import { updateUserProfile } from '#modules/users/index.js';
 import {
-	assignUserToCongregation,
-	removeUserFromCongregation,
-	removeUserPocketInvitation,
-	updateUserCongregationMembership,
-} from '#modules/users/index.js';
-import {
+	CongregationsList,
 	getCongregationMembers as buildCongregationMemberList,
 	isCongregationMember,
 	refreshCongregationMembers,
 } from '#modules/congregations/index.js';
+import {
+	UsersList,
+	assignUserToCongregation,
+	createPocketApplicationUser,
+	deleteUser,
+	removeUserFromCongregation,
+	removeUserPocketInvitation,
+	revokeSessionForUser,
+	updateUserCongregationMembership,
+	updateUserProfile,
+} from '#modules/users/index.js';
 
 export type CongregationAdministrationUserErrorCode =
 	| 'CONGREGATION_NOT_FOUND'
@@ -48,6 +48,26 @@ const getAuthorizedCongregation = (
 const getUser = (userId: string) => {
 	const user = UsersList.findById(userId);
 	if (!user) throw new CongregationAdministrationUserError('USER_NOT_FOUND');
+	return user;
+};
+
+const getCongregationUser = (congregationId: string, userId: string) => {
+	const user = getUser(userId);
+
+	if (user.profile.congregation?.id !== congregationId) {
+		throw new CongregationAdministrationUserError('USER_NOT_FOUND');
+	}
+
+	return user;
+};
+
+const getUnassignedUser = (userId: string) => {
+	const user = getUser(userId);
+
+	if (user.profile.congregation) {
+		throw new CongregationAdministrationUserError('USER_NOT_FOUND');
+	}
+
 	return user;
 };
 
@@ -106,7 +126,7 @@ export const updateCongregationUser = async (
 	input: UpdateCongregationUserInput,
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
-	const user = getUser(targetUserId);
+	const user = getCongregationUser(congregation.id, targetUserId);
 
 	await updateUserCongregationMembership(user, congregation, {
 		roles: input.roles,
@@ -137,7 +157,9 @@ export const revokeCongregationUserSession = async (
 	sessionIdentifier: string,
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
-	await revokeSessionForUser(getUser(targetUserId), sessionIdentifier);
+	const user = getCongregationUser(congregation.id, targetUserId);
+
+	await revokeSessionForUser(user, sessionIdentifier);
 	return buildCongregationMemberList(congregation, currentVisitorId);
 };
 
@@ -148,7 +170,9 @@ export const deleteCongregationUserPocketCode = async (
 	currentVisitorId: string,
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
-	await removeUserPocketInvitation(getUser(targetUserId), congregation);
+	const user = getCongregationUser(congregation.id, targetUserId);
+
+	await removeUserPocketInvitation(user, congregation);
 	return buildCongregationMemberList(congregation, currentVisitorId);
 };
 
@@ -182,7 +206,7 @@ export const addCongregationUser = async (
 	input: AddCongregationUserInput,
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
-	const user = getUser(input.userId);
+	const user = getUnassignedUser(input.userId);
 
 	await assignUserToCongregation(user, congregation, {
 		role: input.roles,
@@ -201,7 +225,7 @@ export const removeCongregationUser = async (
 	currentVisitorId: string,
 ) => {
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
-	const user = getUser(targetUserId);
+	const user = getCongregationUser(congregation.id, targetUserId);
 
 	if (user.profile.role === 'vip') await removeUserFromCongregation(user, congregation);
 	if (user.profile.role === 'pocket') await deleteUser(user.id);
