@@ -4,6 +4,31 @@
 
 Backend service for all sws2apps applications.
 
+## Requirements
+
+- Node.js 24
+- npm 11 or newer
+
+## Local development
+
+Install the dependencies and create a local environment file:
+
+```sh
+npm install
+cp .env.example .env
+```
+
+Review the values in `.env` before starting the API. The example configuration uses
+the local Firebase emulators and disables email delivery by default.
+
+Start the development server with automatic reloads:
+
+```sh
+npm run dev
+```
+
+The API listens on port `8000` unless `PORT` is set to another valid port.
+
 ## API architecture
 
 The versioned API is exposed under `/api/v3`. Preserve that public contract unless
@@ -24,6 +49,17 @@ routes -> controllers -> services -> repositories -> platform adapters
 Most application state is loaded into in-memory collections during startup. Treat
 those collections as caches and lookup indexes; creation, mutation, security, and
 cross-module workflows belong in services.
+
+Source imports use the native Node.js subpath aliases defined in `package.json`:
+
+- `#config/*` for validated application configuration.
+- `#domain/*` for domain-neutral types and rules.
+- `#http/*` for HTTP routing, middleware, and response handling.
+- `#modules/*` for feature-module public APIs.
+- `#platform/*` for external-system adapters.
+
+Import a feature through its module `index.ts` rather than reaching into its
+internal files from another module.
 
 ## Module map
 
@@ -48,6 +84,15 @@ For source changes, run:
 npm run build
 npm run lint
 npm test
+```
+
+The default test command uses Node.js's built-in test runner and does not require
+Firebase emulators. To run the Firebase integration tests, install the Firebase CLI,
+configure the emulators if needed, and run:
+
+```sh
+npm run setup:emulators
+npm run test:firebase
 ```
 
 ## Localization

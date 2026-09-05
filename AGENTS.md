@@ -7,7 +7,7 @@ the public `/api/v3` contract unless a change is explicitly documented as breaki
 
 ## Architecture
 
-New code follows this dependency direction:
+Code follows this dependency direction:
 
 `routes -> controllers -> services -> repositories -> platform adapters`
 
@@ -20,8 +20,20 @@ New code follows this dependency direction:
   third-party APIs.
 - Shared code must be domain-neutral. Do not use `shared` as a miscellaneous folder.
 
-Existing `src/v3` code is migrated incrementally. Do not perform mechanical moves
-that mix structural changes with behavior changes.
+Feature modules expose their supported public API through `src/modules/<feature>/index.ts`.
+Cross-module consumers must import from that entrypoint rather than reaching into a
+module's internal files.
+
+Use the native Node.js subpath imports configured in `package.json`:
+
+- `#config/*` for application configuration.
+- `#domain/*` for domain-neutral types and rules.
+- `#http/*` for HTTP concerns.
+- `#modules/*` for feature modules.
+- `#platform/*` for external-system adapters.
+
+Keep structural refactors separate from behavior changes unless they form one small,
+coherent change that can be reviewed and tested together.
 
 ## Security
 
@@ -42,8 +54,17 @@ Run these checks for source changes:
 ```sh
 npm run build
 npm run lint
+npm test
 ```
 
-When tests are introduced, add focused tests for changed behavior and run the
-relevant suite before the full suite.
+Add focused tests for changed behavior and run the relevant suite before the full
+suite. Run `npm run test:firebase` when a change affects a Firebase adapter or its
+integration behavior and the emulators are available.
+
+## Change workflow
+
+- Keep each implementation chunk coherent and independently reviewable.
+- Stage only the files belonging to that chunk.
+- Provide a scoped Conventional Commit message after verification.
+- Do not include unrelated user changes in a commit.
 
