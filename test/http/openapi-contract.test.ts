@@ -74,6 +74,25 @@ describe('OpenAPI contract', () => {
 	it('documents every completed contract group', async () => {
 		const contract = await loadContract();
 		const expectedOperations = {
+			'/admin': 'get',
+			'/admin/client-version': ['get', 'post'],
+			'/admin/congregations': ['get', 'post'],
+			'/admin/congregations/{id}': ['delete', 'get', 'patch'],
+			'/admin/congregations/{id}/data-sync': 'patch',
+			'/admin/congregations/{id}/feature-flags': 'patch',
+			'/admin/congregations/{id}/requests/{request}': 'delete',
+			'/admin/congregations/{id}/speakers-key': 'delete',
+			'/admin/flags': ['get', 'post'],
+			'/admin/flags/{id}': ['delete', 'patch'],
+			'/admin/flags/{id}/toggle': 'get',
+			'/admin/logout': 'get',
+			'/admin/users': 'get',
+			'/admin/users/{id}': ['delete', 'patch'],
+			'/admin/users/{id}/congregation': ['delete', 'patch'],
+			'/admin/users/{id}/disable-2fa': 'get',
+			'/admin/users/{id}/feature-flags': 'patch',
+			'/admin/users/{id}/revoke-token': 'get',
+			'/admin/users/{id}/sessions': 'delete',
 			'/congregations': 'put',
 			'/congregations/countries': 'get',
 			'/congregations/meeting/{id}/schedules': ['get', 'post'],
@@ -208,6 +227,26 @@ describe('OpenAPI contract', () => {
 		for (const [documentedPath, method] of pocketSessionOperations) {
 			const operation = contract.paths?.[documentedPath]?.[method];
 			assert.deepEqual(operation?.security, [{ visitorCookie: [] }]);
+		}
+	});
+
+	it('requires both credentials for every global administration operation', async () => {
+		const contract = await loadContract();
+		const administrationPaths = Object.entries(contract.paths ?? {}).filter(([documentedPath]) => {
+			return documentedPath === '/admin' || documentedPath.startsWith('/admin/');
+		});
+
+		assert.ok(administrationPaths.length > 0);
+
+		for (const [documentedPath, pathItem] of administrationPaths) {
+			for (const method of getDocumentedMethods(pathItem)) {
+				const operation = pathItem[method];
+				assert.deepEqual(
+					operation.security,
+					[{ bearerAuth: [], visitorCookie: [] }],
+					`${method.toUpperCase()} ${documentedPath} must require the complete administrator session`,
+				);
+			}
 		}
 	});
 

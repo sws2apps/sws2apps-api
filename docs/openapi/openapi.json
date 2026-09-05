@@ -51,6 +51,10 @@
     {
       "name": "Pocket",
       "description": "Invitation-based Pocket accounts using signed cookie sessions."
+    },
+    {
+      "name": "Global administration",
+      "description": "Global administrator operations for application settings, congregations, users, and feature flags."
     }
   ],
   "paths": {
@@ -2020,6 +2024,283 @@
           "503": { "$ref": "#/components/responses/ServerNotReady" }
         }
       }
+    },
+    "/admin": {
+      "get": {
+        "operationId": "validateGlobalAdministrator",
+        "summary": "Validate a global administrator session",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/logout": {
+      "get": {
+        "operationId": "logoutGlobalAdministrator",
+        "summary": "Revoke all administrator sessions and log out",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/client-version": {
+      "get": {
+        "operationId": "getMinimumClientVersion",
+        "summary": "Get the minimum supported client version",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      },
+      "post": {
+        "operationId": "updateMinimumClientVersion",
+        "summary": "Update the minimum supported client version",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdministrationClientVersionRequest" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/congregations": {
+      "get": {
+        "operationId": "getAllAdministrationCongregations",
+        "summary": "Get all congregations",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      },
+      "post": {
+        "operationId": "createAdministrationCongregation",
+        "summary": "Create a custom congregation",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdministrationCongregationCreateRequest" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/congregations/{id}": {
+      "parameters": [{ "$ref": "#/components/parameters/AdministrationCongregationIdPath" }],
+      "get": {
+        "operationId": "getAdministrationCongregation",
+        "summary": "Get one congregation",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      },
+      "patch": {
+        "operationId": "updateAdministrationCongregation",
+        "summary": "Update basic congregation information",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdministrationCongregationUpdateRequest" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      },
+      "delete": {
+        "operationId": "deleteAdministrationCongregation",
+        "summary": "Delete an empty congregation",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "405": { "$ref": "#/components/responses/AdministrationCongregationActive" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/congregations/{id}/feature-flags": {
+      "parameters": [{ "$ref": "#/components/parameters/AdministrationCongregationIdPath" }],
+      "patch": {
+        "operationId": "toggleAdministrationCongregationFeatureFlag",
+        "summary": "Toggle a feature flag for a congregation",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdministrationFeatureFlagToggleRequest" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/congregations/{id}/data-sync": {
+      "parameters": [{ "$ref": "#/components/parameters/AdministrationCongregationIdPath" }],
+      "patch": {
+        "operationId": "toggleAdministrationCongregationDataSync",
+        "summary": "Toggle congregation data synchronization",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/congregations/{id}/speakers-key": {
+      "parameters": [{ "$ref": "#/components/parameters/AdministrationCongregationIdPath" }],
+      "delete": {
+        "operationId": "resetAdministrationCongregationSpeakersKey",
+        "summary": "Reset the congregation speakers key",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/congregations/{id}/requests/{request}": {
+      "parameters": [{ "$ref": "#/components/parameters/AdministrationCongregationIdPath" }, { "$ref": "#/components/parameters/AdministrationRequestIdPath" }],
+      "delete": {
+        "operationId": "deleteAdministrationSpeakerAccessRequest",
+        "summary": "Delete a congregation speaker-access request",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "operationId": "getAllAdministrationUsers",
+        "summary": "Get all user accounts",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/users/{id}": {
+      "parameters": [{ "$ref": "#/components/parameters/AdministrationUserIdPath" }],
+      "patch": {
+        "operationId": "updateAdministrationUser",
+        "summary": "Update user account details",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdministrationUserUpdateRequest" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      },
+      "delete": {
+        "operationId": "deleteAdministrationUser",
+        "summary": "Delete a user account",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/users/{id}/disable-2fa": {
+      "parameters": [{ "$ref": "#/components/parameters/AdministrationUserIdPath" }],
+      "get": {
+        "operationId": "disableAdministrationUserMfa",
+        "summary": "Disable MFA for a user",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/users/{id}/revoke-token": {
+      "parameters": [{ "$ref": "#/components/parameters/AdministrationUserIdPath" }],
+      "get": {
+        "operationId": "revokeAdministrationUserTokens",
+        "summary": "Revoke every authentication token for a user",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/users/{id}/feature-flags": {
+      "parameters": [{ "$ref": "#/components/parameters/AdministrationUserIdPath" }],
+      "patch": {
+        "operationId": "toggleAdministrationUserFeatureFlag",
+        "summary": "Toggle a feature flag for a user",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdministrationFeatureFlagToggleRequest" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/users/{id}/sessions": {
+      "parameters": [{ "$ref": "#/components/parameters/AdministrationUserIdPath" }],
+      "delete": {
+        "operationId": "revokeAdministrationUserSessions",
+        "summary": "Revoke selected user sessions",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdministrationSessionRevocationRequest" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/users/{id}/congregation": {
+      "parameters": [{ "$ref": "#/components/parameters/AdministrationUserIdPath" }],
+      "patch": {
+        "operationId": "assignAdministrationUserCongregation",
+        "summary": "Assign a user to a congregation",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdministrationCongregationAssignmentRequest" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      },
+      "delete": {
+        "operationId": "removeAdministrationUserCongregation",
+        "summary": "Remove a user from their congregation",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/flags": {
+      "get": {
+        "operationId": "getAdministrationFeatureFlags",
+        "summary": "Get all feature flags",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      },
+      "post": {
+        "operationId": "createAdministrationFeatureFlag",
+        "summary": "Create a feature flag",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdministrationFeatureFlagCreateRequest" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/flags/{id}": {
+      "parameters": [{ "$ref": "#/components/parameters/AdministrationFlagIdPath" }],
+      "patch": {
+        "operationId": "updateAdministrationFeatureFlag",
+        "summary": "Update a feature flag",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdministrationFeatureFlagUpdateRequest" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      },
+      "delete": {
+        "operationId": "deleteAdministrationFeatureFlag",
+        "summary": "Delete a feature flag",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
+    },
+    "/admin/flags/{id}/toggle": {
+      "parameters": [{ "$ref": "#/components/parameters/AdministrationFlagIdPath" }],
+      "get": {
+        "operationId": "toggleAdministrationFeatureFlag",
+        "summary": "Toggle a feature flag status",
+        "tags": ["Global administration"],
+        "security": [{ "bearerAuth": [], "visitorCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/AppClientHeader" }, { "$ref": "#/components/parameters/AppVersionHeader" }],
+        "responses": { "200": { "$ref": "#/components/responses/AdministrationResult" }, "400": { "$ref": "#/components/responses/BadRequest" }, "403": { "$ref": "#/components/responses/AdministrationForbidden" }, "404": { "$ref": "#/components/responses/AdministrationResourceNotFound" }, "429": { "$ref": "#/components/responses/TooManyRequests" }, "500": { "$ref": "#/components/responses/InternalError" }, "503": { "$ref": "#/components/responses/ServerNotReady" } }
+      }
     }
   },
   "components": {
@@ -2038,6 +2319,34 @@
       }
     },
     "parameters": {
+      "AdministrationCongregationIdPath": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Congregation identifier selected by a global administrator.",
+        "schema": { "type": "string", "minLength": 1 }
+      },
+      "AdministrationFlagIdPath": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Feature flag identifier.",
+        "schema": { "type": "string", "minLength": 1 }
+      },
+      "AdministrationRequestIdPath": {
+        "name": "request",
+        "in": "path",
+        "required": true,
+        "description": "Speaker-access request identifier.",
+        "schema": { "type": "string", "minLength": 1 }
+      },
+      "AdministrationUserIdPath": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "User account identifier selected by a global administrator.",
+        "schema": { "type": "string", "minLength": 1 }
+      },
       "AppClientHeader": {
         "name": "appclient",
         "in": "header",
@@ -2461,6 +2770,43 @@
           }
         }
       },
+      "AdministrationResult": {
+        "description": "The global administration operation completed successfully.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/AdministrationResult" }
+          }
+        }
+      },
+      "AdministrationForbidden": {
+        "description": "The session is missing, revoked, or does not belong to a global administrator.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "examples": {
+              "session": { "value": { "message": "LOGIN_FIRST" } },
+              "role": { "value": { "message": "UNAUTHORIZED_ACCESS" } }
+            }
+          }
+        }
+      },
+      "AdministrationResourceNotFound": {
+        "description": "The selected user, congregation, feature flag, or request was not found.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+          }
+        }
+      },
+      "AdministrationCongregationActive": {
+        "description": "The congregation cannot be deleted while it still has members.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "message": "CONG_ACTIVE" }
+          }
+        }
+      },
       "ServerNotReady": {
         "description": "Application state is still initializing.",
         "headers": {
@@ -2524,6 +2870,96 @@
       }
     },
     "schemas": {
+      "AdministrationResult": {
+        "description": "The current administration projection returned by the operation.",
+        "oneOf": [
+          { "type": "object", "additionalProperties": true },
+          { "$ref": "#/components/schemas/RecordList" }
+        ]
+      },
+      "AdministrationClientVersionRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["version"],
+        "properties": {
+          "version": { "type": "string", "pattern": "^\\d+(?:\\.\\d+)*$" }
+        }
+      },
+      "AdministrationCongregationCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["country", "name", "number"],
+        "properties": {
+          "country": { "type": "string" },
+          "name": { "type": "string", "minLength": 1 },
+          "number": { "type": ["number", "string"], "pattern": "^\\d+$" }
+        }
+      },
+      "AdministrationCongregationUpdateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "guid"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "number": { "type": "string" },
+          "guid": { "type": "string", "minLength": 1 }
+        }
+      },
+      "AdministrationFeatureFlagToggleRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["flagid"],
+        "properties": {
+          "flagid": { "type": "string", "minLength": 1 }
+        }
+      },
+      "AdministrationUserUpdateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["lastname", "firstname", "email", "roles"],
+        "properties": {
+          "lastname": { "type": "string" },
+          "firstname": { "type": "string" },
+          "email": { "type": "string" },
+          "roles": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+        }
+      },
+      "AdministrationSessionRevocationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["identifiers"],
+        "properties": {
+          "identifiers": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+        }
+      },
+      "AdministrationCongregationAssignmentRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["congregation"],
+        "properties": {
+          "congregation": { "type": "string", "minLength": 1 }
+        }
+      },
+      "AdministrationFeatureFlagCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "desc", "availability"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "desc": { "type": "string", "minLength": 1 },
+          "availability": { "type": "string", "enum": ["app", "user", "congregation"] }
+        }
+      },
+      "AdministrationFeatureFlagUpdateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "description", "coverage"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "coverage": { "type": "number", "minimum": 0, "maximum": 100 }
+        }
+      },
       "AuxiliaryApplication": {
         "type": "object",
         "description": "Stored auxiliary application. Additional legacy fields may be present.",
