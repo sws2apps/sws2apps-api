@@ -14,7 +14,11 @@ import type { User } from '../user.js';
 import type { UserSession } from '../types/user.types.js';
 import { updateUserSessions } from './user-data.service.js';
 
-export type UserAccountErrorCode = 'CONGREGATION_NOT_ASSIGNED' | 'CONGREGATION_NOT_FOUND';
+export type UserAccountErrorCode =
+	| 'USER_NOT_FOUND'
+	| 'SESSION_NOT_FOUND'
+	| 'CONGREGATION_NOT_ASSIGNED'
+	| 'CONGREGATION_NOT_FOUND';
 
 export class UserAccountError extends Error {
 	constructor(public readonly code: UserAccountErrorCode) {
@@ -22,6 +26,20 @@ export class UserAccountError extends Error {
 		this.name = 'UserAccountError';
 	}
 }
+
+type UserAccountOperations = {
+	updateSessions: typeof updateUserSessions;
+};
+
+const defaultUserAccountOperations: UserAccountOperations = {
+	updateSessions: updateUserSessions,
+};
+
+const getUserAccountUser = (userId: string): User => {
+	const user = UsersList.findById(userId);
+	if (!user) throw new UserAccountError('USER_NOT_FOUND');
+	return user;
+};
 
 export const projectUserSessions = (
 	sessions: UserSession[],
@@ -53,21 +71,25 @@ export const findSessionIdentifierByVisitorId = (
 export const revokeSessionForUser = async (
 	user: User,
 	sessionIdentifier: string,
+	operations: Partial<UserAccountOperations> = {},
 ) => {
 	const revokedSession = user.sessions.find(
 		(session) => session.identifier === sessionIdentifier,
-	)!;
+	);
+	if (!revokedSession) throw new UserAccountError('SESSION_NOT_FOUND');
+
 	const remainingSessions = user.sessions.filter(
 		(session) => session.identifier !== sessionIdentifier,
 	);
+	const { updateSessions } = { ...defaultUserAccountOperations, ...operations };
 
-	await updateUserSessions(user, remainingSessions);
+	await updateSessions(user, remainingSessions);
 
 	return projectUserSessions(user.sessions, revokedSession.visitorid);
 };
 
 export const getValidatedUserAccount = (userId: string) => {
-	const user = UsersList.findById(userId)!;
+	const user = getUserAccountUser(userId);
 	const congregationId = user.profile.congregation?.id;
 
 	if (!congregationId) throw new UserAccountError('CONGREGATION_NOT_ASSIGNED');
@@ -96,7 +118,7 @@ export const getValidatedUserAccount = (userId: string) => {
 };
 
 export const getUserMfaEnrollment = async (userId: string) => {
-	const user = UsersList.findById(userId)!;
+	const user = getUserAccountUser(userId);
 	await ensureUserMfaSecret(user);
 
 	const { secret, uri } = decryptUserMfaSecret(user);
@@ -113,12 +135,12 @@ export const getUserMfaEnrollment = async (userId: string) => {
 };
 
 export const getUserActiveSessions = (userId: string, currentVisitorId: string) => {
-	const user = UsersList.findById(userId)!;
+	const user = getUserAccountUser(userId);
 	return projectUserSessions(user.sessions, currentVisitorId);
 };
 
 export const revokeUserSession = async (userId: string, sessionIdentifier: string) => {
-	const user = UsersList.findById(userId)!;
+	const user = getUserAccountUser(userId);
 	const sessions = await revokeSessionForUser(user, sessionIdentifier);
 	const congregationId = user.profile.congregation?.id;
 
@@ -149,7 +171,7 @@ export const clearUserSessions = async (userId: string): Promise<void> => {
 };
 
 export const disableUserMfa = async (userId: string) => {
-	await disableMfaForUser(UsersList.findById(userId)!);
+	await disableMfaForUser(getUserAccountUser(userId));
 };
 
 export const deleteUserAccount = async (userId: string) => {

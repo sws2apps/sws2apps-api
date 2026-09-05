@@ -12,44 +12,75 @@ import {
 	UserAccountError,
 } from '../services/users-account.service.js';
 
+const handleUserAccountError = (error: unknown, res: Response): boolean => {
+	if (!(error instanceof UserAccountError)) return false;
+
+	if (error.code === 'USER_NOT_FOUND') {
+		sendClientError(res, 404, 'ACCOUNT_NOT_FOUND', 'user account does not exist');
+		return true;
+	}
+
+	if (error.code === 'SESSION_NOT_FOUND') {
+		sendClientError(res, 404, 'SESSION_NOT_FOUND', 'user session does not exist');
+		return true;
+	}
+
+	const logMessage = error.code === 'CONGREGATION_NOT_ASSIGNED'
+		? 'email address not associated with a congregation'
+		: 'user congregation is invalid';
+	sendClientError(res, 404, 'CONG_NOT_FOUND', logMessage);
+	return true;
+};
+
+const rethrowUnexpectedAccountError = (error: unknown, res: Response) => {
+	if (!handleUserAccountError(error, res)) throw error;
+};
+
 export const validateUser = async (req: Request, res: Response) => {
 	try {
 		const account = getValidatedUserAccount(res.locals.currentUser.id);
 
 		sendSuccess(res, account, 'visitor id has been validated');
 	} catch (error) {
-		if (!(error instanceof UserAccountError)) throw error;
-
-		const logMessage = error.code === 'CONGREGATION_NOT_ASSIGNED'
-			? 'email address not associated with a congregation'
-			: 'user congregation is invalid';
-		sendClientError(res, 404, 'CONG_NOT_FOUND', logMessage);
+		rethrowUnexpectedAccountError(error, res);
 	}
 };
 
 export const getUserSecretToken = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	const enrollment = await getUserMfaEnrollment(id);
+	try {
+		const enrollment = await getUserMfaEnrollment(id);
 
-	sendSuccess(res, enrollment, 'the user has fetched 2fa successfully');
+		sendSuccess(res, enrollment, 'the user has fetched 2fa successfully');
+	} catch (error) {
+		rethrowUnexpectedAccountError(error, res);
+	}
 };
 
 export const getUserSessions = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	const sessions = getUserActiveSessions(id, req.signedCookies.visitorid);
+	try {
+		const sessions = getUserActiveSessions(id, req.signedCookies.visitorid);
 
-	sendSuccess(res, sessions, `the user has fetched sessions successfully`);
+		sendSuccess(res, sessions, `the user has fetched sessions successfully`);
+	} catch (error) {
+		rethrowUnexpectedAccountError(error, res);
+	}
 };
 
 export const deleteUserSession = async (req: Request, res: Response) => {
 	const { id } = req.params;
 	const identifier = req.body.identifier as string;
 
-	const sessions = await revokeUserSession(id, identifier);
+	try {
+		const sessions = await revokeUserSession(id, identifier);
 
-	sendSuccess(res, sessions, `the user has revoked session successfully`);
+		sendSuccess(res, sessions, `the user has revoked session successfully`);
+	} catch (error) {
+		rethrowUnexpectedAccountError(error, res);
+	}
 };
 
 export const userLogout = async (req: Request, res: Response) => {
@@ -64,9 +95,13 @@ export const userLogout = async (req: Request, res: Response) => {
 export const disableUser2FA = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	await disableUserMfa(id);
+	try {
+		await disableUserMfa(id);
 
-	sendSuccess(res, { message: 'MFA_DISABLED' }, `the user disabled 2fa successfully`);
+		sendSuccess(res, { message: 'MFA_DISABLED' }, `the user disabled 2fa successfully`);
+	} catch (error) {
+		rethrowUnexpectedAccountError(error, res);
+	}
 };
 
 export const deleteUser = async (req: Request, res: Response) => {
