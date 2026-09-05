@@ -23,6 +23,14 @@
     {
       "name": "User account",
       "description": "Authenticated account, MFA, and session management."
+    },
+    {
+      "name": "User workflows",
+      "description": "Authenticated congregation activity and submissions."
+    },
+    {
+      "name": "User backups",
+      "description": "Role-filtered synchronization and backup uploads."
     }
   ],
   "paths": {
@@ -755,6 +763,388 @@
           }
         }
       }
+    },
+    "/users/{id}/join-congregation": {
+      "parameters": [
+        { "$ref": "#/components/parameters/UserIdPath" }
+      ],
+      "post": {
+        "operationId": "requestCongregationMembership",
+        "summary": "Request membership in a congregation",
+        "tags": ["User workflows"],
+        "security": [
+          { "bearerAuth": [], "visitorCookie": [] }
+        ],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/JoinCongregationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The membership request was accepted.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SuccessMessage" },
+                "example": { "message": "REQUEST_SENT" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/UserWorkflowBadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/AuthenticatedRequestForbidden" },
+          "404": { "$ref": "#/components/responses/AccountContextNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/users/{id}/applications": {
+      "parameters": [
+        { "$ref": "#/components/parameters/UserIdPath" }
+      ],
+      "get": {
+        "operationId": "getUserAuxiliaryApplications",
+        "summary": "List the user's auxiliary applications",
+        "tags": ["User workflows"],
+        "security": [
+          { "bearerAuth": [], "visitorCookie": [] }
+        ],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Auxiliary applications associated with the current congregation person.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/AuxiliaryApplication" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/UserWorkflowBadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/AuthenticatedRequestForbidden" },
+          "404": { "$ref": "#/components/responses/AccountContextNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      },
+      "post": {
+        "operationId": "submitUserAuxiliaryApplication",
+        "summary": "Submit an auxiliary application",
+        "tags": ["User workflows"],
+        "security": [
+          { "bearerAuth": [], "visitorCookie": [] }
+        ],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["application"],
+                "properties": {
+                  "application": { "$ref": "#/components/schemas/AuxiliaryApplicationSubmission" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The auxiliary application was submitted.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SuccessMessage" },
+                "example": { "message": "APPLICATION_SENT" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/UserWorkflowBadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/AuthenticatedRequestForbidden" },
+          "404": { "$ref": "#/components/responses/AccountContextNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/users/{id}/field-service-reports": {
+      "parameters": [
+        { "$ref": "#/components/parameters/UserIdPath" }
+      ],
+      "post": {
+        "operationId": "submitUserFieldServiceReport",
+        "summary": "Submit a field-service report",
+        "tags": ["User workflows"],
+        "security": [
+          { "bearerAuth": [], "visitorCookie": [] }
+        ],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["report"],
+                "properties": {
+                  "report": { "$ref": "#/components/schemas/FieldServiceReport" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The report was submitted.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SuccessMessage" },
+                "example": { "message": "REPORT_SENT" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/UserWorkflowBadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/AuthenticatedRequestForbidden" },
+          "404": { "$ref": "#/components/responses/AccountContextNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/users/{id}/backup": {
+      "parameters": [
+        { "$ref": "#/components/parameters/UserIdPath" }
+      ],
+      "get": {
+        "operationId": "retrieveUserBackup",
+        "summary": "Retrieve changed backup data",
+        "description": "Returns data changed since the timestamps supplied in the metadata header, filtered by the user's roles.",
+        "tags": ["User backups"],
+        "security": [
+          { "bearerAuth": [], "visitorCookie": [] }
+        ],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" },
+          { "$ref": "#/components/parameters/BackupMetadataHeader" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role-filtered backup changes.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BackupData" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BackupBadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/AuthenticatedRequestForbidden" },
+          "404": { "$ref": "#/components/responses/AccountContextNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      },
+      "post": {
+        "operationId": "saveUserBackup",
+        "summary": "Submit a complete backup",
+        "tags": ["User backups"],
+        "security": [
+          { "bearerAuth": [], "visitorCookie": [] }
+        ],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["cong_backup"],
+                "properties": {
+                  "cong_backup": { "$ref": "#/components/schemas/BackupData" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The backup was accepted.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SuccessMessage" },
+                "example": { "message": "BACKUP_SENT" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BackupBadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/AuthenticatedRequestForbidden" },
+          "404": { "$ref": "#/components/responses/AccountContextNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/users/{id}/backup/chunked": {
+      "parameters": [
+        { "$ref": "#/components/parameters/UserIdPath" }
+      ],
+      "post": {
+        "operationId": "saveUserBackupChunk",
+        "summary": "Submit one backup chunk",
+        "description": "Accepts UTF-8 chunks up to 2.5 MiB and assembles at most 1,000 chunks per upload.",
+        "tags": ["User backups"],
+        "security": [
+          { "bearerAuth": [], "visitorCookie": [] }
+        ],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" },
+          { "$ref": "#/components/parameters/BackupMetadataHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/BackupChunkRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The chunk was recorded or the completed backup was accepted.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SuccessMessage" },
+                "examples": {
+                  "chunk": { "value": { "message": "BACKUP_CHUNK_RECEIVED" } },
+                  "complete": { "value": { "message": "BACKUP_SENT" } }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BackupBadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/AuthenticatedRequestForbidden" },
+          "404": { "$ref": "#/components/responses/AccountContextNotFound" },
+          "409": { "$ref": "#/components/responses/BackupConflict" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/users/{id}/updates-routine": {
+      "parameters": [
+        { "$ref": "#/components/parameters/UserIdPath" }
+      ],
+      "get": {
+        "operationId": "getUserCongregationUpdates",
+        "summary": "Get role-specific congregation updates",
+        "tags": ["User workflows"],
+        "security": [
+          { "bearerAuth": [], "visitorCookie": [] }
+        ],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updates available to the current account's congregation roles.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CongregationUpdates" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/UserWorkflowForbidden" },
+          "404": { "$ref": "#/components/responses/AccountContextNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
+    },
+    "/users/{id}/feedback": {
+      "parameters": [
+        { "$ref": "#/components/parameters/UserIdPath" }
+      ],
+      "post": {
+        "operationId": "submitUserFeedback",
+        "summary": "Send feedback to support",
+        "tags": ["User workflows"],
+        "security": [
+          { "bearerAuth": [], "visitorCookie": [] }
+        ],
+        "parameters": [
+          { "$ref": "#/components/parameters/AppClientHeader" },
+          { "$ref": "#/components/parameters/AppVersionHeader" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserFeedbackRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The feedback message was accepted.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SuccessMessage" },
+                "example": { "message": "MESSAGE_SENT" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/MfaRequired" },
+          "403": { "$ref": "#/components/responses/UserWorkflowForbidden" },
+          "404": { "$ref": "#/components/responses/AccountContextNotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ServerNotReady" }
+        }
+      }
     }
   },
   "components": {
@@ -804,6 +1194,17 @@
           "maxLength": 10,
           "default": "eng"
         }
+      },
+      "BackupMetadataHeader": {
+        "name": "metadata",
+        "in": "header",
+        "required": true,
+        "description": "A serialized JSON object mapping dataset names to their latest client timestamps.",
+        "schema": {
+          "type": "string",
+          "minLength": 2
+        },
+        "example": "{\"user_settings\":\"2026-09-05T10:00:00.000Z\"}"
       },
       "InstallationHeader": {
         "name": "installation",
@@ -989,6 +1390,30 @@
           }
         }
       },
+      "BackupBadRequest": {
+        "description": "Backup metadata, payload, or chunk validation failed, or the backup is outdated.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "examples": {
+              "metadata": { "value": { "message": "BACKUP_METADATA_INVALID" } },
+              "payload": { "value": { "message": "BACKUP_PAYLOAD_INVALID" } },
+              "chunk": { "value": { "message": "BACKUP_CHUNK_INVALID" } },
+              "outdated": { "value": { "message": "BACKUP_OUTDATED" } },
+              "congregation": { "value": { "message": "CONG_NOT_ASSIGNED" } }
+            }
+          }
+        }
+      },
+      "BackupConflict": {
+        "description": "The metadata is outdated or another backup upload is active.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "message": "error_api_sync-conflict" }
+          }
+        }
+      },
       "InternalError": {
         "description": "The request could not be completed because of an internal failure.",
         "content": {
@@ -1075,9 +1500,124 @@
             }
           }
         }
+      },
+      "UserWorkflowBadRequest": {
+        "description": "The request is invalid, the user has no congregation, or is already a member.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "examples": {
+              "invalid": { "value": { "message": "error_api_bad-request" } },
+              "unassigned": { "value": { "message": "CONG_NOT_ASSIGNED" } },
+              "member": { "value": { "message": "ALREADY_MEMBER" } }
+            }
+          }
+        }
+      },
+      "UserWorkflowForbidden": {
+        "description": "Authentication failed or the account has no valid congregation context.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "examples": {
+              "unassigned": { "value": { "message": "CONG_NOT_ASSIGNED" } },
+              "missing": { "value": { "message": "error_app_congregation_not-found" } },
+              "session": { "value": { "message": "SESSION_REVOKED" } }
+            }
+          }
+        }
       }
     },
     "schemas": {
+      "AuxiliaryApplication": {
+        "type": "object",
+        "description": "Stored auxiliary application. Additional legacy fields may be present.",
+        "properties": {
+          "request_id": { "type": "string" },
+          "person_uid": { "type": "string" },
+          "months": {},
+          "continuous": {},
+          "submitted": {},
+          "updatedAt": { "type": "string", "format": "date-time" },
+          "expired": { "type": ["string", "null"] }
+        },
+        "additionalProperties": true
+      },
+      "AuxiliaryApplicationSubmission": {
+        "type": "object",
+        "description": "Application fields supplied by the client. Identity and timestamps are owned by the server.",
+        "properties": {
+          "months": {},
+          "continuous": {},
+          "submitted": {}
+        },
+        "additionalProperties": true
+      },
+      "BackupChunkRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["uploadId", "chunkIndex", "totalChunks", "chunkData"],
+        "properties": {
+          "uploadId": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "chunkIndex": { "type": "integer", "minimum": 0, "maximum": 999 },
+          "totalChunks": { "type": "integer", "minimum": 1, "maximum": 1000 },
+          "chunkData": {
+            "type": "string",
+            "minLength": 1,
+            "description": "UTF-8 content limited to 2,621,440 bytes."
+          }
+        }
+      },
+      "BackupData": {
+        "type": "object",
+        "description": "Version 3 synchronization payload. Dataset presence depends on metadata changes and account roles.",
+        "required": ["metadata"],
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          },
+          "app_settings": { "type": "object", "additionalProperties": true },
+          "speakers_key": { "type": "string" },
+          "outgoing_talks": { "$ref": "#/components/schemas/RecordList" },
+          "persons": { "$ref": "#/components/schemas/RecordList" },
+          "outgoing_speakers": { "$ref": "#/components/schemas/RecordList" },
+          "speakers_congregations": { "$ref": "#/components/schemas/RecordList" },
+          "visiting_speakers": { "$ref": "#/components/schemas/RecordList" },
+          "branch_cong_analysis": { "$ref": "#/components/schemas/RecordList" },
+          "branch_field_service_reports": { "$ref": "#/components/schemas/RecordList" },
+          "field_service_groups": { "$ref": "#/components/schemas/RecordList" },
+          "meeting_attendance": { "$ref": "#/components/schemas/RecordList" },
+          "sched": { "$ref": "#/components/schemas/RecordList" },
+          "sources": { "$ref": "#/components/schemas/RecordList" },
+          "upcoming_events": { "$ref": "#/components/schemas/RecordList" },
+          "user_bible_studies": { "$ref": "#/components/schemas/RecordList" },
+          "user_field_service_reports": { "$ref": "#/components/schemas/RecordList" },
+          "delegated_field_service_reports": { "$ref": "#/components/schemas/RecordList" },
+          "public_schedules": { "$ref": "#/components/schemas/RecordList" },
+          "public_sources": { "$ref": "#/components/schemas/RecordList" },
+          "incoming_reports": { "$ref": "#/components/schemas/RecordList" },
+          "cong_field_service_reports": { "$ref": "#/components/schemas/RecordList" },
+          "cong_users": { "$ref": "#/components/schemas/RecordList" }
+        },
+        "additionalProperties": true
+      },
+      "CongregationUpdates": {
+        "type": "object",
+        "description": "Role-specific updates; fields not available to the current user are omitted.",
+        "properties": {
+          "cong_master_key": { "type": "string" },
+          "cong_access_code": { "type": "string" },
+          "speakers_key": { "type": "string" },
+          "pending_speakers_requests": { "$ref": "#/components/schemas/RecordList" },
+          "remote_congregations": { "$ref": "#/components/schemas/RecordList" },
+          "rejected_requests": { "$ref": "#/components/schemas/RecordList" },
+          "applications": { "$ref": "#/components/schemas/RecordList" },
+          "incoming_reports": { "$ref": "#/components/schemas/RecordList" },
+          "join_requests": { "$ref": "#/components/schemas/RecordList" }
+        },
+        "additionalProperties": false
+      },
       "EmailTokenRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -1117,6 +1657,22 @@
         "type": "object",
         "additionalProperties": {
           "type": "boolean"
+        }
+      },
+      "FieldServiceReport": {
+        "type": "object",
+        "description": "Field-service report record accepted by the existing version 3 contract.",
+        "additionalProperties": true
+      },
+      "JoinCongregationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["country_code", "cong_name", "firstname", "lastname"],
+        "properties": {
+          "country_code": { "type": "string", "minLength": 1 },
+          "cong_name": { "type": "string", "minLength": 1 },
+          "firstname": { "type": "string", "minLength": 1 },
+          "lastname": { "type": "string" }
         }
       },
       "MfaChallenge": {
@@ -1264,6 +1820,13 @@
               }
             }
           }
+        }
+      },
+      "RecordList": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": true
         }
       },
       "SessionRevocationRequest": {
@@ -1462,6 +2025,15 @@
               }
             }
           }
+        }
+      },
+      "UserFeedbackRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["subject", "message"],
+        "properties": {
+          "subject": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "message": { "type": "string", "minLength": 1, "maxLength": 5000 }
         }
       }
     }

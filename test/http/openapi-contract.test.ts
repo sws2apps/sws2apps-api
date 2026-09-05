@@ -84,8 +84,15 @@ describe('OpenAPI contract', () => {
 			'/users/validate-me': 'get',
 			'/users/{id}/2fa': 'get',
 			'/users/{id}/2fa/disable': 'get',
+			'/users/{id}/applications': ['get', 'post'],
+			'/users/{id}/backup': ['get', 'post'],
+			'/users/{id}/backup/chunked': 'post',
 			'/users/{id}/erase': 'delete',
+			'/users/{id}/feedback': 'post',
+			'/users/{id}/field-service-reports': 'post',
+			'/users/{id}/join-congregation': 'post',
 			'/users/{id}/sessions': ['delete', 'get'],
+			'/users/{id}/updates-routine': 'get',
 			'/verify-email-token': 'post',
 		} satisfies Record<string, string | string[]>;
 
@@ -131,9 +138,18 @@ describe('OpenAPI contract', () => {
 			['/users/validate-me', 'get'],
 			['/users/{id}/2fa', 'get'],
 			['/users/{id}/2fa/disable', 'get'],
+			['/users/{id}/applications', 'get'],
+			['/users/{id}/applications', 'post'],
+			['/users/{id}/backup', 'get'],
+			['/users/{id}/backup', 'post'],
+			['/users/{id}/backup/chunked', 'post'],
 			['/users/{id}/erase', 'delete'],
+			['/users/{id}/feedback', 'post'],
+			['/users/{id}/field-service-reports', 'post'],
+			['/users/{id}/join-congregation', 'post'],
 			['/users/{id}/sessions', 'delete'],
 			['/users/{id}/sessions', 'get'],
+			['/users/{id}/updates-routine', 'get'],
 		] as const;
 
 		for (const [documentedPath, method] of authenticatedOperations) {

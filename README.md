@@ -33,8 +33,8 @@ The API listens on port `8000` unless `PORT` is set to another valid port.
 
 The dependency-free [OpenAPI 3.1 contract](./docs/openapi/openapi.json) documents the
 public HTTP interface. It currently covers public access, authentication, MFA, and
-account/session management; the remaining feature routes are added in independently
-verifiable groups.
+all authenticated user account, congregation activity, and backup workflows. The
+remaining feature routes are added in independently verifiable groups.
 
 ## API architecture
 
