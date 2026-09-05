@@ -33,6 +33,16 @@ const handleMeetingAccessError = (error: unknown, res: Response): boolean => {
 		return true;
 	}
 
+	if (error.code === 'ACCESS_REQUEST_NOT_FOUND') {
+		sendClientError(
+			res,
+			404,
+			'error_app_speaker-access-request-not-found',
+			'no speaker access request could be found with the provided id',
+		);
+		return true;
+	}
+
 	sendClientError(res, 403, 'error_api_unauthorized-request', 'user not authorized to access the provided congregation');
 	return true;
 };

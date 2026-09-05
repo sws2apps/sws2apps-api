@@ -223,6 +223,41 @@ describe('visiting-speaker access workflow', () => {
 		assert.equal(requestedTargetId, targetCongregation.id);
 	});
 
+	it('returns a stable error when the target congregation does not exist', async () => {
+		const { congregation, user } = createAuthorizedMeetingContext();
+
+		await assert.rejects(
+			requestVisitingSpeakerAccess(
+				congregation.id,
+				user.id,
+				'missing-congregation',
+				'temporary-key',
+				'request-1',
+			),
+			(error: unknown) => {
+				return error instanceof MeetingAccessError
+					&& error.code === 'CONGREGATION_NOT_FOUND';
+			},
+		);
+	});
+
+	it('returns a stable error when an access request does not exist', async () => {
+		const { congregation, user } = createAuthorizedMeetingContext();
+
+		await assert.rejects(
+			approveVisitingSpeakerAccess(
+				congregation.id,
+				user.id,
+				'missing-request',
+				'speakers-key',
+			),
+			(error: unknown) => {
+				return error instanceof MeetingAccessError
+					&& error.code === 'ACCESS_REQUEST_NOT_FOUND';
+			},
+		);
+	});
+
 	it('approves and rejects pending access requests', async () => {
 		const { congregation, user } = createAuthorizedMeetingContext();
 		const requestingCongregation = new Congregation('congregation-2');

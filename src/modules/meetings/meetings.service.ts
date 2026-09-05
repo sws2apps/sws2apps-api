@@ -19,7 +19,10 @@ import {
 	getPublicSources,
 } from '#modules/congregations/index.js';
 
-export type MeetingAccessErrorCode = 'CONGREGATION_NOT_FOUND' | 'MEMBERSHIP_REQUIRED';
+export type MeetingAccessErrorCode =
+	| 'CONGREGATION_NOT_FOUND'
+	| 'MEMBERSHIP_REQUIRED'
+	| 'ACCESS_REQUEST_NOT_FOUND';
 
 export class MeetingAccessError extends Error {
 	constructor(public readonly code: MeetingAccessErrorCode) {
@@ -80,7 +83,9 @@ export const requestVisitingSpeakerAccess = async (
 	dependencies: Partial<MeetingServiceDependencies> = {},
 ) => {
 	const congregation = await getAuthorizedCongregation(congregationId, userId);
-	const targetCongregation = CongregationsList.findById(targetCongregationId)!;
+	const targetCongregation = CongregationsList.findById(targetCongregationId);
+	if (!targetCongregation) throw new MeetingAccessError('CONGREGATION_NOT_FOUND');
+
 	const { requestSpeakerAccess } = { ...defaultMeetingServiceDependencies, ...dependencies };
 	await requestSpeakerAccess(congregation, targetCongregation, key, requestId);
 };
@@ -103,6 +108,11 @@ export const approveVisitingSpeakerAccess = async (
 	dependencies: Partial<MeetingServiceDependencies> = {},
 ) => {
 	const congregation = await getAuthorizedCongregation(congregationId, userId);
+	const requestExists = congregation.outgoing_speakers.access.some((request) => {
+		return request.request_id === requestId;
+	});
+	if (!requestExists) throw new MeetingAccessError('ACCESS_REQUEST_NOT_FOUND');
+
 	const { approveSpeakerAccess } = { ...defaultMeetingServiceDependencies, ...dependencies };
 	await approveSpeakerAccess(congregation, requestId, key);
 	return getPendingOutgoingSpeakerAccess(congregation, CongregationsList.list);
@@ -115,6 +125,11 @@ export const rejectVisitingSpeakerAccess = async (
 	dependencies: Partial<MeetingServiceDependencies> = {},
 ) => {
 	const congregation = await getAuthorizedCongregation(congregationId, userId);
+	const requestExists = congregation.outgoing_speakers.access.some((request) => {
+		return request.request_id === requestId;
+	});
+	if (!requestExists) throw new MeetingAccessError('ACCESS_REQUEST_NOT_FOUND');
+
 	const { rejectSpeakerAccess } = { ...defaultMeetingServiceDependencies, ...dependencies };
 	await rejectSpeakerAccess(congregation, requestId);
 	return getPendingOutgoingSpeakerAccess(congregation, CongregationsList.list);

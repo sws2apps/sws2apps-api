@@ -12,6 +12,19 @@ import {
 	saveCongregationPublicIncomingTalks,
 } from './congregation-data.service.js';
 
+export class OutgoingSpeakerAccessError extends Error {
+	constructor(public readonly code: 'REQUEST_NOT_FOUND') {
+		super(code);
+		this.name = 'OutgoingSpeakerAccessError';
+	}
+}
+
+export type OutgoingSpeakerAccessOperations = {
+	saveState: typeof saveOutgoingSpeakersState;
+	encrypt: typeof encryptData;
+	getCurrentTimestamp: () => string;
+};
+
 export const saveOutgoingSpeakersState = async (
 	congregationId: string,
 	outgoingSpeakers: Pick<OutgoingSpeakersRecordType, 'list' | 'access'>,
@@ -22,6 +35,12 @@ export const saveOutgoingSpeakersState = async (
 	});
 
 	await setCongOutgoingSpeakers(congregationId, storageData);
+};
+
+const defaultAccessOperations: OutgoingSpeakerAccessOperations = {
+	saveState: saveOutgoingSpeakersState,
+	encrypt: encryptData,
+	getCurrentTimestamp: () => new Date().toISOString(),
 };
 
 export const getApprovedVisitingSpeakerCongregations = (
@@ -47,24 +66,27 @@ export const requestOutgoingSpeakerAccess = async (
 	targetCongregation: Congregation,
 	temporaryKey: string,
 	requestId: string,
+	operations: Partial<OutgoingSpeakerAccessOperations> = {},
 ): Promise<void> => {
-	targetCongregation.outgoing_speakers.access = targetCongregation.outgoing_speakers.access.filter(
+	const accessOperations = { ...defaultAccessOperations, ...operations };
+	const updatedAccess = targetCongregation.outgoing_speakers.access.filter(
 		(access) => access.cong_id !== requestingCongregation.id,
 	);
 
-	targetCongregation.outgoing_speakers.access.push({
+	updatedAccess.push({
 		cong_id: requestingCongregation.id,
 		key: '',
 		status: 'pending',
-		updatedAt: new Date().toISOString(),
+		updatedAt: accessOperations.getCurrentTimestamp(),
 		temp_key: temporaryKey,
 		request_id: requestId,
 	});
 
-	await saveOutgoingSpeakersState(
-		requestingCongregation.id,
-		targetCongregation.outgoing_speakers,
+	await accessOperations.saveState(
+		targetCongregation.id,
+		{ ...targetCongregation.outgoing_speakers, access: updatedAccess },
 	);
+	targetCongregation.outgoing_speakers.access = updatedAccess;
 };
 
 export const getPendingOutgoingSpeakerAccess = (
@@ -73,6 +95,7 @@ export const getPendingOutgoingSpeakerAccess = (
 ): CongRequestPendingType[] => {
 	return congregation.outgoing_speakers.access
 		.filter((access) => access.status === 'pending')
+		.filter((access) => congregations.some((record) => record.id === access.cong_id))
 		.map((access) => {
 			const requestingCongregation = congregations.find((record) => record.id === access.cong_id)!;
 
@@ -90,28 +113,46 @@ export const approveOutgoingSpeakerAccess = async (
 	congregation: Congregation,
 	requestId: string,
 	speakersKey: string,
+	operations: Partial<OutgoingSpeakerAccessOperations> = {},
 ): Promise<void> => {
-	const request = congregation.outgoing_speakers.access.find((access) => access.request_id === requestId)!;
+	const accessOperations = { ...defaultAccessOperations, ...operations };
+	const updatedAccess = structuredClone(congregation.outgoing_speakers.access);
+	const request = updatedAccess.find((access) => access.request_id === requestId);
 
-	request.key = encryptData(JSON.stringify(speakersKey), request.temp_key);
+	if (!request) throw new OutgoingSpeakerAccessError('REQUEST_NOT_FOUND');
+
+	request.key = accessOperations.encrypt(JSON.stringify(speakersKey), request.temp_key);
 	request.status = 'approved';
-	request.updatedAt = new Date().toISOString();
+	request.updatedAt = accessOperations.getCurrentTimestamp();
 	delete request.temp_key;
 
-	await saveOutgoingSpeakersState(congregation.id, congregation.outgoing_speakers);
+	await accessOperations.saveState(
+		congregation.id,
+		{ ...congregation.outgoing_speakers, access: updatedAccess },
+	);
+	congregation.outgoing_speakers.access = updatedAccess;
 };
 
 export const rejectOutgoingSpeakerAccess = async (
 	congregation: Congregation,
 	requestId: string,
+	operations: Partial<OutgoingSpeakerAccessOperations> = {},
 ): Promise<void> => {
-	const request = congregation.outgoing_speakers.access.find((access) => access.request_id === requestId)!;
+	const accessOperations = { ...defaultAccessOperations, ...operations };
+	const updatedAccess = structuredClone(congregation.outgoing_speakers.access);
+	const request = updatedAccess.find((access) => access.request_id === requestId);
+
+	if (!request) throw new OutgoingSpeakerAccessError('REQUEST_NOT_FOUND');
 
 	request.status = 'disapproved';
-	request.updatedAt = new Date().toISOString();
+	request.updatedAt = accessOperations.getCurrentTimestamp();
 	delete request.temp_key;
 
-	await saveOutgoingSpeakersState(congregation.id, congregation.outgoing_speakers);
+	await accessOperations.saveState(
+		congregation.id,
+		{ ...congregation.outgoing_speakers, access: updatedAccess },
+	);
+	congregation.outgoing_speakers.access = updatedAccess;
 };
 
 export const getRemoteSpeakerCongregations = (
