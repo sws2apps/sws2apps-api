@@ -68,24 +68,46 @@ export const synchronizeCongregationApplication = (
 	return synchronizedApplications;
 };
 
+export type CongregationApplicationOperations = {
+	saveApplication: typeof saveCongregationApplicationRecord;
+	deleteApplication: typeof deleteCongregationApplicationRecord;
+	getCurrentDate: () => Date;
+};
+
+const defaultApplicationOperations: CongregationApplicationOperations = {
+	saveApplication: saveCongregationApplicationRecord,
+	deleteApplication: deleteCongregationApplicationRecord,
+	getCurrentDate: () => new Date(),
+};
+
+const isExpiredApplication = (application: StandardRecord, currentTime: number): boolean => {
+	if (typeof application.expired !== 'string') return false;
+
+	const expirationTime = Date.parse(application.expired);
+	return Number.isFinite(expirationTime) && expirationTime < currentTime;
+};
+
 export const saveCongregationApplication = async (
 	congregation: Congregation,
 	application: StandardRecord,
+	operations: Partial<CongregationApplicationOperations> = {},
 ): Promise<void> => {
-	await saveCongregationApplicationRecord(congregation.id, application);
+	const applicationOperations = { ...defaultApplicationOperations, ...operations };
+
+	await applicationOperations.saveApplication(congregation.id, application);
 
 	congregation.ap_applications = synchronizeCongregationApplication(
 		congregation.ap_applications,
 		application,
 	);
 
-	const currentDate = new Date().toISOString();
+	const currentTime = applicationOperations.getCurrentDate().getTime();
 	const expiredApplications = congregation.ap_applications.filter((record) => {
-		return typeof record.expired === 'string' && record.expired < currentDate;
+		return isExpiredApplication(record, currentTime);
 	});
 
 	for (const expiredApplication of expiredApplications) {
-		await deleteCongregationApplicationRecord(
+		await applicationOperations.deleteApplication(
 			congregation.id,
 			expiredApplication.request_id as string,
 		);
@@ -99,8 +121,10 @@ export const saveCongregationApplication = async (
 export const removeCongregationApplication = async (
 	congregation: Congregation,
 	requestId: string,
+	operations: Partial<CongregationApplicationOperations> = {},
 ): Promise<StandardRecord[]> => {
-	await deleteCongregationApplicationRecord(congregation.id, requestId);
+	const applicationOperations = { ...defaultApplicationOperations, ...operations };
+	await applicationOperations.deleteApplication(congregation.id, requestId);
 
 	congregation.ap_applications = congregation.ap_applications.filter(
 		(record) => record.request_id !== requestId,
@@ -114,9 +138,10 @@ export const updateCongregationApplication = async (
 	userId: string,
 	roles: AppRoleType[],
 	application: StandardRecord,
+	operations: Partial<CongregationApplicationOperations> = {},
 ) => {
 	const congregation = getAuthorizedApplicationCongregation(congregationId, userId, roles);
-	await saveCongregationApplication(congregation, application);
+	await saveCongregationApplication(congregation, application, operations);
 	return congregation.ap_applications;
 };
 
@@ -125,7 +150,8 @@ export const deleteCongregationApplication = async (
 	userId: string,
 	roles: AppRoleType[],
 	requestId: string,
+	operations: Partial<CongregationApplicationOperations> = {},
 ) => {
 	const congregation = getAuthorizedApplicationCongregation(congregationId, userId, roles);
-	return removeCongregationApplication(congregation, requestId);
+	return removeCongregationApplication(congregation, requestId, operations);
 };
