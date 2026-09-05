@@ -39,6 +39,8 @@ speaker workflows are also covered, along with invitation-based Pocket accounts,
 their cookie-authenticated workflows, global administration, and congregation
 administration. A contract test derives the route inventory from the Express route
 sources and fails when an implemented path or method differs from the documentation.
+When the server is running, Swagger UI is available at `/api-docs` and the raw
+contract is available at `/api-docs/openapi.json`.
 
 ## API architecture
 

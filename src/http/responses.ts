@@ -8,13 +8,17 @@ const setResponseLog = (response: Response, type: ResponseLogLevel, message: str
 	response.locals.message = message;
 };
 
+export const setSuccessResponseLog = (response: Response, message: string) => {
+	setResponseLog(response, 'info', message);
+};
+
 export const sendSuccess = <Body>(
 	response: Response,
 	body: Body,
 	logMessage: string,
 	statusCode = 200,
 ) => {
-	setResponseLog(response, 'info', logMessage);
+	setSuccessResponseLog(response, logMessage);
 	return response.status(statusCode).json(body);
 };
 

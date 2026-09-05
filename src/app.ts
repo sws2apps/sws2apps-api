@@ -16,6 +16,7 @@ import { logRequestCompletion } from '#http/middleware/request-logging.middlewar
 import { serverReadyChecker } from '#http/middleware/server-ready.middleware.js';
 
 import apiV3Routes from '#http/api-v3.routes.js';
+import apiDocumentationRoutes from '#http/api-documentation.routes.js';
 
 import { errorHandler, getRoot, invalidEndpointHandler } from '#http/app.controller.js';
 import resources from '#platform/localization/resources.js';
@@ -78,6 +79,8 @@ export const createApp = (middlewareOverrides: ApplicationMiddlewareOverrides = 
 	});
 
 	app.use(handle(i18next));
+
+	app.use('/api-docs', apiDocumentationRoutes);
 
 	app.get('/', getRoot);
 

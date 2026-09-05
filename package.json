@@ -78,6 +78,7 @@
 		"request-ip": "^3.3.0",
 		"sanitize-html": "^2.17.7",
 		"serve-favicon": "^2.5.1",
+		"swagger-ui-dist": "^5.32.15",
 		"which-browser": "^0.7.1"
 	},
 	"repository": {
