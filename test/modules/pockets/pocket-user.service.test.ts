@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import {
+	deletePocketAccount,
+	getPocketUserSessions,
 	PocketUserError,
+	revokePocketUserSession,
 	submitPocketReport,
 } from '#modules/pockets/pocket-user.service.js';
 import { Congregation } from '#modules/congregations/congregation.js';
@@ -79,5 +82,98 @@ describe('Pocket user service', () => {
 			UsersList.list = originalUsers;
 			CongregationsList.list = originalCongregations;
 		}
+	});
+});
+
+describe('Pocket account lifecycle', () => {
+	let originalCongregations: Congregation[];
+	let originalUsers: User[];
+
+	beforeEach(() => {
+		originalCongregations = CongregationsList.list;
+		originalUsers = UsersList.list;
+		CongregationsList.list = [];
+		UsersList.list = [];
+	});
+
+	afterEach(() => {
+		CongregationsList.list = originalCongregations;
+		UsersList.list = originalUsers;
+	});
+
+	it('returns a stable error when the Pocket user does not exist', () => {
+		assert.throws(
+			() => getPocketUserSessions('missing-user', 'visitor-1'),
+			(error: unknown) => {
+				return error instanceof PocketUserError
+					&& error.code === 'USER_NOT_FOUND';
+			},
+		);
+	});
+
+	it('translates a missing session into a Pocket domain error', async () => {
+		const user = new User('user-1');
+		UsersList.list = [user];
+
+		await assert.rejects(
+			revokePocketUserSession(user.id, 'missing-session'),
+			(error: unknown) => {
+				return error instanceof PocketUserError
+					&& error.code === 'SESSION_NOT_FOUND';
+			},
+		);
+	});
+
+	it('refreshes congregation members only after account deletion succeeds', async () => {
+		const user = new User('user-1');
+		const congregation = new Congregation('congregation-1');
+		user.profile.congregation = {
+			id: congregation.id,
+			cong_role: ['publisher'],
+			account_type: 'pocket',
+		};
+		UsersList.list = [user];
+		CongregationsList.list = [congregation];
+		const completedOperations: string[] = [];
+
+		await deletePocketAccount(user.id, {
+			deleteAccount: async (userId) => {
+				assert.equal(userId, user.id);
+				completedOperations.push('delete');
+			},
+			refreshMembers: (target) => {
+				assert.equal(target, congregation);
+				completedOperations.push('refresh');
+			},
+		});
+
+		assert.deepEqual(completedOperations, ['delete', 'refresh']);
+	});
+
+	it('does not refresh congregation members when account deletion fails', async () => {
+		const user = new User('user-1');
+		const congregation = new Congregation('congregation-1');
+		user.profile.congregation = {
+			id: congregation.id,
+			cong_role: ['publisher'],
+			account_type: 'pocket',
+		};
+		UsersList.list = [user];
+		CongregationsList.list = [congregation];
+		let membersRefreshed = false;
+
+		await assert.rejects(
+			deletePocketAccount(user.id, {
+				deleteAccount: async () => {
+					throw new Error('identity unavailable');
+				},
+				refreshMembers: () => {
+					membersRefreshed = true;
+				},
+			}),
+			/identity unavailable/,
+		);
+
+		assert.equal(membersRefreshed, false);
 	});
 });

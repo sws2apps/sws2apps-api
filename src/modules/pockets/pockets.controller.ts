@@ -56,6 +56,30 @@ const handlePocketBackupError = (error: unknown, res: Response): boolean => {
 	return true;
 };
 
+const handlePocketUserError = (error: unknown, res: Response): boolean => {
+	if (!(error instanceof PocketUserError)) return false;
+
+	if (error.code === 'USER_NOT_FOUND') {
+		res.clearCookie('visitorid');
+		sendClientError(res, 404, 'ACCOUNT_NOT_FOUND', 'Pocket user account does not exist');
+		return true;
+	}
+
+	if (error.code === 'SESSION_NOT_FOUND') {
+		sendClientError(res, 404, 'SESSION_NOT_FOUND', 'Pocket user session does not exist');
+		return true;
+	}
+
+	if (error.code === 'CONGREGATION_NOT_FOUND') {
+		res.clearCookie('visitorid');
+		sendClientError(res, 404, 'error_app_congregation_not-found', 'user not associated to any congregation');
+		return true;
+	}
+
+	sendClientError(res, 403, 'error_api_unauthorized-request', 'user not authorized to access the provided congregation');
+	return true;
+};
+
 export const validateInvitation = async (req: Request, res: Response) => {
 	try {
 		const authentication = await authenticatePocketInvitation({
@@ -116,32 +140,35 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 };
 
 export const getPocketSessions = async (req: Request, res: Response) => {
-	const sessions = getPocketUserSessions(res.locals.currentUser.id, req.signedCookies.visitorid);
+	try {
+		const sessions = getPocketUserSessions(
+			res.locals.currentUser.id,
+			req.signedCookies.visitorid,
+		);
 
-	sendSuccess(res, sessions, `user has fetched sessions successfully`);
+		sendSuccess(res, sessions, `user has fetched sessions successfully`);
+	} catch (error) {
+		if (!handlePocketUserError(error, res)) throw error;
+	}
 };
 
 export const deletePocketSession = async (req: Request, res: Response) => {
 	const identifier = req.body.identifier as string;
 
-	const sessions = await revokePocketUserSession(res.locals.currentUser.id, identifier);
+	try {
+		const sessions = await revokePocketUserSession(res.locals.currentUser.id, identifier);
 
-	sendSuccess(res, sessions, `user has revoked session successfully`);
+		sendSuccess(res, sessions, `user has revoked session successfully`);
+	} catch (error) {
+		if (!handlePocketUserError(error, res)) throw error;
+	}
 };
 
 export const postPocketReport = async (req: Request, res: Response) => {
 	try {
 		await submitPocketReport(res.locals.currentUser.id, req.body.report as StandardRecord);
 	} catch (error) {
-		if (!(error instanceof PocketUserError)) throw error;
-
-		if (error.code === 'CONGREGATION_NOT_FOUND') {
-			res.clearCookie('visitorid');
-			sendClientError(res, 404, 'error_app_congregation_not-found', 'user not associated to any congregation');
-			return;
-		}
-
-		sendClientError(res, 403, 'error_api_unauthorized-request', 'user not authorized to access the provided congregation');
+		if (!handlePocketUserError(error, res)) throw error;
 		return;
 	}
 
@@ -149,20 +176,35 @@ export const postPocketReport = async (req: Request, res: Response) => {
 };
 
 export const getPocketAuxiliaryApplications = async (req: Request, res: Response) => {
-	const results = getPocketApplications(res.locals.currentUser.id);
+	try {
+		const results = getPocketApplications(res.locals.currentUser.id);
 
-	sendSuccess(res, results, `user get submitted auxiliary pioneer application list`);
+		sendSuccess(res, results, `user get submitted auxiliary pioneer application list`);
+	} catch (error) {
+		if (!handlePocketUserError(error, res)) throw error;
+	}
 };
 
 export const submitPocketAuxiliaryApplications = async (req: Request, res: Response) => {
-	await submitPocketApplication(res.locals.currentUser.id, req.body.application as StandardRecord);
+	try {
+		await submitPocketApplication(
+			res.locals.currentUser.id,
+			req.body.application as StandardRecord,
+		);
 
-	sendSuccess(res, { message: 'APPLICATION_SENT' }, `user submitted auxiliary pioneer application`);
+		sendSuccess(res, { message: 'APPLICATION_SENT' }, `user submitted auxiliary pioneer application`);
+	} catch (error) {
+		if (!handlePocketUserError(error, res)) throw error;
+	}
 };
 
 export const deletePocketUser = async (req: Request, res: Response) => {
-	await deletePocketAccount(res.locals.currentUser.id);
+	try {
+		await deletePocketAccount(res.locals.currentUser.id);
 
-	sendSuccess(res, { message: 'ACCOUNT_DELETED' }, 'user deleted account successfully');
+		sendSuccess(res, { message: 'ACCOUNT_DELETED' }, 'user deleted account successfully');
+	} catch (error) {
+		if (!handlePocketUserError(error, res)) throw error;
+	}
 };
 
