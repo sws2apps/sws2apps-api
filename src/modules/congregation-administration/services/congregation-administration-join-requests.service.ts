@@ -1,12 +1,13 @@
 import type { AppRoleType } from '#domain/users/app-role.js';
 import {
+	CongregationsList,
 	approveCongregationMembership,
 	declineCongregationMembership,
 	getCongregationJoinRequests,
+	isCongregationMember,
+	type Congregation,
 } from '#modules/congregations/index.js';
-import { CongregationsList } from '#modules/congregations/index.js';
-import { UsersList } from '#modules/users/index.js';
-import { isCongregationMember } from '#modules/congregations/index.js';
+import { UsersList, type User } from '#modules/users/index.js';
 
 export type CongregationJoinRequestErrorCode =
 	| 'CONGREGATION_NOT_FOUND'
@@ -21,10 +22,43 @@ export class CongregationJoinRequestError extends Error {
 	}
 }
 
-const getAuthorizedCongregation = (congregationId: string, administratorId: string) => {
-	const congregation = CongregationsList.findById(congregationId);
+export type CongregationJoinRequestAdministrationOperations = {
+	findCongregationById: (congregationId: string) => Congregation | undefined;
+	findUserById: (userId: string) => User | undefined;
+	isMember: typeof isCongregationMember;
+	approveMembership: typeof approveCongregationMembership;
+	declineMembership: typeof declineCongregationMembership;
+	getRequests: typeof getCongregationJoinRequests;
+};
+
+const defaultAdministrationOperations: CongregationJoinRequestAdministrationOperations = {
+	findCongregationById: (congregationId) => CongregationsList.findById(congregationId),
+	findUserById: (userId) => UsersList.findById(userId),
+	isMember: (congregation, userId) => isCongregationMember(congregation, userId),
+	approveMembership: (congregation, userId, input) => {
+		return approveCongregationMembership(congregation, userId, input);
+	},
+	declineMembership: (congregation, userId) => {
+		return declineCongregationMembership(congregation, userId);
+	},
+	getRequests: (congregation) => getCongregationJoinRequests(congregation),
+};
+
+const resolveAdministrationOperations = (
+	overrides: Partial<CongregationJoinRequestAdministrationOperations>,
+): CongregationJoinRequestAdministrationOperations => ({
+	...defaultAdministrationOperations,
+	...overrides,
+});
+
+const getAuthorizedCongregation = (
+	congregationId: string,
+	administratorId: string,
+	operations: CongregationJoinRequestAdministrationOperations,
+) => {
+	const congregation = operations.findCongregationById(congregationId);
 	if (!congregation) throw new CongregationJoinRequestError('CONGREGATION_NOT_FOUND');
-	if (!isCongregationMember(congregation, administratorId)) {
+	if (!operations.isMember(congregation, administratorId)) {
 		throw new CongregationJoinRequestError('MEMBERSHIP_REQUIRED');
 	}
 	return congregation;
@@ -34,10 +68,16 @@ export const declineCongregationJoinRequest = async (
 	congregationId: string,
 	administratorId: string,
 	userId: string,
+	operations: Partial<CongregationJoinRequestAdministrationOperations> = {},
 ) => {
-	const congregation = getAuthorizedCongregation(congregationId, administratorId);
-	await declineCongregationMembership(congregation, userId);
-	return getCongregationJoinRequests(congregation);
+	const administration = resolveAdministrationOperations(operations);
+	const congregation = getAuthorizedCongregation(
+		congregationId,
+		administratorId,
+		administration,
+	);
+	await administration.declineMembership(congregation, userId);
+	return administration.getRequests(congregation);
 };
 
 type ApproveJoinRequestInput = {
@@ -52,8 +92,14 @@ export const approveCongregationJoinRequest = async (
 	administratorId: string,
 	userId: string,
 	input: ApproveJoinRequestInput,
+	operations: Partial<CongregationJoinRequestAdministrationOperations> = {},
 ) => {
-	const congregation = getAuthorizedCongregation(congregationId, administratorId);
+	const administration = resolveAdministrationOperations(operations);
+	const congregation = getAuthorizedCongregation(
+		congregationId,
+		administratorId,
+		administration,
+	);
 	const hasPendingRequest = congregation.join_requests.some(
 		(request) => request.user === userId,
 	);
@@ -61,13 +107,13 @@ export const approveCongregationJoinRequest = async (
 		throw new CongregationJoinRequestError('USER_NOT_FOUND');
 	}
 
-	const user = UsersList.findById(userId);
+	const user = administration.findUserById(userId);
 	if (!user) throw new CongregationJoinRequestError('USER_NOT_FOUND');
 	if (user.profile.congregation) {
 		throw new CongregationJoinRequestError('USER_ALREADY_ASSIGNED');
 	}
 
-	await approveCongregationMembership(congregation, userId, {
+	await administration.approveMembership(congregation, userId, {
 		person_uid: input.personUid,
 		role: input.roles,
 		firstname: input.firstname,
@@ -75,7 +121,7 @@ export const approveCongregationJoinRequest = async (
 	});
 
 	return {
-		requests: getCongregationJoinRequests(congregation),
+		requests: administration.getRequests(congregation),
 		notification: {
 			recipient: user.email,
 			requestorName: user.profile.firstname.value,

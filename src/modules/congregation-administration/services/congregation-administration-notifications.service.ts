@@ -9,11 +9,30 @@ type JoinRequestApprovalEmail = {
 	message: string;
 };
 
-export const isJoinRequestApprovalEmailEnabled = (): boolean => env.mailEnabled;
+export type JoinRequestApprovalEmailOperations = {
+	sendEmail: typeof mailClient.sendEmail;
+	getCurrentYear: () => number;
+};
+
+const defaultEmailOperations: JoinRequestApprovalEmailOperations = {
+	sendEmail: (options, successMessage) => {
+		return mailClient.sendEmail(options, successMessage);
+	},
+	getCurrentYear: () => new Date().getFullYear(),
+};
+
+export const isJoinRequestApprovalEmailEnabled = (
+	mailEnabled = env.mailEnabled,
+): boolean => mailEnabled;
 
 export const sendJoinRequestApprovalEmail = (
 	email: JoinRequestApprovalEmail,
+	operations: Partial<JoinRequestApprovalEmailOperations> = {},
 ): void => {
+	const notification = {
+		...defaultEmailOperations,
+		...operations,
+	};
 	const options = {
 		to: email.recipient,
 		subject: email.subject,
@@ -22,11 +41,11 @@ export const sendJoinRequestApprovalEmail = (
 			requestor: email.greeting,
 			joinRequestApprovedTitle: email.title,
 			joinRequestApprovedMessage: email.message,
-			copyright: new Date().getFullYear(),
+			copyright: notification.getCurrentYear(),
 		},
 	};
 
-	void mailClient.sendEmail(
+	void notification.sendEmail(
 		options,
 		'Join request approval email sent to user',
 	);
