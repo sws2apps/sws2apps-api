@@ -29,6 +29,12 @@ npm run dev
 
 The API listens on port `8000` unless `PORT` is set to another valid port.
 
+## API contract
+
+The dependency-free [OpenAPI 3.1 contract](./docs/openapi/openapi.json) documents the
+public HTTP interface. It currently covers the public and authentication foundation;
+the remaining feature routes are added in independently verifiable groups.
+
 ## API architecture
 
 The versioned API is exposed under `/api/v3`. Preserve that public contract unless

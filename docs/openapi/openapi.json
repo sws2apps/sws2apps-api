@@ -1,0 +1,731 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "sws2apps API",
+    "version": "3",
+    "description": "HTTP contract for version 3 of the sws2apps API."
+  },
+  "servers": [
+    {
+      "url": "/api/v3",
+      "description": "Current host"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Public",
+      "description": "Endpoints available without an authenticated session."
+    },
+    {
+      "name": "Authentication",
+      "description": "Account authentication and passwordless sign-in."
+    }
+  ],
+  "paths": {
+    "/public/stats": {
+      "get": {
+        "operationId": "getPublicStats",
+        "summary": "Get public application statistics",
+        "tags": ["Public"],
+        "responses": {
+          "200": {
+            "description": "Current public statistics.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicStats"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServerNotReady"
+          }
+        }
+      }
+    },
+    "/public/feature-flags": {
+      "get": {
+        "operationId": "getPublicFeatureFlags",
+        "summary": "Get enabled feature flags",
+        "description": "Returns the enabled flags for an application installation and user context.",
+        "tags": ["Public"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InstallationHeader"
+          },
+          {
+            "$ref": "#/components/parameters/UserHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A map of feature names to their enabled state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureFlagMap"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServerNotReady"
+          }
+        }
+      }
+    },
+    "/user-login": {
+      "get": {
+        "operationId": "loginUser",
+        "summary": "Authenticate with an identity token",
+        "tags": ["Authentication"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppClientHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppVersionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AuthenticationResult"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/AuthenticationNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServerNotReady"
+          }
+        }
+      }
+    },
+    "/user-passwordless-login": {
+      "post": {
+        "operationId": "createPasswordlessSignIn",
+        "summary": "Request a passwordless sign-in",
+        "tags": ["Authentication"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppClientHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppVersionHeader"
+          },
+          {
+            "$ref": "#/components/parameters/OriginHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ApplicationLanguageHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordlessSignInRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The sign-in email was scheduled, or development sign-in details were returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasswordlessSignInResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/OriginNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServerNotReady"
+          }
+        }
+      }
+    },
+    "/user-passwordless-verify": {
+      "post": {
+        "operationId": "verifyPasswordlessSignIn",
+        "summary": "Complete passwordless authentication",
+        "tags": ["Authentication"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppClientHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppVersionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AuthenticationResult"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/AuthenticationNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServerNotReady"
+          }
+        }
+      }
+    },
+    "/verify-email-token": {
+      "post": {
+        "operationId": "verifyEmailToken",
+        "summary": "Authenticate with an email one-time password",
+        "tags": ["Authentication"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppClientHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AppVersionHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailTokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AuthenticationResult"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/InvalidAuthenticationToken"
+          },
+          "404": {
+            "$ref": "#/components/responses/AuthenticationNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServerNotReady"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Firebase ID token",
+        "description": "Identity token supplied through the Authorization header."
+      },
+      "visitorCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "visitorid",
+        "description": "Signed, HTTP-only session cookie set after authentication."
+      }
+    },
+    "parameters": {
+      "AppClientHeader": {
+        "name": "appclient",
+        "in": "header",
+        "required": true,
+        "description": "Calling sws2apps client identifier.",
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "AppVersionHeader": {
+        "name": "appversion",
+        "in": "header",
+        "required": true,
+        "description": "Numeric dotted version of the calling client.",
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+(?:\\.\\d+)*$"
+        }
+      },
+      "ApplicationLanguageHeader": {
+        "name": "applanguage",
+        "in": "header",
+        "required": false,
+        "description": "Language used for the passwordless email.",
+        "schema": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 10,
+          "default": "eng"
+        }
+      },
+      "InstallationHeader": {
+        "name": "installation",
+        "in": "header",
+        "required": true,
+        "description": "Application installation identifier.",
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "OriginHeader": {
+        "name": "Origin",
+        "in": "header",
+        "required": true,
+        "description": "Trusted application origin used to create the sign-in link.",
+        "schema": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "UserHeader": {
+        "name": "user",
+        "in": "header",
+        "required": true,
+        "description": "User identifier or an empty string when no user is associated yet.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "AuthenticationResult": {
+        "description": "Authentication succeeded or requires MFA verification.",
+        "headers": {
+          "Set-Cookie": {
+            "description": "Sets the signed visitor session cookie.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/UserAuthentication"
+                },
+                {
+                  "$ref": "#/components/schemas/MfaChallenge"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "AuthenticationNotFound": {
+        "description": "The identity token is invalid or the account does not exist.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "invalidToken": {
+                "value": {
+                  "message": "error_auth_invalid-token"
+                }
+              },
+              "missingUser": {
+                "value": {
+                  "message": "USER_NOT_FOUND"
+                }
+              }
+            }
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "Request headers, parameters, or payload failed validation.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "routeValidation": {
+                "value": {
+                  "message": "error_api_bad-request"
+                }
+              },
+              "clientValidation": {
+                "value": {
+                  "message": "INPUT_INVALID"
+                }
+              },
+              "outdatedClient": {
+                "value": {
+                  "message": "CLIENT_VERSION_OUTDATED"
+                }
+              }
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "The request could not be completed because of an internal failure.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "message": "error_api_internal-error"
+            }
+          }
+        }
+      },
+      "InvalidAuthenticationToken": {
+        "description": "The one-time password is invalid or expired.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "message": "error_auth_invalid-token"
+            }
+          }
+        }
+      },
+      "OriginNotAllowed": {
+        "description": "The browser origin is not trusted.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "message": "ORIGIN_NOT_ALLOWED"
+            }
+          }
+        }
+      },
+      "ServerNotReady": {
+        "description": "Application state is still initializing.",
+        "headers": {
+          "Retry-After": {
+            "description": "Suggested retry delay in seconds.",
+            "schema": {
+              "type": "integer",
+              "example": 30
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "message": "SERVER_NOT_READY"
+            }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": "The request rate limit was exceeded.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "message": "TOO_MANY_REQUESTS"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "EmailTokenRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["email", "token"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254
+          },
+          "token": {
+            "oneOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{6}$"
+              },
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 999999
+              }
+            ]
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["message"],
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "FeatureFlagMap": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "boolean"
+        }
+      },
+      "MfaChallenge": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["message"],
+        "properties": {
+          "message": {
+            "const": "MFA_VERIFY"
+          },
+          "code": {
+            "type": "string",
+            "description": "Development-only MFA code; omitted in production."
+          }
+        }
+      },
+      "PasswordlessSignInRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["email"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254
+          }
+        }
+      },
+      "PasswordlessSignInResponse": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["message"],
+            "properties": {
+              "message": {
+                "const": "SIGNIN_LINK_SEND"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["link", "otp"],
+            "properties": {
+              "link": {
+                "type": "string",
+                "format": "uri"
+              },
+              "otp": {
+                "type": "string",
+                "pattern": "^\\d{6}$"
+              }
+            }
+          }
+        ]
+      },
+      "PublicStats": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["languages", "congregations", "users", "countries"],
+        "properties": {
+          "languages": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "congregations": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "users": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "countries": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["count", "list"],
+            "properties": {
+              "count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "list": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["country_name", "country_code", "congregations"],
+                  "properties": {
+                    "country_name": {
+                      "type": "string"
+                    },
+                    "country_code": {
+                      "type": "string"
+                    },
+                    "congregations": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "TimestampedString": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["value", "updatedAt"],
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UserAuthentication": {
+        "type": "object",
+        "required": ["message", "id", "app_settings"],
+        "properties": {
+          "message": {
+            "const": "TOKEN_VALID"
+          },
+          "id": {
+            "type": "string"
+          },
+          "custom_token": {
+            "type": "string"
+          },
+          "app_settings": {
+            "type": "object",
+            "required": ["user_settings"],
+            "properties": {
+              "user_settings": {
+                "type": "object",
+                "required": ["firstname", "lastname", "role"],
+                "properties": {
+                  "firstname": {
+                    "$ref": "#/components/schemas/TimestampedString"
+                  },
+                  "lastname": {
+                    "$ref": "#/components/schemas/TimestampedString"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": ["vip", "pocket", "admin"]
+                  },
+                  "mfa": {
+                    "type": "string",
+                    "enum": ["not_enabled", "enabled"]
+                  },
+                  "user_local_uid": {
+                    "type": "string"
+                  },
+                  "cong_role": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "user_members_delegate": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "cong_settings": {
+                "type": "object",
+                "description": "Congregation settings available to the authenticated member."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
