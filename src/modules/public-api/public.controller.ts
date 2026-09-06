@@ -11,8 +11,7 @@ export const getStats = async (req: Request, res: Response) => {
 
 export const getFeatureFlags = async (req: Request, res: Response) => {
 	const installation = req.headers.installation as string;
-	const userId = req.headers.user as string | undefined;
-	const featureFlags = await getPublicFeatureFlags(installation, userId);
+	const featureFlags = await getPublicFeatureFlags(installation);
 
 	sendSuccess(res, featureFlags, 'app client fetched feature flags');
 };

@@ -10,7 +10,6 @@ publicApiRouter.get('/stats', getStats);
 publicApiRouter.get(
 	'/feature-flags',
 	header('installation').isString().notEmpty(),
-	header('user').isString(),
 	validateRequest,
 	getFeatureFlags,
 );

@@ -94,14 +94,11 @@
       "get": {
         "operationId": "getPublicFeatureFlags",
         "summary": "Get enabled feature flags",
-        "description": "Returns the enabled flags for an application installation and user context.",
+        "description": "Returns the enabled flags for an application installation. User and congregation scoping is resolved from the installation's persisted binding; anonymous installations receive application-scoped flags only.",
         "tags": ["Public"],
         "parameters": [
           {
             "$ref": "#/components/parameters/InstallationHeader"
-          },
-          {
-            "$ref": "#/components/parameters/UserHeader"
           }
         ],
         "responses": {
@@ -2617,15 +2614,6 @@
         "schema": {
           "type": "string",
           "format": "uri"
-        }
-      },
-      "UserHeader": {
-        "name": "user",
-        "in": "header",
-        "required": true,
-        "description": "User identifier or an empty string when no user is associated yet.",
-        "schema": {
-          "type": "string"
         }
       },
       "UserIdPath": {

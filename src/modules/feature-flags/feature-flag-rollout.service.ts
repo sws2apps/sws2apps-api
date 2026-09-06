@@ -148,34 +148,33 @@ const addUserFlag = async (
 
 export const getPublicFeatureFlags = async (
 	installationId: string,
-	requestedUserId?: string,
 	operations: FeatureFlagRolloutOperations = defaultRolloutOperations,
 ): Promise<Record<string, boolean>> => {
 	const enabledFeatureFlags: Record<string, boolean> = {};
+
+	if (installationId.length === 0) return enabledFeatureFlags;
+
 	const activeFlags = Flags.list.filter((flag) => flag.status);
 	const nonAdminUserCount = UsersList.list.filter(
 		(user) => user.profile.role !== 'admin',
 	).length;
 	const congregationCount = CongregationsList.list.length;
 	const installationCount = InstallationsList.list.length;
-	let userId = requestedUserId;
+	const userId = InstallationsList.find(installationId)?.user;
 
 	for (const flag of activeFlags) {
-		if (installationId.length === 0) continue;
-
 		if (flag.availability === 'app') {
 			await addApplicationFlag(flag, enabledFeatureFlags, installationId, installationCount, operations);
 			continue;
 		}
 
-		const installation = InstallationsList.find(installationId);
-		userId = userId || installation?.user;
+		if (!userId) continue;
 
-		if (flag.availability === 'congregation' && userId) {
+		if (flag.availability === 'congregation') {
 			await addCongregationFlag(flag, enabledFeatureFlags, userId, congregationCount, operations);
 		}
 
-		if (flag.availability === 'user' && userId) {
+		if (flag.availability === 'user') {
 			await addUserFlag(flag, enabledFeatureFlags, userId, nonAdminUserCount, operations);
 		}
 	}
