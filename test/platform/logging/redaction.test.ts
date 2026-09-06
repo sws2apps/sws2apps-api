@@ -4,6 +4,14 @@ import { describe, it } from 'node:test';
 import { redactLogContext } from '#platform/logging/redaction.js';
 
 describe('log context redaction', () => {
+	it('preserves all sensitive key variants and the exact IP boundary', () => {
+		const keys = ['Authorization', 'cookie', 'EMAIL', 'password', 'secret', 'token', 'access_code', 'accessCode', 'master-key', 'backup', 'user.id', 'congregation_id', 'cong_id', 'congid', 'IP', 'browser'];
+		const context = Object.fromEntries(keys.map((key) => [key, 'sensitive']));
+		assert.deepEqual(redactLogContext({ ...context, shipment: 'safe' }), {
+			...Object.fromEntries(keys.map((key) => [key, '[REDACTED]'])), shipment: 'safe',
+		});
+	});
+
 	it('redacts credentials and personal email addresses', () => {
 		const context = redactLogContext({
 			authorization: 'Bearer secret-token',

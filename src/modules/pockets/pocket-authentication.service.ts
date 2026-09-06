@@ -1,13 +1,18 @@
 import type { IncomingHttpHeaders } from 'node:http';
-
 import { getVisitorSessionDetails } from '#modules/auth/index.js';
-import type { Congregation } from '#modules/congregations/index.js';
-import { CongregationsList } from '#modules/congregations/index.js';
-import { refreshCongregationMembers } from '#modules/congregations/index.js';
-import type { User } from '#modules/users/index.js';
-import type { UserAuthResponse, UserSession } from '#modules/users/index.js';
-import { UsersList } from '#modules/users/index.js';
-import { updateUserProfile, updateUserSessions } from '#modules/users/index.js';
+import {
+	type Congregation,
+	CongregationsList,
+	refreshCongregationMembers,
+} from '#modules/congregations/index.js';
+import {
+	type User,
+	type UserAuthResponse,
+	type UserSession,
+	UsersList,
+	updateUserProfile,
+	updateUserSessions,
+} from '#modules/users/index.js';
 import { parsePocketInvitationCode } from './invitation-code.js';
 import { decryptPocketAccessCode } from './pocket-invitation.service.js';
 import { decryptData } from '#platform/encryption/encryption.js';

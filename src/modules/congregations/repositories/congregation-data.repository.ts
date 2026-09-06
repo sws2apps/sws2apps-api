@@ -86,7 +86,7 @@ export const getOutgoingSpeakersAccessList = async (congId: string) => {
 };
 
 export const setCongPersons = async (id: string, persons: StandardRecord[]) => {
-	for await (const person of persons) {
+	for (const person of persons) {
 		const personData = JSON.stringify(person);
 		const path = `${id}/persons/${person.person_uid}.txt`;
 		await uploadFileToStorage(personData, { type: 'congregation', path });

@@ -110,40 +110,25 @@ export const requireAuthenticatedSession = (
 			// assign local vars for current user in next route
 			res.locals.currentUser = user;
 
-			if (user.profile.mfa_enabled) {
-				const { mfaVerified } = activeSession;
-
-				if (mfaVerified) {
-					// update last seen
-					await dependencies.refreshSession({
-						userId: user.id,
-						visitorId,
-						visitorIp: req.clientIp!,
-						headers: req.headers,
-					});
+			if (user.profile.mfa_enabled && !activeSession.mfaVerified) {
+				if (req.path === '/verify-token') {
 					next();
 				} else {
-					// allow verify token to pass this middleware
-					if (req.path === '/verify-token') {
-						next();
-					} else {
-						sendClientError(res, 401, 'LOGIN_FIRST', 'two factor authentication required');
-					}
+					sendClientError(res, 401, 'LOGIN_FIRST', 'two factor authentication required');
 				}
-			} else {
-				// update last seen
-				const lastSeenUpdatePaths = ['/validate-me'];
-				if (lastSeenUpdatePaths.includes(req.path)) {
-					await dependencies.refreshSession({
-						userId: user.id,
-						visitorId,
-						visitorIp: req.clientIp!,
-						headers: req.headers,
-					});
-				}
-
-				next();
+				return;
 			}
+
+			if (user.profile.mfa_enabled || req.path === '/validate-me') {
+				await dependencies.refreshSession({
+					userId: user.id,
+					visitorId,
+					visitorIp: req.clientIp!,
+					headers: req.headers,
+				});
+			}
+
+			next();
 		} catch (err) {
 			if (!handleSessionStateError(err, res)) next(err);
 		}

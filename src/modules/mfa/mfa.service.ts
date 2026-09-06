@@ -1,11 +1,13 @@
 import * as OTPAuth from 'otpauth';
-
 import { env } from '#config/env.js';
 import { canAccessCongregationMasterKey } from '#domain/users/master-key-roles.js';
 import { CongregationsList } from '#modules/congregations/index.js';
-import type { UserAuthResponse, UserSession } from '#modules/users/index.js';
-import { UsersList } from '#modules/users/index.js';
-import { updateUserSessions } from '#modules/users/index.js';
+import {
+	type UserAuthResponse,
+	type UserSession,
+	UsersList,
+	updateUserSessions,
+} from '#modules/users/index.js';
 import { isTokenWithinAllowedWindow } from './token-validation.js';
 import {
 	decryptUserMfaSecret,

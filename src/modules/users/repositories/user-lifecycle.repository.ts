@@ -32,7 +32,7 @@ export const deletePersistedUser = async (userId: string): Promise<void> => {
 };
 
 export const getUserIds = async () => {
-	const pattern = '^v3\\/users\\/(.+?)\\/';
+	const pattern = String.raw`^v3\/users\/(.+?)\/`;
 
 	const files = await listFilesFromStorage({ type: 'user', path: '' });
 
@@ -56,7 +56,8 @@ export const getUserDetails = async (id: string) => {
 	const profile = await getUserProfileMetadata(id);
 	const settings = await getUserSettingsMetadata(id);
 
-	const user_settings = profile > settings ? profile : settings;
+	let user_settings = settings;
+	if (profile > settings) user_settings = profile;
 
 	return {
 		settings: await getUserSettings(id),

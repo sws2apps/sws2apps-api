@@ -153,7 +153,7 @@ const joinRoutePath = (mountPath: string, modulePath: string) => {
 	const normalizedModulePath = modulePath === '/' ? '' : modulePath;
 	const expressPath = `${normalizedMount}${normalizedModulePath}` || '/';
 
-	return expressPath.replace(/:([A-Za-z0-9_]+)/g, '{$1}');
+	return expressPath.replace(/:(\w+)/g, '{$1}');
 };
 
 export const discoverApiRoutes = async (): Promise<ApiRouteInventory> => {

@@ -1,8 +1,10 @@
 import type { Context } from '@logtail/types';
 
 const redactedValue = '[REDACTED]';
-const sensitiveKeyPattern =
-	/(authorization|cookie|email|password|secret|token|access.?code|master.?key|backup|user.?id|congregation.?id|cong_?id|^ip$|browser)/i;
+const sensitiveKeyPatterns = [
+	/authorization|cookie|email|password|secret|token|backup|browser/i,
+	/access.?code|master.?key|user.?id|congregation.?id|cong_?id|^ip$/i,
+];
 
 const redactValue = (value: unknown): unknown => {
 	if (Array.isArray(value)) return value.map(redactValue);
@@ -10,7 +12,7 @@ const redactValue = (value: unknown): unknown => {
 
 	return Object.fromEntries(
 		Object.entries(value).map(([key, nestedValue]) => {
-			if (sensitiveKeyPattern.test(key)) return [key, redactedValue];
+			if (sensitiveKeyPatterns.some((pattern) => pattern.test(key))) return [key, redactedValue];
 			return [key, redactValue(nestedValue)];
 		}),
 	);

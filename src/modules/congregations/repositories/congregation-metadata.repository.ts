@@ -10,7 +10,7 @@ export const getPersonsMetadata = async (cong_id: string) => {
 	});
 	const dates = files.map((file) => file.updatedAt);
 
-	const updated = dates.sort((a, b) => b.localeCompare(a)).at(0) || '';
+	const updated = dates.toSorted((a, b) => b.localeCompare(a)).at(0) || '';
 
 	return updated;
 };

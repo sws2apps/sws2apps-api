@@ -4,24 +4,21 @@ import type { StandardRecord } from '../../../types/standard-record.js';
 import {
 	getCongregationJoinRequests,
 	requestCongregationMembership as saveCongregationMembershipRequest,
-} from '#modules/congregations/index.js';
-import { CongregationsList } from '#modules/congregations/index.js';
-import { saveCongregationApplication } from '#modules/congregations/index.js';
-import type { CongregationUpdatesType } from '#modules/congregations/index.js';
-import { sendFeedbackEmail } from './user-notifications.service.js';
-import { UsersList } from '../users.js';
-import {
+	CongregationsList,
+	saveCongregationApplication,
+	type CongregationUpdatesType,
 	getPendingOutgoingSpeakerAccess,
 	getRejectedSpeakerRequests,
 	getRemoteSpeakerCongregations,
-} from '#modules/congregations/index.js';
-import { isCongregationMember } from '#modules/congregations/index.js';
-import { updateUserProfile } from './user-data.service.js';
-import {
+	isCongregationMember,
 	getCongregationPersons,
 	saveCongregationIncomingReports,
 	saveCongregationPersons,
 } from '#modules/congregations/index.js';
+import { sendFeedbackEmail } from './user-notifications.service.js';
+import { UsersList } from '../users.js';
+import { updateUserProfile } from './user-data.service.js';
+
 
 export type UserCongregationActivityErrorCode =
 	| 'USER_NOT_FOUND'

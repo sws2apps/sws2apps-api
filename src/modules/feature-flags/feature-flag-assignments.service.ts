@@ -1,7 +1,12 @@
-import type { Congregation } from '#modules/congregations/index.js';
-import { setCongregationFlags } from '#modules/congregations/index.js';
-import type { User } from '#modules/users/index.js';
-import { setUserFlags } from '#modules/users/index.js';
+import {
+	type Congregation,
+	setCongregationFlags,
+} from '#modules/congregations/index.js';
+import {
+	type User,
+	setUserFlags,
+} from '#modules/users/index.js';
+
 
 export const toggleFeatureFlagAssignment = (
 	assignedFlags: string[],

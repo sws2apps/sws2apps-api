@@ -1,5 +1,5 @@
-import type { OTPSecretType } from './user-secret.js';
 import {
+	type OTPSecretType,
 	generateUserMfaSecret,
 	MfaSecretError,
 	parseUserMfaSecret,
@@ -8,8 +8,12 @@ import {
 	decryptData,
 	encryptData,
 } from '#platform/encryption/encryption.js';
-import type { User } from '#modules/users/index.js';
-import { updateUserProfile, updateUserSessions } from '#modules/users/index.js';
+import {
+	type User,
+	updateUserProfile,
+	updateUserSessions,
+} from '#modules/users/index.js';
+
 
 export type UserMfaOperations = {
 	generateSecret: typeof generateUserMfaSecret;

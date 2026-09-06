@@ -1,23 +1,22 @@
-import type { OutgoingTalkScheduleType } from '#modules/congregations/index.js';
-import { CongregationsList } from '#modules/congregations/index.js';
 import {
-	prepareSchedulePublication,
-	saveSchedulePublication,
-} from './schedule-publication.js';
-import {
+	type OutgoingTalkScheduleType,
+	CongregationsList,
 	approveOutgoingSpeakerAccess,
 	copyOutgoingTalkSchedule,
 	getApprovedVisitingSpeakerCongregations,
 	getPendingOutgoingSpeakerAccess,
 	rejectOutgoingSpeakerAccess,
 	requestOutgoingSpeakerAccess,
-} from '#modules/congregations/index.js';
-import { isCongregationMember } from '#modules/congregations/index.js';
-import { findVisitingSpeakerCongregations } from './visiting-speaker-directory.js';
-import {
+	isCongregationMember,
 	getPublicSchedules,
 	getPublicSources,
 } from '#modules/congregations/index.js';
+import {
+	prepareSchedulePublication,
+	saveSchedulePublication,
+} from './schedule-publication.js';
+import { findVisitingSpeakerCongregations } from './visiting-speaker-directory.js';
+
 
 export type MeetingAccessErrorCode =
 	| 'CONGREGATION_NOT_FOUND'

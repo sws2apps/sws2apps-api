@@ -50,7 +50,7 @@ export const logRequestCompletion = () => {
 				const [s, ns] = process.hrtime(start);
 				const ms = Math.round(s * 1e3 + ns / 1e6);
 
-				const message = (res.locals.message ?? '').replace(/\n|\r/g, '');
+				const message = (res.locals.message ?? '').replace(/[\n\r]/g, '');
 				const memory = process.memoryUsage();
 
 				const context = {

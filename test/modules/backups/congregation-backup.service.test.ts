@@ -127,6 +127,30 @@ describe('congregation backup persistence', () => {
 		]);
 	});
 
+	it('stops subsequent backup writes after a persistence failure', async () => {
+		const congregation = new Congregation('congregation-1');
+		congregation.settings.data_sync.value = true;
+		const recorder = createOperations();
+		const failure = new Error('Persistence unavailable');
+		recorder.operations.saveSpeakersKey = async () => { throw failure; };
+		await assert.rejects(saveCongregationBackup(congregation, createBackup(), ['secretary'], recorder.operations), failure);
+		assert.deepEqual(recorder.savedOperations, ['persons', 'speakers_congregations', 'visiting_speakers']);
+	});
+
+	it('uses the updated data-sync setting before restoring private data', async () => {
+		const congregation = new Congregation('congregation-1');
+		const backup = createBackup();
+		backup.app_settings.cong_settings = structuredClone(congregation.settings);
+		backup.app_settings.cong_settings.data_sync = { value: true, updatedAt: '2099-01-01T00:00:00.000Z' };
+		const recorder = createOperations();
+		recorder.operations.saveSettings = async (_congregation, settings) => {
+			recorder.savedOperations.push('settings');
+			congregation.settings = settings;
+		};
+		await saveCongregationBackup(congregation, backup, ['midweek_schedule'], recorder.operations);
+		assert.deepEqual(recorder.savedOperations, ['settings', 'persons', 'schedules', 'sources']);
+	});
+
 	it('does not persist congregation data for an ordinary publisher', async () => {
 		const congregation = new Congregation('congregation-1');
 		congregation.settings.data_sync.value = true;

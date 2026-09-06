@@ -40,6 +40,111 @@ const defaultCongregationBackupOperations: CongregationBackupOperations = {
 	updateProfile: updateUserProfile,
 };
 
+const savePeopleAndSpeakers = async (
+	congregation: Congregation,
+	backup: BackupData,
+	capabilities: ReturnType<typeof getUserCapabilities>,
+	operations: CongregationBackupOperations,
+): Promise<void> => {
+	if (capabilities.scheduleEditor && backup.persons) {
+		await operations.savePersons(congregation, backup.persons);
+	}
+
+	if (capabilities.publicTalkEditor && backup.speakers_congregations) {
+		await operations.saveStandardData(
+			congregation,
+			'speakers_congregations',
+			backup.speakers_congregations,
+		);
+	}
+
+	if (capabilities.publicTalkEditor && backup.visiting_speakers) {
+		await operations.saveStandardData(
+			congregation,
+			'visiting_speakers',
+			backup.visiting_speakers,
+		);
+	}
+
+	if (capabilities.publicTalkEditor && backup.speakers_key) {
+		await operations.saveSpeakersKey(congregation, backup.speakers_key);
+	}
+};
+
+const saveAdministrationAndSchedules = async (
+	congregation: Congregation,
+	backup: BackupData,
+	capabilities: ReturnType<typeof getUserCapabilities>,
+	operations: CongregationBackupOperations,
+): Promise<void> => {
+	if (capabilities.adminRole && backup.branch_cong_analysis) {
+		await operations.saveStandardData(
+			congregation,
+			'branch_cong_analysis',
+			backup.branch_cong_analysis,
+		);
+	}
+
+	if (capabilities.adminRole && backup.branch_field_service_reports) {
+		await operations.saveStandardData(
+			congregation,
+			'branch_field_service_reports',
+			backup.branch_field_service_reports,
+		);
+	}
+
+	if (capabilities.serviceCommiteeRole && backup.field_service_groups) {
+		await operations.saveStandardData(
+			congregation,
+			'field_service_groups',
+			backup.field_service_groups,
+		);
+	}
+
+	if (capabilities.scheduleEditor && backup.sched) {
+		await operations.saveStandardData(congregation, 'schedules', backup.sched);
+	}
+
+	if (capabilities.scheduleEditor && backup.sources) {
+		await operations.saveStandardData(congregation, 'sources', backup.sources);
+	}
+};
+
+const saveReportsAndEvents = async (
+	congregation: Congregation,
+	backup: BackupData,
+	capabilities: ReturnType<typeof getUserCapabilities>,
+	operations: CongregationBackupOperations,
+): Promise<void> => {
+	if (capabilities.reportEditorRole && backup.cong_field_service_reports) {
+		await operations.saveStandardData(
+			congregation,
+			'cong_field_service_reports',
+			backup.cong_field_service_reports,
+		);
+	}
+
+	if (capabilities.attendanceTracker && backup.meeting_attendance) {
+		await operations.saveStandardData(
+			congregation,
+			'meeting_attendance',
+			backup.meeting_attendance,
+		);
+	}
+
+	if (capabilities.adminRole && backup.upcoming_events) {
+		await operations.saveStandardData(congregation, 'upcoming_events', backup.upcoming_events);
+	}
+
+	if (capabilities.publicTalkEditor && backup.outgoing_speakers) {
+		await operations.saveOutgoingSpeakers(congregation, backup.outgoing_speakers);
+	}
+
+	if (capabilities.secretaryRole && backup.incoming_reports) {
+		await operations.saveIncomingReports(congregation, backup.incoming_reports);
+	}
+};
+
 /**
  * Restores congregation data according to the caller's capabilities and the
  * congregation's data-sync setting. Server-owned access credentials are
@@ -64,89 +169,9 @@ export const saveCongregationBackup = async (
 	}
 
 	if (congregation.settings.data_sync.value) {
-		if (capabilities.scheduleEditor && backup.persons) {
-			await operations.savePersons(congregation, backup.persons);
-		}
-
-		if (capabilities.publicTalkEditor && backup.speakers_congregations) {
-			await operations.saveStandardData(
-				congregation,
-				'speakers_congregations',
-				backup.speakers_congregations,
-			);
-		}
-
-		if (capabilities.publicTalkEditor && backup.visiting_speakers) {
-			await operations.saveStandardData(
-				congregation,
-				'visiting_speakers',
-				backup.visiting_speakers,
-			);
-		}
-
-		if (capabilities.publicTalkEditor && backup.speakers_key) {
-			await operations.saveSpeakersKey(congregation, backup.speakers_key);
-		}
-
-		if (capabilities.adminRole && backup.branch_cong_analysis) {
-			await operations.saveStandardData(
-				congregation,
-				'branch_cong_analysis',
-				backup.branch_cong_analysis,
-			);
-		}
-
-		if (capabilities.adminRole && backup.branch_field_service_reports) {
-			await operations.saveStandardData(
-				congregation,
-				'branch_field_service_reports',
-				backup.branch_field_service_reports,
-			);
-		}
-
-		if (capabilities.serviceCommiteeRole && backup.field_service_groups) {
-			await operations.saveStandardData(
-				congregation,
-				'field_service_groups',
-				backup.field_service_groups,
-			);
-		}
-
-		if (capabilities.scheduleEditor && backup.sched) {
-			await operations.saveStandardData(congregation, 'schedules', backup.sched);
-		}
-
-		if (capabilities.scheduleEditor && backup.sources) {
-			await operations.saveStandardData(congregation, 'sources', backup.sources);
-		}
-
-		if (capabilities.reportEditorRole && backup.cong_field_service_reports) {
-			await operations.saveStandardData(
-				congregation,
-				'cong_field_service_reports',
-				backup.cong_field_service_reports,
-			);
-		}
-
-		if (capabilities.attendanceTracker && backup.meeting_attendance) {
-			await operations.saveStandardData(
-				congregation,
-				'meeting_attendance',
-				backup.meeting_attendance,
-			);
-		}
-
-		if (capabilities.adminRole && backup.upcoming_events) {
-			await operations.saveStandardData(congregation, 'upcoming_events', backup.upcoming_events);
-		}
-
-		if (capabilities.publicTalkEditor && backup.outgoing_speakers) {
-			await operations.saveOutgoingSpeakers(congregation, backup.outgoing_speakers);
-		}
-
-		if (capabilities.secretaryRole && backup.incoming_reports) {
-			await operations.saveIncomingReports(congregation, backup.incoming_reports);
-		}
+		await savePeopleAndSpeakers(congregation, backup, capabilities, operations);
+		await saveAdministrationAndSchedules(congregation, backup, capabilities, operations);
+		await saveReportsAndEvents(congregation, backup, capabilities, operations);
 	}
 
 	if (capabilities.adminRole && backup.cong_users) {

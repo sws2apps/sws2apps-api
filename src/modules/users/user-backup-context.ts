@@ -2,8 +2,10 @@ import {
 	BackupMetadataError,
 	parseBackupMetadata,
 } from '#modules/backups/index.js';
-import type { Congregation } from '#modules/congregations/index.js';
-import { CongregationsList } from '#modules/congregations/index.js';
+import {
+	type Congregation,
+	CongregationsList,
+} from '#modules/congregations/index.js';
 import type { User } from './user.js';
 import { UsersList } from './users.js';
 

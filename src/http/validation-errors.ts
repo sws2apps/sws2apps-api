@@ -1,6 +1,10 @@
 import type { NextFunction, Request, Response } from 'express';
-import { validationResult } from 'express-validator';
-import { FieldValidationError, Result, ValidationError } from 'express-validator';
+import {
+	validationResult,
+	FieldValidationError,
+	Result,
+	ValidationError,
+} from 'express-validator';
 import { sendClientError } from '#http/responses.js';
 
 export const formatError = (errors: Result<ValidationError>): string => {

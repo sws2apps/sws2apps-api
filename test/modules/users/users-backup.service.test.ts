@@ -139,6 +139,31 @@ describe('user backup retrieval permissions', () => {
 		assert.equal(otherDetails.timeAway, undefined);
 	});
 
+	it('keeps the metadata version captured before an asynchronous read', async () => {
+		const { congregation, matchingMetadata, user } = createBackupContext(['publisher'], true);
+		congregation.metadata.field_service_groups = 'version-before-read';
+		const backup = await retrieveUserBackup(user.id, matchingMetadata, {
+			getFieldServiceGroups: async () => {
+				congregation.metadata.field_service_groups = 'version-after-read';
+				return [{ id: 'group-1' }];
+			},
+		});
+		assert.equal(backup.metadata.field_service_groups, 'version-before-read');
+		assert.deepEqual(backup.field_service_groups, [{ id: 'group-1' }]);
+	});
+
+	it('omits unchanged data without reading storage', async () => {
+		const { matchingMetadata, user } = createBackupContext(['publisher'], true);
+		const backup = await retrieveUserBackup(user.id, matchingMetadata, {
+			getCongregationPersons: async () => { throw new Error('Unexpected persons read'); },
+			getFieldServiceGroups: async () => { throw new Error('Unexpected groups read'); },
+			getUserFieldServiceReports: async () => { throw new Error('Unexpected reports read'); },
+		});
+		assert.deepEqual(backup.metadata, {});
+		assert.equal(backup.persons, undefined);
+		assert.equal(backup.user_field_service_reports, undefined);
+	});
+
 	it('loads administrator-only branch data and member projections', async () => {
 		const { congregation, matchingMetadata, user } = createBackupContext(['admin'], true);
 		const requestedMetadata = JSON.parse(matchingMetadata) as Record<string, string>;

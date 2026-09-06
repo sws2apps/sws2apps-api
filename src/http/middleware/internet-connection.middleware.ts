@@ -20,17 +20,15 @@ export const createCachedInternetCheck = (
 			if (cacheAge < cacheDurationMs) return cachedResult;
 		}
 
-		if (!pendingCheck) {
-			pendingCheck = checkInternetConnection()
-				.then((isConnected) => {
-					cachedResult = isConnected;
-					cachedAt = getCurrentTime();
-					return isConnected;
-				})
-				.finally(() => {
-					pendingCheck = undefined;
-				});
-		}
+		pendingCheck ??= checkInternetConnection()
+			.then((isConnected) => {
+				cachedResult = isConnected;
+				cachedAt = getCurrentTime();
+				return isConnected;
+			})
+			.finally(() => {
+				pendingCheck = undefined;
+			});
 
 		return pendingCheck;
 	};

@@ -29,7 +29,7 @@ export const trackRequestState = () => {
 				const { retryOn, failedLoginAttempt } = reqTrackRef;
 
 				if (retryOn) {
-					const currentDate = new Date().getTime();
+					const currentDate = Date.now();
 					if (currentDate < retryOn) {
 						sendClientError(
 							res,
@@ -41,41 +41,39 @@ export const trackRequestState = () => {
 						removeRequestTrackerEntry(requestTracker, clientIp);
 						next();
 					}
-				} else {
-					if (hasReachedFailedRequestLimit(failedLoginAttempt)) {
-						sendClientError(
-							res,
-							403,
-							'BLOCKED_TEMPORARILY',
-							blockedRequestLogMessage,
-						);
+				} else if (hasReachedFailedRequestLimit(failedLoginAttempt)) {
+					sendClientError(
+						res,
+						403,
+						'BLOCKED_TEMPORARILY',
+						blockedRequestLogMessage,
+					);
 
-						res.on('finish', async () => {
-							const currentD = new Date();
-							const retryDate = currentD.getTime() + 15 * 60000;
+					res.on('finish', async () => {
+						const currentD = new Date();
+						const retryDate = currentD.getTime() + 15 * 60000;
 
-							const obj: RequestTrackerType = {
-								ip: clientIp,
-								city: reqCity,
-								reqInProgress: false,
-								failedLoginAttempt: 3,
-								retryOn: retryDate,
-							};
-
-							setRequestTrackerEntry(requestTracker, obj);
-						});
-					} else {
 						const obj: RequestTrackerType = {
 							ip: clientIp,
 							city: reqCity,
-							reqInProgress: true,
-							failedLoginAttempt: failedLoginAttempt,
-							retryOn: undefined,
+							reqInProgress: false,
+							failedLoginAttempt: 3,
+							retryOn: retryDate,
 						};
 
 						setRequestTrackerEntry(requestTracker, obj);
-						next();
-					}
+					});
+				} else {
+					const obj: RequestTrackerType = {
+						ip: clientIp,
+						city: reqCity,
+						reqInProgress: true,
+						failedLoginAttempt: failedLoginAttempt,
+						retryOn: undefined,
+					};
+
+					setRequestTrackerEntry(requestTracker, obj);
+					next();
 				}
 			} else {
 				const obj: RequestTrackerType = {

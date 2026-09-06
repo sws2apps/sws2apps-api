@@ -6,7 +6,7 @@ type NodeEnvironment = 'development' | 'production' | 'test';
 
 const readOptional = (name: string) => {
 	const value = process.env[name]?.trim();
-	return value ? value : undefined;
+	return value || undefined;
 };
 
 const readRequired = (name: string) => {

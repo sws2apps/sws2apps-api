@@ -2,12 +2,12 @@ import {
 	CountryCatalogRequestError,
 	getCountries,
 } from '#platform/countries/country-client.js';
-import { CongregationsList } from '#modules/congregations/index.js';
-import { createApplicationCongregation } from '#modules/congregations/index.js';
-import { getCongregationMembers } from '#modules/congregations/index.js';
-import { deleteCongregation } from '#modules/congregations/index.js';
-import { saveOutgoingSpeakersState } from '#modules/congregations/index.js';
 import {
+	CongregationsList,
+	createApplicationCongregation,
+	getCongregationMembers,
+	deleteCongregation,
+	saveOutgoingSpeakersState,
 	saveCongregationSettings,
 	saveCongregationSpeakersKey,
 } from '#modules/congregations/index.js';

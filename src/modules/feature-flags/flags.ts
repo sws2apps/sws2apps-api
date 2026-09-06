@@ -1,6 +1,6 @@
 import { Flag } from './flag.js';
 
-class _Flags {
+class FeatureFlagCollection {
 	list: Flag[];
 
 	constructor() {
@@ -17,4 +17,4 @@ class _Flags {
 
 }
 
-export const Flags = new _Flags();
+export const Flags = new FeatureFlagCollection();

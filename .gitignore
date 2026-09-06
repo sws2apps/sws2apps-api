@@ -37,3 +37,6 @@ yarn-error.log*
 *-debug.log
 
 .idea
+
+# Local Sonar IDE configuration
+/.sonarlint/

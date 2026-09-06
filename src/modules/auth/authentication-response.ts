@@ -3,8 +3,11 @@ import {
 	CongregationsList,
 	type Congregation,
 } from '#modules/congregations/index.js';
-import type { User } from '#modules/users/index.js';
-import type { UserAuthResponse } from '#modules/users/index.js';
+import {
+	type User,
+	type UserAuthResponse,
+} from '#modules/users/index.js';
+
 
 type BuildUserAuthenticationResponseInput = {
 	authUser: User;

@@ -178,6 +178,24 @@ describe('session authentication middleware', () => {
 		assert.equal(state.locals.currentUser, user);
 	});
 
+	for (const { mfaEnabled, verified, path, refreshCount } of [
+		{ mfaEnabled: true, verified: false, path: '/verify-token', refreshCount: 0 },
+		{ mfaEnabled: true, verified: true, path: '/resource', refreshCount: 1 },
+		{ mfaEnabled: false, verified: false, path: '/resource', refreshCount: 0 },
+	]) {
+		it(`preserves refresh behavior for MFA=${mfaEnabled}, verified=${verified}, path=${path}`, async () => {
+			const context = createDependencies();
+			context.user.profile.mfa_enabled = mfaEnabled;
+			context.session.mfaVerified = verified;
+			const state = await runAuthentication(context.dependencies, {
+				authorization: 'Bearer valid-token', visitorId: 'visitor-1', path,
+			});
+			assert.equal(state.continued, true);
+			assert.equal(state.nextError, undefined);
+			assert.equal(context.getRefreshCount(), refreshCount);
+		});
+	}
+
 	it('refreshes an authenticated validation session and continues', async () => {
 		const context = createDependencies();
 		const state = await runAuthentication(context.dependencies, {

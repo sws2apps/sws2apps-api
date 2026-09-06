@@ -6,8 +6,8 @@ import {
 	CongregationDirectoryRequestError,
 	searchCongregations,
 	verifyCongregation,
+	type CongregationDirectoryRecord,
 } from '#platform/congregation-directory/congregation-directory-client.js';
-import type { CongregationDirectoryRecord } from '#platform/congregation-directory/congregation-directory-client.js';
 import { ALL_LANGUAGES } from '#platform/localization/languages.js';
 
 type CongregationDirectoryResult =

@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import {
 	getPocketBackupContext,
+	retrievePocketBackup,
 	parsePocketBackupMetadata,
 	PocketBackupError,
 	submitPocketBackup,
@@ -77,6 +78,28 @@ describe('Pocket backup submission', () => {
 			},
 		);
 	});
+
+	for (const dataSyncEnabled of [false, true]) {
+		it(`projects Pocket settings with data sync ${dataSyncEnabled}`, async () => {
+			const { congregation, metadata, user } = createPocketBackupContext();
+			congregation.members = [user];
+			congregation.settings.data_sync.value = dataSyncEnabled;
+			congregation.settings.cong_master_key = 'private-master-key';
+			user.settings.backup_automatic = 'encrypted-preference';
+			const requestedMetadata = JSON.parse(metadata) as Record<string, string>;
+			requestedMetadata.user_settings = 'old-user-settings';
+			requestedMetadata.cong_settings = 'old-congregation-settings';
+			const backup = await retrievePocketBackup(user.id, JSON.stringify(requestedMetadata));
+			assert.equal(backup.app_settings.cong_settings?.cong_master_key, undefined);
+			assert.equal(congregation.settings.cong_master_key, 'private-master-key');
+			const userSettings = backup.app_settings.user_settings as Record<string, unknown>;
+			assert.equal(userSettings.backup_automatic, dataSyncEnabled ? 'encrypted-preference' : undefined);
+			assert.equal(userSettings.theme_follow_os_enabled, undefined);
+			assert.equal(backup.metadata.user_settings, user.metadata.user_settings);
+			assert.equal(backup.metadata.cong_settings, congregation.metadata.cong_settings);
+			assert.equal(backup.persons, undefined);
+		});
+	}
 
 	it('awaits a successful persistence outcome', async () => {
 		const { backup, metadata, user } = createPocketBackupContext();

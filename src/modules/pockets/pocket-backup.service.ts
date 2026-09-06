@@ -1,14 +1,14 @@
-import type { BackupData } from '#modules/backups/index.js';
 import {
+	type BackupData,
 	BackupMetadataError,
 	findBackupMetadataConflict,
 	parseBackupMetadata,
+	savePocketBackupAsync,
 } from '#modules/backups/index.js';
-import { savePocketBackupAsync } from '#modules/backups/index.js';
-import { CongregationsList } from '#modules/congregations/index.js';
-import { isCongregationMember } from '#modules/congregations/index.js';
-import type { CongSettingsType } from '#modules/congregations/index.js';
 import {
+	CongregationsList,
+	isCongregationMember,
+	type CongSettingsType,
 	getCongregationPersons,
 	getFieldServiceGroups,
 	getFieldServiceReports,
@@ -16,8 +16,8 @@ import {
 	getPublicSources,
 	getUpcomingEvents,
 } from '#modules/congregations/index.js';
-import { UsersList } from '#modules/users/index.js';
 import {
+	UsersList,
 	getUserStoredBibleStudies,
 	getUserStoredDelegatedFieldServiceReports,
 	getUserStoredFieldServiceReports,
@@ -91,33 +91,59 @@ export const retrievePocketBackup = async (
 	backup.app_settings = {};
 	backup.metadata = {};
 
+	addPocketSettingsChanges(backup, user, congregation, metadata);
+
+	if (congregation.settings.data_sync.value) {
+		await addPrivateBackupChanges(
+			backup,
+			user,
+			congregation,
+			metadata,
+			visiblePersonIds,
+			membership.cong_role,
+		);
+	}
+
+	await addPublicBackupChanges(backup, congregation, metadata);
+
+	return backup;
+};
+
+const getPocketUserSettings = (user: PocketUser, congregation: PocketCongregation) => {
+	return {
+		cong_role: user.profile.congregation?.cong_role,
+		firstname: user.profile.firstname,
+		lastname: user.profile.lastname,
+		user_local_uid: user.profile.congregation?.user_local_uid,
+		user_members_delegate: user.profile.congregation?.user_members_delegate,
+		backup_automatic:
+			congregation.settings.data_sync.value && user.settings.backup_automatic?.length > 0
+				? user.settings.backup_automatic
+				: undefined,
+		theme_follow_os_enabled:
+			congregation.settings.data_sync.value && user.settings.theme_follow_os_enabled?.length > 0
+				? user.settings.theme_follow_os_enabled
+				: undefined,
+		hour_credits_enabled:
+			congregation.settings.data_sync.value && user.settings.hour_credits_enabled?.length > 0
+				? user.settings.hour_credits_enabled
+				: undefined,
+		data_view:
+			congregation.settings.data_sync.value && user.settings.data_view?.length > 0
+				? user.settings.data_view
+				: undefined,
+	};
+};
+
+const addPocketSettingsChanges = (
+	backup: BackupData,
+	user: PocketUser,
+	congregation: PocketCongregation,
+	metadata: Record<string, string>,
+): void => {
 	const localUserSettingsDate = user.metadata.user_settings;
 	if (localUserSettingsDate !== metadata.user_settings) {
-		const userSettings = {
-			cong_role: user.profile.congregation?.cong_role,
-			firstname: user.profile.firstname,
-			lastname: user.profile.lastname,
-			user_local_uid: user.profile.congregation?.user_local_uid,
-			user_members_delegate: user.profile.congregation?.user_members_delegate,
-			backup_automatic:
-				congregation.settings.data_sync.value && user.settings.backup_automatic?.length > 0
-					? user.settings.backup_automatic
-					: undefined,
-			theme_follow_os_enabled:
-				congregation.settings.data_sync.value && user.settings.theme_follow_os_enabled?.length > 0
-					? user.settings.theme_follow_os_enabled
-					: undefined,
-			hour_credits_enabled:
-				congregation.settings.data_sync.value && user.settings.hour_credits_enabled?.length > 0
-					? user.settings.hour_credits_enabled
-					: undefined,
-			data_view:
-				congregation.settings.data_sync.value && user.settings.data_view?.length > 0
-					? user.settings.data_view
-					: undefined,
-		};
-
-		backup.app_settings.user_settings = userSettings;
+		backup.app_settings.user_settings = getPocketUserSettings(user, congregation);
 
 		backup.metadata.user_settings = localUserSettingsDate;
 	}
@@ -162,21 +188,6 @@ export const retrievePocketBackup = async (
 
 		backup.metadata.cong_settings = localCongregationSettingsDate;
 	}
-
-	if (congregation.settings.data_sync.value) {
-		await addPrivateBackupChanges(
-			backup,
-			user,
-			congregation,
-			metadata,
-			visiblePersonIds,
-			membership.cong_role,
-		);
-	}
-
-	await addPublicBackupChanges(backup, congregation, metadata);
-
-	return backup;
 };
 
 const addPrivateBackupChanges = async (

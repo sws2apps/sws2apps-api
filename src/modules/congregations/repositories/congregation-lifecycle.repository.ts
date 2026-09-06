@@ -37,7 +37,7 @@ export const deletePersistedCongregation = async (
 };
 
 export const getCongregationIds = async () => {
-	const pattern = '^v3\\/congregations\\/(.+?)\\/';
+	const pattern = String.raw`^v3\/congregations\/(.+?)\/`;
 
 	const files = await listFilesFromStorage({
 		type: 'congregation',

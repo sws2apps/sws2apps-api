@@ -3,11 +3,9 @@ import {
 	discardBackupUpload,
 	findBackupUploadByCongregation,
 	recordBackupUploadChunk,
-} from '#modules/backups/index.js';
-import { findBackupMetadataConflict } from '#modules/backups/index.js';
-import { saveUserBackupAsync } from '#modules/backups/index.js';
-import type { BackupData } from '#modules/backups/index.js';
-import {
+	findBackupMetadataConflict,
+	saveUserBackupAsync,
+	type BackupData,
 	BackupPayloadError,
 	parseBackupPayload,
 } from '#modules/backups/index.js';
@@ -24,10 +22,10 @@ export const filterBackupMetadata = (
 ): Record<string, string> => {
 	if (dataSyncEnabled) return metadata;
 
-	const allowedMetadata = ['user_settings', 'cong_settings'];
+	const allowedMetadata = new Set(['user_settings', 'cong_settings']);
 
 	for (const key of Object.keys(metadata)) {
-		if (!allowedMetadata.includes(key)) delete metadata[key];
+		if (!allowedMetadata.has(key)) delete metadata[key];
 	}
 
 	return metadata;
