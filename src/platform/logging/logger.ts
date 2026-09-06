@@ -8,6 +8,19 @@ const remoteLogger = env.logtailSourceToken
 	? new Logtail(env.logtailSourceToken, { endpoint: `https://${env.logtailIngestingHost}` })
 	: undefined;
 
+// All C0 control characters and DEL, including CR, LF, and the ANSI escape
+// byte. Untrusted content must never reach the live terminal unchanged: a
+// crafted newline could forge a separate log entry and an escape sequence
+// could spoof operator output (CWE-117).
+const stripConsoleControlCharacters = (value: string): string => {
+	let safeText = '';
+	for (const character of value) {
+		const codePoint = character.codePointAt(0)!;
+		safeText += codePoint < 0x20 || codePoint === 0x7f ? ' ' : character;
+	}
+	return safeText;
+};
+
 export const logger = (level: LogLevel, message: string, context?: Context) => {
 	const safeContext = redactLogContext(context);
 	let localMessage = `${new Date().toISOString()} ${message}`;
@@ -21,14 +34,16 @@ export const logger = (level: LogLevel, message: string, context?: Context) => {
 				.join(' ');
 	}
 
+	const consoleEntry = stripConsoleControlCharacters(localMessage);
+
 	if (level === 'info') {
-		console.log(localMessage);
+		console.log(consoleEntry);
 		remoteLogger?.info(message, safeContext);
 	} else if (level === 'warn') {
-		console.warn(localMessage);
+		console.warn(consoleEntry);
 		remoteLogger?.warn(message, safeContext);
 	} else if (level === 'error') {
-		console.error(localMessage);
+		console.error(consoleEntry);
 		remoteLogger?.error(message, safeContext);
 	}
 
