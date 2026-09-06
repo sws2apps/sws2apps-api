@@ -19,21 +19,25 @@ export const getCountries = async (req: Request, res: Response) => {
 };
 
 export const getCongregations = async (req: Request, res: Response) => {
-	const language = (req.query.language as string) || 'E';
-	const name = req.query.name as string;
-	let country = req.query.country as string;
+	const language = typeof req.query.language === 'string' ? req.query.language : 'E';
+	const name = req.query.name;
+	const country = req.query.country;
 
-
-	if (name.length < 2 || country?.length === 0) {
+	if (
+		typeof name !== 'string' ||
+		typeof country !== 'string' ||
+		name.length < 2 ||
+		country.length === 0
+	) {
 		sendClientError(res, 400, 'error_api_bad-request', 'country or name is invalid');
 
 		return;
 	}
 
-	country = country.toUpperCase();
+	const uppercaseCountry = country.toUpperCase();
 
 	const directoryResult = await searchCongregationDirectory(
-		country,
+		uppercaseCountry,
 		language,
 		name,
 	);
