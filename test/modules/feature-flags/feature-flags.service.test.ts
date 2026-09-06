@@ -148,6 +148,46 @@ describe('feature flag persistence', () => {
 		assert.equal(store.getState()[0]?.installations[0]?.id, 'installation-1');
 	});
 
+	it('merges concurrent registrations instead of losing the earlier assignment', async () => {
+		const flag = createFlag();
+		const store = createStore();
+		store.setState([flag]);
+		const queued: Array<() => Promise<void>> = [];
+		const sequentialStore = {
+			updateFeatureFlags: async <T>(
+				update: (current: Flag[]) => Promise<{ next: Flag[]; result: T }>,
+			): Promise<T> => {
+				let resolve!: (value: T) => void;
+				const pending = new Promise<T>((done) => (resolve = done));
+				queued.push(async () => {
+					const { next, result } = await update(store.getState());
+					store.setState(next);
+					resolve(result);
+				});
+				return pending;
+			},
+		};
+
+		const first = registerFeatureFlagInstallation(
+			flag,
+			{ id: 'installation-1', last_handshake: '2026-09-05T00:00:00.000Z' },
+			{ updateFeatureFlags: sequentialStore.updateFeatureFlags },
+		);
+		const second = registerFeatureFlagInstallation(
+			flag,
+			{ id: 'installation-2', last_handshake: '2026-09-05T00:00:00.000Z' },
+			{ updateFeatureFlags: sequentialStore.updateFeatureFlags },
+		);
+
+		assert.equal(queued.length, 2);
+
+		for (const run of queued) await run();
+		await Promise.all([first, second]);
+
+		const storedIds = store.getState()[0]?.installations.map((record) => record.id);
+		assert.deepEqual(storedIds, ['installation-1', 'installation-2']);
+	});
+
 	it('refreshes a stale flag installation handshake and publishes the cache', async () => {
 		const flag = createFlag();
 		flag.installations = [{ id: 'installation-1', last_handshake: '2026-01-01T00:00:00.000Z' }];

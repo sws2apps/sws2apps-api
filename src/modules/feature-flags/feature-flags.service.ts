@@ -95,16 +95,19 @@ export const registerFeatureFlagInstallation = async (
 	operations: Partial<FeatureFlagWriteOperations> = {},
 ): Promise<void> => {
 	const writeOperations = { ...defaultWriteOperations, ...operations };
-	const installations = [...flag.installations, structuredClone(installation)];
-	const updatedFlag = new Flag({ ...flag, installations });
 
 	const next = await writeOperations.updateFeatureFlags(async (currentFlags) => {
-		const nextFlags = replaceFlag(currentFlags, updatedFlag);
+		const currentFlag = currentFlags.find((candidate) => candidate.id === flag.id) ?? flag;
+		const installations = [...currentFlag.installations, structuredClone(installation)];
+		const nextFlags = replaceFlag(currentFlags, new Flag({ ...currentFlag, installations }));
 		return { next: nextFlags, result: nextFlags };
 	});
 
 	Flags.list = next;
-	flag.installations = installations;
+	flag.installations = next.find((savedFlag) => savedFlag.id === flag.id)?.installations ?? [
+		...flag.installations,
+		structuredClone(installation),
+	];
 };
 
 export const touchFeatureFlagInstallation = async (
