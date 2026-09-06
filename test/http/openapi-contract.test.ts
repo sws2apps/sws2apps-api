@@ -81,7 +81,7 @@ describe('OpenAPI contract', () => {
 				.sort(([leftPath], [rightPath]) => leftPath.localeCompare(rightPath))
 				.map(([documentedPath, pathItem]) => [
 					documentedPath,
-					getDocumentedMethods(pathItem).sort(),
+					getDocumentedMethods(pathItem).sort((leftMethod, rightMethod) => leftMethod.localeCompare(rightMethod)),
 				]),
 		);
 

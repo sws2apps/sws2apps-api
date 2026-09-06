@@ -175,6 +175,6 @@ export const discoverApiRoutes = async (): Promise<ApiRouteInventory> => {
 	return Object.fromEntries(
 		[...routeInventory.entries()]
 			.sort(([leftPath], [rightPath]) => leftPath.localeCompare(rightPath))
-			.map(([apiPath, methods]) => [apiPath, [...methods].sort()]),
+			.map(([apiPath, methods]) => [apiPath, [...methods].sort((leftMethod, rightMethod) => leftMethod.localeCompare(rightMethod))]),
 	);
 };

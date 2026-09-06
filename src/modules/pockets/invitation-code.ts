@@ -5,12 +5,17 @@ export type PocketInvitationDetails = {
 };
 
 export const parsePocketInvitationCode = (invitationCode: string): PocketInvitationDetails | undefined => {
-	const invitationParts = /^(.+?)-(.+?)-(.+?)$/.exec(invitationCode);
-	if (!invitationParts) return;
+	if (/[\r\n\u2028\u2029]/.test(invitationCode)) return;
 
-	const congregationIdentity = invitationParts[1];
-	const temporaryAccessCode = invitationParts[3];
-	if (congregationIdentity.length <= 3) return;
+	const firstSeparator = invitationCode.indexOf('-', 1);
+	if (firstSeparator <= 3) return;
+
+	// Each segment must contain at least one character; access codes may contain hyphens.
+	const secondSeparator = invitationCode.indexOf('-', firstSeparator + 2);
+	if (secondSeparator === -1 || secondSeparator === invitationCode.length - 1) return;
+
+	const congregationIdentity = invitationCode.slice(0, firstSeparator);
+	const temporaryAccessCode = invitationCode.slice(secondSeparator + 1);
 
 	return {
 		countryCode: congregationIdentity.slice(0, 3),
