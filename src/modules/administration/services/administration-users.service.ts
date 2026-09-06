@@ -24,8 +24,16 @@ import {
 
 
 
-const isValidEmailAddress = (email: string) =>
-	/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+const isValidEmailAddress = (email: string) => {
+	if (/\s/.test(email)) return false;
+
+	const atIndex = email.indexOf('@');
+	if (atIndex <= 0 || atIndex !== email.lastIndexOf('@')) return false;
+
+	const domain = email.slice(atIndex + 1);
+	const dotIndex = domain.lastIndexOf('.');
+	return dotIndex > 0 && dotIndex < domain.length - 1;
+};
 
 export class AdministrationUserError extends Error {
 	constructor(
