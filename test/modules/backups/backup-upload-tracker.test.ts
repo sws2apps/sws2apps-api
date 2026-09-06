@@ -16,7 +16,7 @@ const createUpload = (congregationId: string): BackupForStorage => {
 	timeout.unref();
 
 	return {
-		chunks: [],
+		chunks: new Map<number, string>(),
 		totalChunks: 2,
 		received: 1,
 		receivedBytes: 0,
@@ -136,7 +136,10 @@ describe('backup upload tracker', () => {
 
 	it('rejects chunks that do not match the existing upload owner or size', () => {
 		const upload = createUpload('congregation-1');
-		upload.chunks = ['', ''];
+		upload.chunks = new Map<number, string>([
+		[0, ''],
+		[1, ''],
+	]);
 		const uploads = new Map([['upload-1', upload]]);
 		const baseChunk = {
 			uploadId: 'upload-1',

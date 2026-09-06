@@ -33,7 +33,7 @@ export type BackupData = {
 };
 
 export type BackupForStorage = {
-	chunks: string[];
+	chunks: Map<number, string>;
 	totalChunks: number;
 	received: number;
 	receivedBytes: number;

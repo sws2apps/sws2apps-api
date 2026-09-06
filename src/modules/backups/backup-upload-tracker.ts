@@ -71,7 +71,7 @@ const validateBackupUploadChunk = (
 		existingUpload.totalChunks === chunk.totalChunks &&
 		existingUpload.userId === chunk.userId &&
 		existingUpload.congregationId === chunk.congregationId;
-	const chunkAlreadyReceived = existingUpload.chunks[chunk.chunkIndex].length > 0;
+	const chunkAlreadyReceived = existingUpload.chunks.has(chunk.chunkIndex);
 
 	if (!uploadMatches || chunkAlreadyReceived) {
 		throw new BackupUploadChunkError();
@@ -140,7 +140,7 @@ export const recordBackupUploadChunk = (
 		if (chunk.totalChunks > MAX_BACKUP_CHUNKS) throw new BackupUploadChunkError();
 
 		upload = {
-			chunks: new Array<string>(chunk.totalChunks).fill(''),
+			chunks: new Map<number, string>(),
 			totalChunks: chunk.totalChunks,
 			received: 0,
 			receivedBytes: 0,
@@ -158,12 +158,12 @@ export const recordBackupUploadChunk = (
 	if (
 		!Number.isInteger(chunk.chunkIndex) ||
 		chunk.chunkIndex < 0 ||
-		chunk.chunkIndex >= upload.chunks.length
+		chunk.chunkIndex >= chunk.totalChunks
 	) {
 		throw new BackupUploadChunkError();
 	}
 
-	upload.chunks[chunk.chunkIndex] = chunk.chunkData;
+	upload.chunks.set(chunk.chunkIndex, chunk.chunkData);
 	upload.received++;
 	upload.receivedBytes += chunkBytes;
 
@@ -173,7 +173,10 @@ export const recordBackupUploadChunk = (
 	);
 
 	if (upload.received === upload.totalChunks) {
-		return upload.chunks.join('');
+		return Array.from(
+			{ length: upload.totalChunks },
+			(_, index) => upload.chunks.get(index) ?? '',
+		).join('');
 	}
 
 	return undefined;
