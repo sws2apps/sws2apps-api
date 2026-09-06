@@ -8,18 +8,19 @@ const remoteLogger = env.logtailSourceToken
 	? new Logtail(env.logtailSourceToken, { endpoint: `https://${env.logtailIngestingHost}` })
 	: undefined;
 
-// All C0 control characters and DEL, including CR, LF, and the ANSI escape
-// byte. Untrusted content must never reach a log sink unchanged: a crafted
+// Strip all C0 control characters and DEL, including CR, LF, and the ANSI
+// escape byte, from untrusted content before it reaches a log sink: a crafted
 // newline could forge a separate log entry and an escape sequence could spoof
-// operator output (CWE-117). The trailing no-op replace also marks the
-// returned value as newline-sanitized for static analysis.
+// operator output (CWE-117). Sinks additionally receive the JSON-encoded
+// entry, which escapes any residual CR/LF to literal `\n`, so the entry can
+// never be split into live lines.
 const stripLogControlCharacters = (value: string): string => {
 	let safeText = '';
 	for (const character of value) {
 		const codePoint = character.codePointAt(0)!;
 		safeText += codePoint < 0x20 || codePoint === 0x7f ? ' ' : character;
 	}
-	return safeText.replace(/\r?\n/g, '');
+	return safeText;
 };
 
 export const logger = (level: LogLevel, message: string, context?: Context) => {
@@ -36,15 +37,17 @@ export const logger = (level: LogLevel, message: string, context?: Context) => {
 				.join(' ');
 	}
 
+	const logEntry = JSON.stringify(localMessage);
+
 	if (level === 'info') {
-		console.log(localMessage);
-		remoteLogger?.info(sanitizedMessage, safeContext);
+		console.log(logEntry);
+		remoteLogger?.info(logEntry, safeContext);
 	} else if (level === 'warn') {
-		console.warn(localMessage);
-		remoteLogger?.warn(sanitizedMessage, safeContext);
+		console.warn(logEntry);
+		remoteLogger?.warn(logEntry, safeContext);
 	} else if (level === 'error') {
-		console.error(localMessage);
-		remoteLogger?.error(sanitizedMessage, safeContext);
+		console.error(logEntry);
+		remoteLogger?.error(logEntry, safeContext);
 	}
 
 	void remoteLogger?.flush().catch(() => {
