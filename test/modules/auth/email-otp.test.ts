@@ -5,6 +5,7 @@ import {
 	generateEmailOneTimePassword,
 	isEmailOneTimePasswordValid,
 } from '#modules/auth/email-otp.js';
+import { hashSecretValue } from '#platform/security/secret-comparison.js';
 
 describe('email one-time password generation', () => {
 	it('generates fixed-length numeric codes', () => {
@@ -15,14 +16,15 @@ describe('email one-time password generation', () => {
 });
 
 describe('email one-time password validation', () => {
+	const code = '123456';
 	const oneTimePassword = {
-		code: '123456',
+		code: hashSecretValue(code),
 		expiredAt: 2_000,
 	};
 
 	it('accepts a matching code before or at its expiration time', () => {
-		assert.equal(isEmailOneTimePasswordValid(oneTimePassword, '123456', 1_999), true);
-		assert.equal(isEmailOneTimePasswordValid(oneTimePassword, '123456', 2_000), true);
+		assert.equal(isEmailOneTimePasswordValid(oneTimePassword, code, 1_999), true);
+		assert.equal(isEmailOneTimePasswordValid(oneTimePassword, code, 2_000), true);
 	});
 
 	it('rejects an incorrect code', () => {
@@ -31,6 +33,6 @@ describe('email one-time password validation', () => {
 	});
 
 	it('rejects an expired code even when its value matches', () => {
-		assert.equal(isEmailOneTimePasswordValid(oneTimePassword, '123456', 2_001), false);
+		assert.equal(isEmailOneTimePasswordValid(oneTimePassword, code, 2_001), false);
 	});
 });

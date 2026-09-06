@@ -24,6 +24,7 @@ import {
 	generateEmailOneTimePassword,
 	isEmailOneTimePasswordValid,
 } from './email-otp.js';
+import { hashSecretValue } from '#platform/security/secret-comparison.js';
 
 type PasswordlessSignInRequest = {
 	email: string;
@@ -102,22 +103,15 @@ export const createPasswordlessSignIn = async (
 		throw new AuthenticationError('USER_NOT_FOUND');
 	}
 
-	let oneTimePassword = user.profile.email_otp?.code;
-	const oneTimePasswordExpired = user.profile.email_otp
-		? getCurrentTime() > user.profile.email_otp.expiredAt
-		: true;
+	const oneTimePassword = generateOneTimePassword();
 
-	if (oneTimePasswordExpired) {
-		oneTimePassword = generateOneTimePassword();
+	const profile = structuredClone(user.profile);
+	profile.email_otp = {
+		code: hashSecretValue(oneTimePassword),
+		expiredAt: getCurrentTime() + 5 * 60 * 1000,
+	};
 
-		const profile = structuredClone(user.profile);
-		profile.email_otp = {
-			code: oneTimePassword,
-			expiredAt: getCurrentTime() + 5 * 60 * 1000,
-		};
-
-		await updateProfile(user, profile);
-	}
+	await updateProfile(user, profile);
 
 	const token = await createAuthenticationToken(authenticationUserId);
 	const link = `${request.origin}/#/?code=${token}`;

@@ -1,4 +1,4 @@
-import { areSecretValuesEqual } from '#platform/security/secret-comparison.js';
+import { isSecretValueMatchingHash } from '#platform/security/secret-comparison.js';
 import {
 	generateSecureRandomString,
 	NUMERIC_CHARACTERS,
@@ -21,5 +21,5 @@ export const isEmailOneTimePasswordValid = (
 	const isExpired = currentTime > oneTimePassword.expiredAt;
 	if (isExpired) return false;
 
-	return areSecretValuesEqual(oneTimePassword.code, submittedCode);
+	return isSecretValueMatchingHash(oneTimePassword.code, submittedCode);
 };

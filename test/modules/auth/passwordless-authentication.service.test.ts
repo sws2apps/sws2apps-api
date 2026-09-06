@@ -7,6 +7,10 @@ import {
 	createPasswordlessSignIn,
 } from '#modules/auth/index.js';
 import { User } from '#modules/users/user.js';
+import {
+	hashSecretValue,
+	isSecretValueMatchingHash,
+} from '#platform/security/secret-comparison.js';
 
 const currentTime = Date.parse('2026-09-03T10:00:00.000Z');
 const emailContent = {
@@ -87,10 +91,8 @@ describe('passwordless sign-in creation', () => {
 			},
 		});
 
-		assert.deepEqual(user.profile.email_otp, {
-			code: '123456',
-			expiredAt: currentTime + 5 * 60 * 1000,
-		});
+		assert.equal(user.profile.email_otp?.expiredAt, currentTime + 5 * 60 * 1000);
+		assert.equal(isSecretValueMatchingHash(user.profile.email_otp!.code, '123456'), true);
 		assert.deepEqual(result, {
 			emailEnabled: true,
 			link: 'https://organized.example.com/#/?code=custom-token',
@@ -98,22 +100,20 @@ describe('passwordless sign-in creation', () => {
 		});
 	});
 
-	it('reuses an unexpired OTP and does not send email when mail is disabled', async () => {
+	it('rotates the OTP on every request without storing plaintext when mail is disabled', async () => {
 		const user = createUser();
 		user.profile.email_otp = {
-			code: '654321',
+			code: hashSecretValue('654321'),
 			expiredAt: currentTime + 1,
 		};
 
 		const result = await createPasswordlessSignIn(signInRequest, {
 			findAuthenticationUserId: async () => 'authentication-user-1',
 			findUserByEmail: () => user,
-			generateOneTimePassword: () => {
-				throw new Error('OTP should not be regenerated');
-			},
+			generateOneTimePassword: () => '999999',
 			getCurrentTime: () => currentTime,
-			updateProfile: async () => {
-				throw new Error('Unchanged OTP should not be persisted');
+			updateProfile: async (target, profile) => {
+				target.profile = profile;
 			},
 			createAuthenticationToken: async () => 'custom-token',
 			isEmailEnabled: () => false,
@@ -125,8 +125,10 @@ describe('passwordless sign-in creation', () => {
 		assert.deepEqual(result, {
 			emailEnabled: false,
 			link: 'https://organized.example.com/#/?code=custom-token',
-			otp: '654321',
+			otp: '999999',
 		});
+		assert.equal(user.profile.email_otp?.expiredAt, currentTime + 5 * 60 * 1000);
+		assert.equal(isSecretValueMatchingHash(user.profile.email_otp!.code, '999999'), true);
 	});
 
 	it('rejects identities that exist in only one data store', async () => {
@@ -153,7 +155,7 @@ describe('email OTP authentication completion', () => {
 	it('returns stable errors for missing users, missing OTPs, and invalid OTPs', async () => {
 		const userWithoutOtp = createUser();
 		const userWithOtp = createUser();
-		userWithOtp.profile.email_otp = { code: '123456', expiredAt: currentTime + 1 };
+		userWithOtp.profile.email_otp = { code: hashSecretValue('123456'), expiredAt: currentTime + 1 };
 
 		await assert.rejects(
 			completeEmailOtpAuthentication(
@@ -188,7 +190,7 @@ describe('email OTP authentication completion', () => {
 		const user = createUser();
 		user.profile.firstname.value = 'Jane';
 		user.profile.lastname.value = 'Doe';
-		user.profile.email_otp = { code: '123456', expiredAt: currentTime + 1 };
+		user.profile.email_otp = { code: hashSecretValue('123456'), expiredAt: currentTime + 1 };
 		const originalProfile = user.profile;
 
 		const result = await completeEmailOtpAuthentication(
