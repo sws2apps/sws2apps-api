@@ -9,11 +9,11 @@ const remoteLogger = env.logtailSourceToken
 	: undefined;
 
 // All C0 control characters and DEL, including CR, LF, and the ANSI escape
-// byte. Untrusted content must never reach the live terminal unchanged: a
-// crafted newline could forge a separate log entry and an escape sequence
-// could spoof operator output (CWE-117). The trailing no-op replace also marks
-// the returned value as newline-sanitized for static analysis.
-const stripConsoleControlCharacters = (value: string): string => {
+// byte. Untrusted content must never reach a log sink unchanged: a crafted
+// newline could forge a separate log entry and an escape sequence could spoof
+// operator output (CWE-117). The trailing no-op replace also marks the
+// returned value as newline-sanitized for static analysis.
+const stripLogControlCharacters = (value: string): string => {
 	let safeText = '';
 	for (const character of value) {
 		const codePoint = character.codePointAt(0)!;
@@ -24,7 +24,8 @@ const stripConsoleControlCharacters = (value: string): string => {
 
 export const logger = (level: LogLevel, message: string, context?: Context) => {
 	const safeContext = redactLogContext(context);
-	let localMessage = `${new Date().toISOString()} ${message}`;
+	const sanitizedMessage = stripLogControlCharacters(message);
+	let localMessage = `${new Date().toISOString()} ${sanitizedMessage}`;
 
 	if (safeContext) {
 		localMessage +=
@@ -35,17 +36,15 @@ export const logger = (level: LogLevel, message: string, context?: Context) => {
 				.join(' ');
 	}
 
-	const consoleEntry = stripConsoleControlCharacters(localMessage);
-
 	if (level === 'info') {
-		console.log(consoleEntry);
-		remoteLogger?.info(message, safeContext);
+		console.log(localMessage);
+		remoteLogger?.info(sanitizedMessage, safeContext);
 	} else if (level === 'warn') {
-		console.warn(consoleEntry);
-		remoteLogger?.warn(message, safeContext);
+		console.warn(localMessage);
+		remoteLogger?.warn(sanitizedMessage, safeContext);
 	} else if (level === 'error') {
-		console.error(consoleEntry);
-		remoteLogger?.error(message, safeContext);
+		console.error(localMessage);
+		remoteLogger?.error(sanitizedMessage, safeContext);
 	}
 
 	void remoteLogger?.flush().catch(() => {
