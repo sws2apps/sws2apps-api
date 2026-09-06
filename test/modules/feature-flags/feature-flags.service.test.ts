@@ -236,5 +236,10 @@ describe('feature flag persistence', () => {
 				throw new Error('storage unavailable');
 			},
 		});
+
+		assert.equal(
+			Flags.list[0]?.installations[0]?.last_handshake,
+			'2026-01-01T00:00:00.000Z',
+		);
 	});
 });

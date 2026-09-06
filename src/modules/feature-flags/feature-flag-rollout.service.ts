@@ -48,7 +48,7 @@ const addApplicationFlag = async (
 
 	if (flag.coverage === 0) return;
 
-	if (!installation || installation.status !== 'linked') return;
+	if (installation?.status !== 'linked') return;
 
 	const installationAlreadyIncluded = flag.installations.some(
 		(installation) => installation.id === installationId,
@@ -156,13 +156,12 @@ const addUserFlag = async (
 	}
 };
 
-export const getPublicFeatureFlags = async (
+const collectEnabledFeatureFlags = async (
 	installationId: string,
-	operations: FeatureFlagRolloutOperations = defaultRolloutOperations,
-): Promise<Record<string, boolean>> => {
-	const enabledFeatureFlags: Record<string, boolean> = {};
-
-	if (installationId.length === 0) return enabledFeatureFlags;
+	enabledFeatureFlags: Record<string, boolean>,
+	operations: FeatureFlagRolloutOperations,
+): Promise<void> => {
+	if (installationId.length === 0) return;
 
 	const activeFlags = Flags.list.filter((flag) => flag.status);
 	const nonAdminUserCount = UsersList.list.filter(
@@ -191,6 +190,15 @@ export const getPublicFeatureFlags = async (
 	}
 
 	await operations.touchInstallation(installationId);
+};
+
+export const getPublicFeatureFlags = async (
+	installationId: string,
+	operations: FeatureFlagRolloutOperations = defaultRolloutOperations,
+): Promise<Record<string, boolean>> => {
+	const enabledFeatureFlags: Record<string, boolean> = {};
+
+	await collectEnabledFeatureFlags(installationId, enabledFeatureFlags, operations);
 
 	return enabledFeatureFlags;
 };

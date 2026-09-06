@@ -193,10 +193,15 @@ describe('user installation binding', () => {
 	});
 
 	it('treats a failed binding as best-effort and never rejects', async () => {
+		let storageAttempted = false;
+
 		await bindInstallationToUser('user-1', 'installation-1', {
 			registerInstallation: async () => {
+				storageAttempted = true;
 				throw new Error('storage failure');
 			},
 		});
+
+		assert.equal(storageAttempted, true);
 	});
 });
