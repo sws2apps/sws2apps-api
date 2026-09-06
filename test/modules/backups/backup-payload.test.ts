@@ -116,6 +116,43 @@ describe('backup payload parsing', () => {
 		}), BackupPayloadError);
 	});
 
+	it('rejects congregation user records with unknown role values', () => {
+		assert.throws(() => parseBackupPayload({
+			metadata: {},
+			cong_users: [{ id: 'u-1', role: ['admin', 'superuser'] }],
+		}), BackupPayloadError);
+	});
+
+	it('rejects congregation settings with undocumented keys', () => {
+		assert.throws(() => parseBackupPayload({
+			metadata: {},
+			app_settings: { cong_settings: { future_setting: { enabled: true } } },
+		}), BackupPayloadError);
+
+		assert.throws(() => parseBackupPayload({
+			metadata: {},
+			app_settings: { cong_settings: { data_sync: { value: true, updatedAt: '2026-08-30T10:00:00.000Z' }, unknown_future_key: true } },
+		}), BackupPayloadError);
+	});
+
+	it('rejects oversized record datasets', () => {
+		const oversized = {
+			metadata: {},
+			persons: Array.from({ length: 100_001 }, (_, index) => ({ id: `p-${index}` })),
+		};
+
+		assert.throws(() => parseBackupPayload(oversized), BackupPayloadError);
+	});
+
+	it('rejects payloads nested beyond the allowed depth', () => {
+		let deep: unknown = {};
+		for (let depth = 0; depth < 70; depth += 1) {
+			deep = { nested: deep };
+		}
+
+		assert.throws(() => parseBackupPayload({ metadata: {}, nested: deep }), BackupPayloadError);
+	});
+
 	it('preserves undocumented top-level and settings fields', () => {
 		const payload = {
 			metadata: {},
