@@ -22,9 +22,8 @@ const requireCongregationRole = (allowedRoles: readonly AppRoleType[]) => {
 			const membership = response.locals.currentUser?.profile.congregation;
 
 			if (
-				!membership ||
-				membership.id !== request.params.id ||
-				!hasAnyCongregationRole(membership.cong_role, allowedRoles)
+				membership?.id !== request.params.id ||
+				!hasAnyCongregationRole(membership?.cong_role, allowedRoles)
 			) {
 				denyAccess(response);
 				return;
