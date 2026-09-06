@@ -20,6 +20,8 @@ const runAuthorization = async (
 	middlewareFactory: MiddlewareFactory,
 	globalRole: 'admin' | 'vip' | 'pocket',
 	congregationRoles: AppRoleType[] = [],
+	pointedResourceId = 'congregation-1',
+	membershipId: string | null = 'congregation-1',
 ) => {
 	const state: {
 		statusCode?: number;
@@ -32,7 +34,10 @@ const runAuthorization = async (
 			currentUser: {
 				profile: {
 					role: globalRole,
-					congregation: { cong_role: congregationRoles },
+					congregation:
+						membershipId === null
+							? undefined
+							: { id: membershipId, cong_role: congregationRoles },
 				},
 			},
 		},
@@ -53,7 +58,11 @@ const runAuthorization = async (
 		state.continued = true;
 	}) as NextFunction;
 
-	await middlewareFactory()({} as Request, response, next);
+	await middlewareFactory()(
+		{ params: { id: pointedResourceId } } as unknown as Request,
+		response,
+		next,
+	);
 	return state;
 };
 
@@ -118,6 +127,38 @@ describe('authorization middleware', () => {
 				requirePublicTalkCoordinator,
 				'vip',
 				['weekend_schedule'],
+			),
+		);
+	});
+
+	it('rejects eligible roles for another congregation resource', async () => {
+		assertAccessDenied(
+			await runAuthorization(
+				requireCongregationAdministrator,
+				'vip',
+				['admin'],
+				'congregation-2',
+			),
+		);
+
+		assertAccessDenied(
+			await runAuthorization(
+				requireMeetingEditor,
+				'vip',
+				['midweek_schedule'],
+				'congregation-2',
+			),
+		);
+	});
+
+	it('rejects a caller without a congregation membership', async () => {
+		assertAccessDenied(
+			await runAuthorization(
+				requireCongregationAdministrator,
+				'vip',
+				['admin'],
+				'congregation-1',
+				null,
 			),
 		);
 	});

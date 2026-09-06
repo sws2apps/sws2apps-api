@@ -9,12 +9,23 @@ const denyAccess = (response: Response) => {
 	sendClientError(response, 403, 'UNAUTHORIZED_ACCESS', 'user does not have the required role');
 };
 
+/**
+ * Requires the authenticated user to hold one of the allowed roles for the
+ * congregation identified by the `:id` path parameter. The role is only
+ * considered for the caller's own congregation membership, so accessing another
+ * congregation's resource is denied even when the caller holds an eligible role
+ * on their primary membership.
+ */
 const requireCongregationRole = (allowedRoles: readonly AppRoleType[]) => {
-	return async (_request: Request, response: Response, next: NextFunction) => {
+	return async (request: Request, response: Response, next: NextFunction) => {
 		try {
-			const userRoles = response.locals.currentUser?.profile.congregation?.cong_role;
+			const membership = response.locals.currentUser?.profile.congregation;
 
-			if (!hasAnyCongregationRole(userRoles, allowedRoles)) {
+			if (
+				!membership ||
+				membership.id !== request.params.id ||
+				!hasAnyCongregationRole(membership.cong_role, allowedRoles)
+			) {
 				denyAccess(response);
 				return;
 			}
