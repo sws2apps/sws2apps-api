@@ -70,17 +70,27 @@ export const getFileFromStorage = async (options: StorageBaseType) => {
 };
 
 const fileWriteQueues = new Map<string, Promise<unknown>>();
+const fileWriteQueueCounts = new Map<string, number>();
 
 const runWithinFileWriteQueue = async <T>(path: string, action: () => Promise<T>): Promise<T> => {
 	const previous = fileWriteQueues.get(path) ?? Promise.resolve();
 	let release!: (value?: unknown) => void;
 	fileWriteQueues.set(path, new Promise((resolve) => (release = resolve)));
+	const prevCount = fileWriteQueueCounts.get(path) ?? 0;
+	fileWriteQueueCounts.set(path, prevCount + 1);
 
 	try {
 		await previous;
 		return await action();
 	} finally {
 		release();
+		const remaining = fileWriteQueueCounts.get(path) ?? 1;
+		if (remaining <= 1) {
+			fileWriteQueues.delete(path);
+			fileWriteQueueCounts.delete(path);
+		} else {
+			fileWriteQueueCounts.set(path, remaining - 1);
+		}
 	}
 };
 

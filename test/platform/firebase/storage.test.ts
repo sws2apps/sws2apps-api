@@ -140,4 +140,39 @@ describe('serialized read-modify-write', () => {
 		);
 		assert.equal(after, 'done');
 	});
+
+	it('drops the queue entry once drained so a later write still serializes', async () => {
+		const { read, write, contents } = createSharedStore();
+		const options = { type: 'api' as const, path: 'flags.txt' };
+
+		await Promise.all(
+			['1', '2', '3'].map((suffix) =>
+				readModifyWriteFile(
+					options,
+					async (current) => ({ data: (current ?? '') + suffix, result: suffix }),
+					{ read: read('v3/api/flags.txt'), write: write('v3/api/flags.txt') },
+				),
+			),
+		);
+		assert.equal(contents.get('v3/api/flags.txt'), '123');
+
+		let releaseGate!: () => void;
+		const gate = new Promise<void>((resolve) => (releaseGate = resolve));
+		let started = 0;
+		const inFlight = readModifyWriteFile(
+			options,
+			async (current) => {
+				started += 1;
+				await gate;
+				return { data: (current ?? '') + '4', result: '4' };
+			},
+			{ read: read('v3/api/flags.txt'), write: write('v3/api/flags.txt') },
+		);
+
+		await new Promise<void>((resolve) => setImmediate(resolve));
+		assert.equal(started, 1);
+		releaseGate();
+		await inFlight;
+		assert.equal(contents.get('v3/api/flags.txt'), '1234');
+	});
 });
