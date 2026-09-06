@@ -1,4 +1,5 @@
 import type { AppInstallation, InstallationItem } from './installation.js';
+
 import { InstallationsList } from './installation-list.js';
 import { saveInstallations } from './installations.repository.js';
 
@@ -36,11 +37,24 @@ export const prepareInstallationRegistration = (
 	return { linked, pending, changed: false };
 };
 
+type RegistrationOperations = {
+	save: typeof saveInstallations;
+};
+
+const defaultRegistrationOperations: RegistrationOperations = {
+	save: (installations) => saveInstallations(installations),
+};
+
 export const registerInstallation = async (
 	installationId: string,
 	userId: string | undefined,
+	operations: Partial<RegistrationOperations> = {},
 ): Promise<void> => {
-	const registration = prepareInstallationRegistration(
+	const registration = {
+		...defaultRegistrationOperations,
+		...operations,
+	};
+	const nextState = prepareInstallationRegistration(
 		{
 			linked: InstallationsList.linked,
 			pending: InstallationsList.pending,
@@ -51,13 +65,14 @@ export const registerInstallation = async (
 		new Date().toISOString(),
 	);
 
-	if (!registration.changed) return;
+	if (!nextState.changed) return;
 
-	InstallationsList.linked = registration.linked;
-	InstallationsList.pending = registration.pending;
+	const installations: AppInstallation = {
+		linked: nextState.linked,
+		pending: nextState.pending,
+	};
 
-	await saveInstallations({
-		linked: registration.linked,
-		pending: registration.pending,
-	});
+	await registration.save(installations);
+
+	InstallationsList.replace(installations);
 };

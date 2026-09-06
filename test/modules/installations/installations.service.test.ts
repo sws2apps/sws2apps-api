@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 
-import { prepareInstallationRegistration } from '#modules/installations/installations.service.js';
+import { InstallationsList } from '#modules/installations/installation-list.js';
+import {
+	prepareInstallationRegistration,
+	registerInstallation,
+} from '#modules/installations/installations.service.js';
 
 const registeredAt = '2026-08-30T10:00:00.000Z';
 
@@ -68,5 +72,116 @@ describe('installation registration', () => {
 
 		assert.equal(result.changed, false);
 		assert.deepEqual(result.linked, [linkedRegistration]);
+	});
+});
+
+describe('registerInstallation atomic registration', () => {
+	beforeEach(() => {
+		InstallationsList.replace({ linked: [], pending: [] });
+	});
+
+	afterEach(() => {
+		InstallationsList.replace({ linked: [], pending: [] });
+	});
+
+	it('publishes linked, pending, and the flattened list only after persistence succeeds', async () => {
+		const persisted: unknown[] = [];
+
+		await registerInstallation('installation-1', undefined, {
+			save: async (installations) => {
+				persisted.push({ ...installations });
+			},
+		});
+
+		assert.equal(InstallationsList.find('installation-1')?.status, 'pending');
+		assert.equal(InstallationsList.list.length, 1);
+		assert.deepEqual(persisted, [{
+			linked: [],
+			pending: [{ id: 'installation-1', registered: InstallationsList.pending[0].registered }],
+		}]);
+	});
+
+	it('keeps the flattened list consistent across repeated registrations', async () => {
+		await registerInstallation('installation-1', undefined, {
+			save: async () => undefined,
+		});
+		await registerInstallation('installation-2', 'user-1', {
+			save: async () => undefined,
+		});
+		await registerInstallation('installation-1', 'user-1', {
+			save: async () => undefined,
+		});
+
+		assert.equal(InstallationsList.list.length, 2);
+		assert.equal(InstallationsList.find('installation-1')?.status, 'linked');
+		assert.equal(InstallationsList.find('installation-1')?.user, 'user-1');
+		assert.equal(InstallationsList.find('installation-2')?.status, 'linked');
+		assert.equal(InstallationsList.find('installation-2')?.user, 'user-1');
+		assert.equal(InstallationsList.list.filter((item) => item.status === 'linked').length, 2);
+		assert.equal(InstallationsList.list.filter((item) => item.status === 'pending').length, 0);
+	});
+
+	it('promotes a pending installation and updates the flattened list atomically', async () => {
+		InstallationsList.replace({
+			linked: [],
+			pending: [{ id: 'installation-1', registered: '2026-08-01T00:00:00.000Z' }],
+		});
+
+		await registerInstallation('installation-1', 'user-1', {
+			save: async () => undefined,
+		});
+
+		assert.equal(InstallationsList.pending.length, 0);
+		assert.equal(InstallationsList.linked.length, 1);
+		assert.equal(InstallationsList.linked[0].user, 'user-1');
+		assert.equal(InstallationsList.list.length, 1);
+		assert.equal(InstallationsList.find('installation-1')?.status, 'linked');
+		assert.equal(InstallationsList.find('installation-1')?.user, 'user-1');
+		assert.equal(InstallationsList.list.filter((item) => item.status === 'pending').length, 0);
+		assert.equal(InstallationsList.list.filter((item) => item.status === 'linked').length, 1);
+	});
+
+	it('leaves linked, pending, and the flattened list untouched when persistence fails', async () => {
+		InstallationsList.replace({
+			linked: [],
+			pending: [{ id: 'installation-1', registered: '2026-08-01T00:00:00.000Z' }],
+		});
+		const snapshotLinked = InstallationsList.linked;
+		const snapshotPending = InstallationsList.pending;
+		const snapshotList = InstallationsList.list;
+
+		await assert.rejects(
+			registerInstallation('installation-1', 'user-1', {
+				save: async () => {
+					throw new Error('Storage unavailable');
+				},
+			}),
+			/Storage unavailable/,
+		);
+
+		assert.equal(InstallationsList.linked, snapshotLinked);
+		assert.equal(InstallationsList.pending, snapshotPending);
+		assert.equal(InstallationsList.list, snapshotList);
+		assert.equal(InstallationsList.find('installation-1')?.status, 'pending');
+		assert.equal(InstallationsList.find('installation-1')?.user, undefined);
+	});
+
+	it('rollout counts reflect only the persisted, published registrations', async () => {
+		await registerInstallation('installation-1', undefined, {
+			save: async () => undefined,
+		});
+		await registerInstallation('installation-2', 'user-1', {
+			save: async () => undefined,
+		});
+
+		assert.equal(InstallationsList.list.length, 2);
+		assert.equal(
+			InstallationsList.list.filter((item) => item.status === 'pending').length,
+			1,
+		);
+		assert.equal(
+			InstallationsList.list.filter((item) => item.status === 'linked').length,
+			1,
+		);
 	});
 });
