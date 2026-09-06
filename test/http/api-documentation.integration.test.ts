@@ -34,7 +34,7 @@ describe('API documentation HTTP interface', () => {
 		assert.match(response.headers['content-type'], /^text\/html/);
 		assert.match(response.text, /\/api-docs\/assets\/swagger-ui-bundle\.js/);
 		assert.match(response.text, /\/api-docs\/swagger-initializer\.js/);
-		assert.doesNotMatch(response.text, /<script[^>]*>\s*[^<]/);
+		assert.doesNotMatch(response.text, /<script[^>]*>\s*[^<]/i);
 		assert.match(contentSecurityPolicy, /script-src 'self'/);
 		assert.doesNotMatch(contentSecurityPolicy, /script-src [^;]*'unsafe-inline'/);
 	});
