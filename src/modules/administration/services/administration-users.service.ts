@@ -24,6 +24,9 @@ import {
 
 
 
+const isValidEmailAddress = (email: string) =>
+	/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+
 export class AdministrationUserError extends Error {
 	constructor(
 		public readonly code:
@@ -177,7 +180,11 @@ export const updateAdministrationUser = async (
 		await operations.updateProfile(user, profile);
 	}
 
-	if (input.email.length > 0 && input.email !== user.email && user.profile.auth_uid) {
+	if (
+		isValidEmailAddress(input.email) &&
+		input.email !== user.email &&
+		user.profile.auth_uid
+	) {
 		await operations.updateAuthenticationEmail(user, input.email);
 	}
 

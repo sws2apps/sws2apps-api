@@ -3145,7 +3145,7 @@
         "properties": {
           "lastname": { "type": "string" },
           "firstname": { "type": "string" },
-          "email": { "type": "string" },
+          "email": { "type": "string", "format": "email", "maxLength": 254 },
           "roles": { "type": "array", "minItems": 1, "items": { "type": "string" } }
         }
       },

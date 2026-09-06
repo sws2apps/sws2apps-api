@@ -94,6 +94,37 @@ describe('administration user management', () => {
 		assert.equal(result[0]?.profile.email, 'jane@example.test');
 	});
 
+	it('never changes the authentication email when the supplied email is malformed', async () => {
+		const user = new User('user-1');
+		user.email = 'old@example.test';
+		user.profile.auth_uid = 'auth-user-1';
+		user.profile.role = 'vip';
+		UsersList.list = [user];
+
+		let emailUpdated = false;
+		await updateAdministrationUser(
+			user.id,
+			{
+				firstname: 'Jane',
+				lastname: 'Doe',
+				email: 'not-an-email',
+				roles: [],
+			},
+			'current-visitor',
+			{
+				updateProfile: async (target, profile) => {
+					target.profile = profile;
+				},
+				updateAuthenticationEmail: async () => {
+					emailUpdated = true;
+				},
+			},
+		);
+
+		assert.equal(emailUpdated, false);
+		assert.equal(user.email, 'old@example.test');
+	});
+
 	it('deletes a user and returns the remaining administration list', async () => {
 		const deletedUser = new User('user-1');
 		const remainingUser = new User('user-2');

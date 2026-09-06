@@ -3,6 +3,7 @@ import { body } from 'express-validator';
 
 import { requireAuthenticatedSession } from '#http/middleware/session-authentication.middleware.js';
 import { requireGlobalAdministrator } from '#http/middleware/authorization.middleware.js';
+import { REQUEST_LIMITS } from '#http/request-limits.js';
 import { validateRequest } from '#http/validation-errors.js';
 
 import {
@@ -117,7 +118,7 @@ router.patch(
 	'/users/:id',
 	body('lastname').isString(),
 	body('firstname').isString(),
-	body('email').isString(),
+	body('email').isEmail().isLength({ max: REQUEST_LIMITS.email }),
 	body('roles').isArray({ min: 1 }),
 	validateRequest,
 	userUpdate,
