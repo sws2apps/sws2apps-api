@@ -36,8 +36,13 @@ const userRouter = express.Router();
 // activate middleware at this point
 userRouter.use(requireAuthenticatedSession());
 
-// validate user for active session
-userRouter.get('/validate-me', validateUser);
+// validate user for active session and link the caller installation
+userRouter.get(
+	'/validate-me',
+	header('installation').optional({ values: 'null' }).isString().notEmpty(),
+	validateRequest,
+	validateUser,
+);
 
 // logout current user session
 userRouter.get('/logout', userLogout);

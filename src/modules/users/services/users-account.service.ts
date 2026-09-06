@@ -4,12 +4,15 @@ import {
 	CongregationsList,
 	refreshCongregationMembers,
 } from '#modules/congregations/index.js';
+import { registerInstallation } from '#modules/installations/index.js';
 import {
 	generateDevelopmentMfaToken,
 	decryptUserMfaSecret,
 	disableUserMfa as disableMfaForUser,
 	ensureUserMfaSecret,
 } from '#modules/mfa/index.js';
+import { LogLevel } from '@logtail/types';
+import { logger } from '#platform/logging/logger.js';
 import { UsersList } from '../users.js';
 import { deleteUser } from './user-lifecycle.service.js';
 import type { User } from '../user.js';
@@ -31,10 +34,12 @@ export class UserAccountError extends Error {
 
 type UserAccountOperations = {
 	updateSessions: typeof updateUserSessions;
+	registerInstallation: typeof registerInstallation;
 };
 
 const defaultUserAccountOperations: UserAccountOperations = {
 	updateSessions: updateUserSessions,
+	registerInstallation,
 };
 
 const getUserAccountUser = (userId: string): User => {
@@ -117,6 +122,32 @@ export const getValidatedUserAccount = (userId: string) => {
 			: undefined,
 		cong_access_code: congregation.settings.cong_access_code,
 	};
+};
+
+// Best-effort bookkeeping, not part of the validation contract: map the
+// calling application installation to the authenticated account so the public
+// feature-flag endpoint can resolve user and congregation scoping without
+// trusting a caller-supplied identity header.
+export const bindInstallationToUser = async (
+	userId: string,
+	installationId: string | undefined,
+	operations: Partial<UserAccountOperations> = {},
+): Promise<void> => {
+	if (!installationId) return;
+
+	const { registerInstallation: registerInstallationForUser } = {
+		...defaultUserAccountOperations,
+		...operations,
+	};
+
+	try {
+		await registerInstallationForUser(installationId, userId);
+	} catch {
+		logger(LogLevel.Warn, 'failed to link application installation to user account', {
+			userId,
+			installationId,
+		});
+	}
 };
 
 export const getUserMfaEnrollment = async (userId: string) => {

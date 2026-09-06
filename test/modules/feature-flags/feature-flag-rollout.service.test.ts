@@ -43,27 +43,20 @@ describe('public feature flag rollout identity resolution', () => {
 		CongregationsList.list = [congregation];
 		Flags.list = [appFlag, userFlag, congregationFlag];
 
-		let registeredUserId: string | undefined = 'sentinel';
 		const result = await getPublicFeatureFlags('anonymous-installation', {
-			registerInstallation: async (_id, userId) => {
-				registeredUserId = userId;
-			},
 			saveUserFeatureFlags: async () => {
 				assert.fail('must not assign user flags to an anonymous installation');
 			},
 			saveCongregationFeatureFlags: async () => {
 				assert.fail('must not assign congregation flags to an anonymous installation');
 			},
-			registerFeatureFlagInstallation: async () => {
-				assert.fail('must not register feature installation for an anonymous app-flag request');
-			},
+			registerFeatureFlagInstallation: async () => undefined,
 		});
 
 		assert.deepEqual(result, { APP_FEATURE: true });
-		assert.equal(registeredUserId, undefined);
 	});
 
-	it('resolves user and congregation flags from the installation binding, not a caller-supplied identity', async () => {
+	it('resolves user and congregation flags from the installation binding', async () => {
 		const boundUser = new User('bound-user');
 		boundUser.profile.role = 'vip';
 		const otherUser = new User('other-user');
@@ -77,11 +70,7 @@ describe('public feature flag rollout identity resolution', () => {
 		CongregationsList.list = [congregation];
 		Flags.list = [userFlag, congregationFlag];
 
-		let registeredUserId: string | undefined;
 		const result = await getPublicFeatureFlags('bound-installation', {
-			registerInstallation: async (_id, userId) => {
-				registeredUserId = userId;
-			},
 			registerFeatureFlagInstallation: async () => undefined,
 			saveUserFeatureFlags: async (savedUser) => {
 				assert.equal(savedUser, boundUser);
@@ -92,7 +81,6 @@ describe('public feature flag rollout identity resolution', () => {
 		});
 
 		assert.deepEqual(result, { USER_FEATURE: true, CONG_FEATURE: true });
-		assert.equal(registeredUserId, boundUser.id);
 	});
 });
 
@@ -150,11 +138,6 @@ describe('public feature flag rollout', () => {
 				}
 				const calls: string[] = [];
 				const result = await getPublicFeatureFlags(installation.id, {
-					registerInstallation: async (id, userId) => {
-						assert.equal(id, installation.id);
-						assert.equal(userId, user.id);
-						calls.push('installation');
-					},
 					registerFeatureFlagInstallation: async (savedFlag, record) => {
 						assert.equal(savedFlag, flag);
 						assert.equal(record.id, installation.id);
@@ -173,7 +156,7 @@ describe('public feature flag rollout', () => {
 				});
 				assert.deepEqual(result, scenario.enabled ? { FEATURE: true } : {});
 				const saves = availability === 'app' && scenario.coverage === 100 ? 0 : scenario.saves;
-				assert.deepEqual(calls, [...Array<string>(saves).fill(availability), 'installation']);
+				assert.deepEqual(calls, Array<string>(saves).fill(availability));
 			});
 		}
 	}

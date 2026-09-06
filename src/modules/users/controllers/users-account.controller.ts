@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { sendClientError, sendSuccess } from '#http/responses.js';
 
 import {
+	bindInstallationToUser,
 	deleteUserAccount,
 	disableUserMfa,
 	getUserActiveSessions,
@@ -38,7 +39,12 @@ const rethrowUnexpectedAccountError = (error: unknown, res: Response) => {
 
 export const validateUser = async (req: Request, res: Response) => {
 	try {
-		const account = getValidatedUserAccount(res.locals.currentUser.id);
+		const userId = res.locals.currentUser.id;
+		const installationId = req.headers.installation as string | undefined;
+
+		await bindInstallationToUser(userId, installationId);
+
+		const account = getValidatedUserAccount(userId);
 
 		sendSuccess(res, account, 'visitor id has been validated');
 	} catch (error) {

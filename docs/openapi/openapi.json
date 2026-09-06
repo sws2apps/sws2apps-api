@@ -376,6 +376,7 @@
       "get": {
         "operationId": "validateCurrentUser",
         "summary": "Validate the current account and congregation",
+        "description": "Validates the authenticated session and links the calling application installation to the current account when an installation header is provided.",
         "tags": ["User account"],
         "security": [
           {
@@ -389,6 +390,16 @@
           },
           {
             "$ref": "#/components/parameters/AppVersionHeader"
+          },
+          {
+            "name": "installation",
+            "in": "header",
+            "required": false,
+            "description": "Application installation identifier to link to the current account.",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         ],
         "responses": {

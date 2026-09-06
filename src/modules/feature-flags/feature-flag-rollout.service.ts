@@ -1,8 +1,5 @@
 import { CongregationsList } from '#modules/congregations/index.js';
-import {
-	InstallationsList,
-	registerInstallation,
-} from '#modules/installations/index.js';
+import { InstallationsList } from '#modules/installations/index.js';
 import { UsersList } from '#modules/users/index.js';
 import {
 	assignFeatureFlag,
@@ -14,14 +11,12 @@ import { Flags } from './flags.js';
 import type { Flag } from './flag.js';
 
 type FeatureFlagRolloutOperations = {
-	registerInstallation: typeof registerInstallation;
 	registerFeatureFlagInstallation: typeof registerFeatureFlagInstallation;
 	saveCongregationFeatureFlags: typeof saveCongregationFeatureFlags;
 	saveUserFeatureFlags: typeof saveUserFeatureFlags;
 };
 
 const defaultRolloutOperations: FeatureFlagRolloutOperations = {
-	registerInstallation,
 	registerFeatureFlagInstallation,
 	saveCongregationFeatureFlags,
 	saveUserFeatureFlags,
@@ -178,8 +173,6 @@ export const getPublicFeatureFlags = async (
 			await addUserFlag(flag, enabledFeatureFlags, userId, nonAdminUserCount, operations);
 		}
 	}
-
-	await operations.registerInstallation(installationId, userId);
 
 	return enabledFeatureFlags;
 };

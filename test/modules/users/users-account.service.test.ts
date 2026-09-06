@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import type { UserSession } from '#modules/users/types/user.types.js';
 import {
+	bindInstallationToUser,
 	findSessionIdentifierByVisitorId,
 	getUserActiveSessions,
 	projectUserSessions,
@@ -160,5 +161,42 @@ describe('user account sessions', () => {
 		assert.equal(sessions[0]?.identifier, 'session-2');
 		assert.equal(sessions[0]?.isSelf, false);
 		assert.equal('visitorid' in sessions[0]!, false);
+	});
+});
+
+describe('user installation binding', () => {
+	it('skips binding when no installation id is provided', async () => {
+		let registrationAttempted = false;
+
+		await bindInstallationToUser('user-1', undefined, {
+			registerInstallation: async () => {
+				registrationAttempted = true;
+			},
+		});
+
+		assert.equal(registrationAttempted, false);
+	});
+
+	it('links the authenticated user to the calling installation', async () => {
+		let registeredUserId: string | undefined;
+		let registeredInstallationId: string | undefined;
+
+		await bindInstallationToUser('user-1', 'installation-1', {
+			registerInstallation: async (installationId, userId) => {
+				registeredInstallationId = installationId;
+				registeredUserId = userId;
+			},
+		});
+
+		assert.equal(registeredInstallationId, 'installation-1');
+		assert.equal(registeredUserId, 'user-1');
+	});
+
+	it('treats a failed binding as best-effort and never rejects', async () => {
+		await bindInstallationToUser('user-1', 'installation-1', {
+			registerInstallation: async () => {
+				throw new Error('storage failure');
+			},
+		});
 	});
 });
