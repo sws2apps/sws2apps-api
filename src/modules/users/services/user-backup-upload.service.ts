@@ -24,11 +24,9 @@ export const filterBackupMetadata = (
 
 	const allowedMetadata = new Set(['user_settings', 'cong_settings']);
 
-	for (const key of Object.keys(metadata)) {
-		if (!allowedMetadata.has(key)) delete metadata[key];
-	}
-
-	return metadata;
+	return Object.fromEntries(
+		Object.entries(metadata).filter(([key]) => allowedMetadata.has(key)),
+	);
 };
 
 export type SaveUserBackupOutcome =
@@ -56,6 +54,7 @@ export const saveUserBackup = async (
 		congregationBackup.metadata,
 		congregation.settings.data_sync.value,
 	);
+	congregationBackup.metadata = incomingMetadata;
 	const currentMetadata = { ...congregation.metadata, ...user.metadata };
 	const metadataConflict = findBackupMetadataConflict(
 		currentMetadata,

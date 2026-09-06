@@ -18,6 +18,12 @@ describe('user backup upload metadata', () => {
 			user_settings: '2026-08-30T10:00:00.000Z',
 			cong_settings: '2026-08-30T10:00:00.000Z',
 		});
+		assert.deepEqual(metadata, {
+			user_settings: '2026-08-30T10:00:00.000Z',
+			cong_settings: '2026-08-30T10:00:00.000Z',
+			persons: '2026-08-30T10:00:00.000Z',
+			schedules: '2026-08-30T10:00:00.000Z',
+		});
 	});
 
 	it('keeps all incoming metadata when congregation data sync is enabled', () => {
