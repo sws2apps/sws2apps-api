@@ -32,11 +32,13 @@ describe('incoming user field service reports', () => {
 			report_month: '2026/08',
 			person_uid: 'person-1',
 			hours: 2,
+			hours_credits: 2,
 		}];
 		const updatedReport = {
 			report_month: '2026/08',
 			person_uid: 'person-1',
 			hours: 7,
+			hours_credits: 9,
 			comments: 'Updated',
 		};
 
@@ -44,9 +46,9 @@ describe('incoming user field service reports', () => {
 
 		assert.equal(result[0].report_id, 'report-1');
 		assert.equal(result[0].hours, 7);
-		assert.equal(result[0].hours_credits, 7);
+		assert.equal(result[0].hours_credits, 9);
 		assert.equal(result[0].comments, 'Updated');
-		assert.equal(currentReports[0].hours, 2);
+		assert.equal(currentReports[0].hours_credits, 2);
 	});
 });
 

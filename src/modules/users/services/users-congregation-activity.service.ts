@@ -136,7 +136,7 @@ export const mergeIncomingFieldServiceReport = (
 		currentReport.updatedAt = report.updatedAt;
 		currentReport.shared_ministry = report.shared_ministry;
 		currentReport.hours = report.hours;
-		currentReport.hours_credits = report.hours;
+		currentReport.hours_credits = report.hours_credits;
 		currentReport.bible_studies = report.bible_studies;
 		currentReport.comments = report.comments;
 	}
