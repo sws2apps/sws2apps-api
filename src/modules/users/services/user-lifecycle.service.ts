@@ -19,6 +19,7 @@ type DeleteUserOperations = {
 	deleteAuthenticationUser: typeof deleteFirebaseAuthUser;
 	removeUserById: (userId: string) => void;
 	refreshMembers: typeof refreshCongregationMembers;
+	log: typeof logger;
 };
 
 const defaultDeleteUserOperations: DeleteUserOperations = {
@@ -30,12 +31,17 @@ const defaultDeleteUserOperations: DeleteUserOperations = {
 	},
 	removeUserById: (userId) => UsersList.removeById(userId),
 	refreshMembers: (congregation) => refreshCongregationMembers(congregation),
+	log: logger,
 };
 
 /**
- * Removes persisted application data and the external identity before evicting
- * the user from the cache. Congregation membership is refreshed only after the
- * destructive operations succeed.
+ * Removes the persisted application data before evicting the user from the
+ * cache. Persisted data removal is the only destructive operation whose
+ * failure aborts the deletion; once it succeeds the cache entry and the
+ * congregation membership are always updated so the in-memory state never
+ * outlives the backing data. External identity removal is best-effort: its
+ * failures are logged instead of leaving a cached account without persisted
+ * data.
  */
 export const deleteUser = async (
 	userId: string,
@@ -51,7 +57,14 @@ export const deleteUser = async (
 	await lifecycle.deletePersistedUser(userId);
 
 	if (user?.profile.auth_uid) {
-		await lifecycle.deleteAuthenticationUser(user.profile.auth_uid);
+		try {
+			await lifecycle.deleteAuthenticationUser(user.profile.auth_uid);
+		} catch {
+			lifecycle.log(
+				LogLevel.Warn,
+				'the user data was removed but the external identity deletion failed',
+			);
+		}
 	}
 
 	lifecycle.removeUserById(userId);

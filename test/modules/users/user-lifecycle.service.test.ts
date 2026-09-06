@@ -76,22 +76,119 @@ describe('user deletion lifecycle', () => {
 
 	it('does not remove cached state when persisted deletion fails', async () => {
 		const operations: string[] = [];
+		const user = new User('user-1');
+		user.profile.auth_uid = 'authentication-user-1';
+		user.profile.congregation = {
+			id: 'congregation-1',
+			account_type: 'vip',
+			cong_role: ['publisher'],
+		};
 
 		await assert.rejects(
 			deleteUser('user-1', {
-				findUserById: () => new User('user-1'),
+				findUserById: () => user,
 				deletePersistedUser: async () => {
 					operations.push('persisted-user');
 					throw new Error('Storage unavailable');
 				},
+				deleteAuthenticationUser: async () => {
+					operations.push('authentication-user');
+				},
 				removeUserById: () => {
 					operations.push('cache');
+				},
+				refreshMembers: () => {
+					operations.push('members');
 				},
 			}),
 			/Storage unavailable/,
 		);
 
 		assert.deepEqual(operations, ['persisted-user']);
+	});
+
+	it('evicts the cache and refreshes members when identity deletion fails', async () => {
+		const congregation = new Congregation('congregation-1');
+		const user = new User('user-1');
+		user.profile.auth_uid = 'authentication-user-1';
+		user.profile.congregation = {
+			id: congregation.id,
+			account_type: 'vip',
+			cong_role: ['publisher'],
+		};
+		const operations: string[] = [];
+		const logs: { level: string; message: string }[] = [];
+
+		await deleteUser(user.id, {
+			findUserById: () => user,
+			findCongregationById: (congregationId) => {
+				assert.equal(congregationId, congregation.id);
+				return congregation;
+			},
+			deletePersistedUser: async (userId) => {
+				assert.equal(userId, user.id);
+				operations.push('persisted-user');
+			},
+			deleteAuthenticationUser: async (authenticationUserId) => {
+				assert.equal(authenticationUserId, 'authentication-user-1');
+				operations.push('authentication-user');
+				throw new Error('Authentication unavailable');
+			},
+			removeUserById: (userId) => {
+				assert.equal(userId, user.id);
+				operations.push('cache');
+			},
+			refreshMembers: (refreshedCongregation) => {
+				assert.equal(refreshedCongregation, congregation);
+				operations.push('members');
+			},
+			log: (level, message) => {
+				logs.push({ level, message });
+			},
+		});
+
+		assert.deepEqual(operations, [
+			'persisted-user',
+			'authentication-user',
+			'cache',
+			'members',
+		]);
+		assert.deepEqual(logs, [
+			{
+				level: 'warn',
+				message: 'the user data was removed but the external identity deletion failed',
+			},
+		]);
+	});
+
+	it('removes a user without an external identity without touching authentication', async () => {
+		const congregation = new Congregation('congregation-1');
+		const operations: string[] = [];
+
+		await deleteUser('user-1', {
+			findUserById: () => {
+				const user = new User('user-1');
+				user.profile.congregation = {
+					id: congregation.id,
+					account_type: 'pocket',
+					cong_role: ['publisher'],
+				};
+				return user;
+			},
+			findCongregationById: () => congregation,
+			deletePersistedUser: async () => {
+				operations.push('persisted-user');
+			},
+			removeUserById: () => {
+				operations.push('cache');
+			},
+			refreshMembers: (refreshedCongregation) => {
+				assert.equal(refreshedCongregation, congregation);
+				operations.push('members');
+			},
+		});
+
+		assert.deepEqual(operations, ['persisted-user', 'cache', 'members']);
 	});
 });
 
