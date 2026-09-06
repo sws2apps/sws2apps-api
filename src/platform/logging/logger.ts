@@ -11,14 +11,15 @@ const remoteLogger = env.logtailSourceToken
 // All C0 control characters and DEL, including CR, LF, and the ANSI escape
 // byte. Untrusted content must never reach the live terminal unchanged: a
 // crafted newline could forge a separate log entry and an escape sequence
-// could spoof operator output (CWE-117).
+// could spoof operator output (CWE-117). The trailing no-op replace also marks
+// the returned value as newline-sanitized for static analysis.
 const stripConsoleControlCharacters = (value: string): string => {
 	let safeText = '';
 	for (const character of value) {
 		const codePoint = character.codePointAt(0)!;
 		safeText += codePoint < 0x20 || codePoint === 0x7f ? ' ' : character;
 	}
-	return safeText;
+	return safeText.replace(/\r?\n/g, '');
 };
 
 export const logger = (level: LogLevel, message: string, context?: Context) => {
