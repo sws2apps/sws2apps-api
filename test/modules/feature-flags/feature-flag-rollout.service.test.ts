@@ -10,22 +10,26 @@ import { CongregationsList } from '#modules/congregations/congregations.js';
 import { User } from '#modules/users/user.js';
 import { UsersList } from '#modules/users/users.js';
 
+const noOpInsallationOperations = {
+	touchInstallation: async () => undefined,
+	touchFeatureFlagInstallation: async () => undefined,
+};
+
 describe('public feature flag rollout identity resolution', () => {
 	let originalFlags: typeof Flags.list;
-	let originalInstallations: typeof InstallationsList.list;
 	let originalUsers: typeof UsersList.list;
 	let originalCongregations: typeof CongregationsList.list;
 
 	beforeEach(() => {
 		originalFlags = Flags.list;
-		originalInstallations = InstallationsList.list;
 		originalUsers = UsersList.list;
 		originalCongregations = CongregationsList.list;
+		InstallationsList.replace({ linked: [], pending: [] });
 	});
 
 	afterEach(() => {
 		Flags.list = originalFlags;
-		InstallationsList.list = originalInstallations;
+		InstallationsList.replace({ linked: [], pending: [] });
 		UsersList.list = originalUsers;
 		CongregationsList.list = originalCongregations;
 	});
@@ -38,12 +42,16 @@ describe('public feature flag rollout identity resolution', () => {
 		const appFlag = new Flag({ id: 'app-flag', name: 'APP_FEATURE', description: '', availability: 'app', status: true, coverage: 100, installations: [] });
 		const userFlag = new Flag({ id: 'user-flag', name: 'USER_FEATURE', description: '', availability: 'user', status: true, coverage: 100, installations: [] });
 		const congregationFlag = new Flag({ id: 'cong-flag', name: 'CONG_FEATURE', description: '', availability: 'congregation', status: true, coverage: 100, installations: [] });
-		InstallationsList.list = [{ id: 'anonymous-installation', registered: '2026-01-01T00:00:00.000Z', status: 'pending' }];
+		InstallationsList.replace({
+			linked: [],
+			pending: [{ id: 'anonymous-installation', last_handshake: '2026-01-01T00:00:00.000Z' }],
+		});
 		UsersList.list = [user];
 		CongregationsList.list = [congregation];
 		Flags.list = [appFlag, userFlag, congregationFlag];
 
 		const result = await getPublicFeatureFlags('anonymous-installation', {
+			...noOpInsallationOperations,
 			saveUserFeatureFlags: async () => {
 				assert.fail('must not assign user flags to an anonymous installation');
 			},
@@ -65,12 +73,21 @@ describe('public feature flag rollout identity resolution', () => {
 		boundUser.profile.congregation = { id: congregation.id, account_type: 'vip', cong_role: [] };
 		const userFlag = new Flag({ id: 'user-flag', name: 'USER_FEATURE', description: '', availability: 'user', status: true, coverage: 100, installations: [] });
 		const congregationFlag = new Flag({ id: 'cong-flag', name: 'CONG_FEATURE', description: '', availability: 'congregation', status: true, coverage: 100, installations: [] });
-		InstallationsList.list = [{ id: 'bound-installation', user: boundUser.id, registered: '2026-01-01T00:00:00.000Z', status: 'linked' }];
+		InstallationsList.replace({
+			linked: [
+				{
+					user: boundUser.id,
+					installations: [{ id: 'bound-installation', last_handshake: '2026-01-01T00:00:00.000Z' }],
+				},
+			],
+			pending: [],
+		});
 		UsersList.list = [boundUser, otherUser];
 		CongregationsList.list = [congregation];
 		Flags.list = [userFlag, congregationFlag];
 
 		const result = await getPublicFeatureFlags('bound-installation', {
+			...noOpInsallationOperations,
 			registerFeatureFlagInstallation: async () => undefined,
 			saveUserFeatureFlags: async (savedUser) => {
 				assert.equal(savedUser, boundUser);
@@ -86,20 +103,19 @@ describe('public feature flag rollout identity resolution', () => {
 
 describe('public feature flag rollout', () => {
 	let originalFlags: typeof Flags.list;
-	let originalInstallations: typeof InstallationsList.list;
 	let originalUsers: typeof UsersList.list;
 	let originalCongregations: typeof CongregationsList.list;
 
 	beforeEach(() => {
 		originalFlags = Flags.list;
-		originalInstallations = InstallationsList.list;
 		originalUsers = UsersList.list;
 		originalCongregations = CongregationsList.list;
+		InstallationsList.replace({ linked: [], pending: [] });
 	});
 
 	afterEach(() => {
 		Flags.list = originalFlags;
-		InstallationsList.list = originalInstallations;
+		InstallationsList.replace({ linked: [], pending: [] });
 		UsersList.list = originalUsers;
 		CongregationsList.list = originalCongregations;
 	});
@@ -121,8 +137,14 @@ describe('public feature flag rollout', () => {
 				const otherCongregation = new Congregation('congregation-2');
 				user.profile.congregation = { id: congregation.id, account_type: 'vip', cong_role: [] };
 				const flag = new Flag({ id: 'flag-1', name: 'FEATURE', description: '', availability, status: true, coverage: scenario.coverage, installations: [] });
-				const installation = { id: 'installation-1', user: user.id, registered: '2026-01-01T00:00:00.000Z', status: 'pending' as const };
-				InstallationsList.list = [installation, { ...installation, id: 'installation-2' }];
+				const installation = { id: 'installation-1', user: user.id, last_handshake: '2026-01-01T00:00:00.000Z', status: 'linked' as const };
+				InstallationsList.replace({
+					linked: [
+						{ user: user.id, installations: [{ id: 'installation-1', last_handshake: '2026-01-01T00:00:00.000Z' }] },
+						{ user: otherUser.id, installations: [{ id: 'installation-2', last_handshake: '2026-01-01T00:00:00.000Z' }] },
+					],
+					pending: [],
+				});
 				UsersList.list = [user, otherUser];
 				CongregationsList.list = [congregation, otherCongregation];
 				Flags.list = [flag, new Flag({ id: 'inactive', name: 'INACTIVE', description: '', availability, status: false, coverage: 100, installations: [] })];
@@ -138,6 +160,7 @@ describe('public feature flag rollout', () => {
 				}
 				const calls: string[] = [];
 				const result = await getPublicFeatureFlags(installation.id, {
+					...noOpInsallationOperations,
 					registerFeatureFlagInstallation: async (savedFlag, record) => {
 						assert.equal(savedFlag, flag);
 						assert.equal(record.id, installation.id);
@@ -160,4 +183,49 @@ describe('public feature flag rollout', () => {
 			});
 		}
 	}
+
+	it('excludes pending installations from partial app coverage', async () => {
+		const flag = new Flag({ id: 'flag-1', name: 'FEATURE', description: '', availability: 'app', status: true, coverage: 50, installations: [] });
+		InstallationsList.replace({
+			linked: [],
+			pending: [{ id: 'installation-1', last_handshake: '2026-01-01T00:00:00.000Z' }],
+		});
+		Flags.list = [flag];
+
+		let registrationAttempted = false;
+		const result = await getPublicFeatureFlags('installation-1', {
+			...noOpInsallationOperations,
+			registerFeatureFlagInstallation: async () => {
+				registrationAttempted = true;
+			},
+			saveUserFeatureFlags: async () => undefined,
+			saveCongregationFeatureFlags: async () => undefined,
+		});
+
+		assert.deepEqual(result, {});
+		assert.equal(registrationAttempted, false);
+	});
+
+	it('refreshes the handshake of a linked installation when polling flags', async () => {
+		const flag = new Flag({ id: 'flag-1', name: 'FEATURE', description: '', availability: 'app', status: true, coverage: 100, installations: [] });
+		InstallationsList.replace({
+			linked: [{ user: 'user-1', installations: [{ id: 'installation-1', last_handshake: '2026-01-01T00:00:00.000Z' }] }],
+			pending: [],
+		});
+		Flags.list = [flag];
+
+		let touchedInstallation: string | undefined;
+		const result = await getPublicFeatureFlags('installation-1', {
+			touchInstallation: async (installationId) => {
+				touchedInstallation = installationId;
+			},
+			touchFeatureFlagInstallation: async () => undefined,
+			registerFeatureFlagInstallation: async () => undefined,
+			saveUserFeatureFlags: async () => undefined,
+			saveCongregationFeatureFlags: async () => undefined,
+		});
+
+		assert.deepEqual(result, { FEATURE: true });
+		assert.equal(touchedInstallation, 'installation-1');
+	});
 });

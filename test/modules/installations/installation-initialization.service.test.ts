@@ -12,7 +12,7 @@ describe('installation initialization', () => {
 					installations: [
 						{
 							id: 'installation-1',
-							registered: '2026-09-04T10:00:00.000Z',
+							last_handshake: '2026-09-04T10:00:00.000Z',
 						},
 					],
 				},

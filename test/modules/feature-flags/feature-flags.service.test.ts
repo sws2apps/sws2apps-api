@@ -5,6 +5,7 @@ import {
 	createFeatureFlag,
 	registerFeatureFlagInstallation,
 	toggleFeatureFlag,
+	touchFeatureFlagInstallation,
 	updateFeatureFlag,
 } from '#modules/feature-flags/feature-flags.service.js';
 import { Flag } from '#modules/feature-flags/flag.js';
@@ -112,7 +113,7 @@ describe('feature flag persistence', () => {
 		await assert.rejects(
 			registerFeatureFlagInstallation(
 				flag,
-				{ id: 'installation-1', registered: '2026-09-05T00:00:00.000Z' },
+				{ id: 'installation-1', last_handshake: '2026-09-05T00:00:00.000Z' },
 				{ updateFeatureFlags: failingWrite },
 			),
 			/storage unavailable/,
@@ -135,7 +136,7 @@ describe('feature flag persistence', () => {
 		});
 		await registerFeatureFlagInstallation(
 			flag,
-			{ id: 'installation-1', registered: '2026-09-05T00:00:00.000Z' },
+			{ id: 'installation-1', last_handshake: '2026-09-05T00:00:00.000Z' },
 			{
 				updateFeatureFlags: store.updateFeatureFlags,
 			},
@@ -145,5 +146,55 @@ describe('feature flag persistence', () => {
 		assert.equal(flag.installations[0]?.id, 'installation-1');
 		assert.equal(store.getState()[0]?.status, true);
 		assert.equal(store.getState()[0]?.installations[0]?.id, 'installation-1');
+	});
+
+	it('refreshes a stale flag installation handshake and publishes the cache', async () => {
+		const flag = createFlag();
+		flag.installations = [{ id: 'installation-1', last_handshake: '2026-01-01T00:00:00.000Z' }];
+		const store = createStore();
+		store.setState([flag]);
+		Flags.list = [flag];
+
+		await touchFeatureFlagInstallation(flag, 'installation-1', {
+			updateFeatureFlags: store.updateFeatureFlags,
+		});
+
+		const refreshed = Flags.list[0]?.installations[0];
+		assert.equal(refreshed?.id, 'installation-1');
+		assert.notEqual(refreshed?.last_handshake, '2026-01-01T00:00:00.000Z');
+	});
+
+	it('does not write when the flag installation handshake is recent', async () => {
+		const flag = createFlag();
+		flag.installations = [{ id: 'installation-1', last_handshake: '2026-09-05T00:00:00.000Z' }];
+		const store = createStore();
+		store.setState([flag]);
+		Flags.list = [flag];
+		let writes = 0;
+		const { updateFeatureFlags } = store;
+		store.updateFeatureFlags = async <T>(
+			update: (current: Flag[]) => Promise<{ next: Flag[]; result: T }>,
+		): Promise<T> => {
+			writes += 1;
+			return updateFeatureFlags(update);
+		};
+
+		await touchFeatureFlagInstallation(flag, 'installation-1', {
+			updateFeatureFlags: store.updateFeatureFlags,
+		});
+
+		assert.equal(writes, 0);
+	});
+
+	it('does not rethrow a failed refresh of a flag installation handshake', async () => {
+		const flag = createFlag();
+		flag.installations = [{ id: 'installation-1', last_handshake: '2026-01-01T00:00:00.000Z' }];
+		Flags.list = [flag];
+
+		await touchFeatureFlagInstallation(flag, 'installation-1', {
+			updateFeatureFlags: async () => {
+				throw new Error('storage unavailable');
+			},
+		});
 	});
 });

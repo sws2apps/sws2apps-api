@@ -5,5 +5,5 @@ export type FeatureFlag = {
 	availability: 'app' | 'user' | 'congregation';
 	status: boolean;
 	coverage: number;
-	installations: { id: string; registered: string }[];
+	installations: { id: string; last_handshake: string }[];
 };

@@ -6,9 +6,30 @@ import type { AppInstallation } from '#modules/installations/installation.js';
 import {
 	prepareInstallationRegistration,
 	registerInstallation,
+	touchInstallation,
 } from '#modules/installations/installations.service.js';
 
 const registeredAt = '2026-08-30T10:00:00.000Z';
+
+const createPersistentStore = () => {
+	let store: AppInstallation = { linked: [], pending: [] };
+	const persisted: AppInstallation[] = [];
+	return {
+		updateInstallations: async <T>(
+			update: (current: AppInstallation) => Promise<{ next: AppInstallation; result: T }>,
+		): Promise<T> => {
+			const { next, result } = await update(store);
+			store = next;
+			persisted.push(store);
+			return result;
+		},
+		setState: (state: AppInstallation) => {
+			store = state;
+		},
+		getState: () => store,
+		persisted,
+	};
+};
 
 describe('installation registration', () => {
 	it('creates a pending registration for an anonymous installation', () => {
@@ -24,7 +45,7 @@ describe('installation registration', () => {
 
 		assert.deepEqual(result.pending, [{
 			id: 'installation-1',
-			registered: registeredAt,
+			last_handshake: registeredAt,
 		}]);
 		assert.deepEqual(result.linked, []);
 		assert.equal(result.changed, true);
@@ -32,7 +53,7 @@ describe('installation registration', () => {
 	});
 
 	it('promotes a pending installation when a user becomes available', () => {
-		const registration = { id: 'installation-1', registered: 'before' };
+		const registration = { id: 'installation-1', last_handshake: 'before' };
 		const installations = { linked: [], pending: [registration] };
 
 		const result = prepareInstallationRegistration(
@@ -46,7 +67,7 @@ describe('installation registration', () => {
 		assert.deepEqual(result.pending, []);
 		assert.deepEqual(result.linked, [{
 			user: 'user-1',
-			installations: [{ id: 'installation-1', registered: registeredAt }],
+			installations: [{ id: 'installation-1', last_handshake: registeredAt }],
 		}]);
 		assert.equal(result.changed, true);
 	});
@@ -54,7 +75,7 @@ describe('installation registration', () => {
 	it('leaves an existing linked installation unchanged', () => {
 		const linkedRegistration = {
 			user: 'user-1',
-			installations: [{ id: 'installation-1', registered: 'before' }],
+			installations: [{ id: 'installation-1', last_handshake: 'before' }],
 		};
 		const installations = { linked: [linkedRegistration], pending: [] };
 
@@ -62,7 +83,7 @@ describe('installation registration', () => {
 			installations,
 			{
 				id: 'installation-1',
-				registered: 'before',
+				last_handshake: 'before',
 				status: 'linked',
 				user: 'user-1',
 			},
@@ -77,26 +98,6 @@ describe('installation registration', () => {
 });
 
 describe('registerInstallation atomic registration', () => {
-	const createPersistentStore = () => {
-		let store: AppInstallation = { linked: [], pending: [] };
-		const persisted: AppInstallation[] = [];
-		return {
-			updateInstallations: async <T>(
-				update: (current: AppInstallation) => Promise<{ next: AppInstallation; result: T }>,
-			): Promise<T> => {
-				const { next, result } = await update(store);
-				store = next;
-				persisted.push(store);
-				return result;
-			},
-			setState: (state: AppInstallation) => {
-				store = state;
-			},
-			getState: () => store,
-			persisted,
-		};
-	};
-
 	beforeEach(() => {
 		InstallationsList.replace({ linked: [], pending: [] });
 	});
@@ -144,7 +145,7 @@ describe('registerInstallation atomic registration', () => {
 		const store = createPersistentStore();
 		store.setState({
 			linked: [],
-			pending: [{ id: 'installation-1', registered: '2026-08-01T00:00:00.000Z' }],
+			pending: [{ id: 'installation-1', last_handshake: '2026-08-01T00:00:00.000Z' }],
 		});
 
 		await registerInstallation('installation-1', 'user-1', {
@@ -164,7 +165,7 @@ describe('registerInstallation atomic registration', () => {
 	it('leaves linked, pending, and the flattened list untouched when persistence fails', async () => {
 		InstallationsList.replace({
 			linked: [],
-			pending: [{ id: 'installation-1', registered: '2026-08-01T00:00:00.000Z' }],
+			pending: [{ id: 'installation-1', last_handshake: '2026-08-01T00:00:00.000Z' }],
 		});
 		const snapshotLinked = InstallationsList.linked;
 		const snapshotPending = InstallationsList.pending;
@@ -204,6 +205,117 @@ describe('registerInstallation atomic registration', () => {
 		assert.equal(
 			InstallationsList.list.filter((item) => item.status === 'linked').length,
 			1,
+		);
+	});
+});
+
+describe('installation handshake refresh', () => {
+	beforeEach(() => {
+		InstallationsList.replace({ linked: [], pending: [] });
+	});
+
+	afterEach(() => {
+		InstallationsList.replace({ linked: [], pending: [] });
+	});
+
+	it('skips unknown installations without touching storage', async () => {
+		const store = createPersistentStore();
+
+		await touchInstallation('missing-installation', {
+			updateInstallations: store.updateInstallations,
+		});
+
+		assert.equal(store.persisted.length, 0);
+	});
+
+	it('does not write when the last handshake is recent', async () => {
+		const store = createPersistentStore();
+		const state: AppInstallation = {
+			linked: [
+				{
+					user: 'user-1',
+					installations: [{ id: 'installation-1', last_handshake: '2026-09-01T00:00:00.000Z' }],
+				},
+			],
+			pending: [],
+		};
+		InstallationsList.replace(state);
+		store.setState(state);
+
+		await touchInstallation('installation-1', {
+			updateInstallations: store.updateInstallations,
+		});
+
+		assert.equal(store.persisted.length, 0);
+	});
+
+	it('refreshes a stale linked installation and publishes the cache', async () => {
+		const store = createPersistentStore();
+		const state: AppInstallation = {
+			linked: [
+				{
+					user: 'user-1',
+					installations: [{ id: 'installation-1', last_handshake: '2026-01-01T00:00:00.000Z' }],
+				},
+			],
+			pending: [],
+		};
+		InstallationsList.replace(state);
+		store.setState(state);
+
+		await touchInstallation('installation-1', {
+			updateInstallations: store.updateInstallations,
+		});
+
+		assert.equal(store.persisted.length, 1);
+		const refreshed = store.getState().linked[0]?.installations[0];
+		assert.equal(refreshed?.id, 'installation-1');
+		assert.notEqual(refreshed?.last_handshake, '2026-01-01T00:00:00.000Z');
+		assert.equal(
+			InstallationsList.find('installation-1')?.last_handshake,
+			refreshed?.last_handshake,
+		);
+	});
+
+	it('refreshes a stale pending installation', async () => {
+		const store = createPersistentStore();
+		const state: AppInstallation = {
+			linked: [],
+			pending: [{ id: 'installation-1', last_handshake: '2026-01-01T00:00:00.000Z' }],
+		};
+		InstallationsList.replace(state);
+		store.setState(state);
+
+		await touchInstallation('installation-1', {
+			updateInstallations: store.updateInstallations,
+		});
+
+		const refreshed = store.getState().pending[0];
+		assert.equal(refreshed?.id, 'installation-1');
+		assert.notEqual(refreshed?.last_handshake, '2026-01-01T00:00:00.000Z');
+		assert.equal(InstallationsList.find('installation-1')?.status, 'pending');
+	});
+
+	it('keeps the cache unchanged when the refresh write fails', async () => {
+		InstallationsList.replace({
+			linked: [
+				{
+					user: 'user-1',
+					installations: [{ id: 'installation-1', last_handshake: '2026-01-01T00:00:00.000Z' }],
+				},
+			],
+			pending: [],
+		});
+
+		await touchInstallation('installation-1', {
+			updateInstallations: async () => {
+				throw new Error('Storage unavailable');
+			},
+		});
+
+		assert.equal(
+			InstallationsList.find('installation-1')?.last_handshake,
+			'2026-01-01T00:00:00.000Z',
 		);
 	});
 });

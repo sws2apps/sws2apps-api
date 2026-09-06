@@ -1,12 +1,19 @@
 import { CongregationsList } from '#modules/congregations/index.js';
-import { InstallationsList } from '#modules/installations/index.js';
+import {
+	type InstallationItem,
+	InstallationsList,
+	touchInstallation,
+} from '#modules/installations/index.js';
 import { UsersList } from '#modules/users/index.js';
 import {
 	assignFeatureFlag,
 	saveCongregationFeatureFlags,
 	saveUserFeatureFlags,
 } from './feature-flag-assignments.service.js';
-import { registerFeatureFlagInstallation } from './feature-flags.service.js';
+import {
+	registerFeatureFlagInstallation,
+	touchFeatureFlagInstallation,
+} from './feature-flags.service.js';
 import { Flags } from './flags.js';
 import type { Flag } from './flag.js';
 
@@ -14,17 +21,22 @@ type FeatureFlagRolloutOperations = {
 	registerFeatureFlagInstallation: typeof registerFeatureFlagInstallation;
 	saveCongregationFeatureFlags: typeof saveCongregationFeatureFlags;
 	saveUserFeatureFlags: typeof saveUserFeatureFlags;
+	touchInstallation: typeof touchInstallation;
+	touchFeatureFlagInstallation: typeof touchFeatureFlagInstallation;
 };
 
 const defaultRolloutOperations: FeatureFlagRolloutOperations = {
 	registerFeatureFlagInstallation,
 	saveCongregationFeatureFlags,
 	saveUserFeatureFlags,
+	touchInstallation,
+	touchFeatureFlagInstallation,
 };
 
 const addApplicationFlag = async (
 	flag: Flag,
 	enabledFeatureFlags: Record<string, boolean>,
+	installation: InstallationItem | undefined,
 	installationId: string,
 	installationCount: number,
 	operations: FeatureFlagRolloutOperations,
@@ -36,12 +48,15 @@ const addApplicationFlag = async (
 
 	if (flag.coverage === 0) return;
 
+	if (!installation || installation.status !== 'linked') return;
+
 	const installationAlreadyIncluded = flag.installations.some(
 		(installation) => installation.id === installationId,
 	);
 
 	if (installationAlreadyIncluded) {
 		enabledFeatureFlags[flag.name] = flag.status;
+		await operations.touchFeatureFlagInstallation(flag, installationId);
 	}
 
 	if (!installationAlreadyIncluded) {
@@ -52,7 +67,7 @@ const addApplicationFlag = async (
 			enabledFeatureFlags[flag.name] = flag.status;
 			await operations.registerFeatureFlagInstallation(flag, {
 				id: installationId,
-				registered: new Date().toISOString(),
+				last_handshake: new Date().toISOString(),
 			});
 		}
 	}
@@ -154,12 +169,13 @@ export const getPublicFeatureFlags = async (
 		(user) => user.profile.role !== 'admin',
 	).length;
 	const congregationCount = CongregationsList.list.length;
-	const installationCount = InstallationsList.list.length;
-	const userId = InstallationsList.find(installationId)?.user;
+	const installation = InstallationsList.find(installationId);
+	const installationCount = InstallationsList.linkedCount;
+	const userId = installation?.user;
 
 	for (const flag of activeFlags) {
 		if (flag.availability === 'app') {
-			await addApplicationFlag(flag, enabledFeatureFlags, installationId, installationCount, operations);
+			await addApplicationFlag(flag, enabledFeatureFlags, installation, installationId, installationCount, operations);
 			continue;
 		}
 
@@ -173,6 +189,8 @@ export const getPublicFeatureFlags = async (
 			await addUserFlag(flag, enabledFeatureFlags, userId, nonAdminUserCount, operations);
 		}
 	}
+
+	await operations.touchInstallation(installationId);
 
 	return enabledFeatureFlags;
 };

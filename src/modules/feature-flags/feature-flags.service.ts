@@ -1,5 +1,8 @@
 import { CongregationsList } from '#modules/congregations/index.js';
 import { UsersList } from '#modules/users/index.js';
+import { isTimestampOnOrAfter, subtractUtcMonths } from '#domain/time/retention-period.js';
+import { LogLevel } from '@logtail/types';
+import { logger } from '#platform/logging/logger.js';
 import type { FeatureFlag } from './feature-flag.js';
 import {
 	removeFeatureFlagAssignment,
@@ -102,6 +105,44 @@ export const registerFeatureFlagInstallation = async (
 
 	Flags.list = next;
 	flag.installations = installations;
+};
+
+export const touchFeatureFlagInstallation = async (
+	flag: Flag,
+	installationId: string,
+	operations: Partial<FeatureFlagWriteOperations> = {},
+): Promise<void> => {
+	const existing = flag.installations.find((record) => record.id === installationId);
+	if (!existing) return;
+
+	const cutoff = subtractUtcMonths(new Date(), 3);
+	if (isTimestampOnOrAfter(existing.last_handshake, cutoff)) return;
+
+	const writeOperations = { ...defaultWriteOperations, ...operations };
+
+	try {
+		const next = await writeOperations.updateFeatureFlags(async (currentFlags) => {
+			const nextFlags = currentFlags.map((currentFlag) => {
+				if (currentFlag.id !== flag.id) return currentFlag;
+
+				const installations = currentFlag.installations.map((record) =>
+					record.id === installationId
+						? { ...record, last_handshake: new Date().toISOString() }
+						: record,
+				);
+
+				return new Flag({ ...currentFlag, installations });
+			});
+
+			return { next: nextFlags, result: nextFlags };
+		});
+
+		Flags.list = next;
+	} catch {
+		logger(LogLevel.Warn, 'failed to refresh application installation flag assignment', {
+			installationId,
+		});
+	}
 };
 
 export const deleteFeatureFlag = async (flagId: string): Promise<void> => {

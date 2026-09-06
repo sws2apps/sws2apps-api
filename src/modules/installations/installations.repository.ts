@@ -21,8 +21,27 @@ const defaultLoadingOperations: InstallationLoadingOperations = {
 	getCurrentTime: () => new Date(),
 };
 
+const normalizeInstallationItem = (item: {
+	id: string;
+	registered?: string;
+	last_handshake?: string;
+}) => ({
+	id: item.id,
+	last_handshake: item.last_handshake ?? item.registered ?? '',
+});
+
 const parseInstallations = (storedData: string | undefined): AppInstallation => {
-	return JSON.parse(storedData || emptyInstallations) as AppInstallation;
+	if (!storedData) return JSON.parse(emptyInstallations) as AppInstallation;
+
+	const parsed = JSON.parse(storedData) as AppInstallation;
+
+	return {
+		pending: parsed.pending.map(normalizeInstallationItem),
+		linked: parsed.linked.map((user) => ({
+			...user,
+			installations: user.installations.map(normalizeInstallationItem),
+		})),
+	};
 };
 
 export const loadInstallations = async (
@@ -40,12 +59,12 @@ export const loadInstallations = async (
 	const retentionCutoff = subtractUtcMonths(loading.getCurrentTime(), 3);
 
 	installations.pending = installations.pending.filter((installation) => {
-		return isTimestampOnOrAfter(installation.registered, retentionCutoff);
+		return isTimestampOnOrAfter(installation.last_handshake, retentionCutoff);
 	});
 
 	for (const linkedUser of installations.linked) {
 		linkedUser.installations = linkedUser.installations.filter((installation) => {
-			return isTimestampOnOrAfter(installation.registered, retentionCutoff);
+			return isTimestampOnOrAfter(installation.last_handshake, retentionCutoff);
 		});
 	}
 

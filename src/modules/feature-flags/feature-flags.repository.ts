@@ -7,7 +7,7 @@ import {
 	subtractUtcMonths,
 } from '#domain/time/retention-period.js';
 import { Flag } from './flag.js';
-import { FeatureFlag } from './feature-flag.js';
+import type { FeatureFlag } from './feature-flag.js';
 
 const featureFlagsStoragePath = 'flags.txt';
 
@@ -40,10 +40,9 @@ export const loadFeatureFlags = async (
 		flags.push(new Flag(storedFlag));
 	}
 
-	// Preserve the existing cleanup of old installation assignments.
 	for (const flag of flags) {
 		flag.installations = flag.installations.filter((installation) => {
-			return isTimestampOnOrAfter(installation.registered, retentionCutoff);
+			return isTimestampOnOrAfter(installation.last_handshake, retentionCutoff);
 		});
 	}
 

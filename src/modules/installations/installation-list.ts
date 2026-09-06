@@ -20,17 +20,21 @@ export class Installation {
 		this.list = this.#allInstallations();
 	}
 
+	get linkedCount() {
+		return this.linked.reduce((total, user) => total + user.installations.length, 0);
+	}
+
 	#allInstallations() {
 		const result: InstallationItem[] = [];
 
 		for (const user of this.linked) {
 			for (const installation of user.installations) {
-				result.push({ id: installation.id, registered: installation.registered, status: 'linked', user: user.user });
+				result.push({ id: installation.id, last_handshake: installation.last_handshake, status: 'linked', user: user.user });
 			}
 		}
 
 		for (const installation of this.pending) {
-			result.push({ id: installation.id, registered: installation.registered, status: 'pending' });
+			result.push({ id: installation.id, last_handshake: installation.last_handshake, status: 'pending' });
 		}
 
 		return result;

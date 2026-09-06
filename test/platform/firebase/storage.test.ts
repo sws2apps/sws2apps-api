@@ -143,6 +143,29 @@ describe('serialized read-modify-write', () => {
 		assert.equal(after, 'done');
 	});
 
+	it('does not write when the modifier returns the current content', async () => {
+		const { read, write, contents } = createSharedStore();
+		contents.set('v3/api/flags.txt', 'unchanged');
+		let writeAttempts = 0;
+
+const result = await readModifyWriteFile(
+		{ type: 'api', path: 'flags.txt' },
+		async (current) => ({ data: current ?? '', result: 'read-only' }),
+			{
+				read: read('v3/api/flags.txt'),
+				write: async (next) => {
+					writeAttempts += 1;
+					return write('v3/api/flags.txt')(next);
+				},
+			},
+		);
+
+		assert.equal(result, 'read-only');
+		assert.equal(writeAttempts, 0);
+		assert.equal(contents.get('v3/api/flags.txt'), 'unchanged');
+		assert.equal(getPendingFileWrites({ type: 'api', path: 'flags.txt' }), 0);
+	});
+
 	it('drops the queue entry once drained so a later write still serializes', async () => {
 		const { read, write, contents } = createSharedStore();
 		const options = { type: 'api' as const, path: 'flags.txt' };

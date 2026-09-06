@@ -1,11 +1,11 @@
 export type AppInstallation = {
-	linked: { user: string; installations: { id: string; registered: string }[] }[];
-	pending: { id: string; registered: string }[];
+	linked: { user: string; installations: { id: string; last_handshake: string }[] }[];
+	pending: { id: string; last_handshake: string }[];
 };
 
 export type InstallationItem = {
 	id: string;
-	registered: string;
+	last_handshake: string;
 	status: 'linked' | 'pending';
 	user?: string;
 };

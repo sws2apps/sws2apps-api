@@ -136,7 +136,11 @@ export const readModifyWriteFile = async <T>(
 	return runWithinFileWriteQueue(destinationPath, async () => {
 		const current = await readsWrites.read(options);
 		const { data, result } = await modify(current);
-		await readsWrites.write(data, options);
+
+		if (data !== current) {
+			await readsWrites.write(data, options);
+		}
+
 		return result;
 	});
 };
