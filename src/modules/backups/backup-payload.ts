@@ -25,33 +25,28 @@ const isStringArray = (value: unknown): boolean => {
 	return Array.isArray(value) && value.every((entry) => typeof entry === 'string');
 };
 
-/**
- * Rejects backup payloads whose defined fields do not match the documented
- * backup schema. Record datasets must be arrays of objects, `app_settings`
- * containers and their nested settings must be objects, identifiers must be
- * non-empty strings, and congregation role lists must be string arrays.
- * Undocumented top-level and settings fields remain valid because the public
- * contract allows additional properties.
- */
-const isBackupPayload = (value: unknown): value is Record<string, unknown> => {
-	if (!value || Array.isArray(value) || typeof value !== 'object') return false;
+const isCongUserEntry = (entry: unknown): boolean => {
+	if (!isPlainObject(entry)) return false;
+	if (typeof entry.id !== 'string' || entry.id.length === 0) return false;
+	if (entry.local_uid !== undefined && typeof entry.local_uid !== 'string') return false;
+	return entry.role === undefined || isStringArray(entry.role);
+};
 
-	const backup = value as Record<string, unknown>;
+const hasValidCongUsers = (backup: Record<string, unknown>): boolean => {
+	if (backup.cong_users === undefined) return true;
+	return Array.isArray(backup.cong_users) && backup.cong_users.every(isCongUserEntry);
+};
 
-	if (!isStringRecord(backup.metadata)) return false;
+const hasValidAppSettings = (backup: Record<string, unknown>): boolean => {
+	if (backup.app_settings === undefined) return true;
 
-	if (backup.app_settings !== undefined) {
-		const settings = backup.app_settings;
+	const settings = backup.app_settings;
+	if (!isPlainObject(settings)) return false;
+	if (settings.cong_settings !== undefined && !isPlainObject(settings.cong_settings)) return false;
+	return settings.user_settings === undefined || isPlainObject(settings.user_settings);
+};
 
-		if (!isPlainObject(settings)) return false;
-		if (settings.cong_settings !== undefined && !isPlainObject(settings.cong_settings)) return false;
-		if (settings.user_settings !== undefined && !isPlainObject(settings.user_settings)) return false;
-	}
-
-	if (backup.speakers_key !== undefined && typeof backup.speakers_key !== 'string') return false;
-
-	if (backup.outgoing_talks !== undefined && !isRecordArray(backup.outgoing_talks)) return false;
-
+const hasValidRecordDatasets = (backup: Record<string, unknown>): boolean => {
 	const recordDatasetFields = [
 		'persons',
 		'outgoing_speakers',
@@ -73,26 +68,31 @@ const isBackupPayload = (value: unknown): value is Record<string, unknown> => {
 		'cong_field_service_reports',
 	] as const;
 
-	if (recordDatasetFields.some((field) => {
-		return backup[field] !== undefined && !isRecordArray(backup[field]);
-	})) {
-		return false;
-	}
+	return recordDatasetFields.every((field) => {
+		return backup[field] === undefined || isRecordArray(backup[field]);
+	});
+};
 
-	if (backup.cong_users !== undefined) {
-		if (!Array.isArray(backup.cong_users)) return false;
+/**
+ * Rejects backup payloads whose defined fields do not match the documented
+ * backup schema. Record datasets must be arrays of objects, `app_settings`
+ * containers and their nested settings must be objects, identifiers must be
+ * non-empty strings, and congregation role lists must be string arrays.
+ * Undocumented top-level and settings fields remain valid because the public
+ * contract allows additional properties.
+ */
+const isBackupPayload = (value: unknown): value is Record<string, unknown> => {
+	if (!value || Array.isArray(value) || typeof value !== 'object') return false;
 
-		if (backup.cong_users.some((entry) => {
-			if (!isPlainObject(entry)) return true;
-			if (typeof entry.id !== 'string' || entry.id.length === 0) return true;
-			if (entry.local_uid !== undefined && typeof entry.local_uid !== 'string') return true;
-			return entry.role !== undefined && !isStringArray(entry.role);
-		})) {
-			return false;
-		}
-	}
+	const backup = value as Record<string, unknown>;
 
-	return true;
+	if (!isStringRecord(backup.metadata)) return false;
+	if (!hasValidAppSettings(backup)) return false;
+	if (backup.speakers_key !== undefined && typeof backup.speakers_key !== 'string') return false;
+	if (backup.outgoing_talks !== undefined && !isRecordArray(backup.outgoing_talks)) return false;
+	if (!hasValidRecordDatasets(backup)) return false;
+
+	return hasValidCongUsers(backup);
 };
 
 /**

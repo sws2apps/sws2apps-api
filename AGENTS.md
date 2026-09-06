@@ -86,6 +86,19 @@ workflow and must remain gated by all of its jobs.
 - Keep route registration paths as string literals so the OpenAPI completeness test
   can derive the live `/api/v3` route inventory.
 
+## Static analysis quality gates
+
+- Keep SonarCloud quality gates green. Before finishing a change, consider whether it
+  introduces `typescript:S3776` (Cognitive Complexity) issues.
+- Keep every function's Cognitive Complexity at or below the SonarCloud threshold
+  (default 15). Do not exceed it by nesting guards, `&&`/`||` chains, or chained
+  `some`/`every`/`find` callbacks that embed further branching.
+- When a validation or policy function grows past the threshold, extract each concern
+  into a small boolean helper (e.g. `hasValidCongUsers`, `hasValidAppSettings`) and
+  compose them with flat early returns so every function stays well under the limit.
+- Do not use `// eslint-disable` or SonarQube `@SuppressWarnings` to silence a
+  complexity smell; reduce the complexity instead.
+
 ## Change workflow
 
 - Keep each implementation chunk coherent and independently reviewable.
