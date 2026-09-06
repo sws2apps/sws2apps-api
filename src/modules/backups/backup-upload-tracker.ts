@@ -155,6 +155,14 @@ export const recordBackupUploadChunk = (
 		upload.timeout = setTimeout(expireUpload, uploadExpiry);
 	}
 
+	if (
+		!Number.isInteger(chunk.chunkIndex) ||
+		chunk.chunkIndex < 0 ||
+		chunk.chunkIndex >= upload.chunks.length
+	) {
+		throw new BackupUploadChunkError();
+	}
+
 	upload.chunks[chunk.chunkIndex] = chunk.chunkData;
 	upload.received++;
 	upload.receivedBytes += chunkBytes;
