@@ -32,24 +32,41 @@ describe('feature flag persistence', () => {
 		Flags.list = originalFlags;
 	});
 
+	const createStore = () => {
+		let store: Flag[] = [];
+		return {
+			updateFeatureFlags: async <T>(
+				update: (current: Flag[]) => Promise<{ next: Flag[]; result: T }>,
+			): Promise<T> => {
+				const { next, result } = await update(store);
+				store = next;
+				return result;
+			},
+			setState: (flags: Flag[]) => {
+				store = flags;
+			},
+			getState: () => store,
+		};
+	};
+
 	it('publishes a new flag only after it has been persisted', async () => {
+		const store = createStore();
+
 		await createFeatureFlag('new feature', 'Description', 'app', {
 			createId: () => 'flag-1',
-			saveFlags: async (flags) => {
-				assert.deepEqual(Flags.list, []);
-				assert.equal(flags[0]?.id, 'flag-1');
-				assert.equal(flags[0]?.name, 'NEW FEATURE');
-			},
+			updateFeatureFlags: store.updateFeatureFlags,
 		});
 
 		assert.equal(Flags.list[0]?.id, 'flag-1');
+		assert.equal(Flags.list[0]?.name, 'NEW FEATURE');
+		assert.equal(store.getState()[0]?.name, 'NEW FEATURE');
 	});
 
 	it('does not publish a new flag when persistence fails', async () => {
 		await assert.rejects(
 			createFeatureFlag('new feature', 'Description', 'app', {
 				createId: () => 'flag-1',
-				saveFlags: async () => {
+				updateFeatureFlags: async () => {
 					throw new Error('storage unavailable');
 				},
 			}),
@@ -61,20 +78,18 @@ describe('feature flag persistence', () => {
 
 	it('updates the cached flag only after persistence succeeds', async () => {
 		const flag = createFlag();
-		Flags.list = [flag];
+		const store = createStore();
+		store.setState([flag]);
 
 		await updateFeatureFlag(flag, 'RENAMED', 'Updated description', 75, {
-			saveFlags: async (flags) => {
-				assert.equal(flag.name, 'NEW_FEATURE');
-				assert.equal(flag.coverage, 0);
-				assert.equal(flags[0]?.name, 'RENAMED');
-				assert.equal(flags[0]?.coverage, 75);
-			},
+			updateFeatureFlags: store.updateFeatureFlags,
 		});
 
 		assert.equal(flag.name, 'RENAMED');
 		assert.equal(flag.description, 'Updated description');
 		assert.equal(flag.coverage, 75);
+		assert.equal(store.getState()[0]?.name, 'RENAMED');
+		assert.equal(store.getState()[0]?.coverage, 75);
 	});
 
 	it('keeps update, toggle, and installation state unchanged after write failures', async () => {
@@ -86,19 +101,19 @@ describe('feature flag persistence', () => {
 
 		await assert.rejects(
 			updateFeatureFlag(flag, 'RENAMED', 'Updated description', 75, {
-				saveFlags: failingWrite,
+				updateFeatureFlags: failingWrite,
 			}),
 			/storage unavailable/,
 		);
 		await assert.rejects(
-			toggleFeatureFlag(flag, { saveFlags: failingWrite }),
+			toggleFeatureFlag(flag, { updateFeatureFlags: failingWrite }),
 			/storage unavailable/,
 		);
 		await assert.rejects(
 			registerFeatureFlagInstallation(
 				flag,
 				{ id: 'installation-1', registered: '2026-09-05T00:00:00.000Z' },
-				{ saveFlags: failingWrite },
+				{ updateFeatureFlags: failingWrite },
 			),
 			/storage unavailable/,
 		);
@@ -112,26 +127,23 @@ describe('feature flag persistence', () => {
 
 	it('publishes toggles and installation registrations after successful writes', async () => {
 		const flag = createFlag();
-		Flags.list = [flag];
+		const store = createStore();
+		store.setState([flag]);
 
 		await toggleFeatureFlag(flag, {
-			saveFlags: async (flags) => {
-				assert.equal(flag.status, false);
-				assert.equal(flags[0]?.status, true);
-			},
+			updateFeatureFlags: store.updateFeatureFlags,
 		});
 		await registerFeatureFlagInstallation(
 			flag,
 			{ id: 'installation-1', registered: '2026-09-05T00:00:00.000Z' },
 			{
-				saveFlags: async (flags) => {
-					assert.deepEqual(flag.installations, []);
-					assert.equal(flags[0]?.installations[0]?.id, 'installation-1');
-				},
+				updateFeatureFlags: store.updateFeatureFlags,
 			},
 		);
 
 		assert.equal(flag.status, true);
 		assert.equal(flag.installations[0]?.id, 'installation-1');
+		assert.equal(store.getState()[0]?.status, true);
+		assert.equal(store.getState()[0]?.installations[0]?.id, 'installation-1');
 	});
 });

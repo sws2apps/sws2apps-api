@@ -1,7 +1,7 @@
 import type { AppInstallation, InstallationItem } from './installation.js';
 
 import { InstallationsList } from './installation-list.js';
-import { saveInstallations } from './installations.repository.js';
+import { updateInstallationsFile } from './installations.repository.js';
 
 type InstallationRegistrationResult = AppInstallation & {
 	changed: boolean;
@@ -38,12 +38,38 @@ export const prepareInstallationRegistration = (
 };
 
 type RegistrationOperations = {
-	save: typeof saveInstallations;
+	updateInstallations: typeof updateInstallationsFile;
 };
 
 const defaultRegistrationOperations: RegistrationOperations = {
-	save: (installations) => saveInstallations(installations),
+	updateInstallations: (update) => updateInstallationsFile(update),
 };
+
+const findExistingInstallation = (
+	installations: AppInstallation,
+	installationId: string,
+): InstallationItem | undefined => {
+	for (const user of installations.linked) {
+		const installation = user.installations.find((record) => record.id === installationId);
+		if (installation) {
+			return {
+				id: installation.id,
+				registered: installation.registered,
+				status: 'linked',
+				user: user.user,
+			};
+		}
+	}
+
+	const pending = installations.pending.find((record) => record.id === installationId);
+	if (pending) {
+		return { id: pending.id, registered: pending.registered, status: 'pending' };
+	}
+
+	return undefined;
+};
+
+let registrationQueue: Promise<void> = Promise.resolve();
 
 export const registerInstallation = async (
 	installationId: string,
@@ -54,25 +80,40 @@ export const registerInstallation = async (
 		...defaultRegistrationOperations,
 		...operations,
 	};
-	const nextState = prepareInstallationRegistration(
-		{
-			linked: InstallationsList.linked,
-			pending: InstallationsList.pending,
-		},
-		InstallationsList.find(installationId),
-		installationId,
-		userId,
-		new Date().toISOString(),
-	);
 
-	if (!nextState.changed) return;
+	const previous = registrationQueue;
+	let releasePrevious!: () => void;
+	registrationQueue = new Promise((resolve) => {
+		releasePrevious = resolve;
+	});
 
-	const installations: AppInstallation = {
-		linked: nextState.linked,
-		pending: nextState.pending,
-	};
+	await previous;
 
-	await registration.save(installations);
+	try {
+		const next = await registration.updateInstallations(async (current) => {
+			const existing = findExistingInstallation(current, installationId);
+			const nextState = prepareInstallationRegistration(
+				current,
+				existing,
+				installationId,
+				userId,
+				new Date().toISOString(),
+			);
 
-	InstallationsList.replace(installations);
+			if (!nextState.changed) {
+				return { next: current, result: current };
+			}
+
+			const installations: AppInstallation = {
+				linked: nextState.linked,
+				pending: nextState.pending,
+			};
+
+			return { next: installations, result: installations };
+		});
+
+		InstallationsList.replace(next);
+	} finally {
+		releasePrevious();
+	}
 };

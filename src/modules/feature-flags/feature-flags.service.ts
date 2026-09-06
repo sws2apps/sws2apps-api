@@ -6,17 +6,17 @@ import {
 	saveCongregationFeatureFlags,
 	saveUserFeatureFlags,
 } from './feature-flag-assignments.service.js';
-import { saveFeatureFlags } from './feature-flags.repository.js';
+import { updateFeatureFlagsFile } from './feature-flags.repository.js';
 import { Flag } from './flag.js';
 import { Flags } from './flags.js';
 
 export type FeatureFlagWriteOperations = {
-	saveFlags: typeof saveFeatureFlags;
+	updateFeatureFlags: typeof updateFeatureFlagsFile;
 	createId: () => string;
 };
 
 const defaultWriteOperations: FeatureFlagWriteOperations = {
-	saveFlags: saveFeatureFlags,
+	updateFeatureFlags: (update) => updateFeatureFlagsFile(update),
 	createId: () => crypto.randomUUID(),
 };
 
@@ -41,9 +41,12 @@ export const createFeatureFlag = async (
 		installations: [],
 	});
 
-	const updatedFlags = [...Flags.list, flag];
-	await writeOperations.saveFlags(updatedFlags);
-	Flags.list.push(flag);
+	const next = await writeOperations.updateFeatureFlags(async (currentFlags) => {
+		const nextFlags = [...currentFlags, flag];
+		return { next: nextFlags, result: nextFlags };
+	});
+
+	Flags.list = next;
 };
 
 export const updateFeatureFlag = async (
@@ -54,15 +57,14 @@ export const updateFeatureFlag = async (
 	operations: Partial<FeatureFlagWriteOperations> = {},
 ): Promise<void> => {
 	const writeOperations = { ...defaultWriteOperations, ...operations };
-	const updatedFlag = new Flag({
-		...flag,
-		name,
-		description,
-		coverage,
-	});
-	const updatedFlags = replaceFlag(Flags.list, updatedFlag);
+	const updatedFlag = new Flag({ ...flag, name, description, coverage });
 
-	await writeOperations.saveFlags(updatedFlags);
+	const next = await writeOperations.updateFeatureFlags(async (currentFlags) => {
+		const nextFlags = replaceFlag(currentFlags, updatedFlag);
+		return { next: nextFlags, result: nextFlags };
+	});
+
+	Flags.list = next;
 	flag.name = updatedFlag.name;
 	flag.description = updatedFlag.description;
 	flag.coverage = updatedFlag.coverage;
@@ -74,9 +76,13 @@ export const toggleFeatureFlag = async (
 ): Promise<void> => {
 	const writeOperations = { ...defaultWriteOperations, ...operations };
 	const updatedFlag = new Flag({ ...flag, status: !flag.status });
-	const updatedFlags = replaceFlag(Flags.list, updatedFlag);
 
-	await writeOperations.saveFlags(updatedFlags);
+	const next = await writeOperations.updateFeatureFlags(async (currentFlags) => {
+		const nextFlags = replaceFlag(currentFlags, updatedFlag);
+		return { next: nextFlags, result: nextFlags };
+	});
+
+	Flags.list = next;
 	flag.status = updatedFlag.status;
 };
 
@@ -88,9 +94,13 @@ export const registerFeatureFlagInstallation = async (
 	const writeOperations = { ...defaultWriteOperations, ...operations };
 	const installations = [...flag.installations, structuredClone(installation)];
 	const updatedFlag = new Flag({ ...flag, installations });
-	const updatedFlags = replaceFlag(Flags.list, updatedFlag);
 
-	await writeOperations.saveFlags(updatedFlags);
+	const next = await writeOperations.updateFeatureFlags(async (currentFlags) => {
+		const nextFlags = replaceFlag(currentFlags, updatedFlag);
+		return { next: nextFlags, result: nextFlags };
+	});
+
+	Flags.list = next;
 	flag.installations = installations;
 };
 
@@ -113,7 +123,10 @@ export const deleteFeatureFlag = async (flagId: string): Promise<void> => {
 		await saveCongregationFeatureFlags(congregation, flags);
 	}
 
-	const remainingFlags = Flags.list.filter((flag) => flag.id !== flagId);
-	await saveFeatureFlags(remainingFlags);
-	Flags.list = remainingFlags;
+	const next = await updateFeatureFlagsFile(async (currentFlags) => {
+		const nextFlags = currentFlags.filter((flag) => flag.id !== flagId);
+		return { next: nextFlags, result: nextFlags };
+	});
+
+	Flags.list = next;
 };

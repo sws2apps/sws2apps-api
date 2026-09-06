@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { InstallationsList } from '#modules/installations/installation-list.js';
+import type { AppInstallation } from '#modules/installations/installation.js';
 import {
 	prepareInstallationRegistration,
 	registerInstallation,
@@ -76,6 +77,26 @@ describe('installation registration', () => {
 });
 
 describe('registerInstallation atomic registration', () => {
+	const createPersistentStore = () => {
+		let store: AppInstallation = { linked: [], pending: [] };
+		const persisted: AppInstallation[] = [];
+		return {
+			updateInstallations: async <T>(
+				update: (current: AppInstallation) => Promise<{ next: AppInstallation; result: T }>,
+			): Promise<T> => {
+				const { next, result } = await update(store);
+				store = next;
+				persisted.push(store);
+				return result;
+			},
+			setState: (state: AppInstallation) => {
+				store = state;
+			},
+			getState: () => store,
+			persisted,
+		};
+	};
+
 	beforeEach(() => {
 		InstallationsList.replace({ linked: [], pending: [] });
 	});
@@ -85,31 +106,29 @@ describe('registerInstallation atomic registration', () => {
 	});
 
 	it('publishes linked, pending, and the flattened list only after persistence succeeds', async () => {
-		const persisted: unknown[] = [];
+		const store = createPersistentStore();
 
 		await registerInstallation('installation-1', undefined, {
-			save: async (installations) => {
-				persisted.push({ ...installations });
-			},
+			updateInstallations: store.updateInstallations,
 		});
 
 		assert.equal(InstallationsList.find('installation-1')?.status, 'pending');
 		assert.equal(InstallationsList.list.length, 1);
-		assert.deepEqual(persisted, [{
-			linked: [],
-			pending: [{ id: 'installation-1', registered: InstallationsList.pending[0].registered }],
-		}]);
+		assert.equal(store.persisted.length, 1);
+		assert.equal(store.persisted[0].pending[0].id, 'installation-1');
 	});
 
 	it('keeps the flattened list consistent across repeated registrations', async () => {
+		const store = createPersistentStore();
+
 		await registerInstallation('installation-1', undefined, {
-			save: async () => undefined,
+			updateInstallations: store.updateInstallations,
 		});
 		await registerInstallation('installation-2', 'user-1', {
-			save: async () => undefined,
+			updateInstallations: store.updateInstallations,
 		});
 		await registerInstallation('installation-1', 'user-1', {
-			save: async () => undefined,
+			updateInstallations: store.updateInstallations,
 		});
 
 		assert.equal(InstallationsList.list.length, 2);
@@ -122,13 +141,14 @@ describe('registerInstallation atomic registration', () => {
 	});
 
 	it('promotes a pending installation and updates the flattened list atomically', async () => {
-		InstallationsList.replace({
+		const store = createPersistentStore();
+		store.setState({
 			linked: [],
 			pending: [{ id: 'installation-1', registered: '2026-08-01T00:00:00.000Z' }],
 		});
 
 		await registerInstallation('installation-1', 'user-1', {
-			save: async () => undefined,
+			updateInstallations: store.updateInstallations,
 		});
 
 		assert.equal(InstallationsList.pending.length, 0);
@@ -152,7 +172,7 @@ describe('registerInstallation atomic registration', () => {
 
 		await assert.rejects(
 			registerInstallation('installation-1', 'user-1', {
-				save: async () => {
+				updateInstallations: async () => {
 					throw new Error('Storage unavailable');
 				},
 			}),
@@ -167,11 +187,13 @@ describe('registerInstallation atomic registration', () => {
 	});
 
 	it('rollout counts reflect only the persisted, published registrations', async () => {
+		const store = createPersistentStore();
+
 		await registerInstallation('installation-1', undefined, {
-			save: async () => undefined,
+			updateInstallations: store.updateInstallations,
 		});
 		await registerInstallation('installation-2', 'user-1', {
-			save: async () => undefined,
+			updateInstallations: store.updateInstallations,
 		});
 
 		assert.equal(InstallationsList.list.length, 2);

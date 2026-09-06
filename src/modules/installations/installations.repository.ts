@@ -1,4 +1,7 @@
-import { getFileFromStorage, uploadFileToStorage } from '#platform/firebase/storage.js';
+import {
+	getFileFromStorage,
+	readModifyWriteFile,
+} from '#platform/firebase/storage.js';
 import {
 	isTimestampOnOrAfter,
 	subtractUtcMonths,
@@ -18,6 +21,10 @@ const defaultLoadingOperations: InstallationLoadingOperations = {
 	getCurrentTime: () => new Date(),
 };
 
+const parseInstallations = (storedData: string | undefined): AppInstallation => {
+	return JSON.parse(storedData || emptyInstallations) as AppInstallation;
+};
+
 export const loadInstallations = async (
 	operations: Partial<InstallationLoadingOperations> = {},
 ): Promise<AppInstallation> => {
@@ -29,7 +36,7 @@ export const loadInstallations = async (
 		type: 'api',
 		path: installationsStoragePath,
 	});
-	const installations = JSON.parse(storedData || emptyInstallations) as AppInstallation;
+	const installations = parseInstallations(storedData);
 	const retentionCutoff = subtractUtcMonths(loading.getCurrentTime(), 3);
 
 	installations.pending = installations.pending.filter((installation) => {
@@ -45,13 +52,26 @@ export const loadInstallations = async (
 	return installations;
 };
 
-export const saveInstallations = async (
-	installations: AppInstallation,
-): Promise<void> => {
-	const serializedInstallations = JSON.stringify(installations);
+export type InstallationFileUpdate<T> = {
+	next: AppInstallation;
+	result: T;
+};
 
-	await uploadFileToStorage(serializedInstallations, {
-		type: 'api',
-		path: installationsStoragePath,
-	});
+/**
+ * Runs a read-modify-write of the installations file inside a per-path queue
+ * slot. {@link update} receives the latest persisted state (empty when the file
+ * is absent) and must return the next state plus the result to hand back, so
+ * concurrent registrations derive from the most recently persisted content.
+ */
+export const updateInstallationsFile = async <T>(
+	update: (current: AppInstallation) => Promise<InstallationFileUpdate<T>>,
+) => {
+	return readModifyWriteFile(
+		{ type: 'api', path: installationsStoragePath },
+		async (current) => {
+			const persisted = parseInstallations(current);
+			const { next, result } = await update(persisted);
+			return { data: JSON.stringify(next), result };
+		},
+	);
 };

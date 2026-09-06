@@ -69,6 +69,59 @@ export const getFileFromStorage = async (options: StorageBaseType) => {
 	}
 };
 
+const fileWriteQueues = new Map<string, Promise<unknown>>();
+
+const runWithinFileWriteQueue = async <T>(path: string, action: () => Promise<T>): Promise<T> => {
+	const previous = fileWriteQueues.get(path) ?? Promise.resolve();
+	let release!: (value?: unknown) => void;
+	fileWriteQueues.set(path, new Promise((resolve) => (release = resolve)));
+
+	try {
+		await previous;
+		return await action();
+	} finally {
+		release();
+	}
+};
+
+export type ReadModifyWriteFileOperations = {
+	read: (options: StorageBaseType) => Promise<string | undefined>;
+	write: (data: string, options: StorageBaseType) => Promise<string>;
+};
+
+const defaultReadModifyWriteOperations: ReadModifyWriteFileOperations = {
+	read: (options) => getFileFromStorage(options),
+	write: (data, options) => uploadFileToStorage(data, options),
+};
+
+/**
+ * Serializes a read-modify-write of a single storage file so concurrent
+ * updates to the same path cannot lose one another's changes. {@link modify}
+ * receives the latest persisted plaintext (or undefined when absent) and must
+ * return the next plaintext and the result to hand back to the caller. The
+ * read, transform, and write all run inside one per-file queue slot, so each
+ * write derives from the most recently persisted content. Different file paths
+ * proceed concurrently.
+ */
+export const readModifyWriteFile = async <T>(
+	options: StorageBaseType,
+	modify: (current: string | undefined) => Promise<{ data: string; result: T }>,
+	operations: Partial<ReadModifyWriteFileOperations> = {},
+): Promise<T> => {
+	const readsWrites = {
+		...defaultReadModifyWriteOperations,
+		...operations,
+	};
+	const destinationPath = buildStoragePath(options);
+
+	return runWithinFileWriteQueue(destinationPath, async () => {
+		const current = await readsWrites.read(options);
+		const { data, result } = await modify(current);
+		await readsWrites.write(data, options);
+		return result;
+	});
+};
+
 export const listFilesFromStorage = async (
 	options: StorageFileListOptions,
 ): Promise<StorageFileEntry[]> => {
