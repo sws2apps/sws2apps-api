@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 
 import {
 	buildStoragePath,
+	getPendingFileWrites,
 	readModifyWriteFile,
 } from '#platform/firebase/storage.js';
 
@@ -82,6 +83,7 @@ describe('serialized read-modify-write', () => {
 		assert.equal(b, 2);
 		assert.equal(contents.get('v3/api/flags.txt'), 'AB');
 		assert.deepEqual(seen, ['|A', 'A|B']);
+		assert.equal(getPendingFileWrites(options), 0);
 	});
 
 	it('does not serialize writes to different file paths', async () => {
@@ -155,6 +157,7 @@ describe('serialized read-modify-write', () => {
 			),
 		);
 		assert.equal(contents.get('v3/api/flags.txt'), '123');
+		assert.equal(getPendingFileWrites(options), 0);
 
 		let releaseGate!: () => void;
 		const gate = new Promise<void>((resolve) => (releaseGate = resolve));
@@ -171,8 +174,10 @@ describe('serialized read-modify-write', () => {
 
 		await new Promise<void>((resolve) => setImmediate(resolve));
 		assert.equal(started, 1);
+		assert.equal(getPendingFileWrites(options), 1);
 		releaseGate();
 		await inFlight;
 		assert.equal(contents.get('v3/api/flags.txt'), '1234');
+		assert.equal(getPendingFileWrites(options), 0);
 	});
 });

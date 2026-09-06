@@ -94,6 +94,15 @@ const runWithinFileWriteQueue = async <T>(path: string, action: () => Promise<T>
 	}
 };
 
+/**
+ * Number of pending queued writes for a given resolved storage path. Used to
+ * verify the per-file write queue drains (entries are removed once no writer
+ * remains) rather than accumulating for the lifetime of the process.
+ */
+export const getPendingFileWrites = (path: StorageBaseType): number => {
+	return fileWriteQueueCounts.get(buildStoragePath(path)) ?? 0;
+};
+
 export type ReadModifyWriteFileOperations = {
 	read: (options: StorageBaseType) => Promise<string | undefined>;
 	write: (data: string, options: StorageBaseType) => Promise<string>;
