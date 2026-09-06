@@ -59,4 +59,30 @@ describe('log context redaction', () => {
 			method: 'GET',
 		});
 	});
+
+	it('strips control characters from surviving context strings', () => {
+		const result = redactLogContext({
+			service: 'backup',
+			status: 'chunk\rfinished\narrived',
+			details: {
+				labels: ['error\u001B[2Jcleared', 'ok'],
+				attempts: 2,
+			},
+		});
+
+		assert.deepEqual(result, {
+			service: 'backup',
+			status: 'chunk finished arrived',
+			details: {
+				labels: ['error [2Jcleared', 'ok'],
+				attempts: 2,
+			},
+		});
+	});
+
+	it('does not leak control characters through array values', () => {
+		const result = redactLogContext({ items: ['before\u0000after', 'plain'] });
+
+		assert.deepEqual(result, { items: ['before after', 'plain'] });
+	});
 });

@@ -2,26 +2,14 @@ import { Logtail } from '@logtail/node';
 import type { Context, LogLevel } from '@logtail/types';
 
 import { env } from '#config/env.js';
-import { redactLogContext } from './redaction.js';
+import {
+	redactLogContext,
+	stripLogControlCharacters,
+} from './redaction.js';
 
 const remoteLogger = env.logtailSourceToken
 	? new Logtail(env.logtailSourceToken, { endpoint: `https://${env.logtailIngestingHost}` })
 	: undefined;
-
-// Strip all C0 control characters and DEL, including CR, LF, and the ANSI
-// escape byte, from untrusted content before it reaches a log sink: a crafted
-// newline could forge a separate log entry and an escape sequence could spoof
-// operator output (CWE-117). Sinks additionally receive the JSON-encoded
-// entry, which escapes any residual CR/LF to literal `\n`, so the entry can
-// never be split into live lines.
-const stripLogControlCharacters = (value: string): string => {
-	let safeText = '';
-	for (const character of value) {
-		const codePoint = character.codePointAt(0)!;
-		safeText += codePoint < 0x20 || codePoint === 0x7f ? ' ' : character;
-	}
-	return safeText;
-};
 
 export const logger = (level: LogLevel, message: string, context?: Context) => {
 	const safeContext = redactLogContext(context);

@@ -6,8 +6,24 @@ const sensitiveKeyPatterns = [
 	/access.?code|master.?key|user.?id|congregation.?id|cong_?id|^ip$/i,
 ];
 
+// Strip all C0 control characters and DEL, including CR, LF, and the ANSI
+// escape byte, from untrusted content before it reaches any log sink: a
+// crafted newline could forge a separate log entry and an escape sequence
+// could spoof operator output (CWE-117). Applied to every context string as
+// part of the redaction pass so local serialization and remote payloads share
+// the same sanitized values.
+export const stripLogControlCharacters = (value: string): string => {
+	let safeText = '';
+	for (const character of value) {
+		const codePoint = character.codePointAt(0)!;
+		safeText += codePoint < 0x20 || codePoint === 0x7f ? ' ' : character;
+	}
+	return safeText;
+};
+
 const redactValue = (value: unknown): unknown => {
 	if (Array.isArray(value)) return value.map(redactValue);
+	if (typeof value === 'string') return stripLogControlCharacters(value);
 	if (!value || typeof value !== 'object') return value;
 
 	return Object.fromEntries(
