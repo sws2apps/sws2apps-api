@@ -137,6 +137,8 @@ export const recordBackupUploadChunk = (
 	if (!upload) {
 		if (uploads.size >= maxActiveUploads) throw new BackupUploadChunkError();
 
+		if (chunk.totalChunks > MAX_BACKUP_CHUNKS) throw new BackupUploadChunkError();
+
 		upload = {
 			chunks: new Array<string>(chunk.totalChunks).fill(''),
 			totalChunks: chunk.totalChunks,
