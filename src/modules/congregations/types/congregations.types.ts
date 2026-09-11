@@ -124,6 +124,7 @@ export type CongSettingsType = {
 	country_code: string;
 	country_guid: string;
 	cong_guid: string;
+	cong_id?: string;
 	cong_prefix: string;
 	cong_number?: { value: string; updatedAt: string };
 	cong_name: string;
@@ -131,6 +132,7 @@ export type CongSettingsType = {
 	cong_access_code: string;
 	cong_location: { address: string; lat: number | undefined; lng: number | undefined; updatedAt: string };
 	cong_new?: boolean;
+	cong_migrated?: boolean;
 	cong_circuit: { type: string; value: string; updatedAt: string; _deleted: boolean }[];
 	cong_discoverable: { value: boolean; updatedAt: string };
 	data_sync: { value: boolean; updatedAt: string };
@@ -140,6 +142,7 @@ export type CongSettingsType = {
 	schedule_exact_date_enabled?: string;
 	time_away_public: { value: boolean; updatedAt: string };
 	source_material_auto_import?: string;
+	source_material?: string;
 	special_months?: string;
 	midweek_meeting: {
 		type: string;
@@ -149,6 +152,8 @@ export type CongSettingsType = {
 		class_count?: string;
 		opening_prayer_auto_assigned?: string;
 		closing_prayer_auto_assigned?: string;
+		opening_prayer_linked_assignment?: string;
+		closing_prayer_linked_assignment?: string;
 		aux_class_counselor_default?: string;
 	}[];
 	weekend_meeting: {
@@ -168,10 +173,16 @@ export type CongSettingsType = {
 	format_24h_enabled?: string;
 	week_start_sunday?: string;
 	attendance_online_record?: string;
+	attendance_deaf_record?: string;
+	events_multiday_display?: string;
 	responsabilities?: string;
 	last_backup: string;
+	aux_class_fsg?: string;
+	aux_class_qualifications?: string;
 	group_publishers_sort?: string;
 	first_day_of_the_week?: string;
+	first_day_week?: string;
+	schedule_songs_weekend?: string;
 };
 
 export type CongregationByCountry = {
