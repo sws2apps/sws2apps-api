@@ -95,6 +95,85 @@ describe('installation registration', () => {
 		assert.equal(result.changed, false);
 		assert.deepEqual(result.linked, [linkedRegistration]);
 	});
+
+	it('relinks an installation presented by a different authenticated user', () => {
+		const installations = {
+			linked: [
+				{
+					user: 'user-1',
+					installations: [{ id: 'installation-1', last_handshake: 'before' }],
+				},
+			],
+			pending: [],
+		};
+
+		const result = prepareInstallationRegistration(
+			installations,
+			{
+				id: 'installation-1',
+				last_handshake: 'before',
+				status: 'linked',
+				user: 'user-1',
+			},
+			'installation-1',
+			'user-2',
+			registeredAt,
+		);
+
+		assert.equal(result.changed, true);
+		assert.deepEqual(result.linked, [{
+			user: 'user-2',
+			installations: [{ id: 'installation-1', last_handshake: registeredAt }],
+		}]);
+		assert.deepEqual(result.pending, []);
+	});
+
+	it('keeps the previous owner group when it still holds other installations', () => {
+		const installations = {
+			linked: [
+				{
+					user: 'user-1',
+					installations: [
+						{ id: 'installation-1', last_handshake: 'before' },
+						{ id: 'installation-2', last_handshake: 'before' },
+					],
+				},
+				{
+					user: 'user-2',
+					installations: [{ id: 'installation-3', last_handshake: 'before' }],
+				},
+			],
+			pending: [],
+		};
+
+		const result = prepareInstallationRegistration(
+			installations,
+			{
+				id: 'installation-1',
+				last_handshake: 'before',
+				status: 'linked',
+				user: 'user-1',
+			},
+			'installation-1',
+			'user-2',
+			registeredAt,
+		);
+
+		assert.equal(result.changed, true);
+		assert.deepEqual(result.linked, [
+			{
+				user: 'user-1',
+				installations: [{ id: 'installation-2', last_handshake: 'before' }],
+			},
+			{
+				user: 'user-2',
+				installations: [
+					{ id: 'installation-3', last_handshake: 'before' },
+					{ id: 'installation-1', last_handshake: registeredAt },
+				],
+			},
+		]);
+	});
 });
 
 describe('registerInstallation atomic registration', () => {
@@ -206,6 +285,67 @@ describe('registerInstallation atomic registration', () => {
 			InstallationsList.list.filter((item) => item.status === 'linked').length,
 			1,
 		);
+	});
+
+	it('moves a linked installation to the presenting user and republishes the flattened list atomically', async () => {
+		const store = createPersistentStore();
+		store.setState({
+			linked: [
+				{
+					user: 'user-1',
+					installations: [{ id: 'installation-1', last_handshake: '2026-08-01T00:00:00.000Z' }],
+				},
+				{
+					user: 'user-2',
+					installations: [{ id: 'installation-2', last_handshake: '2026-08-01T00:00:00.000Z' }],
+				},
+			],
+			pending: [],
+		});
+		InstallationsList.replace(store.getState());
+
+		await registerInstallation('installation-1', 'user-2', {
+			updateInstallations: store.updateInstallations,
+		});
+
+		assert.equal(store.persisted.length, 1);
+		assert.equal(store.persisted[0].linked.length, 1);
+		assert.equal(store.persisted[0].linked[0].user, 'user-2');
+		assert.equal(store.persisted[0].linked[0].installations.length, 2);
+		assert.equal(InstallationsList.linked.length, 1);
+		assert.equal(InstallationsList.linked[0].user, 'user-2');
+		assert.equal(InstallationsList.list.length, 2);
+		assert.equal(InstallationsList.find('installation-1')?.status, 'linked');
+		assert.equal(InstallationsList.find('installation-1')?.user, 'user-2');
+		assert.notEqual(
+			InstallationsList.find('installation-1')?.last_handshake,
+			'2026-08-01T00:00:00.000Z',
+		);
+	});
+
+	it('keeps the installation bound to its previous owner when a move write fails', async () => {
+		InstallationsList.replace({
+			linked: [
+				{
+					user: 'user-1',
+					installations: [{ id: 'installation-1', last_handshake: '2026-08-01T00:00:00.000Z' }],
+				},
+			],
+			pending: [],
+		});
+
+		await assert.rejects(
+			registerInstallation('installation-1', 'user-2', {
+				updateInstallations: async () => {
+					throw new Error('Storage unavailable');
+				},
+			}),
+			/Storage unavailable/,
+		);
+
+		assert.equal(InstallationsList.find('installation-1')?.user, 'user-1');
+		assert.equal(InstallationsList.list.filter((item) => item.status === 'linked').length, 1);
+		assert.equal(InstallationsList.list.length, 1);
 	});
 });
 

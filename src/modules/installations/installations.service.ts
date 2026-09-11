@@ -37,6 +37,32 @@ export const prepareInstallationRegistration = (
 		return { linked, pending, changed: true };
 	}
 
+	// A linked installation presented by a different authenticated account is
+	// rebound: move the single registration record to the presenting owner,
+	// refresh its handshake, and drop the previous owner group when it empties.
+	if (
+		existingInstallation.status === 'linked' &&
+		userId &&
+		existingInstallation.user &&
+		existingInstallation.user !== userId
+	) {
+		const previousOwner = linked.find((record) => record.user === existingInstallation.user);
+		if (previousOwner) {
+			previousOwner.installations = previousOwner.installations.filter(
+				(record) => record.id !== installationId,
+			);
+		}
+
+		const newOwner = linked.find((record) => record.user === userId);
+		if (newOwner) {
+			newOwner.installations.push(registration);
+		} else {
+			linked.push({ user: userId, installations: [registration] });
+		}
+
+		return { linked: linked.filter((record) => record.installations.length > 0), pending, changed: true };
+	}
+
 	return { linked, pending, changed: false };
 };
 

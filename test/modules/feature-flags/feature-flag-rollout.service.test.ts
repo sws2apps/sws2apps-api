@@ -5,6 +5,8 @@ import { getPublicFeatureFlags } from '#modules/feature-flags/feature-flag-rollo
 import { Flag } from '#modules/feature-flags/flag.js';
 import { Flags } from '#modules/feature-flags/flags.js';
 import { InstallationsList } from '#modules/installations/installation-list.js';
+import { registerInstallation } from '#modules/installations/index.js';
+import type { AppInstallation } from '#modules/installations/installation.js';
 import { Congregation } from '#modules/congregations/congregation.js';
 import { CongregationsList } from '#modules/congregations/congregations.js';
 import { User } from '#modules/users/user.js';
@@ -98,6 +100,63 @@ describe('public feature flag rollout identity resolution', () => {
 		});
 
 		assert.deepEqual(result, { USER_FEATURE: true, CONG_FEATURE: true });
+	});
+
+	it('resolves user flags through the new account after the installation switches owners', async () => {
+		const previousOwner = new User('previous-owner');
+		previousOwner.profile.role = 'vip';
+		const newOwner = new User('new-owner');
+		newOwner.profile.role = 'vip';
+		const congregation = new Congregation('congregation-1');
+		previousOwner.profile.congregation = { id: congregation.id, account_type: 'vip', cong_role: [] };
+		newOwner.profile.congregation = { id: congregation.id, account_type: 'vip', cong_role: [] };
+		const previousOwnerFlag = new Flag({ id: 'previous-flag', name: 'PREVIOUS_OWNER_FEATURE', description: '', availability: 'user', status: true, coverage: 50, installations: [] });
+		const newOwnerFlag = new Flag({ id: 'new-flag', name: 'NEW_OWNER_FEATURE', description: '', availability: 'user', status: true, coverage: 50, installations: [] });
+		InstallationsList.replace({
+			linked: [
+				{
+					user: previousOwner.id,
+					installations: [{ id: 'installation-1', last_handshake: '2026-01-01T00:00:00.000Z' }],
+				},
+			],
+			pending: [],
+		});
+		UsersList.list = [previousOwner, newOwner];
+		CongregationsList.list = [congregation];
+		previousOwner.flags = [previousOwnerFlag.id];
+		newOwner.flags = [newOwnerFlag.id];
+		Flags.list = [previousOwnerFlag, newOwnerFlag];
+
+		const operations = {
+			...noOpInsallationOperations,
+			saveUserFeatureFlags: async () => undefined,
+			saveCongregationFeatureFlags: async () => undefined,
+			registerFeatureFlagInstallation: async () => undefined,
+		};
+
+		const before = await getPublicFeatureFlags('installation-1', operations);
+		assert.deepEqual(before, { PREVIOUS_OWNER_FEATURE: true });
+
+		let store: AppInstallation = {
+			linked: [
+				{
+					user: previousOwner.id,
+					installations: [{ id: 'installation-1', last_handshake: '2026-01-01T00:00:00.000Z' }],
+				},
+			],
+			pending: [],
+		};
+		await registerInstallation('installation-1', newOwner.id, {
+			updateInstallations: async (update) => {
+				const { next, result } = await update(store);
+				store = next;
+				return result;
+			},
+		});
+
+		const after = await getPublicFeatureFlags('installation-1', operations);
+		assert.equal(InstallationsList.find('installation-1')?.user, newOwner.id);
+		assert.deepEqual(after, { NEW_OWNER_FEATURE: true });
 	});
 });
 
