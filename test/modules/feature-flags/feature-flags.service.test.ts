@@ -50,6 +50,25 @@ describe('feature flag persistence', () => {
 		};
 	};
 
+	const createSequentialStore = (store: ReturnType<typeof createStore>) => {
+		const queued: Array<() => Promise<void>> = [];
+		return {
+			updateFeatureFlags: async <T>(
+				update: (current: Flag[]) => Promise<{ next: Flag[]; result: T }>,
+			): Promise<T> => {
+				let resolve!: (value: T) => void;
+				const pending = new Promise<T>((done) => (resolve = done));
+				queued.push(async () => {
+					const { next, result } = await update(store.getState());
+					store.setState(next);
+					resolve(result);
+				});
+				return pending;
+			},
+			queued,
+		};
+	};
+
 	it('publishes a new flag only after it has been persisted', async () => {
 		const store = createStore();
 
@@ -152,40 +171,132 @@ describe('feature flag persistence', () => {
 		const flag = createFlag();
 		const store = createStore();
 		store.setState([flag]);
-		const queued: Array<() => Promise<void>> = [];
-		const sequentialStore = {
-			updateFeatureFlags: async <T>(
-				update: (current: Flag[]) => Promise<{ next: Flag[]; result: T }>,
-			): Promise<T> => {
-				let resolve!: (value: T) => void;
-				const pending = new Promise<T>((done) => (resolve = done));
-				queued.push(async () => {
-					const { next, result } = await update(store.getState());
-					store.setState(next);
-					resolve(result);
-				});
-				return pending;
-			},
-		};
+		const sequential = createSequentialStore(store);
 
 		const first = registerFeatureFlagInstallation(
 			flag,
 			{ id: 'installation-1', last_handshake: '2026-09-05T00:00:00.000Z' },
-			{ updateFeatureFlags: sequentialStore.updateFeatureFlags },
+			{ updateFeatureFlags: sequential.updateFeatureFlags },
 		);
 		const second = registerFeatureFlagInstallation(
 			flag,
 			{ id: 'installation-2', last_handshake: '2026-09-05T00:00:00.000Z' },
-			{ updateFeatureFlags: sequentialStore.updateFeatureFlags },
+			{ updateFeatureFlags: sequential.updateFeatureFlags },
 		);
 
-		assert.equal(queued.length, 2);
+		assert.equal(sequential.queued.length, 2);
 
-		for (const run of queued) await run();
+		for (const run of sequential.queued) await run();
 		await Promise.all([first, second]);
 
 		const storedIds = store.getState()[0]?.installations.map((record) => record.id);
 		assert.deepEqual(storedIds, ['installation-1', 'installation-2']);
+	});
+
+	it('preserves a concurrent update across a later toggle in the serialized queue', async () => {
+		const flag = createFlag();
+		const store = createStore();
+		store.setState([flag]);
+		const sequential = createSequentialStore(store);
+
+		const updatePromise = updateFeatureFlag(flag, 'RENAMED', 'Updated description', 75, {
+			updateFeatureFlags: sequential.updateFeatureFlags,
+		});
+		const togglePromise = toggleFeatureFlag(flag, {
+			updateFeatureFlags: sequential.updateFeatureFlags,
+		});
+
+		for (const run of sequential.queued) await run();
+		await Promise.all([updatePromise, togglePromise]);
+
+		const stored = store.getState()[0];
+		assert.equal(stored?.name, 'RENAMED');
+		assert.equal(stored?.description, 'Updated description');
+		assert.equal(stored?.coverage, 75);
+		assert.equal(stored?.status, true);
+		assert.equal(flag.name, 'RENAMED');
+		assert.equal(flag.coverage, 75);
+		assert.equal(flag.status, true);
+	});
+
+	it('preserves a concurrent toggle across a later update in the serialized queue', async () => {
+		const flag = createFlag();
+		const store = createStore();
+		store.setState([flag]);
+		const sequential = createSequentialStore(store);
+
+		const togglePromise = toggleFeatureFlag(flag, {
+			updateFeatureFlags: sequential.updateFeatureFlags,
+		});
+		const updatePromise = updateFeatureFlag(flag, 'RENAMED', 'Updated description', 75, {
+			updateFeatureFlags: sequential.updateFeatureFlags,
+		});
+
+		for (const run of sequential.queued) await run();
+		await Promise.all([togglePromise, updatePromise]);
+
+		const stored = store.getState()[0];
+		assert.equal(stored?.status, true);
+		assert.equal(stored?.name, 'RENAMED');
+		assert.equal(stored?.description, 'Updated description');
+		assert.equal(stored?.coverage, 75);
+		assert.equal(flag.status, true);
+		assert.equal(flag.name, 'RENAMED');
+		assert.equal(flag.coverage, 75);
+	});
+
+	it('preserves a concurrent update across a later installation registration', async () => {
+		const flag = createFlag();
+		const store = createStore();
+		store.setState([flag]);
+		const sequential = createSequentialStore(store);
+
+		const updatePromise = updateFeatureFlag(flag, 'RENAMED', 'Updated description', 75, {
+			updateFeatureFlags: sequential.updateFeatureFlags,
+		});
+		const registrationPromise = registerFeatureFlagInstallation(
+			flag,
+			{ id: 'installation-1', last_handshake: '2026-09-05T00:00:00.000Z' },
+			{ updateFeatureFlags: sequential.updateFeatureFlags },
+		);
+
+		for (const run of sequential.queued) await run();
+		await Promise.all([updatePromise, registrationPromise]);
+
+		const stored = store.getState()[0];
+		assert.equal(stored?.name, 'RENAMED');
+		assert.equal(stored?.coverage, 75);
+		assert.deepEqual(stored?.installations.map((record) => record.id), ['installation-1']);
+		assert.equal(flag.name, 'RENAMED');
+		assert.equal(flag.coverage, 75);
+		assert.deepEqual(flag.installations.map((record) => record.id), ['installation-1']);
+	});
+
+	it('preserves a concurrent installation registration across a later update', async () => {
+		const flag = createFlag();
+		const store = createStore();
+		store.setState([flag]);
+		const sequential = createSequentialStore(store);
+
+		const registrationPromise = registerFeatureFlagInstallation(
+			flag,
+			{ id: 'installation-1', last_handshake: '2026-09-05T00:00:00.000Z' },
+			{ updateFeatureFlags: sequential.updateFeatureFlags },
+		);
+		const updatePromise = updateFeatureFlag(flag, 'RENAMED', 'Updated description', 75, {
+			updateFeatureFlags: sequential.updateFeatureFlags,
+		});
+
+		for (const run of sequential.queued) await run();
+		await Promise.all([registrationPromise, updatePromise]);
+
+		const stored = store.getState()[0];
+		assert.equal(stored?.name, 'RENAMED');
+		assert.equal(stored?.coverage, 75);
+		assert.deepEqual(stored?.installations.map((record) => record.id), ['installation-1']);
+		assert.equal(flag.name, 'RENAMED');
+		assert.equal(flag.coverage, 75);
+		assert.deepEqual(flag.installations.map((record) => record.id), ['installation-1']);
 	});
 
 	it('refreshes a stale flag installation handshake and publishes the cache', async () => {

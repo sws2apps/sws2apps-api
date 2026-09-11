@@ -60,17 +60,19 @@ export const updateFeatureFlag = async (
 	operations: Partial<FeatureFlagWriteOperations> = {},
 ): Promise<void> => {
 	const writeOperations = { ...defaultWriteOperations, ...operations };
-	const updatedFlag = new Flag({ ...flag, name, description, coverage });
 
 	const next = await writeOperations.updateFeatureFlags(async (currentFlags) => {
+		const currentFlag = currentFlags.find((candidate) => candidate.id === flag.id) ?? flag;
+		const updatedFlag = new Flag({ ...currentFlag, name, description, coverage });
 		const nextFlags = replaceFlag(currentFlags, updatedFlag);
 		return { next: nextFlags, result: nextFlags };
 	});
 
 	Flags.list = next;
-	flag.name = updatedFlag.name;
-	flag.description = updatedFlag.description;
-	flag.coverage = updatedFlag.coverage;
+	const savedFlag = next.find((saved) => saved.id === flag.id) ?? flag;
+	flag.name = savedFlag.name;
+	flag.description = savedFlag.description;
+	flag.coverage = savedFlag.coverage;
 };
 
 export const toggleFeatureFlag = async (
@@ -78,15 +80,17 @@ export const toggleFeatureFlag = async (
 	operations: Partial<FeatureFlagWriteOperations> = {},
 ): Promise<void> => {
 	const writeOperations = { ...defaultWriteOperations, ...operations };
-	const updatedFlag = new Flag({ ...flag, status: !flag.status });
 
 	const next = await writeOperations.updateFeatureFlags(async (currentFlags) => {
+		const currentFlag = currentFlags.find((candidate) => candidate.id === flag.id) ?? flag;
+		const updatedFlag = new Flag({ ...currentFlag, status: !currentFlag.status });
 		const nextFlags = replaceFlag(currentFlags, updatedFlag);
 		return { next: nextFlags, result: nextFlags };
 	});
 
 	Flags.list = next;
-	flag.status = updatedFlag.status;
+	const savedFlag = next.find((saved) => saved.id === flag.id) ?? flag;
+	flag.status = savedFlag.status;
 };
 
 export const registerFeatureFlagInstallation = async (
