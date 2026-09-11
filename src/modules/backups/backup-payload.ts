@@ -56,6 +56,7 @@ const CONG_SETTINGS_KEYS: readonly (keyof CongSettingsType)[] = [
 	'country_code',
 	'country_guid',
 	'cong_guid',
+	'cong_id',
 	'cong_prefix',
 	'cong_number',
 	'cong_name',
@@ -63,6 +64,7 @@ const CONG_SETTINGS_KEYS: readonly (keyof CongSettingsType)[] = [
 	'cong_access_code',
 	'cong_location',
 	'cong_new',
+	'cong_migrated',
 	'cong_circuit',
 	'cong_discoverable',
 	'data_sync',
@@ -72,6 +74,7 @@ const CONG_SETTINGS_KEYS: readonly (keyof CongSettingsType)[] = [
 	'schedule_exact_date_enabled',
 	'time_away_public',
 	'source_material_auto_import',
+	'source_material',
 	'special_months',
 	'midweek_meeting',
 	'weekend_meeting',
@@ -80,10 +83,16 @@ const CONG_SETTINGS_KEYS: readonly (keyof CongSettingsType)[] = [
 	'format_24h_enabled',
 	'week_start_sunday',
 	'attendance_online_record',
+	'attendance_deaf_record',
+	'events_multiday_display',
 	'responsabilities',
 	'last_backup',
+	'aux_class_fsg',
+	'aux_class_qualifications',
 	'group_publishers_sort',
 	'first_day_of_the_week',
+	'first_day_week',
+	'schedule_songs_weekend',
 ];
 
 const CONG_SETTINGS_KEY_SET = new Set<string>(CONG_SETTINGS_KEYS);
@@ -164,7 +173,7 @@ const isBackupPayload = (value: unknown): value is Record<string, unknown> => {
 	const backup = value as Record<string, unknown>;
 	if (!isWithinDepthLimit(value, MAX_PAYLOAD_DEPTH)) return false;
 
-	if (!isStringRecord(backup.metadata)) return false;
+	if (backup.metadata !== undefined && !isStringRecord(backup.metadata)) return false;
 	if (!hasValidAppSettings(backup)) return false;
 	if (backup.speakers_key !== undefined && typeof backup.speakers_key !== 'string') return false;
 	if (!hasValidOutgoingTalks(backup)) return false;

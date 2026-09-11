@@ -162,4 +162,37 @@ describe('backup payload parsing', () => {
 
 		assert.deepEqual(parseBackupPayload(payload), payload);
 	});
+
+	it('accepts a chunked-assembled payload without a metadata field', () => {
+		const payload = {
+			app_settings: {
+				cong_settings: { data_sync: { value: true, updatedAt: '2026-08-30T10:00:00.000Z' } },
+				user_settings: { firstname: { value: 'Anna', updatedAt: '2026-08-30T10:00:00.000Z' } },
+			},
+			persons: [{ person_uid: 'p-1' }],
+			sched: [{ id: 'sched-1' }],
+		};
+
+		assert.deepEqual(parseBackupPayload(payload), payload);
+	});
+
+	it('accepts congregation settings the Organized app ships today', () => {
+		const payload = {
+			app_settings: {
+				cong_settings: {
+					cong_id: 'CD9133F3-6AD0-4C58-80D8-1118D68625EB',
+					events_multiday_display: 'encrypted-value',
+					attendance_deaf_record: 'encrypted-value',
+					source_material: 'encrypted-value',
+					aux_class_fsg: 'encrypted-value',
+					aux_class_qualifications: 'encrypted-value',
+					first_day_week: 'encrypted-value',
+					schedule_songs_weekend: 'encrypted-value',
+					cong_migrated: false,
+				},
+			},
+		};
+
+		assert.deepEqual(parseBackupPayload(payload), payload);
+	});
 });
