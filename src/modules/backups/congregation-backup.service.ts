@@ -15,7 +15,7 @@ import {
 	type User,
 	type UserProfile,
 } from '#modules/users/index.js';
-import type { BackupData } from './backup.types.js';
+import type { BackupDataWithOptionalMetadata } from './backup.types.js';
 import { mergeIncomingData } from './incoming-data-merge.js';
 
 export type CongregationBackupOperations = {
@@ -42,7 +42,7 @@ const defaultCongregationBackupOperations: CongregationBackupOperations = {
 
 const savePeopleAndSpeakers = async (
 	congregation: Congregation,
-	backup: BackupData,
+	backup: BackupDataWithOptionalMetadata,
 	capabilities: ReturnType<typeof getUserCapabilities>,
 	operations: CongregationBackupOperations,
 ): Promise<void> => {
@@ -73,7 +73,7 @@ const savePeopleAndSpeakers = async (
 
 const saveAdministrationAndSchedules = async (
 	congregation: Congregation,
-	backup: BackupData,
+	backup: BackupDataWithOptionalMetadata,
 	capabilities: ReturnType<typeof getUserCapabilities>,
 	operations: CongregationBackupOperations,
 ): Promise<void> => {
@@ -112,7 +112,7 @@ const saveAdministrationAndSchedules = async (
 
 const saveReportsAndEvents = async (
 	congregation: Congregation,
-	backup: BackupData,
+	backup: BackupDataWithOptionalMetadata,
 	capabilities: ReturnType<typeof getUserCapabilities>,
 	operations: CongregationBackupOperations,
 ): Promise<void> => {
@@ -152,7 +152,7 @@ const saveReportsAndEvents = async (
  */
 export const saveCongregationBackup = async (
 	congregation: Congregation,
-	backup: BackupData,
+	backup: BackupDataWithOptionalMetadata,
 	userRoles: AppRoleType[],
 	operations: CongregationBackupOperations = defaultCongregationBackupOperations,
 ): Promise<void> => {
