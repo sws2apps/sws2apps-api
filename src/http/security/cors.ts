@@ -14,6 +14,7 @@ const crossOriginPublicPaths = new Set(['/app-version', '/api/public/source-mate
 
 const allowedBrowserRequestHeaders = [
 	'Authorization',
+	'Cache-Control',
 	'Content-Type',
 	'AppClient',
 	'AppVersion',

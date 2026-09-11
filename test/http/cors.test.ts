@@ -45,6 +45,7 @@ describe('production CORS policy', () => {
 
 		assert.deepEqual(options.allowedHeaders, [
 			'Authorization',
+			'Cache-Control',
 			'Content-Type',
 			'AppClient',
 			'AppVersion',
