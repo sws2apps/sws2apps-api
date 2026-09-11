@@ -32,6 +32,15 @@ export type BackupData = {
 	metadata: Record<string, string>;
 };
 
+/**
+ * Backup payload variant that may omit the metadata object. Chunked uploads
+ * validate metadata from the request header, so their assembled body is
+ * allowed to skip it; regular uploads must keep it in the body.
+ */
+export type BackupDataWithOptionalMetadata = Omit<BackupData, 'metadata'> & {
+	metadata?: Record<string, string>;
+};
+
 export type BackupForStorage = {
 	chunks: Map<number, string>;
 	totalChunks: number;

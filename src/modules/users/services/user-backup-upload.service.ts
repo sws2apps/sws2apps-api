@@ -6,6 +6,7 @@ import {
 	findBackupMetadataConflict,
 	saveUserBackupAsync,
 	type BackupData,
+	type BackupDataWithOptionalMetadata,
 	BackupPayloadError,
 	parseBackupPayload,
 } from '#modules/backups/index.js';
@@ -41,7 +42,7 @@ export const saveUserBackup = async (
 	let congregationBackup: BackupData;
 
 	try {
-		congregationBackup = parseBackupPayload(backupPayload);
+		congregationBackup = parseBackupPayload(backupPayload, { requireMetadata: true });
 	} catch (error) {
 		if (error instanceof BackupPayloadError) {
 			throw new UserBackupError('INVALID_BACKUP');
@@ -162,10 +163,10 @@ export const saveUserChunkedBackup = async (
 
 	if (!completedBackup) return { status: 'chunk_received' };
 
-	let congregationBackup: BackupData;
+	let congregationBackup: BackupDataWithOptionalMetadata;
 
 	try {
-		congregationBackup = parseBackupPayload(completedBackup);
+		congregationBackup = parseBackupPayload(completedBackup, { requireMetadata: false });
 	} catch (error) {
 		discardBackupUpload(chunk.uploadId);
 

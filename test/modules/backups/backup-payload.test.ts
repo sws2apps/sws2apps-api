@@ -173,7 +173,20 @@ describe('backup payload parsing', () => {
 			sched: [{ id: 'sched-1' }],
 		};
 
-		assert.deepEqual(parseBackupPayload(payload), payload);
+		assert.deepEqual(parseBackupPayload(payload, { requireMetadata: false }), payload);
+	});
+
+	it('rejects a regular upload that omits the metadata object', () => {
+		const payload = {
+			app_settings: {},
+			persons: [{ person_uid: 'p-1' }],
+		};
+
+		assert.throws(
+			() => parseBackupPayload(payload, { requireMetadata: true }),
+			BackupPayloadError,
+		);
+		assert.throws(() => parseBackupPayload(payload), BackupPayloadError);
 	});
 
 	it('accepts congregation settings the Organized app ships today', () => {
@@ -193,6 +206,6 @@ describe('backup payload parsing', () => {
 			},
 		};
 
-		assert.deepEqual(parseBackupPayload(payload), payload);
+		assert.deepEqual(parseBackupPayload(payload, { requireMetadata: false }), payload);
 	});
 });

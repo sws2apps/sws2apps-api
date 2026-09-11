@@ -1,7 +1,7 @@
 import { APP_ROLES, type AppRoleType } from '#domain/users/app-role.js';
 import type { CongSettingsType } from '#modules/congregations/index.js';
 
-import type { BackupData } from './backup.types.js';
+import type { BackupData, BackupDataWithOptionalMetadata } from './backup.types.js';
 
 export class BackupPayloadError extends Error {
 	constructor() {
@@ -167,13 +167,19 @@ const isWithinDepthLimit = (value: unknown, limit: number, currentDepth = 0): bo
  * known application roles. Payloads must stay within the configured nesting
  * depth and per-dataset entry bounds.
  */
-const isBackupPayload = (value: unknown): value is Record<string, unknown> => {
+const isBackupPayload = (
+	value: unknown,
+	requireMetadata: boolean,
+): value is Record<string, unknown> => {
 	if (!value || Array.isArray(value) || typeof value !== 'object') return false;
 
 	const backup = value as Record<string, unknown>;
 	if (!isWithinDepthLimit(value, MAX_PAYLOAD_DEPTH)) return false;
 
-	if (backup.metadata !== undefined && !isStringRecord(backup.metadata)) return false;
+	const hasValidMetadata = requireMetadata
+		? isStringRecord(backup.metadata)
+		: backup.metadata === undefined || isStringRecord(backup.metadata);
+	if (!hasValidMetadata) return false;
 	if (!hasValidAppSettings(backup)) return false;
 	if (backup.speakers_key !== undefined && typeof backup.speakers_key !== 'string') return false;
 	if (!hasValidOutgoingTalks(backup)) return false;
@@ -182,22 +188,37 @@ const isBackupPayload = (value: unknown): value is Record<string, unknown> => {
 	return hasValidCongUsers(backup);
 };
 
+export type BackupPayloadParseOptions = {
+	requireMetadata: boolean;
+};
+
+type BackupPayloadParseResult<Options extends BackupPayloadParseOptions> =
+	Options extends { requireMetadata: true } ? BackupData : BackupDataWithOptionalMetadata;
+
 /**
  * Parses an uploaded backup payload and enforces the backup schema before any
  * conflict check or persistence runs. Malformed known fields are rejected so
- * they can never replace congregation or user records in storage.
+ * they can never replace congregation or user records in storage. The metadata
+ * object is mandatory for regular uploads, where the body is the only source;
+ * chunked uploads already parse it from the request header, so their assembled
+ * body may omit it.
  */
-export const parseBackupPayload = (payload: unknown): BackupData => {
+export const parseBackupPayload = <
+	const Options extends BackupPayloadParseOptions = { requireMetadata: true },
+>(
+	payload: unknown,
+	options: Options = { requireMetadata: true } as Options,
+): BackupPayloadParseResult<Options> => {
 	try {
 		const parsedPayload: unknown = typeof payload === 'string'
 			? JSON.parse(payload)
 			: payload;
 
-		if (!isBackupPayload(parsedPayload)) {
+		if (!isBackupPayload(parsedPayload, options.requireMetadata)) {
 			throw new BackupPayloadError();
 		}
 
-		return parsedPayload as BackupData;
+		return parsedPayload as BackupPayloadParseResult<Options>;
 	} catch (error) {
 		if (error instanceof BackupPayloadError) throw error;
 		throw new BackupPayloadError();

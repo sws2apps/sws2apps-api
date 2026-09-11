@@ -13,7 +13,7 @@ import {
 } from '#modules/users/index.js';
 import { logger } from '#platform/logging/logger.js';
 import type { StandardRecord } from '../../types/standard-record.js';
-import type { BackupData } from './backup.types.js';
+import type { BackupDataWithOptionalMetadata } from './backup.types.js';
 import { discardBackupUpload } from './backup-upload-tracker.js';
 import { saveCongregationBackup } from './congregation-backup.service.js';
 
@@ -38,7 +38,7 @@ const defaultBackupPersistenceOperations: BackupPersistenceOperations = {
 };
 
 const getUserPersonData = (
-	backup: BackupData,
+	backup: BackupDataWithOptionalMetadata,
 	user: User,
 ): StandardRecord | undefined => {
 	const localUserId = user.profile.congregation?.user_local_uid;
@@ -72,7 +72,7 @@ export const saveUserBackupAsync = async (
 		congId: string;
 		userId: string;
 		userRole: AppRoleType[];
-		cong_backup: BackupData;
+		cong_backup: BackupDataWithOptionalMetadata;
 		uploadId?: string;
 	},
 	operations: Partial<BackupPersistenceOperations> = {},
@@ -132,7 +132,7 @@ export const savePocketBackupAsync = async (
 	}: {
 		userId: string;
 		userRole: AppRoleType[];
-		cong_backup: BackupData;
+		cong_backup: BackupDataWithOptionalMetadata;
 	},
 	operations: Partial<BackupPersistenceOperations> = {},
 ): Promise<{ status: 'saved' } | { status: 'failed' }> => {

@@ -1,5 +1,5 @@
 import type { AppRoleType } from '#domain/users/app-role.js';
-import type { BackupData } from '#modules/backups/index.js';
+import type { BackupDataWithOptionalMetadata } from '#modules/backups/index.js';
 import type { User } from '../user.js';
 import type { UserProfile } from '../types/user.types.js';
 import {
@@ -28,7 +28,7 @@ const defaultDataOperations: UserBackupDataOperations = {
 
 export const applyUserBackup = async (
 	user: User,
-	congregationBackup: BackupData,
+	congregationBackup: BackupDataWithOptionalMetadata,
 	userRoles: AppRoleType[],
 	dataOperations: UserBackupDataOperations = defaultDataOperations,
 ): Promise<void> => {

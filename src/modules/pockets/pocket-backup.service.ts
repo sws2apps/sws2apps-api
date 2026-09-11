@@ -1,5 +1,6 @@
 import {
 	type BackupData,
+	type BackupDataWithOptionalMetadata,
 	BackupMetadataError,
 	findBackupMetadataConflict,
 	parseBackupMetadata,
@@ -297,7 +298,7 @@ const defaultPocketBackupSubmissionOperations: PocketBackupSubmissionOperations 
 export const submitPocketBackup = async (
 	userId: string,
 	metadataHeader: string,
-	congregationBackup: BackupData,
+	congregationBackup: BackupDataWithOptionalMetadata,
 	operations: Partial<PocketBackupSubmissionOperations> = {},
 ): Promise<void> => {
 	const submission = { ...defaultPocketBackupSubmissionOperations, ...operations };
