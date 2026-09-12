@@ -233,7 +233,7 @@ const addPublisherReports = async (context: UserBackupContext): Promise<void> =>
 	}
 };
 
-const addMinimalPersonsAndPublicSchedules = async (context: UserBackupContext): Promise<void> => {
+const addMinimalPersons = async (context: UserBackupContext): Promise<void> => {
 	const { congregation, metadata, result, backupOperations, miniPersons, capabilities } = context;
 	const { personMinimal } = capabilities;
 
@@ -272,6 +272,13 @@ const addMinimalPersonsAndPublicSchedules = async (context: UserBackupContext): 
 		result.persons = minimalPersons;
 		result.metadata.persons = localDate;
 	}
+};
+
+const addPublicSchedules = async (context: UserBackupContext): Promise<void> => {
+	const { congregation, metadata, result, backupOperations, capabilities } = context;
+	const { scheduleEditor, elderRole } = capabilities;
+
+	if (scheduleEditor || elderRole) return;
 
 	if (congregation.metadata.public_sources !== metadata.public_sources) {
 		const localDate = congregation.metadata.public_sources;
@@ -447,7 +454,8 @@ export const retrieveUserBackup = async (
 		await addCongregationReports(context);
 		await addPublicTalkDetails(context);
 		await addPublisherReports(context);
-		await addMinimalPersonsAndPublicSchedules(context);
+		await addMinimalPersons(context);
+		await addPublicSchedules(context);
 		await addPrivateSchedules(context);
 		await addAttendance(context);
 		await addIncomingReports(context);

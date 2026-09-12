@@ -164,6 +164,100 @@ describe('user backup retrieval permissions', () => {
 		assert.equal(backup.user_field_service_reports, undefined);
 	});
 
+	it('serves public schedules to a plain group overseer', async () => {
+		const { congregation, matchingMetadata, user } = createBackupContext(
+			['group_overseers'],
+			true,
+		);
+		const requestedMetadata = JSON.parse(matchingMetadata) as Record<string, string>;
+		requestedMetadata.public_sources = 'client-public-sources-date';
+		requestedMetadata.public_schedules = 'client-public-schedules-date';
+
+		const backup = await retrieveUserBackup(
+			user.id,
+			JSON.stringify(requestedMetadata),
+			{
+				getPublicSources: async (congregationId) => {
+					assert.equal(congregationId, congregation.id);
+					return [{ key: 'public-source-1' }];
+				},
+				getPublicSchedules: async (congregationId) => {
+					assert.equal(congregationId, congregation.id);
+					return [{ key: 'public-schedule-1' }];
+				},
+				getSources: async () => { throw new Error('private sources must not be read'); },
+				getSchedules: async () => { throw new Error('private schedules must not be read'); },
+			},
+		);
+
+		assert.deepEqual(backup.public_sources, [{ key: 'public-source-1' }]);
+		assert.equal(backup.metadata.public_sources, congregation.metadata.public_sources);
+		assert.deepEqual(backup.public_schedules, [{ key: 'public-schedule-1' }]);
+		assert.equal(backup.metadata.public_schedules, congregation.metadata.public_schedules);
+		assert.equal(backup.sources, undefined);
+		assert.equal(backup.sched, undefined);
+	});
+
+	it('keeps full persons for a plain group overseer', async () => {
+		const { congregation, matchingMetadata, user } = createBackupContext(
+			['group_overseers'],
+			true,
+		);
+		const requestedMetadata = JSON.parse(matchingMetadata) as Record<string, string>;
+		requestedMetadata.persons = 'client-persons-date';
+
+		const backup = await retrieveUserBackup(
+			user.id,
+			JSON.stringify(requestedMetadata),
+			{
+				getCongregationPersons: async (congregationId) => {
+					assert.equal(congregationId, congregation.id);
+					return [
+						{
+							person_uid: 'person-other',
+							person_data: {
+								person_firstname: 'John',
+								emergency_contacts: [{ name: 'Private contact' }],
+								timeAway: [{ start: '2026-09-05' }],
+							},
+						},
+					];
+				},
+				getPublicSources: async () => [],
+				getPublicSchedules: async () => [],
+			},
+		);
+
+		const people = backup.persons as StandardRecord[];
+		const personData = people[0]?.person_data as StandardRecord;
+		assert.deepEqual(personData.emergency_contacts, [{ name: 'Private contact' }]);
+		assert.deepEqual(personData.timeAway, [{ start: '2026-09-05' }]);
+	});
+
+	it('does not serve public schedules to a schedule editor', async () => {
+		const { matchingMetadata, user } = createBackupContext(
+			['midweek_schedule'],
+			true,
+		);
+		const requestedMetadata = JSON.parse(matchingMetadata) as Record<string, string>;
+		requestedMetadata.public_sources = 'client-public-sources-date';
+		requestedMetadata.public_schedules = 'client-public-schedules-date';
+
+		const backup = await retrieveUserBackup(
+			user.id,
+			JSON.stringify(requestedMetadata),
+			{
+				getPublicSources: async () => { throw new Error('public sources must not be read'); },
+				getPublicSchedules: async () => { throw new Error('public schedules must not be read'); },
+				getSources: async () => [],
+				getSchedules: async () => [],
+			},
+		);
+
+		assert.equal(backup.public_sources, undefined);
+		assert.equal(backup.public_schedules, undefined);
+	});
+
 	it('loads administrator-only branch data and member projections', async () => {
 		const { congregation, matchingMetadata, user } = createBackupContext(['admin'], true);
 		const requestedMetadata = JSON.parse(matchingMetadata) as Record<string, string>;
