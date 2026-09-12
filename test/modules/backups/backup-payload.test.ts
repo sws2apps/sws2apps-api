@@ -33,7 +33,7 @@ describe('backup payload parsing', () => {
 			field_service_groups: [{ _deleted: false }],
 			cong_users: [
 				{ id: 'u-1', local_uid: 'p-1', role: ['admin', 'secretary'] },
-				{ id: 'u-2' },
+				{ id: 'u-2', role: ['ms'] },
 			],
 		};
 

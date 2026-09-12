@@ -3196,7 +3196,7 @@
         "minItems": 1,
         "items": {
           "type": "string",
-          "enum": ["admin", "coordinator", "secretary", "service_overseer", "field_service_group_overseer", "midweek_schedule", "weekend_schedule", "public_talk_schedule", "attendance_tracking", "publisher", "view_schedules", "elder", "group_overseers", "language_group_overseers", "duties_schedule"]
+          "enum": ["admin", "coordinator", "secretary", "service_overseer", "field_service_group_overseer", "midweek_schedule", "weekend_schedule", "public_talk_schedule", "attendance_tracking", "publisher", "view_schedules", "elder", "ms", "group_overseers", "language_group_overseers", "duties_schedule"]
         }
       },
       "CongregationAdministratorPersonRequest": {
