@@ -172,6 +172,8 @@ describe('user backup retrieval permissions', () => {
 		const requestedMetadata = JSON.parse(matchingMetadata) as Record<string, string>;
 		requestedMetadata.public_sources = 'client-public-sources-date';
 		requestedMetadata.public_schedules = 'client-public-schedules-date';
+		requestedMetadata.sources = 'client-private-sources-date';
+		requestedMetadata.schedules = 'client-private-schedules-date';
 
 		const backup = await retrieveUserBackup(
 			user.id,
