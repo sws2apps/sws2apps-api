@@ -11,6 +11,7 @@ export type AppRoleType =
 	| 'publisher'
 	| 'view_schedules'
 	| 'elder'
+	| 'ms'
 	| 'group_overseers'
 	| 'language_group_overseers'
 	| 'duties_schedule';
@@ -28,6 +29,7 @@ export const APP_ROLES: readonly AppRoleType[] = [
 	'publisher',
 	'view_schedules',
 	'elder',
+	'ms',
 	'group_overseers',
 	'language_group_overseers',
 	'duties_schedule',
