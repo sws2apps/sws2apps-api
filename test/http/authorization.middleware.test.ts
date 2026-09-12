@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import express from 'express';
 import type { NextFunction, Request, Response } from 'express';
+import request from 'supertest';
 
 import type { AppRoleType } from '#domain/users/app-role.js';
 import {
@@ -161,5 +163,75 @@ describe('authorization middleware', () => {
 				null,
 			),
 		);
+	});
+});
+
+describe('congregation role guard Express wiring', () => {
+	const congregationId = 'CD9133F3-6AD0-4C58-80D8-1118D68625EB';
+
+	const createCongregationRouterApp = (
+		registerGuard: (router: ReturnType<typeof express.Router>) => void,
+	) => {
+		const app = express();
+		const router = express.Router();
+
+		router.use((_request, response, next) => {
+			response.locals.currentUser = {
+				profile: {
+					firstname: { value: 'admin', updatedAt: '2026-01-01T00:00:00.000Z' },
+					lastname: { value: 'local', updatedAt: '2026-01-01T00:00:00.000Z' },
+					role: 'vip',
+					congregation: {
+						id: congregationId,
+						account_type: 'vip',
+						cong_role: ['admin'],
+					},
+				},
+			} as typeof response.locals.currentUser;
+			next();
+		});
+
+		registerGuard(router);
+
+		router.get('/:id/users', (_request, response) => {
+			response.json({ message: 'access granted' });
+		});
+
+		app.use('/congregations/admin', router);
+
+		return app;
+	};
+
+	it('grants an eligible admin when the guard binds the resource id', async () => {
+		const app = createCongregationRouterApp((router) => {
+			router.use('/:id', requireCongregationAdministrator());
+		});
+
+		await request(app)
+			.get(`/congregations/admin/${congregationId}/users`)
+			.expect(200)
+			.expect({ message: 'access granted' });
+	});
+
+	it('denies an eligible admin when the guard runs before the id is parsed', async () => {
+		const app = createCongregationRouterApp((router) => {
+			router.use(requireCongregationAdministrator());
+		});
+
+		const response = await request(app).get(`/congregations/admin/${congregationId}/users`);
+
+		assert.equal(response.status, 403);
+		assert.deepEqual(response.body, { message: 'UNAUTHORIZED_ACCESS' });
+	});
+
+	it('denies an eligible admin requesting a different congregation resource', async () => {
+		const app = createCongregationRouterApp((router) => {
+			router.use('/:id', requireCongregationAdministrator());
+		});
+
+		await request(app)
+			.get('/congregations/admin/SECOND-CONGREGATION/users')
+			.expect(403)
+			.expect({ message: 'UNAUTHORIZED_ACCESS' });
 	});
 });

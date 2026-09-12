@@ -35,7 +35,9 @@ import { isValidCongregationRoleList } from './role-validation.js';
 const congregationAdministrationRouter = express.Router();
 
 congregationAdministrationRouter.use(requireAuthenticatedSession());
-congregationAdministrationRouter.use(requireCongregationAdministrator());
+// Bind the resource id before the role guard so the request resource check
+// compares against the congregation path segment.
+congregationAdministrationRouter.use('/:id', requireCongregationAdministrator());
 
 // set congregation master key
 congregationAdministrationRouter.post('/:id/local-uid', body('user_uid').isString().notEmpty(), validateRequest, setAdminUserUid);

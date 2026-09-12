@@ -21,7 +21,9 @@ import {
 const meetingRouter = express.Router();
 
 meetingRouter.use(requireAuthenticatedSession());
-meetingRouter.use(requireMeetingEditor());
+// Bind the resource id before the role guards so the request resource checks
+// compare against the congregation path segment.
+meetingRouter.use('/:id', requireMeetingEditor());
 
 meetingRouter.post(
 	'/:id/schedules',
@@ -34,7 +36,7 @@ meetingRouter.post(
 
 meetingRouter.get('/:id/schedules', getPublicSchedules);
 
-meetingRouter.use(requirePublicTalkCoordinator());
+meetingRouter.use('/:id', requirePublicTalkCoordinator());
 
 meetingRouter.get('/:id/visiting-speakers/congregations', findVisitingSpeakersCongregations);
 
