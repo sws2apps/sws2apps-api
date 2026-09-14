@@ -53,7 +53,7 @@
 		"npm": ">=11"
 	},
 	"dependencies": {
-		"@crowdin/crowdin-api-client": "^1.56.3",
+		"@crowdin/crowdin-api-client": "^1.57.0",
 		"@logtail/node": "^0.5.8",
 		"compression": "^1.8.1",
 		"cookie-parser": "^1.4.7",
