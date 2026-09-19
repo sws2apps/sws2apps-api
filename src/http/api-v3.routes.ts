@@ -25,6 +25,10 @@ apiV3Router.use('/public', publicApiRoutes);
 // Public routes stay cross-origin; all session-capable browser routes require a trusted app origin.
 apiV3Router.use(requireTrustedBrowserOrigin());
 
+// Admin routes are exempt from the app-version requirement; they are accessed by
+// internal tooling that does not carry a client version header.
+apiV3Router.use('/admin', administrationRoutes);
+
 apiV3Router.use(clientVersionChecker());
 
 apiV3Router.use('/', authRoutes);
@@ -34,6 +38,5 @@ apiV3Router.use('/users', userRoutes);
 apiV3Router.use('/congregations', congregationRoutes);
 apiV3Router.use('/congregations/meeting', meetingRoutes);
 apiV3Router.use('/congregations/admin', congregationAdministrationRoutes);
-apiV3Router.use('/admin', administrationRoutes);
 
 export default apiV3Router;
