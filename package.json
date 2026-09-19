@@ -96,7 +96,7 @@
 		"@types/express": "^5.0.5",
 		"@types/geoip-lite": "^1.4.4",
 		"@types/node": "^25.7.0",
-		"@types/nodemailer": "^8.0.1",
+		"@types/nodemailer": "^8.0.2",
 		"@types/nodemailer-express-handlebars": "^4.0.6",
 		"@types/request-ip": "^0.0.41",
 		"@types/sanitize-html": "^2.16.1",
