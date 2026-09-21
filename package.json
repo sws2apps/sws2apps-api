@@ -109,7 +109,7 @@
 		"supertest": "^7.2.2",
 		"tsx": "^4.23.13",
 		"typescript": "^6.0.3",
-		"typescript-eslint": "^8.67.0"
+		"typescript-eslint": "^8.70.0"
 	},
 	"allowScripts": {
 		"esbuild@0.28.1": true,
