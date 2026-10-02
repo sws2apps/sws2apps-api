@@ -8,8 +8,23 @@ readiness, error responses, and API composition.
 
 1. Signed-cookie parsing
 2. Public API routes
-3. Minimum client-version enforcement
-4. Authentication and feature routes
+3. Trusted browser-origin enforcement
+4. Global administration routes
+5. Minimum client-version enforcement
+6. Authentication, session recovery, and feature routes
+
+Two ordering constraints depend on this sequence. Global administration routes are
+mounted before the client-version gate because internal tooling does not send
+`appclient` or `appversion`, and the routes that mint the session cookie sit after
+the gate, so a client that skips the gate must also be able to reach session
+recovery. Reordering these mounts reintroduces the deadlock where a revoked
+administrator device cannot reconnect.
+
+The client-version gate only judges callers that present a complete client
+identification. `appclient` may be sent alone, because a declared version is
+required to evaluate the Organized minimum-version rule; `appversion` sent without
+`appclient` is rejected as invalid input, because a version cannot be attributed
+to any client.
 
 Feature business rules do not belong in this directory. Controllers live with their
 feature modules, and infrastructure integrations live under `platform`.

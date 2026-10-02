@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { afterEach, describe, it } from 'node:test';
 import type { RequestHandler } from 'express';
 import request from 'supertest';
 
 import { createApp } from '../../src/app.js';
 import { applicationVersion } from '#config/application.js';
+import { serverState } from '#platform/runtime/server-state.js';
 
 const continueRequest: RequestHandler = (_request, _response, next) => {
 	next();
@@ -21,6 +22,12 @@ const validClientHeaders = {
 	appclient: 'pocket',
 	appversion: '1.0.0',
 };
+
+const originalMinimumAppVersion = serverState.minimumAppVersion;
+
+afterEach(() => {
+	serverState.minimumAppVersion = originalMinimumAppVersion;
+});
 
 describe('Express application HTTP contract', () => {
 	it('serves the API identity through the complete Express response pipeline', async () => {
@@ -40,8 +47,38 @@ describe('Express application HTTP contract', () => {
 		assert.deepEqual(response.body, { message: 'error_api_invalid-endpoint' });
 	});
 
-	it('applies client headers before protected API routes', async () => {
-		const response = await request(createHttpTestApp()).get('/api/v3/users/user-1/sessions');
+	it('lets a client that presents no client headers reach route validation', async () => {
+		const response = await request(createHttpTestApp())
+			.post('/api/v3/user-passwordless-login');
+
+		assert.equal(response.status, 400);
+		assert.deepEqual(response.body, { message: 'error_api_bad-request' });
+	});
+
+	it('still rejects an outdated Organized client before route validation', async () => {
+		serverState.minimumAppVersion = '99.0.0';
+		const response = await request(createHttpTestApp())
+			.post('/api/v3/user-passwordless-login')
+			.set({ appclient: 'organized', appversion: '1.0.0' });
+
+		assert.equal(response.status, 400);
+		assert.deepEqual(response.body, { message: 'CLIENT_VERSION_OUTDATED' });
+	});
+
+	it('lets a self-identified client reach route validation without a version', async () => {
+		serverState.minimumAppVersion = '99.0.0';
+		const response = await request(createHttpTestApp())
+			.post('/api/v3/user-passwordless-login')
+			.set('appclient', 'admin-tooling');
+
+		assert.equal(response.status, 400);
+		assert.deepEqual(response.body, { message: 'error_api_bad-request' });
+	});
+
+	it('rejects a declared version that names no client', async () => {
+		const response = await request(createHttpTestApp())
+			.post('/api/v3/user-passwordless-login')
+			.set('appversion', '3.50.0');
 
 		assert.equal(response.status, 400);
 		assert.deepEqual(response.body, { message: 'INPUT_INVALID' });
