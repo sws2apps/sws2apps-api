@@ -1,3 +1,28 @@
+# [3.52.0](https://github.com/sws2apps/sws2apps-api/compare/v3.51.0...v3.52.0) (2026-10-02)
+
+
+### Bug Fixes
+
+* **http:** exempt admin route from app-version requirement ([7e30add](https://github.com/sws2apps/sws2apps-api/commit/7e30add81229089cb239aeebb3b24c3561b62921))
+* **http:** require appclient only when a client version is declared ([da6132c](https://github.com/sws2apps/sws2apps-api/commit/da6132c26228479010cfd6c8ba4bd7c6d1ce2193))
+
+
+### Features
+
+* **deps:** bump @crowdin/crowdin-api-client from 1.57.0 to 1.58.0 ([1160ae2](https://github.com/sws2apps/sws2apps-api/commit/1160ae2ec81b2f1fc3dbd119a6b2e45a2e2fe571))
+* **deps:** bump @grpc/grpc-js from 1.14.4 to 1.14.5 ([ddbbf21](https://github.com/sws2apps/sws2apps-api/commit/ddbbf2125868c510e2e88e80a1d27b245d98bd9d))
+* **deps:** bump brace-expansion from 5.0.9 to 5.0.12 ([3ff52b1](https://github.com/sws2apps/sws2apps-api/commit/3ff52b162ede4a7ab9b4dc2dffa0635f2a6581aa))
+* **deps:** bump dayjs from 1.11.21 to 1.11.23 ([e519ea2](https://github.com/sws2apps/sws2apps-api/commit/e519ea211d7d4b73661f704d4adce56c7f064e3e))
+* **deps:** bump dotenv from 17.4.2 to 18.0.4 ([0a353b1](https://github.com/sws2apps/sws2apps-api/commit/0a353b1669162efb21d96b6a62d42d3715040120))
+* **deps:** bump express-rate-limit from 8.6.2 to 8.7.0 ([6b8b055](https://github.com/sws2apps/sws2apps-api/commit/6b8b055237633db2d02e312789ef6beea1cbca35))
+* **deps:** bump firebase-admin from 14.4.0 to 14.5.0 ([37a41c0](https://github.com/sws2apps/sws2apps-api/commit/37a41c0310fb6bc7938ff05324fb0781052757d5))
+* **deps:** bump i18next-http-middleware from 3.9.8 to 3.9.9 ([8ca3503](https://github.com/sws2apps/sws2apps-api/commit/8ca3503643bb0e7ebcbe08299c3fdf3060f993d8))
+* **deps:** bump ip-address from 10.5.0 to 10.7.2 ([2b6ef74](https://github.com/sws2apps/sws2apps-api/commit/2b6ef748cd366ce9de105da384cfefba954d4d11))
+* **deps:** bump nodemailer from 10.0.10 to 10.0.12 ([2ebe3a0](https://github.com/sws2apps/sws2apps-api/commit/2ebe3a042eed76ba8ebb5aad0f06d2e2d9d40985))
+* **deps:** bump otpauth from 9.5.1 to 9.5.2 ([e403397](https://github.com/sws2apps/sws2apps-api/commit/e403397d764fa14a425a382ac386a8158790d1a5))
+* **deps:** bump swagger-ui-dist from 5.32.15 to 5.33.0 ([ae417cc](https://github.com/sws2apps/sws2apps-api/commit/ae417cc5383effe4e23710ea03ea11f037f60c71))
+* **deps:** bump which-browser from 0.7.1 to 0.8.0 ([f9a8100](https://github.com/sws2apps/sws2apps-api/commit/f9a8100f89d55c0469e02c95286561f25a68bacb))
+
 # [3.51.0](https://github.com/sws2apps/sws2apps-api/compare/v3.50.0...v3.51.0) (2026-09-19)
 
 
