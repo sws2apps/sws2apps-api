@@ -2554,7 +2554,7 @@
         "name": "appclient",
         "in": "header",
         "required": false,
-        "description": "Calling sws2apps client identifier. May be sent without `appversion`; when no version is declared the Organized minimum-version rule is not evaluated. Required whenever `appversion` is sent.",
+        "description": "Calling sws2apps client identifier. On routes behind the client-version gate, may be sent without `appversion`; when no version is declared the Organized minimum-version rule is not evaluated, and it is required whenever `appversion` is sent. Global administration operations are mounted ahead of that gate and ignore both client headers.",
         "schema": {
           "type": "string",
           "minLength": 1
@@ -2564,7 +2564,7 @@
         "name": "appversion",
         "in": "header",
         "required": false,
-        "description": "Numeric dotted version of the calling client. May only be sent together with `appclient`; a version declared without a client identifier is rejected as `INPUT_INVALID`. When omitted, the Organized minimum-version rule is not evaluated.",
+        "description": "Numeric dotted version of the calling client. On routes behind the client-version gate, may only be sent together with `appclient`; a version declared without a client identifier is rejected as `INPUT_INVALID`. When omitted, the Organized minimum-version rule is not evaluated. Global administration operations are mounted ahead of that gate and ignore both client headers.",
         "schema": {
           "type": "string",
           "pattern": "^\\d+(?:\\.\\d+)*$"
