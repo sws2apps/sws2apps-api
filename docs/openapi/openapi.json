@@ -2553,8 +2553,8 @@
       "AppClientHeader": {
         "name": "appclient",
         "in": "header",
-        "required": true,
-        "description": "Calling sws2apps client identifier.",
+        "required": false,
+        "description": "Calling sws2apps client identifier. May be sent without `appversion`; when no version is declared the Organized minimum-version rule is not evaluated. Required whenever `appversion` is sent.",
         "schema": {
           "type": "string",
           "minLength": 1
@@ -2563,8 +2563,8 @@
       "AppVersionHeader": {
         "name": "appversion",
         "in": "header",
-        "required": true,
-        "description": "Numeric dotted version of the calling client.",
+        "required": false,
+        "description": "Numeric dotted version of the calling client. May only be sent together with `appclient`; a version declared without a client identifier is rejected as `INPUT_INVALID`. When omitted, the Organized minimum-version rule is not evaluated.",
         "schema": {
           "type": "string",
           "pattern": "^\\d+(?:\\.\\d+)*$"

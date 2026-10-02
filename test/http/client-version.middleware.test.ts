@@ -44,14 +44,58 @@ const runClientVersionCheck = async (headers: Record<string, string> = {}) => {
 };
 
 describe('client version middleware', () => {
-	it('rejects requests without the required client headers', async () => {
+	it('lets a client that presents no identity headers through', async () => {
+		serverState.minimumAppVersion = '99.0.0';
 		const state = await runClientVersionCheck();
+
+		assert.equal(state.continued, true);
+		assert.equal(state.statusCode, undefined);
+		assert.equal(state.body, undefined);
+		assert.equal(state.nextError, undefined);
+	});
+
+	it('rejects a declared version that names no client', async () => {
+		const state = await runClientVersionCheck({ appversion: '3.50.0' });
 
 		assert.equal(state.continued, false);
 		assert.equal(state.statusCode, 400);
 		assert.deepEqual(state.body, { message: 'INPUT_INVALID' });
 		assert.equal(state.locals.type, 'warn');
 		assert.match(String(state.locals.message), /^invalid input:/);
+	});
+
+	it('lets a self-identified client through without declaring a version', async () => {
+		serverState.minimumAppVersion = '99.0.0';
+		const state = await runClientVersionCheck({ appclient: 'organized' });
+
+		assert.equal(state.continued, true);
+		assert.equal(state.statusCode, undefined);
+		assert.equal(state.body, undefined);
+		assert.equal(state.nextError, undefined);
+	});
+
+	it('rejects a self-identified client with an empty client header', async () => {
+		const state = await runClientVersionCheck({ appclient: '' });
+
+		assert.equal(state.continued, false);
+		assert.equal(state.statusCode, 400);
+		assert.deepEqual(state.body, { message: 'INPUT_INVALID' });
+	});
+
+	it('rejects an identified client with an empty client header', async () => {
+		const state = await runClientVersionCheck({ appclient: '', appversion: '1.0.0' });
+
+		assert.equal(state.continued, false);
+		assert.equal(state.statusCode, 400);
+		assert.deepEqual(state.body, { message: 'INPUT_INVALID' });
+	});
+
+	it('rejects an empty declared version', async () => {
+		const state = await runClientVersionCheck({ appclient: 'organized', appversion: '' });
+
+		assert.equal(state.continued, false);
+		assert.equal(state.statusCode, 400);
+		assert.deepEqual(state.body, { message: 'INPUT_INVALID' });
 	});
 
 	it('rejects malformed client versions before compatibility checks', async () => {
