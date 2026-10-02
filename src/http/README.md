@@ -20,11 +20,12 @@ the gate, so a client that skips the gate must also be able to reach session
 recovery. Reordering these mounts reintroduces the deadlock where a revoked
 administrator device cannot reconnect.
 
-The client-version gate only judges callers that present a complete client
-identification. `appclient` may be sent alone, because a declared version is
-required to evaluate the Organized minimum-version rule; `appversion` sent without
-`appclient` is rejected as invalid input, because a version cannot be attributed
-to any client.
+The client-version gate only judges callers on the routes mounted after it, and
+only for a complete client identification. `appclient` may be sent alone, because
+a declared version is required to evaluate the Organized minimum-version rule;
+`appversion` sent without `appclient` is rejected as invalid input, because a
+version cannot be attributed to any client. Global administration routes are
+mounted ahead of the gate and therefore ignore both headers entirely.
 
 Feature business rules do not belong in this directory. Controllers live with their
 feature modules, and infrastructure integrations live under `platform`.
