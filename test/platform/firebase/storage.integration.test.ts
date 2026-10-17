@@ -68,3 +68,33 @@ test(
 		}
 	},
 );
+
+test(
+	'name fields and encrypted print settings survive repository storage round trips',
+	{ skip: !shouldRunFirebaseTests },
+	async () => {
+		requireLocalStorageEmulator();
+		await import('#platform/firebase/firebase-app.js');
+		const { deleteFileFromStorage } = await import('#platform/firebase/storage.js');
+		const { getUserProfile, setUserProfile } = await import('#modules/users/repositories/user-account.repository.js');
+		const { getCongregationSettings, setCongregationSettings } = await import('#modules/congregations/repositories/congregation-settings.repository.js');
+		const { User } = await import('#modules/users/user.js');
+		const { Congregation } = await import('#modules/congregations/congregation.js');
+		const id = `integration-tests/names-${process.pid}-${Date.now()}`;
+		try {
+			const { profile } = new User(id);
+			for (const value of ['María Jean', '']) {
+				profile.middlename = { value, updatedAt: new Date().toISOString() };
+				await setUserProfile(id, profile);
+				assert.deepEqual((await getUserProfile(id)).middlename, profile.middlename);
+			}
+			const { settings } = new Congregation(id);
+			settings.print_fullname_option = 'client-encrypted-context-records';
+			await setCongregationSettings(id, settings);
+			assert.equal((await getCongregationSettings(id))?.print_fullname_option, settings.print_fullname_option);
+		} finally {
+			await deleteFileFromStorage({ type: 'user', path: id });
+			await deleteFileFromStorage({ type: 'congregation', path: id });
+		}
+	},
+);

@@ -55,6 +55,7 @@ export type UserProfile = {
 	createdAt?: string;
 	auth_uid?: string;
 	firstname: { value: string; updatedAt: string };
+	middlename?: { value: string; updatedAt: string };
 	lastname: { value: string; updatedAt: string };
 	role: UserGlobalRoleType;
 	mfa_enabled?: boolean;
@@ -97,6 +98,7 @@ export type UserAuthResponse = {
 	app_settings: {
 		user_settings: {
 			firstname: { value: string; updatedAt: string };
+			middlename?: { value: string; updatedAt: string };
 			lastname: { value: string; updatedAt: string };
 			role: UserGlobalRoleType;
 			mfa?: string;

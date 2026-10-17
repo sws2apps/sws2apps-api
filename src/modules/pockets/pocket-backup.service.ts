@@ -114,6 +114,7 @@ const getPocketUserSettings = (user: PocketUser, congregation: PocketCongregatio
 	return {
 		cong_role: user.profile.congregation?.cong_role,
 		firstname: user.profile.firstname,
+		middlename: user.profile.middlename,
 		lastname: user.profile.lastname,
 		user_local_uid: user.profile.congregation?.user_local_uid,
 		user_members_delegate: user.profile.congregation?.user_members_delegate,
@@ -212,6 +213,7 @@ const addPrivateBackupChanges = async (
 				person_uid: record.person_uid,
 				person_data: {
 					person_firstname: person.person_firstname,
+					person_middlename: person.person_middlename,
 					person_lastname: person.person_lastname,
 					person_display_name: person.person_display_name,
 					male: person.male,

@@ -3244,6 +3244,7 @@
           "cong_person_uid": { "type": "string" },
           "cong_person_delegates": { "type": "array", "items": { "type": "string" } },
           "first_name": { "type": "string" },
+          "middle_name": { "type": "string", "description": "Optional middle name; omission preserves the existing value and an empty string clears it." },
           "last_name": { "type": "string" },
           "user_secret_code": { "type": "string", "description": "Optional replacement Pocket invitation code." }
         }

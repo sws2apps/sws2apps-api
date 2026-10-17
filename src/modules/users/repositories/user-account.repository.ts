@@ -31,7 +31,7 @@ export const getUserFlags = async (id: string) => {
 	return [];
 };
 
-export const getUserProfile = async (id: string) => {
+export const getUserProfile = async (id: string): Promise<UserProfile> => {
 	const path = `${id}/profile.txt`;
 	const data = await getFileFromStorage({ type: 'user', path });
 

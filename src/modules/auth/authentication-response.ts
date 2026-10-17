@@ -41,6 +41,7 @@ export const buildUserAuthenticationResponse = (
 		app_settings: {
 			user_settings: {
 				firstname: authUser.profile.firstname,
+				middlename: authUser.profile.middlename,
 				lastname: authUser.profile.lastname,
 				role: authUser.profile.role,
 				mfa: mfaStatus,

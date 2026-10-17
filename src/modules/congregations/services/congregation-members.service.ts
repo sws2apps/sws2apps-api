@@ -27,6 +27,7 @@ export const getCongregationMembers = (
 			createdAt: member.profile.createdAt,
 			global_role: member.profile.role,
 			firstname: member.profile.firstname,
+			middlename: member.profile.middlename,
 			lastname: member.profile.lastname,
 			cong_role: member.profile.congregation?.cong_role,
 			user_local_uid: member.profile.congregation?.user_local_uid,

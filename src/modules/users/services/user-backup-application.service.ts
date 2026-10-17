@@ -40,6 +40,9 @@ export const applyUserBackup = async (
 		const profile = structuredClone(user.profile);
 		profile.firstname = backupSettings.firstname as UserProfile['firstname'];
 		profile.lastname = backupSettings.lastname as UserProfile['lastname'];
+		if (backupSettings.middlename !== undefined) {
+			profile.middlename = backupSettings.middlename as UserProfile['middlename'];
+		}
 
 		await dataOperations.updateProfile(user, profile);
 

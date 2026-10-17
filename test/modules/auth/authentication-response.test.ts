@@ -36,6 +36,15 @@ const createCongregation = () => {
 };
 
 describe('authentication response projection', () => {
+	it('returns a timestamped middle name, including an explicit empty value', () => {
+		const user = createUser();
+		for (const value of ['María Jane', '']) {
+			user.profile.middlename = { value, updatedAt: '2026-10-18' };
+			const result = buildUserAuthenticationResponse({ authUser: user });
+			assert.deepEqual(result.app_settings.user_settings.middlename, user.profile.middlename);
+		}
+	});
+
 	it('returns only user settings when the user has no congregation', () => {
 		const user = createUser();
 
@@ -50,6 +59,7 @@ describe('authentication response projection', () => {
 			app_settings: {
 				user_settings: {
 					firstname: user.profile.firstname,
+					middlename: user.profile.middlename,
 					lastname: user.profile.lastname,
 					role: 'vip',
 					mfa: 'enabled',

@@ -110,6 +110,7 @@ congregationAdministrationRouter.patch(
 	body('cong_person_uid').isString(),
 	body('cong_person_delegates').isArray(),
 	body('first_name').isString(),
+	body('middle_name').optional().isString(),
 	body('last_name').isString(),
 	validateRequest,
 	userDetailsUpdate,

@@ -50,7 +50,7 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const { user_secret_code, cong_role, cong_person_uid, cong_person_delegates, first_name, last_name } = req.body;
+	const { user_secret_code, cong_role, cong_person_uid, cong_person_delegates, first_name, middle_name, last_name } = req.body;
 	let congregationMembers;
 	try {
 		congregationMembers = await updateCongregationUser(
@@ -64,6 +64,7 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 				personUid: cong_person_uid,
 				personDelegates: cong_person_delegates,
 				firstname: first_name,
+				middlename: middle_name,
 				lastname: last_name,
 			},
 		);

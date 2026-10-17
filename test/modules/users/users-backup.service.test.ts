@@ -119,6 +119,7 @@ describe('user backup retrieval permissions', () => {
 							person_uid: 'person-other',
 							person_data: {
 								person_firstname: 'John',
+								person_middlename: 'encrypted-middle',
 								...privateDetails,
 							},
 						},
@@ -134,6 +135,7 @@ describe('user backup retrieval permissions', () => {
 		assert.deepEqual(ownDetails.emergency_contacts, privateDetails.emergency_contacts);
 		assert.deepEqual(ownDetails.assignments, privateDetails.assignments);
 		assert.deepEqual(ownDetails.timeAway, privateDetails.timeAway);
+		assert.equal(otherDetails.person_middlename, 'encrypted-middle');
 		assert.equal(otherDetails.emergency_contacts, undefined);
 		assert.equal(otherDetails.assignments, undefined);
 		assert.equal(otherDetails.timeAway, undefined);
@@ -219,6 +221,7 @@ describe('user backup retrieval permissions', () => {
 							person_uid: 'person-other',
 							person_data: {
 								person_firstname: 'John',
+								person_middlename: 'encrypted-middle',
 								emergency_contacts: [{ name: 'Private contact' }],
 								timeAway: [{ start: '2026-09-05' }],
 							},

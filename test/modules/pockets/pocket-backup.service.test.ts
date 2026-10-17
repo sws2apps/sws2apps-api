@@ -86,6 +86,8 @@ describe('Pocket backup submission', () => {
 			congregation.settings.data_sync.value = dataSyncEnabled;
 			congregation.settings.cong_master_key = 'private-master-key';
 			user.settings.backup_automatic = 'encrypted-preference';
+			user.profile.middlename = { value: 'María', updatedAt: 'now' };
+			congregation.settings.print_fullname_option = 'encrypted-print-preferences';
 			const requestedMetadata = JSON.parse(metadata) as Record<string, string>;
 			requestedMetadata.user_settings = 'old-user-settings';
 			requestedMetadata.cong_settings = 'old-congregation-settings';
@@ -93,6 +95,8 @@ describe('Pocket backup submission', () => {
 			assert.equal(backup.app_settings.cong_settings?.cong_master_key, undefined);
 			assert.equal(congregation.settings.cong_master_key, 'private-master-key');
 			const userSettings = backup.app_settings.user_settings as Record<string, unknown>;
+			assert.deepEqual(userSettings.middlename, user.profile.middlename);
+			if (dataSyncEnabled) assert.equal(backup.app_settings.cong_settings?.print_fullname_option, 'encrypted-print-preferences');
 			assert.equal(userSettings.backup_automatic, dataSyncEnabled ? 'encrypted-preference' : undefined);
 			assert.equal(userSettings.theme_follow_os_enabled, undefined);
 			assert.equal(backup.metadata.user_settings, user.metadata.user_settings);

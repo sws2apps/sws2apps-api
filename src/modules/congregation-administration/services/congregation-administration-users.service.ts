@@ -1,3 +1,4 @@
+import { updateLinkedProfileNames } from './linked-profile-names.js';
 import type { AppRoleType } from '#domain/users/app-role.js';
 import {
 	CongregationsList,
@@ -110,6 +111,7 @@ export const createCongregationPocketUser = async (
 };
 
 type UpdateCongregationUserInput = {
+	middlename?: string;
 	secretCode: string;
 	roles: AppRoleType[];
 	personUid: string;
@@ -135,16 +137,8 @@ export const updateCongregationUser = async (
 		pocketInvitationCode: input.secretCode,
 	});
 
-	if (
-		input.firstname !== user.profile.firstname.value ||
-		input.lastname !== user.profile.lastname.value
-	) {
-		const profile = structuredClone(user.profile);
-		const updatedAt = new Date().toISOString();
-		profile.firstname = { value: input.firstname, updatedAt };
-		profile.lastname = { value: input.lastname, updatedAt };
-		await updateUserProfile(user, profile);
-	}
+	const profile = updateLinkedProfileNames(user.profile, input, new Date().toISOString());
+	if (profile) await updateUserProfile(user, profile);
 
 	return buildCongregationMemberList(congregation, currentVisitorId);
 };

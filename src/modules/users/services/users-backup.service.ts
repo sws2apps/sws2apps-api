@@ -89,6 +89,7 @@ const addSynchronizedSettingsAndGroups = async (context: UserBackupContext): Pro
 		result.app_settings.user_settings = {
 			cong_role: user.profile.congregation?.cong_role,
 			firstname: user.profile.firstname,
+			middlename: user.profile.middlename,
 			lastname: user.profile.lastname,
 			user_local_uid: user.profile.congregation?.user_local_uid,
 			user_members_delegate: user.profile.congregation?.user_members_delegate,
@@ -253,6 +254,7 @@ const addMinimalPersons = async (context: UserBackupContext): Promise<void> => {
 				person_uid: record.person_uid,
 				person_data: {
 					person_firstname: personData.person_firstname,
+					person_middlename: personData.person_middlename,
 					person_lastname: personData.person_lastname,
 					person_display_name: personData.person_display_name,
 					male: personData.male,
@@ -378,6 +380,7 @@ const addUnsynchronizedSettings = async (context: UserBackupContext): Promise<vo
 		result.app_settings.user_settings = {
 			cong_role: user.profile.congregation?.cong_role,
 			firstname: user.profile.firstname,
+			middlename: user.profile.middlename,
 			lastname: user.profile.lastname,
 			user_local_uid: user.profile.congregation?.user_local_uid,
 			user_members_delegate: user.profile.congregation?.user_members_delegate,
