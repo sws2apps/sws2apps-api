@@ -98,3 +98,24 @@ test(
 		}
 	},
 );
+
+test('Pocket account creation persists optional middle names', { skip: !shouldRunFirebaseTests }, async () => {
+	requireLocalStorageEmulator();
+	await import('#platform/firebase/firebase-app.js');
+	const { createPersistedPocketUser } = await import('#modules/users/repositories/user-lifecycle.repository.js');
+	const { getUserProfile } = await import('#modules/users/repositories/user-account.repository.js');
+	const { deleteFileFromStorage } = await import('#platform/firebase/storage.js');
+	for (const user_middlename of [undefined, 'María Jean', '']) {
+		const id = await createPersistedPocketUser({
+			user_firstname: 'Ada', user_lastname: 'Lovelace', user_middlename,
+			user_secret_code: 'test-only-code', cong_id: 'integration-tests', cong_person_uid: 'person-1', cong_role: ['publisher'],
+		});
+		try {
+			const profile = await getUserProfile(id);
+			assert.equal(profile.middlename?.value, user_middlename);
+			if (user_middlename !== undefined) assert.ok(profile.middlename?.updatedAt);
+		} finally {
+			await deleteFileFromStorage({ type: 'user', path: id });
+		}
+	}
+});

@@ -19,6 +19,7 @@ export type UserNewParams = {
 };
 
 export type PocketNewParams = {
+	user_middlename?: string;
 	user_firstname: string;
 	user_lastname: string;
 	user_secret_code: string;

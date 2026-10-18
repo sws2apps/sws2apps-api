@@ -106,7 +106,7 @@ export const congregationUserAdd = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const { user_firstname, user_lastname, cong_role, cong_person_uid, user_id } = req.body;
+	const { user_firstname, user_middlename, user_lastname, cong_role, cong_person_uid, user_id } = req.body;
 	let congregationMembers;
 	try {
 		congregationMembers = await addCongregationUser(
@@ -116,6 +116,7 @@ export const congregationUserAdd = async (req: Request, res: Response) => {
 			{
 				userId: user_id,
 				firstname: user_firstname,
+				middlename: user_middlename,
 				lastname: user_lastname,
 				roles: cong_role,
 				personUid: cong_person_uid,

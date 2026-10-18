@@ -77,6 +77,7 @@ congregationAdministrationRouter.get('/:id/users', congregationGetUsers);
 congregationAdministrationRouter.post(
 	'/:id/users',
 	body('user_firstname').isString(),
+	body('user_middlename').optional().isString(),
 	body('user_lastname').isString(),
 	body('user_id').notEmpty().isString(),
 	body('cong_role').custom(isValidCongregationRoleList),
@@ -92,6 +93,7 @@ congregationAdministrationRouter.delete('/:id/users/:user', congregationDeleteUs
 congregationAdministrationRouter.post(
 	'/:id/pocket-user',
 	body('user_firstname').notEmpty().isString(),
+	body('user_middlename').optional().isString(),
 	body('user_lastname').notEmpty().isString(),
 	body('user_secret_code')
 		.notEmpty()

@@ -82,6 +82,7 @@ export const getCongregationMembers = (
 };
 
 type CreatePocketUserInput = {
+	middlename?: string;
 	firstname: string;
 	lastname: string;
 	roles: AppRoleType[];
@@ -102,6 +103,7 @@ export const createCongregationPocketUser = async (
 		cong_person_uid: input.personUid,
 		cong_role: input.roles,
 		user_firstname: input.firstname,
+		user_middlename: input.middlename,
 		user_lastname: input.lastname,
 		user_secret_code: input.secretCode,
 	});
@@ -130,6 +132,7 @@ export const updateCongregationUser = async (
 	const congregation = getAuthorizedCongregation(congregationId, administratorId);
 	const user = getCongregationUser(congregation.id, targetUserId);
 
+	const personChanged = user.profile.congregation?.user_local_uid !== input.personUid;
 	await updateUserCongregationMembership(user, congregation, {
 		roles: input.roles,
 		personUid: input.personUid,
@@ -137,7 +140,7 @@ export const updateCongregationUser = async (
 		pocketInvitationCode: input.secretCode,
 	});
 
-	const profile = updateLinkedProfileNames(user.profile, input, new Date().toISOString());
+	const profile = updateLinkedProfileNames(user.profile, input, new Date().toISOString(), personChanged);
 	if (profile) await updateUserProfile(user, profile);
 
 	return buildCongregationMemberList(congregation, currentVisitorId);
@@ -186,6 +189,7 @@ export const findEligibleCongregationUser = (
 };
 
 type AddCongregationUserInput = {
+	middlename?: string;
 	userId: string;
 	firstname: string;
 	lastname: string;
@@ -205,6 +209,7 @@ export const addCongregationUser = async (
 	await assignUserToCongregation(user, congregation, {
 		role: input.roles,
 		firstname: input.firstname,
+		middlename: input.middlename,
 		lastname: input.lastname,
 		person_uid: input.personUid,
 	});

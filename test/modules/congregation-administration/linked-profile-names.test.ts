@@ -14,3 +14,12 @@ it('updates a middle name alone without changing other field timestamps', () => 
 	assert.equal(updateLinkedProfileNames(next, { firstname: input.firstname, lastname: input.lastname }, 'later'), undefined);
 	assert.deepEqual(updateLinkedProfileNames(next, { ...input, middlename: '' }, 'later')?.middlename, { value: '', updatedAt: 'later' });
 });
+
+
+it('clears an omitted middle name when an older client changes the linked person', () => {
+	const { profile } = new User('test');
+	profile.middlename = { value: 'Previous person', updatedAt: 'before' };
+	const input = { firstname: 'New', lastname: 'Person' };
+	assert.deepEqual(updateLinkedProfileNames(profile, input, 'now', true)?.middlename, { value: '', updatedAt: 'now' });
+	assert.deepEqual(updateLinkedProfileNames(profile, input, 'now')?.middlename, profile.middlename);
+});

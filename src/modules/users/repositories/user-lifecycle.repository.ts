@@ -95,12 +95,14 @@ export const createPersistedPocketUser = async ({
 	cong_person_uid,
 	cong_role,
 	user_firstname,
+	user_middlename,
 	user_lastname,
 	user_secret_code,
 }: PocketNewParams) => {
 	const profile: UserProfile = {
 		createdAt: new Date().toISOString(),
 		firstname: { value: user_firstname, updatedAt: new Date().toISOString() },
+		...(user_middlename !== undefined ? { middlename: { value: user_middlename, updatedAt: new Date().toISOString() } } : {}),
 		lastname: { value: user_lastname, updatedAt: new Date().toISOString() },
 		role: 'pocket',
 		congregation: {
