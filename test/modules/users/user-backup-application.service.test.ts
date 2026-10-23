@@ -48,6 +48,19 @@ const createUser = () => {
 };
 
 describe('user backup application', () => {
+	it('round-trips middle names, preserves legacy omission, and accepts explicit clears', async () => {
+		const { user, dataOperations } = createUser();
+		for (const value of ['María Jane', '']) {
+			const middlename = { value, updatedAt: '2026-10-18T00:00:00.000Z' };
+			await applyUserBackup(user, { app_settings: { user_settings: { ...user.profile, middlename } } } as BackupData, [], dataOperations);
+			assert.deepEqual(user.profile.middlename, middlename);
+			const { middlename: omitted, ...legacy } = user.profile;
+			assert.deepEqual(omitted, middlename);
+			await applyUserBackup(user, { app_settings: { user_settings: legacy } } as BackupData, [], dataOperations);
+			assert.deepEqual(user.profile.middlename, middlename);
+		}
+	});
+
 	it('restores profile and user settings from the backup', async () => {
 		const { user, dataOperations } = createUser();
 		const backup = {

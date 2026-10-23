@@ -37,6 +37,7 @@ const buildPocketAuthenticationResponse = (
 		app_settings: {
 			user_settings: {
 				firstname: user.profile.firstname,
+				middlename: user.profile.middlename,
 				lastname: user.profile.lastname,
 				role: user.profile.role,
 				user_local_uid: user.profile.congregation!.user_local_uid,

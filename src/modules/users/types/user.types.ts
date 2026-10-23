@@ -19,6 +19,7 @@ export type UserNewParams = {
 };
 
 export type PocketNewParams = {
+	user_middlename?: string;
 	user_firstname: string;
 	user_lastname: string;
 	user_secret_code: string;
@@ -55,6 +56,7 @@ export type UserProfile = {
 	createdAt?: string;
 	auth_uid?: string;
 	firstname: { value: string; updatedAt: string };
+	middlename?: { value: string; updatedAt: string };
 	lastname: { value: string; updatedAt: string };
 	role: UserGlobalRoleType;
 	mfa_enabled?: boolean;
@@ -97,6 +99,7 @@ export type UserAuthResponse = {
 	app_settings: {
 		user_settings: {
 			firstname: { value: string; updatedAt: string };
+			middlename?: { value: string; updatedAt: string };
 			lastname: { value: string; updatedAt: string };
 			role: UserGlobalRoleType;
 			mfa?: string;

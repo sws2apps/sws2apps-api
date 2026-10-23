@@ -3229,6 +3229,7 @@
         "required": ["user_firstname", "user_lastname", "user_id", "cong_role", "cong_person_uid"],
         "properties": {
           "user_firstname": { "type": "string" },
+          "user_middlename": { "type": "string", "description": "Optional middle name. Omission preserves an existing profile value; an empty string clears it." },
           "user_lastname": { "type": "string" },
           "user_id": { "type": "string", "minLength": 1 },
           "cong_role": { "$ref": "#/components/schemas/CongregationRoleList" },
@@ -3244,6 +3245,7 @@
           "cong_person_uid": { "type": "string" },
           "cong_person_delegates": { "type": "array", "items": { "type": "string" } },
           "first_name": { "type": "string" },
+          "middle_name": { "type": "string", "description": "Optional middle name; omission preserves the existing value unless the linked person changes, when it clears the previous person name. An empty string clears it." },
           "last_name": { "type": "string" },
           "user_secret_code": { "type": "string", "description": "Optional replacement Pocket invitation code." }
         }
@@ -3262,6 +3264,7 @@
         "required": ["user_firstname", "user_lastname", "user_secret_code", "cong_role", "cong_person_uid"],
         "properties": {
           "user_firstname": { "type": "string", "minLength": 1 },
+          "user_middlename": { "type": "string", "description": "Optional middle name. Omission preserves an existing profile value; an empty string clears it." },
           "user_lastname": { "type": "string", "minLength": 1 },
           "user_secret_code": { "type": "string", "minLength": 1, "maxLength": 4096 },
           "cong_role": { "$ref": "#/components/schemas/CongregationRoleList" },

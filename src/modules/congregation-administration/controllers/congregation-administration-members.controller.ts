@@ -50,7 +50,7 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const { user_secret_code, cong_role, cong_person_uid, cong_person_delegates, first_name, last_name } = req.body;
+	const { user_secret_code, cong_role, cong_person_uid, cong_person_delegates, first_name, middle_name, last_name } = req.body;
 	let congregationMembers;
 	try {
 		congregationMembers = await updateCongregationUser(
@@ -64,6 +64,7 @@ export const userDetailsUpdate = async (req: Request, res: Response) => {
 				personUid: cong_person_uid,
 				personDelegates: cong_person_delegates,
 				firstname: first_name,
+				middlename: middle_name,
 				lastname: last_name,
 			},
 		);
@@ -105,7 +106,7 @@ export const congregationUserAdd = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const { user_firstname, user_lastname, cong_role, cong_person_uid, user_id } = req.body;
+	const { user_firstname, user_middlename, user_lastname, cong_role, cong_person_uid, user_id } = req.body;
 	let congregationMembers;
 	try {
 		congregationMembers = await addCongregationUser(
@@ -115,6 +116,7 @@ export const congregationUserAdd = async (req: Request, res: Response) => {
 			{
 				userId: user_id,
 				firstname: user_firstname,
+				middlename: user_middlename,
 				lastname: user_lastname,
 				roles: cong_role,
 				personUid: cong_person_uid,

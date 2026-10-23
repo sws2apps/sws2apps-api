@@ -127,3 +127,12 @@ describe('congregation join requests', () => {
 		assert.deepEqual(congregation.join_requests, []);
 	});
 });
+
+it('includes optional middle names in join requests without inventing values for legacy users', () => {
+	const requests = [{ user: 'user-1', request_date: 'now' }];
+	const profile = { firstname: { value: 'Jane' }, middlename: { value: 'María Jean' }, lastname: { value: 'Doe' } };
+	assert.equal(buildCongregationJoinRequests(requests, () => ({ profile }))[0]?.middlename, 'María Jean');
+	profile.middlename.value = '';
+	assert.equal(buildCongregationJoinRequests(requests, () => ({ profile }))[0]?.middlename, '');
+	assert.equal('middlename' in buildCongregationJoinRequests(requests, () => ({ profile: { firstname: profile.firstname, lastname: profile.lastname } }))[0]!, false);
+});

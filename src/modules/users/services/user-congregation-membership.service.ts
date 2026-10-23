@@ -51,6 +51,7 @@ type AssignUserToCongregationInput = {
 	role: AppRoleType[];
 	person_uid?: string;
 	firstname?: string;
+	middlename?: string;
 	lastname?: string;
 };
 
@@ -74,6 +75,10 @@ export const assignUserToCongregation = async (
 			value: input.firstname,
 			updatedAt: membership.getCurrentTimestamp(),
 		};
+	}
+
+	if (input.middlename !== undefined) {
+		profile.middlename = { value: input.middlename, updatedAt: membership.getCurrentTimestamp() };
 	}
 
 	if (input.lastname) {

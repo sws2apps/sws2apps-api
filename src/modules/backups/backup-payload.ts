@@ -69,6 +69,7 @@ const CONG_SETTINGS_KEYS: readonly (keyof CongSettingsType)[] = [
 	'cong_discoverable',
 	'data_sync',
 	'fullname_option',
+	'print_fullname_option',
 	'short_date_format',
 	'display_name_enabled',
 	'schedule_exact_date_enabled',

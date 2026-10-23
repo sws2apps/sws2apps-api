@@ -7,6 +7,11 @@ import {
 } from '#modules/backups/backup-payload.js';
 
 describe('backup payload parsing', () => {
+	it('accepts encrypted print preferences without altering their ciphertext', () => {
+		const payload = { metadata: {}, app_settings: { cong_settings: { print_fullname_option: 'encrypted-context-records' } } };
+		assert.deepEqual(parseBackupPayload(payload), payload);
+	});
+
 	it('accepts object and serialized payloads with valid metadata', () => {
 		const payload = {
 			metadata: { user_settings: '2026-08-30T10:00:00.000Z' },

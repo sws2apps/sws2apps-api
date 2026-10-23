@@ -16,7 +16,7 @@ export const pocketUserAdd = async (req: Request, res: Response) => {
 		return;
 	}
 
-	const { user_firstname, user_lastname, cong_role, cong_person_uid, user_secret_code } = req.body;
+	const { user_firstname, user_middlename, user_lastname, cong_role, cong_person_uid, user_secret_code } = req.body;
 	let congregationMembers;
 	try {
 		congregationMembers = await createCongregationPocketUser(
@@ -25,6 +25,7 @@ export const pocketUserAdd = async (req: Request, res: Response) => {
 			req.signedCookies.visitorid,
 			{
 				firstname: user_firstname,
+				middlename: user_middlename,
 				lastname: user_lastname,
 				roles: cong_role,
 				personUid: cong_person_uid,

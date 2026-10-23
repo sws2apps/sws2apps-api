@@ -11,6 +11,7 @@ import { setCongregationJoinRequests } from '../repositories/congregation-join-r
 type JoinRequestUser = {
 	profile: {
 		firstname: { value: string };
+		middlename?: { value: string };
 		lastname: { value: string };
 	};
 };
@@ -54,6 +55,7 @@ export const buildCongregationJoinRequests = (
 		return {
 			...request,
 			firstname: user?.profile.firstname.value || deletedUserName,
+			...(user?.profile.middlename ? { middlename: user.profile.middlename.value } : {}),
 			lastname: user?.profile.lastname.value || deletedUserName,
 		};
 	});

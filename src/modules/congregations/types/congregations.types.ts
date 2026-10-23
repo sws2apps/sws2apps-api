@@ -137,6 +137,7 @@ export type CongSettingsType = {
 	cong_discoverable: { value: boolean; updatedAt: string };
 	data_sync: { value: boolean; updatedAt: string };
 	fullname_option?: string;
+	print_fullname_option?: string;
 	short_date_format?: string;
 	display_name_enabled?: string;
 	schedule_exact_date_enabled?: string;

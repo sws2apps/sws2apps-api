@@ -242,3 +242,19 @@ describe('user congregation removal', () => {
 		assert.deepEqual(completedOperations, ['profile', 'settings', 'sessions']);
 	});
 });
+
+it('initial account linking preserves omission but applies middle names and explicit clears', async () => {
+	const user = new User('name-test');
+	user.profile.middlename = { value: 'Previous', updatedAt: 'before' };
+	const congregation = new Congregation('name-test');
+	for (const middlename of [undefined, 'María Jean', '']) {
+		await assignUserToCongregation(user, congregation, { role: ['publisher'], middlename }, {
+			getCurrentTimestamp: () => 'now',
+			updateProfile: async (_user, profile) => { user.profile = profile; },
+			refreshMembers: () => {},
+		});
+		assert.deepEqual(user.profile.middlename, middlename === undefined
+			? { value: 'Previous', updatedAt: 'before' }
+			: { value: middlename, updatedAt: 'now' });
+	}
+});
