@@ -1,5 +1,5 @@
 import express from 'express';
-import { requireAuthenticatedSession } from '#http/middleware/session-authentication.middleware.js';
+import { requireTerritorySession } from './territory-authentication.js';
 import {
 	postTerritoryBatch,
 	getTerritories,
@@ -8,7 +8,7 @@ import {
 } from './territory.controller.js';
 
 const territoryRouter = express.Router({ mergeParams: true });
-territoryRouter.use(requireAuthenticatedSession());
+territoryRouter.use(requireTerritorySession());
 territoryRouter.get('/', getTerritories);
 territoryRouter.put('/policy', putTerritoryPolicy);
 territoryRouter.post('/commands', postTerritoryBatch);

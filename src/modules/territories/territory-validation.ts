@@ -1,3 +1,19 @@
+import {
+	hasOnlyKeys,
+	isObject,
+	isTerritoryId,
+	isOptionalId,
+	isOptionalContent,
+	isEncryptedContent,
+	isRevision,
+	isIds,
+} from './territory-guards.js';
+export { isTerritoryId } from './territory-guards.js';
+import {
+	isReconciliation,
+	isOptionalCount,
+	isOptionalDate,
+} from './territory-history-validation.js';
 import { TerritoryError } from './territory.types.js';
 import type {
 	TerritoryCommand,
@@ -6,44 +22,25 @@ import type {
 	TerritoryPolicy,
 } from './territory.types.js';
 
-export const isTerritoryId = (value: unknown): value is string =>
-	typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value);
-
-const isObject = (value: unknown): value is Record<string, unknown> =>
-	!!value && typeof value === 'object' && !Array.isArray(value);
-
-const hasOnlyKeys = (value: Record<string, unknown>, keys: string[]): boolean =>
-	Object.keys(value).every((key) => keys.includes(key));
-
-const isRevision = (value: unknown): value is number =>
-	Number.isSafeInteger(value) && Number(value) >= 0;
-
-const isIds = (value: unknown): value is string[] =>
-	Array.isArray(value) &&
-	value.length <= 100 &&
-	value.every(isTerritoryId) &&
-	new Set(value).size === value.length;
-
-/** Content is opaque to the server. Require the existing AES transport envelope, never accept accidental plaintext. */
-const isEncryptedContent = (value: unknown): value is string =>
-	typeof value === 'string' &&
-	value.length <= 262144 &&
-	/^U2FsdGVkX1[A-Za-z0-9+/=]{22,}$/.test(value);
-
-const isOptionalId = (value: unknown): boolean => value === undefined || isTerritoryId(value);
-const isOptionalContent = (value: unknown): boolean =>
-	value === undefined || isEncryptedContent(value);
-
 const isDetails = (value: unknown): value is TerritoryDetails => {
 	if (!isObject(value)) return false;
 	if (
-		!hasOnlyKeys(value, ['dataView', 'type', 'categories', 'cardLost', 'content', 'privateContent'])
+		!hasOnlyKeys(value, [
+			'dataView',
+			'type',
+			'categories',
+			'cardLost',
+			'households',
+			'content',
+			'privateContent',
+		])
 	)
 		return false;
 	if (!isTerritoryId(value.dataView) || !isIds(value.categories)) return false;
 	if (!['door_to_door', 'business', 'phone'].includes(String(value.type))) return false;
 	return (
 		typeof value.cardLost === 'boolean' &&
+		isOptionalCount(value.households) &&
 		isEncryptedContent(value.content) &&
 		isEncryptedContent(value.privateContent)
 	);
@@ -52,6 +49,8 @@ const isDetails = (value: unknown): value is TerritoryDetails => {
 const isCommandBody = (value: Record<string, unknown>): boolean => {
 	const keys = ['expectedRevision', 'action'];
 	switch (value.action) {
+		case 'reconcile':
+			return isReconciliation(value, keys) && isDetails(value.details);
 		case 'update':
 			return hasOnlyKeys(value, [...keys, 'details']) && isDetails(value.details);
 		case 'delete':
@@ -76,8 +75,10 @@ const isCommandBody = (value: Record<string, unknown>): boolean => {
 			);
 		case 'return':
 			return (
-				hasOnlyKeys(value, [...keys, 'completed', 'notes']) &&
+				hasOnlyKeys(value, [...keys, 'completed', 'notes', 'returnedAt', 'households']) &&
 				typeof value.completed === 'boolean' &&
+				isOptionalDate(value.returnedAt) &&
+				isOptionalCount(value.households) &&
 				isOptionalContent(value.notes)
 			);
 		default:
@@ -126,8 +127,9 @@ export const parseTerritoryPolicy = (value: unknown): TerritoryPolicy => {
 };
 
 export const parseTerritoryBatch = (value: unknown) => {
-	if (!isObject(value) || !hasOnlyKeys(value, ['expectedRevision', 'commands']))
+	if (!isObject(value) || !hasOnlyKeys(value, ['expectedRevision', 'commands', 'operationId']))
 		throw new TerritoryError('INPUT_INVALID');
+	if (!isOptionalId(value.operationId)) throw new TerritoryError('INPUT_INVALID');
 	if (!isRevision(value.expectedRevision)) throw new TerritoryError('INPUT_INVALID');
 	if (!Array.isArray(value.commands) || value.commands.length < 1 || value.commands.length > 20)
 		throw new TerritoryError('INPUT_INVALID');
@@ -135,11 +137,12 @@ export const parseTerritoryBatch = (value: unknown) => {
 		if (!isObject(entry) || !hasOnlyKeys(entry, ['id', 'command']) || !isTerritoryId(entry.id))
 			throw new TerritoryError('INPUT_INVALID');
 		const command = parseTerritoryCommand(entry.command);
-		if (command.action !== 'update' && command.action !== 'delete')
-			throw new TerritoryError('INPUT_INVALID');
 		return { id: entry.id, command };
 	});
-	if (new Set(commands.map((item) => item.id)).size !== commands.length)
-		throw new TerritoryError('INPUT_INVALID');
-	return { expectedRevision: value.expectedRevision, commands };
+
+	return {
+		expectedRevision: value.expectedRevision,
+		operationId: value.operationId as string | undefined,
+		commands,
+	};
 };

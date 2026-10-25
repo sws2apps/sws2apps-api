@@ -63,7 +63,14 @@ describe('territory input boundaries', () => {
 		);
 		assert.throws(() => parseTerritoryBatch({ expectedRevision: 0, commands: [] }));
 		const command = { id: 't1', command: { action: 'update', expectedRevision: 0, details } };
-		assert.throws(() => parseTerritoryBatch({ expectedRevision: 0, commands: [command, command] }));
+		assert.equal(
+			parseTerritoryBatch({
+				expectedRevision: 0,
+				operationId: 'retry-1',
+				commands: [command, command],
+			}).commands.length,
+			2,
+		);
 		assert.throws(() =>
 			parseTerritoryBatch({ expectedRevision: 0, commands: Array(21).fill(command) }),
 		);

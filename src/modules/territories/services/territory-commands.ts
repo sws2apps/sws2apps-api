@@ -54,9 +54,17 @@ const returnTerritory = (
 			throw new TerritoryError('UNAUTHORIZED_ACCESS');
 		}
 	}
+	let returnedAt = command.returnedAt ?? now;
+	if (
+		returnedAt.slice(0, 10) < record.assignment.assignedAt.slice(0, 10) ||
+		returnedAt.slice(0, 10) > now.slice(0, 10)
+	)
+		throw new TerritoryError('INPUT_INVALID');
+	if (returnedAt < record.assignment.assignedAt) returnedAt = record.assignment.assignedAt;
+	if (command.households !== undefined) record.households = command.households;
 	record.history.push({
 		...record.assignment,
-		returnedAt: now,
+		returnedAt,
 		completed: command.completed,
 		notes: command.notes ?? record.assignment.notes,
 	});
@@ -102,6 +110,58 @@ const updateDoNotCall = (
 	});
 };
 
+const validateReconciledAssignment = (
+	state: TerritoryState,
+	record: TerritoryRecord,
+	command: Extract<TerritoryCommand, { action: 'reconcile' }>,
+): void => {
+	const assignment = command.assignment;
+	if (!assignment) return;
+	const unchanged =
+		assignment.personId === record.assignment?.personId &&
+		assignment.groupId === record.assignment?.groupId &&
+		assignment.id === record.assignment?.id;
+	if (unchanged) return;
+	const grant = state.policy.grants.find((item) => item.personId === assignment.personId);
+	if (!grant?.eligible || !isTerritoryOffered(grant, { ...record, ...command.details }))
+		throw new TerritoryError('UNAUTHORIZED_ACCESS');
+	if (assignment.groupId && !grant.groupIds.includes(assignment.groupId))
+		throw new TerritoryError('UNAUTHORIZED_ACCESS');
+	if (command.details.cardLost) throw new TerritoryError('TERRITORY_CONFLICT');
+};
+
+const reconcileTerritory = (
+	actor: TerritoryActor,
+	state: TerritoryState,
+	record: TerritoryRecord,
+	command: Extract<TerritoryCommand, { action: 'reconcile' }>,
+	now: string,
+): void => {
+	requireTerritoryManager(actor);
+	const assignments = [...command.history, ...(command.assignment ? [command.assignment] : [])];
+	if (new Set(assignments.map((item) => item.id)).size !== assignments.length)
+		throw new TerritoryError('INPUT_INVALID');
+	if (
+		assignments.some((item) => (item.returnedAt ?? item.assignedAt).slice(0, 10) > now.slice(0, 10))
+	)
+		throw new TerritoryError('INPUT_INVALID');
+	if (record.assignment && record.dataView !== command.details.dataView)
+		throw new TerritoryError('TERRITORY_CONFLICT');
+	validateReconciledAssignment(state, record, command);
+	if (
+		command.requestedBy &&
+		!state.policy.grants.some((item) => item.personId === command.requestedBy && item.eligible)
+	)
+		throw new TerritoryError('UNAUTHORIZED_ACCESS');
+	if (command.assignment && command.requestedBy) throw new TerritoryError('INPUT_INVALID');
+	Object.assign(record, command.details, {
+		assignment: command.assignment,
+		history: command.history,
+		doNotCalls: command.doNotCalls,
+		requestedBy: command.requestedBy,
+	});
+};
+
 const changeTerritory = (
 	actor: TerritoryActor,
 	state: TerritoryState,
@@ -110,6 +170,9 @@ const changeTerritory = (
 	now: string,
 ): void => {
 	switch (command.action) {
+		case 'reconcile':
+			reconcileTerritory(actor, state, record, command, now);
+			break;
 		case 'assignment_note':
 			updateAssignmentNote(actor, record, command.notes);
 			break;
@@ -135,7 +198,7 @@ const changeTerritory = (
 			record.requestedBy = actor.personId;
 			break;
 		case 'cancel_request':
-			if (!actor.personId || record.requestedBy !== actor.personId)
+			if (!isTerritoryManager(actor) && (!actor.personId || record.requestedBy !== actor.personId))
 				throw new TerritoryError('UNAUTHORIZED_ACCESS');
 			delete record.requestedBy;
 			break;
@@ -158,7 +221,8 @@ export const applyTerritoryCommand = (
 	let record = state.records.find((item) => item.id === id);
 	if (!record) {
 		requireTerritoryManager(actor);
-		if (command.action !== 'update') throw new TerritoryError('TERRITORY_NOT_FOUND');
+		if (command.action !== 'update' && command.action !== 'reconcile')
+			throw new TerritoryError('TERRITORY_NOT_FOUND');
 		if (command.expectedRevision !== 0) throw new TerritoryError('TERRITORY_CONFLICT');
 		record = {
 			...command.details,

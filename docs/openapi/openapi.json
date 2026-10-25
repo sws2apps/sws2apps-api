@@ -68,7 +68,7 @@
         "tags": [
           "Territories"
         ],
-        "description": "Returns a complete authorized snapshot. Replace the cached visible set, including when records disappear after permission changes. Managers also receive tombstones. Private content and assignment history are filtered before delivery.",
+        "description": "Returns a complete authorized snapshot. Replace the cached visible set, including when records disappear after permission changes. Managers also receive tombstones. Private content and assignment history are filtered before delivery. Pocket accounts may use their existing signed visitor session without a bearer token. Token and MFA checks remain required for other accounts.",
         "security": [
           {
             "bearerAuth": [],
@@ -89,7 +89,13 @@
         "responses": {
           "200": {
             "description": "Authorized operation completed.",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/TerritorySnapshot"}}}
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerritorySnapshot"
+                }
+              }
+            }
           },
           "400": {
             "description": "INPUT_INVALID"
@@ -112,7 +118,7 @@
         "tags": [
           "Territories"
         ],
-        "description": "Manager-only permission projection and encrypted settings. revision is the expected policy revision. Eligibility and group leadership must be projected by an authorized manager from existing people and groups; publishers cannot self-grant rights.",
+        "description": "Manager-only permission projection and encrypted settings. revision is the expected policy revision. Eligibility and group leadership must be projected by an authorized manager from existing people and groups; publishers cannot self-grant rights. Pocket accounts may use their existing signed visitor session without a bearer token. Token and MFA checks remain required for other accounts.",
         "security": [
           {
             "bearerAuth": [],
@@ -165,7 +171,7 @@
         "tags": [
           "Territories"
         ],
-        "description": "Manager-only atomic split/combine operations. All affected record revisions and the snapshot revision must match. No partial writes.",
+        "description": "Atomic revision-checked territory operations. All record revisions and the snapshot revision must match. Publishers are limited to their permitted requests, returns, notes and do-not-call edits. An optional operationId safely acknowledges an identical retry by the same account; reusing it with different content is rejected. No partial writes.",
         "security": [
           {
             "bearerAuth": [],
@@ -218,7 +224,7 @@
         "tags": [
           "Territories"
         ],
-        "description": "Execute a revision-checked operation. Ownership uses stable person/group IDs. Campaign IDs reference existing Upcoming Events. Stale writes return 409; refetch and reconcile rather than silently retrying an outdated action.",
+        "description": "Execute a revision-checked operation. Ownership uses stable person/group IDs. Campaign IDs reference existing Upcoming Events. Stale writes return 409; refetch and reconcile rather than silently retrying an outdated action. Pocket accounts may use their existing signed visitor session without a bearer token. Token and MFA checks remain required for other accounts.",
         "security": [
           {
             "bearerAuth": [],
@@ -3341,6 +3347,19 @@
             "maxLength": 262144,
             "pattern": "^U2FsdGVkX1[A-Za-z0-9+/=]{22,}$",
             "description": "Opaque client-encrypted AES envelope using existing Organized field encryption."
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 262144,
+            "pattern": "^U2FsdGVkX1[A-Za-z0-9+/=]{22,}$",
+            "description": "Opaque client-encrypted AES envelope using existing Organized field encryption."
+          },
+          "card": {
+            "type": "string",
+            "enum": [
+              "digital",
+              "printed"
+            ]
           }
         },
         "required": [
@@ -3437,6 +3456,17 @@
                 "content"
               ]
             }
+          },
+          "households": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000000
+          },
+          "inUse": {
+            "type": "boolean"
+          },
+          "requestPending": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -3530,6 +3560,11 @@
             "maxLength": 262144,
             "pattern": "^U2FsdGVkX1[A-Za-z0-9+/=]{22,}$",
             "description": "Opaque client-encrypted AES envelope using existing Organized field encryption."
+          },
+          "households": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000000
           }
         },
         "required": [
@@ -3741,6 +3776,15 @@
                 "maxLength": 262144,
                 "pattern": "^U2FsdGVkX1[A-Za-z0-9+/=]{22,}$",
                 "description": "Opaque client-encrypted AES envelope using existing Organized field encryption."
+              },
+              "returnedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "households": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000000
               }
             },
             "required": [
@@ -3800,6 +3844,71 @@
               "expectedRevision",
               "entryId"
             ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "const": "reconcile"
+              },
+              "expectedRevision": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "details": {
+                "$ref": "#/components/schemas/TerritoryDetails"
+              },
+              "assignment": {
+                "$ref": "#/components/schemas/TerritoryAssignment"
+              },
+              "history": {
+                "type": "array",
+                "maxItems": 2000,
+                "items": {
+                  "$ref": "#/components/schemas/TerritoryAssignment"
+                }
+              },
+              "requestedBy": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,128}$"
+              },
+              "doNotCalls": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                    },
+                    "addedBy": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                    },
+                    "content": {
+                      "type": "string",
+                      "maxLength": 262144,
+                      "pattern": "^U2FsdGVkX1[A-Za-z0-9+/=]{22,}$",
+                      "description": "Opaque client-encrypted AES envelope using existing Organized field encryption."
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "addedBy",
+                    "content"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "action",
+              "expectedRevision",
+              "details",
+              "history",
+              "doNotCalls"
+            ]
           }
         ]
       },
@@ -3854,48 +3963,7 @@
                   "pattern": "^[A-Za-z0-9_-]{1,128}$"
                 },
                 "command": {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "properties": {
-                        "action": {
-                          "const": "update"
-                        },
-                        "expectedRevision": {
-                          "type": "integer",
-                          "minimum": 0,
-                          "maximum": 9007199254740991
-                        },
-                        "details": {
-                          "$ref": "#/components/schemas/TerritoryDetails"
-                        }
-                      },
-                      "required": [
-                        "action",
-                        "expectedRevision",
-                        "details"
-                      ]
-                    },
-                    {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "properties": {
-                        "action": {
-                          "const": "delete"
-                        },
-                        "expectedRevision": {
-                          "type": "integer",
-                          "minimum": 0,
-                          "maximum": 9007199254740991
-                        }
-                      },
-                      "required": [
-                        "action",
-                        "expectedRevision"
-                      ]
-                    }
-                  ]
+                  "$ref": "#/components/schemas/TerritoryCommand"
                 }
               },
               "required": [
@@ -3903,6 +3971,10 @@
                 "command"
               ]
             }
+          },
+          "operationId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
           }
         },
         "required": [

@@ -55,10 +55,17 @@ export const projectTerritory = (
 	grant: TerritoryGrant | undefined,
 	record: TerritoryRecord,
 ) => {
-	if (isTerritoryManager(actor)) return structuredClone(record);
+	if (isTerritoryManager(actor))
+		return {
+			...structuredClone(record),
+			inUse: !!record.assignment,
+			requestPending: !!record.requestedBy,
+		};
 	const holder = isTerritoryHolder(actor, grant, record);
 	return {
 		...record,
+		inUse: !!record.assignment,
+		requestPending: !!record.requestedBy,
 		privateContent: holder ? record.privateContent : '',
 		doNotCalls: holder ? record.doNotCalls : [],
 		requestedBy: record.requestedBy === actor.personId ? record.requestedBy : undefined,

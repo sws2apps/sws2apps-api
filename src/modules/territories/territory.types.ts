@@ -2,6 +2,7 @@ import type { AppRoleType } from '#domain/users/app-role.js';
 
 export type TerritoryActor = {
 	congregationId: string;
+	userId?: string;
 	personId?: string;
 	roles: AppRoleType[];
 };
@@ -33,6 +34,8 @@ export type TerritoryAssignment = {
 	completed?: boolean;
 	/** Client-encrypted assignment notes, separate from permanent territory content. */
 	notes?: string;
+	content?: string;
+	card?: 'digital' | 'printed';
 };
 
 export type TerritoryRecord = {
@@ -44,6 +47,7 @@ export type TerritoryRecord = {
 	type: 'door_to_door' | 'business' | 'phone';
 	categories: string[];
 	cardLost: boolean;
+	households?: number;
 	/** Client-encrypted map and territory details visible to permitted viewers. */
 	content: string;
 	/** Client-encrypted do-not-call information, disclosed only to the current holder or managers. */
@@ -59,20 +63,35 @@ export type TerritoryState = {
 	revision: number;
 	policy: TerritoryPolicy;
 	records: TerritoryRecord[];
+	receipts?: { id: string; actor: string; digest: string }[];
 };
 
 export type TerritoryDetails = Pick<
 	TerritoryRecord,
-	'dataView' | 'type' | 'categories' | 'cardLost' | 'content' | 'privateContent'
+	'dataView' | 'type' | 'categories' | 'cardLost' | 'households' | 'content' | 'privateContent'
 >;
 
 export type TerritoryCommand = {
 	expectedRevision: number;
 } & (
 	| { action: 'update'; details: TerritoryDetails }
+	| {
+			action: 'reconcile';
+			details: TerritoryDetails;
+			assignment?: TerritoryAssignment;
+			history: TerritoryAssignment[];
+			requestedBy?: string;
+			doNotCalls: TerritoryRecord['doNotCalls'];
+	  }
 	| { action: 'delete' | 'request' | 'cancel_request' }
 	| { action: 'assign'; personId: string; groupId?: string; campaignId?: string; notes?: string }
-	| { action: 'return'; completed: boolean; notes?: string }
+	| {
+			action: 'return';
+			completed: boolean;
+			notes?: string;
+			returnedAt?: string;
+			households?: number;
+	  }
 	| { action: 'assignment_note'; notes: string }
 	| { action: 'do_not_call'; entryId: string; content?: string }
 );

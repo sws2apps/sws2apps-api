@@ -448,3 +448,112 @@ describe('territory note ownership', () => {
 		assert.equal(state().records[0].doNotCalls.length, 1);
 	});
 });
+
+describe('offline territory reconciliation', () => {
+	it('acknowledges a lost response exactly once and rejects changed replay payloads', async () => {
+		const { operations, state } = fixture();
+		const batch = {
+			expectedRevision: 0,
+			operationId: 'request-1',
+			commands: [{ id: 't1', command: { action: 'request' as const, expectedRevision: 0 } }],
+		};
+		await executeTerritoryBatch(publisher, batch, operations);
+		await executeTerritoryBatch(publisher, batch, operations);
+		assert.equal(state().revision, 1);
+		await assert.rejects(
+			executeTerritoryBatch(publisher, { ...batch, expectedRevision: 1 }, operations),
+			rejectsCode('INPUT_INVALID'),
+		);
+		await assert.rejects(
+			executeTerritoryBatch(other, batch, operations),
+			rejectsCode('TERRITORY_CONFLICT'),
+		);
+	});
+	it('imports dated history and preserves it during a publisher return', async () => {
+		const { operations, state } = fixture();
+		const assignment = {
+			id: 'active',
+			personId: 'alice',
+			assignedAt: '2026-10-01T00:00:00.000Z',
+			content: 'encrypted-label',
+			card: 'printed' as const,
+		};
+		await executeTerritoryCommand(
+			manager,
+			't1',
+			{
+				action: 'reconcile',
+				expectedRevision: 0,
+				details,
+				assignment,
+				history: [],
+				doNotCalls: [],
+			},
+			operations,
+		);
+		await executeTerritoryCommand(
+			publisher,
+			't1',
+			{
+				action: 'return',
+				expectedRevision: 1,
+				completed: true,
+				returnedAt: '2026-10-24T00:00:00.000Z',
+				households: 209,
+			},
+			operations,
+		);
+		assert.equal(state().records[0].history[0].assignedAt, assignment.assignedAt);
+		assert.equal(state().records[0].history[0].returnedAt, '2026-10-24T00:00:00.000Z');
+		assert.equal(state().records[0].history[0].card, 'printed');
+		assert.equal(state().records[0].households, 209);
+	});
+	it('rejects publisher reconciliation and changing an assignment to an unauthorized group', async () => {
+		const { operations } = fixture();
+		const command = {
+			action: 'reconcile' as const,
+			expectedRevision: 0,
+			details,
+			assignment: { id: 'active', personId: 'alice', assignedAt: '2026-10-01T00:00:00.000Z' },
+			history: [],
+			doNotCalls: [],
+		};
+		await assert.rejects(
+			executeTerritoryCommand(publisher, 't1', command, operations),
+			rejectsCode('UNAUTHORIZED_ACCESS'),
+		);
+		await executeTerritoryCommand(manager, 't1', command, operations);
+		await assert.rejects(
+			executeTerritoryCommand(
+				manager,
+				't1',
+				{
+					...command,
+					expectedRevision: 1,
+					assignment: { ...command.assignment, groupId: 'unrelated' },
+				},
+				operations,
+			),
+			rejectsCode('UNAUTHORIZED_ACCESS'),
+		);
+	});
+	it('commits successive commands on one record atomically and rejects stale revisions', async () => {
+		const { operations, state } = fixture();
+		const batch = {
+			expectedRevision: 0,
+			commands: [
+				{ id: 't1', command: { action: 'request' as const, expectedRevision: 0 } },
+				{ id: 't1', command: { action: 'cancel_request' as const, expectedRevision: 0 } },
+			],
+		};
+		await assert.rejects(
+			executeTerritoryBatch(publisher, batch, operations),
+			rejectsCode('TERRITORY_CONFLICT'),
+		);
+		assert.equal(state().revision, 0);
+		batch.commands[1].command.expectedRevision = 1;
+		await executeTerritoryBatch(publisher, batch, operations);
+		assert.equal(state().revision, 2);
+		assert.equal(state().records[0].requestedBy, undefined);
+	});
+});

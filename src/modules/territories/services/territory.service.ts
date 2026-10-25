@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import {
 	CongregationsList,
 	getUpcomingEvents,
@@ -40,7 +41,12 @@ export const resolveTerritoryActor = (user: User, congregationId: string): Terri
 	if (!congregation?.settings.data_sync.value) throw new TerritoryError('UNAUTHORIZED_ACCESS');
 	if (!congregation.members.some((member) => member.id === user.id))
 		throw new TerritoryError('UNAUTHORIZED_ACCESS');
-	return { congregationId, personId: membership.user_local_uid, roles: membership.cong_role };
+	return {
+		congregationId,
+		userId: user.id,
+		personId: membership.user_local_uid,
+		roles: membership.cong_role,
+	};
 };
 
 /** A complete authorized snapshot. Clients must replace their visible set, removing records whose access was revoked. */
@@ -88,9 +94,15 @@ const validateCampaign = async (
 	command: TerritoryCommand,
 	operations: TerritoryOperations,
 ): Promise<void> => {
-	if (command.action !== 'assign' || !command.campaignId) return;
+	const campaignId =
+		command.action === 'assign'
+			? command.campaignId
+			: command.action === 'reconcile'
+				? command.assignment?.campaignId
+				: undefined;
+	if (!campaignId) return;
 	const events = await operations.getEvents(actor.congregationId);
-	if (!events.some((event) => event.event_uid === command.campaignId))
+	if (!events.some((event) => event.event_uid === campaignId))
 		throw new TerritoryError('INPUT_INVALID');
 };
 
@@ -115,18 +127,38 @@ export const executeTerritoryCommand = async (
 /** Map splits and combinations commit all affected records together, including source tombstones. */
 export const executeTerritoryBatch = async (
 	actor: TerritoryActor,
-	batch: { expectedRevision: number; commands: { id: string; command: TerritoryCommand }[] },
+	batch: {
+		expectedRevision: number;
+		operationId?: string;
+		commands: { id: string; command: TerritoryCommand }[];
+	},
 	operations: TerritoryOperations = defaultOperations,
 ) => {
-	requireTerritoryManager(actor);
 	const { state, generation } = await operations.read(actor.congregationId);
+	const digest = createHash('sha256').update(JSON.stringify(batch)).digest('hex');
+	const actorId = actor.userId ?? actor.personId ?? '';
+	const receipt = state.receipts?.find(
+		(item) => item.id === batch.operationId && item.actor === actorId,
+	);
+	if (receipt) {
+		if (receipt.digest !== digest) throw new TerritoryError('INPUT_INVALID');
+		return { revision: state.revision };
+	}
 	if (state.revision !== batch.expectedRevision) throw new TerritoryError('TERRITORY_CONFLICT');
 	const now = operations.now();
+	const grant = getTerritoryGrant(actor, state.policy);
 	for (const { id, command } of batch.commands) {
-		if (command.action !== 'update' && command.action !== 'delete')
-			throw new TerritoryError('INPUT_INVALID');
+		const record = state.records.find((item) => item.id === id);
+		if (record && !canViewTerritory(actor, grant, record))
+			throw new TerritoryError('UNAUTHORIZED_ACCESS');
+		await validateCampaign(actor, command, operations);
 		applyTerritoryCommand(state, actor, id, command, now);
 	}
+	if (batch.operationId)
+		state.receipts = [
+			...(state.receipts ?? []),
+			{ id: batch.operationId, actor: actorId, digest },
+		].slice(-256);
 	await operations.write(actor.congregationId, generation, state);
 	return { revision: state.revision };
 };

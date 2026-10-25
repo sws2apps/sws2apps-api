@@ -1,3 +1,5 @@
+import { requireTerritorySession } from '#modules/territories/territory-authentication.js';
+import type { SessionAuthenticationDependencies } from '#http/middleware/session-authentication.middleware.js';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import express from 'express';
@@ -45,5 +47,39 @@ describe('territory HTTP security', () => {
 			assert.equal(response.status, 403);
 			assert.deepEqual(response.body, { message: 'UNAUTHORIZED_ACCESS' });
 		}
+	});
+});
+
+describe('territory session compatibility', () => {
+	const appFor = (role: 'pocket' | 'vip', withToken = false) => {
+		const user = new User('account');
+		user.profile.role = role;
+		user.profile.mfa_enabled = true;
+		const dependencies = {
+			resolvePocketUser: () => user,
+			verifyToken: async () => 'account',
+			resolveSession: () => ({ status: 'resolved', user, session: { mfaVerified: false } }),
+			refreshSession: async () => {},
+		} as unknown as SessionAuthenticationDependencies;
+		const app = express();
+		app.use((req, _res, next) => {
+			req.signedCookies = { visitorid: 'signed-session' };
+			if (withToken) req.headers.authorization = 'Bearer token';
+			next();
+		});
+		app.use(requireTerritorySession(dependencies));
+		app.get('/', (_req, res) => {
+			res.sendStatus(204);
+		});
+		return app;
+	};
+	it('accepts the existing Pocket signed session', async () => {
+		assert.equal((await request(appFor('pocket')).get('/')).status, 204);
+	});
+	it('does not let a VIP account bypass its token by presenting a signed cookie', async () => {
+		assert.equal((await request(appFor('vip')).get('/')).status, 403);
+	});
+	it('does not let a VIP account bypass MFA even with its token', async () => {
+		assert.equal((await request(appFor('vip', true)).get('/')).status, 401);
 	});
 });
