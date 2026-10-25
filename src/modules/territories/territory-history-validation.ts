@@ -37,9 +37,9 @@ const validAssignment = (value: unknown): boolean => {
 	if (!isTerritoryId(value.id) || !isTerritoryId(value.personId)) return false;
 	if (!isOptionalId(value.groupId) || !isOptionalId(value.campaignId)) return false;
 	if (!isTerritoryDate(value.assignedAt) || !isOptionalDate(value.returnedAt)) return false;
-	if (value.returnedAt && String(value.returnedAt) < value.assignedAt) return false;
+	if (typeof value.returnedAt === 'string' && value.returnedAt < value.assignedAt) return false;
 	if (value.completed !== undefined && typeof value.completed !== 'boolean') return false;
-	if (value.card !== undefined && !['digital', 'printed'].includes(String(value.card)))
+	if (value.card !== undefined && value.card !== 'digital' && value.card !== 'printed')
 		return false;
 	return isOptionalContent(value.notes) && isOptionalContent(value.content);
 };

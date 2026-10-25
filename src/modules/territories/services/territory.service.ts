@@ -89,21 +89,23 @@ export const updateTerritoryPolicy = async (
 	await operations.write(actor.congregationId, generation, state);
 };
 
-const validateCampaign = async (
+const commandCampaign = (command: TerritoryCommand) => {
+	if (command.action === 'assign') return command.campaignId;
+	if (command.action === 'reconcile') return command.assignment?.campaignId;
+	return undefined;
+};
+
+const validateCampaigns = async (
 	actor: TerritoryActor,
-	command: TerritoryCommand,
+	commands: TerritoryCommand[],
 	operations: TerritoryOperations,
 ): Promise<void> => {
-	const campaignId =
-		command.action === 'assign'
-			? command.campaignId
-			: command.action === 'reconcile'
-				? command.assignment?.campaignId
-				: undefined;
-	if (!campaignId) return;
+	const ids = commands.map(commandCampaign).filter((id) => id !== undefined);
+	if (!ids.length) return;
+	requireTerritoryManager(actor);
 	const events = await operations.getEvents(actor.congregationId);
-	if (!events.some((event) => event.event_uid === campaignId))
-		throw new TerritoryError('INPUT_INVALID');
+	const known = new Set(events.map((event) => event.event_uid));
+	if (ids.some((id) => !known.has(id))) throw new TerritoryError('INPUT_INVALID');
 };
 
 export const executeTerritoryCommand = async (
@@ -113,7 +115,7 @@ export const executeTerritoryCommand = async (
 	operations: TerritoryOperations = defaultOperations,
 ) => {
 	if (command.action === 'assign') requireTerritoryManager(actor);
-	await validateCampaign(actor, command, operations);
+	await validateCampaigns(actor, [command], operations);
 	const { state, generation } = await operations.read(actor.congregationId);
 	const grant = getTerritoryGrant(actor, state.policy);
 	const previous = state.records.find((record) => record.id === id);
@@ -147,11 +149,15 @@ export const executeTerritoryBatch = async (
 	if (state.revision !== batch.expectedRevision) throw new TerritoryError('TERRITORY_CONFLICT');
 	const now = operations.now();
 	const grant = getTerritoryGrant(actor, state.policy);
+	await validateCampaigns(
+		actor,
+		batch.commands.map((item) => item.command),
+		operations,
+	);
 	for (const { id, command } of batch.commands) {
 		const record = state.records.find((item) => item.id === id);
 		if (record && !canViewTerritory(actor, grant, record))
 			throw new TerritoryError('UNAUTHORIZED_ACCESS');
-		await validateCampaign(actor, command, operations);
 		applyTerritoryCommand(state, actor, id, command, now);
 	}
 	if (batch.operationId)

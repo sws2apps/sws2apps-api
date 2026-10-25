@@ -44,7 +44,7 @@ export const canViewTerritory = (
 ): boolean => {
 	if (isTerritoryManager(actor)) return true;
 	if (record.deleted) return false;
-	if (!grant || !grant.dataViews.includes(record.dataView)) return false;
+	if (!grant?.dataViews.includes(record.dataView)) return false;
 	if (isTerritoryHolder(actor, grant, record)) return true;
 	if (actor.personId && record.requestedBy === actor.personId) return true;
 	if (record.history.some((assignment) => assignment.personId === actor.personId)) return true;
@@ -53,7 +53,11 @@ export const canViewTerritory = (
 
 const coverageDates = (record: TerritoryRecord) => {
 	const returned = record.history.filter((item) => item.returnedAt);
-	const latest = (dates: string[]) => dates.sort().at(-1);
+	const latest = (dates: string[]) =>
+		dates.reduce<string | undefined>(
+			(result, date) => (!result || date > result ? date : result),
+			undefined,
+		);
 	return {
 		lastReturnedAt: latest(returned.map((item) => item.returnedAt!)),
 		lastCompletedAt: latest(
