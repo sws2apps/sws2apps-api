@@ -181,6 +181,8 @@ const isBackupPayload = (
 		: backup.metadata === undefined || isStringRecord(backup.metadata);
 	if (!hasValidMetadata) return false;
 	if (!hasValidAppSettings(backup)) return false;
+	// Territory writes require operation-specific permission and revision checks.
+	if (backup.territories !== undefined || backup.territories_snapshot !== undefined) return false;
 	if (backup.speakers_key !== undefined && typeof backup.speakers_key !== 'string') return false;
 	if (!hasValidOutgoingTalks(backup)) return false;
 	if (!hasValidRecordDatasets(backup)) return false;

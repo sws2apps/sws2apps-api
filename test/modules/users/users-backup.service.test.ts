@@ -289,3 +289,29 @@ describe('user backup retrieval permissions', () => {
 		}]);
 	});
 });
+
+
+describe('territory backup opt-in', () => {
+	it('uses the authenticated actor and includes the complete authorized snapshot', async () => {
+		const previousCongregations = CongregationsList.list;
+		const previousUsers = UsersList.list;
+		try {
+			const { user, congregation, matchingMetadata } = createBackupContext(['publisher'], true);
+			const metadata = JSON.parse(matchingMetadata);
+			metadata.territories = '1';
+			const snapshot = { revision: 1, policy: { revision: 1, content: '', grants: [] }, records: [] };
+			const result = await retrieveUserBackup(user.id, JSON.stringify(metadata), {
+				getTerritories: async (actor) => {
+					assert.equal(actor.personId, 'person-self');
+					assert.equal(actor.congregationId, congregation.id);
+					return snapshot;
+				},
+			});
+			assert.deepEqual(result.territories_snapshot, snapshot);
+			assert.equal(result.metadata.territories, '1');
+		} finally {
+			CongregationsList.list = previousCongregations;
+			UsersList.list = previousUsers;
+		}
+	});
+});
