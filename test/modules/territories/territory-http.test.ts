@@ -1,3 +1,4 @@
+import rateLimit from 'express-rate-limit';
 import { requireTerritorySession } from '#modules/territories/territory-authentication.js';
 import type { SessionAuthenticationDependencies } from '#http/middleware/session-authentication.middleware.js';
 import assert from 'node:assert/strict';
@@ -67,7 +68,8 @@ describe('territory session compatibility', () => {
 			if (withToken) req.headers.authorization = 'Bearer token';
 			next();
 		});
-		app.use(requireTerritorySession(dependencies));
+		app.use(rateLimit({ windowMs: 60000, limit: 100 }));
+			app.use(requireTerritorySession(dependencies));
 		app.get('/', (_req, res) => {
 			res.sendStatus(204);
 		});
