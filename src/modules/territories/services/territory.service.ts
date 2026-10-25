@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import {
 	CongregationsList,
 	getUpcomingEvents,
+	getFieldServiceGroups,
 	getCongregationPersons,
 } from '#modules/congregations/index.js';
 import type { User } from '#modules/users/index.js';
@@ -21,6 +22,7 @@ export type TerritoryOperations = {
 	read: typeof readTerritories;
 	write: typeof writeTerritories;
 	getEvents: typeof getUpcomingEvents;
+	getGroups: typeof getFieldServiceGroups;
 	getPersons: typeof getCongregationPersons;
 	now: () => string;
 };
@@ -29,6 +31,7 @@ const defaultOperations: TerritoryOperations = {
 	read: readTerritories,
 	write: writeTerritories,
 	getEvents: getUpcomingEvents,
+	getGroups: getFieldServiceGroups,
 	getPersons: getCongregationPersons,
 	now: () => new Date().toISOString(),
 };
@@ -59,6 +62,7 @@ export const retrieveTerritories = async (
 	const grant = getTerritoryGrant(actor, state.policy);
 	return {
 		revision: state.revision,
+		manager,
 		policy: manager
 			? state.policy
 			: {
@@ -108,6 +112,34 @@ const validateCampaigns = async (
 	if (ids.some((id) => !known.has(id))) throw new TerritoryError('INPUT_INVALID');
 };
 
+const commandGroup = (command: TerritoryCommand) => {
+	if (command.action === 'assign') return command.groupId;
+	if (command.action === 'reconcile') return command.assignment?.groupId;
+	return undefined;
+};
+const validateGroups = async (
+	actor: TerritoryActor,
+	commands: TerritoryCommand[],
+	operations: TerritoryOperations,
+): Promise<void> => {
+	const ids = commands.map(commandGroup).filter((id) => id !== undefined);
+	if (!ids.length) return;
+	requireTerritoryManager(actor);
+	const groups = await operations.getGroups(actor.congregationId);
+	const known = new Set(groups.map((group) => group.group_id));
+	if (ids.some((id) => !known.has(id))) throw new TerritoryError('INPUT_INVALID');
+};
+const validateReferences = async (
+	actor: TerritoryActor,
+	commands: TerritoryCommand[],
+	operations: TerritoryOperations,
+) => {
+	await Promise.all([
+		validateCampaigns(actor, commands, operations),
+		validateGroups(actor, commands, operations),
+	]);
+};
+
 export const executeTerritoryCommand = async (
 	actor: TerritoryActor,
 	id: string,
@@ -115,7 +147,7 @@ export const executeTerritoryCommand = async (
 	operations: TerritoryOperations = defaultOperations,
 ) => {
 	if (command.action === 'assign') requireTerritoryManager(actor);
-	await validateCampaigns(actor, [command], operations);
+	await validateReferences(actor, [command], operations);
 	const { state, generation } = await operations.read(actor.congregationId);
 	const grant = getTerritoryGrant(actor, state.policy);
 	const previous = state.records.find((record) => record.id === id);
@@ -149,7 +181,7 @@ export const executeTerritoryBatch = async (
 	if (state.revision !== batch.expectedRevision) throw new TerritoryError('TERRITORY_CONFLICT');
 	const now = operations.now();
 	const grant = getTerritoryGrant(actor, state.policy);
-	await validateCampaigns(
+	await validateReferences(
 		actor,
 		batch.commands.map((item) => item.command),
 		operations,

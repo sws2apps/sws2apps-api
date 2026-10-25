@@ -3489,6 +3489,10 @@
       "TerritorySnapshot": {
         "type": "object",
         "properties": {
+          "manager": {
+            "type": "boolean",
+            "description": "Current server-authorized territory management capability."
+          },
           "revision": {
             "type": "integer",
             "minimum": 0
@@ -3519,6 +3523,7 @@
           }
         },
         "required": [
+          "manager",
           "revision",
           "policy",
           "records"

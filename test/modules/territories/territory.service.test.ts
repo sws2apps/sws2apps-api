@@ -65,6 +65,7 @@ const fixture = () => {
 			generation += 1;
 		},
 		getEvents: async () => [{ event_uid: 'campaign' }],
+		getGroups: async () => [{ group_id: 'group1' }],
 		getPersons: async () => [{ person_uid: 'alice' }, { person_uid: 'bob' }],
 		now: () => '2026-10-25T12:00:00.000Z',
 	};
@@ -278,7 +279,7 @@ describe('territory workflow', () => {
 		assert.equal(state().records[0].history[0].groupId, 'group1');
 	});
 
-	it('rejects unknown campaigns and unattested groups', async () => {
+	it('rejects unknown campaigns and unknown groups', async () => {
 		const { operations } = fixture();
 		await assert.rejects(
 			executeTerritoryCommand(
@@ -293,10 +294,10 @@ describe('territory workflow', () => {
 			executeTerritoryCommand(
 				manager,
 				't1',
-				{ action: 'assign', expectedRevision: 0, personId: 'alice', groupId: 'group1' },
+				{ action: 'assign', expectedRevision: 0, personId: 'alice', groupId: 'unknown-group' },
 				operations,
 			),
-			rejectsCode('UNAUTHORIZED_ACCESS'),
+			rejectsCode('INPUT_INVALID'),
 		);
 	});
 
@@ -534,7 +535,7 @@ describe('offline territory reconciliation', () => {
 				},
 				operations,
 			),
-			rejectsCode('UNAUTHORIZED_ACCESS'),
+			rejectsCode('INPUT_INVALID'),
 		);
 	});
 	it('commits successive commands on one record atomically and rejects stale revisions', async () => {
@@ -649,6 +650,72 @@ describe('territory calendar days', () => {
 				returnedAt: '2026-10-25T00:00:00.000Z',
 			},
 			operations,
+		);
+	});
+});
+
+describe('territory group handoff', () => {
+	it('lets a manager record an ordinary publisher taking a territory for a canonical group', async () => {
+		const { operations, state } = fixture();
+		assert.deepEqual(state().policy.grants[0].groupIds, []);
+		await executeTerritoryCommand(
+			manager,
+			't1',
+			{ action: 'assign', expectedRevision: 0, personId: 'alice', groupId: 'group1' },
+			operations,
+		);
+		assert.equal(state().records[0].assignment?.personId, 'alice');
+		assert.equal(state().records[0].assignment?.groupId, 'group1');
+		assert.deepEqual((await retrieveTerritories(other, operations)).records, []);
+	});
+});
+
+describe('authoritative territory capabilities', () => {
+	it('reports a role revocation even when no territory revision changed', async () => {
+		const { operations } = fixture();
+		const before = await retrieveTerritories(manager, operations);
+		const after = await retrieveTerritories({ ...manager, roles: ['publisher'] }, operations);
+		assert.equal(before.manager, true);
+		assert.equal(after.manager, false);
+		assert.equal(after.revision, before.revision);
+		assert.deepEqual(after.policy.grants, []);
+	});
+	it('removes overseer access when leadership is revoked while retaining publisher ownership', async () => {
+		const { operations, state } = fixture();
+		await updateTerritoryPolicy(
+			manager,
+			{
+				revision: 0,
+				content: 'encrypted-settings',
+				grants: [grant('alice'), { ...grant('bob'), groupIds: ['group1'] }],
+			},
+			operations,
+		);
+		await executeTerritoryCommand(
+			manager,
+			't1',
+			{ action: 'assign', expectedRevision: 0, personId: 'alice', groupId: 'group1' },
+			operations,
+		);
+		assert.equal((await retrieveTerritories(other, operations)).records.length, 1);
+		await updateTerritoryPolicy(
+			manager,
+			{ revision: 1, content: 'encrypted-settings', grants: [grant('alice'), grant('bob')] },
+			operations,
+		);
+		assert.deepEqual((await retrieveTerritories(other, operations)).records, []);
+		await assert.rejects(
+			executeTerritoryCommand(
+				other,
+				't1',
+				{ action: 'return', expectedRevision: state().records[0].revision, completed: true },
+				operations,
+			),
+			rejectsCode('UNAUTHORIZED_ACCESS'),
+		);
+		assert.equal(
+			(await retrieveTerritories(publisher, operations)).records[0].assignment?.personId,
+			'alice',
 		);
 	});
 });

@@ -299,7 +299,7 @@ describe('territory backup opt-in', () => {
 			const { user, congregation, matchingMetadata } = createBackupContext(['publisher'], true);
 			const metadata = JSON.parse(matchingMetadata);
 			metadata.territories = '1';
-			const snapshot = { revision: 1, policy: { revision: 1, content: '', grants: [] }, records: [] };
+			const snapshot = { revision: 1, manager: false, policy: { revision: 1, content: '', grants: [] }, records: [] };
 			const result = await retrieveUserBackup(user.id, JSON.stringify(metadata), {
 				getTerritories: async (actor) => {
 					assert.equal(actor.personId, 'person-self');

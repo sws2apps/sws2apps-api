@@ -32,13 +32,3 @@ test(
 		}
 	},
 );
-
-// firebase-tools 15.29.0 ignores GCS generation query preconditions in its Storage emulator.
-// Keep the missing provider verification visible rather than claiming the emulator proves CAS.
-test(
-	'Cloud Storage enforces concurrent generation preconditions',
-	{
-		skip: 'Storage emulator ignores ifGenerationMatch; requires an isolated real GCS test bucket',
-	},
-	() => {},
-);

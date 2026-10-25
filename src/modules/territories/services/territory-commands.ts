@@ -30,8 +30,6 @@ const assignTerritory = (
 	const grant = state.policy.grants.find((item) => item.personId === command.personId);
 	if (!grant?.eligible || !isTerritoryOffered(grant, record))
 		throw new TerritoryError('UNAUTHORIZED_ACCESS');
-	if (command.groupId && !grant.groupIds.includes(command.groupId))
-		throw new TerritoryError('UNAUTHORIZED_ACCESS');
 	if (record.assignment || record.cardLost) throw new TerritoryError('TERRITORY_CONFLICT');
 	record.assignment = {
 		id: randomUUID(),
@@ -128,8 +126,6 @@ const validateReconciledAssignment = (
 	if (unchanged) return;
 	const grant = state.policy.grants.find((item) => item.personId === assignment.personId);
 	if (!grant?.eligible || !isTerritoryOffered(grant, { ...record, ...command.details }))
-		throw new TerritoryError('UNAUTHORIZED_ACCESS');
-	if (assignment.groupId && !grant.groupIds.includes(assignment.groupId))
 		throw new TerritoryError('UNAUTHORIZED_ACCESS');
 	if (command.details.cardLost) throw new TerritoryError('TERRITORY_CONFLICT');
 };
