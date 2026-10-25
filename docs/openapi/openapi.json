@@ -3467,7 +3467,9 @@
           },
           "requestPending": {
             "type": "boolean"
-          }
+          },
+          "lastReturnedAt": { "type": "string", "format": "date-time" },
+          "lastCompletedAt": { "type": "string", "format": "date-time" }
         },
         "required": [
           "id",

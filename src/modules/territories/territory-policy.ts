@@ -47,7 +47,21 @@ export const canViewTerritory = (
 	if (!grant || !grant.dataViews.includes(record.dataView)) return false;
 	if (isTerritoryHolder(actor, grant, record)) return true;
 	if (actor.personId && record.requestedBy === actor.personId) return true;
+	if (record.history.some((assignment) => assignment.personId === actor.personId)) return true;
 	return grant.access !== 'own' && !record.assignment && isTerritoryOffered(grant, record);
+};
+
+const coverageDates = (record: TerritoryRecord) => {
+	const returned = record.history.filter((item) => item.returnedAt);
+	const latest = (dates: string[]) => dates.sort().at(-1);
+	return {
+		lastReturnedAt: latest(returned.map((item) => item.returnedAt!)),
+		lastCompletedAt: latest(
+			returned
+				.filter((item) => item.completed !== false && !item.campaignId)
+				.map((item) => item.returnedAt!),
+		),
+	};
 };
 
 export const projectTerritory = (
@@ -55,8 +69,10 @@ export const projectTerritory = (
 	grant: TerritoryGrant | undefined,
 	record: TerritoryRecord,
 ) => {
+	const dates = coverageDates(record);
 	if (isTerritoryManager(actor))
 		return {
+			...dates,
 			...structuredClone(record),
 			inUse: !!record.assignment,
 			requestPending: !!record.requestedBy,
@@ -64,6 +80,7 @@ export const projectTerritory = (
 	const holder = isTerritoryHolder(actor, grant, record);
 	return {
 		...record,
+		...dates,
 		inUse: !!record.assignment,
 		requestPending: !!record.requestedBy,
 		privateContent: holder ? record.privateContent : '',

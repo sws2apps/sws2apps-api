@@ -557,3 +557,57 @@ describe('offline territory reconciliation', () => {
 		assert.equal(state().records[0].requestedBy, undefined);
 	});
 });
+
+describe('territory history visibility', () => {
+	it('keeps personal history after reassignment without disclosing the new holder or private data', async () => {
+		const { operations } = fixture();
+		await executeTerritoryCommand(
+			manager,
+			't1',
+			{ action: 'assign', expectedRevision: 0, personId: 'alice' },
+			operations,
+		);
+		await executeTerritoryCommand(
+			publisher,
+			't1',
+			{
+				action: 'return',
+				expectedRevision: 1,
+				completed: true,
+				returnedAt: '2026-10-25T00:00:00.000Z',
+			},
+			operations,
+		);
+		await executeTerritoryCommand(
+			manager,
+			't1',
+			{ action: 'assign', expectedRevision: 2, personId: 'bob' },
+			operations,
+		);
+		const snapshot = await retrieveTerritories(publisher, operations);
+		assert.equal(snapshot.records.length, 1);
+		assert.equal(snapshot.records[0].assignment, undefined);
+		assert.equal(snapshot.records[0].privateContent, '');
+		assert.equal(snapshot.records[0].inUse, true);
+		assert.equal(snapshot.records[0].history.length, 1);
+		assert.equal(snapshot.records[0].lastCompletedAt, '2026-10-25T12:00:00.000Z');
+	});
+	it('shares coverage dates without another publisher assignment history', async () => {
+		const { operations } = fixture();
+		await executeTerritoryCommand(
+			manager,
+			't1',
+			{ action: 'assign', expectedRevision: 0, personId: 'alice' },
+			operations,
+		);
+		await executeTerritoryCommand(
+			publisher,
+			't1',
+			{ action: 'return', expectedRevision: 1, completed: true },
+			operations,
+		);
+		const snapshot = await retrieveTerritories(other, operations);
+		assert.deepEqual(snapshot.records[0].history, []);
+		assert.equal(snapshot.records[0].lastCompletedAt, '2026-10-25T12:00:00.000Z');
+	});
+});
