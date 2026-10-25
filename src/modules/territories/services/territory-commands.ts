@@ -15,6 +15,10 @@ import type {
 	TerritoryState,
 } from '../territory.types.js';
 
+// UI dates are calendar days. UTC+14 can already be on the next day when the server is still on today.
+const latestTerritoryDay = (now: string) =>
+	new Date(Date.parse(now) + 14 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
 const assignTerritory = (
 	actor: TerritoryActor,
 	state: TerritoryState,
@@ -57,7 +61,7 @@ const returnTerritory = (
 	let returnedAt = command.returnedAt ?? now;
 	if (
 		returnedAt.slice(0, 10) < record.assignment.assignedAt.slice(0, 10) ||
-		returnedAt.slice(0, 10) > now.slice(0, 10)
+		returnedAt.slice(0, 10) > latestTerritoryDay(now)
 	)
 		throw new TerritoryError('INPUT_INVALID');
 	if (returnedAt < record.assignment.assignedAt) returnedAt = record.assignment.assignedAt;
@@ -142,7 +146,9 @@ const reconcileTerritory = (
 	if (new Set(assignments.map((item) => item.id)).size !== assignments.length)
 		throw new TerritoryError('INPUT_INVALID');
 	if (
-		assignments.some((item) => (item.returnedAt ?? item.assignedAt).slice(0, 10) > now.slice(0, 10))
+		assignments.some(
+			(item) => (item.returnedAt ?? item.assignedAt).slice(0, 10) > latestTerritoryDay(now),
+		)
 	)
 		throw new TerritoryError('INPUT_INVALID');
 	if (record.assignment && record.dataView !== command.details.dataView)

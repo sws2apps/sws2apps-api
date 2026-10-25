@@ -611,3 +611,44 @@ describe('territory history visibility', () => {
 		assert.equal(snapshot.records[0].lastCompletedAt, '2026-10-25T12:00:00.000Z');
 	});
 });
+
+describe('territory calendar days', () => {
+	it('accepts the current local day ahead of UTC but rejects days beyond all time zones', async () => {
+		const { operations } = fixture();
+		operations.now = () => '2026-10-24T22:30:00.000Z';
+		const command = {
+			action: 'reconcile' as const,
+			expectedRevision: 0,
+			details,
+			assignment: { id: 'today', personId: 'alice', assignedAt: '2026-10-25T00:00:00.000Z' },
+			history: [],
+			doNotCalls: [],
+		};
+		await executeTerritoryCommand(manager, 't1', command, operations);
+		await assert.rejects(
+			executeTerritoryCommand(
+				publisher,
+				't1',
+				{
+					action: 'return',
+					expectedRevision: 1,
+					completed: true,
+					returnedAt: '2026-10-26T00:00:00.000Z',
+				},
+				operations,
+			),
+			rejectsCode('INPUT_INVALID'),
+		);
+		await executeTerritoryCommand(
+			publisher,
+			't1',
+			{
+				action: 'return',
+				expectedRevision: 1,
+				completed: true,
+				returnedAt: '2026-10-25T00:00:00.000Z',
+			},
+			operations,
+		);
+	});
+});
