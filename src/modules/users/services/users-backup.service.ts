@@ -1,3 +1,4 @@
+import { getFieldServiceMeetings, getFieldServiceMetadata } from '#modules/field-service-meetings/index.js';
 import { canAccessCongregationMasterKey } from '#domain/users/master-key-roles.js';
 import { getUserCapabilities } from '#domain/users/user-capabilities.js';
 import type { StandardRecord } from '../../../types/standard-record.js';
@@ -34,6 +35,8 @@ export type UserBackupRetrievalOperations = {
 	getBranchFieldServiceReports: typeof getBranchFieldServiceReports;
 	getCongregationPersons: typeof getCongregationPersons;
 	getFieldServiceGroups: typeof getFieldServiceGroups;
+	getFieldServiceMeetings: typeof getFieldServiceMeetings;
+	getFieldServiceMetadata: typeof getFieldServiceMetadata;
 	getFieldServiceReports: typeof getFieldServiceReports;
 	getMeetingAttendance: typeof getMeetingAttendance;
 	getPublicIncomingTalks: typeof getPublicIncomingTalks;
@@ -54,6 +57,8 @@ const defaultBackupRetrievalOperations: UserBackupRetrievalOperations = {
 	getBranchFieldServiceReports,
 	getCongregationPersons,
 	getFieldServiceGroups,
+	getFieldServiceMeetings,
+	getFieldServiceMetadata,
 	getFieldServiceReports,
 	getMeetingAttendance,
 	getPublicIncomingTalks,
@@ -128,6 +133,15 @@ const addSynchronizedSettingsAndGroups = async (context: UserBackupContext): Pro
 		result.field_service_groups = await backupOperations.getFieldServiceGroups(congregation.id);
 		result.metadata.field_service_groups = localDate;
 	}
+
+	// Every authenticated member receives all meetings, independently of edit roles.
+	const meetingRevision = congregation.metadata.field_service_meetings ?? '';
+	if (meetingRevision !== (metadata.field_service_meetings ?? '')) {
+		result.field_service_meetings = await backupOperations.getFieldServiceMeetings(congregation.id);
+		result.metadata.field_service_meetings = meetingRevision;
+	}
+	const scopeRevision = congregation.metadata.field_service_scheduling ?? '';
+	if (scopeRevision !== (metadata.field_service_scheduling ?? '')) result.metadata.field_service_scheduling = scopeRevision;
 
 	if (congregation.metadata.upcoming_events !== metadata.upcoming_events) {
 		const localDate = congregation.metadata.upcoming_events;
@@ -235,7 +249,7 @@ const addPublisherReports = async (context: UserBackupContext): Promise<void> =>
 
 const addMinimalPersons = async (context: UserBackupContext): Promise<void> => {
 	const { congregation, metadata, result, backupOperations, miniPersons, capabilities } = context;
-	const { personMinimal } = capabilities;
+	const { personMinimal, fieldServiceScheduler } = capabilities;
 
 	if (!personMinimal) return;
 
@@ -263,7 +277,8 @@ const addMinimalPersons = async (context: UserBackupContext): Promise<void> => {
 					privileges: personData.privileges,
 					enrollments: personData.enrollments,
 					emergency_contacts: miniPersons.includes(String(record.person_uid)) ? personData.emergency_contacts : undefined,
-					assignments: miniPersons.includes(String(record.person_uid)) ? personData.assignments : undefined,
+					assignments: fieldServiceScheduler || miniPersons.includes(String(record.person_uid)) ? personData.assignments : undefined,
+					archived: fieldServiceScheduler ? personData.archived : undefined,
 					timeAway: includeTimeAway || miniPersons.includes(String(record.person_uid)) ? personData.timeAway : undefined,
 				},
 			};
@@ -449,6 +464,7 @@ export const retrieveUserBackup = async (
 	const context: UserBackupContext = { user, congregation, metadata, result, backupOperations, miniPersons, masterKeyNeed, capabilities };
 
 	if (congregation.settings.data_sync.value) {
+		Object.assign(congregation.metadata, await backupOperations.getFieldServiceMetadata(congregation.id));
 		await addSynchronizedSettingsAndGroups(context);
 		await addFullPersons(context);
 		await addSpeakerDirectories(context);

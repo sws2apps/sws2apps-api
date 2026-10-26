@@ -68,3 +68,21 @@ test(
 		}
 	},
 );
+
+test('generation-checked meeting writes retain concurrent updates in the Storage emulator', { skip: !shouldRunFirebaseTests }, async () => {
+	requireLocalStorageEmulator();
+	await import('#platform/firebase/firebase-app.js');
+	const { readModifyWriteVersionedFile, getFileFromStorage, deleteFileFromStorage } = await import('#platform/firebase/storage.js');
+	const directory = `integration-tests/cas-${process.pid}-${Date.now()}`;
+	const options = { type: 'congregation' as const, path: `${directory}/meetings.txt` };
+	try {
+		await Promise.all(['a', 'b'].map((id) => readModifyWriteVersionedFile(options, async (current) => {
+			const values = current ? JSON.parse(current) as string[] : [];
+			values.push(id);
+			return { data: JSON.stringify(values), result: id };
+		})));
+		assert.deepEqual((JSON.parse((await getFileFromStorage(options))!) as string[]).sort(), ['a', 'b']);
+	} finally {
+		await deleteFileFromStorage({ type: 'congregation', path: directory });
+	}
+});

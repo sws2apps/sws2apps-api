@@ -21,6 +21,8 @@ const createDataSource = (ids = ['congregation-1']): CongregationHydrationDataSo
 				settings,
 				outgoing_speakers: defaults.outgoing_speakers,
 				metadata: {
+			field_service_meetings: '',
+			field_service_scheduling: '',
 					branch_cong_analysis: '',
 					branch_field_service_reports: '',
 					field_service_groups: '',

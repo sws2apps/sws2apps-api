@@ -1,3 +1,4 @@
+import type { FieldServiceMeetingRecord, SchedulingScopeUpload } from '#modules/field-service-meetings/index.js';
 import type { AppRoleType } from '#domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import type { CongSettingsType } from '#modules/congregations/index.js';
@@ -13,6 +14,8 @@ export type BackupData = {
 	branch_cong_analysis: StandardRecord[];
 	branch_field_service_reports: StandardRecord[];
 	field_service_groups: StandardRecord[];
+	field_service_meetings?: FieldServiceMeetingRecord[];
+	field_service_scheduling?: SchedulingScopeUpload;
 	meeting_attendance: StandardRecord[];
 	sched: StandardRecord[];
 	sources: StandardRecord[];

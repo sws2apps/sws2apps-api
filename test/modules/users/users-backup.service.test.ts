@@ -7,7 +7,11 @@ import { CongregationsList } from '#modules/congregations/congregations.js';
 import { UserBackupError } from '#modules/users/user-backup-context.js';
 import { User } from '#modules/users/user.js';
 import { UsersList } from '#modules/users/users.js';
-import { retrieveUserBackup } from '#modules/users/services/users-backup.service.js';
+import { retrieveUserBackup as retrieveBackup } from '#modules/users/services/users-backup.service.js';
+const retrieveUserBackup: typeof retrieveBackup = (userId, metadata, operations = {}) => retrieveBackup(userId, metadata, {
+	getFieldServiceMetadata: async () => ({ field_service_meetings: CongregationsList.list[0]?.metadata.field_service_meetings ?? '', field_service_scheduling: CongregationsList.list[0]?.metadata.field_service_scheduling ?? '' }),
+	...operations,
+});
 import type { StandardRecord } from '../../../src/types/standard-record.js';
 
 const createBackupContext = (
@@ -56,6 +60,36 @@ describe('user backup retrieval permissions', () => {
 	afterEach(() => {
 		CongregationsList.list = originalCongregations;
 		UsersList.list = originalUsers;
+	});
+
+	for (const roles of [[], ['publisher'], ['view_schedules']] as AppRoleType[][]) {
+		it(`shares every group and meeting with read-only members: ${roles.join(',') || 'no editing role'}`, async () => {
+			const { congregation, user } = createBackupContext(roles, true);
+			congregation.metadata.field_service_groups = 'groups-new';
+			congregation.metadata.field_service_meetings = 'meetings-new';
+			const groups = [{ group_id: 'g1' }, { group_id: 'g2' }];
+			const meetings = [
+				{ meeting_uid: 'one', meeting_data: 'cipher', authorization: { category: 0 as const, group_id: 'g1', conductor: 'c', deleted: false, updatedAt: '2026-10-26T00:00:00Z' } },
+				{ meeting_uid: 'two', meeting_data: 'cipher', authorization: { category: 0 as const, group_id: 'g2', conductor: 'c', deleted: false, updatedAt: '2026-10-26T00:00:00Z' } },
+			];
+			const backup = await retrieveUserBackup(user.id, JSON.stringify({ ...congregation.metadata, ...user.metadata, field_service_groups: '', field_service_meetings: '' }), {
+				getFieldServiceGroups: async () => groups,
+				getFieldServiceMeetings: async () => meetings,
+			});
+			assert.deepEqual(backup.field_service_groups, groups);
+			assert.deepEqual(backup.field_service_meetings, meetings);
+			assert.equal(backup.app_settings.cong_settings?.cong_master_key, undefined);
+		});
+	}
+
+	it('checks fresh storage revisions instead of relying on another API instance cache', async () => {
+		const { congregation, user } = createBackupContext(['publisher'], true);
+		let read = false;
+		const backup = await retrieveUserBackup(user.id, JSON.stringify({ ...congregation.metadata, ...user.metadata }), {
+			getFieldServiceMetadata: async () => ({ field_service_meetings: 'another-instance-update', field_service_scheduling: '' }),
+			getFieldServiceMeetings: async () => { read = true; return []; },
+		});
+		assert.equal(read, true); assert.equal(backup.metadata.field_service_meetings, 'another-instance-update');
 	});
 
 	it('returns recurring field-service times when general congregation data sync is disabled', async () => {

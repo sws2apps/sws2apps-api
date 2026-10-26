@@ -1,3 +1,4 @@
+import { getFieldServiceMetadata } from '#modules/field-service-meetings/index.js';
 import {
 	getFileMetadata,
 	listFilesFromStorage,
@@ -107,6 +108,7 @@ export const getPublicSchedulesMetadata = async (cong_id: string) => {
 
 export const getCongregationMetadata = async (cong_id: string) => {
 	return {
+		...await getFieldServiceMetadata(cong_id),
 		branch_cong_analysis: await getBranchCongAnalysisMetadata(cong_id),
 		branch_field_service_reports: await getBranchFieldServiceReportsMetadata(cong_id),
 		field_service_groups: await getFieldServiceGroupsMetadata(cong_id),

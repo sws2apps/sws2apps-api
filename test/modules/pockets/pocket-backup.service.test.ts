@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import {
 	getPocketBackupContext,
-	retrievePocketBackup,
+	retrievePocketBackup as retrieveBackup,
 	parsePocketBackupMetadata,
 	PocketBackupError,
 	submitPocketBackup,
@@ -13,6 +13,11 @@ import { Congregation } from '#modules/congregations/congregation.js';
 import { CongregationsList } from '#modules/congregations/congregations.js';
 import { User } from '#modules/users/user.js';
 import { UsersList } from '#modules/users/users.js';
+
+const retrievePocketBackup: typeof retrieveBackup = (userId, metadata, operations = {}) => retrieveBackup(userId, metadata, {
+	getMetadata: async () => ({ field_service_meetings: CongregationsList.list[0]?.metadata.field_service_meetings ?? '', field_service_scheduling: CongregationsList.list[0]?.metadata.field_service_scheduling ?? '' }),
+	...operations,
+});
 
 describe('Pocket backup metadata', () => {
 	it('accepts a JSON object containing string timestamps', () => {
@@ -130,5 +135,45 @@ describe('Pocket backup submission', () => {
 					&& error.code === 'PERSISTENCE_FAILED';
 			},
 		);
+	});
+});
+
+describe('Pocket field-service access', () => {
+	it('downloads meetings for every group without an editing role', async () => {
+		const oldUsers = UsersList.list; const oldCongregations = CongregationsList.list;
+		try {
+			const { user, congregation } = createPocketBackupContext();
+			user.profile.congregation!.cong_role = [];
+			congregation.members = [user]; congregation.settings.data_sync.value = true;
+			const groups = [{ group_id: 'first' }, { group_id: 'second' }];
+			const meetings = ['first', 'second'].map((group_id) => ({ meeting_uid: group_id, meeting_data: 'cipher', authorization: { category: 0 as const, group_id, conductor: 'conductor', deleted: false, updatedAt: '2026-10-26T00:00:00Z' } }));
+			const metadata = JSON.stringify({ ...congregation.metadata, ...user.metadata, field_service_groups: 'old' });
+			const result = await retrievePocketBackup(user.id, metadata, {
+				getMetadata: async () => ({ field_service_meetings: 'fresh', field_service_scheduling: '' }),
+				getMeetings: async () => meetings,
+				getGroups: async () => groups,
+			});
+			assert.deepEqual(result.field_service_meetings, meetings);
+			assert.equal(result.app_settings.cong_settings?.cong_master_key, undefined);
+			assert.deepEqual(result.field_service_groups, groups);
+		} finally { UsersList.list = oldUsers; CongregationsList.list = oldCongregations; }
+	});
+	it('uses current membership when submitting a granted editing right', async () => {
+		const oldUsers = UsersList.list; const oldCongregations = CongregationsList.list;
+		try {
+			const { user, congregation, backup } = createPocketBackupContext();
+			congregation.members = [user]; congregation.settings.data_sync.value = true;
+			user.profile.congregation!.cong_role = ['field_service_schedule'];
+			backup.field_service_meetings = [{ meeting_uid: 'meeting', meeting_data: 'cipher', authorization: { category: 0, group_id: 'group', conductor: 'conductor', deleted: false, updatedAt: '2026-10-26T00:00:00Z' } }];
+			let checked = false;
+			await submitPocketBackup(user.id, JSON.stringify({ ...congregation.metadata, ...user.metadata }), backup, {
+				saveBackup: async () => ({ status: 'saved' }),
+				saveMeetings: async (id, resolveActor) => {
+					assert.equal(id, congregation.id); assert.deepEqual(resolveActor().roles, ['field_service_schedule']); checked = true;
+					return { scope: [], scope_revision: '', meetings_revision: 'r1', meetings: [{ ...backup.field_service_meetings![0], revision: 'r1' }] };
+				},
+			});
+			assert.equal(checked, true);
+		} finally { UsersList.list = oldUsers; CongregationsList.list = oldCongregations; }
 	});
 });

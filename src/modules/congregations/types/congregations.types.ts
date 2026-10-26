@@ -1,6 +1,8 @@
 import type { StandardRecord } from '../../../types/standard-record.js';
 
 export type CongregationMetadata = {
+	field_service_meetings?: string;
+	field_service_scheduling?: string;
 	branch_cong_analysis: string;
 	branch_field_service_reports: string;
 	field_service_groups: string;

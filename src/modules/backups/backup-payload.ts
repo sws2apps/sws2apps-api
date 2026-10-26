@@ -1,3 +1,4 @@
+import { hasValidFieldServiceBackup } from '#modules/field-service-meetings/index.js';
 import { APP_ROLES, type AppRoleType } from '#domain/users/app-role.js';
 import type { CongSettingsType } from '#modules/congregations/index.js';
 
@@ -207,6 +208,7 @@ const isBackupPayload = (
 	if (backup.speakers_key !== undefined && typeof backup.speakers_key !== 'string') return false;
 	if (!hasValidOutgoingTalks(backup)) return false;
 	if (!hasValidRecordDatasets(backup)) return false;
+	if (!hasValidFieldServiceBackup(backup)) return false;
 
 	return hasValidCongUsers(backup);
 };

@@ -1,3 +1,4 @@
+import { FieldServiceWriteError } from '#modules/field-service-meetings/index.js';
 import { Request, Response } from 'express';
 import { sendClientError, sendServerError, sendSuccess } from '#http/responses.js';
 import { getSessionCookieOptions } from '#http/security/session-cookie-options.js';
@@ -24,6 +25,10 @@ import {
 } from './pocket-backup.service.js';
 
 const handlePocketBackupError = (error: unknown, res: Response): boolean => {
+	if (error instanceof FieldServiceWriteError) {
+		sendClientError(res, error.code === 'CONFLICT' ? 409 : 403, error.message, 'field service meeting write rejected');
+		return true;
+	}
 	if (!(error instanceof PocketBackupError)) return false;
 	if (error.code === 'USER_NOT_FOUND') {
 		res.clearCookie('visitorid');
@@ -125,8 +130,9 @@ export const retrieveUserBackup = async (req: Request, res: Response) => {
 };
 
 export const saveUserBackup = async (req: Request, res: Response) => {
+	let outcome;
 	try {
-		await submitPocketBackup(
+		outcome = await submitPocketBackup(
 			res.locals.currentUser.id,
 			req.headers.metadata!.toString(),
 			req.body.cong_backup as BackupData,
@@ -136,7 +142,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	sendSuccess(res, { message: 'BACKUP_SENT' }, 'user send backup successfully');
+	sendSuccess(res, { message: 'BACKUP_SENT', field_service_meeting_receipts: outcome.field_service_meeting_receipts }, 'user send backup successfully');
 };
 
 export const getPocketSessions = async (req: Request, res: Response) => {
