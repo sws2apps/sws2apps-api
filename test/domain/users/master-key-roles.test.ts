@@ -7,6 +7,7 @@ describe('congregation master-key access', () => {
 	it('allows roles responsible for congregation administration or schedules', () => {
 		assert.equal(canAccessCongregationMasterKey(['coordinator']), true);
 		assert.equal(canAccessCongregationMasterKey(['publisher', 'midweek_schedule']), true);
+		assert.equal(canAccessCongregationMasterKey(['publisher', 'duties_schedule']), true);
 	});
 
 	it('denies roles that do not require the master key', () => {

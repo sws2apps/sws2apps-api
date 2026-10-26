@@ -153,6 +153,7 @@ export const removeUserFromCongregation = async (
 	settings.backup_automatic = '';
 	settings.data_view = '';
 	settings.hour_credits_enabled = '';
+	settings.meeting_duties_export = '';
 	settings.theme_follow_os_enabled = '';
 	await membership.updateSettings(user, settings);
 

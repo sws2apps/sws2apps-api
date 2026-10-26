@@ -62,6 +62,7 @@ export const requireMeetingEditor = () => {
 		'midweek_schedule',
 		'weekend_schedule',
 		'public_talk_schedule',
+		'duties_schedule',
 	]);
 };
 

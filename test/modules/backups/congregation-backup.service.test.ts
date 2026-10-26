@@ -127,6 +127,37 @@ describe('congregation backup persistence', () => {
 		]);
 	});
 
+	it('syncs duty settings and schedules through the existing editor data path', async () => {
+		const congregation = new Congregation('congregation-1');
+		congregation.settings.data_sync.value = true;
+		congregation.settings.cong_master_key = 'server-key';
+		const backup = createBackup();
+		backup.app_settings.cong_settings = structuredClone(congregation.settings);
+		backup.app_settings.cong_settings.meeting_duties = 'encrypted-main-and-group-setups';
+		backup.app_settings.cong_settings.cong_master_key = 'untrusted-key';
+		const recorder = createOperations();
+
+		await saveCongregationBackup(congregation, backup, ['duties_schedule'], recorder.operations);
+
+		assert.deepEqual(recorder.savedOperations, ['settings', 'persons', 'schedules', 'sources']);
+		assert.equal(recorder.getSavedSettings()?.meeting_duties, 'encrypted-main-and-group-setups');
+		assert.equal(recorder.getSavedSettings()?.cong_master_key, 'server-key');
+	});
+
+	it('preserves duty settings when an older client omits them', async () => {
+		const congregation = new Congregation('congregation-1');
+		congregation.settings.meeting_duties = 'encrypted-existing-setups';
+		const backup = createBackup();
+		backup.app_settings.cong_settings = structuredClone(congregation.settings);
+		delete backup.app_settings.cong_settings.meeting_duties;
+		const recorder = createOperations();
+
+		await saveCongregationBackup(congregation, backup, ['duties_schedule'], recorder.operations);
+
+		assert.equal(recorder.getSavedSettings()?.meeting_duties, 'encrypted-existing-setups');
+		assert.deepEqual(recorder.savedOperations, ['settings']);
+	});
+
 	it('stops subsequent backup writes after a persistence failure', async () => {
 		const congregation = new Congregation('congregation-1');
 		congregation.settings.data_sync.value = true;

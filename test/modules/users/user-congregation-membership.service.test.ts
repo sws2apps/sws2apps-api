@@ -167,6 +167,7 @@ describe('user congregation removal', () => {
 			data_view: 'detailed',
 			hour_credits_enabled: 'enabled',
 			theme_follow_os_enabled: 'enabled',
+			meeting_duties_export: 'encrypted-export-preferences',
 		};
 		const completedOperations: string[] = [];
 
@@ -181,6 +182,7 @@ describe('user congregation removal', () => {
 					data_view: '',
 					hour_credits_enabled: '',
 					theme_follow_os_enabled: '',
+					meeting_duties_export: '',
 				});
 				completedOperations.push('settings');
 			},

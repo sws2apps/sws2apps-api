@@ -100,38 +100,40 @@ describe('user backup persistence orchestration', () => {
 		assert.deepEqual(operations, ['congregation', 'person', 'user', 'discard']);
 	});
 
-	it('does not overwrite personal fields for a schedule editor', async () => {
-		const congregation = new Congregation('congregation-1');
-		const user = createUser(congregation.id);
-		const operations: string[] = [];
+	for (const role of ['midweek_schedule', 'duties_schedule'] as const) {
+		it(`does not overwrite personal fields for ${role}`, async () => {
+			const congregation = new Congregation('congregation-1');
+			const user = createUser(congregation.id);
+			const operations: string[] = [];
 
-		await saveUserBackupAsync(
-			{
-				congId: congregation.id,
-				userId: user.id,
-				userRole: ['midweek_schedule'],
-				cong_backup: createBackup(),
-			},
-			{
-				findCongregationById: () => congregation,
-				findUserById: () => user,
-				saveCongregation: async () => {
-					operations.push('congregation');
+			await saveUserBackupAsync(
+				{
+					congId: congregation.id,
+					userId: user.id,
+					userRole: [role],
+					cong_backup: createBackup(),
 				},
-				updatePersonData: async () => {
-					throw new Error('Schedule editors must not overwrite personal fields');
+				{
+					findCongregationById: () => congregation,
+					findUserById: () => user,
+					saveCongregation: async () => {
+						operations.push('congregation');
+					},
+					updatePersonData: async () => {
+						throw new Error('Schedule editors must not overwrite personal fields');
+					},
+					applyUserData: async () => {
+						operations.push('user');
+					},
+					logError: () => {
+						throw new Error('A successful backup should not log an error');
+					},
 				},
-				applyUserData: async () => {
-					operations.push('user');
-				},
-				logError: () => {
-					throw new Error('A successful backup should not log an error');
-				},
-			},
-		);
+			);
 
-		assert.deepEqual(operations, ['congregation', 'user']);
-	});
+			assert.deepEqual(operations, ['congregation', 'user']);
+		});
+	}
 
 	it('fails closed for a user from another congregation and always discards uploads', async () => {
 		const congregation = new Congregation('congregation-1');

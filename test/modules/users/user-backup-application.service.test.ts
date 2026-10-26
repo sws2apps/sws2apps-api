@@ -73,6 +73,21 @@ describe('user backup application', () => {
 		assert.equal(user.settings.theme_follow_os_enabled, 'new-theme');
 	});
 
+	it('round-trips encrypted duty export preferences and preserves them for older clients', async () => {
+		const { user, dataOperations } = createUser();
+		const backup = {
+			app_settings: { user_settings: { meeting_duties_export: 'encrypted-export-preferences' } },
+		} as BackupData;
+		await applyUserBackup(user, backup, ['duties_schedule'], dataOperations);
+		assert.equal(user.settings.meeting_duties_export, 'encrypted-export-preferences');
+
+		await applyUserBackup(user, { app_settings: { user_settings: {} } } as BackupData, [], dataOperations);
+		assert.equal(user.settings.meeting_duties_export, 'encrypted-export-preferences');
+
+		await applyUserBackup(user, { app_settings: { user_settings: { meeting_duties_export: '' } } } as BackupData, [], dataOperations);
+		assert.equal(user.settings.meeting_duties_export, '');
+	});
+
 	it('restores personal data only for publishers', async () => {
 		const backup = {
 			user_bible_studies: [{}],

@@ -5,6 +5,7 @@ export const ROLE_MASTER_KEY: readonly AppRoleType[] = [
 	'midweek_schedule',
 	'weekend_schedule',
 	'public_talk_schedule',
+	'duties_schedule',
 	'secretary',
 	'coordinator',
 	'elder',

@@ -34,6 +34,7 @@ export class User {
 			backup_automatic: '',
 			data_view: '',
 			hour_credits_enabled: '',
+			meeting_duties_export: '',
 			theme_follow_os_enabled: '',
 		};
 		this.flags = [];
