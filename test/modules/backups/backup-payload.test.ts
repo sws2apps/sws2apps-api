@@ -40,6 +40,11 @@ describe('backup payload parsing', () => {
 		assert.deepEqual(parseBackupPayload(payload), payload);
 	});
 
+	it('accepts the field-service scheduling role in synchronized role lists', () => {
+		const payload = { metadata: {}, cong_users: [{ id: 'scheduler', role: ['publisher', 'field_service_schedule'] }] };
+		assert.deepEqual(parseBackupPayload(payload), payload);
+	});
+
 	it('rejects malformed JSON and invalid metadata structures', () => {
 		assert.throws(() => parseBackupPayload('{invalid-json'), BackupPayloadError);
 		assert.throws(() => parseBackupPayload([]), BackupPayloadError);

@@ -14,7 +14,8 @@ export type AppRoleType =
 	| 'ms'
 	| 'group_overseers'
 	| 'language_group_overseers'
-	| 'duties_schedule';
+	| 'duties_schedule'
+	| 'field_service_schedule';
 
 export const APP_ROLES: readonly AppRoleType[] = [
 	'admin',
@@ -33,4 +34,5 @@ export const APP_ROLES: readonly AppRoleType[] = [
 	'group_overseers',
 	'language_group_overseers',
 	'duties_schedule',
+	'field_service_schedule',
 ];

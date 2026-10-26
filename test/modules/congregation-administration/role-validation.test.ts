@@ -6,6 +6,7 @@ import { isValidCongregationRoleList } from '#modules/congregation-administratio
 describe('congregation role input validation', () => {
 	it('accepts non-empty arrays containing known roles', () => {
 		assert.equal(isValidCongregationRoleList(['publisher']), true);
+		assert.equal(isValidCongregationRoleList(['publisher', 'field_service_schedule']), true);
 		assert.equal(isValidCongregationRoleList(['admin', 'secretary']), true);
 		assert.equal(isValidCongregationRoleList(['view_schedules', 'publisher', 'ms']), true);
 	});
