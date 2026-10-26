@@ -18,8 +18,8 @@ const canUseConductor = (record: FieldServiceMeetingRecord, document: FieldServi
 const sameScope = (left: FieldServiceDocument['scope'], right: FieldServiceDocument['scope']) => {
 	const canonical = (groups: FieldServiceDocument['scope']) => groups.map((group) => ({
 		group_id: group.group_id,
-		manager_uids: [...group.manager_uids].sort(),
-		conductor_uids: [...group.conductor_uids].sort(),
+		manager_uids: [...group.manager_uids].sort((a, b) => a.localeCompare(b)),
+		conductor_uids: [...group.conductor_uids].sort((a, b) => a.localeCompare(b)),
 	})).sort((a, b) => a.group_id.localeCompare(b.group_id));
 	return JSON.stringify(canonical(left)) === JSON.stringify(canonical(right));
 };
@@ -33,9 +33,14 @@ const mergeScope = (document: FieldServiceDocument, upload: SchedulingScopeUploa
 	document.scope_revision = revision;
 };
 
+const sameAuthority = (incoming: FieldServiceMeetingRecord['authorization'], existing?: FieldServiceMeetingRecord['authorization']) =>
+	incoming.group_id === existing?.group_id && incoming.category === existing?.category &&
+	incoming.conductor === existing?.conductor && incoming.deleted === existing?.deleted;
+
 const isUnchangedMeeting = (current: FieldServiceMeetingRecord | undefined, incoming: FieldServiceMeetingRecord) => {
-	if (!current || incoming.authorization.updatedAt !== current.authorization.updatedAt) return false;
-	if (JSON.stringify(incoming.authorization) !== JSON.stringify(current.authorization)) throw new FieldServiceWriteError('CONFLICT');
+	const authority = current?.authorization;
+	if (incoming.authorization.updatedAt !== authority?.updatedAt) return false;
+	if (!sameAuthority(incoming.authorization, authority)) throw new FieldServiceWriteError('CONFLICT');
 	return true;
 };
 

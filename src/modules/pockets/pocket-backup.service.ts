@@ -205,7 +205,8 @@ const addPrivateBackupChanges = async (
 	operations: { getMeetings?: typeof getFieldServiceMeetings; getGroups?: typeof getFieldServiceGroups },
 ) => {
 	const fieldServiceScheduler = userRoles.some((role) => ['admin', 'coordinator', 'secretary', 'service_overseer', 'field_service_schedule', 'group_overseers', 'language_group_overseers'].includes(role));
-	if (congregation.metadata.persons !== metadata.persons) {
+	const refreshEligibility = fieldServiceScheduler && user.metadata.user_settings !== metadata.user_settings;
+	if (congregation.metadata.persons !== metadata.persons || refreshEligibility) {
 		const persons = await getCongregationPersons(congregation.id);
 		const includeTimeAway = congregation.settings.time_away_public?.value;
 

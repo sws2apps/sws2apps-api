@@ -92,6 +92,17 @@ describe('user backup retrieval permissions', () => {
 		assert.equal(read, true); assert.equal(backup.metadata.field_service_meetings, 'another-instance-update');
 	});
 
+	it('refreshes conductor qualifications after a scheduling right is granted even when persons did not change', async () => {
+		const { congregation, user } = createBackupContext(['publisher', 'field_service_schedule'], true);
+		user.metadata.user_settings = 'rights-new'; let read = false;
+		const backup = await retrieveUserBackup(user.id, JSON.stringify({ ...congregation.metadata, ...user.metadata, user_settings: 'rights-old' }), {
+			getCongregationPersons: async () => { read = true; return [{ person_uid: 'conductor', person_data: { assignments: 'encrypted-qualifications', archived: 'encrypted-status' } }]; },
+		});
+		assert.equal(read, true);
+		assert.equal((backup.persons[0].person_data as StandardRecord).assignments, 'encrypted-qualifications');
+		assert.equal(backup.app_settings.cong_settings?.cong_master_key, undefined);
+	});
+
 	it('returns recurring field-service times when general congregation data sync is disabled', async () => {
 		const { congregation, user } = createBackupContext(['publisher'], false);
 		congregation.settings.field_service_meeting_times = [{ type: 'group-1', weekday: { value: 0, updatedAt: '' }, time: { value: '09:30', updatedAt: '' } }];

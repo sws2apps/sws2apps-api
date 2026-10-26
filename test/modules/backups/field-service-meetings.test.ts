@@ -115,6 +115,12 @@ describe('field service server authorization', () => {
 		const repeat = structuredClone(current.meetings[0]); repeat.meeting_data = 'reencrypted-same-content';
 		assert.equal(mergeFieldServiceUpload(current, actor(), [repeat]).meetings[0].revision, 'r1');
 	});
+	it('unchanged authorization is independent of JSON object key order', () => {
+		const current = document(); current.meetings = [{ ...record(), revision: 'r1' }];
+		const repeat = structuredClone(current.meetings[0]);
+		repeat.authorization = Object.fromEntries(Object.entries(repeat.authorization).reverse()) as typeof repeat.authorization;
+		assert.equal(mergeFieldServiceUpload(current, actor(), [repeat]).meetings[0].revision, 'r1');
+	});
 	it('a rejected batch leaves every existing record and scope untouched', () => {
 		const current = document(); const before = structuredClone(current);
 		denied(() => mergeFieldServiceUpload(current, actor(), [record(), record('other', 'group-b')]));

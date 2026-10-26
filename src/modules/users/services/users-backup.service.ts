@@ -134,6 +134,17 @@ const addSynchronizedSettingsAndGroups = async (context: UserBackupContext): Pro
 		result.metadata.field_service_groups = localDate;
 	}
 
+	await addFieldServiceMeetingChanges(context);
+
+	if (congregation.metadata.upcoming_events !== metadata.upcoming_events) {
+		const localDate = congregation.metadata.upcoming_events;
+		result.upcoming_events = await backupOperations.getUpcomingEvents(congregation.id);
+		result.metadata.upcoming_events = localDate;
+	}
+};
+
+const addFieldServiceMeetingChanges = async (context: UserBackupContext): Promise<void> => {
+	const { congregation, metadata, result, backupOperations } = context;
 	// Every authenticated member receives all meetings, independently of edit roles.
 	const meetingRevision = congregation.metadata.field_service_meetings ?? '';
 	if (meetingRevision !== (metadata.field_service_meetings ?? '')) {
@@ -143,20 +154,15 @@ const addSynchronizedSettingsAndGroups = async (context: UserBackupContext): Pro
 	const scopeRevision = congregation.metadata.field_service_scheduling ?? '';
 	if (scopeRevision !== (metadata.field_service_scheduling ?? '')) result.metadata.field_service_scheduling = scopeRevision;
 
-	if (congregation.metadata.upcoming_events !== metadata.upcoming_events) {
-		const localDate = congregation.metadata.upcoming_events;
-		result.upcoming_events = await backupOperations.getUpcomingEvents(congregation.id);
-		result.metadata.upcoming_events = localDate;
-	}
 };
 
 const addFullPersons = async (context: UserBackupContext): Promise<void> => {
-	const { congregation, metadata, result, backupOperations, capabilities } = context;
+	const { user, congregation, metadata, result, backupOperations, capabilities } = context;
 	const { personViewer } = capabilities;
 
 	if (!personViewer) return;
 
-	if (congregation.metadata.persons !== metadata.persons) {
+	if (congregation.metadata.persons !== metadata.persons || user.metadata.user_settings !== metadata.user_settings) {
 		const localDate = congregation.metadata.persons;
 		result.persons = await backupOperations.getCongregationPersons(congregation.id);
 		result.metadata.persons = localDate;
@@ -248,12 +254,13 @@ const addPublisherReports = async (context: UserBackupContext): Promise<void> =>
 };
 
 const addMinimalPersons = async (context: UserBackupContext): Promise<void> => {
-	const { congregation, metadata, result, backupOperations, miniPersons, capabilities } = context;
+	const { user, congregation, metadata, result, backupOperations, miniPersons, capabilities } = context;
 	const { personMinimal, fieldServiceScheduler } = capabilities;
 
 	if (!personMinimal) return;
 
-	if (congregation.metadata.persons !== metadata.persons) {
+	const refreshEligibility = fieldServiceScheduler && user.metadata.user_settings !== metadata.user_settings;
+	if (congregation.metadata.persons !== metadata.persons || refreshEligibility) {
 		const localDate = congregation.metadata.persons;
 		const persons = await backupOperations.getCongregationPersons(congregation.id);
 

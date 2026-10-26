@@ -11,7 +11,7 @@ export const getFieldServiceDocument = async (congregationId: string) => parse(a
 export const updateFieldServiceDocument = (
 	congregationId: string,
 	modify: (document: FieldServiceDocument) => FieldServiceDocument,
-) => readModifyWriteVersionedFile(location(congregationId), async (current) => {
+) => readModifyWriteVersionedFile(location(congregationId), (current) => {
 	const document = modify(parse(current));
 	return { data: JSON.stringify(document), result: document };
 });

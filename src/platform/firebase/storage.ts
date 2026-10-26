@@ -219,7 +219,7 @@ const writeVersionedFile: VersionedStorageOperations['write'] = async (data, opt
 /** Re-evaluates authorization after competing writes, including across API instances. */
 const commitVersionedFile = async <T>(
 	options: StorageBaseType,
-	modify: (current: string | undefined) => Promise<{ data: string; result: T }>,
+	modify: (current: string | undefined) => { data: string; result: T } | Promise<{ data: string; result: T }>,
 	operations: Partial<VersionedStorageOperations> = {},
 ): Promise<T> => {
 	const storage = { read: readVersionedFile, write: writeVersionedFile, ...operations };
@@ -240,6 +240,6 @@ const commitVersionedFile = async <T>(
 /** Serialize within an instance and enforce storage generations between instances. */
 export const readModifyWriteVersionedFile = <T>(
 	options: StorageBaseType,
-	modify: (current: string | undefined) => Promise<{ data: string; result: T }>,
+	modify: (current: string | undefined) => { data: string; result: T } | Promise<{ data: string; result: T }>,
 	operations: Partial<VersionedStorageOperations> = {},
 ): Promise<T> => runWithinFileWriteQueue(buildStoragePath(options), () => commitVersionedFile(options, modify, operations));
