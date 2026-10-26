@@ -1,6 +1,10 @@
-name: Scheduled Code Quality (Prod)
+name: Code Quality
 
 on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   schedule:
     - cron: '0 12 * * 4'
 
@@ -9,7 +13,7 @@ permissions:
 
 jobs:
   codeql:
-    name: Code QL
+    name: CodeQL (quality checks)
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -18,7 +22,7 @@ jobs:
       - name: Checkout repository for code analysis
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: main
+          persist-credentials: false
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3
@@ -30,6 +34,7 @@ jobs:
         uses: github/codeql-action/analyze@5595ccaf912efad79be6eef63a5619ff05969be3
 
   nodejsscan:
+    if: github.event_name == 'schedule'
     name: NodeJS Scan
     runs-on: ubuntu-latest
     permissions:
