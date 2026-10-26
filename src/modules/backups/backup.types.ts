@@ -1,8 +1,10 @@
+import type { retrieveTerritories } from '#modules/territories/index.js';
 import type { AppRoleType } from '#domain/users/app-role.js';
 import type { StandardRecord } from '../../types/standard-record.js';
 import type { CongSettingsType } from '#modules/congregations/index.js';
 
 export type BackupData = {
+	territories_snapshot?: Awaited<ReturnType<typeof retrieveTerritories>>;
 	speakers_key?: string;
 	outgoing_talks?: object[];
 	app_settings: { cong_settings?: CongSettingsType; user_settings?: object };

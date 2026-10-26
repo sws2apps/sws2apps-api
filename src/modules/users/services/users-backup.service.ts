@@ -1,3 +1,4 @@
+import { retrieveTerritories, resolveTerritoryActor } from '#modules/territories/index.js';
 import { canAccessCongregationMasterKey } from '#domain/users/master-key-roles.js';
 import { getUserCapabilities } from '#domain/users/user-capabilities.js';
 import type { StandardRecord } from '../../../types/standard-record.js';
@@ -30,6 +31,7 @@ import {
 } from './user-data.service.js';
 
 export type UserBackupRetrievalOperations = {
+	getTerritories: typeof retrieveTerritories;
 	getBranchCongAnalysis: typeof getBranchCongAnalysis;
 	getBranchFieldServiceReports: typeof getBranchFieldServiceReports;
 	getCongregationPersons: typeof getCongregationPersons;
@@ -50,6 +52,7 @@ export type UserBackupRetrievalOperations = {
 };
 
 const defaultBackupRetrievalOperations: UserBackupRetrievalOperations = {
+	getTerritories: retrieveTerritories,
 	getBranchCongAnalysis,
 	getBranchFieldServiceReports,
 	getCongregationPersons,
@@ -460,6 +463,10 @@ export const retrieveUserBackup = async (
 		await addAttendance(context);
 		await addIncomingReports(context);
 		await addAdministrationData(context);
+		if (Object.hasOwn(metadata, 'territories')) {
+			result.territories_snapshot = await backupOperations.getTerritories(resolveTerritoryActor(user, congregation.id));
+			result.metadata.territories = String(result.territories_snapshot.revision);
+		}
 	}
 
 	if (!congregation.settings.data_sync.value) {

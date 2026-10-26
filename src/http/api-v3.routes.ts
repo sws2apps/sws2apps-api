@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser';
 
 import authRoutes from '#modules/auth/routes.js';
 import congregationRoutes from '#modules/congregations/routes.js';
+import territoryRoutes from '#modules/territories/routes.js';
 import meetingRoutes from '#modules/meetings/routes.js';
 import congregationAdministrationRoutes from '#modules/congregation-administration/routes.js';
 import userRoutes from '#modules/users/routes.js';
@@ -35,6 +36,7 @@ apiV3Router.use('/', authRoutes);
 apiV3Router.use('/pockets', pocketRoutes);
 apiV3Router.use('/mfa', mfaRoutes);
 apiV3Router.use('/users', userRoutes);
+apiV3Router.use('/congregations/:id/territories', territoryRoutes);
 apiV3Router.use('/congregations', congregationRoutes);
 apiV3Router.use('/congregations/meeting', meetingRoutes);
 apiV3Router.use('/congregations/admin', congregationAdministrationRoutes);
