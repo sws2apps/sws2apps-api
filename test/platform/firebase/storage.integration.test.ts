@@ -68,3 +68,21 @@ test(
 		}
 	},
 );
+
+test('generation-checked encrypted updates preserve concurrent writes', { skip: !shouldRunFirebaseTests }, async () => {
+	requireLocalStorageEmulator();
+	await import('#platform/firebase/firebase-app.js');
+	const { compareAndModifyFile, getFileFromStorage, deleteFileFromStorage } = await import('#platform/firebase/storage.js');
+	const options = { type: 'user' as const, path: `integration-tests/partner-${process.pid}-${Date.now()}/state.txt` };
+	try {
+		await Promise.all(Array.from({ length: 4 }, (_, id) => compareAndModifyFile(options, (text) => {
+			const ids: number[] = text ? JSON.parse(text) : [];
+			return { data: JSON.stringify([...ids, id]), result: id };
+		})));
+		assert.deepEqual(JSON.parse((await getFileFromStorage(options))!).sort(), [0, 1, 2, 3]);
+		await assert.rejects(compareAndModifyFile(options, () => { throw new Error('reject'); }), /reject/);
+		assert.equal(JSON.parse((await getFileFromStorage(options))!).length, 4);
+	} finally {
+		await deleteFileFromStorage(options);
+	}
+});
