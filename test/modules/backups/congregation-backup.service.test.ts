@@ -207,3 +207,50 @@ describe('congregation backup persistence', () => {
 		assert.deepEqual(recorder.savedOperations, [`profile:${user.id}`]);
 	});
 });
+
+describe('recurring field-service time permissions', () => {
+	const recurring = (time: string) => [{ type: 'group-1', weekday: { value: 0, updatedAt: '2099-01-01' }, time: { value: time, updatedAt: '2099-01-01' } }];
+	it('accepts recurring time edits from congregation administrators', async () => {
+		for (const role of ['admin', 'coordinator', 'secretary'] as const) {
+			const congregation = new Congregation('congregation-1');
+			const backup = createBackup();
+			backup.app_settings.cong_settings = { ...structuredClone(congregation.settings), field_service_meeting_times: recurring('10:30') };
+			const recorder = createOperations();
+			await saveCongregationBackup(congregation, backup, [role], recorder.operations);
+			assert.equal(recorder.getSavedSettings()?.field_service_meeting_times?.[0].time.value, '10:30');
+		}
+	});
+	it('preserves stored recurring times when another schedule editor uploads settings', async () => {
+		const congregation = new Congregation('congregation-1');
+		congregation.settings.field_service_meeting_times = recurring('09:30');
+		const backup = createBackup();
+		backup.app_settings.cong_settings = { ...structuredClone(congregation.settings), field_service_meeting_times: recurring('10:30') };
+		const recorder = createOperations();
+		await saveCongregationBackup(congregation, backup, ['midweek_schedule'], recorder.operations);
+		assert.equal(recorder.getSavedSettings()?.field_service_meeting_times?.[0].time.value, '09:30');
+	});
+	it('merges reordered group rows by identity without overwriting newer field revisions', async () => {
+		const congregation = new Congregation('congregation-1');
+		const first = recurring('09:30')[0];
+		const second = { ...structuredClone(first), type: 'group-2' };
+		congregation.settings.field_service_meeting_times = [first, second];
+		const newerSecond = { ...structuredClone(second), time: { value: '11:30', updatedAt: '2100-01-01' } };
+		const olderFirst = { ...structuredClone(first), time: { value: '12:30', updatedAt: '2000-01-01' } };
+		const backup = createBackup();
+		backup.app_settings.cong_settings = { ...structuredClone(congregation.settings), field_service_meeting_times: [newerSecond, olderFirst] };
+		const recorder = createOperations();
+		await saveCongregationBackup(congregation, backup, ['admin'], recorder.operations);
+		assert.deepEqual(recorder.getSavedSettings()?.field_service_meeting_times?.map(row => [row.type, row.time.value]), [['group-1', '09:30'], ['group-2', '11:30']]);
+		assert.equal(congregation.settings.field_service_meeting_times[1].time.value, '09:30');
+	});
+	it('does not accept recurring edits from group overseers, assistants or delegated schedulers', async () => {
+		for (const role of ['group_overseers', 'field_service_group_overseer', 'field_service_schedule', 'service_overseer', 'publisher'] as const) {
+			const congregation = new Congregation('congregation-1');
+			const backup = createBackup();
+			backup.app_settings.cong_settings = { ...structuredClone(congregation.settings), field_service_meeting_times: recurring('10:30') };
+			const recorder = createOperations();
+			await saveCongregationBackup(congregation, backup, [role], recorder.operations);
+			assert.equal(recorder.getSavedSettings(), undefined);
+		}
+	});
+});

@@ -168,6 +168,11 @@ export type CongSettingsType = {
 		consecutive_monthly_parts_notice_shown?: string;
 		outgoing_talks_schedule_public?: string;
 	}[];
+	field_service_meeting_times?: {
+		type: string;
+		weekday: { value: number | null; updatedAt: string };
+		time: { value: string; updatedAt: string };
+	}[];
 	circuit_overseer?: string;
 	language_groups?: string;
 	format_24h_enabled?: string;

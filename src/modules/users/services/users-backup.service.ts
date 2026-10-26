@@ -414,6 +414,7 @@ const addUnsynchronizedSettings = async (context: UserBackupContext): Promise<vo
 		result.app_settings.cong_settings.time_away_public = congregation.settings.time_away_public;
 		result.app_settings.cong_settings.midweek_meeting = midweek;
 		result.app_settings.cong_settings.weekend_meeting = weekend;
+		result.app_settings.cong_settings.field_service_meeting_times = congregation.settings.field_service_meeting_times;
 
 		result.metadata.cong_settings = localCongDate;
 	}

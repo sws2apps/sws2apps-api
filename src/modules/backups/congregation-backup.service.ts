@@ -2,6 +2,7 @@ import type { AppRoleType } from '#domain/users/app-role.js';
 import { getUserCapabilities } from '#domain/users/user-capabilities.js';
 import {
 	type Congregation,
+	type CongSettingsType,
 	saveCongregationIncomingReports,
 	saveCongregationOutgoingSpeakers,
 	saveCongregationPersons,
@@ -145,6 +146,19 @@ const saveReportsAndEvents = async (
 	}
 };
 
+/** Merge recurring rows by stable group identity, retaining each field's revision. */
+const mergeFieldServiceTimes = (
+	current: CongSettingsType['field_service_meeting_times'],
+	incoming: NonNullable<CongSettingsType['field_service_meeting_times']>,
+) => {
+	const rows = new Map((current ?? []).map((row) => [row.type, structuredClone(row)]));
+	for (const row of incoming) {
+		const existing = rows.get(row.type);
+		rows.set(row.type, existing ? mergeIncomingData(existing, row) : structuredClone(row));
+	}
+	return [...rows.values()];
+};
+
 /**
  * Restores congregation data according to the caller's capabilities and the
  * congregation's data-sync setting. Server-owned access credentials are
@@ -162,9 +176,14 @@ export const saveCongregationBackup = async (
 		const incomingSettings = structuredClone(backup.app_settings.cong_settings);
 		incomingSettings.cong_access_code = congregation.settings.cong_access_code;
 		incomingSettings.cong_master_key = congregation.settings.cong_master_key;
+		const recurringTimes = incomingSettings.field_service_meeting_times;
+		delete incomingSettings.field_service_meeting_times;
 
 		const settings = structuredClone(congregation.settings);
 		mergeIncomingData(settings, incomingSettings);
+		if (capabilities.adminRole && recurringTimes) {
+			settings.field_service_meeting_times = mergeFieldServiceTimes(settings.field_service_meeting_times, recurringTimes);
+		}
 		await operations.saveSettings(congregation, settings);
 	}
 

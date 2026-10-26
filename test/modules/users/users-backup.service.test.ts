@@ -58,6 +58,15 @@ describe('user backup retrieval permissions', () => {
 		UsersList.list = originalUsers;
 	});
 
+	it('returns recurring field-service times when general congregation data sync is disabled', async () => {
+		const { congregation, user } = createBackupContext(['publisher'], false);
+		congregation.settings.field_service_meeting_times = [{ type: 'group-1', weekday: { value: 0, updatedAt: '' }, time: { value: '09:30', updatedAt: '' } }];
+		congregation.metadata.cong_settings = 'updated-settings';
+		const backup = await retrieveUserBackup(user.id, '{}');
+		assert.deepEqual(backup.app_settings.cong_settings?.field_service_meeting_times, congregation.settings.field_service_meeting_times);
+		assert.equal(backup.app_settings.cong_settings?.cong_master_key, undefined);
+	});
+
 	it('returns a stable error when the user does not exist', async () => {
 		await assert.rejects(
 			retrieveUserBackup('missing-user', '{}'),

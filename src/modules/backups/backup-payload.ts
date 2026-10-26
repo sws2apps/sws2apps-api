@@ -77,6 +77,7 @@ const CONG_SETTINGS_KEYS: readonly (keyof CongSettingsType)[] = [
 	'source_material',
 	'special_months',
 	'midweek_meeting',
+	'field_service_meeting_times',
 	'weekend_meeting',
 	'circuit_overseer',
 	'language_groups',
@@ -101,6 +102,27 @@ const hasOnlyKnownCongSettingsKeys = (settings: Record<string, unknown>): boolea
 	return Object.keys(settings).every((key) => CONG_SETTINGS_KEY_SET.has(key));
 };
 
+const isValidRecurringWeekday = (value: unknown): boolean => {
+	return value === null || (typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 6);
+};
+
+const isValidRecurringTime = (entry: unknown): entry is Record<string, unknown> => {
+	if (!isPlainObject(entry) || typeof entry.type !== 'string' || !entry.type.trim()) return false;
+	const { weekday, time } = entry;
+	if (!isPlainObject(weekday) || !isPlainObject(time)) return false;
+	if (typeof weekday.updatedAt !== 'string' || typeof time.updatedAt !== 'string') return false;
+	if (!isValidRecurringWeekday(weekday.value) || typeof time.value !== 'string') return false;
+	return time.value === '' || /^([01]\d|2[0-3]):[0-5]\d$/.test(time.value);
+};
+
+const hasValidFieldServiceMeetingTimes = (settings: Record<string, unknown>): boolean => {
+	const times = settings.field_service_meeting_times;
+	if (times === undefined) return true;
+	if (!Array.isArray(times) || times.length > MAX_DATASET_ENTRIES) return false;
+	if (!times.every(isValidRecurringTime)) return false;
+	return new Set(times.map((record) => record.type)).size === times.length;
+};
+
 const hasValidAppSettings = (backup: Record<string, unknown>): boolean => {
 	if (backup.app_settings === undefined) return true;
 
@@ -109,6 +131,7 @@ const hasValidAppSettings = (backup: Record<string, unknown>): boolean => {
 	if (settings.cong_settings !== undefined) {
 		if (!isPlainObject(settings.cong_settings)) return false;
 		if (!hasOnlyKnownCongSettingsKeys(settings.cong_settings)) return false;
+		if (!hasValidFieldServiceMeetingTimes(settings.cong_settings)) return false;
 	}
 	return settings.user_settings === undefined || isPlainObject(settings.user_settings);
 };
