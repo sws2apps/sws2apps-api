@@ -15,7 +15,12 @@ export const getUserCapabilities = (userRoles: readonly AppRoleType[]) => {
 		adminRole ||
 		languageGroupOverseerRole ||
 		userRoles.some((role) =>
-			['midweek_schedule', 'weekend_schedule', 'public_talk_schedule'].includes(role),
+			[
+				'midweek_schedule',
+				'weekend_schedule',
+				'public_talk_schedule',
+				'duties_schedule',
+			].includes(role),
 		);
 	const personViewer = scheduleEditor || groupOverseerRole || languageGroupOverseerRole || elderRole;
 	const publicTalkEditor =

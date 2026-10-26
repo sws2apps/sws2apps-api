@@ -48,6 +48,7 @@ export type UserSettings = {
 	backup_automatic: string;
 	theme_follow_os_enabled: string;
 	hour_credits_enabled: string;
+	meeting_duties_export?: string;
 	data_view: string;
 };
 

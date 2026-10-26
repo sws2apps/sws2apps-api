@@ -5,6 +5,7 @@ import { Congregation } from '#modules/congregations/congregation.js';
 import { CongregationsList } from '#modules/congregations/congregations.js';
 import {
 	getUserAuxiliaryApplications,
+	getUserCongregationUpdates,
 	mergeIncomingFieldServiceReport,
 	submitUserAuxiliaryApplication,
 	submitUserFieldServiceReport,
@@ -81,6 +82,18 @@ describe('user congregation activity persistence', () => {
 	afterEach(() => {
 		CongregationsList.list = originalCongregations;
 		UsersList.list = originalUsers;
+	});
+
+	it('provides the master key to duties editors without granting speaker or administration access', async () => {
+		const { congregation, user } = createCongregationActivityContext();
+		user.profile.congregation!.cong_role = ['duties_schedule'];
+		congregation.settings.cong_master_key = 'master-key';
+		congregation.settings.data_sync.value = true;
+		const updates = await getUserCongregationUpdates(user.id);
+		assert.equal(updates.cong_master_key, 'master-key');
+		assert.equal(updates.speakers_key, undefined);
+		assert.equal(updates.applications, undefined);
+		assert.equal(updates.join_requests, undefined);
 	});
 
 	it('returns a stable error when the user does not exist', () => {

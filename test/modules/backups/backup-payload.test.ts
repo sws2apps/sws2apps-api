@@ -40,6 +40,33 @@ describe('backup payload parsing', () => {
 		assert.deepEqual(parseBackupPayload(payload), payload);
 	});
 
+	it('accepts encrypted duty settings and preferences in regular and chunked backups', () => {
+		const payload = {
+			metadata: {},
+			app_settings: {
+				cong_settings: { meeting_duties: 'encrypted-duty-settings' },
+				user_settings: { meeting_duties_export: 'encrypted-export-preferences' },
+			},
+			cong_users: [{ id: 'duties-editor', role: ['duties_schedule'] }],
+		};
+		assert.deepEqual(parseBackupPayload(JSON.stringify(payload)), payload);
+		const chunked = { app_settings: payload.app_settings, cong_users: payload.cong_users };
+		assert.deepEqual(parseBackupPayload(chunked, { requireMetadata: false }), chunked);
+	});
+
+	it('rejects duty settings and preferences that are not serialized strings', () => {
+		for (const value of [null, [], {}, 1, true]) {
+			assert.throws(() => parseBackupPayload({
+				metadata: {},
+				app_settings: { cong_settings: { meeting_duties: value } },
+			}), BackupPayloadError);
+			assert.throws(() => parseBackupPayload({
+				metadata: {},
+				app_settings: { user_settings: { meeting_duties_export: value } },
+			}), BackupPayloadError);
+		}
+	});
+
 	it('rejects malformed JSON and invalid metadata structures', () => {
 		assert.throws(() => parseBackupPayload('{invalid-json'), BackupPayloadError);
 		assert.throws(() => parseBackupPayload([]), BackupPayloadError);

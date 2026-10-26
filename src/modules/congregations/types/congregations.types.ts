@@ -183,6 +183,7 @@ export type CongSettingsType = {
 	first_day_of_the_week?: string;
 	first_day_week?: string;
 	schedule_songs_weekend?: string;
+	meeting_duties?: string;
 };
 
 export type CongregationByCountry = {

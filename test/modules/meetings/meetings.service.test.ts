@@ -154,6 +154,42 @@ describe('meeting schedule publication', () => {
 		assert.deepEqual(completedOperations, ['publication', 'talks']);
 	});
 
+	it('round-trips duties and language-group section snapshots through schedule publication', async () => {
+		const { congregation, user } = createAuthorizedMeetingContext();
+		user.profile.congregation!.cong_role = ['duties_schedule'];
+		const schedules = [{
+			weekOf: '2026/10/26',
+			duties: {
+				weekend: {
+					hospitality: [{ type: 'main', value: '__hospitality_not_needed__', updatedAt: '2026-10-26' }],
+					sections: [{ id: 'section-main', dataView: 'main', parts: ['public_talk'], amount: 2 }],
+					section_overrides: [{ type: 'main', updatedAt: '2026-10-26' }],
+					dynamic: [
+						{ id: 'section-main_1', type: 'main', value: 'person-main' },
+						{ id: 'section-group_1', type: 'group', value: 'person-group' },
+					],
+				},
+			},
+		}];
+		let storedSchedules = '';
+		await publishMeetingSchedules({
+			congregationId: congregation.id,
+			userId: user.id,
+			sources: [{ weekOf: '2026/10/26' }],
+			schedules,
+		}, {
+			savePublication: async (_target, publication) => {
+				storedSchedules = publication.serializedSchedules;
+			},
+			copyTalkSchedule: async () => { throw new Error('Duties do not publish outgoing talks'); },
+		});
+		const result = await getMeetingSchedules(congregation.id, user.id, {
+			getSources: async () => [{ weekOf: '2026/10/26' }],
+			getSchedules: async () => JSON.parse(storedSchedules),
+		});
+		assert.deepEqual(result.schedules, schedules);
+	});
+
 	it('does not copy talks when publication persistence fails', async () => {
 		const { congregation, user } = createAuthorizedMeetingContext();
 		let copiedTalks = false;

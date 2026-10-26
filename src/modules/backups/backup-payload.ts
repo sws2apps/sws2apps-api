@@ -93,12 +93,17 @@ const CONG_SETTINGS_KEYS: readonly (keyof CongSettingsType)[] = [
 	'first_day_of_the_week',
 	'first_day_week',
 	'schedule_songs_weekend',
+	'meeting_duties',
 ];
 
 const CONG_SETTINGS_KEY_SET = new Set<string>(CONG_SETTINGS_KEYS);
 
 const hasOnlyKnownCongSettingsKeys = (settings: Record<string, unknown>): boolean => {
 	return Object.keys(settings).every((key) => CONG_SETTINGS_KEY_SET.has(key));
+};
+
+const hasOptionalString = (settings: Record<string, unknown>, key: string): boolean => {
+	return settings[key] === undefined || typeof settings[key] === 'string';
 };
 
 const hasValidAppSettings = (backup: Record<string, unknown>): boolean => {
@@ -109,8 +114,11 @@ const hasValidAppSettings = (backup: Record<string, unknown>): boolean => {
 	if (settings.cong_settings !== undefined) {
 		if (!isPlainObject(settings.cong_settings)) return false;
 		if (!hasOnlyKnownCongSettingsKeys(settings.cong_settings)) return false;
+		if (!hasOptionalString(settings.cong_settings, 'meeting_duties')) return false;
 	}
-	return settings.user_settings === undefined || isPlainObject(settings.user_settings);
+	if (settings.user_settings === undefined) return true;
+	if (!isPlainObject(settings.user_settings)) return false;
+	return hasOptionalString(settings.user_settings, 'meeting_duties_export');
 };
 
 const recordDatasetFields = [

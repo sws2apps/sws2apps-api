@@ -88,6 +88,33 @@ describe('user backup retrieval permissions', () => {
 		assert.equal(backup.app_settings?.cong_settings?.cong_master_key, 'master-key');
 	});
 
+	it('returns encrypted duty settings, preferences and editor data to a duties editor', async () => {
+		const { congregation, matchingMetadata, user } = createBackupContext(['duties_schedule'], true);
+		congregation.settings.meeting_duties = 'encrypted-main-and-group-setups';
+		user.settings.meeting_duties_export = 'encrypted-export-preferences';
+		const metadata = JSON.parse(matchingMetadata) as Record<string, string>;
+		for (const key of ['cong_settings', 'user_settings', 'persons', 'sources', 'schedules']) {
+			metadata[key] = 'older-client-version';
+		}
+		const schedules = [{ weekOf: '2026/10/26', duties: 'encrypted-both-meetings-and-groups' }];
+		const people = [{ person_uid: 'eligible-person', person_data: { assignments: 'encrypted-qualifications' } }];
+		const backup = await retrieveUserBackup(user.id, JSON.stringify(metadata), {
+			getCongregationPersons: async () => people,
+			getSources: async () => [{ weekOf: '2026/10/26' }],
+			getSchedules: async () => schedules,
+			getPublicSchedules: async () => { throw new Error('Editor must use private schedules'); },
+		});
+
+		assert.equal(backup.app_settings.cong_settings?.meeting_duties, 'encrypted-main-and-group-setups');
+		assert.equal(backup.app_settings.cong_settings?.cong_master_key, 'master-key');
+		assert.equal((backup.app_settings.user_settings as Record<string, unknown>).meeting_duties_export, 'encrypted-export-preferences');
+		assert.deepEqual(backup.persons, people);
+		assert.deepEqual(backup.sched, schedules);
+		assert.equal(backup.public_schedules, undefined);
+		assert.equal(backup.cong_field_service_reports, undefined);
+		assert.equal(backup.speakers_key, undefined);
+	});
+
 	it('limits private person details to the user and delegated people', async () => {
 		const { congregation, matchingMetadata, user } = createBackupContext(
 			['publisher'],

@@ -1,6 +1,7 @@
 import { LogLevel } from '@logtail/types';
 
 import type { AppRoleType } from '#domain/users/app-role.js';
+import { getUserCapabilities } from '#domain/users/user-capabilities.js';
 import {
 	CongregationsList,
 	type Congregation,
@@ -83,15 +84,7 @@ export const saveUserBackupAsync = async (
 	};
 
 	try {
-		const adminRole = userRole.some(
-			(role) => role === 'admin' || role === 'coordinator' || role === 'secretary',
-		);
-		const scheduleEditor = userRole.some(
-			(role) =>
-				role === 'midweek_schedule' ||
-				role === 'weekend_schedule' ||
-				role === 'public_talk_schedule',
-		);
+		const { adminRole, scheduleEditor } = getUserCapabilities(userRole);
 
 		const congregation = persistence.findCongregationById(congId);
 		const user = persistence.findUserById(userId);

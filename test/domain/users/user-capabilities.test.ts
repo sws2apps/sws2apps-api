@@ -24,6 +24,17 @@ describe('user capabilities', () => {
 		assert.equal(capabilities.reportEditorRole, false);
 	});
 
+	it('treats the duties role as a schedule editor', () => {
+		const capabilities = getUserCapabilities(['duties_schedule']);
+
+		assert.equal(capabilities.scheduleEditor, true);
+		assert.equal(capabilities.personViewer, true);
+		assert.equal(capabilities.adminRole, false);
+		assert.equal(capabilities.publicTalkEditor, false);
+		assert.equal(capabilities.reportEditorRole, false);
+		assert.equal(capabilities.attendanceTracker, false);
+	});
+
 	it('keeps publishers on the minimal person-data path', () => {
 		const capabilities = getUserCapabilities(['publisher']);
 

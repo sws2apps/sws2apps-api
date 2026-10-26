@@ -3335,7 +3335,30 @@
             "type": "object",
             "additionalProperties": { "type": "string" }
           },
-          "app_settings": { "type": "object", "additionalProperties": true },
+          "app_settings": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "cong_settings": {
+                "type": "object",
+                "properties": {
+                  "meeting_duties": {
+                    "type": "string",
+                    "description": "Client-encrypted duty configuration, including custom duties, icons and recurring microphone sections for all data views. Omitted by older clients."
+                  }
+                }
+              },
+              "user_settings": {
+                "type": "object",
+                "properties": {
+                  "meeting_duties_export": {
+                    "type": "string",
+                    "description": "Client-encrypted duty PDF preferences. Omission preserves the stored value."
+                  }
+                }
+              }
+            }
+          },
           "speakers_key": { "type": "string" },
           "outgoing_talks": { "$ref": "#/components/schemas/RecordList" },
           "persons": { "$ref": "#/components/schemas/RecordList" },

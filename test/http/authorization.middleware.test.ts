@@ -111,9 +111,28 @@ describe('authorization middleware', () => {
 		);
 		assert.equal(editorState.continued, true);
 
+		const dutiesState = await runAuthorization(
+			requireMeetingEditor,
+			'vip',
+			['duties_schedule'],
+		);
+		assert.equal(dutiesState.continued, true);
+
 		assertAccessDenied(
 			await runAuthorization(requireMeetingEditor, 'vip', ['publisher']),
 		);
+	});
+
+	it('limits duties editors to their congregation and meeting editor routes', async () => {
+		assertAccessDenied(await runAuthorization(
+			requireMeetingEditor, 'vip', ['duties_schedule'], 'congregation-2',
+		));
+		assertAccessDenied(await runAuthorization(
+			requireCongregationAdministrator, 'vip', ['duties_schedule'],
+		));
+		assertAccessDenied(await runAuthorization(
+			requirePublicTalkCoordinator, 'vip', ['duties_schedule'],
+		));
 	});
 
 	it('requires a public-talk role for coordinator access', async () => {

@@ -97,6 +97,7 @@ const addSynchronizedSettingsAndGroups = async (context: UserBackupContext): Pro
 				user.settings.theme_follow_os_enabled?.length > 0 ? user.settings.theme_follow_os_enabled : undefined,
 			hour_credits_enabled: user.settings.hour_credits_enabled?.length > 0 ? user.settings.hour_credits_enabled : undefined,
 			data_view: user.settings.data_view?.length > 0 ? user.settings.data_view : undefined,
+			meeting_duties_export: user.settings.meeting_duties_export || undefined,
 		};
 
 		result.metadata.user_settings = localDate;

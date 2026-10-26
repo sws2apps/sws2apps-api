@@ -48,6 +48,9 @@ export const applyUserBackup = async (
 		settings.data_view = backupSettings.data_view as string;
 		settings.hour_credits_enabled = backupSettings.hour_credits_enabled as string;
 		settings.theme_follow_os_enabled = backupSettings.theme_follow_os_enabled as string;
+		if (typeof backupSettings.meeting_duties_export === 'string') {
+			settings.meeting_duties_export = backupSettings.meeting_duties_export;
+		}
 
 		await dataOperations.updateSettings(user, settings);
 	}
