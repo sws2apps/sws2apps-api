@@ -3486,9 +3486,55 @@
           "doNotCalls"
         ]
       },
+      "TerritoryCampaignProgress": {
+        "type": "object",
+        "description": "Congregation totals for an authorized data view, including territories held by other publishers. Deleted territories are excluded. A territory covered at least once in a campaign is counted once as worked, otherwise an open campaign assignment counts as out. Other territories are unassigned for that campaign. Contains no territory or holder identities.",
+        "properties": {
+          "dataView": {
+            "type": "string"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "campaigns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "campaignId": {
+                  "type": "string"
+                },
+                "worked": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "out": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "campaignId",
+                "worked",
+                "out"
+              ]
+            }
+          }
+        },
+        "required": [
+          "dataView",
+          "total",
+          "campaigns"
+        ]
+      },
       "TerritorySnapshot": {
         "type": "object",
         "properties": {
+          "campaignProgress": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TerritoryCampaignProgress" }
+          },
           "manager": {
             "type": "boolean",
             "description": "Current server-authorized territory management capability."
@@ -3523,6 +3569,7 @@
           }
         },
         "required": [
+          "campaignProgress",
           "manager",
           "revision",
           "policy",

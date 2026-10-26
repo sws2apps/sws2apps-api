@@ -719,3 +719,42 @@ describe('authoritative territory capabilities', () => {
 		);
 	});
 });
+
+
+describe('congregation campaign progress', () => {
+	it('includes hidden assignments without exposing records, counts each territory once and excludes deletions and other views', async () => {
+		const { operations, state } = fixture();
+		state().policy.grants[0].access = 'own';
+		const record = state().records[0];
+		const assignment = { id: 'a', personId: 'bob', campaignId: 'campaign', assignedAt: '2026-10-01' };
+		record.assignment = assignment;
+		state().records.push(
+			{ ...record, id: 'covered', history: [
+				{ ...assignment, returnedAt: '2026-10-02' },
+				{ ...assignment, id: 'b', returnedAt: '2026-10-03', completed: true },
+			] },
+			{ ...record, id: 'unassigned', assignment: undefined, history: [
+				{ ...assignment, returnedAt: '2026-10-04', completed: false },
+			] },
+			{ ...record, id: 'deleted', deleted: true },
+			{ ...record, id: 'other-view', dataView: 'other' },
+		);
+		const snapshot = await retrieveTerritories(publisher, operations);
+		assert.deepEqual(snapshot.records, []);
+		assert.deepEqual(snapshot.campaignProgress, [{
+			dataView: 'main', total: 3,
+			campaigns: [{ campaignId: 'campaign', worked: 1, out: 1 }],
+		}]);
+		const all = await retrieveTerritories(manager, operations);
+		assert.equal(all.campaignProgress.length, 2);
+	});
+
+	it('distinguishes empty authorized views from revoked access', async () => {
+		const { operations, state } = fixture();
+		state().records = [];
+		assert.deepEqual((await retrieveTerritories(publisher, operations)).campaignProgress,
+			[{ dataView: 'main', total: 0, campaigns: [] }]);
+		state().policy.grants = [];
+		assert.deepEqual((await retrieveTerritories(publisher, operations)).campaignProgress, []);
+	});
+});

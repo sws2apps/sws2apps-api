@@ -1,3 +1,4 @@
+import { campaignProgress } from './campaign-progress.js';
 import { createHash } from 'node:crypto';
 import {
 	CongregationsList,
@@ -63,6 +64,7 @@ export const retrieveTerritories = async (
 	return {
 		revision: state.revision,
 		manager,
+		campaignProgress: campaignProgress(state.records, manager ? undefined : (grant?.dataViews ?? [])),
 		policy: manager
 			? state.policy
 			: {

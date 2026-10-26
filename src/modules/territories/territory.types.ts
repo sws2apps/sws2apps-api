@@ -109,3 +109,10 @@ export class TerritoryError extends Error {
 		this.name = 'TerritoryError';
 	}
 }
+
+/** Congregation counts within an authorized data view; no territory or holder identities. */
+export type TerritoryCampaignProgress = {
+	dataView: string;
+	total: number;
+	campaigns: { campaignId: string; worked: number; out: number }[];
+};
