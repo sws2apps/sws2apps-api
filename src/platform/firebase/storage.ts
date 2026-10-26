@@ -187,6 +187,23 @@ export const deleteFileFromStorage = async (options: StorageBaseType) => {
 	});
 };
 
+const readFileGeneration = async (options: StorageBaseType) => {
+	const file = getStorage().bucket().file(buildStoragePath(options));
+	let generation: string | number = 0;
+	let current: string | undefined;
+	try {
+		const [metadata] = await file.getMetadata();
+		generation = metadata.generation!;
+		const [contents] = await getStorage().bucket().file(buildStoragePath(options), { generation }).download();
+		current = decryptData(contents.toString());
+		if (current === undefined) throw new Error('STORAGE_DECRYPTION_FAILED');
+	} catch (error) {
+		if ((error as { code?: number }).code !== 404) throw error;
+		if (generation !== 0) throw Object.assign(new Error('STORAGE_CONFLICT'), { code: 412 });
+	}
+	return { generation, current };
+};
+
 /** Uses object generations so concurrent API processes cannot overwrite a successful mutation. */
 const compareAndModifyFileGeneration = async <T>(
 	options: StorageBaseType,
@@ -195,18 +212,7 @@ const compareAndModifyFileGeneration = async <T>(
 	const file = getStorage().bucket().file(buildStoragePath(options));
 	for (let attempt = 0; attempt < 5; attempt++) {
 		try {
-			let generation: string | number = 0;
-			let current: string | undefined;
-			try {
-				const [metadata] = await file.getMetadata();
-				generation = metadata.generation!;
-				const [contents] = await getStorage().bucket().file(buildStoragePath(options), { generation }).download();
-				current = decryptData(contents.toString());
-				if (current === undefined) throw new Error('STORAGE_DECRYPTION_FAILED');
-			} catch (error) {
-				if ((error as { code?: number }).code !== 404) throw error;
-				if (generation !== 0) throw Object.assign(new Error('STORAGE_CONFLICT'), { code: 412 });
-			}
+			const { generation, current } = await readFileGeneration(options);
 			const { data, result } = modify(current);
 			await file.save(encryptData(data), {
 				resumable: false,
