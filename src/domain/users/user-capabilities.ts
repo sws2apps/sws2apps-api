@@ -26,7 +26,8 @@ export const getUserCapabilities = (userRoles: readonly AppRoleType[]) => {
 		adminRole ||
 		languageGroupOverseerRole ||
 		userRoles.includes('attendance_tracking');
-	const fieldServiceScheduler = serviceCommiteeRole || groupOverseerRole || languageGroupOverseerRole || userRoles.includes('field_service_schedule');
+	const fieldServiceAllGroups = serviceCommiteeRole || userRoles.includes('field_service_schedule');
+	const fieldServiceScheduler = fieldServiceAllGroups || groupOverseerRole || languageGroupOverseerRole;
 	const isPublisher = userRoles.includes('publisher');
 	const personMinimal = !personViewer;
 
@@ -45,6 +46,7 @@ export const getUserCapabilities = (userRoles: readonly AppRoleType[]) => {
 		isPublisher,
 		personMinimal,
 		fieldServiceScheduler,
+		fieldServiceAllGroups,
 		serviceCommiteeRole,
 	};
 };

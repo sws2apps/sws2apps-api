@@ -1,30 +1,63 @@
-import type { FieldServiceDocument, FieldServiceMeetingRecord, SchedulingActor, SchedulingScopeUpload } from './types.js';
+import { getUserCapabilities } from '#domain/users/user-capabilities.js';
+import type {
+	FieldServiceDocument,
+	FieldServiceMeetingRecord,
+	SchedulingActor,
+	SchedulingScopeUpload,
+} from './types.js';
 import { FieldServiceWriteError } from './types.js';
 
-const hasRole = (actor: SchedulingActor, roles: readonly string[]) => actor.roles.some((role) => roles.includes(role));
-export const canManageSchedulingScope = (actor: SchedulingActor) => hasRole(actor, ['admin', 'coordinator', 'secretary', 'service_overseer']);
-export const canManageAllMeetings = (actor: SchedulingActor) => canManageSchedulingScope(actor) || hasRole(actor, ['field_service_schedule']);
-
-const canManageGroup = (actor: SchedulingActor, record: FieldServiceMeetingRecord, document: FieldServiceDocument) => {
-	if (canManageAllMeetings(actor)) return true;
-	if (!hasRole(actor, ['group_overseers', 'language_group_overseers'])) return false;
-	if (record.authorization.category !== 0 || !actor.personUid) return false;
-	return document.scope.some((group) => group.group_id === record.authorization.group_id && group.manager_uids.includes(actor.personUid!));
+const canManageSchedulingScope = (actor: SchedulingActor): boolean => {
+	return getUserCapabilities(actor.roles).serviceCommiteeRole;
 };
 
-const canUseConductor = (record: FieldServiceMeetingRecord, document: FieldServiceDocument) =>
-	document.scope.some((group) => group.group_id === record.authorization.group_id && group.conductor_uids.includes(record.authorization.conductor));
+const canManageAllMeetings = (actor: SchedulingActor): boolean => {
+	return getUserCapabilities(actor.roles).fieldServiceAllGroups;
+};
 
-const sameScope = (left: FieldServiceDocument['scope'], right: FieldServiceDocument['scope']) => {
-	const canonical = (groups: FieldServiceDocument['scope']) => groups.map((group) => ({
+const canManageGroup = (
+	actor: SchedulingActor,
+	record: FieldServiceMeetingRecord,
+	document: FieldServiceDocument,
+): boolean => {
+	if (canManageAllMeetings(actor)) return true;
+	const { fieldServiceScheduler } = getUserCapabilities(actor.roles);
+	const { personUid } = actor;
+	if (!fieldServiceScheduler || record.authorization.category !== 0 || !personUid) return false;
+
+	return document.scope.some((group) => {
+		return group.group_id === record.authorization.group_id && group.manager_uids.includes(personUid);
+	});
+};
+
+const canUseConductor = (
+	record: FieldServiceMeetingRecord,
+	document: FieldServiceDocument,
+): boolean => {
+	return document.scope.some((group) => {
+		return group.group_id === record.authorization.group_id
+			&& group.conductor_uids.includes(record.authorization.conductor);
+	});
+};
+
+const canonicalizeScope = (groups: FieldServiceDocument['scope']) => {
+	return groups.map((group) => ({
 		group_id: group.group_id,
 		manager_uids: [...group.manager_uids].sort((a, b) => a.localeCompare(b)),
 		conductor_uids: [...group.conductor_uids].sort((a, b) => a.localeCompare(b)),
 	})).sort((a, b) => a.group_id.localeCompare(b.group_id));
-	return JSON.stringify(canonical(left)) === JSON.stringify(canonical(right));
 };
 
-const mergeScope = (document: FieldServiceDocument, upload: SchedulingScopeUpload | undefined, actor: SchedulingActor, revision: string) => {
+const sameScope = (left: FieldServiceDocument['scope'], right: FieldServiceDocument['scope']) => {
+	return JSON.stringify(canonicalizeScope(left)) === JSON.stringify(canonicalizeScope(right));
+};
+
+const mergeScope = (
+	document: FieldServiceDocument,
+	upload: SchedulingScopeUpload | undefined,
+	actor: SchedulingActor,
+	revision: string,
+): void => {
 	if (!upload) return;
 	if (!canManageSchedulingScope(actor)) throw new FieldServiceWriteError('FORBIDDEN');
 	if (sameScope(document.scope, upload.groups)) return;
@@ -33,24 +66,43 @@ const mergeScope = (document: FieldServiceDocument, upload: SchedulingScopeUploa
 	document.scope_revision = revision;
 };
 
-const sameAuthority = (incoming: FieldServiceMeetingRecord['authorization'], existing?: FieldServiceMeetingRecord['authorization']) =>
-	incoming.group_id === existing?.group_id && incoming.category === existing?.category &&
-	incoming.conductor === existing?.conductor && incoming.deleted === existing?.deleted;
+const sameAuthority = (
+	incoming: FieldServiceMeetingRecord['authorization'],
+	existing?: FieldServiceMeetingRecord['authorization'],
+): boolean => {
+	return incoming.group_id === existing?.group_id
+		&& incoming.category === existing?.category
+		&& incoming.conductor === existing?.conductor
+		&& incoming.deleted === existing?.deleted;
+};
 
-const isUnchangedMeeting = (current: FieldServiceMeetingRecord | undefined, incoming: FieldServiceMeetingRecord) => {
+const isUnchangedMeeting = (
+	current: FieldServiceMeetingRecord | undefined,
+	incoming: FieldServiceMeetingRecord,
+): boolean => {
 	const authority = current?.authorization;
 	if (incoming.authorization.updatedAt !== authority?.updatedAt) return false;
 	if (!sameAuthority(incoming.authorization, authority)) throw new FieldServiceWriteError('CONFLICT');
 	return true;
 };
 
-const assertMeetingAccess = (document: FieldServiceDocument, record: FieldServiceMeetingRecord, current: FieldServiceMeetingRecord | undefined, actor: SchedulingActor) => {
+const assertMeetingAccess = (
+	document: FieldServiceDocument,
+	record: FieldServiceMeetingRecord,
+	current: FieldServiceMeetingRecord | undefined,
+	actor: SchedulingActor,
+): void => {
 	// Check both sides of moves and tombstones; the submitted group cannot redefine ownership.
 	if (current && !canManageGroup(actor, current, document)) throw new FieldServiceWriteError('FORBIDDEN');
 	if (!canManageGroup(actor, record, document)) throw new FieldServiceWriteError('FORBIDDEN');
 };
 
-const mergeMeeting = (document: FieldServiceDocument, record: FieldServiceMeetingRecord, actor: SchedulingActor, revision: string) => {
+const mergeMeeting = (
+	document: FieldServiceDocument,
+	record: FieldServiceMeetingRecord,
+	actor: SchedulingActor,
+	revision: string,
+): void => {
 	const index = document.meetings.findIndex((meeting) => meeting.meeting_uid === record.meeting_uid);
 	const current = document.meetings[index];
 	assertMeetingAccess(document, record, current, actor);
@@ -58,6 +110,7 @@ const mergeMeeting = (document: FieldServiceDocument, record: FieldServiceMeetin
 	if (record.revision !== current?.revision) throw new FieldServiceWriteError('CONFLICT');
 	const restrictedEdit = !canManageAllMeetings(actor) && !record.authorization.deleted;
 	if (restrictedEdit && !canUseConductor(record, document)) throw new FieldServiceWriteError('FORBIDDEN');
+
 	const saved = { ...structuredClone(record), revision };
 	if (index < 0) document.meetings.push(saved);
 	else document.meetings[index] = saved;

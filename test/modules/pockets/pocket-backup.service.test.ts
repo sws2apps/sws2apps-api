@@ -136,6 +136,24 @@ describe('Pocket backup submission', () => {
 			},
 		);
 	});
+
+	it('rejects a meeting upload if synchronization is disabled while waiting', async () => {
+		const { backup, congregation, metadata, user } = createPocketBackupContext();
+		congregation.settings.data_sync.value = true;
+		backup.field_service_meetings = [];
+		const initialMetadata = { ...congregation.metadata };
+
+		await assert.rejects(submitPocketBackup(user.id, metadata, backup, {
+			saveBackup: async () => ({ status: 'saved' }),
+			saveMeetings: async (_id, resolveActor) => {
+				resolveActor();
+				congregation.settings.data_sync.value = false;
+				resolveActor();
+				throw new Error('Disabled synchronization was accepted');
+			},
+		}), (error: unknown) => error instanceof PocketBackupError && error.code === 'MEMBERSHIP_REQUIRED');
+		assert.deepEqual(congregation.metadata, initialMetadata);
+	});
 });
 
 describe('Pocket field-service access', () => {

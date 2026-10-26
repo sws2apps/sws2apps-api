@@ -1,4 +1,11 @@
-import { getFieldServiceMeetings, getFieldServiceMetadata, saveFieldServiceMeetings, getFieldServiceMeetingReceipts, type FieldServiceMeetingReceipt } from '#modules/field-service-meetings/index.js';
+import { getUserCapabilities } from '#domain/users/user-capabilities.js';
+import {
+	getFieldServiceMeetings,
+	getFieldServiceMetadata,
+	saveFieldServiceMeetings,
+	getFieldServiceMeetingReceipts,
+	type FieldServiceMeetingReceipt,
+} from '#modules/field-service-meetings/index.js';
 import {
 	type BackupData,
 	type BackupDataWithOptionalMetadata,
@@ -204,7 +211,7 @@ const addPrivateBackupChanges = async (
 	userRoles: PocketBackupContext['membership']['cong_role'],
 	operations: { getMeetings?: typeof getFieldServiceMeetings; getGroups?: typeof getFieldServiceGroups },
 ) => {
-	const fieldServiceScheduler = userRoles.some((role) => ['admin', 'coordinator', 'secretary', 'service_overseer', 'field_service_schedule', 'group_overseers', 'language_group_overseers'].includes(role));
+	const { fieldServiceScheduler } = getUserCapabilities(userRoles);
 	const refreshEligibility = fieldServiceScheduler && user.metadata.user_settings !== metadata.user_settings;
 	if (congregation.metadata.persons !== metadata.persons || refreshEligibility) {
 		const persons = await getCongregationPersons(congregation.id);
@@ -341,13 +348,24 @@ export const submitPocketBackup = async (
 	}
 	if (congregationBackup.field_service_meetings || congregationBackup.field_service_scheduling) {
 		if (!congregation.settings.data_sync.value) throw new PocketBackupError('MEMBERSHIP_REQUIRED');
-		const document = await submission.saveMeetings(congregation.id, () => {
-			const current = getPocketBackupContext(userId, '{}');
-			return { congregationId: current.congregation.id, personUid: current.membership.user_local_uid, roles: current.membership.cong_role };
-		}, congregationBackup.field_service_meetings, congregationBackup.field_service_scheduling);
+		const document = await submission.saveMeetings(
+			congregation.id,
+			() => {
+				const current = getPocketBackupContext(userId, '{}');
+				if (!current.congregation.settings.data_sync.value) throw new PocketBackupError('MEMBERSHIP_REQUIRED');
+				return {
+					congregationId: current.congregation.id,
+					personUid: current.membership.user_local_uid,
+					roles: current.membership.cong_role,
+				};
+			},
+			congregationBackup.field_service_meetings,
+			congregationBackup.field_service_scheduling,
+		);
+		const receipts = getFieldServiceMeetingReceipts(document, congregationBackup.field_service_meetings);
 		congregation.metadata.field_service_meetings = document.meetings_revision;
 		congregation.metadata.field_service_scheduling = document.scope_revision;
-		return { field_service_meeting_receipts: getFieldServiceMeetingReceipts(document, congregationBackup.field_service_meetings) };
+		return { field_service_meeting_receipts: receipts };
 	}
 	return { field_service_meeting_receipts: [] };
 };

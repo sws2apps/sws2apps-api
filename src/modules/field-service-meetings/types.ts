@@ -41,6 +41,7 @@ export type FieldServiceDocument = {
 export class FieldServiceWriteError extends Error {
 	constructor(public readonly code: 'FORBIDDEN' | 'CONFLICT') {
 		super(`FIELD_SERVICE_${code}`);
+		this.name = 'FieldServiceWriteError';
 	}
 }
 

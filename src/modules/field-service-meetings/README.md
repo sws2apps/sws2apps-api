@@ -25,6 +25,11 @@ also require their last accepted revision. Storage generation preconditions retr
 competing writes across API instances and re-run authorization against the latest
 scope. Rights are resolved again on each attempt.
 
+Authorization reuses the shared user capabilities. Backup services also recheck
+current membership and synchronization availability on every storage attempt.
+A membership change to another congregation rejects the pending write with the
+existing `FIELD_SERVICE_FORBIDDEN` response instead of retargeting its data.
+
 Successful uploads return per-record receipts only after persistence completes.
 The app advances the accepted base revision while preserving edits made during the
 upload. A genuinely conflicting offline edit stays pending and produces a conflict
