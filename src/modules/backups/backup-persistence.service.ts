@@ -58,7 +58,7 @@ const getUserPersonData = (
 
 /**
  * Applies an Organized backup within the authenticated congregation and role
- * scope. Failures are contained for the asynchronous HTTP workflow, and the
+ * scope. Failures return an explicit outcome to the HTTP workflow, and the
  * upload buffer is always discarded when an upload identifier is supplied.
  */
 export const saveUserBackupAsync = async (
@@ -66,7 +66,6 @@ export const saveUserBackupAsync = async (
 		congId,
 		cong_backup: congregationBackup,
 		userId,
-		userRole,
 		uploadId,
 	}: {
 		congId: string;
@@ -83,24 +82,22 @@ export const saveUserBackupAsync = async (
 	};
 
 	try {
-		const adminRole = userRole.some(
-			(role) => role === 'admin' || role === 'coordinator' || role === 'secretary',
-		);
-		const scheduleEditor = userRole.some(
-			(role) =>
-				role === 'midweek_schedule' ||
-				role === 'weekend_schedule' ||
-				role === 'public_talk_schedule',
-		);
-
 		const congregation = persistence.findCongregationById(congId);
 		const user = persistence.findUserById(userId);
-
 		if (!congregation || user?.profile.congregation?.id !== congregation.id) {
 			throw new Error('Backup user or congregation context is invalid');
 		}
+		const currentRoles = user.profile.congregation.cong_role;
+		const adminRole = currentRoles.some((role) => ['admin', 'coordinator', 'secretary'].includes(role));
+		const scheduleEditor = currentRoles.some((role) => ['midweek_schedule', 'weekend_schedule', 'public_talk_schedule'].includes(role));
 
-		await persistence.saveCongregation(congregation, congregationBackup, userRole);
+		await persistence.saveCongregation(
+			congregation,
+			congregationBackup,
+			currentRoles,
+			undefined,
+			user.profile.congregation.user_local_uid,
+		);
 
 		const personData = getUserPersonData(congregationBackup, user);
 
@@ -112,9 +109,11 @@ export const saveUserBackupAsync = async (
 			);
 		}
 
-		await persistence.applyUserData(user, congregationBackup, userRole);
+		await persistence.applyUserData(user, congregationBackup, currentRoles);
+		return { status: 'saved' as const };
 	} catch {
 		persistence.logError('congregation backup could not be saved');
+		return { status: 'failed' as const };
 	} finally {
 		if (uploadId) persistence.discardUpload(uploadId);
 	}

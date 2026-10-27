@@ -11,6 +11,7 @@ describe('congregation master-key access', () => {
 
 	it('denies roles that do not require the master key', () => {
 		assert.equal(canAccessCongregationMasterKey(['publisher']), false);
+		assert.equal(canAccessCongregationMasterKey(['field_service_schedule']), false);
 		assert.equal(canAccessCongregationMasterKey([]), false);
 	});
 });

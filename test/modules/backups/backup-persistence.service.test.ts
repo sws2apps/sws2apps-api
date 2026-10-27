@@ -100,9 +100,21 @@ describe('user backup persistence orchestration', () => {
 		assert.deepEqual(operations, ['congregation', 'person', 'user', 'discard']);
 	});
 
+	it('ignores a stale administrator role snapshot after rights were revoked', async () => {
+		const congregation = new Congregation('congregation-1'); const user = createUser(congregation.id);
+		let actualRoles: string[] = [];
+		await saveUserBackupAsync({ congId: congregation.id, userId: user.id, userRole: ['admin'], cong_backup: createBackup() }, {
+			findUserById: () => user, findCongregationById: () => congregation,
+			saveCongregation: async (_congregation, _backup, roles) => { actualRoles = roles; },
+			applyUserData: async () => {}, updatePersonData: async () => {},
+		});
+		assert.deepEqual(actualRoles, ['publisher']);
+	});
+
 	it('does not overwrite personal fields for a schedule editor', async () => {
 		const congregation = new Congregation('congregation-1');
 		const user = createUser(congregation.id);
+		user.profile.congregation!.cong_role = ['midweek_schedule'];
 		const operations: string[] = [];
 
 		await saveUserBackupAsync(

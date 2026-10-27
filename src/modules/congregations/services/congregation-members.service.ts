@@ -8,7 +8,8 @@ export const isCongregationMember = (
 ): boolean => {
 	const user = UsersList.findById(userId);
 
-	return user?.profile.congregation?.id === congregation.id;
+	return !!user && user.pendingMembershipRemovals === 0
+		&& user.profile.congregation?.id === congregation.id;
 };
 
 export const refreshCongregationMembers = (congregation: Congregation): void => {

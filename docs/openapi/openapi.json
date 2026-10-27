@@ -1041,7 +1041,7 @@
             "description": "The backup was accepted.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/SuccessMessage" },
+                "schema": { "$ref": "#/components/schemas/BackupSuccess" },
                 "example": { "message": "BACKUP_SENT" }
               }
             }
@@ -1050,6 +1050,7 @@
           "401": { "$ref": "#/components/responses/MfaRequired" },
           "403": { "$ref": "#/components/responses/AuthenticatedRequestForbidden" },
           "404": { "$ref": "#/components/responses/AccountContextNotFound" },
+          "409": { "$ref": "#/components/responses/FieldServiceWriteConflict" },
           "429": { "$ref": "#/components/responses/TooManyRequests" },
           "500": { "$ref": "#/components/responses/InternalError" },
           "503": { "$ref": "#/components/responses/ServerNotReady" }
@@ -1086,7 +1087,7 @@
             "description": "The chunk was recorded or the completed backup was accepted.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/SuccessMessage" },
+                "schema": { "$ref": "#/components/schemas/BackupSuccess" },
                 "examples": {
                   "chunk": { "value": { "message": "BACKUP_CHUNK_RECEIVED" } },
                   "complete": { "value": { "message": "BACKUP_SENT" } }
@@ -1098,7 +1099,19 @@
           "401": { "$ref": "#/components/responses/MfaRequired" },
           "403": { "$ref": "#/components/responses/AuthenticatedRequestForbidden" },
           "404": { "$ref": "#/components/responses/AccountContextNotFound" },
-          "409": { "$ref": "#/components/responses/BackupConflict" },
+          "409": {
+            "description": "Another backup is active, or a meeting or scheduling scope revision conflicts. Other backup datasets may already have been persisted; rejected meeting batches are atomic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/BackupUploadConflict" },
+                    { "$ref": "#/components/schemas/FieldServiceConflictError" }
+                  ]
+                }
+              }
+            }
+          },
           "429": { "$ref": "#/components/responses/TooManyRequests" },
           "500": { "$ref": "#/components/responses/InternalError" },
           "503": { "$ref": "#/components/responses/ServerNotReady" }
@@ -1815,7 +1828,7 @@
             "description": "The Pocket backup was saved.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/SuccessMessage" },
+                "schema": { "$ref": "#/components/schemas/BackupSuccess" },
                 "example": { "message": "BACKUP_SENT" }
               }
             }
@@ -1823,6 +1836,7 @@
           "400": { "$ref": "#/components/responses/PocketBackupBadRequest" },
           "403": { "$ref": "#/components/responses/PocketSessionForbidden" },
           "404": { "$ref": "#/components/responses/PocketResourceNotFound" },
+          "409": { "$ref": "#/components/responses/FieldServiceWriteConflict" },
           "429": { "$ref": "#/components/responses/TooManyRequests" },
           "500": { "$ref": "#/components/responses/InternalError" },
           "503": { "$ref": "#/components/responses/ServerNotReady" }
@@ -2639,6 +2653,14 @@
       }
     },
     "responses": {
+      "FieldServiceWriteConflict": {
+        "description": "A meeting or scheduling scope changed since the submitted revision. Nothing from the rejected meeting batch is committed. Other backup datasets may already have been persisted and can be retried independently.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/FieldServiceConflictError" }
+          }
+        }
+      },
       "AccountContextNotFound": {
         "description": "The account, session, or congregation context no longer exists.",
         "content": {
@@ -2667,7 +2689,7 @@
         }
       },
       "AuthenticatedRequestForbidden": {
-        "description": "Authentication or ownership checks rejected the request.",
+        "description": "Authentication or ownership checks rejected the request. Meeting writes can return FIELD_SERVICE_FORBIDDEN.",
         "content": {
           "application/json": {
             "schema": {
@@ -2798,10 +2820,10 @@
         }
       },
       "BackupConflict": {
-        "description": "The metadata is outdated or another backup upload is active.",
+        "description": "Another backup upload is active.",
         "content": {
           "application/json": {
-            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "schema": { "$ref": "#/components/schemas/BackupUploadConflict" },
             "example": { "message": "error_api_sync-conflict" }
           }
         }
@@ -3094,6 +3116,17 @@
       }
     },
     "schemas": {
+      "BackupUploadConflict": {
+        "allOf": [
+          { "$ref": "#/components/schemas/ErrorResponse" },
+          { "properties": { "message": { "type": "string", "enum": ["error_api_sync-conflict"] } } }
+        ]
+      },
+      "FieldServiceConflictError": {
+        "type": "object",
+        "required": ["message"],
+        "properties": { "message": { "type": "string", "enum": ["FIELD_SERVICE_CONFLICT"] } }
+      },
       "AdministrationResult": {
         "description": "The current administration projection returned by the operation.",
         "oneOf": [
@@ -3196,7 +3229,7 @@
         "minItems": 1,
         "items": {
           "type": "string",
-          "enum": ["admin", "coordinator", "secretary", "service_overseer", "field_service_group_overseer", "midweek_schedule", "weekend_schedule", "public_talk_schedule", "attendance_tracking", "publisher", "view_schedules", "elder", "ms", "group_overseers", "language_group_overseers", "duties_schedule"]
+          "enum": ["admin", "coordinator", "secretary", "service_overseer", "field_service_group_overseer", "midweek_schedule", "weekend_schedule", "public_talk_schedule", "attendance_tracking", "publisher", "view_schedules", "elder", "ms", "group_overseers", "language_group_overseers", "duties_schedule", "field_service_schedule"]
         }
       },
       "CongregationAdministratorPersonRequest": {
@@ -3326,6 +3359,156 @@
           }
         }
       },
+      "FieldServiceMeetingRecord": {
+        "type": "object",
+        "description": "Encrypted meeting content with authoritative server-validated identifiers. Reads are available to every authenticated congregation member. Updates require the stored revision; omissions never delete records.",
+        "required": [
+          "meeting_uid",
+          "authorization",
+          "meeting_data"
+        ],
+        "properties": {
+          "meeting_uid": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "string",
+            "description": "Opaque server revision. Omit for creates; echo the last accepted revision for edits and deletions."
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "Optional client HMAC-SHA256 of canonical meeting content, keyed by the congregation access code. Stable across re-encryption retries; different edits must have different identities."
+          },
+          "meeting_data": {
+            "type": "string",
+            "description": "Client-encrypted meeting details. Clients must use the authorization fields as authoritative after decrypting."
+          },
+          "authorization": {
+            "type": "object",
+            "required": [
+              "category",
+              "conductor",
+              "deleted",
+              "updatedAt"
+            ],
+            "properties": {
+              "group_id": {
+                "type": "string"
+              },
+              "category": {
+                "type": "integer",
+                "enum": [
+                  0,
+                  2,
+                  3
+                ]
+              },
+              "conductor": {
+                "type": "string",
+                "minLength": 1
+              },
+              "deleted": {
+                "type": "boolean"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      },
+      "FieldServiceSchedulingScope": {
+        "type": "object",
+        "description": "Trusted projection published only by administrators or the service overseer, automatically derived from service-group assignments. A separate scheduling right grants meeting editing but cannot modify this scope.",
+        "required": [
+          "base_revision",
+          "groups"
+        ],
+        "properties": {
+          "base_revision": {
+            "type": "string",
+            "description": "Echo metadata.field_service_scheduling; an altered stale snapshot is rejected with 409."
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "group_id",
+                "manager_uids",
+                "conductor_uids"
+              ],
+              "properties": {
+                "group_id": {
+                  "type": "string"
+                },
+                "manager_uids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "uniqueItems": true
+                },
+                "conductor_uids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "uniqueItems": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "FieldServiceMeetingReceipt": {
+        "type": "object",
+        "description": "Returned only after persistence. The client advances this base revision without discarding a newer local edit made during the upload.",
+        "required": [
+          "meeting_uid",
+          "revision",
+          "updatedAt"
+        ],
+        "properties": {
+          "meeting_uid": {
+            "type": "string"
+          },
+          "base_revision": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BackupSuccess": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "enum": [
+              "BACKUP_SENT",
+              "BACKUP_CHUNK_RECEIVED"
+            ]
+          },
+          "field_service_meeting_receipts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldServiceMeetingReceipt"
+            }
+          }
+        }
+      },
       "BackupData": {
         "type": "object",
         "description": "Version 3 synchronization payload. Dataset presence depends on metadata changes and account roles.",
@@ -3345,6 +3528,8 @@
           "branch_cong_analysis": { "$ref": "#/components/schemas/RecordList" },
           "branch_field_service_reports": { "$ref": "#/components/schemas/RecordList" },
           "field_service_groups": { "$ref": "#/components/schemas/RecordList" },
+          "field_service_meetings": { "type": "array", "items": { "$ref": "#/components/schemas/FieldServiceMeetingRecord" } },
+          "field_service_scheduling": { "$ref": "#/components/schemas/FieldServiceSchedulingScope" },
           "meeting_attendance": { "$ref": "#/components/schemas/RecordList" },
           "sched": { "$ref": "#/components/schemas/RecordList" },
           "sources": { "$ref": "#/components/schemas/RecordList" },

@@ -186,3 +186,64 @@ export const deleteFileFromStorage = async (options: StorageBaseType) => {
 		force: true,
 	});
 };
+
+export type VersionedStorageSnapshot = { data?: string; generation: string | number };
+export type VersionedStorageOperations = {
+	read: (options: StorageBaseType) => Promise<VersionedStorageSnapshot>;
+	write: (data: string, options: StorageBaseType, generation: string | number, metadata?: Record<string, string>) => Promise<void>;
+};
+
+type VersionedFileUpdate<T> = { data: string; result: T; metadata?: Record<string, string> };
+const storageErrorCode = (error: unknown) => Number((error as { code?: unknown })?.code);
+
+const readVersionedFile = async (options: StorageBaseType): Promise<VersionedStorageSnapshot> => {
+	const bucket = getStorage().bucket();
+	const path = buildStoragePath(options);
+	try {
+		const [metadata] = await bucket.file(path).getMetadata();
+		const generation = metadata.generation!;
+		const [contents] = await bucket.file(path, { generation }).download();
+		const data = decryptData(contents.toString());
+		if (data === undefined) throw new Error('Stored file could not be decrypted');
+		return { generation, data };
+	} catch (error) {
+		if (storageErrorCode(error) !== 404) throw error;
+		return { generation: 0 };
+	}
+};
+
+const writeVersionedFile: VersionedStorageOperations['write'] = async (data, options, generation, metadata) => {
+	await getStorage().bucket().file(buildStoragePath(options)).save(encryptData(data), {
+		metadata: { contentType: 'text/plain', metadata },
+		preconditionOpts: { ifGenerationMatch: generation },
+		resumable: false,
+	});
+};
+
+/** Re-evaluates authorization after competing writes, including across API instances. */
+const commitVersionedFile = async <T>(
+	options: StorageBaseType,
+	modify: (current: string | undefined) => VersionedFileUpdate<T> | Promise<VersionedFileUpdate<T>>,
+	operations: Partial<VersionedStorageOperations> = {},
+): Promise<T> => {
+	const storage = { read: readVersionedFile, write: writeVersionedFile, ...operations };
+	for (let attempt = 0; attempt < 5; attempt++) {
+		const snapshot = await storage.read(options);
+		const { data, result, metadata } = await modify(snapshot.data);
+		if (data === snapshot.data) return result;
+		try {
+			await storage.write(data, options, snapshot.generation, metadata);
+			return result;
+		} catch (error) {
+			if (storageErrorCode(error) !== 412) throw error;
+		}
+	}
+	throw new Error('Concurrent storage update could not be committed');
+};
+
+/** Serialize within an instance and enforce storage generations between instances. */
+export const readModifyWriteVersionedFile = <T>(
+	options: StorageBaseType,
+	modify: (current: string | undefined) => VersionedFileUpdate<T> | Promise<VersionedFileUpdate<T>>,
+	operations: Partial<VersionedStorageOperations> = {},
+): Promise<T> => runWithinFileWriteQueue(buildStoragePath(options), () => commitVersionedFile(options, modify, operations));

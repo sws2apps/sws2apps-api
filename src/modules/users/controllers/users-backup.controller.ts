@@ -1,3 +1,4 @@
+import { FieldServiceWriteError } from '#modules/field-service-meetings/index.js';
 import type { Request, Response } from 'express';
 import { sendClientError, sendSuccess } from '#http/responses.js';
 
@@ -10,6 +11,11 @@ import {
 import { retrieveUserBackup as retrieveUserBackupData } from '../services/users-backup.service.js';
 
 const handleUserBackupError = (error: unknown, res: Response): boolean => {
+	if (error instanceof FieldServiceWriteError) {
+		const status = error.code === 'CONFLICT' ? 409 : 403;
+		sendClientError(res, status, error.message, 'field service meeting write rejected');
+		return true;
+	}
 	if (!(error instanceof UserBackupError)) return false;
 
 	if (error.code === 'CONGREGATION_NOT_ASSIGNED') {
@@ -75,7 +81,7 @@ export const saveUserBackup = async (req: Request, res: Response) => {
 		return;
 	}
 
-	sendSuccess(res, { message: 'BACKUP_SENT' }, 'user send backup for congregation successfully');
+	sendSuccess(res, { message: 'BACKUP_SENT', field_service_meeting_receipts: outcome.field_service_meeting_receipts }, 'user send backup for congregation successfully');
 };
 
 export const saveUserChunkedBackup = async (req: Request, res: Response) => {
@@ -124,7 +130,7 @@ export const saveUserChunkedBackup = async (req: Request, res: Response) => {
 	}
 
 	if (outcome.status === 'saved') {
-		sendSuccess(res, { message: 'BACKUP_SENT' }, 'user send backup for congregation successfully');
+		sendSuccess(res, { message: 'BACKUP_SENT', field_service_meeting_receipts: outcome.field_service_meeting_receipts }, 'user send backup for congregation successfully');
 		return;
 	}
 

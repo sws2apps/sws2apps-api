@@ -30,6 +30,7 @@ export const getUserBackupContext = (userId: string): {
 } => {
 	const user = UsersList.findById(userId);
 	if (!user) throw new UserBackupError('USER_NOT_FOUND');
+	if (user.pendingMembershipRemovals > 0) throw new UserBackupError('CONGREGATION_NOT_ASSIGNED');
 
 	const congregationId = user.profile.congregation?.id;
 

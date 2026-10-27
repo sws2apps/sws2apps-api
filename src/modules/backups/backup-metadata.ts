@@ -39,6 +39,8 @@ export const findBackupMetadataConflict = (
 	incomingMetadata: Record<string, string>,
 ): BackupMetadataConflict | undefined => {
 	for (const [key, incomingValue] of Object.entries(incomingMetadata)) {
+		// These datasets use opaque compare-and-swap revisions, not ordered timestamps.
+		if (key === 'field_service_meetings' || key === 'field_service_scheduling') continue;
 		const currentValue = currentMetadata[key];
 
 		if (currentValue && currentValue > incomingValue) {

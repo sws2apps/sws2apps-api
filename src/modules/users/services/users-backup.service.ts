@@ -1,3 +1,4 @@
+import { getFieldServiceMeetings, getFieldServiceMetadata } from '#modules/field-service-meetings/index.js';
 import { canAccessCongregationMasterKey } from '#domain/users/master-key-roles.js';
 import { getUserCapabilities } from '#domain/users/user-capabilities.js';
 import type { StandardRecord } from '../../../types/standard-record.js';
@@ -22,6 +23,7 @@ import {
 import {
 	getUserBackupContext,
 	parseUserBackupMetadata,
+	UserBackupError,
 } from '../user-backup-context.js';
 import {
 	getUserStoredBibleStudies,
@@ -34,6 +36,8 @@ export type UserBackupRetrievalOperations = {
 	getBranchFieldServiceReports: typeof getBranchFieldServiceReports;
 	getCongregationPersons: typeof getCongregationPersons;
 	getFieldServiceGroups: typeof getFieldServiceGroups;
+	getFieldServiceMeetings: typeof getFieldServiceMeetings;
+	getFieldServiceMetadata: typeof getFieldServiceMetadata;
 	getFieldServiceReports: typeof getFieldServiceReports;
 	getMeetingAttendance: typeof getMeetingAttendance;
 	getPublicIncomingTalks: typeof getPublicIncomingTalks;
@@ -54,6 +58,8 @@ const defaultBackupRetrievalOperations: UserBackupRetrievalOperations = {
 	getBranchFieldServiceReports,
 	getCongregationPersons,
 	getFieldServiceGroups,
+	getFieldServiceMeetings,
+	getFieldServiceMetadata,
 	getFieldServiceReports,
 	getMeetingAttendance,
 	getPublicIncomingTalks,
@@ -129,6 +135,8 @@ const addSynchronizedSettingsAndGroups = async (context: UserBackupContext): Pro
 		result.metadata.field_service_groups = localDate;
 	}
 
+	await addFieldServiceMeetingChanges(context);
+
 	if (congregation.metadata.upcoming_events !== metadata.upcoming_events) {
 		const localDate = congregation.metadata.upcoming_events;
 		result.upcoming_events = await backupOperations.getUpcomingEvents(congregation.id);
@@ -136,13 +144,26 @@ const addSynchronizedSettingsAndGroups = async (context: UserBackupContext): Pro
 	}
 };
 
+const addFieldServiceMeetingChanges = async (context: UserBackupContext): Promise<void> => {
+	const { congregation, metadata, result, backupOperations } = context;
+	// Every authenticated member receives all meetings, independently of edit roles.
+	const meetingRevision = congregation.metadata.field_service_meetings ?? '';
+	if (meetingRevision !== (metadata.field_service_meetings ?? '')) {
+		result.field_service_meetings = await backupOperations.getFieldServiceMeetings(congregation.id);
+		result.metadata.field_service_meetings = meetingRevision;
+	}
+	const scopeRevision = congregation.metadata.field_service_scheduling ?? '';
+	if (scopeRevision !== (metadata.field_service_scheduling ?? '')) result.metadata.field_service_scheduling = scopeRevision;
+
+};
+
 const addFullPersons = async (context: UserBackupContext): Promise<void> => {
-	const { congregation, metadata, result, backupOperations, capabilities } = context;
+	const { user, congregation, metadata, result, backupOperations, capabilities } = context;
 	const { personViewer } = capabilities;
 
 	if (!personViewer) return;
 
-	if (congregation.metadata.persons !== metadata.persons) {
+	if (congregation.metadata.persons !== metadata.persons || user.metadata.user_settings !== metadata.user_settings) {
 		const localDate = congregation.metadata.persons;
 		result.persons = await backupOperations.getCongregationPersons(congregation.id);
 		result.metadata.persons = localDate;
@@ -234,12 +255,13 @@ const addPublisherReports = async (context: UserBackupContext): Promise<void> =>
 };
 
 const addMinimalPersons = async (context: UserBackupContext): Promise<void> => {
-	const { congregation, metadata, result, backupOperations, miniPersons, capabilities } = context;
-	const { personMinimal } = capabilities;
+	const { user, congregation, metadata, result, backupOperations, miniPersons, capabilities } = context;
+	const { personMinimal, fieldServiceScheduler } = capabilities;
 
 	if (!personMinimal) return;
 
-	if (congregation.metadata.persons !== metadata.persons) {
+	const refreshEligibility = user.metadata.user_settings !== metadata.user_settings;
+	if (congregation.metadata.persons !== metadata.persons || refreshEligibility) {
 		const localDate = congregation.metadata.persons;
 		const persons = await backupOperations.getCongregationPersons(congregation.id);
 
@@ -263,7 +285,8 @@ const addMinimalPersons = async (context: UserBackupContext): Promise<void> => {
 					privileges: personData.privileges,
 					enrollments: personData.enrollments,
 					emergency_contacts: miniPersons.includes(String(record.person_uid)) ? personData.emergency_contacts : undefined,
-					assignments: miniPersons.includes(String(record.person_uid)) ? personData.assignments : undefined,
+					assignments: fieldServiceScheduler || miniPersons.includes(String(record.person_uid)) ? personData.assignments : undefined,
+					archived: fieldServiceScheduler ? personData.archived : undefined,
 					timeAway: includeTimeAway || miniPersons.includes(String(record.person_uid)) ? personData.timeAway : undefined,
 				},
 			};
@@ -414,6 +437,7 @@ const addUnsynchronizedSettings = async (context: UserBackupContext): Promise<vo
 		result.app_settings.cong_settings.time_away_public = congregation.settings.time_away_public;
 		result.app_settings.cong_settings.midweek_meeting = midweek;
 		result.app_settings.cong_settings.weekend_meeting = weekend;
+		result.app_settings.cong_settings.field_service_meeting_times = congregation.settings.field_service_meeting_times;
 
 		result.metadata.cong_settings = localCongDate;
 	}
@@ -448,6 +472,7 @@ export const retrieveUserBackup = async (
 	const context: UserBackupContext = { user, congregation, metadata, result, backupOperations, miniPersons, masterKeyNeed, capabilities };
 
 	if (congregation.settings.data_sync.value) {
+		Object.assign(congregation.metadata, await backupOperations.getFieldServiceMetadata(congregation.id));
 		await addSynchronizedSettingsAndGroups(context);
 		await addFullPersons(context);
 		await addSpeakerDirectories(context);
@@ -466,5 +491,7 @@ export const retrieveUserBackup = async (
 		await addUnsynchronizedSettings(context);
 	}
 
+	const current = getUserBackupContext(userId);
+	if (current.congregation.id !== congregation.id) throw new UserBackupError('CONGREGATION_NOT_ASSIGNED');
 	return result;
 };

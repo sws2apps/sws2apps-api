@@ -40,6 +40,11 @@ describe('backup payload parsing', () => {
 		assert.deepEqual(parseBackupPayload(payload), payload);
 	});
 
+	it('accepts the field-service scheduling role in synchronized role lists', () => {
+		const payload = { metadata: {}, cong_users: [{ id: 'scheduler', role: ['publisher', 'field_service_schedule'] }] };
+		assert.deepEqual(parseBackupPayload(payload), payload);
+	});
+
 	it('rejects malformed JSON and invalid metadata structures', () => {
 		assert.throws(() => parseBackupPayload('{invalid-json'), BackupPayloadError);
 		assert.throws(() => parseBackupPayload([]), BackupPayloadError);
@@ -207,5 +212,22 @@ describe('backup payload parsing', () => {
 		};
 
 		assert.deepEqual(parseBackupPayload(payload, { requireMetadata: false }), payload);
+	});
+});
+const recurringRow = (weekday: unknown = 0, time: unknown = '09:30') => ({
+	type: 'group-1', weekday: { value: weekday, updatedAt: '' }, time: { value: time, updatedAt: '' },
+});
+const recurringBackup = (times: unknown) => ({ metadata: {}, app_settings: { cong_settings: { field_service_meeting_times: times } } });
+describe('field-service recurring settings payload', () => {
+	it('accepts configured and cleared recurring times', () => {
+		for (const row of [recurringRow(), recurringRow(null, '')]) {
+			const backup = recurringBackup([row]);
+			assert.deepEqual(parseBackupPayload(backup), backup);
+		}
+	});
+	it('rejects invalid recurring days, times and duplicate group rows', () => {
+		for (const times of [[recurringRow(-1)], [recurringRow(7)], [recurringRow(1.5)], [recurringRow(0, '24:00')], [recurringRow(0, '09:99')], [recurringRow(), recurringRow()], [{ type: 'group-1' }], {}]) {
+			assert.throws(() => parseBackupPayload(recurringBackup(times)), BackupPayloadError);
+		}
 	});
 });

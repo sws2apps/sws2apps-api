@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { getUserCapabilities } from '#domain/users/user-capabilities.js';
+import type { AppRoleType } from '#domain/users/app-role.js';
 
 describe('user capabilities', () => {
 	it('grants administration capabilities to congregation administrators', () => {
@@ -36,4 +37,33 @@ describe('user capabilities', () => {
 		assert.equal(getUserCapabilities(['coordinator']).adminRole, true);
 		assert.equal(getUserCapabilities(['secretary']).adminRole, true);
 	});
+
+	const schedulingRoles: {
+		role: AppRoleType;
+		allGroups: boolean;
+		scopeAdmin: boolean;
+		scheduler: boolean;
+	}[] = [
+		{ role: 'admin', allGroups: true, scopeAdmin: true, scheduler: true },
+		{ role: 'coordinator', allGroups: true, scopeAdmin: true, scheduler: true },
+		{ role: 'secretary', allGroups: true, scopeAdmin: true, scheduler: true },
+		{ role: 'service_overseer', allGroups: true, scopeAdmin: true, scheduler: true },
+		{ role: 'field_service_schedule', allGroups: true, scopeAdmin: false, scheduler: true },
+		{ role: 'group_overseers', allGroups: false, scopeAdmin: false, scheduler: true },
+		{ role: 'field_service_group_overseer', allGroups: false, scopeAdmin: false, scheduler: true },
+		{ role: 'language_group_overseers', allGroups: false, scopeAdmin: false, scheduler: true },
+		{ role: 'publisher', allGroups: false, scopeAdmin: false, scheduler: false },
+		{ role: 'elder', allGroups: false, scopeAdmin: false, scheduler: false },
+		{ role: 'midweek_schedule', allGroups: false, scopeAdmin: false, scheduler: false },
+	];
+
+	for (const { role, allGroups, scopeAdmin, scheduler } of schedulingRoles) {
+		it(`keeps ${role} scheduling, group scope and administration access separate`, () => {
+			const capabilities = getUserCapabilities([role]);
+
+			assert.equal(capabilities.fieldServiceAllGroups, allGroups);
+			assert.equal(capabilities.fieldServiceScheduler, scheduler);
+			assert.equal(capabilities.serviceCommiteeRole, scopeAdmin);
+		});
+	}
 });

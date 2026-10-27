@@ -1,6 +1,8 @@
 import type { StandardRecord } from '../../../types/standard-record.js';
 
 export type CongregationMetadata = {
+	field_service_meetings?: string;
+	field_service_scheduling?: string;
 	branch_cong_analysis: string;
 	branch_field_service_reports: string;
 	field_service_groups: string;
@@ -167,6 +169,11 @@ export type CongSettingsType = {
 		substitute_w_study_conductor_displayed?: string;
 		consecutive_monthly_parts_notice_shown?: string;
 		outgoing_talks_schedule_public?: string;
+	}[];
+	field_service_meeting_times?: {
+		type: string;
+		weekday: { value: number | null; updatedAt: string };
+		time: { value: string; updatedAt: string };
 	}[];
 	circuit_overseer?: string;
 	language_groups?: string;

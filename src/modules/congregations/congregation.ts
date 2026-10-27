@@ -28,6 +28,8 @@ export class Congregation {
 			sources: '',
 			schedules: '',
 			field_service_groups: '',
+			field_service_meetings: '',
+			field_service_scheduling: '',
 			visiting_speakers: '',
 			branch_field_service_reports: '',
 			branch_cong_analysis: '',

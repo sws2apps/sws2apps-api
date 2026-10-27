@@ -103,6 +103,12 @@ describe('authorization middleware', () => {
 		}
 	});
 
+	it('does not let field-service schedulers or group overseers manage user rights', async () => {
+		for (const role of ['field_service_schedule', 'group_overseers', 'field_service_group_overseer'] as AppRoleType[]) {
+			assertAccessDenied(await runAuthorization(requireCongregationAdministrator, 'vip', [role]));
+		}
+	});
+
 	it('allows a schedule editor but rejects a publisher', async () => {
 		const editorState = await runAuthorization(
 			requireMeetingEditor,

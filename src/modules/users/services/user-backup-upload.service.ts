@@ -1,3 +1,9 @@
+import { getUserCapabilities } from '#domain/users/user-capabilities.js';
+import {
+	saveFieldServiceMeetings,
+	getFieldServiceMeetingReceipts,
+	type FieldServiceMeetingReceipt,
+} from '#modules/field-service-meetings/index.js';
 import {
 	BackupUploadChunkError,
 	discardBackupUpload,
@@ -17,6 +23,45 @@ import {
 } from '../user-backup-context.js';
 import { saveCongregationSettings } from '#modules/congregations/index.js';
 
+export type UserBackupUploadOperations = {
+	saveBackup: typeof saveUserBackupAsync;
+	saveMeetings: typeof saveFieldServiceMeetings;
+};
+
+const defaultUploadOperations: UserBackupUploadOperations = {
+	saveBackup: (input) => saveUserBackupAsync(input),
+	saveMeetings: saveFieldServiceMeetings,
+};
+
+/** Meeting writes finish before HTTP success, after ordinary backup persistence. */
+const saveSchedulingData = async (
+	userId: string,
+	backup: BackupDataWithOptionalMetadata,
+	saveMeetings: typeof saveFieldServiceMeetings,
+): Promise<FieldServiceMeetingReceipt[]> => {
+	if (!backup.field_service_meetings?.length && !backup.field_service_scheduling) return [];
+	const { congregation } = getUserBackupContext(userId);
+	if (!congregation.settings.data_sync.value) throw new UserBackupError('INVALID_BACKUP');
+	const document = await saveMeetings(
+		congregation.id,
+		() => {
+			const { user, congregation: currentCongregation } = getUserBackupContext(userId);
+			if (!currentCongregation.settings.data_sync.value) throw new UserBackupError('INVALID_BACKUP');
+			return {
+				congregationId: currentCongregation.id,
+				personUid: user.profile.congregation?.user_local_uid,
+				roles: user.profile.congregation!.cong_role,
+			};
+		},
+		backup.field_service_meetings,
+		backup.field_service_scheduling,
+	);
+	const receipts = getFieldServiceMeetingReceipts(document, backup.field_service_meetings);
+	congregation.metadata.field_service_meetings = document.meetings_revision;
+	congregation.metadata.field_service_scheduling = document.scope_revision;
+	return receipts;
+};
+
 export const filterBackupMetadata = (
 	metadata: Record<string, string>,
 	dataSyncEnabled: boolean,
@@ -31,13 +76,15 @@ export const filterBackupMetadata = (
 };
 
 export type SaveUserBackupOutcome =
-	| { status: 'saved' }
+	| { status: 'saved'; field_service_meeting_receipts?: FieldServiceMeetingReceipt[] }
 	| { status: 'conflict'; key: string; currentValue: string; incomingValue: string };
 
 export const saveUserBackup = async (
 	userId: string,
 	backupPayload: unknown,
+	operations: Partial<UserBackupUploadOperations> = {},
 ): Promise<SaveUserBackupOutcome> => {
+	const upload = { ...defaultUploadOperations, ...operations };
 	const { user, congregation } = getUserBackupContext(userId);
 	let congregationBackup: BackupData;
 
@@ -63,7 +110,7 @@ export const saveUserBackup = async (
 	);
 
 	if (metadataConflict) {
-		if (congregationBackup.app_settings?.cong_settings?.data_sync.value) {
+		if (getUserCapabilities(user.profile.congregation!.cong_role).adminRole && congregationBackup.app_settings?.cong_settings?.data_sync?.value) {
 			const settings = structuredClone(congregation.settings);
 			settings.data_sync = congregationBackup.app_settings.cong_settings.data_sync;
 
@@ -80,18 +127,20 @@ export const saveUserBackup = async (
 
 	const userRole = user.profile.congregation!.cong_role;
 
-	saveUserBackupAsync({
+	const persisted = await upload.saveBackup({
 		congId: congregation.id,
 		userId: user.id,
 		cong_backup: congregationBackup,
 		userRole,
 	});
 
-	return { status: 'saved' };
+	if (persisted.status === 'failed') throw new Error('Backup persistence failed');
+	const receipts = await saveSchedulingData(user.id, congregationBackup, upload.saveMeetings);
+	return { status: 'saved', field_service_meeting_receipts: receipts };
 };
 
 export type SaveUserChunkedBackupOutcome =
-	| { status: 'saved' }
+	| { status: 'saved'; field_service_meeting_receipts?: FieldServiceMeetingReceipt[] }
 	| { status: 'chunk_received' }
 	| { status: 'metadata_conflict'; key: string; currentValue: string; incomingValue: string }
 	| { status: 'backup_in_progress' };
@@ -107,7 +156,9 @@ export const saveUserChunkedBackup = async (
 	userId: string,
 	metadataHeader: string,
 	chunk: SaveUserChunkedBackupChunk,
+	operations: Partial<UserBackupUploadOperations> = {},
 ): Promise<SaveUserChunkedBackupOutcome> => {
+	const upload = { ...defaultUploadOperations, ...operations };
 	const { user, congregation } = getUserBackupContext(userId);
 	const incomingMetadata = filterBackupMetadata(
 		parseUserBackupMetadata(metadataHeader),
@@ -178,7 +229,7 @@ export const saveUserChunkedBackup = async (
 	}
 	const userRole = user.profile.congregation!.cong_role;
 
-	saveUserBackupAsync({
+	const persisted = await upload.saveBackup({
 		congId: congregation.id,
 		userId: user.id,
 		userRole,
@@ -186,5 +237,7 @@ export const saveUserChunkedBackup = async (
 		uploadId: chunk.uploadId,
 	});
 
-	return { status: 'saved' };
+	if (persisted.status === 'failed') throw new Error('Backup persistence failed');
+	const receipts = await saveSchedulingData(user.id, congregationBackup, upload.saveMeetings);
+	return { status: 'saved', field_service_meeting_receipts: receipts };
 };

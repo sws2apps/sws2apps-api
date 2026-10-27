@@ -9,6 +9,7 @@ const featureModuleNames = [
 	'congregation-administration',
 	'congregations',
 	'feature-flags',
+	'field-service-meetings',
 	'installations',
 	'meetings',
 	'mfa',
