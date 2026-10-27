@@ -18,6 +18,8 @@ if (!env.isTest || !/^(127\.0\.0\.1|localhost):\d+$/.test(process.env.FIREBASE_S
 }
 const congregation = new Congregation('partner-browser-fixture');
 congregation.settings.data_sync.value = true;
+// Unlocks with the access code 'partner-fixture-code' the live browser spec stores locally.
+congregation.settings.cong_access_code = 'U2FsdGVkX18+ZRbuSH8nsW7MAVIE5/OIfIajFiYMKIexbk/9ZPqIzKKGnAlV9XWa';
 CongregationsList.list = [congregation];
 const app = express();
 app.disable('x-powered-by');

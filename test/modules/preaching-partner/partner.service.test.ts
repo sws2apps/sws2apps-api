@@ -18,7 +18,8 @@ test('membership, linked identity and congregation data-sync opt-in are required
 	user.profile.congregation = { id: 'cong', account_type: 'pocket', cong_role: ['publisher'], user_local_uid: 'person' };
 	assert.throws(() => resolvePartnerContext('user', 'cong'), /PARTNER_FORBIDDEN/);
 	congregation.settings.data_sync.value = true;
-	assert.equal(resolvePartnerContext('user', 'cong').actor, 'person');
+	congregation.settings.cong_access_code = 'sealed-access-code';
+	assert.deepEqual(resolvePartnerContext('user', 'cong'), { actor: 'person', congregationId: 'cong', accessCode: 'sealed-access-code' });
 	assert.throws(() => resolvePartnerContext('user', 'other'), /PARTNER_FORBIDDEN/);
 	assert.throws(() => resolvePartnerContext('missing', 'cong'), /PARTNER_FORBIDDEN/);
 	delete user.profile.congregation.user_local_uid;

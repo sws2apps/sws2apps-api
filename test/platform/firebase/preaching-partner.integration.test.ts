@@ -18,6 +18,7 @@ test('authenticated publishers share requests, race safely, retry and cancel thr
 	const { deleteFileFromStorage } = await import('#platform/firebase/storage.js');
 	const congregation = new Congregation(`partner-integration-${crypto.randomUUID()}`);
 	congregation.settings.data_sync.value = true;
+	congregation.settings.cong_access_code = 'U2FsdGVkX1sealed';
 	const users = ['alice', 'bob', 'carol'].map((name) => {
 		const user = new User(`${congregation.id}-${name}`);
 		user.profile.congregation = { id: congregation.id, account_type: 'pocket', cong_role: ['publisher'], user_local_uid: name };
@@ -35,7 +36,7 @@ test('authenticated publishers share requests, race safely, retry and cancel thr
 		return `visitorid=${encodeURIComponent(`s:${value}.${signature}`)}`;
 	};
 	const path = `/api/v3/preaching-partner/pockets/${congregation.id}`;
-	const record = { request_uid: crypto.randomUUID(), request_data: { person_uid: 'impersonated', date: '2099/12/31', flexible: true, type: 0, comment: 'Encrypted shared request', updatedAt: new Date().toISOString(), _deleted: false } };
+	const record = { request_uid: crypto.randomUUID(), request_data: { person_uid: 'impersonated', date: '2099/12/31', flexible: 'U2FsdGVkX1dHJ1ZQ==', type: 'U2FsdGVkX1MA==', comment: 'U2FsdGVkX1Y29tbWVudA==', updatedAt: new Date().toISOString(), _deleted: false } };
 	try {
 		assert.equal((await request(app).get(path)).status, 403);
 		const created = await request(app).post(path).set('Cookie', cookie(0)).send({ publisher_uid: 'alice', operationId: crypto.randomUUID(), action: 'create', request: record });
@@ -43,6 +44,8 @@ test('authenticated publishers share requests, race safely, retry and cancel thr
 		assert.equal(created.body.requests[0].request_data.person_uid, 'alice');
 		const listed = await request(app).get(path).set('Cookie', cookie(1));
 		assert.equal(listed.body.publisher_uid, 'bob');
+		assert.equal(listed.body.cong_access_code, congregation.settings.cong_access_code);
+		assert.equal(listed.body.requests[0].request_data.comment, record.request_data.comment);
 		assert.equal(listed.body.requests[0].request_uid, record.request_uid);
 		const shared = listed.body.requests[0];
 		const join = { publisher_uid: 'bob', operationId: crypto.randomUUID(), action: 'join', request: shared };

@@ -19,8 +19,19 @@ including deletion tombstones, so offline caches can reconcile removals. The sto
 rejects creation after 10,000 requests instead of silently dropping history.
 
 Routes, request bounds, stable errors, and response shapes are documented in OpenAPI.
-The API stores data with the existing server-side encryption adapter; it does not
-provide a separate client end-to-end encryption protocol.
+
+Request details (`flexible`, `start`, `end`, `type`, `comment`) are encrypted by the
+client with the congregation access code, as reports and applications are. The API
+only checks that they are bounded ciphertext and never decrypts them. GET and POST
+responses return the stored `cong_access_code` so clients can unlock it locally.
+These fields stay readable because the API enforces them:
+
+- `request_uid`, `updatedAt`, `arranged_at`, `_deleted`: identity, revisions and tombstones.
+- `person_uid`, `partner_uid`: ownership and participation checks. They are the linked
+  publisher IDs the API already holds for each member, so sealing them would hide nothing.
+- `date`: rejects past requests and joins on expired ones.
+
+Stored data is additionally protected by the existing server-side encryption adapter.
 
 Deployment must precede client enablement. Local pending edits must retain operation
 IDs and original server revisions. A client must only report an arrangement confirmed

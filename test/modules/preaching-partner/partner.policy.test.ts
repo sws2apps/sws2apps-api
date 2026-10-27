@@ -4,7 +4,8 @@ import { applyPartnerMutation } from '#modules/preaching-partner/partner.policy.
 import type { PartnerMutation, PartnerRequest, PartnerState } from '#modules/preaching-partner/partner.types.js';
 
 const now = '2030-01-01T12:00:00.000Z';
-const request = (id = 'one', owner = 'owner'): PartnerRequest => ({ request_uid: id, request_data: { person_uid: owner, date: '2030/01/02', flexible: true, type: 0, comment: ' hello ', updatedAt: now, _deleted: false } });
+const sealed = (value: unknown) => `U2FsdGVkX1${Buffer.from(JSON.stringify(value)).toString('base64')}`;
+const request = (id = 'one', owner = 'owner'): PartnerRequest => ({ request_uid: id, request_data: { person_uid: owner, date: '2030/01/02', flexible: sealed(true), type: sealed(0), comment: sealed('hello'), updatedAt: now, _deleted: false } });
 const state = (requests: PartnerRequest[] = []): PartnerState => ({ requests, receipts: [] });
 const mutation = (action: PartnerMutation['action'], record = request()): PartnerMutation => ({ publisher_uid: 'actor', operationId: 'operation', action, request: record });
 
@@ -13,7 +14,7 @@ test('create derives ownership from authenticated actor and ignores injected arr
 	const result = applyPartnerMutation(state(), mutation('create', input), 'actor', now);
 	assert.equal(result.changes[0].request_data.person_uid, 'actor');
 	assert.equal(result.changes[0].request_data.partner_uid, undefined);
-	assert.equal(result.changes[0].request_data.comment, 'hello');
+	assert.equal(result.changes[0].request_data.comment, input.request_data.comment);
 });
 test('concurrent joins and stale edits reject without mutating the original state', () => {
 	const initial = state([request()]);
@@ -43,14 +44,16 @@ test('explicit withdrawals are limited to the joining publisher’s open request
 	assert.equal(result.state.requests.find(r => r.request_uid === 'own')?.request_data._deleted, true);
 	assert.equal(result.state.requests.find(r => r.request_uid === 'other')?.request_data._deleted, false);
 });
-test('calendar dates and time ranges are validated and flexible edits remove obsolete times', () => {
+test('calendar dates are validated, details must be ciphertext and edits replace obsolete times', () => {
 	for (const date of ['2030/02/30', '2020/01/01', '2030-01-02']) {
 		const record = request(); record.request_data.date = date;
 		assert.throws(() => applyPartnerMutation(state(), mutation('create', record), 'owner', now), /PARTNER_INVALID/);
 	}
-	const record = request(); Object.assign(record.request_data, { flexible: false, start: '15:00', end: '14:00' });
-	assert.throws(() => applyPartnerMutation(state(), mutation('create', record), 'owner', now), /PARTNER_INVALID/);
-	record.request_data.end = '16:00';
-	const changed = structuredClone(record); changed.request_data.flexible = true;
+	for (const field of ['comment', 'type', 'flexible', 'start'] as const) {
+		const record = request(); record.request_data[field] = 'plain text';
+		assert.throws(() => applyPartnerMutation(state(), mutation('create', record), 'owner', now), /PARTNER_INVALID/);
+	}
+	const record = request(); Object.assign(record.request_data, { flexible: sealed(false), start: sealed('15:00'), end: sealed('16:00') });
+	const changed = structuredClone(record); changed.request_data.flexible = sealed(true); delete changed.request_data.start; delete changed.request_data.end;
 	assert.equal(applyPartnerMutation(state([record]), mutation('edit', changed), 'owner', now).changes[0].request_data.start, undefined);
 });

@@ -1,30 +1,21 @@
 import { createHash } from 'node:crypto';
-import { PartnerError, type PartnerMutation, type PartnerRequest, type PartnerState } from './partner.types.js';
+import { PARTNER_SEALED, PARTNER_SEALED_LIMITS, PartnerError, type PartnerMutation, type PartnerRequest, type PartnerState } from './partner.types.js';
 
 const validDate = (value: string) => {
 	if (!/^\d{4}\/\d{2}\/\d{2}$/.test(value)) return false;
 	const date = new Date(`${value.replaceAll('/', '-')}T00:00:00Z`);
 	return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10).replaceAll('-', '/') === value;
 };
-const validTime = (value?: string) => typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
-
-const validateTimeRange = (data: PartnerRequest['request_data']) => {
-	if (data.flexible) return;
-	if (!validTime(data.start)) throw new PartnerError('PARTNER_INVALID', 400);
-	if (!data.end) return;
-	if (!validTime(data.end) || data.end <= data.start!) throw new PartnerError('PARTNER_INVALID', 400);
-};
+const sealed = (value: unknown, max: number) => typeof value === 'string' && value.length <= max && PARTNER_SEALED.test(value);
 
 const editableData = (request: PartnerRequest, today: string) => {
 	const { date, flexible, start, end, type, comment } = request.request_data;
 	if (!validDate(date) || date < today) throw new PartnerError('PARTNER_INVALID', 400);
-	if (!Number.isInteger(type) || type < 0 || type > 5) throw new PartnerError('PARTNER_INVALID', 400);
-	if (typeof flexible !== 'boolean') throw new PartnerError('PARTNER_INVALID', 400);
-	if (typeof comment !== 'string' || comment.length > 5000) throw new PartnerError('PARTNER_INVALID', 400);
-	validateTimeRange(request.request_data);
-	const result: Pick<PartnerRequest['request_data'], 'date' | 'flexible' | 'type' | 'comment' | 'start' | 'end'> = { date, flexible, type, comment: comment.trim() };
-	if (!flexible) result.start = start;
-	if (!flexible && end) result.end = end;
+	const details = [flexible, type, ...[start, end].filter((value) => value !== undefined)];
+	if (!details.every((value) => sealed(value, PARTNER_SEALED_LIMITS.detail)) || !sealed(comment, PARTNER_SEALED_LIMITS.comment)) throw new PartnerError('PARTNER_INVALID', 400);
+	const result: Pick<PartnerRequest['request_data'], 'date' | 'flexible' | 'type' | 'comment' | 'start' | 'end'> = { date, flexible, type, comment };
+	if (start) result.start = start;
+	if (end) result.end = end;
 	return result;
 };
 

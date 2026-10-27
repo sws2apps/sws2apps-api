@@ -12,23 +12,23 @@ export const resolvePartnerContext = (userId: string, congregationId: string) =>
 	if (!congregation || membership?.id !== congregationId) throw new PartnerError('PARTNER_FORBIDDEN', 403);
 	if (!isCongregationMember(congregation, userId) || !membership.user_local_uid) throw new PartnerError('PARTNER_FORBIDDEN', 403);
 	if (!congregation.settings.data_sync.value) throw new PartnerError('PARTNER_FORBIDDEN', 403);
-	return { actor: membership.user_local_uid, congregationId };
+	return { actor: membership.user_local_uid, congregationId, accessCode: congregation.settings.cong_access_code };
 };
 
 export const createPartnerService = (repository = partnerRepository, resolveContext = resolvePartnerContext) => ({
 	list: async (userId: string, congregationId: string) => {
-		const { actor } = resolveContext(userId, congregationId);
-		return { publisher_uid: actor, requests: (await repository.read(congregationId)).requests };
+		const { actor, accessCode } = resolveContext(userId, congregationId);
+		return { publisher_uid: actor, cong_access_code: accessCode, requests: (await repository.read(congregationId)).requests };
 	},
 	mutate: async (userId: string, congregationId: string, mutation: PartnerMutation) => {
-		const { actor } = resolveContext(userId, congregationId);
+		const { actor, accessCode } = resolveContext(userId, congregationId);
 		if (mutation.publisher_uid !== actor) throw new PartnerError('PARTNER_FORBIDDEN', 403);
 		const requests = await repository.mutate(congregationId, (state) => {
 			if (resolveContext(userId, congregationId).actor !== actor) throw new PartnerError('PARTNER_FORBIDDEN', 403);
 			const { state: updated, changes } = applyPartnerMutation(state, mutation, actor);
 			return { state: updated, result: changes };
 		});
-		return { publisher_uid: actor, requests };
+		return { publisher_uid: actor, cong_access_code: accessCode, requests };
 	},
 });
 
