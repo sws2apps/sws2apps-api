@@ -152,6 +152,40 @@ describe('user backup retrieval permissions', () => {
 		assert.deepEqual(backup.field_service_groups, [{ id: 'group-1' }]);
 	});
 
+	it('serves volunteer activities and all participations to a publisher', async () => {
+		const { matchingMetadata, user } = createBackupContext(['publisher'], true);
+		const requestedMetadata = JSON.parse(matchingMetadata) as Record<string, string>;
+		requestedMetadata.volunteer_activities = 'client-activities-date';
+		requestedMetadata.volunteer_activity_participants = 'client-participants-date';
+		const participants = [
+			{ participation_uid: 'activity-1_person-self' },
+			{ participation_uid: 'activity-1_person-other' },
+		];
+
+		const backup = await retrieveUserBackup(user.id, JSON.stringify(requestedMetadata), {
+			getVolunteerActivities: async () => [{ activity_uid: 'activity-1' }],
+			getVolunteerActivityParticipants: async () => participants,
+		});
+
+		assert.deepEqual(backup.volunteer_activities, [{ activity_uid: 'activity-1' }]);
+		assert.deepEqual(backup.volunteer_activity_participants, participants);
+	});
+
+	it('does not serve volunteer activities without a publisher or admin role', async () => {
+		const { matchingMetadata, user } = createBackupContext(['elder'], true);
+		const requestedMetadata = JSON.parse(matchingMetadata) as Record<string, string>;
+		requestedMetadata.volunteer_activities = 'client-activities-date';
+		requestedMetadata.volunteer_activity_participants = 'client-participants-date';
+
+		const backup = await retrieveUserBackup(user.id, JSON.stringify(requestedMetadata), {
+			getVolunteerActivities: async () => { throw new Error('Unexpected activities read'); },
+			getVolunteerActivityParticipants: async () => { throw new Error('Unexpected participants read'); },
+		});
+
+		assert.equal(backup.volunteer_activities, undefined);
+		assert.equal(backup.volunteer_activity_participants, undefined);
+	});
+
 	it('omits unchanged data without reading storage', async () => {
 		const { matchingMetadata, user } = createBackupContext(['publisher'], true);
 		const backup = await retrieveUserBackup(user.id, matchingMetadata, {

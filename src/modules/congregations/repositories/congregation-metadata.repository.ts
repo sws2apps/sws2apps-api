@@ -122,10 +122,22 @@ export const getCongregationMetadata = async (cong_id: string) => {
 		public_sources: await getPublicSourcesMetadata(cong_id),
 		public_schedules: await getPublicSchedulesMetadata(cong_id),
 		upcoming_events: await getUpcomingEventsMetadata(cong_id),
+		volunteer_activities: await getVolunteerActivitiesMetadata(cong_id),
+		volunteer_activity_participants: await getVolunteerActivityParticipantsMetadata(cong_id),
 	};
 };
 
 export const getUpcomingEventsMetadata = async (cong_id: string) => {
 	const record = await getFileMetadata({ type: 'congregation', path: `${cong_id}/upcoming_events/main.txt` });
+	return record?.updated || '';
+};
+
+export const getVolunteerActivitiesMetadata = async (cong_id: string) => {
+	const record = await getFileMetadata({ type: 'congregation', path: `${cong_id}/volunteer_activities/main.txt` });
+	return record?.updated || '';
+};
+
+export const getVolunteerActivityParticipantsMetadata = async (cong_id: string) => {
+	const record = await getFileMetadata({ type: 'congregation', path: `${cong_id}/volunteer_activities/participants.txt` });
 	return record?.updated || '';
 };

@@ -167,6 +167,92 @@ describe('user backup persistence orchestration', () => {
 	});
 });
 
+describe('volunteer activity participation persistence', () => {
+	const participants = [
+		{ participation_uid: 'activity-1_person-2', participation_data: 'own' },
+		{ participation_uid: 'activity-1_person-1', participation_data: 'someone else' },
+		{ participation_uid: 'activity-2_person-22', participation_data: 'suffix lookalike' },
+	];
+
+	const createSyncedBackup = () => {
+		const congregation = new Congregation('congregation-1');
+		congregation.settings.data_sync.value = true;
+		const backup = { ...createBackup(), volunteer_activity_participants: participants };
+		return { congregation, backup };
+	};
+
+	it('merges only the publisher own participations from a regular backup', async () => {
+		const { congregation, backup } = createSyncedBackup();
+		const user = createUser(congregation.id);
+		const saved: unknown[] = [];
+
+		await saveUserBackupAsync(
+			{ congId: congregation.id, userId: user.id, userRole: ['publisher'], cong_backup: backup },
+			{
+				findCongregationById: () => congregation,
+				findUserById: () => user,
+				saveCongregation: async () => {},
+				updatePersonData: async () => {},
+				applyUserData: async () => {},
+				saveParticipants: async (savedCongregation, records) => {
+					assert.equal(savedCongregation, congregation);
+					saved.push(...records);
+				},
+				logError: () => {
+					throw new Error('A successful backup should not log an error');
+				},
+			},
+		);
+
+		assert.deepEqual(saved, [participants[0]]);
+	});
+
+	it('merges only the Pocket user own participations', async () => {
+		const { congregation, backup } = createSyncedBackup();
+		const user = createUser(congregation.id);
+		const saved: unknown[] = [];
+
+		const outcome = await savePocketBackupAsync(
+			{ userId: user.id, userRole: ['publisher'], cong_backup: backup },
+			{
+				findCongregationById: () => congregation,
+				findUserById: () => user,
+				updatePersonData: async () => {},
+				applyUserData: async () => {},
+				saveParticipants: async (_congregation, records) => {
+					saved.push(...records);
+				},
+			},
+		);
+
+		assert.deepEqual(outcome, { status: 'saved' });
+		assert.deepEqual(saved, [participants[0]]);
+	});
+
+	it('ignores participations without data sync or the publisher role', async () => {
+		for (const [dataSync, roles] of [[false, ['publisher']], [true, ['elder']]] as const) {
+			const { congregation, backup } = createSyncedBackup();
+			congregation.settings.data_sync.value = dataSync;
+			const user = createUser(congregation.id);
+
+			const outcome = await savePocketBackupAsync(
+				{ userId: user.id, userRole: [...roles], cong_backup: backup },
+				{
+					findCongregationById: () => congregation,
+					findUserById: () => user,
+					updatePersonData: async () => {},
+					applyUserData: async () => {},
+					saveParticipants: async () => {
+						throw new Error('Participations must not be saved');
+					},
+				},
+			);
+
+			assert.deepEqual(outcome, { status: 'saved' });
+		}
+	});
+});
+
 describe('Pocket backup persistence orchestration', () => {
 	it('restores the matching Pocket person record before applying user data', async () => {
 		const user = createUser();

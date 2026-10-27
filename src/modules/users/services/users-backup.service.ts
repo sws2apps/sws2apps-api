@@ -18,6 +18,8 @@ import {
 	getSpeakersCongregations,
 	getUpcomingEvents,
 	getVisitingSpeakers,
+	getVolunteerActivities,
+	getVolunteerActivityParticipants,
 } from '#modules/congregations/index.js';
 import {
 	getUserBackupContext,
@@ -47,6 +49,8 @@ export type UserBackupRetrievalOperations = {
 	getUserDelegatedFieldServiceReports: typeof getUserStoredDelegatedFieldServiceReports;
 	getUserFieldServiceReports: typeof getUserStoredFieldServiceReports;
 	getVisitingSpeakers: typeof getVisitingSpeakers;
+	getVolunteerActivities: typeof getVolunteerActivities;
+	getVolunteerActivityParticipants: typeof getVolunteerActivityParticipants;
 };
 
 const defaultBackupRetrievalOperations: UserBackupRetrievalOperations = {
@@ -67,6 +71,8 @@ const defaultBackupRetrievalOperations: UserBackupRetrievalOperations = {
 	getUserDelegatedFieldServiceReports: getUserStoredDelegatedFieldServiceReports,
 	getUserFieldServiceReports: getUserStoredFieldServiceReports,
 	getVisitingSpeakers,
+	getVolunteerActivities,
+	getVolunteerActivityParticipants,
 };
 
 type UserBackupContext = ReturnType<typeof getUserBackupContext> & {
@@ -230,6 +236,26 @@ const addPublisherReports = async (context: UserBackupContext): Promise<void> =>
 			result.cong_field_service_reports = congUserReports;
 			result.metadata.cong_field_service_reports = localDate;
 		}
+	}
+};
+
+const addVolunteerActivities = async (context: UserBackupContext): Promise<void> => {
+	const { congregation, metadata, result, backupOperations, capabilities } = context;
+	const { isPublisher, adminRole } = capabilities;
+
+	if (!adminRole && !isPublisher) return;
+
+	if (congregation.metadata.volunteer_activities !== metadata.volunteer_activities) {
+		const localDate = congregation.metadata.volunteer_activities;
+		result.volunteer_activities = await backupOperations.getVolunteerActivities(congregation.id);
+		result.metadata.volunteer_activities = localDate;
+	}
+
+	if (congregation.metadata.volunteer_activity_participants !== metadata.volunteer_activity_participants) {
+		const localDate = congregation.metadata.volunteer_activity_participants;
+		result.volunteer_activity_participants =
+			await backupOperations.getVolunteerActivityParticipants(congregation.id);
+		result.metadata.volunteer_activity_participants = localDate;
 	}
 };
 
@@ -454,6 +480,7 @@ export const retrieveUserBackup = async (
 		await addCongregationReports(context);
 		await addPublicTalkDetails(context);
 		await addPublisherReports(context);
+		await addVolunteerActivities(context);
 		await addMinimalPersons(context);
 		await addPublicSchedules(context);
 		await addPrivateSchedules(context);

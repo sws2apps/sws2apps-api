@@ -3349,6 +3349,8 @@
           "sched": { "$ref": "#/components/schemas/RecordList" },
           "sources": { "$ref": "#/components/schemas/RecordList" },
           "upcoming_events": { "$ref": "#/components/schemas/RecordList" },
+          "volunteer_activities": { "$ref": "#/components/schemas/RecordList" },
+          "volunteer_activity_participants": { "$ref": "#/components/schemas/RecordList" },
           "user_bible_studies": { "$ref": "#/components/schemas/RecordList" },
           "user_field_service_reports": { "$ref": "#/components/schemas/RecordList" },
           "delegated_field_service_reports": { "$ref": "#/components/schemas/RecordList" },

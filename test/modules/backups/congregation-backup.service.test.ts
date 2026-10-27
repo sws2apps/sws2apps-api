@@ -23,6 +23,7 @@ const createBackup = (): BackupData => ({
 	sched: [{ id: 'schedule-1' }],
 	sources: [{ id: 'source-1' }],
 	upcoming_events: [{ id: 'event-1' }],
+	volunteer_activities: [{ activity_uid: 'activity-1' }],
 	incoming_reports: [{ id: 'incoming-report-1' }],
 	cong_field_service_reports: [{ id: 'congregation-report-1' }],
 	speakers_key: 'incoming-speakers-key',
@@ -122,6 +123,7 @@ describe('congregation backup persistence', () => {
 			'cong_field_service_reports',
 			'meeting_attendance',
 			'upcoming_events',
+			'volunteer_activities',
 			'outgoing_speakers',
 			'incoming_reports',
 		]);
