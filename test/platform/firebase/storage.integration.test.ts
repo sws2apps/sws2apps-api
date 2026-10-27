@@ -69,19 +69,56 @@ test(
 	},
 );
 
-test('generation-checked meeting writes retain concurrent updates in the Storage emulator', { skip: !shouldRunFirebaseTests }, async () => {
+test('versioned meeting writes retry a competing generation and retain queued updates', { skip: !shouldRunFirebaseTests }, async () => {
 	requireLocalStorageEmulator();
 	await import('#platform/firebase/firebase-app.js');
-	const { readModifyWriteVersionedFile, getFileFromStorage, deleteFileFromStorage } = await import('#platform/firebase/storage.js');
+	const { readModifyWriteVersionedFile, getFileFromStorage, deleteFileFromStorage, uploadFileToStorage, buildStoragePath } = await import('#platform/firebase/storage.js');
+	const { getStorage } = await import('firebase-admin/storage');
 	const directory = `integration-tests/cas-${process.pid}-${Date.now()}`;
 	const options = { type: 'congregation' as const, path: `${directory}/meetings.txt` };
 	try {
+		let attempts = 0;
 		await Promise.all(['a', 'b'].map((id) => readModifyWriteVersionedFile(options, async (current) => {
 			const values = current ? JSON.parse(current) as string[] : [];
+			if (id === 'a' && attempts++ === 0) {
+				await uploadFileToStorage(JSON.stringify(['external']), options);
+			}
 			values.push(id);
 			return { data: JSON.stringify(values), result: id };
+		}, {
+			// The pinned emulator ignores GCS upload preconditions. Model its 412 response
+			// against real object generations to exercise storage reloads and retry authorization.
+			write: async (data, target, generation) => {
+				const [metadata] = await getStorage().bucket().file(buildStoragePath(target)).getMetadata();
+				if (String(metadata.generation) !== String(generation)) {
+					throw Object.assign(new Error('Generation conflict'), { code: 412 });
+				}
+				await uploadFileToStorage(data, target);
+			},
 		})));
-		assert.deepEqual((JSON.parse((await getFileFromStorage(options))!) as string[]).sort(), ['a', 'b']);
+		assert.deepEqual((JSON.parse((await getFileFromStorage(options))!) as string[]).sort(), ['a', 'b', 'external']);
+		assert.equal(attempts, 2);
+	} finally {
+		await deleteFileFromStorage({ type: 'congregation', path: directory });
+	}
+});
+
+test('unreadable stored meetings are never replaced by an empty or partial upload', { skip: !shouldRunFirebaseTests }, async () => {
+	requireLocalStorageEmulator();
+	await import('#platform/firebase/firebase-app.js');
+	const { getStorage } = await import('firebase-admin/storage');
+	const { buildStoragePath, deleteFileFromStorage } = await import('#platform/firebase/storage.js');
+	const { saveFieldServiceMeetings } = await import('#modules/field-service-meetings/index.js');
+	const directory = `integration-tests/corrupted-${process.pid}-${Date.now()}`;
+	const file = getStorage().bucket().file(buildStoragePath({ type: 'congregation', path: `${directory}/field_service_meetings/main.txt` }));
+	const contents = 'not-a-valid-encrypted-document';
+	try {
+		await file.save(contents, { resumable: false });
+		const [before] = await file.getMetadata();
+		await assert.rejects(saveFieldServiceMeetings(directory, () => ({ congregationId: directory, roles: ['admin'] })));
+		const [after] = await file.getMetadata();
+		assert.equal(after.generation, before.generation);
+		assert.equal((await file.download())[0].toString(), contents);
 	} finally {
 		await deleteFileFromStorage({ type: 'congregation', path: directory });
 	}
@@ -96,7 +133,7 @@ test('meeting backup services enforce real stored ownership while sharing meetin
 	const { Congregation } = await import('#modules/congregations/congregation.js');
 	const { saveUserBackup, saveUserChunkedBackup } = await import('#modules/users/services/user-backup-upload.service.js');
 	const { retrieveUserBackup } = await import('#modules/users/services/users-backup.service.js');
-	const { FieldServiceWriteError, getFieldServiceMeetings } = await import('#modules/field-service-meetings/index.js');
+	const { FieldServiceWriteError, getFieldServiceMeetings, getFieldServiceMetadata } = await import('#modules/field-service-meetings/index.js');
 	const { deleteFileFromStorage } = await import('#platform/firebase/storage.js');
 	const previousUsers = UsersList.list; const previousCongregations = CongregationsList.list;
 	const id = `integration-meetings-${process.pid}-${Date.now()}`;
@@ -114,6 +151,10 @@ test('meeting backup services enforce real stored ownership while sharing meetin
 		assert.equal(created.status, 'saved');
 		if (created.status !== 'saved') throw new Error('Expected persisted backup');
 		assert.equal(created.field_service_meeting_receipts?.length, 2);
+		const storedMetadata = await getFieldServiceMetadata(id, {
+			getDocument: async () => { throw new Error('Object metadata must avoid downloading the document'); },
+		});
+		assert.equal(storedMetadata.field_service_meetings, congregation.metadata.field_service_meetings);
 
 		user.profile.congregation.cong_role = ['publisher'];
 		const metadata = JSON.stringify({ ...congregation.metadata, ...user.metadata, field_service_meetings: '' });

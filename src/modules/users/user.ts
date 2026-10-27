@@ -6,6 +6,8 @@ import type {
 } from './types/user.types.js';
 
 export class User {
+	/** Runtime revocation guard while congregation removal is being persisted. */
+	pendingMembershipRemovals = 0;
 	id: string;
 	email?: string;
 	auth_provider?: string;

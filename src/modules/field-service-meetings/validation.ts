@@ -37,6 +37,7 @@ const hasValidAuthority = (authority: Record<string, unknown>): boolean => {
 export const isFieldServiceMeetingRecord = (value: unknown): value is FieldServiceMeetingRecord => {
 	if (!isObject(value) || !isIdentifier(value.meeting_uid) || !isObject(value.authorization)) return false;
 	if (value.revision !== undefined && !isIdentifier(value.revision)) return false;
+	if (value.content_hash !== undefined && (typeof value.content_hash !== 'string' || !/^[a-f0-9]{64}$/.test(value.content_hash))) return false;
 	if (typeof value.meeting_data !== 'string' || !value.meeting_data.length) return false;
 	return hasValidAuthority(value.authorization);
 };

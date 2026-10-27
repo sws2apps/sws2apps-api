@@ -39,7 +39,7 @@ const saveSchedulingData = async (
 	backup: BackupDataWithOptionalMetadata,
 	saveMeetings: typeof saveFieldServiceMeetings,
 ): Promise<FieldServiceMeetingReceipt[]> => {
-	if (!backup.field_service_meetings && !backup.field_service_scheduling) return [];
+	if (!backup.field_service_meetings?.length && !backup.field_service_scheduling) return [];
 	const { congregation } = getUserBackupContext(userId);
 	if (!congregation.settings.data_sync.value) throw new UserBackupError('INVALID_BACKUP');
 	const document = await saveMeetings(

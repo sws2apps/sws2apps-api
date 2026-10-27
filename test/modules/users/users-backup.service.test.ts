@@ -112,6 +112,16 @@ describe('user backup retrieval permissions', () => {
 		assert.equal(backup.app_settings.cong_settings?.cong_master_key, undefined);
 	});
 
+	it('refreshes sanitized persons after scheduler rights are removed without changing persons', async () => {
+		const { congregation, user } = createBackupContext(['publisher'], true);
+		user.metadata.user_settings = 'rights-removed';
+		const result = await retrieveUserBackup(user.id, JSON.stringify({ ...congregation.metadata, ...user.metadata, user_settings: 'old-rights' }), {
+			getCongregationPersons: async () => [{ person_uid: 'other', person_data: { assignments: 'private', archived: 'private' } }],
+		});
+		assert.equal((result.persons[0].person_data as StandardRecord).assignments, undefined);
+		assert.equal((result.persons[0].person_data as StandardRecord).archived, undefined);
+	});
+
 	it('returns a stable error when the user does not exist', async () => {
 		await assert.rejects(
 			retrieveUserBackup('missing-user', '{}'),

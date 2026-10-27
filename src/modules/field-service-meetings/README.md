@@ -14,7 +14,11 @@ or obtain a congregation master key.
 Clients automatically derive the scope from group responsibilities and conductor
 qualifications. Only the scope's opaque IDs and the meeting's authorization envelope
 are server-readable. Meeting details remain encrypted with the congregation access
-code. Clients override encrypted duplicates of group/category/conductor/deletion
+code. An optional HMAC-SHA256 content fingerprint, keyed by that access code,
+distinguishes edits from randomized re-encryption retries even when timestamps
+match. Clients without a fingerprint are acknowledged as retries only when their
+ciphertext is identical; otherwise the normal revision check applies.
+Clients override encrypted duplicates of group/category/conductor/deletion
 with the validated envelope after decryption. Server scope IDs are not manually
 configured in an additional UI.
 
@@ -23,7 +27,10 @@ tombstones. Records merge by meeting UID; omitting another group's record never
 deletes it. Opaque per-record revisions reject stale updates. Scope replacements
 also require their last accepted revision. Storage generation preconditions retry
 competing writes across API instances and re-run authorization against the latest
-scope. Rights are resolved again on each attempt.
+scope. Rights are resolved again on each attempt. Meeting merges index stored IDs
+once rather than scanning the meeting list for every uploaded row. Revision strings
+are also stored atomically as object metadata, so unchanged backup requests do not
+download the full meeting document merely to compare revisions.
 
 Authorization reuses the shared user capabilities. Backup services also recheck
 current membership and synchronization availability on every storage attempt.
@@ -32,7 +39,9 @@ existing `FIELD_SERVICE_FORBIDDEN` response instead of retargeting its data.
 
 Successful uploads return per-record receipts only after persistence completes.
 The app advances the accepted base revision while preserving edits made during the
-upload. A genuinely conflicting offline edit stays pending and produces a conflict
+upload. Ordinary backup datasets use their existing independent persistence flow;
+a later meeting conflict does not roll back those datasets. They can be retried
+idempotently while the meeting conflict stays pending. A genuinely conflicting offline edit stays pending and produces a conflict
 instead of silently replacing a newer server record.
 
 Deploy the API support before the matching app. Existing encrypted local backups

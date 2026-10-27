@@ -1099,7 +1099,19 @@
           "401": { "$ref": "#/components/responses/MfaRequired" },
           "403": { "$ref": "#/components/responses/AuthenticatedRequestForbidden" },
           "404": { "$ref": "#/components/responses/AccountContextNotFound" },
-          "409": { "$ref": "#/components/responses/BackupConflict" },
+          "409": {
+            "description": "Another backup is active, or a meeting or scheduling scope revision conflicts. Other backup datasets may already have been persisted; rejected meeting batches are atomic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/BackupUploadConflict" },
+                    { "$ref": "#/components/schemas/FieldServiceConflictError" }
+                  ]
+                }
+              }
+            }
+          },
           "429": { "$ref": "#/components/responses/TooManyRequests" },
           "500": { "$ref": "#/components/responses/InternalError" },
           "503": { "$ref": "#/components/responses/ServerNotReady" }
@@ -2642,20 +2654,10 @@
     },
     "responses": {
       "FieldServiceWriteConflict": {
-        "description": "A meeting or scheduling scope changed since the submitted revision. Nothing from the rejected meeting batch is committed.",
+        "description": "A meeting or scheduling scope changed since the submitted revision. Nothing from the rejected meeting batch is committed. Other backup datasets may already have been persisted and can be retried independently.",
         "content": {
           "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "enum": [
-                    "FIELD_SERVICE_CONFLICT"
-                  ]
-                }
-              }
-            }
+            "schema": { "$ref": "#/components/schemas/FieldServiceConflictError" }
           }
         }
       },
@@ -2687,7 +2689,7 @@
         }
       },
       "AuthenticatedRequestForbidden": {
-        "description": "Authentication or ownership checks rejected the request.",
+        "description": "Authentication or ownership checks rejected the request. Meeting writes can return FIELD_SERVICE_FORBIDDEN.",
         "content": {
           "application/json": {
             "schema": {
@@ -2818,10 +2820,10 @@
         }
       },
       "BackupConflict": {
-        "description": "The metadata is outdated or another backup upload is active.",
+        "description": "Another backup upload is active.",
         "content": {
           "application/json": {
-            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "schema": { "$ref": "#/components/schemas/BackupUploadConflict" },
             "example": { "message": "error_api_sync-conflict" }
           }
         }
@@ -3114,6 +3116,17 @@
       }
     },
     "schemas": {
+      "BackupUploadConflict": {
+        "allOf": [
+          { "$ref": "#/components/schemas/ErrorResponse" },
+          { "properties": { "message": { "type": "string", "enum": ["error_api_sync-conflict"] } } }
+        ]
+      },
+      "FieldServiceConflictError": {
+        "type": "object",
+        "required": ["message"],
+        "properties": { "message": { "type": "string", "enum": ["FIELD_SERVICE_CONFLICT"] } }
+      },
       "AdministrationResult": {
         "description": "The current administration projection returned by the operation.",
         "oneOf": [
@@ -3362,6 +3375,11 @@
           "revision": {
             "type": "string",
             "description": "Opaque server revision. Omit for creates; echo the last accepted revision for edits and deletions."
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "Optional client HMAC-SHA256 of canonical meeting content, keyed by the congregation access code. Stable across re-encryption retries; different edits must have different identities."
           },
           "meeting_data": {
             "type": "string",

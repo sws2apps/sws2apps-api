@@ -224,7 +224,9 @@ describe('recurring field-service time permissions', () => {
 		const congregation = new Congregation('congregation-1');
 		congregation.settings.field_service_meeting_times = recurring('09:30');
 		const backup = createBackup();
-		backup.app_settings.cong_settings = { ...structuredClone(congregation.settings), field_service_meeting_times: recurring('10:30') };
+		const incoming = recurring('10:30');
+		incoming[0].time.updatedAt = '2100-01-01';
+		backup.app_settings.cong_settings = { ...structuredClone(congregation.settings), field_service_meeting_times: incoming };
 		const recorder = createOperations();
 		await saveCongregationBackup(congregation, backup, ['midweek_schedule'], recorder.operations);
 		assert.equal(recorder.getSavedSettings()?.field_service_meeting_times?.[0].time.value, '09:30');

@@ -94,7 +94,9 @@ describe('Pocket backup submission', () => {
 			const requestedMetadata = JSON.parse(metadata) as Record<string, string>;
 			requestedMetadata.user_settings = 'old-user-settings';
 			requestedMetadata.cong_settings = 'old-congregation-settings';
-			const backup = await retrievePocketBackup(user.id, JSON.stringify(requestedMetadata));
+			const backup = await retrievePocketBackup(user.id, JSON.stringify(requestedMetadata), {
+				getPersons: async () => [],
+			});
 			assert.equal(backup.app_settings.cong_settings?.cong_master_key, undefined);
 			assert.equal(congregation.settings.cong_master_key, 'private-master-key');
 			const userSettings = backup.app_settings.user_settings as Record<string, unknown>;
@@ -102,7 +104,7 @@ describe('Pocket backup submission', () => {
 			assert.equal(userSettings.theme_follow_os_enabled, undefined);
 			assert.equal(backup.metadata.user_settings, user.metadata.user_settings);
 			assert.equal(backup.metadata.cong_settings, congregation.metadata.cong_settings);
-			assert.equal(backup.persons, undefined);
+			assert.deepEqual(backup.persons, dataSyncEnabled ? [] : undefined);
 		});
 	}
 
@@ -140,7 +142,7 @@ describe('Pocket backup submission', () => {
 	it('rejects a meeting upload if synchronization is disabled while waiting', async () => {
 		const { backup, congregation, metadata, user } = createPocketBackupContext();
 		congregation.settings.data_sync.value = true;
-		backup.field_service_meetings = [];
+		backup.field_service_meetings = [{ meeting_uid: 'one', meeting_data: 'cipher', authorization: { category: 0, group_id: 'group', conductor: 'conductor', deleted: false, updatedAt: '2026-10-26T00:00:00Z' } }];
 		const initialMetadata = { ...congregation.metadata };
 
 		await assert.rejects(submitPocketBackup(user.id, metadata, backup, {
@@ -153,6 +155,43 @@ describe('Pocket backup submission', () => {
 			},
 		}), (error: unknown) => error instanceof PocketBackupError && error.code === 'MEMBERSHIP_REQUIRED');
 		assert.deepEqual(congregation.metadata, initialMetadata);
+	});
+
+	it('validates malformed meeting and scope payloads before any persistence', async () => {
+		const { backup, metadata, user } = createPocketBackupContext();
+		for (const payload of [
+			{ field_service_meetings: null },
+			{ field_service_meetings: [{ meeting_uid: 'unvalidated' }] },
+			{ field_service_scheduling: { base_revision: '', groups: 'invalid' } },
+		]) {
+			let persisted = false;
+			await assert.rejects(submitPocketBackup(user.id, metadata, { ...backup, ...payload } as BackupData, {
+				saveBackup: async () => { persisted = true; return { status: 'saved' }; },
+			}), (error: unknown) => error instanceof PocketBackupError && error.code === 'INVALID_BACKUP');
+			assert.equal(persisted, false);
+		}
+	});
+
+	it('accepts an empty meeting list as an ordinary backup with synchronization disabled', async () => {
+		const { backup, metadata, user } = createPocketBackupContext();
+		backup.field_service_meetings = [];
+		const result = await submitPocketBackup(user.id, metadata, backup, {
+			saveBackup: async () => ({ status: 'saved' }),
+			saveMeetings: async () => { throw new Error('Empty meeting write must be skipped'); },
+		});
+		assert.deepEqual(result.field_service_meeting_receipts, []);
+	});
+
+	it('refreshes sanitized persons when scheduling rights are removed', async () => {
+		const { user, congregation } = createPocketBackupContext();
+		congregation.settings.data_sync.value = true;
+		user.metadata.user_settings = 'new-roles';
+		const metadata = JSON.stringify({ ...congregation.metadata, ...user.metadata, user_settings: 'old-roles' });
+		const result = await retrievePocketBackup(user.id, metadata, {
+			getPersons: async () => [{ person_uid: 'other', person_data: { assignments: 'private', archived: 'private' } }],
+		});
+		assert.equal((result.persons[0].person_data as Record<string, unknown>).assignments, undefined);
+		assert.equal((result.persons[0].person_data as Record<string, unknown>).archived, undefined);
 	});
 });
 
@@ -167,11 +206,12 @@ describe('Pocket field-service access', () => {
 			const meetings = ['first', 'second'].map((group_id) => ({ meeting_uid: group_id, meeting_data: 'cipher', authorization: { category: 0 as const, group_id, conductor: 'conductor', deleted: false, updatedAt: '2026-10-26T00:00:00Z' } }));
 			const metadata = JSON.stringify({ ...congregation.metadata, ...user.metadata, field_service_groups: 'old' });
 			const result = await retrievePocketBackup(user.id, metadata, {
-				getMetadata: async () => ({ field_service_meetings: 'fresh', field_service_scheduling: '' }),
+				getMetadata: async () => ({ field_service_meetings: 'fresh', field_service_scheduling: 'scope-fresh' }),
 				getMeetings: async () => meetings,
 				getGroups: async () => groups,
 			});
 			assert.deepEqual(result.field_service_meetings, meetings);
+			assert.equal(result.metadata.field_service_scheduling, 'scope-fresh');
 			assert.equal(result.app_settings.cong_settings?.cong_master_key, undefined);
 			assert.deepEqual(result.field_service_groups, groups);
 		} finally { UsersList.list = oldUsers; CongregationsList.list = oldCongregations; }

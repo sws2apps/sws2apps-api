@@ -23,6 +23,7 @@ import {
 import {
 	getUserBackupContext,
 	parseUserBackupMetadata,
+	UserBackupError,
 } from '../user-backup-context.js';
 import {
 	getUserStoredBibleStudies,
@@ -259,7 +260,7 @@ const addMinimalPersons = async (context: UserBackupContext): Promise<void> => {
 
 	if (!personMinimal) return;
 
-	const refreshEligibility = fieldServiceScheduler && user.metadata.user_settings !== metadata.user_settings;
+	const refreshEligibility = user.metadata.user_settings !== metadata.user_settings;
 	if (congregation.metadata.persons !== metadata.persons || refreshEligibility) {
 		const localDate = congregation.metadata.persons;
 		const persons = await backupOperations.getCongregationPersons(congregation.id);
@@ -490,5 +491,7 @@ export const retrieveUserBackup = async (
 		await addUnsynchronizedSettings(context);
 	}
 
+	const current = getUserBackupContext(userId);
+	if (current.congregation.id !== congregation.id) throw new UserBackupError('CONGREGATION_NOT_ASSIGNED');
 	return result;
 };

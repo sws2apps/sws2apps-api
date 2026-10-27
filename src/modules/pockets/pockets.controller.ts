@@ -40,6 +40,10 @@ const handlePocketBackupError = (error: unknown, res: Response): boolean => {
 		sendClientError(res, 400, 'error_api_bad-request', 'invalid backup metadata');
 		return true;
 	}
+	if (error.code === 'INVALID_BACKUP') {
+		sendClientError(res, 400, 'BACKUP_PAYLOAD_INVALID', 'backup payload is invalid');
+		return true;
+	}
 
 	if (error.code === 'CONGREGATION_NOT_FOUND') {
 		res.clearCookie('visitorid');

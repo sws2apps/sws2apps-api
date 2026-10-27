@@ -50,6 +50,7 @@ describe('user capabilities', () => {
 		{ role: 'service_overseer', allGroups: true, scopeAdmin: true, scheduler: true },
 		{ role: 'field_service_schedule', allGroups: true, scopeAdmin: false, scheduler: true },
 		{ role: 'group_overseers', allGroups: false, scopeAdmin: false, scheduler: true },
+		{ role: 'field_service_group_overseer', allGroups: false, scopeAdmin: false, scheduler: true },
 		{ role: 'language_group_overseers', allGroups: false, scopeAdmin: false, scheduler: true },
 		{ role: 'publisher', allGroups: false, scopeAdmin: false, scheduler: false },
 		{ role: 'elder', allGroups: false, scopeAdmin: false, scheduler: false },

@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { mergeFieldServiceUpload } from '#modules/field-service-meetings/policy.js';
-import { hasValidFieldServiceBackup } from '#modules/field-service-meetings/validation.js';
+import { hasValidFieldServiceBackup } from '#modules/field-service-meetings/index.js';
 import { FieldServiceWriteError, type FieldServiceDocument, type FieldServiceMeetingRecord, type SchedulingActor } from '#modules/field-service-meetings/index.js';
 import { parseBackupPayload } from '#modules/backups/index.js';
 
 const actor = (personUid = 'lead', roles: SchedulingActor['roles'] = ['group_overseers']): SchedulingActor => ({ congregationId: 'cong', personUid, roles });
 const record = (uid = 'meeting-a', group_id = 'group-a'): FieldServiceMeetingRecord => ({
 	meeting_uid: uid,
+	content_hash: 'a'.repeat(64),
 	authorization: { group_id, category: 0, conductor: `conductor-${group_id}`, deleted: false, updatedAt: '2026-10-26T08:00:00.000Z' },
 	meeting_data: 'encrypted-content',
 });
@@ -53,6 +54,11 @@ describe('field service server authorization', () => {
 		denied(() => mergeFieldServiceUpload(document(), actor('publisher', ['publisher']), [record()]));
 		denied(() => mergeFieldServiceUpload(document(), actor('delegate', ['group_overseers']), [record()]));
 		denied(() => mergeFieldServiceUpload(document(), actor('lead', ['publisher']), [record()]));
+	});
+	it('supports the existing field-service group-overseer role only within its trusted scope', () => {
+		const manager = actor('lead', ['field_service_group_overseer']);
+		assert.equal(mergeFieldServiceUpload(document(), manager, [record()]).meetings.length, 1);
+		denied(() => mergeFieldServiceUpload(document(), manager, [record('other', 'group-b')]));
 	});
 	it('checks the stored group before accepting a forged move or deletion', () => {
 		const current = document(); current.meetings = [{ ...record('victim', 'group-b'), revision: 'r1' }];
@@ -115,6 +121,35 @@ describe('field service server authorization', () => {
 		const repeat = structuredClone(current.meetings[0]); repeat.meeting_data = 'reencrypted-same-content';
 		assert.equal(mergeFieldServiceUpload(current, actor(), [repeat]).meetings[0].revision, 'r1');
 	});
+	it('does not acknowledge different content with the same timestamp as an unchanged edit', () => {
+		const current = document();
+		current.meetings = [{ ...record(), revision: 'r1' }];
+		const edit = { ...structuredClone(current.meetings[0]), content_hash: 'b'.repeat(64), meeting_data: 'different-edit' };
+		const saved = mergeFieldServiceUpload(current, actor(), [edit], undefined, () => 'r2');
+		assert.equal(saved.meetings[0].meeting_data, 'different-edit');
+		assert.equal(saved.meetings[0].revision, 'r2');
+		denied(() => mergeFieldServiceUpload(saved, actor(), [{ ...edit, content_hash: 'c'.repeat(64) }]), 'CONFLICT');
+	});
+	it('only treats identical ciphertext as a retry for older records without a content identity', () => {
+		const current = document();
+		const older = { ...record(), revision: 'r1' };
+		delete older.content_hash;
+		current.meetings = [older];
+		assert.equal(mergeFieldServiceUpload(current, actor(), [older]).meetings[0].revision, 'r1');
+		const changed = { ...older, meeting_data: 'new-encryption-or-edit' };
+		const saved = mergeFieldServiceUpload(current, actor(), [changed], undefined, () => 'r2');
+		assert.equal(saved.meetings[0].meeting_data, changed.meeting_data);
+		denied(() => mergeFieldServiceUpload(saved, actor(), [{ ...changed, meeting_data: 'another-edit' }]), 'CONFLICT');
+	});
+	it('merges a large batch by identity while preserving stored order and omitted records', () => {
+		const current = document();
+		current.meetings = [{ ...record('stored'), revision: 'r1' }];
+		const upload = Array.from({ length: 10_000 }, (_, index) => record(`meeting-${index}`));
+		const saved = mergeFieldServiceUpload(current, actor('admin', ['admin']), upload);
+		assert.equal(saved.meetings.length, 10_001);
+		assert.equal(saved.meetings[0].meeting_uid, 'stored');
+		assert.equal(saved.meetings.at(-1)?.meeting_uid, 'meeting-9999');
+	});
 	it('unchanged authorization is independent of JSON object key order', () => {
 		const current = document(); current.meetings = [{ ...record(), revision: 'r1' }];
 		const repeat = structuredClone(current.meetings[0]);
@@ -134,6 +169,7 @@ describe('field service wire validation', () => {
 		for (const meeting of [
 			{ ...record(), authorization: undefined },
 			{ ...record(), meeting_data: {} },
+			{ ...record(), content_hash: 'invalid' },
 			{ ...record(), authorization: { ...record().authorization, category: '0' } },
 			{ ...record(), authorization: { ...record().authorization, category: 1 } },
 			{ ...record(), authorization: { ...record().authorization, updatedAt: 'yesterday' } },

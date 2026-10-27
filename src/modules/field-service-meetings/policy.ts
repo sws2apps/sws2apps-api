@@ -7,6 +7,15 @@ import type {
 } from './types.js';
 import { FieldServiceWriteError } from './types.js';
 
+type SchedulingScopeIndex = Map<string, { managers: Set<string>; conductors: Set<string> }>;
+
+const indexSchedulingScope = (scope: FieldServiceDocument['scope']): SchedulingScopeIndex => {
+	return new Map(scope.map((group) => [group.group_id, {
+		managers: new Set(group.manager_uids),
+		conductors: new Set(group.conductor_uids),
+	}]));
+};
+
 const canManageSchedulingScope = (actor: SchedulingActor): boolean => {
 	return getUserCapabilities(actor.roles).serviceCommiteeRole;
 };
@@ -18,26 +27,21 @@ const canManageAllMeetings = (actor: SchedulingActor): boolean => {
 const canManageGroup = (
 	actor: SchedulingActor,
 	record: FieldServiceMeetingRecord,
-	document: FieldServiceDocument,
+	scope: SchedulingScopeIndex,
 ): boolean => {
 	if (canManageAllMeetings(actor)) return true;
 	const { fieldServiceScheduler } = getUserCapabilities(actor.roles);
 	const { personUid } = actor;
 	if (!fieldServiceScheduler || record.authorization.category !== 0 || !personUid) return false;
 
-	return document.scope.some((group) => {
-		return group.group_id === record.authorization.group_id && group.manager_uids.includes(personUid);
-	});
+	return scope.get(record.authorization.group_id ?? '')?.managers.has(personUid) ?? false;
 };
 
 const canUseConductor = (
 	record: FieldServiceMeetingRecord,
-	document: FieldServiceDocument,
+	scope: SchedulingScopeIndex,
 ): boolean => {
-	return document.scope.some((group) => {
-		return group.group_id === record.authorization.group_id
-			&& group.conductor_uids.includes(record.authorization.conductor);
-	});
+	return scope.get(record.authorization.group_id ?? '')?.conductors.has(record.authorization.conductor) ?? false;
 };
 
 const canonicalizeScope = (groups: FieldServiceDocument['scope']) => {
@@ -82,19 +86,24 @@ const isUnchangedMeeting = (
 ): boolean => {
 	const authority = current?.authorization;
 	if (incoming.authorization.updatedAt !== authority?.updatedAt) return false;
+	// Older clients have no stable edit identity; only exact ciphertext retries are safe.
+	const sameContent = incoming.content_hash && current?.content_hash
+		? incoming.content_hash === current.content_hash
+		: incoming.meeting_data === current?.meeting_data;
+	if (!sameContent) return false;
 	if (!sameAuthority(incoming.authorization, authority)) throw new FieldServiceWriteError('CONFLICT');
 	return true;
 };
 
 const assertMeetingAccess = (
-	document: FieldServiceDocument,
+	scope: SchedulingScopeIndex,
 	record: FieldServiceMeetingRecord,
 	current: FieldServiceMeetingRecord | undefined,
 	actor: SchedulingActor,
 ): void => {
 	// Check both sides of moves and tombstones; the submitted group cannot redefine ownership.
-	if (current && !canManageGroup(actor, current, document)) throw new FieldServiceWriteError('FORBIDDEN');
-	if (!canManageGroup(actor, record, document)) throw new FieldServiceWriteError('FORBIDDEN');
+	if (current && !canManageGroup(actor, current, scope)) throw new FieldServiceWriteError('FORBIDDEN');
+	if (!canManageGroup(actor, record, scope)) throw new FieldServiceWriteError('FORBIDDEN');
 };
 
 const mergeMeeting = (
@@ -102,18 +111,24 @@ const mergeMeeting = (
 	record: FieldServiceMeetingRecord,
 	actor: SchedulingActor,
 	revision: string,
+	meetingIndexes: Map<string, number>,
+	scope: SchedulingScopeIndex,
 ): void => {
-	const index = document.meetings.findIndex((meeting) => meeting.meeting_uid === record.meeting_uid);
-	const current = document.meetings[index];
-	assertMeetingAccess(document, record, current, actor);
+	const index = meetingIndexes.get(record.meeting_uid);
+	const current = index === undefined ? undefined : document.meetings[index];
+	assertMeetingAccess(scope, record, current, actor);
 	if (isUnchangedMeeting(current, record)) return;
 	if (record.revision !== current?.revision) throw new FieldServiceWriteError('CONFLICT');
 	const restrictedEdit = !canManageAllMeetings(actor) && !record.authorization.deleted;
-	if (restrictedEdit && !canUseConductor(record, document)) throw new FieldServiceWriteError('FORBIDDEN');
+	if (restrictedEdit && !canUseConductor(record, scope)) throw new FieldServiceWriteError('FORBIDDEN');
 
 	const saved = { ...structuredClone(record), revision };
-	if (index < 0) document.meetings.push(saved);
-	else document.meetings[index] = saved;
+	if (index === undefined) {
+		meetingIndexes.set(record.meeting_uid, document.meetings.length);
+		document.meetings.push(saved);
+	} else {
+		document.meetings[index] = saved;
+	}
 	document.meetings_revision = revision;
 };
 
@@ -128,6 +143,8 @@ export const mergeFieldServiceUpload = (
 	const document = structuredClone(current);
 	const revision = createRevision();
 	mergeScope(document, scope, actor, revision);
-	for (const record of meetings) mergeMeeting(document, record, actor, revision);
+	const meetingIndexes = new Map(document.meetings.map((record, index) => [record.meeting_uid, index]));
+	const scopeIndex = indexSchedulingScope(document.scope);
+	for (const record of meetings) mergeMeeting(document, record, actor, revision, meetingIndexes, scopeIndex);
 	return document;
 };

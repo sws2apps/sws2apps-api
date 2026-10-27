@@ -144,6 +144,15 @@ describe('user backup upload payload validation', () => {
 	});
 
 	for (const { name, upload } of schedulingUploads) {
+		it(`accepts an empty ${name} meeting upload when synchronization is disabled`, async () => {
+			const { user, congregation } = createSchedulingContext();
+			congregation.settings.data_sync.value = false;
+			const result = await upload(user.id, { metadata: {}, field_service_meetings: [] }, {
+				saveBackup: async () => ({ status: 'saved' }),
+				saveMeetings: async () => { throw new Error('Empty meeting write must be skipped'); },
+			});
+			assert.equal(result.status, 'saved');
+		});
 		it(`rejects a ${name} meeting upload if synchronization is disabled while waiting`, async () => {
 			const { user, congregation, meeting } = createSchedulingContext();
 			const initialMetadata = { ...congregation.metadata };

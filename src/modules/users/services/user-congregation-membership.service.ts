@@ -139,7 +139,7 @@ export const removeUserPocketInvitation = async (
 	membership.refreshMembers(congregation);
 };
 
-export const removeUserFromCongregation = async (
+const clearCongregationMembership = async (
 	user: User,
 	congregation?: Congregation,
 	operations: Partial<UserCongregationMembershipOperations> = {},
@@ -162,4 +162,18 @@ export const removeUserFromCongregation = async (
 	await membership.saveDelegatedFieldServiceReports(user, []);
 
 	if (congregation) membership.refreshMembers(congregation);
+};
+
+/** Revoke access before the first persistence await, including overlapping removals. */
+export const removeUserFromCongregation = async (
+	user: User,
+	congregation?: Congregation,
+	operations: Partial<UserCongregationMembershipOperations> = {},
+): Promise<void> => {
+	user.pendingMembershipRemovals++;
+	try {
+		await clearCongregationMembership(user, congregation, operations);
+	} finally {
+		user.pendingMembershipRemovals--;
+	}
 };

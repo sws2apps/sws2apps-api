@@ -15,6 +15,8 @@ export type SchedulingScopeUpload = {
 export type FieldServiceMeetingRecord = {
 	meeting_uid: string;
 	revision?: string;
+	/** Keyed client content identity, stable across encryption retries. */
+	content_hash?: string;
 	authorization: {
 		group_id?: string;
 		category: 0 | 2 | 3;
