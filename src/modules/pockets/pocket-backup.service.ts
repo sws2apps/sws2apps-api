@@ -16,6 +16,8 @@ import {
 	getPublicSchedules,
 	getPublicSources,
 	getUpcomingEvents,
+	getVolunteerActivities,
+	getVolunteerActivityParticipants,
 } from '#modules/congregations/index.js';
 import {
 	UsersList,
@@ -241,6 +243,16 @@ const addPrivateBackupChanges = async (
 	}
 
 	if (!userRoles.includes('publisher')) return;
+
+	if (congregation.metadata.volunteer_activities !== metadata.volunteer_activities) {
+		backup.volunteer_activities = await getVolunteerActivities(congregation.id);
+		backup.metadata.volunteer_activities = congregation.metadata.volunteer_activities;
+	}
+
+	if (congregation.metadata.volunteer_activity_participants !== metadata.volunteer_activity_participants) {
+		backup.volunteer_activity_participants = await getVolunteerActivityParticipants(congregation.id);
+		backup.metadata.volunteer_activity_participants = congregation.metadata.volunteer_activity_participants;
+	}
 
 	if (user.metadata.user_bible_studies !== metadata.user_bible_studies) {
 		backup.user_bible_studies = await getUserStoredBibleStudies(user.id);

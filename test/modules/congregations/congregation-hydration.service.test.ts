@@ -36,6 +36,8 @@ const createDataSource = (ids = ['congregation-1']): CongregationHydrationDataSo
 					public_sources: '',
 					public_schedules: '',
 					upcoming_events: 'upcoming-events-date',
+					volunteer_activities: 'volunteer-activities-date',
+					volunteer_activity_participants: 'volunteer-participants-date',
 				},
 				flags: ['flag-1'],
 				join_requests: [],

@@ -16,6 +16,8 @@ export type CongregationMetadata = {
 	public_sources: string;
 	public_schedules: string;
 	upcoming_events: string;
+	volunteer_activities: string;
+	volunteer_activity_participants: string;
 };
 
 export type CongregationCreateInfoType = {

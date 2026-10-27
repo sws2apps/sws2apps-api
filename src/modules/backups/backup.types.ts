@@ -17,6 +17,8 @@ export type BackupData = {
 	sched: StandardRecord[];
 	sources: StandardRecord[];
 	upcoming_events: StandardRecord[];
+	volunteer_activities?: StandardRecord[];
+	volunteer_activity_participants?: StandardRecord[];
 	user_bible_studies?: StandardRecord[];
 	user_field_service_reports?: StandardRecord[];
 	delegated_field_service_reports?: StandardRecord[];

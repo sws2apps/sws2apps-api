@@ -136,6 +136,10 @@ const saveReportsAndEvents = async (
 		await operations.saveStandardData(congregation, 'upcoming_events', backup.upcoming_events);
 	}
 
+	if (capabilities.adminRole && backup.volunteer_activities) {
+		await operations.saveStandardData(congregation, 'volunteer_activities', backup.volunteer_activities);
+	}
+
 	if (capabilities.publicTalkEditor && backup.outgoing_speakers) {
 		await operations.saveOutgoingSpeakers(congregation, backup.outgoing_speakers);
 	}

@@ -2,6 +2,7 @@ import type { StandardRecord } from '../../../types/standard-record.js';
 import {
 	getFileFromStorage,
 	listFilesFromStorage,
+	readModifyWriteFile,
 	uploadFileToStorage,
 } from '#platform/firebase/storage.js';
 import type {
@@ -34,6 +35,8 @@ const congregationDataPaths = {
 	branchCongAnalysis: 'branch_cong_analysis/main.txt',
 	branchFieldServiceReports: 'branch_field_service_reports/main.txt',
 	upcomingEvents: 'upcoming_events/main.txt',
+	volunteerActivities: 'volunteer_activities/main.txt',
+	volunteerActivityParticipants: 'volunteer_activities/participants.txt',
 } as const;
 
 type CongregationDataKey = keyof typeof congregationDataPaths;
@@ -53,6 +56,8 @@ type CongregationData = {
 	branchCongAnalysis: StandardRecord[];
 	branchFieldServiceReports: StandardRecord[];
 	upcomingEvents: StandardRecord[];
+	volunteerActivities: StandardRecord[];
+	volunteerActivityParticipants: StandardRecord[];
 };
 
 export const getCongregationData = async <Key extends CongregationDataKey>(
@@ -190,4 +195,32 @@ export const setUpcomingEvents = async (id: string, events: StandardRecord[]) =>
 	const data = JSON.stringify(events);
 	const path = `${id}/upcoming_events/main.txt`;
 	await uploadFileToStorage(data, { type: 'congregation', path });
+};
+
+export const setVolunteerActivities = async (id: string, activities: StandardRecord[]) => {
+	const data = JSON.stringify(activities);
+	const path = `${id}/volunteer_activities/main.txt`;
+	await uploadFileToStorage(data, { type: 'congregation', path });
+};
+
+/** Replaces stored participations by `participation_uid` and keeps every other record. */
+export const mergeParticipantRecords = (stored: StandardRecord[], incoming: StandardRecord[]) => {
+	const merged = new Map(stored.map((record) => [String(record.participation_uid), record]));
+
+	for (const record of incoming) {
+		merged.set(String(record.participation_uid), record);
+	}
+
+	return [...merged.values()];
+};
+
+export const mergeVolunteerActivityParticipants = (id: string, participants: StandardRecord[]) => {
+	const path = `${id}/volunteer_activities/participants.txt`;
+
+	return readModifyWriteFile({ type: 'congregation', path }, async (current) => {
+		const stored = current && current.length > 0 ? JSON.parse(current) as StandardRecord[] : [];
+		const merged = mergeParticipantRecords(stored, participants);
+
+		return { data: JSON.stringify(merged), result: undefined };
+	});
 };

@@ -125,6 +125,8 @@ const recordDatasetFields = [
 	'sched',
 	'sources',
 	'upcoming_events',
+	'volunteer_activities',
+	'volunteer_activity_participants',
 	'user_bible_studies',
 	'user_field_service_reports',
 	'delegated_field_service_reports',

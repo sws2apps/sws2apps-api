@@ -3,6 +3,7 @@ import { LogLevel } from '@logtail/types';
 import type { AppRoleType } from '#domain/users/app-role.js';
 import {
 	CongregationsList,
+	saveCongregationVolunteerActivityParticipants,
 	type Congregation,
 } from '#modules/congregations/index.js';
 import {
@@ -23,6 +24,7 @@ export type BackupPersistenceOperations = {
 	saveCongregation: typeof saveCongregationBackup;
 	updatePersonData: typeof updateUserCongregationPersonData;
 	applyUserData: typeof applyUserBackup;
+	saveParticipants: typeof saveCongregationVolunteerActivityParticipants;
 	discardUpload: typeof discardBackupUpload;
 	logError: (message: string) => void;
 };
@@ -33,6 +35,7 @@ const defaultBackupPersistenceOperations: BackupPersistenceOperations = {
 	saveCongregation: saveCongregationBackup,
 	updatePersonData: updateUserCongregationPersonData,
 	applyUserData: applyUserBackup,
+	saveParticipants: saveCongregationVolunteerActivityParticipants,
 	discardUpload: discardBackupUpload,
 	logError: (message) => logger(LogLevel.Error, message),
 };
@@ -54,6 +57,34 @@ const getUserPersonData = (
 	}
 
 	return personData as StandardRecord;
+};
+
+/**
+ * Merges the publisher's own volunteer activity participations into the
+ * congregation list. A participation belongs to the user when its
+ * `participation_uid` ends with their person uid; other records are dropped so
+ * one backup can never overwrite another user's participation.
+ */
+const saveOwnParticipants = async (
+	congregation: Congregation | undefined,
+	user: User,
+	backup: BackupDataWithOptionalMetadata,
+	userRole: AppRoleType[],
+	persistence: BackupPersistenceOperations,
+) => {
+	const localUserId = user.profile.congregation?.user_local_uid;
+
+	if (!congregation?.settings.data_sync.value || !localUserId) return;
+	if (!userRole.includes('publisher') || !backup.volunteer_activity_participants) return;
+
+	const participants = backup.volunteer_activity_participants.filter((record) => {
+		return typeof record.participation_uid === 'string'
+			&& record.participation_uid.endsWith(`_${localUserId}`);
+	});
+
+	if (participants.length === 0) return;
+
+	await persistence.saveParticipants(congregation, participants);
 };
 
 /**
@@ -113,6 +144,7 @@ export const saveUserBackupAsync = async (
 		}
 
 		await persistence.applyUserData(user, congregationBackup, userRole);
+		await saveOwnParticipants(congregation, user, congregationBackup, userRole, persistence);
 	} catch {
 		persistence.logError('congregation backup could not be saved');
 	} finally {
@@ -156,6 +188,10 @@ export const savePocketBackupAsync = async (
 		}
 
 		await persistence.applyUserData(user, congregationBackup, userRole);
+
+		const congregationId = user.profile.congregation?.id;
+		const congregation = congregationId ? persistence.findCongregationById(congregationId) : undefined;
+		await saveOwnParticipants(congregation, user, congregationBackup, userRole, persistence);
 		return { status: 'saved' };
 	} catch {
 		persistence.logError('Pocket backup could not be saved');

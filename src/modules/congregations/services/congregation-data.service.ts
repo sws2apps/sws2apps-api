@@ -8,6 +8,7 @@ import type {
 import {
 	getCongPersons,
 	getCongregationData,
+	mergeVolunteerActivityParticipants,
 	setBranchCongAnalysis,
 	setBranchFieldServiceReports,
 	setCongFieldServiceGroups,
@@ -23,6 +24,7 @@ import {
 	setPublicIncomingTalks,
 	setSpeakersCongregations,
 	setUpcomingEvents,
+	setVolunteerActivities,
 } from '../repositories/congregation-data.repository.js';
 import {
 	getBranchCongAnalysisMetadata,
@@ -38,6 +40,8 @@ import {
 	getSpeakersCongregationsMetadata,
 	getUpcomingEventsMetadata,
 	getVisitingSpeakersMetadata,
+	getVolunteerActivitiesMetadata,
+	getVolunteerActivityParticipantsMetadata,
 } from '../repositories/congregation-metadata.repository.js';
 import { setCongregationSettings } from '../repositories/congregation-settings.repository.js';
 
@@ -95,6 +99,7 @@ const standardDataOperations = {
 	meeting_attendance: [setMeetingAttendance, getMeetingAttendanceMetadata],
 	speakers_congregations: [setSpeakersCongregations, getSpeakersCongregationsMetadata],
 	upcoming_events: [setUpcomingEvents, getUpcomingEventsMetadata],
+	volunteer_activities: [setVolunteerActivities, getVolunteerActivitiesMetadata],
 } as const;
 
 type StandardDataKey = keyof typeof standardDataOperations;
@@ -143,6 +148,18 @@ export const saveCongregationIncomingReports = (congregation: Congregation, repo
 	);
 };
 
+export const saveCongregationVolunteerActivityParticipants = (
+	congregation: Congregation,
+	participants: StandardRecord[],
+) => {
+	return saveCongregationData(
+		congregation,
+		() => mergeVolunteerActivityParticipants(congregation.id, participants),
+		'volunteer_activity_participants',
+		getVolunteerActivityParticipantsMetadata,
+	);
+};
+
 export const saveCongregationPublicIncomingTalks = (
 	congregationId: string,
 	schedules: OutgoingTalkScheduleType[],
@@ -178,3 +195,7 @@ export const getBranchFieldServiceReports = (congregationId: string) =>
 	getCongregationData(congregationId, 'branchFieldServiceReports');
 export const getUpcomingEvents = (congregationId: string) =>
 	getCongregationData(congregationId, 'upcomingEvents');
+export const getVolunteerActivities = (congregationId: string) =>
+	getCongregationData(congregationId, 'volunteerActivities');
+export const getVolunteerActivityParticipants = (congregationId: string) =>
+	getCongregationData(congregationId, 'volunteerActivityParticipants');

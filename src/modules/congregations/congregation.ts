@@ -35,6 +35,8 @@ export class Congregation {
 			speakers_congregations: '',
 			cong_field_service_reports: '',
 			upcoming_events: '',
+			volunteer_activities: '',
+			volunteer_activity_participants: '',
 			incoming_reports: '',
 			public_sources: '',
 			public_schedules: '',
