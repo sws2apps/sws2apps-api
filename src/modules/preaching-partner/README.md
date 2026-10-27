@@ -31,3 +31,16 @@ membership. GET and POST responses echo that identity. This prevents a Pocket co
 changed in another tab from replaying one publisher's local queue as another publisher.
 The client scopes its durable cache and queue by API, congregation, user and publisher,
 retains failed drafts for review, and confirms joins/cancellations only after acceptance.
+
+## Live browser verification
+
+Use the repository-pinned Firebase CLI to run `npm run test:partner-browser` inside
+`emulators:exec` (Firestore, Auth and Storage, project `organized-local`). The fixture
+binds only 127.0.0.1:4081 and refuses non-local Storage. It provides signed sessions
+for the browser's generated test publisher IDs and uses the real partner HTTP routes.
+
+Run the frontend dev server on port 4071 with `VITE_APP_MODE=TEST` and
+`VITE_PARTNER_LIVE=true`, then run the `preaching_partner_live.cy.ts` Cypress spec with
+`--env partnerLive=true --config baseUrl=http://localhost:4071`.
+The spec is opt-in so ordinary demo test runs do not require this fixture API.
+Use a separate Vite cache if running demo and live servers concurrently.
