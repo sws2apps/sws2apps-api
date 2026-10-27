@@ -20,6 +20,7 @@ const congregation = new Congregation('partner-browser-fixture');
 congregation.settings.data_sync.value = true;
 CongregationsList.list = [congregation];
 const app = express();
+app.disable('x-powered-by');
 app.use(cors({ origin: 'http://localhost:4071', credentials: true }), express.json(), cookieParser(env.encryptionKey));
 app.post('/__fixture/:name/:person', param('name').isIn(['alice', 'bob', 'carol']), param('person').isUUID(), validateRequest, (req, res) => {
 	const id = String(req.params.name);
