@@ -1,4 +1,5 @@
 import express from 'express';
+import partnerRoutes from '#modules/preaching-partner/routes.js';
 import cookieParser from 'cookie-parser';
 
 import authRoutes from '#modules/auth/routes.js';
@@ -33,6 +34,7 @@ apiV3Router.use(clientVersionChecker());
 
 apiV3Router.use('/', authRoutes);
 apiV3Router.use('/pockets', pocketRoutes);
+apiV3Router.use('/preaching-partner', partnerRoutes);
 apiV3Router.use('/mfa', mfaRoutes);
 apiV3Router.use('/users', userRoutes);
 apiV3Router.use('/congregations', congregationRoutes);

@@ -15,6 +15,7 @@
 		"test:compile": "rimraf .test-dist && tsc --project test/tsconfig.json",
 		"test": "npm run test:compile && node --conditions=test --test .test-dist/test/**/*.test.js",
 		"test:firebase": "npm run test:compile && cross-env NODE_ENV=test RUN_FIREBASE_EMULATOR_TESTS=true npx --yes firebase-tools@15.29.0 --project=organized-local emulators:exec --only firestore,auth,storage \"npm run test:firebase:compiled\"",
+		"test:partner-browser": "cross-env NODE_ENV=test NODE_OPTIONS=--conditions=development tsx test/fixtures/preaching-partner-browser.ts",
 		"test:firebase:compiled": "node --conditions=test --test .test-dist/test/platform/firebase/*.integration.test.js"
 	},
 	"keywords": [],

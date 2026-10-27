@@ -62,6 +62,264 @@
     }
   ],
   "paths": {
+    "/preaching-partner/congregations/{id}": {
+      "get": {
+        "operationId": "getCongregationsPartnerRequests",
+        "summary": "List congregation partner requests",
+        "tags": [
+          "Preaching partner"
+        ],
+        "security": [
+          {
+            "visitorCookie": [],
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 256,
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Full snapshot for GET; changed records for POST. Revisions are server assigned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "publisher_uid": { "type": "string", "description": "Authenticated linked publisher." },
+                    "cong_access_code": { "type": "string", "description": "The congregation access code exactly as stored (client-encrypted). Clients decrypt it locally to read and seal request details." },
+                    "requests": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PartnerRequest"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (INPUT_INVALID or PARTNER_INVALID)."
+          },
+          "403": {
+            "description": "Session or linked congregation membership is missing, or data sync is disabled."
+          },
+          "409": {
+            "description": "Stale revision, unavailable arrangement, reused operation id, or congregation request limit reached."
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "post": {
+        "operationId": "postCongregationsPartnerRequests",
+        "summary": "Mutate congregation partner requests",
+        "tags": [
+          "Preaching partner"
+        ],
+        "security": [
+          {
+            "visitorCookie": [],
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 256,
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Full snapshot for GET; changed records for POST. Revisions are server assigned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "publisher_uid": { "type": "string", "description": "Authenticated linked publisher." },
+                    "cong_access_code": { "type": "string", "description": "The congregation access code exactly as stored (client-encrypted). Clients decrypt it locally to read and seal request details." },
+                    "requests": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PartnerRequest"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (INPUT_INVALID or PARTNER_INVALID)."
+          },
+          "403": {
+            "description": "Session or linked congregation membership is missing, or data sync is disabled."
+          },
+          "409": {
+            "description": "Stale revision, unavailable arrangement, reused operation id, or congregation request limit reached."
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartnerMutation"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/preaching-partner/pockets/{id}": {
+      "get": {
+        "operationId": "getPocketsPartnerRequests",
+        "summary": "List congregation partner requests",
+        "tags": [
+          "Preaching partner"
+        ],
+        "security": [
+          {
+            "visitorCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 256,
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Full snapshot for GET; changed records for POST. Revisions are server assigned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "publisher_uid": { "type": "string", "description": "Authenticated linked publisher." },
+                    "cong_access_code": { "type": "string", "description": "The congregation access code exactly as stored (client-encrypted). Clients decrypt it locally to read and seal request details." },
+                    "requests": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PartnerRequest"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (INPUT_INVALID or PARTNER_INVALID)."
+          },
+          "403": {
+            "description": "Session or linked congregation membership is missing, or data sync is disabled."
+          },
+          "409": {
+            "description": "Stale revision, unavailable arrangement, reused operation id, or congregation request limit reached."
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "post": {
+        "operationId": "postPocketsPartnerRequests",
+        "summary": "Mutate congregation partner requests",
+        "tags": [
+          "Preaching partner"
+        ],
+        "security": [
+          {
+            "visitorCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 256,
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Full snapshot for GET; changed records for POST. Revisions are server assigned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "publisher_uid": { "type": "string", "description": "Authenticated linked publisher." },
+                    "cong_access_code": { "type": "string", "description": "The congregation access code exactly as stored (client-encrypted). Clients decrypt it locally to read and seal request details." },
+                    "requests": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PartnerRequest"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (INPUT_INVALID or PARTNER_INVALID)."
+          },
+          "403": {
+            "description": "Session or linked congregation membership is missing, or data sync is disabled."
+          },
+          "409": {
+            "description": "Stale revision, unavailable arrangement, reused operation id, or congregation request limit reached."
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartnerMutation"
+              }
+            }
+          }
+        }
+      }
+    },
     "/public/stats": {
       "get": {
         "operationId": "getPublicStats",
@@ -3094,6 +3352,119 @@
       }
     },
     "schemas": {
+      "PartnerRequest": {
+        "type": "object",
+        "required": [
+          "request_uid",
+          "request_data"
+        ],
+        "properties": {
+          "request_uid": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_data": {
+            "type": "object",
+            "required": [
+              "date",
+              "flexible",
+              "type",
+              "comment",
+              "updatedAt"
+            ],
+            "properties": {
+              "person_uid": {
+                "type": "string",
+                "description": "Assigned by the server from the authenticated membership."
+              },
+              "date": {
+                "type": "string",
+                "pattern": "^\\d{4}/\\d{2}/\\d{2}$"
+              },
+              "flexible": {
+                "type": "string",
+                "maxLength": 256,
+                "pattern": "^U2FsdGVkX1[A-Za-z0-9+/]*={0,2}$",
+                "description": "Client-encrypted with the congregation access code. The API never reads it."
+              },
+              "start": {
+                "type": "string",
+                "maxLength": 256,
+                "pattern": "^U2FsdGVkX1[A-Za-z0-9+/]*={0,2}$"
+              },
+              "end": {
+                "type": "string",
+                "maxLength": 256,
+                "pattern": "^U2FsdGVkX1[A-Za-z0-9+/]*={0,2}$"
+              },
+              "type": {
+                "type": "string",
+                "maxLength": 256,
+                "pattern": "^U2FsdGVkX1[A-Za-z0-9+/]*={0,2}$"
+              },
+              "comment": {
+                "type": "string",
+                "maxLength": 48000,
+                "pattern": "^U2FsdGVkX1[A-Za-z0-9+/]*={0,2}$"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "_deleted": {
+                "type": "boolean"
+              },
+              "partner_uid": {
+                "type": "string",
+                "readOnly": true
+              },
+              "arranged_at": {
+                "type": "string",
+                "format": "date-time",
+                "readOnly": true
+              }
+            }
+          }
+        }
+      },
+      "PartnerMutation": {
+        "type": "object",
+        "required": [
+          "publisher_uid",
+          "operationId",
+          "action",
+          "request"
+        ],
+        "properties": {
+          "publisher_uid": { "type": "string", "maxLength": 256, "description": "Expected publisher identity. Must match the authenticated session." },
+          "operationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Reuse unchanged for retries. Reusing with a different payload returns 409. The last 2000 congregation operations are retained."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "create",
+              "edit",
+              "join",
+              "cancel",
+              "delete"
+            ]
+          },
+          "request": {
+            "$ref": "#/components/schemas/PartnerRequest"
+          },
+          "withdrawRequestIds": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
       "AdministrationResult": {
         "description": "The current administration projection returned by the operation.",
         "oneOf": [
