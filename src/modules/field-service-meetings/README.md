@@ -11,6 +11,11 @@ They can edit only regular meetings for their assigned groups and must select an
 eligible conductor from that group. The broad scheduling toggle cannot manage scopes
 or obtain a congregation master key.
 
+Recurring group meeting times in congregation settings follow the same rights:
+all-group schedulers may change every row, and group schedulers only the rows of
+groups the stored scope assigns to them. Other settings in the same upload still
+require the existing settings-editor roles.
+
 Clients automatically derive the scope from group responsibilities and conductor
 qualifications. Only the scope's opaque IDs and the meeting's authorization envelope
 are server-readable. Meeting details remain encrypted with the congregation access

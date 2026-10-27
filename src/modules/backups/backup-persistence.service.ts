@@ -91,7 +91,13 @@ export const saveUserBackupAsync = async (
 		const adminRole = currentRoles.some((role) => ['admin', 'coordinator', 'secretary'].includes(role));
 		const scheduleEditor = currentRoles.some((role) => ['midweek_schedule', 'weekend_schedule', 'public_talk_schedule'].includes(role));
 
-		await persistence.saveCongregation(congregation, congregationBackup, currentRoles);
+		await persistence.saveCongregation(
+			congregation,
+			congregationBackup,
+			currentRoles,
+			undefined,
+			user.profile.congregation.user_local_uid,
+		);
 
 		const personData = getUserPersonData(congregationBackup, user);
 

@@ -16,6 +16,7 @@ import {
 	type User,
 	type UserProfile,
 } from '#modules/users/index.js';
+import { getManagedFieldServiceGroupIds } from '#modules/field-service-meetings/index.js';
 import type { BackupDataWithOptionalMetadata } from './backup.types.js';
 import { mergeIncomingData } from './incoming-data-merge.js';
 
@@ -28,6 +29,7 @@ export type CongregationBackupOperations = {
 	saveIncomingReports: typeof saveCongregationIncomingReports;
 	findUserById: (userId: string) => User | undefined;
 	updateProfile: (user: User, profile: UserProfile) => Promise<void>;
+	getManagedGroupIds: typeof getManagedFieldServiceGroupIds;
 };
 
 const defaultCongregationBackupOperations: CongregationBackupOperations = {
@@ -39,6 +41,7 @@ const defaultCongregationBackupOperations: CongregationBackupOperations = {
 	saveIncomingReports: saveCongregationIncomingReports,
 	findUserById: (userId) => UsersList.findById(userId),
 	updateProfile: updateUserProfile,
+	getManagedGroupIds: getManagedFieldServiceGroupIds,
 };
 
 const savePeopleAndSpeakers = async (
@@ -159,6 +162,23 @@ const mergeFieldServiceTimes = (
 	return [...rows.values()];
 };
 
+type RecurringTimes = NonNullable<CongSettingsType['field_service_meeting_times']>;
+
+/** Recurring times follow meeting scheduling rights: all groups, or only the groups a scheduler manages. */
+const authorizedRecurringTimes = async (
+	congregation: Congregation,
+	incoming: RecurringTimes | undefined,
+	capabilities: ReturnType<typeof getUserCapabilities>,
+	personUid: string | undefined,
+	operations: CongregationBackupOperations,
+): Promise<RecurringTimes> => {
+	if (!incoming?.length) return [];
+	if (capabilities.fieldServiceAllGroups) return incoming;
+	if (!capabilities.fieldServiceScheduler || !personUid) return [];
+	const managed = await operations.getManagedGroupIds(congregation.id, personUid);
+	return incoming.filter((row) => managed.has(row.type));
+};
+
 /**
  * Restores congregation data according to the caller's capabilities and the
  * congregation's data-sync setting. Server-owned access credentials are
@@ -169,19 +189,29 @@ export const saveCongregationBackup = async (
 	backup: BackupDataWithOptionalMetadata,
 	userRoles: AppRoleType[],
 	operations: CongregationBackupOperations = defaultCongregationBackupOperations,
+	personUid?: string,
 ): Promise<void> => {
 	const capabilities = getUserCapabilities(userRoles);
+	const incomingSettings = backup.app_settings?.cong_settings
+		? structuredClone(backup.app_settings.cong_settings)
+		: undefined;
+	const recurringTimes = await authorizedRecurringTimes(
+		congregation,
+		incomingSettings?.field_service_meeting_times,
+		capabilities,
+		personUid,
+		operations,
+	);
 
-	if (capabilities.scheduleEditor && backup.app_settings?.cong_settings) {
-		const incomingSettings = structuredClone(backup.app_settings.cong_settings);
-		incomingSettings.cong_access_code = congregation.settings.cong_access_code;
-		incomingSettings.cong_master_key = congregation.settings.cong_master_key;
-		const recurringTimes = incomingSettings.field_service_meeting_times;
-		delete incomingSettings.field_service_meeting_times;
-
+	if (incomingSettings && (capabilities.scheduleEditor || recurringTimes.length > 0)) {
 		const settings = structuredClone(congregation.settings);
-		mergeIncomingData(settings, incomingSettings);
-		if (capabilities.adminRole && recurringTimes) {
+		if (capabilities.scheduleEditor) {
+			incomingSettings.cong_access_code = congregation.settings.cong_access_code;
+			incomingSettings.cong_master_key = congregation.settings.cong_master_key;
+			delete incomingSettings.field_service_meeting_times;
+			mergeIncomingData(settings, incomingSettings);
+		}
+		if (recurringTimes.length > 0) {
 			settings.field_service_meeting_times = mergeFieldServiceTimes(settings.field_service_meeting_times, recurringTimes);
 		}
 		await operations.saveSettings(congregation, settings);

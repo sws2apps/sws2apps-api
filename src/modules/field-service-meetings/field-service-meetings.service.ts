@@ -18,6 +18,15 @@ export const getFieldServiceMeetings = async (
 	return (await getFieldServiceDocument(congregationId)).meetings;
 };
 
+/** Groups whose meetings this person may schedule under the stored, administrator-maintained scope. */
+export const getManagedFieldServiceGroupIds = async (
+	congregationId: string,
+	personUid: string,
+): Promise<Set<string>> => {
+	const { scope } = await getFieldServiceDocument(congregationId);
+	return new Set(scope.filter((group) => group.manager_uids.includes(personUid)).map((group) => group.group_id));
+};
+
 export type FieldServiceMeetingWriteOperations = {
 	updateDocument: typeof updateFieldServiceDocument;
 };
