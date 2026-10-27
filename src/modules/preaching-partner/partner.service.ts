@@ -17,16 +17,18 @@ export const resolvePartnerContext = (userId: string, congregationId: string) =>
 
 export const createPartnerService = (repository = partnerRepository, resolveContext = resolvePartnerContext) => ({
 	list: async (userId: string, congregationId: string) => {
-		resolveContext(userId, congregationId);
-		return (await repository.read(congregationId)).requests;
+		const { actor } = resolveContext(userId, congregationId);
+		return { publisher_uid: actor, requests: (await repository.read(congregationId)).requests };
 	},
 	mutate: async (userId: string, congregationId: string, mutation: PartnerMutation) => {
 		const { actor } = resolveContext(userId, congregationId);
-		return repository.mutate(congregationId, (state) => {
+		if (mutation.publisher_uid !== actor) throw new PartnerError('PARTNER_FORBIDDEN', 403);
+		const requests = await repository.mutate(congregationId, (state) => {
 			if (resolveContext(userId, congregationId).actor !== actor) throw new PartnerError('PARTNER_FORBIDDEN', 403);
 			const { state: updated, changes } = applyPartnerMutation(state, mutation, actor);
 			return { state: updated, result: changes };
 		});
+		return { publisher_uid: actor, requests };
 	},
 });
 

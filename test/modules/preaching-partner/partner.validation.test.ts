@@ -8,7 +8,7 @@ import { validateRequest } from '#http/validation-errors.js';
 const app = express();
 app.use(express.json());
 app.post('/:id', partnerResourceValidation, partnerMutationValidation, validateRequest, (_req: Request, res: Response) => { res.sendStatus(204); });
-const payload = () => ({ operationId: crypto.randomUUID(), action: 'create', request: { request_uid: crypto.randomUUID(), request_data: { date: '2030/01/02', updatedAt: new Date().toISOString(), flexible: true, type: 0, comment: '' } } });
+const payload = () => ({ publisher_uid: 'actor', operationId: crypto.randomUUID(), action: 'create', request: { request_uid: crypto.randomUUID(), request_data: { date: '2030/01/02', updatedAt: new Date().toISOString(), flexible: true, type: 0, comment: '' } } });
 
 test('accepts the documented partner request envelope', async () => {
 	assert.equal((await request(app).post('/congregation').send(payload())).status, 204);

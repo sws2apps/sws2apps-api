@@ -5,7 +5,7 @@ import { PartnerError, type PartnerMutation } from './partner.types.js';
 
 const respond = async (res: Response, next: NextFunction, action: () => Promise<unknown>) => {
 	try {
-		sendSuccess(res, { requests: await action() }, 'partner request operation completed');
+		sendSuccess(res, await action(), 'partner request operation completed');
 	} catch (error) {
 		if (error instanceof PartnerError) sendClientError(res, error.status, error.code, 'partner request operation rejected');
 		else next(error);

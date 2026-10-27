@@ -6,7 +6,7 @@ import type { PartnerMutation, PartnerRequest, PartnerState } from '#modules/pre
 const now = '2030-01-01T12:00:00.000Z';
 const request = (id = 'one', owner = 'owner'): PartnerRequest => ({ request_uid: id, request_data: { person_uid: owner, date: '2030/01/02', flexible: true, type: 0, comment: ' hello ', updatedAt: now, _deleted: false } });
 const state = (requests: PartnerRequest[] = []): PartnerState => ({ requests, receipts: [] });
-const mutation = (action: PartnerMutation['action'], record = request()): PartnerMutation => ({ operationId: 'operation', action, request: record });
+const mutation = (action: PartnerMutation['action'], record = request()): PartnerMutation => ({ publisher_uid: 'actor', operationId: 'operation', action, request: record });
 
 test('create derives ownership from authenticated actor and ignores injected arrangement fields', () => {
 	const input = request(); input.request_data.partner_uid = 'injected';

@@ -95,6 +95,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "publisher_uid": { "type": "string", "description": "Authenticated linked publisher." },
                     "requests": {
                       "type": "array",
                       "items": {
@@ -152,6 +153,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "publisher_uid": { "type": "string", "description": "Authenticated linked publisher." },
                     "requests": {
                       "type": "array",
                       "items": {
@@ -220,6 +222,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "publisher_uid": { "type": "string", "description": "Authenticated linked publisher." },
                     "requests": {
                       "type": "array",
                       "items": {
@@ -276,6 +279,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "publisher_uid": { "type": "string", "description": "Authenticated linked publisher." },
                     "requests": {
                       "type": "array",
                       "items": {
@@ -3416,11 +3420,13 @@
       "PartnerMutation": {
         "type": "object",
         "required": [
+          "publisher_uid",
           "operationId",
           "action",
           "request"
         ],
         "properties": {
+          "publisher_uid": { "type": "string", "maxLength": 256, "description": "Expected publisher identity. Must match the authenticated session." },
           "operationId": {
             "type": "string",
             "format": "uuid",

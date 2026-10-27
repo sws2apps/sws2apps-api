@@ -25,3 +25,9 @@ provide a separate client end-to-end encryption protocol.
 Deployment must precede client enablement. Local pending edits must retain operation
 IDs and original server revisions. A client must only report an arrangement confirmed
 after a successful server response; offline browsing must not imply reservation.
+
+Every mutation carries the expected `publisher_uid`; it must match the authenticated
+membership. GET and POST responses echo that identity. This prevents a Pocket cookie
+changed in another tab from replaying one publisher's local queue as another publisher.
+The client scopes its durable cache and queue by API, congregation, user and publisher,
+retains failed drafts for review, and confirms joins/cancellations only after acceptance.

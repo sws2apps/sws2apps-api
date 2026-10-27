@@ -4,6 +4,7 @@ import { REQUEST_LIMITS } from '#http/request-limits.js';
 export const partnerResourceValidation = [param('id').isString().matches(/^[a-zA-Z0-9_-]+$/).isLength({ max: REQUEST_LIMITS.identifier })];
 export const partnerMutationValidation = [
 	body('operationId').isUUID(),
+	body('publisher_uid').isString().notEmpty().isLength({ max: REQUEST_LIMITS.identifier }),
 	body('action').isIn(['create', 'edit', 'join', 'cancel', 'delete']),
 	body('request').isObject(),
 	body('request.request_uid').isUUID(),

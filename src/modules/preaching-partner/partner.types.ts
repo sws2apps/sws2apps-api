@@ -16,6 +16,7 @@ export type PartnerRequest = {
 };
 
 export type PartnerMutation = {
+	publisher_uid: string;
 	operationId: string;
 	action: 'create' | 'edit' | 'join' | 'cancel' | 'delete';
 	request: PartnerRequest;
